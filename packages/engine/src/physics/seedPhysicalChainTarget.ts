@@ -14,7 +14,8 @@ import { physicalJointPoint } from "./physicalJointPoint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * Seed a straight-chain singularity with the shared triangle solver, through bounded coordinates only.
+ * Seed a straight-chain singularity with the shared triangle solver, through
+ * bounded coordinates only.
  */
 export function seedPhysicalChainTarget(
   input: IAutoMovieSeedPhysicalChainTarget.IInput,
@@ -151,7 +152,10 @@ export function seedPhysicalChainTarget(
     return physicalJointPoint(input.profile, bone, input.targets);
   }
 
-  /** Project the analytic orientation through only the declared bounded motor axes. */
+  /**
+   * Project the analytic orientation through only the declared bounded motor
+   * axes.
+   */
   function fit(
     bone: string,
     world: IAutoMovieRigidTransform["rotation"],

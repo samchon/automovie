@@ -11,21 +11,20 @@ import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
  * Measure the volume a sweep encloses between its end sections.
  *
  * A planar section of area `A(u)` moving with spine point `C(u)` and plane
- * normal `N(u)` sweeps `dV = A(u) <N(u), C'(u)> du` when the section is
- * centred on the spine (Hyun et al. 2005, The Visual Computer 21(8-10):542-550,
- * Section 3.1). A section of this engine may lie off-centre, so the flux of
- * every section point's velocity through the plane is integrated instead:
- * with plane axes `X`, `Y`, a point `C + x X + y Y` moves along `N` at
- * `<C', N> + x <X', N> + y <Y', N>`, which integrates over the section to
- * `A <C', N> + M_x <X', N> + M_y <Y', N>` with the first moments
- * `M_x = (1/3) integral r^3 cos a da` and `M_y = (1/3) integral r^3 sin a da`,
- * and reduces to the published formula when both moments vanish. The area
- * is `(1/2) integral r^2 da`. The integrals use the midpoint rule, 400 steps
- * along the spine and 256 directions round it, with every derivative a
- * difference over its step: `momentAutoMovieSweepSections` integrates the
- * sections before the scale profile and `integrateAutoMovieSweepVolume` sums
- * the flux with the scale and frames, the same two steps a posed sweep's
- * volume preservation runs.
+ * normal `N(u)` sweeps `dV = A(u) <N(u), C'(u)> du` when the section is centred
+ * on the spine (Hyun et al. 2005, The Visual Computer 21(8-10):542-550, Section
+ * 3.1). A section of this engine may lie off-centre, so the flux of every
+ * section point's velocity through the plane is integrated instead: with plane
+ * axes `X`, `Y`, a point `C + x X + y Y` moves along `N` at `<C', N> + x <X',
+ * N> + y <Y', N>`, which integrates over the section to `A <C', N> + M_x <X',
+ * N> + M_y <Y', N>` with the first moments `M_x = (1/3) integral r^3 cos a da`
+ * and `M_y = (1/3) integral r^3 sin a da`, and reduces to the published formula
+ * when both moments vanish. The area is `(1/2) integral r^2 da`. The integrals
+ * use the midpoint rule, 400 steps along the spine and 256 directions round it,
+ * with every derivative a difference over its step:
+ * `momentAutoMovieSweepSections` integrates the sections before the scale
+ * profile and `integrateAutoMovieSweepVolume` sums the flux with the scale and
+ * frames, the same two steps a posed sweep's volume preservation runs.
  *
  * The formula counts a region twice where neighbouring sections cross, as on
  * the inside of a tight bend, so it measures the sweep's own volume only while

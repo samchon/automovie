@@ -1,21 +1,3 @@
-# src/weapons/LongGunLock.ts#LongGunLock
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what each mechanism adds, how the gun lies and where the unread places are.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each mechanism as the parts a hand works and the articulations that move them, the hinges about the axes they turn on and the sliders along the bore.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The contacts #3488's drill, cycling and loading rows bind to: `cock`, `frizzen`, `pan`, `ramrod`, `pipe`, `muzzle` and `bayonet`; `bolt`, `boltSlide` and `magazine`; `lever` and `hammer`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every unread place is a named estimate here, never a bare number in a builder.
-
 # src/weapons/LongGunLock.ts#LongGunLock.swell
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -25,9 +25,7 @@ interface ICount {
   occupancy: Uint8Array;
 }
 
-/**
- * Count membership after the same box reduction as the Draw picture.
- */
+/** Count membership after the same box reduction as the Draw picture. */
 export function countAutoMovieCameraOcclusionPixels(
   props: IProps,
 ): ICount | undefined {
@@ -35,13 +33,10 @@ export function countAutoMovieCameraOcclusionPixels(
   const byteCount: number = 4 * sampleWidth * sampleHeight;
   if (
     (factor !== 1 && factor !== 2) ||
-    !Number.isSafeInteger(sampleWidth) ||
-    !Number.isSafeInteger(sampleHeight) ||
     sampleWidth < 1 ||
     sampleHeight < 1 ||
     sampleWidth % factor !== 0 ||
     sampleHeight % factor !== 0 ||
-    !Number.isSafeInteger(byteCount) ||
     bytes.length !== byteCount
   )
     return undefined;

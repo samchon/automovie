@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Closed preallocation admission, once-per-image Harris observation and bidirectional ratio-qualified index tracks establish tentative appearance evidence. Existing complete pair qualification, pointwise triangulation, distinct existing-map resection and gauge-correct same-population joint refinement independently qualify only conditional sparse geometry.
+The preallocation pixel budget, once-per-image Harris observation and bidirectional ratio-qualified index tracks establish tentative appearance evidence. Existing complete pair qualification, pointwise triangulation, distinct existing-map resection and gauge-correct same-population joint refinement independently qualify only conditional sparse geometry.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

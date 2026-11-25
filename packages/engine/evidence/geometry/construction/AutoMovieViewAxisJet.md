@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewAxisJet.ts#AutoMovieViewAxisJet
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States derivative units, actual-source ownership and singular absence at the axis API.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Analytic derivatives of an axis's own frame in station or a selected coordinate: companion namespace of 3 members (`IJet`, `fixed`, `parameter`); units and frames named in its text: frame, second, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewAxisJet` in packages/engine/src/geometry/construction/AutoMovieViewAxisJet.ts; its surface is the 3 members listed and the text shows 7 other files naming it, mostly packages/engine (6), packages/human (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewAxisJet.ts#AutoMovieViewAxisJet.fixed
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -7,18 +7,13 @@ import { HumanHand } from "../posture/HumanHand";
 
 /**
  * The parachute jump's key poses, as whole-body tilt and joint angles in
- * degrees (`[flexion, abduction, twist]`), all provisional: the
- * belly-to-earth arch with the hips pressed forward, the limbs spread and
- * bent and the head up, as the USPA Skydiver's Information Manual teaches
- * it; the upright hang under the canopy with the hands up on the toggles;
- * hands a riser's width apart; the flare with both toggles pulled down and the feet and knees together;
- * and the parachute landing fall's keys from the feet to the side of the
- * back, as US Army FM 3-21.220 orders its five points of contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each pose, its source and the angle convention.
- * @evidence contracts/development/design.md#principled-representation Named poses and the landing fall's keys with their hips heights.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The poses planSkydive blends.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every angle is marked provisional.
+ * degrees (`[flexion, abduction, twist]`), all provisional: the belly-to-earth
+ * arch with the hips pressed forward, the limbs spread and bent and the head
+ * up, as the USPA Skydiver's Information Manual teaches it; the upright hang
+ * under the canopy with the hands up on the toggles; hands a riser's width
+ * apart; the flare with both toggles pulled down and the feet and knees
+ * together; and the parachute landing fall's keys from the feet to the side of
+ * the back, as US Army FM 3-21.220 orders its five points of contact.
  */
 export namespace skydivePoses {
   /** The belly-to-earth arch. */
@@ -39,7 +34,10 @@ export namespace skydivePoses {
     neck: 0,
   });
 
-  /** The arms spread out level at the deployment's snatch, on their way from the arch up to the risers: the hands pass wide of the head. */
+  /**
+   * The arms spread out level at the deployment's snatch, on their way from the
+   * arch up to the risers: the hands pass wide of the head.
+   */
   export const SPREAD: IAutoMovieMotionHumanLieDown.IPose = pose(45, 0, {
     leg: [0, 15, 0],
     knee: 30,
@@ -57,14 +55,7 @@ export namespace skydivePoses {
     neck: 0,
   });
 
-  /**
-   * One key of the parachute landing fall.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The key's share of the fall and its pose, which rests its lowest point on the ground.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the landing blends.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Provisional and stated as such.
-   */
+  /** One key of the parachute landing fall. */
   export interface IKey {
     /** Share of the landing fall. */
     at: number;
@@ -73,7 +64,10 @@ export namespace skydivePoses {
     pose: IAutoMovieMotionHumanLieDown.IPose;
   }
 
-  /** The landing fall's keys after the flare: the calf, the thigh, the buttock and the push-up muscle; the lying side ends it. */
+  /**
+   * The landing fall's keys after the flare: the calf, the thigh, the buttock
+   * and the push-up muscle; the lying side ends it.
+   */
   export const PLF: readonly IKey[] = [
     {
       at: 0.2,
@@ -124,14 +118,6 @@ export namespace skydivePoses {
    * @param yaw The heading, degrees.
    * @param mirror Whether to roll to the right instead of the left.
    * @returns The posture, its root at the origin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the mirror.
-   * @evidence contracts/development/implementation.md#principled-implementation The pose's tilt and joints with the roll negated for the right side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The joints are the pose's, not mirrored side for side.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
     position: IAutoMovieMotionHumanLieDown.IPose,

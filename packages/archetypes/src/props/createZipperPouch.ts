@@ -15,9 +15,9 @@ import {
  * The built example uses the Kokka lined zipper pouch's 21 cm opening, 12 cm
  * height, 10 cm gusset and nominal 20 cm zipper
  * (https://kokka-fabric.com/en/wp-content/uploads/sites/2/2024/11/CS583_Zipper_Pouch_E.pdf).
- * The model sets its own inward stop allowances. Four short pairs of lips
- * swing clear independently, behind the moving tab. This approximates a
- * flexible pouch mouth with rigid pieces.
+ * The model sets its own inward stop allowances. Four short pairs of lips swing
+ * clear independently, behind the moving tab. This approximates a flexible
+ * pouch mouth with rigid pieces.
  *
  * @param params The model id, supplied as an option or as a positional string.
  * @returns A closed pouch with tab, brace, stops and lip articulation.
@@ -157,7 +157,7 @@ export function createZipperPouch(
             [cleared, 0],
             [opened, openAngle],
             ...(opened < travel
-              ? [[travel, openAngle] as [number, number]]
+              ? ([[travel, openAngle]] satisfies [number, number][])
               : []),
           ],
         },

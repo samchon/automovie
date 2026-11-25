@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionInterval.ts#AutoMovieMotionInterval
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Owns the exact clamped linear rule and prepared uniform/minimum-jerk readers at action-local seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each interval is the two seconds its clock resolves from names; the original 1e-12-second step branch and engine minimum-jerk profile define its progress.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The clock's ordinary linear reader and prepared consumers share one numeric interval owner; no phase or action vocabulary is added.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No sampled-time cache, altered span, clamped authored instant or new tolerance is introduced.
-
 # src/compose/AutoMovieMotionInterval.ts#AutoMovieMotionInterval.linear
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -21,29 +21,21 @@ type Target = IAutoMoviePhysicalSimulationInput.ITarget;
 export function preparePhysicalCoupledTargetSchedule(
   input: IAutoMoviePhysicalSimulationInput.IInput,
 ): IPhysicalCoupledTargetSchedule | undefined {
-  const end: number = input.duration * input.rate;
+  const end: number = Math.round(input.duration * input.rate);
   let steps: Map<number, Map<string, Body[]>> | undefined;
   for (const body of input.bodies)
     for (const [step, target] of body.targets.entries()) {
-      const label: unknown = target.coupledGroup;
+      const label: string | undefined = target.coupledGroup;
       if (label === undefined) continue;
-      if (
-        typeof label !== "string" ||
-        label.trim().length === 0 ||
-        !Number.isSafeInteger(end) ||
-        !Number.isSafeInteger(input.maximumSteps) ||
-        step < 1 ||
-        step > end ||
-        step > input.maximumSteps
-      )
+      if (step < 1 || step > end || step > input.maximumSteps)
         throw new AutoMoviePhysicalCoupledTargetError({
           step,
-          group: typeof label === "string" ? label : "",
+          group: label,
           members: [body.id],
           kind: "refused",
           reason: "declaration",
           detail:
-            "Expected a nonblank group id on a positive admitted output step.",
+            "Expected a coupled group on a positive admitted output step.",
         });
       if (body.mode.kind !== "kinematic" && target.strength === 0)
         throw new AutoMoviePhysicalCoupledTargetError({
@@ -185,10 +177,10 @@ function admitGroup(
 
 /**
  * Name a member policy the shared fit cannot honour for the whole interval.
- * Native tracking writes balance and support plans during each body's own
- * turn, so a group fit on an earlier member's turn would miss a later
- * member's plans and depend on body order. A contact-triggered release would
- * withdraw a member in the middle of the group.
+ * Native tracking writes balance and support plans during each body's own turn,
+ * so a group fit on an earlier member's turn would miss a later member's plans
+ * and depend on body order. A contact-triggered release would withdraw a member
+ * in the middle of the group.
  */
 function unsupportedMember(body: Body, target: Target): string | undefined {
   if (body.releaseOnContact !== undefined)

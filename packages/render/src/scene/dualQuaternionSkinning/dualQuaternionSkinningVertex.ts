@@ -3,16 +3,16 @@
  * skinning, the formula `skinAutoMovieMesh` evaluates in the engine.
  *
  * Three's bone matrix for joint `j` is `G P_j R_j^-1`, with `G` the model's
- * world placement at draw time, and its attached bind gives
- * `bindMatrixInverse = (G T)^-1` for the part transform `T`. The shader
- * therefore blends `K_j = bindMatrixInverse * boneMatrix_j * bindMatrix =
- * T^-1 P_j R_j^-1 T`, which cancels `G` and stays rigid for a rigid or
- * uniformly scaled `T`. Each `K_j` becomes a unit dual quaternion through
- * Shepperd's matrix-to-quaternion method; the four are aligned to the hemisphere
- * of the largest weight (the lowest slot on a tie), summed by weight, divided by
- * the length of the rotation part and applied to the morphed position. Normals
- * and tangents turn by the blended rotation alone. The result is already in the
- * part's frame, so no `bindMatrixInverse` follows.
+ * world placement at draw time, and its attached bind gives `bindMatrixInverse
+ * = (G T)^-1` for the part transform `T`. The shader therefore blends `K_j =
+ * bindMatrixInverse * boneMatrix_j * bindMatrix = T^-1 P_j R_j^-1 T`, which
+ * cancels `G` and stays rigid for a rigid or uniformly scaled `T`. Each `K_j`
+ * becomes a unit dual quaternion through Shepperd's matrix-to-quaternion
+ * method; the four are aligned to the hemisphere of the largest weight (the
+ * lowest slot on a tie), summed by weight, divided by the length of the
+ * rotation part and applied to the morphed position. Normals and tangents turn
+ * by the blended rotation alone. The result is already in the part's frame, so
+ * no `bindMatrixInverse` follows.
  *
  * The blend is computed once after `skinbase_vertex` and read by the normal and
  * position chunks, so depth and distance shaders, which skip the normal chunk,

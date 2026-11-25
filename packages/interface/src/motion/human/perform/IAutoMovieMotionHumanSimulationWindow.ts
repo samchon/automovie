@@ -1,13 +1,13 @@
 /**
- * A span of a performance whose bodies the physics engine solves instead of
- * the kinematic laws (`HumanPerformance.simulate`): local in time, and in
- * the bodies and parts it names.
+ * A span of a performance whose bodies the physics engine solves instead of the
+ * kinematic laws (`HumanPerformance.simulate`): local in time, and in the
+ * bodies and parts it names.
  *
- * The window starts at `from` and ends at the 120 Hz grid instant nearest
- * `to`. Inside it the bodies of `subjects` are one simulated world. A body
- * stays kinematic except where an impulse, a grip on another simulated body
- * or a fall makes it physical. A body named in `released` gives up tracking
- * from the window's start, as a body knocked out or thrown in the air does.
+ * The window starts at `from` and ends at the 120 Hz grid instant nearest `to`.
+ * Inside it the bodies of `subjects` are one simulated world. A body stays
+ * kinematic except where an impulse, a grip on another simulated body or a fall
+ * makes it physical. A body named in `released` gives up tracking from the
+ * window's start, as a body knocked out or thrown in the air does.
  */
 export interface IAutoMovieMotionHumanSimulationWindow {
   /** First film second of the window, its frame zero. */
@@ -19,6 +19,9 @@ export interface IAutoMovieMotionHumanSimulationWindow {
   /** The performers the solver takes; every performer when absent. */
   subjects?: string[];
 
-  /** Performers whose tracking is withdrawn from the window's start; none when absent. */
+  /**
+   * Performers whose tracking is withdrawn from the window's start; none when
+   * absent.
+   */
   released?: string[];
 }

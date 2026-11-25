@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieParameterizeSweepSection.ts#IAutoMovieParameterizeSweepSection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A wrapped unit curve parameter yields section-plane metre points and an integer equal-span count. Curve phase is distinct from polar angle and arclength; radial sections are unsupported and retained source coefficients must remain stable.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A wrapped unit curve parameter yields section-plane metre points and an integer equal-span count.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-parameterizeAutoMovieSweepSection compiles the section evaluator consumed by radial inversion and direct parameter sampling.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Curve phase is distinct from polar angle and arclength; radial sections are unsupported and retained source coefficients must remain stable.
-
 # src/geometry/sweep/IAutoMovieParameterizeSweepSection.ts#IAutoMovieParameterizeSweepSection.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

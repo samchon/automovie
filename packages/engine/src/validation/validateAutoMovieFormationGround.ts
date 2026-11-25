@@ -20,32 +20,35 @@ import {
 } from "../index";
 import { engineDiagnostic } from "./engineDiagnostic";
 
-/** Target travel resolution in metres, subject to the capped step count and cue reach/easing estimation limits. */
+/**
+ * Target travel resolution in metres, subject to the capped step count and cue
+ * reach/easing estimation limits.
+ */
 const FORMATION_GROUND_SAMPLE_METRES: number = 0.5;
 
-/** Sixteen fixed XZ directions choose actual support members; unsampled members/extrema can still leave the ground. */
+/**
+ * Sixteen fixed XZ directions choose actual support members; unsampled
+ * members/extrema can still leave the ground.
+ */
 const FORMATION_GROUND_SUPPORT_DIRECTIONS: number = 16;
-
-/** Memoize member selection only while placement data stays unchanged; a live weak key may retain rows beyond one compile. */
-const formationGroundMemberCache: WeakMap<
-  IAutoMovieFormationPlacement,
-  IFormationGroundMember[]
-> = new WeakMap<IAutoMovieFormationPlacement, IFormationGroundMember[]>();
 
 /**
  * Pair a zero-based slot with its designed world-space point.
  *
- * Slot identity lets sparse exceptions/removal carry the same member through runtime placement.
+ * Slot identity lets sparse exceptions/removal carry the same member through
+ * runtime placement.
  *
  * This sampled point is not a body envelope or all-member ground certificate.
  *
  * Slot and rest-world-point meanings are documented.
  *
- * Each row has constant scalar/point fields and selected population drives storage.
+ * Each row has constant scalar/point fields and selected population drives
+ * storage.
  *
- * Directional selection shares one row per slot across its16 support directions.
+ * Directional selection shares one row per slot across its16 support
+ * directions.
  *
- * Cached rows are owned by the formation identity cache while callers borrow them.
+ * Rows belong to the one validation that measured them.
  */
 interface IFormationGroundMember {
   /** Zero-based slot this point belongs to. */
@@ -56,28 +59,25 @@ interface IFormationGroundMember {
 }
 
 /**
- * Scan slots and keep the actual maximizing member in each of16 XZ support directions, deduplicating shared maxima.
+ * Scan slots and keep the actual maximizing member in each of16 XZ support
+ * directions, deduplicating shared maxima.
  *
  * Measured members replace box corners that may not belong to the formation.
  *
- * Only sampled directional extrema are checked; mutable placement changes invalidate the implicit identity-cache premise.
+ * Only sampled directional extrema are checked.
  *
  * Returned rows pair slot identity with designed world points.
  *
- * N slots times16 fixed directions cost O(N), returning at most16 distinct members.
+ * N slots times16 fixed directions cost O(N), returning at most16 distinct
+ * members.
  *
- * A WeakMap shares completed rows for the same unchanged placement object, without mutation invalidation.
- *
- * Live placement identities retain their cached rows; weak keys allow eventual collection but no explicit compile release exists.
+ * Each call measures the placement afresh; no row outlives the call.
  */
 const formationGroundMembers: (
   formation: IAutoMovieFormationPlacement,
 ) => IFormationGroundMember[] = (
   formation: IAutoMovieFormationPlacement,
 ): IFormationGroundMember[] => {
-  const remembered: IFormationGroundMember[] | undefined =
-    formationGroundMemberCache.get(formation);
-  if (remembered !== undefined) return remembered;
   const looks: { x: number; z: number }[] = Array.from(
     { length: FORMATION_GROUND_SUPPORT_DIRECTIONS },
     (_: unknown, index: number): { x: number; z: number } => {
@@ -119,25 +119,32 @@ const formationGroundMembers: (
       ),
     ),
   ];
-  formationGroundMemberCache.set(formation, members);
   return members;
 };
 
-/** Maximum subdivided steps per cue; endpoint-inclusive output has at most 361 times and the cap coarsens resolution. */
+/**
+ * Maximum subdivided steps per cue; endpoint-inclusive output has at most 361
+ * times and the cap coarsens resolution.
+ */
 const FORMATION_GROUND_SAMPLE_LIMIT: number = 360;
 
 /**
- * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ * Round a diagnostic quantity to three decimals with
+ * Math.round(value*1000)/1000.
  *
- * The validateAutoMovieFormationGround owner applies presentation rounding after its actual predicate.
+ * The validateAutoMovieFormationGround owner applies presentation rounding
+ * after its actual predicate.
  *
- * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ * Binary64 rounding is not an exact decimal serialization or decision
+ * tolerance.
  *
- * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ * Only displayed metre/second quantities are rounded, leaving comparison
+ * arithmetic unchanged.
  *
  * Fixed scalar arithmetic takes constant work.
  *
- * Diagnostics reuse the same presentation rule within validateAutoMovieFormationGround, not cached measurements.
+ * Diagnostics reuse the same presentation rule within
+ * validateAutoMovieFormationGround, not cached measurements.
  *
  * Only a number returns and no sampled state is retained.
  */
@@ -145,19 +152,26 @@ const round: (value: number) => number = (value: number): number =>
   Math.round(value * 1_000) / 1_000;
 
 /**
- * Estimate translation, turn, spacing and reform reach, then choose endpoint-inclusive even-time samples with0.5m target and360-step cap.
+ * Estimate translation, turn, spacing and reform reach, then choose
+ * endpoint-inclusive even-time samples with0.5m target and360-step cap.
  *
- * Cue-aware reach gives the gate a physical sampling policy rather than endpoints alone.
+ * Cue-aware reach gives the gate a physical sampling policy rather than
+ * endpoints alone.
  *
- * The cap coarsens resolution, step easing jumps and sequential layout reach/radius assumptions limit a universal spacing guarantee.
+ * The cap coarsens resolution, step easing jumps and sequential layout
+ * reach/radius assumptions limit a universal spacing guarantee.
  *
- * Inputs are metre radius/reform reach and a cue's second interval; output is a fresh time array.
+ * Inputs are metre radius/reform reach and a cue's second interval; output is a
+ * fresh time array.
  *
- * At most361 times are generated per cue; scalar reach arithmetic is fixed-size.
+ * At most361 times are generated per cue; scalar reach arithmetic is
+ * fixed-size.
  *
- * The ground coordinator reuses selected member geometry and passes measured reform reach.
+ * The ground coordinator reuses selected member geometry and passes measured
+ * reform reach.
  *
- * The caller owns the bounded time array; no cue or sampling session is retained.
+ * The caller owns the bounded time array; no cue or sampling session is
+ * retained.
  */
 const formationGroundSampleTimes: (
   cue: IAutoMovieFormationMotion,
@@ -215,17 +229,20 @@ const formationGroundSampleTimes: (
 };
 
 /**
- * Estimate a member's XZ offset displacement and sample its interval at the same capped physical resolution.
+ * Estimate a member's XZ offset displacement and sample its interval at the
+ * same capped physical resolution.
  *
  * Member-only turns do not move the point this gate measures.
  *
- * Only endpoint displacement is modeled; the360-step cap and point proxy leave sub-sample/body-envelope gaps.
+ * Only endpoint displacement is modeled; the360-step cap and point proxy leave
+ * sub-sample/body-envelope gaps.
  *
  * Cue seconds/metre offsets and endpoint-inclusive output are stated.
  *
  * At most361 time scalars are generated per member cue.
  *
- * The helper shares ground sampling constants/policy, not cached mutable cue values.
+ * The helper shares ground sampling constants/policy, not cached mutable cue
+ * values.
  *
  * Only a fresh bounded array escapes; no member handle or task remains.
  */
@@ -252,23 +269,31 @@ const formationSlotGroundSampleTimes: (
   ];
 };
 
-/** Absolute one-millimetre sinking policy; smaller discrepancies are not reported by this gate. */
+/**
+ * Absolute one-millimetre sinking policy; smaller discrepancies are not
+ * reported by this gate.
+ */
 const FORMATION_GROUND_SINK_TOLERANCE_METRES: number = 1e-3;
 
 /**
  * Query heightAt and return a void or a sink beyond1mm, otherwise null.
  *
- * The height owner decides authored support and this helper owns the sinking policy.
+ * The height owner decides authored support and this helper owns the sinking
+ * policy.
  *
- * Standing above support is allowed; a scalar query does not prove whole-body contact.
+ * Standing above support is allowed; a scalar query does not prove whole-body
+ * contact.
  *
- * carried null means void and a numeric carried height identifies sinking.
+ * Carried null means void and a numeric carried height identifies sinking.
  *
- * Cost follows heightAt's surface/ring/lattice queries; local arithmetic is constant.
+ * Cost follows heightAt's surface/ring/lattice queries; local arithmetic is
+ * constant.
  *
- * All measured members share the canonical height query rather than another polygon classifier.
+ * All measured members share the canonical height query rather than another
+ * polygon classifier.
  *
- * Only a small fault description returns; space and point references are not retained.
+ * Only a small fault description returns; space and point references are not
+ * retained.
  */
 const formationGroundEscape: (
   space: IAutoMovieSpace,
@@ -285,7 +310,8 @@ const formationGroundEscape: (
 };
 
 /**
- * Sample actual placed members against authored space coverage and height, reporting the first void or sink per formation.
+ * Sample actual placed members against authored space coverage and height,
+ * reporting the first void or sink per formation.
  */
 export const validateAutoMovieFormationGround: (
   contract: Pick<IAutoMovieShotContract, "id">,
@@ -324,13 +350,7 @@ export const validateAutoMovieFormationGround: (
     );
     for (const cue of ownSlots)
       for (const slot of cue.slots) {
-        if (
-          members.has(slot) ||
-          Number.isSafeInteger(slot) === false ||
-          slot < 0 ||
-          slot >= formation.count
-        )
-          continue;
+        if (members.has(slot) || slot < 0 || slot >= formation.count) continue;
         members.set(slot, {
           slot,
           point: formationSlotPosition(formation, slot),

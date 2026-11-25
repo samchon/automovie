@@ -22,7 +22,8 @@ import { validateCapsule } from "./validateCapsule";
 const DEFAULT_SAMPLE_RATE: number = 24;
 
 /**
- * Sample valid capsule pairs through FK and warn when segment distance is less than summed radii.
+ * Sample valid capsule pairs through FK and warn when segment distance is less
+ * than summed radii.
  */
 export const validateSelfIntersection: (
   props: IAutoMovieValidateSelfIntersection.IProps,
@@ -40,8 +41,6 @@ export const validateSelfIntersection: (
     ),
   );
 
-  if (!Number.isFinite(sampleRate))
-    return rejectSampleRate(collector, path, sampleRate);
   if (sampleRate <= 0) return rejectSampleRate(collector, path, sampleRate);
 
   const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(
@@ -118,7 +117,8 @@ export const validateSelfIntersection: (
 };
 
 /**
- * Append a range error for nonfinite/nonpositive sampling rate and signal refusal.
+ * Append a range error for nonfinite/nonpositive sampling rate and signal
+ * refusal.
  *
  * The check runs before sampleTimes and FK resolution.
  *
@@ -153,7 +153,7 @@ const rejectSampleRate: (
 /**
  * Read admitted endpoint world positions from the sampled resolved map.
  *
- * validateCapsule's reachability gate supplies the non-null lookup premise.
+ * ValidateCapsule's reachability gate supplies the non-null lookup premise.
  *
  * Missing endpoints are not fabricated; callers must have gated this capsule.
  *
@@ -177,17 +177,22 @@ const resolveCapsule: (
 });
 
 /**
- * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ * Round a diagnostic quantity to three decimals with
+ * Math.round(value*1000)/1000.
  *
- * The validateSelfIntersection owner applies presentation rounding after its actual predicate.
+ * The validateSelfIntersection owner applies presentation rounding after its
+ * actual predicate.
  *
- * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ * Binary64 rounding is not an exact decimal serialization or decision
+ * tolerance.
  *
- * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ * Only displayed metre/second quantities are rounded, leaving comparison
+ * arithmetic unchanged.
  *
  * Fixed scalar arithmetic takes constant work.
  *
- * Diagnostics reuse the same presentation rule within validateSelfIntersection, not cached measurements.
+ * Diagnostics reuse the same presentation rule within validateSelfIntersection,
+ * not cached measurements.
  *
  * Only a number returns and no sampled state is retained.
  */

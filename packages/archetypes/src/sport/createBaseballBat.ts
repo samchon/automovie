@@ -7,23 +7,20 @@ import type { createClub } from "../weapons/createClub";
 /**
  * A wooden baseball bat with its own grip and barrel contact.
  *
- * The model stands along +Y on its knob. The strike contact faces +Z on the barrel.
- * @param params The identifier, measured bat profile, and any free diameters set within their bands.
- * @param seed The seed selects an unspecified profile and draws free dimensions. Without a seed, it uses the first profile and band midpoints.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * The model stands along +Y on its knob. The strike contact faces +Z on the
+ * barrel.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
- * @evidence contracts/development/implementation.md#principled-implementation Stack cylindrical knob, handle, taper and barrel sections so the model's mass properties follow from its shape.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the profile and build its parts and contacts at the same dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The taper retains three equal steps and the recorded profile supplies the mass and length.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The profile has a fixed number of parts and contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved recipes call this producer with the original seed namespace and geometry.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call returns an independent model and retains no inputs.
+ * @param params The identifier, measured bat profile, and any free diameters
+ *   set within their bands.
+ * @param seed The seed selects an unspecified profile and draws free
+ *   dimensions. Without a seed, it uses the first profile and band midpoints.
+ * @returns The model with its named contacts in its local frame.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createBaseballBat(
   params: createBaseballBat.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createBaseballBat.Affordance,
   createBaseballBat.Dimension
@@ -76,19 +73,18 @@ export function createBaseballBat(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createBaseballBat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the profile's dimensions, authoring choices and contacts.
- * @evidence contracts/development/design.md#principled-representation The type admits the prerecorded choices of this model and only the dimensions left adjustable. Dimensions use metres and mass uses kilograms. The draw checks the retained bands and measured choices.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs name only controls this producer accepts, and contacts are those built for motion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
- */
+/** The authored parameters and contact names for {@link createBaseballBat}. */
 export namespace createBaseballBat {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "handleDiameter" | "length" | "mass";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "grip" | "strike";
 
   /** The recorded baseball bat profiles. */
@@ -99,7 +95,10 @@ export namespace createBaseballBat {
     createClub.IParams,
     "id" | "diameter" | "handleDiameter"
   > {
-    /** A recorded profile. Omission uses the seed or the first profile without a seed. */
+    /**
+     * A recorded profile. Omission uses the seed or the first profile without a
+     * seed.
+     */
     model?: Model;
   }
 }

@@ -1,19 +1,3 @@
-# src/animals/EquineHarness.ts#EquineHarness
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is laid, where each strap lies and the source for its place.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Straps as round bars along the body's surface, the curved ones as short straight segments; the ends the traces and the driving lines leave from are small balls a line's end names.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `lay`, the parts that ride the head, the line ends and the construction estimates; `createHorse` calls it for `tack` `harness`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The places come from the horse's own rig, so the harness fits whatever horse is drawn; every value no source gives is a named estimate here.
-
 # src/animals/EquineHarness.ts#EquineHarness.chest
 
 ## @evidence contracts/development/common.md#meaningful-documentation

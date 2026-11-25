@@ -15,28 +15,27 @@ const EVERLAST: string =
   "Everlast 100 lb hanging bags: Powershot about 59 in tall and 14.5 in across, Powerlock 46 in and 13 in, NevaTear 53 in and 13.25 in, as search results give Everlast's and retailers' listings; not read";
 
 /**
- * A hanging heavy bag: a cylinder of the drawn height and diameter hanging from its hook.
+ * A hanging heavy bag: a cylinder of the drawn height and diameter hanging from
+ * its hook.
  *
- * It hangs from its `hook` at the origin, the middle of its top, the bag below it along `-Y`; the chain is the placement's, since no listing read gives its length; the side struck faces `+Z`. `target` is the bag's face at its middle height, a surface along `+Z` a punch or a kick lands on, `+X` across the bag and its depth the bag's height; `hook` is the hanging point, `+Y` up. Where the hook hangs, a ceiling's or a stand's, is the placement's.
+ * It hangs from its `hook` at the origin, the middle of its top, the bag below
+ * it along `-Y`; the chain is the placement's, since no listing read gives its
+ * length; the side struck faces `+Z`. `target` is the bag's face at its middle
+ * height, a surface along `+Z` a punch or a kick lands on, `+X` across the bag
+ * and its depth the bag's height; `hook` is the hanging point, `+Y` up. Where
+ * the hook hangs, a ceiling's or a stand's, is the placement's.
  *
  * A bag swinging after a hit is the force law of #3417, not this archetype's.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The heavy bag.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the origin is, which side is struck, its two contacts and that a swing is not modelled.
- * @evidence contracts/development/implementation.md#principled-implementation A rod of the drawn diameter and height below its hook, the target's frame on the bag's surface at mid-height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No chain is drawn, since no source read gives its length; a production hangs the hook where its chain ends.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHeavyBag(
   params: createHeavyBag.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHeavyBag.Affordance, createHeavyBag.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHeavyBag.Dimension> =
     new AutoMovieArchetypeDrawSession<createHeavyBag.Dimension>(
@@ -84,14 +83,7 @@ export function createHeavyBag(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createHeavyBag}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension over the bags the search found, provisional as a whole.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face a strike lands on and the point it hangs from (#3468 F6: `punch`, `kick`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The chain is left to the placement, since no source read gives its length.
- */
+/** Companion types and bands of {@link createHeavyBag}. */
 export namespace createHeavyBag {
   /**
    * The affordance ids:

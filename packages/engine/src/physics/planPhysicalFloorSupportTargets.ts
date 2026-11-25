@@ -9,7 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
@@ -18,26 +17,20 @@ import { solvePhysicalFloorChainTarget } from "./solvePhysicalFloorChainTarget";
 /**
  * Fit declared support patches to a plane using their actual convex geometry.
  * Keep authored endpoint goals and their floor constraints in the same fit,
- * retaining any unresolved residual.
- * A shared root-drop budget is consumed across passes; cached bodies are never
- * corrected. Non-planted patches preserve their authored clearance, clamped
- * to the floor, so a root-drop correction cannot drive a swinging sole below it.
+ * retaining any unresolved residual. A shared root-drop budget is consumed
+ * across passes; cached bodies are never corrected. Non-planted patches
+ * preserve their authored clearance, clamped to the floor, so a root-drop
+ * correction cannot drive a swinging sole below it.
  */
 export function planPhysicalFloorSupportTargets(
   input: IAutoMoviePlanPhysicalFloorSupportTargets.IInput,
 ): IAutoMoviePlanPhysicalFloorSupportTargets.IResult {
   if (
-    !Number.isSafeInteger(input.passes) ||
     input.passes < 1 ||
     input.passes > 16 ||
-    !Number.isFinite(input.floor) ||
-    !Number.isFinite(input.maximumRootDrop) ||
     input.maximumRootDrop < 0 ||
-    (input.endpointHeights !== undefined &&
-      !isAutoMovieRecord(input.endpointHeights)) ||
-    Object.entries(input.endpointHeights ?? {}).some(
-      ([bone, height]: [string, number]): boolean =>
-        !Number.isFinite(height) ||
+    Object.keys(input.endpointHeights ?? {}).some(
+      (bone: string): boolean =>
         !input.pattern.limbs.some(
           (limb: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
             limb.bone === bone,

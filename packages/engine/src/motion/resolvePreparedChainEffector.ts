@@ -9,7 +9,10 @@ import { Vector3 } from "../math/Vector3";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 
 /**
- * Resolve the effector produced by two candidate clinical joints through a prepared chain, in the same model-metre frame as its target. Clinical axes/rest frames must match preparation and candidate inversion. A supplied lower frame must be the completed prefix for these exact same inputs.
+ * Resolve the effector produced by two candidate clinical joints through a
+ * prepared chain, in the same model-metre frame as its target. Clinical
+ * axes/rest frames must match preparation and candidate inversion. A supplied
+ * lower frame must be the completed prefix for these exact same inputs.
  */
 export const resolvePreparedChainEffector: (
   props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,

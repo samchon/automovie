@@ -10,21 +10,14 @@ import { edgeRescueRescuer } from "./edgeRescueRescuer";
 import { edgeRescueScene } from "./edgeRescueScene";
 
 /**
- * Plan one role of an edge rescue. Both roles prepare the same scene from
- * the ledge and both bodies, the partner's read from the performance, so
- * the grip, the timeline and the refusals agree whichever is planned first.
+ * Plan one role of an edge rescue. Both roles prepare the same scene from the
+ * ledge and both bodies, the partner's read from the performance, so the grip,
+ * the timeline and the refusals agree whichever is planned first.
  *
  * @param context The performer's context.
  * @returns The role's plan.
- * @throws {HumanRefusal} From the scene when the ledge, the load or the margin cannot stage the rescue.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared scene and the dispatch.
- * @evidence contracts/development/implementation.md#principled-implementation One scene from both bodies, then the role's planner over it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read both bodies, prepare the scene, dispatch on the role.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither role reads the other's plan; each reads the scene.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work beyond the role's planner.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Plans once per role.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the role's plan.
+ * @throws {HumanRefusal} From the scene when the ledge, the load or the margin
+ *   cannot stage the rescue.
  */
 export function planEdgeRescue(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEdgeRescue.IParams>,

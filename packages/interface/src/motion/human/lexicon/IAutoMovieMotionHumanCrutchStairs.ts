@@ -4,18 +4,24 @@ import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanClimbStairsFlight } from "../terrain/IAutoMovieMotionHumanClimbStairsFlight";
 
 /**
- * Climb a flight of stairs on two crutches (#3994), the injured leg held off
- * the steps, by the rule "up with the good, down with the bad" (HealthLinkBC,
- * Using crutches): going up, the sound leg steps up first and the crutches
- * follow onto its tread; going down, the crutches go down first and the sound
- * leg follows them. The hands bear on the crutches' handgrips throughout.
+ * Climb a flight of stairs on two crutches, the injured leg held off the steps,
+ * by the rule "up with the good, down with the bad" (HealthLinkBC, Using
+ * crutches): going up, the sound leg steps up first and the crutches follow
+ * onto its tread; going down, the crutches go down first and the sound leg
+ * follows them. The hands bear on the crutches' handgrips throughout.
  */
 export interface IAutoMovieMotionHumanCrutchStairs
   extends IAutoMovieMotionHumanClimbStairsFlight.IStairs {
-  /** The crutch at the left side, a prop with a `grip` and a `tip`, standing level with the toes. */
+  /**
+   * The crutch at the left side, a prop with a `grip` and a `tip`, standing
+   * level with the toes.
+   */
   left: string;
 
-  /** The crutch at the right side, a prop with a `grip` and a `tip`, standing level with the toes. */
+  /**
+   * The crutch at the right side, a prop with a `grip` and a `tip`, standing
+   * level with the toes.
+   */
   right: string;
 
   /** The injured leg held off the steps; the left when absent. */
@@ -26,12 +32,12 @@ export interface IAutoMovieMotionHumanCrutchStairs
 }
 
 export namespace IAutoMovieMotionHumanCrutchStairs {
-  /**
-   * The stair climb's law and the track that moves each crutch on its clock.
-   */
+  /** The stair climb's law and the track that moves each crutch on its clock. */
   export interface ILaw extends IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrutchStairs> {
     /**
-     * From one crutch's staged floor frame, the climb's parameters and the climb's first film second (zero when absent), the crutch's world frame at each film second.
+     * From one crutch's staged floor frame, the climb's parameters and the
+     * climb's first film second (zero when absent), the crutch's world frame at
+     * each film second.
      */
     track: (
       start: IAutoMovieRigidTransform,

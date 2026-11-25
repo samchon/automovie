@@ -6,7 +6,7 @@ Cites the method, states the window profile, the before and after behaviour and 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A displacement map blended by the minimum-jerk profile (Witkin and Popović 1995; Unreal Motion Warping).
+A displacement map blended by the minimum-jerk profile (Witkin and Popović 1995).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

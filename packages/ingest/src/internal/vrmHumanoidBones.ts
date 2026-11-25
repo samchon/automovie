@@ -10,7 +10,13 @@ import { validNodeIndex } from "./validNodeIndex";
 /**
  * Read declared VRM humanoid mappings using version-specific thumb migration.
  *
- * VRMC_vrm takes precedence when both metadata families exist and emits recognized bone keys in code-unit order; VRM 0.x retains array order, migrates thumb names and rejects duplicate slots. Unknown names and invalid node indices throw, and absent metadata returns an empty list. VRMC_vrm is interpreted with 1.0 thumb names even for 1.0-beta declarations; this pass does not validate a complete VRM schema, unique target nodes or skin weights.
+ * VRMC_vrm takes precedence when both metadata families exist and emits
+ * recognized bone keys in code-unit order; VRM 0.x retains array order,
+ * migrates thumb names and rejects duplicate slots. Unknown names and invalid
+ * node indices throw, and absent metadata returns an empty list. VRMC_vrm is
+ * interpreted with 1.0 thumb names even for 1.0-beta declarations; this pass
+ * does not validate a complete VRM schema, unique target nodes or skin
+ * weights.
  */
 export const vrmHumanoidBones: (
   document: Record<string, unknown>,
@@ -88,7 +94,11 @@ export const vrmHumanoidBones: (
   return [];
 };
 
-/** Read a VRM 0.x bone name as its VRM 1.0 slot. VRM 1.0 renamed the thumb chain, so 0.x `ThumbProximal` is the 1.0 `ThumbMetacarpal` and 0.x `ThumbIntermediate` the 1.0 `ThumbProximal`; every other name is shared. */
+/**
+ * Read a VRM 0.x bone name as its VRM 1.0 slot. VRM 1.0 renamed the thumb
+ * chain, so 0.x `ThumbProximal` is the 1.0 `ThumbMetacarpal` and 0.x
+ * `ThumbIntermediate` the 1.0 `ThumbProximal`; every other name is shared.
+ */
 const vrm0Bone: (value: unknown) => AutoMovieHumanoidBone | undefined = (
   value: unknown,
 ): AutoMovieHumanoidBone | undefined => {

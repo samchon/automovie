@@ -17,10 +17,10 @@ import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
  * ground (`heightAt`, support contacts, walkability) but nothing ever drew
  * them, so a depth or mask pass of a staged scene showed actors floating in a
  * void. Building them as real meshes is enough: every structural pass collects
- * geometry by traversing the scene and checking isMesh, then replaces its material, so the
- * ground joins depth, mask, normal, and outline with no pass-side special case,
- * unlike a `GridHelper`, which is a `LineSegments` and must be hidden before
- * every structural pass.
+ * geometry by traversing the scene and checking isMesh, then replaces its
+ * material, so the ground joins depth, mask, normal, and outline with no
+ * pass-side special case, unlike a `GridHelper`, which is a `LineSegments` and
+ * must be hidden before every structural pass.
  *
  * A patch with an authored opaque color uses the same mesh in the beauty and
  * guide passes. An uncolored support patch writes neither color nor depth in

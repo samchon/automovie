@@ -1,12 +1,8 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * Where a segment comes nearest a shape.
- */
+/** Where a segment comes nearest a shape. */
 export namespace IAutoMoviePhysicalShapeNearest {
-  /**
-   * Where a segment comes nearest a shape.
-   */
+  /** Where a segment comes nearest a shape. */
   export interface IResult {
     /** Signed distance, metres; negative when the segment enters. */ distance: number;
     /** The nearest point of the shape's surface, world metres. */ point: IAutoMovieVector3;

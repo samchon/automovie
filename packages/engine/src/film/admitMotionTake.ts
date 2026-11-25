@@ -1,11 +1,15 @@
 import type { IAutoMovieMotionTake } from "@automovie/interface";
 
-import { isPortableMotionTakePath } from "./isPortableMotionTakePath";
-
 /**
- * Admit a parsed motion-take artifact before the host binds any saved references.
+ * Admit a parsed motion-take artifact before the host binds any saved
+ * references.
  *
- * Accepts authored version 1 only. Checks exact record fields, portable paths, lowercase SHA-256 digests, unique ledger keys, and finite nonnegative clocks. The source module must appear in the file ledger and at least one versioned provider must be named. Throws a path-specific diagnostic for a malformed record or an unsupported version or replay mode. The result borrows the parsed data; hosts independently rederive its facts before replay.
+ * Accepts authored version 1 only. Checks exact record fields, unpadded paths,
+ * lowercase SHA-256 digests, unique ledger keys, and finite nonnegative clocks.
+ * The source module must appear in the file ledger and at least one versioned
+ * provider must be named. Throws a path-specific diagnostic for a malformed
+ * record or an unsupported version or replay mode. The result borrows the
+ * parsed data; hosts independently rederive its facts before replay.
  */
 export function admitMotionTake(input: unknown): IAutoMovieMotionTake {
   const take: Record<string, unknown> = object(input, "$take");
@@ -28,7 +32,7 @@ export function admitMotionTake(input: unknown): IAutoMovieMotionTake {
   identifier(take.take, "$take.take");
   const source: Record<string, unknown> = object(take.source, "$take.source");
   properties(source, "$take.source", ["module", "export"]);
-  const modulePath: string = portablePath(source.module, "$take.source.module");
+  const modulePath: string = identifier(source.module, "$take.source.module");
   identifier(source.export, "$take.source.export");
 
   const anchor: Record<string, unknown> = object(take.anchor, "$take.anchor");
@@ -42,7 +46,7 @@ export function admitMotionTake(input: unknown): IAutoMovieMotionTake {
   ]);
   identifier(anchor.sequence, "$take.anchor.sequence");
   identifier(anchor.shot, "$take.anchor.shot");
-  if (!Number.isSafeInteger(anchor.entry) || (anchor.entry as number) < 0)
+  if ((anchor.entry as number) < 0)
     invalid("$take.anchor.entry", "expected a nonnegative safe integer");
   seconds(anchor.outputSeconds, "$take.anchor.outputSeconds");
   seconds(anchor.sourceSeconds, "$take.anchor.sourceSeconds");
@@ -105,29 +109,22 @@ function properties(
 
 /** Check a stable textual address without coercing or trimming it. */
 function identifier(value: unknown, path: string): string {
-  if (typeof value !== "string" || value.length === 0 || value.trim() !== value)
-    invalid(path, "expected a nonblank string without surrounding whitespace");
+  if (typeof value !== "string" || value.trim() !== value)
+    invalid(path, "expected a string without surrounding whitespace");
   return value;
 }
 
 /** Check both persisted time coordinates in their own clocks. */
 function seconds(value: unknown, path: string): void {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0)
+  if (typeof value !== "number" || value < 0)
     invalid(path, "expected finite nonnegative seconds");
-}
-
-/** Reject absolute and traversing references in the portable persisted address. */
-function portablePath(value: unknown, path: string): string {
-  if (!isPortableMotionTakePath(value))
-    invalid(path, "expected a production-relative POSIX path");
-  return value;
 }
 
 /** Check one file identity and return its ledger key. */
 function file(value: unknown, path: string): string {
   const row: Record<string, unknown> = object(value, path);
   properties(row, path, ["path", "sha256"]);
-  const address: string = portablePath(row.path, `${path}.path`);
+  const address: string = identifier(row.path, `${path}.path`);
   if (typeof row.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(row.sha256))
     invalid(
       `${path}.sha256`,

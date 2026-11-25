@@ -1,21 +1,3 @@
-# src/animals/EquineIcelandicProfile.ts#EquineIcelandicProfile
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies cohort and alternatives, units, and the provenance distinction between measured clocks and posed proxy values.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Measured height and heart girth give a typed horse profile. Repeated stride rows keep fore and hind contact and empirical spread separate.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Supplies one existing horse producer variant and its alternate gait rows. Leaves the ordinary horse gait order and shared tack and body owners intact.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only an explicit breed configuration declares this gait capacity. The two styles do not take over automatic ordinary gait selection.
-
 # src/animals/EquineIcelandicProfile.ts#EquineIcelandicProfile.shape
 
 ## @evidence contracts/development/common.md#meaningful-documentation

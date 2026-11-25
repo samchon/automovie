@@ -4,7 +4,12 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
 
 /**
- * Read and linearly mix two neighboring canonical baked samples into a CPU rest-to-posed matrix, closing the last sample back into the first. Valid finite position, positive sample count and complete selected take are producer premises. JavaScript arithmetic over Float32 table data follows the shader law without claiming bit-identical native GLSL or observed appearance.
+ * Read and linearly mix two neighboring canonical baked samples into a CPU
+ * rest-to-posed matrix, closing the last sample back into the first. Valid
+ * finite position, positive sample count and complete selected take are
+ * producer premises. JavaScript arithmetic over Float32 table data follows the
+ * shader law without claiming bit-identical native GLSL or observed
+ * appearance.
  */
 export const sampleFormationCycleMatrix: (
   cycle: IAutoMovieFormationCycle,
@@ -17,11 +22,7 @@ export const sampleFormationCycleMatrix: (
   position: number,
   take: IAutoMovieFormationCycleTake = cycle.active,
 ): THREE.Matrix4 => {
-  if (
-    Number.isSafeInteger(part) === false ||
-    part < 0 ||
-    part >= cycle.names.length
-  )
+  if (part < 0 || part >= cycle.names.length)
     throw new RangeError(
       `Formation cycle part ${part} is outside 0..${cycle.names.length - 1}.`,
     );

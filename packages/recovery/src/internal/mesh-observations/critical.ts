@@ -9,15 +9,17 @@ import { norm } from "./norm";
 
 /**
  * Classifies generic PL height vertices by connected lower and upper links.
- * Equal heights use a private symbolic address order without perturbing physical coordinates.
- * Bremer et al. 2004, sections II.C and III.A: https://web.cs.ucdavis.edu/~hamann/BremerEdelsbrunnerHamannPascucci2004TVCG.pdf
- * The returned manifold flag denotes one cycle; other links remain legacy unresolved observations.
- * The default legacy-link-cycle-v1 policy preserves that classification.
- * Opt-in boundary-regular-path-v1 additionally omits a strict regular boundary fan:
- * a connected simple path, qualified incident faces and radial edge incidence,
- * no tied neighbor height, connected nonempty lower/upper links and opposite boundary-end signs.
- * This is a sufficient local half-disk chart condition, not an embedding certificate.
- * Turner, Robins and Morgan 2024, Definition 4.6: https://doi.org/10.1007/s41468-024-00175-8
+ * Equal heights use a private symbolic address order without perturbing
+ * physical coordinates. Bremer et al. 2004, sections II.C and III.A:
+ * https://web.cs.ucdavis.edu/~hamann/BremerEdelsbrunnerHamannPascucci2004TVCG.pdf
+ * The returned manifold flag denotes one cycle; other links remain legacy
+ * unresolved observations. The default legacy-link-cycle-v1 policy preserves
+ * that classification. Opt-in boundary-regular-path-v1 additionally omits a
+ * strict regular boundary fan: a connected simple path, qualified incident
+ * faces and radial edge incidence, no tied neighbor height, connected nonempty
+ * lower/upper links and opposite boundary-end signs. This is a sufficient local
+ * half-disk chart condition, not an embedding certificate. Turner, Robins and
+ * Morgan 2024, Definition 4.6: https://doi.org/10.1007/s41468-024-00175-8
  */
 export function critical(
   skin: Parameters<IAutoMovieMeshCriticalPoints.Operation>[0],
@@ -33,11 +35,7 @@ export function critical(
   const direction: AutoMovieVector3Tuple = norm(axis);
   if (dot(direction, direction) === 0)
     throw new Error("Critical height axis is zero");
-  if (
-    scalarHeights &&
-    (scalarHeights.length !== skin.vertices.length ||
-      !scalarHeights.every(Number.isFinite))
-  )
+  if (scalarHeights && scalarHeights.length !== skin.vertices.length)
     throw new Error("PL scalar chart must align with source vertices");
   const heights: readonly number[] =
     scalarHeights ??
@@ -62,9 +60,7 @@ export function critical(
     for (let i: number = 0; i < skin.vertices.length; i++) {
       const canonical: number = skin.canon[i]!;
       if (
-        !Number.isFinite(heights[i]) ||
         skin.vertices[i]!.length !== 3 ||
-        !skin.vertices[i]!.every(Number.isFinite) ||
         canonical < 0 ||
         canonical >= skin.vertices.length
       )
@@ -99,8 +95,7 @@ export function critical(
       boundaryPolicy &&
       (triangle.length !== 3 ||
         triangle.some(
-          (i: number): boolean =>
-            !Number.isSafeInteger(i) || i < 0 || i >= skin.vertices.length,
+          (i: number): boolean => i < 0 || i >= skin.vertices.length,
         ))
     )
       throw new Error(
@@ -124,7 +119,8 @@ export function critical(
       if (
         new Set(t).size !== 3 ||
         faces.has(id) ||
-        !(area > 0 && Number.isFinite(area))
+        !(area > 0) ||
+        area === Infinity
       )
         for (const vertex of t) invalidStars.add(vertex);
       faces.add(id);

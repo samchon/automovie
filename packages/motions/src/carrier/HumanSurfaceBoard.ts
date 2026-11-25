@@ -37,7 +37,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** The axis a handle is wrapped about: its affordance frame's local +X. */
 const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/** Seconds over which a riding hand reaches its grip on the support (provisional staging). */
+/**
+ * Seconds over which a riding hand reaches its grip on the support (provisional
+ * staging).
+ */
 const REACH: number = 0.4;
 
 /** One riding hand and where it holds the support as the ride starts. */
@@ -55,28 +58,19 @@ const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
 };
 
 /**
- * Carry a two-foot stance on the actual board's film-clock trajectory.
- * Either foot can lead because the law reads the placed posture. Surf transit
+ * Carry a two-foot stance on the actual board's film-clock trajectory. Either
+ * foot can lead because the law reads the placed posture. Surf transit
  * measurements distinguish hand contact, foot acquisition and settled stance.
  * The board ride enters after acquisition, on an already placed stance.
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/
- * A named hand grips a point of the same support, such as an escalator
- * handrail that moves with the steps: it reaches the point where it is at
- * the start over `REACH` seconds, and the support carries the grip with
- * the feet.
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/ A named hand grips a point
+ * of the same support, such as an escalator handrail that moves with the steps:
+ * it reaches the point where it is at the start over `REACH` seconds, and the
+ * support carries the grip with the feet.
  *
  * @param context The placed feet, the board id and the ride duration.
  * @returns The transferred deck-local plants and carried posture.
  * @throws {HumanRefusal} When either foot is unsupported by the selected board,
- * a hand names a point the support lacks, or the duration is invalid.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry, frame, source, return and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Stores displayed foot locations, reconstructs planted world goals and uses the engine's rigid support carry to keep both on the prop. A grip is fitted at the support point's start pose, which the same carry moves, so it stays on a point rigidly attached to the support.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One support check, one two-foot goal snapshot and one carried plan.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No assumed board speed, water displacement or ground-to-deck acquisition.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two goals are placed once and the common rigid carrier owns each frame evaluation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses standing knee references and the same support carry as an action on a wagon.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the entered goals and board reader for its own lifetime.
+ *   a hand names a point the support lacks, or the duration is invalid.
  */
 export function HumanSurfaceBoard(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.IBoardRideParams>,
@@ -157,7 +151,7 @@ export function HumanSurfaceBoard(
     },
   );
 
-  const ankles: Record<"left" | "right", IAutoMovieVector3> = {
+  const ankles: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: entry.feet.left.ankle,
     right: entry.feet.right.ankle,
   };
@@ -177,7 +171,7 @@ export function HumanSurfaceBoard(
     },
   };
   const contacts: IAutoMovieMotionHumanContactWindow[] = sides.map(
-    (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
       part: `${side}Foot`,
       kind: "plant",
       from: 0,
@@ -198,6 +192,9 @@ export function HumanSurfaceBoard(
   // support's carry moves with the feet; the arm is laid on one planned
   // course from the entry's arm to it (`courseArmGoal`), so it keeps its
   // branch as it reaches and as the support moves.
+  const fromJoints: Readonly<
+    Record<string, IAutoMovieMotionHumanPosture["joints"]["hips"]>
+  > = posture.joints;
   const holding = (at: number): IAutoMovieMotionHumanPosture => {
     if (grips.length === 0) return posture;
     const share: number = minimumJerk.share(at / reach);
@@ -205,13 +202,17 @@ export function HumanSurfaceBoard(
     for (const { side, grip } of grips) {
       const arm: IAutoMovieMotionHumanMountRider.IHoldResult =
         HumanMountRider.hold(body, side, held, grip, 1, {});
-      const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
-      for (const [bone, closed] of Object.entries(arm.fingers)) {
+      const asked: typeof fromJoints = arm.fingers;
+      const fingers: Record<
+        string,
+        IAutoMovieMotionHumanPosture["joints"]["hips"]
+      > = {};
+      for (const [bone, closed] of Object.entries(asked)) {
         if (closed === undefined) continue;
-        const open: readonly [number, number, number] = posture.joints[
-          bone as keyof IAutoMovieMotionHumanPosture["joints"]
-        ] ?? [0, 0, 0];
-        fingers[bone as keyof IAutoMovieMotionHumanPosture["joints"]] = [
+        const open: readonly [number, number, number] = fromJoints[bone] ?? [
+          0, 0, 0,
+        ];
+        fingers[bone] = [
           open[0] + (closed[0] - open[0]) * share,
           open[1] + (closed[1] - open[1]) * share,
           open[2] + (closed[2] - open[2]) * share,
@@ -245,7 +246,7 @@ export function HumanSurfaceBoard(
     end: duration,
   };
   return courseArmGoal({
-    body,
+    context,
     plan: carried,
     side: first.side,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, first.side),
@@ -261,16 +262,14 @@ export function HumanSurfaceBoard(
 
 /**
  * Author a continuous move on a skateboard or surfboard selected from the
- * stage. The board's animator owns its trajectory. Its actual
- * affordances and authored phase boundaries determine the rider's plants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States ownership of the board track and material supports.
- * @evidence contracts/development/design.md#principled-representation The two board phrases carry distinct world, deck and free support windows. Named shares synchronize the existing prop clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes two registered laws and the original acquired-stance carrier.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps existing board rides and registered phrases distinct. A skateboard's floor and a surfboard's water elevation belong to the scene.
+ * stage. The board's animator owns its trajectory. Its actual affordances and
+ * authored phase boundaries determine the rider's plants.
  */
 export namespace HumanSurfaceBoard {
-  /** Establish one ground push, turn feet on the deck, and land from an authored ollie. */
+  /**
+   * Establish one ground push, turn feet on the deck, and land from an authored
+   * ollie.
+   */
   export const skateboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams> =
     {
       name: "skateboardPhrase",
@@ -279,7 +278,10 @@ export namespace HumanSurfaceBoard {
       plan: prepareSkateboardPhrase,
     };
 
-  /** Advance onto the board from water, paddle, and transfer from palms to a surfing stance. */
+  /**
+   * Advance onto the board from water, paddle, and transfer from palms to a
+   * surfing stance.
+   */
   export const surfboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams> =
     {
       name: "surfboardPhrase",
@@ -296,7 +298,10 @@ export namespace HumanSurfaceBoard {
   export const SURFBOARD: typeof prepareSurfboardPhrase.SHARES =
     prepareSurfboardPhrase.SHARES;
 
-  /** The board frame and rectangular deck envelope admitted for one staged phrase. */
+  /**
+   * The board frame and rectangular deck envelope admitted for one staged
+   * phrase.
+   */
   export interface IDeck {
     /** Sample the board's own world frame on this action's clock. */
     at(seconds: number): IAutoMovieRigidTransform;
@@ -312,12 +317,21 @@ export namespace HumanSurfaceBoard {
     length: number;
   }
 
+  /** What a deck is read from: the action's start and the board's reader. */
+  export interface IDeckContext {
+    /** The action's start, film seconds. */
+    start: number;
+
+    /** The board's affordances and its frame at a film second. */
+    prop(subject: string): {
+      prop: Pick<IAutoMovieMotionHumanPropReader["prop"], "affordances">;
+      frame(seconds: number): IAutoMovieRigidTransform;
+    };
+  }
+
   /** Admit the board and use the prop's existing local affordances throughout. */
-  export function deck<Params>(
-    context: IAutoMovieMotionHumanActionContext<Params>,
-    on: string,
-  ): IDeck {
-    const prop: IAutoMovieMotionHumanPropReader = context.prop(on);
+  export function deck(context: IDeckContext, on: string): IDeck {
+    const prop: ReturnType<IDeckContext["prop"]> = context.prop(on);
     const contact = (
       id: string,
       kind: IAutoMovieAffordance["kind"],
@@ -327,10 +341,7 @@ export namespace HumanSurfaceBoard {
           (affordance: IAutoMovieAffordance): boolean =>
             affordance.id === id && affordance.kind === kind,
         );
-      if (
-        candidate === undefined ||
-        !Number.isFinite(Vector3.length(candidate.frame.translation))
-      )
+      if (candidate === undefined)
         return refuseBoard(
           id,
           "the prop needs a finite " + kind + " affordance",
@@ -345,15 +356,7 @@ export namespace HumanSurfaceBoard {
       surface.frame.rotation,
       UP,
     );
-    if (
-      !(
-        Number.isFinite(width) &&
-        width > 0 &&
-        Number.isFinite(length) &&
-        length > 0
-      ) ||
-      Vector3.distance(normal, UP) > 1e-6
-    )
+    if (!(width > 0 && length > 0) || Vector3.distance(normal, UP) > 1e-6)
       return refuseBoard(
         on,
         "the scene prop needs a bounded horizontal deck in its own frame",

@@ -1,6 +1,4 @@
-/**
- * Saved curve and interval ownership for an appended engine chunk.
- */
+/** Saved curve and interval ownership for an appended engine chunk. */
 
 export interface IAutoMovieRecoveryMeshChunkOwner {
   /** Stable generated ordinary run identity. */

@@ -2,10 +2,10 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
- * Contacts for a grounded step vault. The named hand and opposite foot
- * support the crossing while the foot on the hand's side passes between
- * them. The supporting foot then follows to the exit. Give fixed targets
- * with enough room for the ordinary support-sequence swing.
+ * Contacts for a grounded step vault. The named hand and opposite foot support
+ * the crossing while the foot on the hand's side passes between them. The
+ * supporting foot then follows to the exit. Give fixed targets with enough room
+ * for the ordinary support-sequence swing.
  */
 export interface IAutoMovieMotionHumanStepVault {
   /** The supporting hand. The foot on this same side crosses first. */
@@ -24,22 +24,18 @@ export interface IAutoMovieMotionHumanStepVault {
   exit: IAutoMovieMotionHumanStepVault.IFeet;
 }
 
-/**
- * Targets on the fixed surfaces that support a step vault.
- */
+/** Targets on the fixed surfaces that support a step vault. */
 export namespace IAutoMovieMotionHumanStepVault {
   /**
-   * A fixed prop's named contact or a fixed point in metres in the
-   * indicated frame. The support action resolves it at entry.
+   * A fixed prop's named contact or a fixed point in metres in the indicated
+   * frame. The support action resolves it at entry.
    */
   export type Target = Extract<
     IAutoMovieMotionTarget,
     { kind: "prop" | "point" }
   >;
 
-  /**
-   * The pair of places where the feet bear at one end of the crossing.
-   */
+  /** The pair of places where the feet bear at one end of the crossing. */
   export interface IFeet {
     /** Where the left foot bears. */
     left: IAutoMovieMotionHumanStepVault.Target;

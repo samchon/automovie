@@ -16,35 +16,43 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Profile placement and the existing per-body neutral mirrored metadata.
- * Posed frames are always current values, distinct from that neutral data.
+ * The body fields the neutral collider rows are read from: the rig, its rest
+ * joints and the profile, all fixed before any of the body's solves.
+ */
+type HumanColliderRig = "profile" | "rest" | "skeleton";
+
+/**
+ * Place the profile in its original order, skipping absent posed bones.
+ *
+ * @param body Canonical body with unchanged rest/profile metadata.
+ * @param bones Current resolved bones, unchanged during this operation.
+ * @returns Fresh current placed frames borrowing the neutral shape records.
+ */
+export function HumanColliderPlacement(
+  body: IAutoMovieMotionHumanBody,
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+): HumanColliderPlacement.IPlaced[] {
+  return place(body.colliders.segments, bones);
+}
+
+/**
+ * Profile placement and the per-body neutral mirrored metadata it reads,
+ * derived from the body where read or bound once by a prepare companion. Posed
+ * frames are always current values, distinct from that neutral data.
  */
 export namespace HumanColliderPlacement {
   /**
-   * One placed collider segment: the interface contract (`IAutoMovieMotionHumanColliders.IPlaced`).
+   * One placed collider segment: the interface contract
+   * (`IAutoMovieMotionHumanColliders.IPlaced`).
    */
   export type IPlaced = IAutoMovieMotionHumanColliders.IPlaced;
-
-  /**
-   * Place the profile in its original order, skipping absent posed bones.
-   *
-   * @param body Canonical body with unchanged rest/profile metadata.
-   * @param bones Current resolved bones, unchanged during this operation.
-   * @returns Fresh current placed frames borrowing the neutral shape records.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): IPlaced[] {
-    return place(sided(body).segments, bones);
-  }
 
   /**
    * Bind the actual neutral entries needed by repeated current-bone queries.
    * Request names are snapshotted once; later edits require another reader.
    * Body geometry stays unchanged, while each map supplies fresh posed inputs.
-   * Extra map frames outside the request are ignored; missing requested
-   * frames are omitted and selected duplicates keep their profile order.
+   * Extra map frames outside the request are ignored; missing requested frames
+   * are omitted and selected duplicates keep their profile order.
    */
   export function preparePlaced(
     body: IAutoMovieMotionHumanBody,
@@ -54,7 +62,7 @@ export namespace HumanColliderPlacement {
   ) => IPlaced[] {
     const names: Set<string> = new Set();
     for (const bone of requested) names.add(bone);
-    const selected: ISided[] = sided(body).segments.filter(
+    const selected: ISided[] = body.colliders.segments.filter(
       (segment: ISided): boolean => names.has(segment.bone),
     );
     return (
@@ -62,20 +70,18 @@ export namespace HumanColliderPlacement {
     ): IPlaced[] => place(selected, bones);
   }
 
-  /**
-   * Exact floor minimum from every current placed shape, world metres.
-   */
+  /** Exact floor minimum from every current placed shape, world metres. */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    return minima(sided(body).segments, bones)[0]!;
+    return minima(body.colliders.segments, bones)[0]!;
   }
 
   /**
-   * Bind ordered floor minima for fixed bone-name groups. Omission requests
-   * one whole-profile minimum. Each group result starts at Infinity; an
-   * actual shape can update several groups in their original group order.
+   * Bind ordered floor minima for fixed bone-name groups. Omission requests one
+   * whole-profile minimum. Each group result starts at Infinity; an actual
+   * shape can update several groups in their original group order.
    */
   export function prepareMinima(
     body: IAutoMovieMotionHumanBody,
@@ -83,7 +89,7 @@ export namespace HumanColliderPlacement {
   ): (
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ) => number[] {
-    if (groups === undefined) return bindMinima(sided(body).segments);
+    if (groups === undefined) return bindMinima(body.colliders.segments);
     const membership: Map<string, number[]> = new Map();
     let count: number = 0;
     for (const group of groups) {
@@ -98,35 +104,40 @@ export namespace HumanColliderPlacement {
         entries.push(index);
       }
     }
-    const selected: ISided[] = sided(body).segments.filter(
+    const selected: ISided[] = body.colliders.segments.filter(
       (segment: ISided): boolean => membership.has(segment.bone),
     );
     return bindMinima(selected, { count, membership });
   }
 
   /**
-   * Prepare the existing neutral definitions and hull-face geometry.
+   * The colliders at rest of a rig, mirrored left from right: what a body
+   * carries (IAutoMovieMotionHumanBody.colliders), made once when it is made.
    *
-   * @param body The unchanged body definition to prepare.
+   * @param body The rig, its rest joints and its profile, hulls attached.
+   * @returns The neutral segments and the bones they ride.
    */
-  export function prepare(body: IAutoMovieMotionHumanBody): void {
-    for (const segment of sided(body).segments)
-      for (const shape of segment.shapes)
-        if (shape.kind === "hull") physicalHullFaces(shape.points);
+  export function neutral(
+    body: Pick<IAutoMovieMotionHumanBody, HumanColliderRig>,
+  ): INeutral {
+    return sided(body);
   }
 
   /**
-   * Canonical profile-bearing names for scoped FK before collider queries.
-   * The returned set is borrowed read-only while this body definition lives.
+   * Canonical profile-bearing names for scoped FK before collider queries. The
+   * returned set is borrowed read-only while this body definition lives.
    */
   export function bones(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, HumanColliderRig>,
   ): ReadonlySet<AutoMovieHumanoidBone> {
     return sided(body).bones;
   }
 }
 
-/** Actual copied name membership; callers cannot supply the numerical group lists. */
+/**
+ * Actual copied name membership; callers cannot supply the numerical group
+ * lists.
+ */
 interface IMinimaSelection {
   /** Number of groups, including empty groups. */
   count: number;
@@ -147,7 +158,10 @@ function bindMinima(
   ): number[] => minima(segments, bones, selection);
 }
 
-/** Stage the original placement phase, then reduce only the demanded scalar bounds. */
+/**
+ * Stage the original placement phase, then reduce only the demanded scalar
+ * bounds.
+ */
 function minima(
   segments: readonly ISided[],
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -235,33 +249,18 @@ function place(
 }
 
 /** Fixed neutral segment data, before current bone placement. */
-interface ISided {
-  /** Profile bone name, read through the posed name map. */
-  bone: string;
+type ISided = IAutoMovieMotionHumanColliders.ISegment;
 
-  /** Neutral offset from its canonical rest joint, metres. */
-  offset: IAutoMovieVector3;
+/** The neutral records and the canonical names their placement consumes. */
+type INeutral = IAutoMovieMotionHumanColliders.INeutral;
 
-  /** Original neutral rotation. */
-  rotation: IAutoMovieRigidTransform["rotation"];
-
-  /** Original shapes, or one lazy median-reflected list on first actual geometry observation. */
-  shapes: IAutoMoviePhysicalShape[];
-}
-
-/** The existing neutral list cache, moved with its sole owner; no posed frame is stored. */
-const SIDED: WeakMap<IAutoMovieMotionHumanBody, INeutral> = new WeakMap();
-
-/** Existing neutral records and the exact canonical names their placement consumes. */
-interface INeutral {
-  segments: ISided[];
-  bones: ReadonlySet<AutoMovieHumanoidBone>;
-}
-
-/** Read unchanged neutral data, lazily indexing first profile names in original scan order. */
-function sided(body: IAutoMovieMotionHumanBody): INeutral {
-  const known: INeutral | undefined = SIDED.get(body);
-  if (known !== undefined) return known;
+/**
+ * Read unchanged neutral data, lazily indexing first profile names in original
+ * scan order.
+ */
+function sided(
+  body: Pick<IAutoMovieMotionHumanBody, HumanColliderRig>,
+): INeutral {
   const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
   const own: (segment: IAutoMoviePhysicalSegment) => ISided | null = (
     segment: IAutoMoviePhysicalSegment,
@@ -309,39 +308,35 @@ function sided(body: IAutoMovieMotionHumanBody): INeutral {
     const bone: AutoMovieHumanoidBone | undefined = canonical.get(segment.bone);
     if (bone !== undefined) bones.add(bone);
   }
-  const neutral: INeutral = { segments: out, bones };
-  SIDED.set(body, neutral);
-  return neutral;
+  return { segments: out, bones };
 }
 
-/** Fixed offsets turn immediately; pure shape reflection waits for actual geometry demand. */
+/** A neutral row reflected in the median plane: its offset, turn and shapes. */
 function mirrored(segment: ISided, bone: string): ISided {
-  let shapes: IAutoMoviePhysicalShape[] | undefined;
   return {
     bone,
     offset: mirrorPoint(segment.offset),
     rotation: mirrorTurn(segment.rotation),
-
-    /** Materialize this actual left collider list once; failed preparation stays uncached. */
-    get shapes(): IAutoMoviePhysicalShape[] {
-      if (shapes !== undefined) return shapes;
-      shapes = segment.shapes.map(
-        (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
-          const transform: IAutoMovieRigidTransform = {
-            position: mirrorPoint(shape.transform.position),
-            rotation: mirrorTurn(shape.transform.rotation),
-          };
-          return shape.kind === "hull"
-            ? {
-                ...shape,
-                transform,
-                points: physicalHullFaces.mirrorX(shape.points),
-              }
-            : { ...shape, transform };
-        },
-      );
-      return shapes;
-    },
+    shapes: segment.shapes.map(
+      (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
+        const transform: IAutoMovieRigidTransform = {
+          position: mirrorPoint(shape.transform.position),
+          rotation: mirrorTurn(shape.transform.rotation),
+        };
+        if (shape.kind !== "hull") return { ...shape, transform };
+        const points: IAutoMovieVector3[] = physicalHullFaces.mirrorX(
+          shape.points,
+        );
+        return {
+          ...shape,
+          transform,
+          points,
+          ...(shape.hull === undefined
+            ? {}
+            : { hull: physicalHullFaces.mirrorHull(points, shape.hull) }),
+        };
+      },
+    ),
   };
 }
 

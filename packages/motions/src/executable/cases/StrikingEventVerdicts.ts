@@ -3,29 +3,29 @@ import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 
+/** The record of `IDefenceParams`'s site. */
+type IDefenceParams = { outcome?: string };
+
 /**
  * The striking capture's verdicts read off a plan's events rather than off a
  * strike's displayed limb: whether a defence's events class as its declared
  * outcome, and whether a late kick redirect is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read and which two verdicts are given.
- * @evidence contracts/development/design.md#principled-representation Each verdict is the capture's own record, built from a segment's events or from an attempt's error.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two verdicts, read by the striking cases and the variation strikes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The events are read by `StrikingVerdicts.at`, the one reader of a segment's instants.
  */
 export namespace StrikingEventVerdicts {
   /**
-   * Whether a defence's own events class as its declared outcome: in time
-   * when the guard is set by the contact, late when it is set within half its
+   * Whether a defence's own events class as its declared outcome: in time when
+   * the guard is set by the contact, late when it is set within half its
    * movement after it, and failed otherwise.
    *
    * @param id The defender's subject id.
    * @param segment The defence's segment.
-   * @returns The defence verdict; a plan missing its read, set or contact event fails.
+   * @returns The defence verdict; a plan missing its read, set or contact event
+   *   fails.
    */
   export function defence(
     id: string,
-    segment: IAutoMovieMotionHumanSegment,
+    segment: StrikingVerdicts.ITimed &
+      Pick<IAutoMovieMotionHumanSegment, "id" | "params">,
   ): IMotionCaptureCase.IVerdict {
     const name: string = `${id} ${segment.id} defence`;
     const read: number | undefined = StrikingVerdicts.at(segment, "read");
@@ -45,7 +45,7 @@ export namespace StrikingEventVerdicts {
     const movement: number = set - read;
     const shown: string =
       margin >= 0 ? "inTime" : margin > -0.5 * movement ? "late" : "fail";
-    const params: { outcome?: string } = segment.params;
+    const params: IDefenceParams = segment.params;
     return {
       name,
       passed: params.outcome === undefined || params.outcome === shown,
@@ -54,14 +54,16 @@ export namespace StrikingEventVerdicts {
   }
 
   /**
-   * Whether a redirect after the chamber key is refused as an illegal cut
-   * into a kick; any other error, or none, fails.
+   * Whether a redirect after the chamber key is refused as an illegal cut into
+   * a kick; any other error, or none, fails.
    *
    * @param attempt Builds the late redirect.
    * @returns The refusal verdict.
    */
   export function refusal(attempt: () => unknown): IMotionCaptureCase.IVerdict {
     let message: string | undefined;
+
+    // Process boundary: the attempt's thrown message is the verdict this case reports.
     try {
       attempt();
     } catch (error) {

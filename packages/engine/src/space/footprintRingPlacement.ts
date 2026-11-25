@@ -8,9 +8,7 @@ import { pointInPolygon } from "../architecture/pointInPolygon";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
 
-/**
- * Classify an XZ query against an authored ring with an explicit rim result.
- */
+/** Classify an XZ query against an authored ring with an explicit rim result. */
 export const footprintRingPlacement: (
   ring: IAutoMovieFootprintRing,
   x: number,

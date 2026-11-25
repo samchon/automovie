@@ -5,57 +5,47 @@ import type {
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
+  IAutoMoviePhysicsCache,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
- * Credit the balls a baked precision shot drops into a pocket or a cup, in the order they drop.
+ * Credit the balls a baked precision shot drops into a pocket or a cup, in the
+ * order they drop.
  *
- * The bed, a cue table's or a green's, has open mouths at its pockets or cup, so a pocketed ball leaves the bed
- * plane. A ball is credited at the first cache frame where its centre is
- * more than one radius below the bed plane, so the whole ball has passed
- * the bed, to the mouth whose plan reach holds it at that frame. A ball
- * that falls below the bed outside every reach left the table over a rail
- * and is never credited.
+ * The bed, a cue table's or a green's, has open mouths at its pockets or cup,
+ * so a pocketed ball leaves the bed plane. A ball is credited at the first
+ * cache frame where its centre is more than one radius below the bed plane, so
+ * the whole ball has passed the bed, to the mouth whose plan reach holds it at
+ * that frame. A ball that falls below the bed outside every reach left the
+ * table over a rail and is never credited.
  *
- * @param params The `balls` to credit, each one rigid sphere whose centre of mass is its centre, the table's `pockets` at bed height and the baked `result` shot.
+ * @param params The `balls` to credit, each one rigid sphere whose centre of
+ *   mass is its centre, the table's `pockets` at bed height and the baked
+ *   `result` shot.
  * @returns The pocketed balls in drop order; empty when none drops.
- * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or a ball is missing from the cache.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the crediting rule, its read clock, the order, the off-table case and the failure effects.
- * @evidence contracts/development/implementation.md#principled-implementation A ball resting on the bed has its centre one radius above it; only a ball that dropped through an opening can have its centre a radius below it. Each 120 Hz cache frame is the solver's own completed state.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure bakePrecisionDeck owns the shot; this reader owns the pocket and cup credit from its cache.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads solved poses only; no pocket capture zone or tuned distance is added.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(F * B * P) for F cache frames, B balls and P pockets; each ball stops being scanned once credited.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One cache frame read per instant serves every ball.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains no frame.
+ * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or
+ *   a ball is missing from the cache.
  */
 export function pocketedBalls(
-  params: IAutoMovieMotionHumanBilliards.IReadPocketed,
+  params: pocketedBalls.IRead,
 ): IAutoMovieMotionHumanBilliards.IPocketed {
   const { balls, pockets, result } = params;
   if (pockets.length === 0)
     throw new RangeError("A pocket credit needs at least one mouth");
   const bed: number = pockets[0]!.point.y;
-  const pending: Map<string, IAutoMovieMotionHumanPrecisionDeck.IRigid> =
-    new Map(
-      balls.map(
-        (
-          ball: IAutoMovieMotionHumanPrecisionDeck.IRigid,
-        ): [string, IAutoMovieMotionHumanPrecisionDeck.IRigid] => [
-          ball.id,
-          ball,
-        ],
-      ),
-    );
+  const pending: Map<string, pocketedBalls.IBall> = new Map(
+    balls.map((ball: pocketedBalls.IBall): [string, pocketedBalls.IBall] => [
+      ball.id,
+      ball,
+    ]),
+  );
   const radii: Map<string, number> = new Map(
-    balls.map(
-      (ball: IAutoMovieMotionHumanPrecisionDeck.IRigid): [string, number] => [
-        ball.id,
-        radius(ball),
-      ],
-    ),
+    balls.map((ball: pocketedBalls.IBall): [string, number] => [
+      ball.id,
+      radius(ball),
+    ]),
   );
   const out: IAutoMovieMotionHumanPrecisionDeck.IPocketed[] = [];
   const frames: number = Math.round(result.cache.duration * result.cache.rate);
@@ -91,15 +81,52 @@ export function pocketedBalls(
   return out;
 }
 
+/** What a pocket credit reads of a baked shot. */
+export namespace pocketedBalls {
+  /** A ball: its id and its profile's first segment, a sphere about its centre. */
+  export interface IBall {
+    /** The ball's body id in the deck cache. */
+    id: IAutoMovieMotionHumanPrecisionDeck.IRigid["id"];
+
+    /** Its placed pose; the credit reads the cache, not this. */
+    pose?: IAutoMovieMotionHumanPrecisionDeck.IRigid["pose"];
+
+    /** Its profile, the first segment its sphere and centre of mass. */
+    profile: {
+      /** The profile's segments. */
+      segments: readonly Pick<
+        IAutoMoviePhysicalSegment,
+        "shapes" | "centerOfMass"
+      >[];
+    };
+  }
+
+  /** The balls, the mouths and the baked shot. */
+  export interface IRead {
+    /** The balls to credit. */
+    balls: readonly IBall[];
+
+    /** The table's pockets at bed height. */
+    pockets: readonly IAutoMovieMotionHumanPrecisionDeck.IPocket[];
+
+    /** The baked shot: its release and its cache's frames. */
+    result: Pick<IAutoMovieMotionHumanPrecisionDeck.IResult, "release"> & {
+      /** The shot's physics cache. */
+      cache: Pick<IAutoMoviePhysicsCache, "at" | "duration" | "rate">;
+    };
+  }
+}
+
 /** The horizontal distance between two points, metres. */
 function plan(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   return Math.hypot(a.x - b.x, a.z - b.z);
 }
 
 /** A ball's sphere radius, metres. */
-function radius(ball: IAutoMovieMotionHumanPrecisionDeck.IRigid): number {
-  const segment: IAutoMoviePhysicalSegment | undefined =
-    ball.profile.segments[0];
+function radius(ball: pocketedBalls.IBall): number {
+  const segment:
+    | Pick<IAutoMoviePhysicalSegment, "shapes" | "centerOfMass">
+    | undefined = ball.profile.segments[0];
   const sphere: IAutoMoviePhysicalShape | undefined = segment?.shapes.find(
     (shape: IAutoMoviePhysicalShape): boolean => shape.kind === "sphere",
   );

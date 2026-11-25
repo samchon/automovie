@@ -10,8 +10,8 @@ export interface IAutoMoviePreparedSurface {
   readonly surface: IAutoMovieSurface;
 
   /**
-   * The authored rings of {@link IAutoMovieSurface.polygon} and its holes,
-   * with planar copies and signed areas prepared for repeated queries.
+   * The authored rings of {@link IAutoMovieSurface.polygon} and its holes, with
+   * planar copies and signed areas prepared for repeated queries.
    */
   readonly footprint: IAutoMovieFootprint;
 }

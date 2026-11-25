@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePhysicalSimulationInput.ts#IAutoMoviePhysicalSimulationInput
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Authored world poses and causal ownership/control policy for one cache sample. One scene body's physical profile, authored samples and bounded controller policy.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Sample k supplies continuous poses at k/rate seconds but its discrete policy owns the preceding interval [(k-1)/rate,k/rate); sample zero initializes ownership. targets includes zero and all duration times rate endpoints; translational gains use N/m and N s/m, angular gains N m/rad and N m s/rad.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMoviePhysicalSimulation clones targets before admission and identity hashing; physical target fitting may derive different motor goals without rewriting these authored samples. Simulation compute clones this descriptor, supplies documented defaults and admits it before allocating native objects; optional controllers add only the declared physical policy.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-admitPhysicalTargets requires complete segment coverage, finite positions, unit quaternions and strengths in [0,1]. dynamicSegments must explicitly include descendants of every selected parent. admitPhysicalBody, admitPhysicalReleasePolicy and admitPhysicalTargets own cross-field validation. Internal actuation requires supportTracking or balance; omitted optional controllers are inactive.
-
 # src/physics/IAutoMoviePhysicalSimulationInput.ts#IAutoMoviePhysicalSimulationInput.ITarget
 
 ## @evidence contracts/development/common.md#meaningful-documentation

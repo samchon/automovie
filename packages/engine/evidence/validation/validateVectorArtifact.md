@@ -6,7 +6,7 @@ Require a shallow object and finite x/y/z components, appending each bad axis.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-validateObjectArtifact owns record shape while Number.isFinite owns actual scalar admission.
+The declared vector type owns record shape while Number.isFinite owns scalar admission.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

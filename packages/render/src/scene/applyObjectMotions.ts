@@ -5,7 +5,11 @@ import type * as THREE from "three";
 import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
 
 /**
- * Apply a shot's object clips under the engine's per-channel authority rule. A future-only channel writes nothing. As with {@link applyObjectMotion}, a stateful host must restore staged bases before each seek/frame when no active authority should leave the staged value visible. Samples write parent-local transform fields, so their coordinate frame must match each resolved target.
+ * Apply a shot's object clips under the engine's per-channel authority rule. A
+ * future-only channel writes nothing. As with {@link applyObjectMotion}, a
+ * stateful host must restore staged bases before each seek/frame when no active
+ * authority should leave the staged value visible. Samples write parent-local
+ * transform fields, so their coordinate frame must match each resolved target.
  */
 export const applyObjectMotions: (
   clips: readonly IAutoMovieClip[],

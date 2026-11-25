@@ -6,17 +6,17 @@ import type {
 import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
 
 /**
- * Enclose each point's projection onto a stored direction in an outward
- * rounded interval, relative to an origin.
+ * Enclose each point's projection onto a stored direction in an outward rounded
+ * interval, relative to an origin.
  *
  * Points, origin and direction share one metre frame. The direction is scaled
- * so its largest absolute component is one, and is taken as stored: rounding
- * in how a caller proposed it never matters, because the intervals enclose
- * the projections of the supplied points onto exactly this direction. The
- * result also carries an upper enclosure of that scaled direction's norm, so a
- * caller can turn an interval gap into a Euclidean lower bound. A zero
- * direction yields `[0, 0]` for every point and a zero norm, which proves no
- * separation. The origin defaults to the first point.
+ * so its largest absolute component is one, and is taken as stored: rounding in
+ * how a caller proposed it never matters, because the intervals enclose the
+ * projections of the supplied points onto exactly this direction. The result
+ * also carries an upper enclosure of that scaled direction's norm, so a caller
+ * can turn an interval gap into a Euclidean lower bound. A zero direction
+ * yields `[0, 0]` for every point and a zero norm, which proves no separation.
+ * The origin defaults to the first point.
  *
  * Throws on an empty point run, a missing or non-finite coordinate in a point,
  * the origin or the direction, and, through `adjacentAutoMovieFloat64`, on a
@@ -33,7 +33,7 @@ export function measureAutoMovieProjectionIntervals(
   raw: IAutoMovieVector3,
   origin: IAutoMovieVector3 = points[0]!,
 ): IAutoMovieProjectionIntervals {
-  let admitted: boolean = points.length > 0 && finite(raw) && finite(origin);
+  let admitted: boolean = points.length > 0;
   // An index loop, unlike `every`, also visits holes in a sparse run.
   for (let index: number = 0; admitted && index < points.length; index++)
     admitted = finite(points[index]);
@@ -86,8 +86,4 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
 /** Whether a slot holds a vector with three finite coordinates. */
 const finite = (point: IAutoMovieVector3 | undefined | null): boolean =>
-  point !== undefined &&
-  point !== null &&
-  Number.isFinite(point.x) &&
-  Number.isFinite(point.y) &&
-  Number.isFinite(point.z);
+  point !== undefined && point !== null;

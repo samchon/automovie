@@ -1,21 +1,3 @@
-# src/posture/HumanShapeFraming.ts#HumanShapeFraming
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is framed, for which readers and how long it is kept.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A shape's bound is its sphere and, for a hull, its face planes in its own frame, the two tests a point is screened by before an exact query.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The framed record, the framing, the screen test and the sphere, read by the forearm's clearance and the trajectory's shapes.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No shape kind is special-cased beyond the four the engine's colliders have.
-
 # src/posture/HumanShapeFraming.ts#HumanShapeFraming.IFramed
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -34,11 +16,11 @@ Six members, each read by `beyond`.
 
 The planes are packed numbers in the hull's own frame, so a test reads no object.
 
-# src/posture/HumanShapeFraming.ts#HumanShapeFraming.of
+# src/posture/HumanShapeFraming.ts#HumanShapeFraming
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is computed and why it is kept.
+States what is computed, and that a sweep computes it once, when it prepares its room.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,15 +28,15 @@ The sphere and, for a hull, the face planes of the engine's hull, its centre and
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One lookup and, once per frame and shape, one framing.
+One framing per call.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The same numbers every call would compute, kept, never approximated.
+The exact sphere, planes, centre and rotation, never approximated.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Each posed frame's shapes are framed once and read by every candidate of a sweep.
+The caller frames each shape once, when its sweep prepares its room (`HumanArmOvershootRoom.of`), and every candidate reads the framing.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -62,37 +44,7 @@ Reuses `sphere` and the engine's hull faces.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Kept in a WeakMap keyed by the posed frame and released with it.
-
-# src/posture/HumanShapeFraming.ts#HumanShapeFraming.bendPlanes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the original native plane backing and unproved fallback.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Requires the actual cache identity and native typed length before borrowing the array.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One ownership test and the descriptor chain of length.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Never inspects unknown replacement array objects.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Constant work before the consumer reads its exact current plane words.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The room's scorer can compare live planes without reading unvisited exact hulls.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Retains nothing.
+The framing, its face planes included, belongs to the caller's room and is released with it.
 
 # src/posture/HumanShapeFraming.ts#HumanShapeFraming.beyond
 

@@ -2,11 +2,12 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanExtremityDimensions } from "../../body/IAutoMovieHumanExtremityDimensions";
 
 /**
- * Canonical-left leg joint centres, segment lengths and stature/ankle placement inputs. Runtime construction and admission remain with AutoMovieHumanLegBones in Human.
+ * Canonical-left leg joint centres, segment lengths and stature/ankle placement
+ * inputs. Runtime construction and admission remain with AutoMovieHumanLegBones
+ * in Human.
  */
 export namespace IAutoMovieHumanLegBones {
-  /** The three joint centres of the left leg and the bones' lengths.
-   */
+  /** The three joint centres of the left leg and the bones' lengths. */
   export interface IBones {
     /** Hip joint centre. */
     hip: AutoMovieVector3Tuple;
@@ -24,22 +25,30 @@ export namespace IAutoMovieHumanLegBones {
     tibia: number;
   }
 
-  /** What the bones are placed from.
-   */
+  /** What the bones are placed from. */
   export interface IInput {
     /** Stature, calibration mm. */
     stature: number;
 
-    /** Calibration millimetres per world millimetre; the published constants below are world millimetres. */
+    /**
+     * Calibration millimetres per world millimetre; the published constants
+     * below are world millimetres.
+     */
     scale: number;
 
     /** Lateral malleolus height, calibration mm: the foot's `ankleHeight` input. */
     ankleHeight: number;
 
-    /** Medial over lateral malleolus height (the foot prior's convention, Gray 1918: the medial stands higher). */
+    /**
+     * Medial over lateral malleolus height (the foot prior's convention, Gray
+     * 1918: the medial stands higher).
+     */
     medial: number;
 
-    /** Forward place of the hip centre, calibration mm: under the trunk's crotch ring. */
+    /**
+     * Forward place of the hip centre, calibration mm: under the trunk's crotch
+     * ring.
+     */
     hipForward: number;
 
     /** Forward place of the ankle centre, calibration mm: the foot's stance. */

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidTrim.ts#AutoMovieSolidTrim
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the loop's layout, its inside test and its ribbon.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A through-cut: an opening in the skin (the palpebral fissure, the oral fissure) as a closed trim loop in the skin's own chart: companion namespace of 5 members (`ITrim`, `IResult`, `DENSITY`, `create`, `selfCrossing`); units and frames named in its text: radians, radian, second, world, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidTrim` in packages/engine/src/geometry/construction/AutoMovieSolidTrim.ts; its surface is the 5 members listed and the text shows 10 other files naming it, mostly packages/engine (5), test (4), packages/human (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieSolidTrim.ts#AutoMovieSolidTrim.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -1,11 +1,12 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Appendage/base endpoint jets and arclength derivatives used to bridge a skin strip. Runtime construction and admission remain with AutoMovieHumanBodyStrip in Human.
+ * Appendage/base endpoint jets and arclength derivatives used to bridge a skin
+ * strip. Runtime construction and admission remain with AutoMovieHumanBodyStrip
+ * in Human.
  */
 export namespace IAutoMovieHumanBodyStrip {
-  /** Both edges of one column: points and outward arc-length derivatives.
-   */
+  /** Both edges of one column: points and outward arc-length derivatives. */
   export interface IColumn {
     /** Appendage end point. */
     A: AutoMovieVector3Tuple;
@@ -30,7 +31,10 @@ export namespace IAutoMovieHumanBodyStrip {
   }
 
   /**
-   * First and second arclength derivatives across a chain at the requested chart point, in the chain's world frame. The first is dimensionless; the second has inverse-millimetre units. The owning operation uses the available chain jet or its documented finite-difference estimate.
+   * First and second arclength derivatives across a chain at the requested
+   * chart point, in the chain's world frame. The first is dimensionless; the
+   * second has inverse-millimetre units. The owning operation uses the
+   * available chain jet or its documented finite-difference estimate.
    */
   export type AcrossResult = [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
 }

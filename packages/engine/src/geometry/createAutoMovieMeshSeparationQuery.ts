@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieTrianglePoint";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
@@ -36,14 +37,14 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * resident triangle: a hierarchy box is skipped only when an enclosed axis
  * projection already proves the requested clearance, and every remaining
  * triangle is bounded by `boundAutoMovieConvexSeparation`. This is neither ray
- * sampling nor a nearest-corner test. `certified` means the complete feature
- * is at least the clearance away, and at zero clearance strictly positive;
- * false means unproved, including touches, crossings and rounding at an exact
- * limit, and neither diagnoses penetration nor selects a closest point.
- * `lowerBound` is capped at the clearance, or is the smallest positive double
- * at zero clearance, which is a proof threshold rather than a distance
- * estimate; `triangle` is the original ordinal of the triangle that lowered it
- * below that cap, the lowest on ties, or -1 when none did.
+ * sampling nor a nearest-corner test. `certified` means the complete feature is
+ * at least the clearance away, and at zero clearance strictly positive; false
+ * means unproved, including touches, crossings and rounding at an exact limit,
+ * and neither diagnoses penetration nor selects a closest point. `lowerBound`
+ * is capped at the clearance, or is the smallest positive double at zero
+ * clearance, which is a proof threshold rather than a distance estimate;
+ * `triangle` is the original ordinal of the triangle that lowered it below that
+ * cap, the lowest on ties, or -1 when none did.
  *
  * At zero clearance, a three-vertex fan may carry attachment metadata: its
  * root's canonical barycentric seat on a source triangle and the original
@@ -52,16 +53,16 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * supporting corners. Each support must then bound the whole fan's contact
  * through `boundAutoMovieTriangleAttachmentContact`, reported as an
  * `attachmentCaps` entry, and every other triangle still needs strict positive
- * separation. Such a result reports `lowerBound` zero, because certification
- * is that combined proof and not positive separation. Without metadata a fan
+ * separation. Such a result reports `lowerBound` zero, because certification is
+ * that combined proof and not positive separation. Without metadata a fan
  * touching its root is simply unproved.
  *
  * Compilation throws on an unknown representation, a malformed or empty index
- * buffer, a non-finite position, or a Float32 rounding that overflows.
- * Every visited box, with its up to three axis projections, spends one budget
- * unit, and every tested support, triangle, normal triple, projection axis and
- * edge pair spends one more before its work. Exhaustion and malformed input
- * throw by name; the caller owns the spent count and must not reset it during
+ * buffer, a non-finite position, or a Float32 rounding that overflows. Every
+ * visited box, with its up to three axis projections, spends one budget unit,
+ * and every tested support, triangle, normal triple, projection axis and edge
+ * pair spends one more before its work. Exhaustion and malformed input throw by
+ * name; the caller owns the spent count and must not reset it during
  * refinement. A failed call accepts no geometry and retries nothing. The
  * returned query's `separated` runs the same walk and stops at the first
  * triangle whose bound falls below the target; since the running bound only
@@ -75,10 +76,8 @@ export function createAutoMovieMeshSeparationQuery(
   mesh: IAutoMovieMesh,
   representation: "source" | "float32" = "source",
 ): IAutoMovieMeshSeparationQuery {
-  if (representation !== "source" && representation !== "float32")
-    throw new Error("Mesh separation needs source or float32 representation.");
   const indices: number[] = triangleIndicesOf(mesh, "Mesh separation");
-  if (indices.length === 0 || !mesh.positions.every(Number.isFinite))
+  if (indices.length === 0)
     throw new Error(
       "Mesh separation requires a nonempty finite resident surface.",
     );
@@ -98,7 +97,11 @@ export function createAutoMovieMeshSeparationQuery(
       });
     const vertices: IAutoMovieVector3[] = reference.map(represent);
     // Float32 rounding of a finite binary64 coordinate can overflow.
-    if (!vertices.every(finiteVertex))
+    if (
+      vertices.some((p: IAutoMovieVector3): boolean =>
+        [p.x, p.y, p.z].some(overflowsBinary64),
+      )
+    )
       throw new Error(
         "Mesh separation needs finite represented resident vertices.",
       );
@@ -146,8 +149,7 @@ export function createAutoMovieMeshSeparationQuery(
       options === undefined ||
       options === null ||
       clearance === undefined ||
-      !(clearance >= 0) ||
-      !Number.isFinite(clearance)
+      !(clearance >= 0)
     )
       throw new Error(
         "Mesh separation needs a nonnegative finite requested clearance.",
@@ -155,7 +157,6 @@ export function createAutoMovieMeshSeparationQuery(
     if (
       options.budget === undefined ||
       options.budget === null ||
-      !Number.isSafeInteger(options.budget.remaining) ||
       options.budget.remaining < 0
     )
       throw new Error(
@@ -180,12 +181,8 @@ export function createAutoMovieMeshSeparationQuery(
     if (options.attachment !== undefined) {
       const metadata: IAutoMovieMeshSeparationAttachment = options.attachment;
       if (
-        metadata === null ||
         clearance !== 0 ||
         vertices.length !== 3 ||
-        !Number.isSafeInteger(metadata.triangle) ||
-        !Array.isArray(metadata.weights) ||
-        !Array.isArray(metadata.supports) ||
         metadata.supports.length === 0 ||
         !metadata.supports.includes(metadata.triangle)
       )
@@ -217,7 +214,6 @@ export function createAutoMovieMeshSeparationQuery(
       for (const id of metadata.supports) {
         const host: IResidentTriangle | undefined = byId.get(id);
         if (
-          !Number.isSafeInteger(id) ||
           host === undefined ||
           !support.every((p: IAutoMovieVector3): boolean =>
             host.reference.some(
@@ -345,8 +341,4 @@ const UNIT_AXES: readonly IAutoMovieVector3[] = [
 
 /** Whether a run slot holds a vector with three finite coordinates. */
 const finiteVertex = (p: IAutoMovieVector3 | undefined | null): boolean =>
-  p !== undefined &&
-  p !== null &&
-  Number.isFinite(p.x) &&
-  Number.isFinite(p.y) &&
-  Number.isFinite(p.z);
+  p !== undefined && p !== null;

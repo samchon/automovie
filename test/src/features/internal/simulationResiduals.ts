@@ -1,6 +1,7 @@
 import {
   PhysicalRotationVector,
   Quaternion,
+  ROM_TOLERANCE,
   Vector3,
   physicalJointRelativeRotation,
   projectPhysicalJointRotation,
@@ -18,11 +19,11 @@ import type {
 import type { motionComplaints } from "./motionComplaints";
 
 /**
- * Check a simulated window's joint residuals against the provisional guard:
- * every return's post-stabilization angle (`IAutoMoviePhysicalOwnershipEvent.stabilization`)
- * and, at every solved frame, how far each fewer-axis joint sits off its
- * own limit box, the angle the engine's projection would move it
- * (`projectPhysicalJointRotation`).
+ * Check a simulated window's joint residuals against the guard (`GUARD`): every
+ * return's post-stabilization angle
+ * (`IAutoMoviePhysicalOwnershipEvent.stabilization`) and, at every solved
+ * frame, how far each fewer-axis joint sits off its own limit box, the angle
+ * the engine's projection would move it (`projectPhysicalJointRotation`).
  *
  * @param all The gatherer the failures go to.
  * @param label What the window is, for the messages.
@@ -99,9 +100,15 @@ export function simulationResiduals(
 /** Companion constants of {@link simulationResiduals}. */
 export namespace simulationResiduals {
   /**
-   * The provisional guard on a joint's residual, radians: 0.1 degree, a
-   * correction no film frame shows. It is not a physical bound; a residual
-   * past it means the solver failed to hold the joint and must fail.
+   * The guard on a joint's residual, radians: the engine's `ROM_TOLERANCE`
+   * (0.01 degree), the one joint tolerance the pipeline declares, which the
+   * simulated window hands the solver as its hand-back limit
+   * (`planHumanSimulationBody`, `maximumJointViolation`) and the take's range
+   * verdict reads. No solver bounds a dynamic joint-limit residual by a
+   * tolerance of its own: Bullet corrects a limit's penetration by a Baumgarte
+   * share per step (`btMultiBodyJointLimitConstraint`, `m_erp` 0.2) and
+   * MuJoCo's limits are soft (`solref`, `solimp`). A residual past it means the
+   * solver failed to hold the joint and must fail.
    */
-  export const GUARD: number = (0.1 * Math.PI) / 180;
+  export const GUARD: number = (ROM_TOLERANCE * Math.PI) / 180;
 }

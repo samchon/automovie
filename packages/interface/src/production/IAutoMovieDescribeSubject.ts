@@ -1,6 +1,4 @@
-/**
- * Data and callback contracts shared by the DescribeSubject operations.
- */
+/** Data and callback contracts shared by the DescribeSubject operations. */
 export namespace IAutoMovieDescribeSubject {
   /**
    * Describe one stable subject address from a compiled shot artifact.

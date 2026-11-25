@@ -7,124 +7,117 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 
+/** The alternatives of `BothFixed`'s site. */
+type BothFixed = "body" | "posture";
+
+/** The alternatives of `OfFound2`'s site. */
+type OfFound2 = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `OfFound`'s site. */
+type OfFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `OfFixed`'s site. */
+type OfFixed = "body" | "posture" | "side";
+
+/** The alternatives of `Goal`'s site. */
+type Goal = "point" | "rotation" | "fallback";
+
+/** Prepare one actual unchanged body/trunk/side for all of its requested sweeps. */
+export function AutoMovieMotionHumanBendPreparation(
+  fixed: Pick<IAutoMovieMotionHumanBend.ISolve, OfFixed>,
+  source?: AutoMovieMotionHumanBendChain.IPrepared,
+): AutoMovieMotionHumanBendPreparation.IPrepared {
+  const search: ReturnType<typeof AutoMovieMotionHumanBendSearch.prepare> =
+    AutoMovieMotionHumanBendSearch.prepare(fixed, source);
+  return {
+    solve: (
+      goal: AutoMovieMotionHumanBendPreparation.IGoal,
+    ): IAutoMovieVector3 => {
+      const found: OfFound = search(
+        goal,
+        (): ((
+          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+        ) => AutoMovieMotionHumanBendSearch.IScore) =>
+          AutoMovieMotionHumanBendSearch.strained,
+      );
+      if (typeof found !== "string" && found.overshoot === 0)
+        return found.elbow;
+      if (goal.fallback !== undefined)
+        return AutoMovieMotionHumanBend.arm(
+          fixed.body,
+          fixed.posture,
+          fixed.side,
+          goal.fallback,
+        );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "target",
+        value: fixed.side,
+        reason: `AutoMovieMotionHumanBend.solve found no elbow place for the ${fixed.side} hand: ${typeof found === "string" ? found : "every place leaves a joint out of range or the forearm inside the body"}`,
+        fix: "move the target to where the arm can bend to it: nearer the shoulder's side and off the body",
+      });
+    },
+    strain: (
+      goal: AutoMovieMotionHumanBendPreparation.IGoal,
+      bend: IAutoMovieVector3,
+    ): number => {
+      const found: OfFound2 = search(
+        goal,
+        (
+          chain: Parameters<
+            Parameters<typeof AutoMovieMotionHumanBendSearch.search>[1]
+          >[0],
+        ): ((
+          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+        ) => AutoMovieMotionHumanBendSearch.IScore) =>
+          AutoMovieMotionHumanBendSide.prepare(
+            chain.shoulder,
+            goal.point,
+            bend,
+          ),
+      );
+      return typeof found === "string" || found.overshoot !== 0
+        ? Infinity
+        : found.strain;
+    },
+  };
+}
+
 /**
- * Actual solve/strain sweeps sharing fixed arm geometry and optional paired trunk preparation.
+ * Actual solve/strain sweeps sharing fixed arm geometry and optional paired
+ * trunk preparation.
  */
 export namespace AutoMovieMotionHumanBendPreparation {
   /**
-   * Variable fields of the existing bend request, after body/trunk/side are fixed.
+   * Variable fields of the existing bend request, after body/trunk/side are
+   * fixed.
    */
-  export type IGoal = Pick<
-    IAutoMovieMotionHumanBend.ISolve,
-    "point" | "rotation" | "fallback"
-  >;
+  export type IGoal = Pick<IAutoMovieMotionHumanBend.ISolve, Goal>;
 
-  /**
-   * Two original numerical queries on one fixed body/trunk/side geometry.
-   */
+  /** Two original numerical queries on one fixed body/trunk/side geometry. */
   export interface IPrepared {
-    /**
-     * Run the original legality-first then least-strain sweep for this wrist.
-     */
+    /** Run the original legality-first then least-strain sweep for this wrist. */
     solve: (goal: IGoal) => IAutoMovieVector3;
 
-    /**
-     * Run the original elbow-side-ranked sweep and report its legal strain.
-     */
+    /** Run the original elbow-side-ranked sweep and report its legal strain. */
     strain: (goal: IGoal, bend: IAutoMovieVector3) => number;
   }
 
-  /**
-   * Prepare one actual unchanged body/trunk/side for all of its requested sweeps.
-   */
-  export function of(
-    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
-    source?: AutoMovieMotionHumanBendChain.IPrepared,
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
-  ): IPrepared {
-    const search: ReturnType<typeof AutoMovieMotionHumanBendSearch.prepare> =
-      AutoMovieMotionHumanBendSearch.prepare(fixed, source);
-    return {
-      solve: (goal: IGoal): IAutoMovieVector3 => {
-        const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-          search(
-            goal,
-            (): ((
-              candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-            ) => AutoMovieMotionHumanBendSearch.IScore) =>
-              // A trial's witness compares the first score's exact strain, so
-              // only a search without one defers it.
-              trial === undefined
-                ? AutoMovieMotionHumanBendSearch.strained
-                : (
-                    candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-                  ): AutoMovieMotionHumanBendSearch.IScore => ({
-                    overshoot: candidate.overshoot,
-                    deviation: candidate.strain,
-                  }),
-            trial,
-          );
-        if (typeof found !== "string" && found.overshoot === 0)
-          return found.elbow;
-        if (goal.fallback !== undefined)
-          return AutoMovieMotionHumanBend.arm(
-            fixed.body,
-            fixed.posture,
-            fixed.side,
-            goal.fallback,
-          );
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "target",
-          value: fixed.side,
-          reason: `AutoMovieMotionHumanBend.solve found no elbow place for the ${fixed.side} hand: ${typeof found === "string" ? found : "every place leaves a joint out of range or the forearm inside the body"}`,
-          fix: "move the target to where the arm can bend to it: nearer the shoulder's side and off the body",
-        });
-      },
-      strain: (goal: IGoal, bend: IAutoMovieVector3): number => {
-        const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-          search(
-            goal,
-            (
-              chain: Parameters<
-                Parameters<typeof AutoMovieMotionHumanBendSearch.search>[1]
-              >[0],
-            ): ((
-              candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-            ) => AutoMovieMotionHumanBendSearch.IScore) =>
-              AutoMovieMotionHumanBendSide.prepare(
-                chain.shoulder,
-                goal.point,
-                bend,
-              ),
-          );
-        return typeof found === "string" || found.overshoot !== 0
-          ? Infinity
-          : found.strain;
-      },
-    };
-  }
-
-  /**
-   * Select the original default elbow ranking for a current moving hand.
-   */
+  /** Select the original default elbow ranking for a current moving hand. */
   export function defaultBend(
     goal: IAutoMovieMotionHumanBend.ISolve,
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
   ): IAutoMovieVector3 {
-    return trial === undefined
-      ? AutoMovieMotionHumanBend.solve(goal)
-      : of(goal, undefined, trial).solve(goal);
+    return AutoMovieMotionHumanBend.solve(goal);
   }
   /**
-   * Prepare actual sides of one fixed trunk within one synchronous person operation.
+   * Prepare actual sides of one fixed trunk within one synchronous person
+   * operation.
    */
   export function both(
-    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, BothFixed>,
     resolution?: Parameters<typeof AutoMovieMotionHumanBendChain.prepare>[2],
   ): (side: AutoMovieHumanSide) => IPrepared {
     let source: AutoMovieMotionHumanBendChain.IPrepared | undefined;
@@ -137,7 +130,10 @@ export namespace AutoMovieMotionHumanBendPreparation {
           fixed.posture,
           resolution,
         );
-        current = of({ ...fixed, side }, source);
+        current = AutoMovieMotionHumanBendPreparation(
+          { ...fixed, side },
+          source,
+        );
         sides[side] = current;
       }
       return current;

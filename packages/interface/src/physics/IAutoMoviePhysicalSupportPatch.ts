@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * Current resolved support points in world metres.
- */
+/** Current resolved support points in world metres. */
 export interface IAutoMoviePhysicalSupportPatch {
   /** Endpoint bone from the footfall pattern. */
   bone: string;

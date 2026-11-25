@@ -3,13 +3,6 @@ import type {
   IAutoMovieSpringStep,
 } from "@automovie/interface";
 
-const assertFinite: (label: string, value: number) => void = (
-  label: string,
-  value: number,
-): void => {
-  if (!Number.isFinite(value)) throw new Error(`${label} must be finite`);
-};
-
 /**
  * Advance a one-dimensional damped spring one fixed timestep (semi-implicit
  * Euler): a generic numeric integrator for **secondary motion**, a value that
@@ -22,8 +15,10 @@ const assertFinite: (label: string, value: number) => void = (
  * `force = stiffness·(target − current) − damping·velocity`, integrated as
  * `velocity += force·dt; value += velocity·dt`. Unlike the world-space
  * {@link stepSpring} (VRM SpringBone, for the Node/Channel core), this works in
- * the humanoid pose path's angle space.
- * Finite inputs, nonnegative coefficients and positive dt are required. The caller chooses a timestep appropriate to the coefficients; the explicit step does not guarantee stability for arbitrary dt or prevent arithmetic overflow at extreme magnitudes.
+ * the humanoid pose path's angle space. Finite inputs, nonnegative coefficients
+ * and positive dt are required. The caller chooses a timestep appropriate to
+ * the coefficients; the explicit step does not guarantee stability for
+ * arbitrary dt or prevent arithmetic overflow at extreme magnitudes.
  */
 export const dampedSpring: (
   current: number,
@@ -38,12 +33,6 @@ export const dampedSpring: (
   params: IAutoMovieSpringParams,
   dt: number,
 ): IAutoMovieSpringStep => {
-  assertFinite("spring current", current);
-  assertFinite("spring velocity", velocity);
-  assertFinite("spring target", target);
-  assertFinite("spring stiffness", params.stiffness);
-  assertFinite("spring damping", params.damping);
-  assertFinite("spring dt", dt);
   if (params.stiffness < 0)
     throw new Error("spring stiffness must be non-negative");
   if (params.damping < 0)

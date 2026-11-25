@@ -1,7 +1,13 @@
 /**
- * Trim a project name and refuse one that cannot serve as a portable directory segment and JSON string.
+ * Trim a project name and refuse one that cannot serve as a portable directory
+ * segment and JSON string.
  *
- * The name is trimmed, then refused when empty, `.` or `..`, ending in `.`, containing `<>:"/\|?*` or an ASCII control character, or matching the ASCII device-name pattern `con`, `prn`, `aux`, `nul`, `com1` through `com9`, or `lpt1` through `lpt9`, with or without an extension. These checks prevent separators and JSON string delimiters; they do not establish npm package-name validity or every filesystem's name and length restrictions.
+ * The name is trimmed, then refused when empty, `.` or `..`, ending in `.`,
+ * containing `<>:"/\|?*` or an ASCII control character, or matching the ASCII
+ * device-name pattern `con`, `prn`, `aux`, `nul`, `com1` through `com9`, or
+ * `lpt1` through `lpt9`, with or without an extension. These checks prevent
+ * separators and JSON string delimiters; they do not establish npm package-name
+ * validity or every filesystem's name and length restrictions.
  *
  * @param name The name as supplied.
  * @returns The trimmed name.

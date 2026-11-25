@@ -7,10 +7,13 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `EndpointAxis`'s site. */
+type EndpointAxis = "from" | "to";
+
 /** A named support rectangle and its owning prop's motion. */
 interface Endpoint {
   /** The transfer argument identifying the support. */
-  axis: "from" | "to";
+  axis: EndpointAxis;
   /** Read the owning prop's world frame at a film second. */
   frame(seconds: number): IAutoMovieRigidTransform;
   /** The owning prop's world frame at the transfer start. */
@@ -26,28 +29,21 @@ interface Endpoint {
 }
 
 /**
- * Check dock alignment on the film clock through trailing touchdown.
- * Co-moving supports must preserve the deck's position and orientation in
- * the platform's frame and keep both rectangles level. Prop readers provide
- * evaluated frames, so admission samples at intervals of at most 1/120 s.
- * Co-moving admission allows 1 mm at the deck centre and at all four corners,
- * and 0.1 degrees of relative rotation. Stationary docking uses these bounds
- * at each prop frame.
+ * Check dock alignment on the film clock through trailing touchdown. Co-moving
+ * supports must preserve the deck's position and orientation in the platform's
+ * frame and keep both rectangles level. Prop readers provide evaluated frames,
+ * so admission samples at intervals of at most 1/120 s. Co-moving admission
+ * allows 1 mm at the deck centre and at all four corners, and 0.1 degrees of
+ * relative rotation. Stationary docking uses these bounds at each prop frame.
  *
  * @param from The source support and its prop's live world frame reader.
  * @param to The destination support and its prop's live world frame reader.
  * @param start The film second of entry.
  * @param duration Film seconds from entry until trailing touchdown.
- * @param coMoving Compare alignment in the source frame when true, and in the world otherwise.
- * @throws {HumanRefusal} If a checked sample violates the selected dock alignment.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Specifies the time interval, sampling limit, coordinate frames and geometric tolerances.
- * @evidence contracts/development/implementation.md#principled-implementation Compares the same deck rectangle under each prop's rigid motion since entry. Corner displacements bound the entire rectangle by convexity, and the relative quaternion measures the shorter turn.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Docking owns frame admission and geometry checks. The transfer planner owns foot placement and timing.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Checks raw frames before comparing them. Samples constrain the evaluated instants and cannot certify excursions between them.
- * @evidence contracts/development/implementation.md#efficient-algorithms Checks two frames and at most four corners per sample, with constant temporary space and immediate refusal on failure.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's frame scalar admission and reuses each baseline inverse and deck corner for the entire scan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps fixed-size baselines and temporary samples only until the scan returns or refuses.
+ * @param coMoving Compare alignment in the source frame when true, and in the
+ *   world otherwise.
+ * @throws {HumanRefusal} If a checked sample violates the selected dock
+ *   alignment.
  */
 export function checkSupportTransferDock(
   from: Endpoint,
@@ -182,7 +178,6 @@ function checkFrame(
   frame: IAutoMovieRigidTransform,
   time: number,
 ): void {
-  admission.finiteVector("position", frame.position, "Support position");
   admission.unitQuaternion("rotation", frame.rotation, "Support rotation");
   if (admission.items.length !== 0)
     throw new HumanRefusal({

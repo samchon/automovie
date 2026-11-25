@@ -2,13 +2,20 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 import type { IAutoMovieChromium } from "./IAutoMovieChromium";
 import { planAutoMovieChromiumLaunch } from "./planAutoMovieChromiumLaunch";
 
-/** The command that installs the Chromium build the production's `playwright-core` pins for headless use; `playwright-core`'s own command, so the revision is the one the production launches. */
+/**
+ * The command that installs the Chromium build the production's
+ * `playwright-core` pins for headless use; `playwright-core`'s own command, so
+ * the revision is the one the production launches.
+ */
 const INSTALL: string = "npx playwright-core install chromium-headless-shell";
 
 /**
- * Launch headless Chromium for a capture backend, and describe the launch the way a record names it: the backend, then the Chromium version.
+ * Launch headless Chromium for a capture backend, and describe the launch the
+ * way a record names it: the backend, then the Chromium version.
  *
- * A launch that fails because the browser executable is missing is rethrown as an error naming `npx playwright-core install chromium-headless-shell` and `CHROME_PATH`; any other failure is rethrown with the backend named.
+ * A launch that fails because the browser executable is missing is rethrown as
+ * an error naming `npx playwright-core install chromium-headless-shell` and
+ * `CHROME_PATH`; any other failure is rethrown with the backend named.
  */
 export async function launchAutoMovieChromium(props: {
   /** Playwright's `chromium`, loaded from the production. */
@@ -23,7 +30,10 @@ export async function launchAutoMovieChromium(props: {
   /** The launched browser. */
   browser: IAutoMovieChromium.IBrowser;
 
-  /** The backend and Chromium version, such as `swiftshader; Chromium 131.0.6778.33`. */
+  /**
+   * The backend and Chromium version, such as `swiftshader; Chromium
+   * 131.0.6778.33`.
+   */
   backend: string;
 }> {
   const plan: ReturnType<typeof planAutoMovieChromiumLaunch> =

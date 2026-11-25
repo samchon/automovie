@@ -1,6 +1,8 @@
 /**
- * Topology census of an observed edge-connected source-cell component.
- * Counts are dimensionless; Euler characteristic, orientability and genus remain null where incidence does not qualify them. Input orientation consistency is separate from mathematical orientability.
+ * Topology census of an observed edge-connected source-cell component. Counts
+ * are dimensionless; Euler characteristic, orientability and genus remain null
+ * where incidence does not qualify them. Input orientation consistency is
+ * separate from mathematical orientability.
  */
 export interface IAutoMovieRecoverySourceTopology {
   /** Vertex population in the component's observed incidence graph. */
@@ -15,7 +17,10 @@ export interface IAutoMovieRecoverySourceTopology {
   /** Euler characteristic V-E+F, or null when topology cannot be qualified. */
   euler: number | null;
 
-  /** Whether local incidence meets the observer's manifold checks; no embedding claim follows. */
+  /**
+   * Whether local incidence meets the observer's manifold checks; no embedding
+   * claim follows.
+   */
   manifold: boolean;
 
   /** Whether face parity admits coherent orientation, or null when unqualified. */

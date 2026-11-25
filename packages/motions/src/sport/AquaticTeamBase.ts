@@ -14,15 +14,27 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** The offered palm's depth below the surface at the apex, and how much deeper it waits before it, over stature: provisional, submerged under the flyer's foot. */
+/**
+ * The offered palm's depth below the surface at the apex, and how much deeper
+ * it waits before it, over stature: provisional, submerged under the flyer's
+ * foot.
+ */
 const DEPTH: number = 0.235;
 const RISE: number = 0.04;
 
-/** The offered palm outside the shoulder, over the shoulder's half-width, and the share of the arm's length it extends to: provisional, a pressing arm short of straight. */
+/**
+ * The offered palm outside the shoulder, over the shoulder's half-width, and
+ * the share of the arm's length it extends to: provisional, a pressing arm
+ * short of straight.
+ */
 const OUTSIDE: number = 0.25;
 const EXTENSION: number = 0.95;
 
-/** A supporting base's elbow out from, below and behind its offered palm, over stature: provisional, a forearm's length behind it and nearly level, so the forearm lies flat and the palm faces up by supination alone. */
+/**
+ * A supporting base's elbow out from, below and behind its offered palm, over
+ * stature: provisional, a forearm's length behind it and nearly level, so the
+ * forearm lies flat and the palm faces up by supination alone.
+ */
 const ELBOW_OUT: number = 0.08;
 const ELBOW_DOWN: number = 0.03;
 const ELBOW_BACK: number = 0.13;
@@ -43,13 +55,8 @@ interface IPalmOffer {
 }
 
 /**
- * An artistic base's support: its palm offered under a flyer's foot, and
- * the turn of a limb onto or off a supporting palm or sole.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is offered, where, and how a limb takes or leaves support.
- * @evidence contracts/development/design.md#principled-representation A world palm point and orientation set from the base's own frame, with its own elbow hint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the base and the flyer of \AquaticTeam\.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The flyer reads the base's displayed palm; this only writes the base's goal.
+ * An artistic base's support: its palm offered under a flyer's foot, and the
+ * turn of a limb onto or off a supporting palm or sole.
  */
 export namespace AquaticTeamBase {
   /** The shared upward direction of the figure's hand and sole frames. */
@@ -175,7 +182,10 @@ export namespace AquaticTeamBase {
     };
   }
 
-  /** Turn a limb around the actual palm or sole point as it takes or leaves support. */
+  /**
+   * Turn a limb around the actual palm or sole point as it takes or leaves
+   * support.
+   */
   export function transfer(
     end: IAutoMovieResolvedBone,
     bend: IAutoMovieVector3,

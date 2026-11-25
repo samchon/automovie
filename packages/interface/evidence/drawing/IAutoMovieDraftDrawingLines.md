@@ -1,21 +1,3 @@
-# src/drawing/IAutoMovieDraftDrawingLines.ts#IAutoMovieDraftDrawingLines
-
-## @evidence contracts/development/design.md#principled-representation
-
-IProps joins validated world geometry with a page-metre frame; IResult separates canonical strokes from unresolved model counts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-deriveAutoMovieDrawing supplies a shared index/filter and receives linework plus the count needed to report its geometry gap.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The contracts preserve missing-geometry information and distinguish depth classification from occlusion without introducing renderer state.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Inputs document callback/validation duties and results document rounding, identity and exact count scope.
-
 # src/drawing/IAutoMovieDraftDrawingLines.ts#IAutoMovieDraftDrawingLines.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

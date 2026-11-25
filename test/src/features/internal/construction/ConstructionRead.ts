@@ -9,14 +9,14 @@ import type {
  * surface by its view part's or join's name, a join by its name (its blend
  * chain's), a trim by the face it cuts.
  *
- * Each returns the realization's own object, or throws naming what is
- * missing, so a spec test that reads a part the realization left out fails
- * with the part's name rather than with an undefined value.
+ * Each returns the realization's own object, or throws naming what is missing,
+ * so a spec test that reads a part the realization left out fails with the
+ * part's name rather than with an undefined value.
  */
 export namespace ConstructionRead {
   /** A face's surface by its name. */
   export function surface(
-    r: IAutoMovieConstructionRealization.IRealization,
+    r: Omit<IAutoMovieConstructionRealization.IRealization, "mesh">,
     name: string,
   ): IAutoMovieSolidSurface {
     const found: IAutoMovieSolidSurface | undefined = r.surfaces.find(
@@ -60,7 +60,7 @@ export namespace ConstructionRead {
 
   /** The trim cut in a face. */
   export function trim(
-    r: IAutoMovieConstructionRealization.IRealization,
+    r: Omit<IAutoMovieConstructionRealization.IRealization, "mesh">,
     face: string,
   ): IAutoMovieSolidTrim.ITrim {
     const found: IAutoMovieSolidTrim.ITrim | undefined = r.trims.find(
@@ -72,8 +72,8 @@ export namespace ConstructionRead {
   }
 
   /**
-   * A realized surface read in metres: the realization's surfaces are in
-   * the kernel's millimetres (station `u` and point), so this view calls the
+   * A realized surface read in metres: the realization's surfaces are in the
+   * kernel's millimetres (station `u` and point), so this view calls the
    * surface at `1000 u` and scales its jet back: the point and the phase
    * derivatives by 1/1000, the station derivatives as the chain rule gives
    * (`p_u` unchanged, `p_uu` times 1000, `p_uv` unchanged).

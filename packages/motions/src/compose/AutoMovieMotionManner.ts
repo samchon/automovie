@@ -11,17 +11,56 @@ import { HumanEffort } from "../everyday/HumanEffort";
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
+/** The alternatives of `TimeModifiers`'s site. */
+type TimeModifiers = "tempo" | "hold";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "skill" | "random" | "tempo";
+
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "tempo" | "extent";
+
+/**
+ * The modifiers of an action's manner, drawn from the action's own seeded
+ * channel and with the performer's timing skill where the manner states no
+ * proficiency, and with its moving spans slowed by the action's own time scale
+ * (`IHumanActionContext.tempo`) with or without a manner; its holds keep their
+ * seconds.
+ *
+ * @param context The action's skill, draw streams and time scale.
+ * @param manner The manner; neutral when absent.
+ * @returns The modifiers.
+ */
+export function AutoMovieMotionManner(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  manner: IAutoMovieMotionManner | undefined,
+): IAutoMovieMotionManner.IModifiers {
+  const own: IAutoMovieMotionManner.IModifiers =
+    manner === undefined
+      ? AutoMovieMotionManner.NEUTRAL
+      : AutoMovieMotionManner.resolve(
+          { consistency: context.skill.axes.timing, ...manner },
+          context.random("manner"),
+        );
+
+  // The action's own time scale, where it is replanned to take the time
+  // its motion needs, slows its moving spans only: a hold is a duration,
+  // not a speed-limited phase, so its seconds (an authored hold's
+  // included) stay as the manner gives them.
+  const scale: number = context.tempo ?? 1;
+  return scale === 1 ? own : { ...own, tempo: own.tempo * scale };
+}
+
 /**
  * How an action is performed, as distinct from which action it is: how fast,
  * how large, how forceful, how skilled and how varied.
  *
  * A manner is resolved once into modifiers. The tempo and the hold factor
- * change durations through the clock ({@link time}); the extent, the
- * curvature and the bend change sizes through the phrases. A manner never
- * changes a goal on a solid place: a phrase that states a contact keeps its
- * place, and only a place in the air, an excursion about the base or a
- * free-space amplitude is scaled. The absent manner is neutral and leaves
- * every action as it is.
+ * change durations through the clock ({@link time}); the extent, the curvature
+ * and the bend change sizes through the phrases. A manner never changes a goal
+ * on a solid place: a phrase that states a contact keeps its place, and only a
+ * place in the air, an excursion about the base or a free-space amplitude is
+ * scaled. The absent manner is neutral and leaves every action as it is.
  */
 export namespace AutoMovieMotionManner {
   /** The modifiers of the absent manner. */
@@ -49,7 +88,7 @@ export namespace AutoMovieMotionManner {
    * (coefficients of variation 0.07 and 0.025); the extent's are provisional.
    */
   export const BOUNDS: Readonly<
-    Record<"tempo" | "extent", readonly [novice: number, elite: number]>
+    Record<BOUNDSEntryItem, readonly [novice: number, elite: number]>
   > = {
     tempo: [0.14, 0.05],
     extent: [0.2, 0.08],
@@ -59,7 +98,8 @@ export namespace AutoMovieMotionManner {
    * The modifiers of a manner.
    *
    * @param manner The manner; neutral when absent.
-   * @param random The stream the variation is drawn from; indices 0 and 1 are read.
+   * @param random The stream the variation is drawn from; indices 0 and 1 are
+   *   read.
    * @returns The modifiers.
    * @throws {Error} When a member lies outside its range.
    */
@@ -101,43 +141,8 @@ export namespace AutoMovieMotionManner {
   }
 
   /**
-   * The modifiers of an action's manner, drawn from the action's own seeded
-   * channel and with the performer's timing skill where the manner states no
-   * proficiency, and with its moving spans slowed by the action's own time
-   * scale (`IHumanActionContext.tempo`) with or without a manner; its holds
-   * keep their seconds.
-   *
-   * @param context The action's skill, draw streams and time scale.
-   * @param manner The manner; neutral when absent.
-   * @returns The modifiers.
-   */
-  export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "skill" | "random" | "tempo"
-    >,
-    manner: IAutoMovieMotionManner | undefined,
-  ): IAutoMovieMotionManner.IModifiers {
-    const own: IAutoMovieMotionManner.IModifiers =
-      manner === undefined
-        ? NEUTRAL
-        : resolve(
-            { consistency: context.skill.axes.timing, ...manner },
-            context.random("manner"),
-          );
-
-    // The action's own time scale, where it is replanned to take the time
-    // its motion needs, slows its moving spans only: a hold is a duration,
-    // not a speed-limited phase, so its seconds (an authored hold's
-    // included) stay as the manner gives them.
-    const scale: number = context.tempo ?? 1;
-    return scale === 1 ? own : { ...own, tempo: own.tempo * scale };
-  }
-
-  /**
-   * A clock performed in a manner: the holds stretched by the hold factor,
-   * the fixed spans left as they are and every other span stretched by the
-   * tempo.
+   * A clock performed in a manner: the holds stretched by the hold factor, the
+   * fixed spans left as they are and every other span stretched by the tempo.
    *
    * @param clock The action's clock at its natural timing.
    * @param modifiers The manner's modifiers.
@@ -147,7 +152,7 @@ export namespace AutoMovieMotionManner {
    */
   export function time(
     clock: IAutoMovieMotionClock,
-    modifiers: Pick<IAutoMovieMotionManner.IModifiers, "tempo" | "hold">,
+    modifiers: Pick<IAutoMovieMotionManner.IModifiers, TimeModifiers>,
     spans: IAutoMovieMotionManner.ISpans = {},
   ): IAutoMovieMotionClock {
     const named = new Set<string>(
@@ -169,16 +174,16 @@ export namespace AutoMovieMotionManner {
   }
 
   /**
-   * Named manners: the eight basic Effort actions of Laban, four moods and
-   * the two Shape qualities of the trunk and limbs, as manner records a
-   * composition names instead of spelling out factors.
+   * Named manners: the eight basic Effort actions of Laban, four moods and the
+   * two Shape qualities of the trunk and limbs, as manner records a composition
+   * names instead of spelling out factors.
    *
    * The Effort actions are `HumanEffort.ACTIONS`. A mood adds Flow, pace and
-   * intensity to an Effort: `weary` is slow, small and heavy, `brisk` quick
-   * and direct, `sad` slow, small and bound, `proud` large, free and
-   * unhurried. `enclosing` and `spreading` are Shape's two poles as far as a
-   * manner reaches them: bound Flow draws the elbows in and shortens the
-   * excursions, free Flow releases them outward.
+   * intensity to an Effort: `weary` is slow, small and heavy, `brisk` quick and
+   * direct, `sad` slow, small and bound, `proud` large, free and unhurried.
+   * `enclosing` and `spreading` are Shape's two poles as far as a manner
+   * reaches them: bound Flow draws the elbows in and shortens the excursions,
+   * free Flow releases them outward.
    *
    * Each preset is a plain `IManner`, so a law that reads a manner reads a
    * preset with no further case; the table has no resolver of its own, since
@@ -188,15 +193,16 @@ export namespace AutoMovieMotionManner {
    * and proud ones larger in direction, Montepare, Goldstein and Clausen 1987,
    * J Nonverbal Behav 11:33; the magnitudes here are not from it).
    *
-   * What a preset does to durations and to a normal walk at the reference
-   * hip (`IAutoMovieMotionHumanGait` gives the speed model): the Effort
-   * actions `punch`, `dab`, `slash` and `flick` take 0.7 times the time (a
-   * walk of about 2.2 m/s) and `press`, `glide`, `wring` and `float` 1.3
-   * times (about 1.2 m/s). `weary` takes 1.51 times the time, a walk of
-   * about 1.0 m/s, at an intensity of 0.7; `brisk` 0.88 times, about
-   * 1.72 m/s, the fast walk where Murtagh et al. 2021 place walking briskly; `sad` 1.39 times, about 1.1 m/s, at an intensity of 0.7; `proud`
-   * 1.05 times, about 1.4 m/s; `enclosing` and `spreading` do
-   * not change the time. Each is `1 - 0.3 time` over the preset's `pace`.
+   * What a preset does to durations and to a normal walk at the reference hip
+   * (`IAutoMovieMotionHumanGait` gives the speed model): the Effort actions
+   * `punch`, `dab`, `slash` and `flick` take 0.7 times the time (a walk of
+   * about 2.2 m/s) and `press`, `glide`, `wring` and `float` 1.3 times (about
+   * 1.2 m/s). `weary` takes 1.51 times the time, a walk of about 1.0 m/s, at an
+   * intensity of 0.7; `brisk` 0.88 times, about 1.72 m/s, the fast walk where
+   * Murtagh et al. 2021 place walking briskly; `sad` 1.39 times, about 1.1 m/s,
+   * at an intensity of 0.7; `proud` 1.05 times, about 1.4 m/s; `enclosing` and
+   * `spreading` do not change the time. Each is `1 - 0.3 time` over the
+   * preset's `pace`.
    */
   export const PRESETS: Readonly<
     Record<IAutoMovieMotionManner.Preset, IAutoMovieMotionManner>
@@ -228,7 +234,10 @@ export namespace AutoMovieMotionManner {
     spreading: { effort: { flow: -1 } },
   };
 
-  /** The names of {@link PRESETS}, as data; a name `Preset` lacks fails the type check, and a test checks none is missing. */
+  /**
+   * The names of {@link PRESETS}, as data; a name `Preset` lacks fails the type
+   * check, and a test checks none is missing.
+   */
   export const PRESET_NAMES = [
     "punch",
     "dab",

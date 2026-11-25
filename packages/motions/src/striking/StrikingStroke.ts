@@ -1,45 +1,33 @@
-import {
-  Vector3,
-  bracketedBisection,
-  minimumJerk,
-  superposeMinimumJerk,
-} from "@automovie/engine";
+import { Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingStroke,
   IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { StrikingContact } from "./StrikingContact";
-
 /**
- * One strike's end-joint path (the wrist or the ankle), from its launch
- * through an optional via point (a kick's chamber) to its contact and back,
- * as superposed minimum-jerk units, with the target's online corrections and
- * the stop at the first surface the weapon meets.
+ * One strike's end-joint path (the wrist or the ankle), from its launch through
+ * an optional via point (a kick's chamber) to its contact and back, as
+ * superposed minimum-jerk units, with the target's online corrections and the
+ * stop at the first surface the weapon meets.
  *
  * A strike aims through its target: its delivery unit would end beyond the
- * contact point, at the share where its speed has fallen to the measured
- * share of its peak at impact ({@link impactShare}), so it lands moving fast
- * instead of arriving at rest. The unit's end is placed along the strike's
- * declared impact direction (straight on, across for a hook or a round kick,
- * up for an uppercut), and a correcting unit over the same span puts the
- * joint exactly on the contact point at the contact second. Units start with
- * zero velocity and acceleration, so the path is continuous in position,
- * velocity and acceleration everywhere except at a contact, where the weapon
- * stops on the surface it met (an impact) and recoils from there on a
- * minimum-jerk unit to its return point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path model, the aim through the target, the continuity it keeps and where it breaks.
- * @evidence contracts/development/design.md#principled-representation A delivery and a stroke in world metres and film seconds as superposed minimum-jerk units, with the stop as a film second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dwell, the impact share, the delivery and stroke types and the two builders the punch and kick laws use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's minimum-jerk units and the tracker type.
+ * contact point, at the share where its speed has fallen to the measured share
+ * of its peak at impact ({@link impactShare}), so it lands moving fast instead
+ * of arriving at rest. The unit's end is placed along the strike's declared
+ * impact direction (straight on, across for a hook or a round kick, up for an
+ * uppercut), and a correcting unit over the same span puts the joint exactly on
+ * the contact point at the contact second. Units start with zero velocity and
+ * acceleration, so the path is continuous in position, velocity and
+ * acceleration everywhere except at a contact, where the weapon stops on the
+ * surface it met (an impact) and recoils from there on a minimum-jerk unit to
+ * its return point.
  */
 export namespace StrikingStroke {
   /**
-   * How long a weapon stays on the surface it met before it recoils,
-   * seconds: the 10 to 20 ms contact of measured punches and kicks (Pędzich et
-   * al. 2006; Gavagan and Sayers 2017), taken at its middle.
+   * How long a weapon stays on the surface it met before it recoils, seconds:
+   * the 10 to 20 ms contact of measured punches and kicks (Pędzich et al. 2006;
+   * Gavagan and Sayers 2017), taken at its middle.
    */
   export const DWELL: number = 0.015;
 
@@ -51,14 +39,6 @@ export namespace StrikingStroke {
    * @param speed The share of the peak speed, in (0, 1].
    * @returns The unit share, in [0.5, 1).
    * @throws {Error} When the speed share lies outside (0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the derivation, the domain, the range and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk speed profile solved in closed form for the later root of `u(1-u)` at the given share of the peak.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One validation and one closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A share outside its domain throws; the discriminant is floored at zero only against rounding at a share of 1.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function impactShare(speed: number): number {
     if (!(speed > 0 && speed <= 1))
@@ -68,23 +48,17 @@ export namespace StrikingStroke {
   }
 
   /**
-   * The delivery's units: to the via point, then through the contact along
-   * the impact direction, plus the correction that puts the joint exactly on
-   * the contact point at the contact second.
+   * The delivery's units: to the via point, then through the contact along the
+   * impact direction, plus the correction that puts the joint exactly on the
+   * contact point at the contact second.
    *
    * @param d The delivery.
    * @returns Units with film-second starts.
    * @throws {Error} When the delivery would end before it begins.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units produced and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A via unit to the chamber, a delivery unit aimed through the contact so the measured share of peak speed remains at it, and a correcting unit over the same span that lands the joint exactly on the contact point. With a peak speed, the unit lasts as long as a minimum-jerk unit over its length takes to peak at that speed (its peak is 1.875 times its mean speed), ending at the contact share, so the joint's own movement is as fast as measured while the delivery keeps its measured length; a delivery shorter than that unit keeps its whole span, and its peak then exceeds the given one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Via, delivery and correction in order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive span throws; a correction under 1e-12 m is omitted as rounding.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function delivery(d: IAutoMovieMotionHumanStrikingStroke.IDelivery): IAutoMovieSuperposeMinimumJerk.IUnit[] {
+  export function delivery(
+    d: IAutoMovieMotionHumanStrikingStroke.IDelivery,
+  ): IAutoMovieSuperposeMinimumJerk.IUnit[] {
     const units: IAutoMovieSuperposeMinimumJerk.IUnit[] = [];
     let from: IAutoMovieVector3 = d.origin;
     let begin: number = d.launch;
@@ -137,18 +111,16 @@ export namespace StrikingStroke {
    * corrections and the struck body only at or before that second.
    *
    * @param input The stroke.
-   * @returns The evaluator, memoising its scan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the causality kept and the memo.
-   * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units for the paths, a recoil through the optional re-chamber on two overlapping units (Flash and Hogan's via-point fit), and a causal scan for the stop when none is resolved.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The recoil, the free path and the stop as closures, composed into the shown path.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a nested read during a scan sees the free path, as documented in its comment.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the original ordered units per evaluation; every original duration/normalized-time admission remains, including inactive units. Actual path readers request position only, omitting unused derivative polynomials and velocity/acceleration/state records; the unchanged scan spends its samples once and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second retain their original memo policy. Each current tracker query's readonly units are spread directly into the path's own mutable combined list, avoiding a second intermediate copy without retaining or mutating the producer's units.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and original scan state until stroke release. Current correction arrays are borrowed only while constructing operation-owned unit lists; no producer array, new time history or mutable scratch list is retained.
+   * @returns The evaluator.
    */
-  export function create(input: IAutoMovieMotionHumanStrikingStroke.IInput): IAutoMovieMotionHumanStrikingStroke.IStroke {
-    const corrections: (seconds: number) => readonly IAutoMovieSuperposeMinimumJerk.IUnit[] = (seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
+  export function create(
+    input: IAutoMovieMotionHumanStrikingStroke.IInput,
+  ): IAutoMovieMotionHumanStrikingStroke.IStroke {
+    const corrections: (
+      seconds: number,
+    ) => readonly IAutoMovieSuperposeMinimumJerk.IUnit[] = (
+      seconds: number,
+    ): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
       input.tracker?.units(seconds) ?? EMPTY_UNITS;
 
     // The return from a point at a second: straight, or out through the
@@ -199,75 +171,14 @@ export namespace StrikingStroke {
       return superposeMinimumJerk.position(input.origin, units, seconds);
     };
 
-    // The scan advances on a fixed grid and remembers how far it has found no
-    // contact, so the found second is the same whatever order seconds are
-    // evaluated in.
-    //
-    // While a scan reads the struck body, that body may read this weapon back
-    // at the same instants (two strikes thrown at once, an arm crossing an
-    // arm). Such a nested read sees the weapon on its free path, which is its
-    // real path up to the contact the scan is still looking for; resolving
-    // both contacts simultaneously would need a joint solve, which this
-    // kinematic law does not attempt.
-    let clear: number = input.scan.from;
-    let armed: boolean = false;
-    let found: number | undefined;
-    let scanning: boolean = false;
-    const stop = (seconds: number): number | undefined => {
-      if (input.fixed !== undefined)
-        return input.fixed !== null && input.fixed <= seconds
-          ? input.fixed
-          : undefined;
-      if (found !== undefined) return found <= seconds ? found : undefined;
-      const gap = input.gap;
-      if (gap === undefined || scanning) return undefined;
-      scanning = true;
-      try {
-        // A weapon already touching at the scan's start has met that surface
-        // at once (a kick jammed against a leg before its chamber).
-        if (!armed) {
-          armed = true;
-          if (gap(free(clear), clear) <= 0) {
-            found = clear;
-            return found <= seconds ? found : undefined;
-          }
-        }
-        const until: number = Math.min(seconds, input.scan.to);
-        while (clear < until - 1e-12) {
-          const next: number = Math.min(input.scan.to, clear + input.scan.step);
-
-          // The struck body is never read beyond the second asked about: a
-          // grid point past it is decided by reading at that second instead,
-          // and the bisection takes any midpoint past it as already in
-          // contact, so the found second is the grid's whenever the weapon
-          // stays in contact once it touches.
-          if (next > until + 1e-12) {
-            if (gap(free(until), until) > 0) return undefined;
-            found = bracketedBisection(
-              (mid: number): boolean => mid < until && gap(free(mid), mid) > 0,
-              clear,
-              next,
-              (next - clear) / 2 ** 24,
-            );
-            return found <= seconds ? found : undefined;
-          }
-          const g: number = gap(free(next), next);
-          if (g <= 0) {
-            found = StrikingContact.first(
-              (t: number): number => gap(free(t), t),
-              clear,
-              next,
-              next - clear,
-            );
-            return found !== undefined && found <= seconds ? found : undefined;
-          }
-          clear = next;
-        }
-        return undefined;
-      } finally {
-        scanning = false;
-      }
-    };
+    // The stop is the contact the performance resolved jointly with every
+    // other weapon (`fixed`); the stroke scans nothing itself.
+    const stop = (seconds: number): number | undefined =>
+      input.fixed !== undefined &&
+      input.fixed !== null &&
+      input.fixed <= seconds
+        ? input.fixed
+        : undefined;
     return {
       stop,
       free,
@@ -275,11 +186,18 @@ export namespace StrikingStroke {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);
         const met: IAutoMovieVector3 = free(at);
-        return superposeMinimumJerk.position(met, recoil(met, at + DWELL), seconds);
+        return superposeMinimumJerk.position(
+          met,
+          recoil(met, at + DWELL),
+          seconds,
+        );
       },
     };
   }
 }
 
-/** Shared absence of correction units; consumers only spread this private readonly list. */
+/**
+ * Shared absence of correction units; consumers only spread this private
+ * readonly list.
+ */
 const EMPTY_UNITS: readonly IAutoMovieSuperposeMinimumJerk.IUnit[] = [];

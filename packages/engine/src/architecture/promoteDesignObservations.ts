@@ -27,7 +27,12 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * Ask one reference for metric geometry, and get back what it can honestly
  * give.
  *
- * This gated promotion path refuses by default. A candidate promotes only with a settled frame scale, an `observed` producing analysis, no competing reading or open issue, confidence at the caller's floor and geometric primitives. Other candidates land in `withheld` with the first failing reason; non-observed analyses land in `skipped` with their `unsupported` or `not-run` status. The lower-level point mapper remains separately callable.
+ * This gated promotion path refuses by default. A candidate promotes only with
+ * a settled frame scale, an `observed` producing analysis, no competing reading
+ * or open issue, confidence at the caller's floor and geometric primitives.
+ * Other candidates land in `withheld` with the first failing reason;
+ * non-observed analyses land in `skipped` with their `unsupported` or `not-run`
+ * status. The lower-level point mapper remains separately callable.
  *
  * The result is therefore never a design. It is a proposal the authored
  * building source may accept, reject, or contradict; the source of truth stays
@@ -39,8 +44,8 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * then `unknown-scale`. A promoted candidate carries one world-metre outline
  * per primitive it reads, in the candidate's primitive order. Candidates,
  * withholdings and skips keep the reference's declaration order. An invalid
- * reference, refused by {@link validateDesignReference}, or a floor outside
- * [0, 1] throws an `Error` naming the first defect.
+ * reference, refused by {@link validateDesignReference}, or a floor outside [0,
+ * 1] throws an `Error` naming the first defect.
  *
  * @param props.reference Observed reference whose candidates are judged.
  * @param props.minimumConfidence Inclusive confidence floor, default `1`.
@@ -61,7 +66,7 @@ export const promoteDesignObservations: (
     );
   }
   const floor: number = props.minimumConfidence ?? 1;
-  if (!Number.isFinite(floor) || floor < 0 || floor > 1)
+  if (floor < 0 || floor > 1)
     throw new Error(
       `design reference "${props.reference.id}" cannot be promoted at confidence floor ${floor}: a floor is a finite number within [0, 1].`,
     );

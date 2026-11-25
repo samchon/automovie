@@ -2,15 +2,20 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * Solve a four-bar planar limb from a fixed root, terminal goal and distal carriage.
+ * Solve a four-bar planar limb from a fixed root, terminal goal and distal
+ * carriage.
  *
- * @param source Five neutral joints, shoulder/hip through terminal endpoint, metres.
- * @param root Current shoulder/hip in model space; its X must match the source plane.
+ * @param source Five neutral joints, shoulder/hip through terminal endpoint,
+ *   metres.
+ * @param root Current shoulder/hip in model space; its X must match the source
+ *   plane.
  * @param foot Desired terminal endpoint, metres, in the same X plane.
  * @param distal Third/fourth bar directions, radians from down toward +Z.
- * @param bend -1 keeps a fore elbow behind the root-to-wrist line; +1 keeps a hind stifle ahead.
+ * @param bend -1 keeps a fore elbow behind the root-to-wrist line; +1 keeps a
+ *   hind stifle ahead.
  * @returns Five independent joints with all four original lengths.
- * @throws {RangeError} For a degenerate source, inconsistent plane or unreachable proximal triangle, including its reachable band.
+ * @throws {RangeError} For a degenerate source, inconsistent plane or
+ *   unreachable proximal triangle, including its reachable band.
  */
 export function QuadrupedRestLimb(
   source: readonly IAutoMovieVector3[],
@@ -26,14 +31,7 @@ export function QuadrupedRestLimb(
     .map((point: IAutoMovieVector3, index: number): number =>
       Vector3.length(Vector3.subtract(point, source[index]!)),
     );
-  if (
-    lengths.some(
-      (length: number): boolean => !(Number.isFinite(length) && length > 0),
-    ) ||
-    ![root.x, root.y, root.z, foot.x, foot.y, foot.z, ...distal].every(
-      Number.isFinite,
-    )
-  )
+  if (lengths.some((length: number): boolean => !(length > 0)))
     throw new RangeError(
       "Resting limb data must be finite with positive lengths",
     );

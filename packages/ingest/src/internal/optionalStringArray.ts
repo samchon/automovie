@@ -1,8 +1,6 @@
 import { optionalArray } from "./optionalArray";
 
-/**
- * Read an omitted or nonblank-string glTF extension inventory.
- */
+/** Read an omitted or nonblank-string glTF extension inventory. */
 export const optionalStringArray: (value: unknown, path: string) => string[] = (
   value: unknown,
   path: string,

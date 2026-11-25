@@ -19,16 +19,32 @@ import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArch
 import { EquineBlend } from "./EquineBlend";
 import { rideQuadruped } from "./rideQuadruped";
 
-/** The fastest a trained fall is staged from, metres per second: an authored bound at a canter or slow gallop. */
+/**
+ * The fastest a trained fall is staged from, metres per second: an authored
+ * bound at a canter or slow gallop.
+ */
 const FALL_SPEED: number = 7;
 
 /** A named instant of a ride. */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
- * A trained fall from a canter or gallop onto prepared ground: the horse goes down on one side, slides to a stop, lies still and rises.
+ * A trained fall from a canter or gallop onto prepared ground: the horse goes
+ * down on one side, slides to a stop, lies still and rises.
  *
- * At the fall's start the horse is in its stride at speed v. It decelerates uniformly over the authored slide distance d, so it stops after 2d / v seconds, its travel s(τ) = vτ − v²τ² / 4d along its heading. Through the authored drop its every part blends, on a minimum-jerk share, from the stride's pose at the fall's start to the lateral rest's lying pose (`AutoMovieArchetypeQuadrupedLateralRest`) on the landing side, both carried along the slide; the blended body is held on the floor by its lowest part, so nothing passes under it, and once down it slides lying. From the stop it plays the lateral rest on from its lying pose: the still hold, the roll back to the sternum and the rise to standing; it then may walk off from where it stood up, its first steps a ride from standing along its heading. The ground must be declared prepared and the speed at most `FALL_SPEED` (American Humane, horse guidelines for filmed media).
+ * At the fall's start the horse is in its stride at speed v. It decelerates
+ * uniformly over the authored slide distance d, so it stops after 2d / v
+ * seconds, its travel s(τ) = vτ − v²τ² / 4d along its heading. Through the
+ * authored drop its every part blends, on a minimum-jerk share, from the
+ * stride's pose at the fall's start to the lateral rest's lying pose
+ * (`AutoMovieArchetypeQuadrupedLateralRest`) on the landing side, both carried
+ * along the slide; the blended body is held on the floor by its lowest part, so
+ * nothing passes under it, and once down it slides lying. From the stop it
+ * plays the lateral rest on from its lying pose: the still hold, the roll back
+ * to the sternum and the rise to standing; it then may walk off from where it
+ * stood up, its first steps a ride from standing along its heading. The ground
+ * must be declared prepared and the speed at most `FALL_SPEED` (American
+ * Humane, horse guidelines for filmed media).
  */
 export namespace AutoMovieArchetypeEquineFall {
   /**
@@ -37,8 +53,11 @@ export namespace AutoMovieArchetypeEquineFall {
    * @param animal The equid at rest, as its producer built it.
    * @param ride Its ride, moving at the fall's start.
    * @param cue The fall.
-   * @returns The ride up to the fall, then the fall, the lying hold and the rise.
-   * @throws {AutoMovieArchetypeRefusal} For unprepared ground, a fall started at a halt, outside the ride or above `FALL_SPEED`, or a drop or slide that is not finite and positive or a drop longer than the slide's time.
+   * @returns The ride up to the fall, then the fall, the lying hold and the
+   *   rise.
+   * @throws {AutoMovieArchetypeRefusal} For unprepared ground, a fall started
+   *   at a halt, outside the ride or above `FALL_SPEED`, or a drop or slide
+   *   that is not finite and positive or a drop longer than the slide's time.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<
@@ -82,10 +101,10 @@ export namespace AutoMovieArchetypeEquineFall {
         speed,
         `a fall starts from a moving horse no faster than ${FALL_SPEED} m/s`,
       );
-    if (!(Number.isFinite(cue.slide) && cue.slide > 0))
+    if (!(cue.slide > 0))
       refuse("slide", cue.slide, "a fall slides a positive distance");
     const stop: number = (2 * cue.slide) / speed;
-    if (!(Number.isFinite(cue.drop) && cue.drop > 0 && cue.drop <= stop))
+    if (!(cue.drop > 0 && cue.drop <= stop))
       refuse(
         "drop",
         cue.drop,
@@ -248,7 +267,10 @@ export namespace AutoMovieArchetypeEquineFall {
     };
   }
 
-  /** The turn about the vertical that carries +Z onto a rotation's forward direction on the floor. */
+  /**
+   * The turn about the vertical that carries +Z onto a rotation's forward
+   * direction on the floor.
+   */
   function yaw(rotation: IAutoMovieQuaternion): IAutoMovieQuaternion {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 0,

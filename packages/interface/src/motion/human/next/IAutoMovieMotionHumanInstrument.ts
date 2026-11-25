@@ -10,15 +10,28 @@ import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotio
 import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
 
 /**
- * Playing and conducting music: wind, bowed string, plucked string, keyboard and percussion instruments, and the conductor's baton.
+ * Playing and conducting music: wind, bowed string, plucked string, keyboard
+ * and percussion instruments, and the conductor's baton.
  *
- * @template Chain The chain every method returns; the chain implements this interface.
+ * A method here is a method of `HumanChain` when its name is in
+ * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
+ * row: pass it in `laws: [...]` to the performance, taking it from
+ * `AutoMovieMotionHumanInstrument` or from the row namespace of the family, and
+ * append it with `chain.registered("<name>", params)`. A member that is a
+ * function, a reader or a layer says so in its own comment.
+ *
+ * @template Chain The chain every method returns; the chain implements this
+ *   interface.
  */
 export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Playing pose of a held bugle, with the modeled mouthpiece at the lips.
    *
-   * @param params The `prop`, `side`, `delay`, `prepare`, `seconds` and `retract` of `IAutoMovieMotionHumanPlayWindInstrument.IParams`.
+   * Registered law: `registered("playWindInstrument", params)`; not a chain
+   * method.
+   *
+   * @param params The `prop`, `hand`, `delay`, `prepare`, `hold` and `retract`
+   *   of `IAutoMovieMotionHumanPlayWindInstrument.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -28,9 +41,14 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   ): Chain;
 
   /**
-   * Conducting with a held baton: its tip beats the standard figure of the meter on the beat clock, the ictus, the tip's lowest point of each beat, falling on the beat's instant.
+   * Conducting with a held baton: its tip beats the standard figure of the
+   * meter on the beat clock, the ictus, the tip's lowest point of each beat,
+   * falling on the beat's instant.
    *
-   * @param params The `baton`, `meter`, `bars`, `bpm`, `lock` and `side` of `IAutoMovieMotionHumanConduct.IParams`.
+   * Registered law: `registered("conduct", params)`; not a chain method.
+   *
+   * @param params The `baton`, `meter`, `bars`, `bpm`, `lock` and `hand` of
+   *   `IAutoMovieMotionHumanConduct.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -39,7 +57,14 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Bow a violin string.
    *
-   * @param params The `bow`, `violin`, `string`, `direction` and `seconds` of `IAutoMovieMotionHumanBowViolinParams`.
+   * Registered law: `registered("bowViolin", params)`; not a chain method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * moves the right arm and holds the same grip throughout, and its cancel
+   * table names no action, so nothing cuts it.
+   *
+   * @param params The `bow`, `violin`, `string`, `direction` and `duration` of
+   *   `IAutoMovieMotionHumanBowViolinParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -51,7 +76,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Fret and pluck one guitar note.
    *
-   * @param params The `prop`, `fret`, `string`, `stopAt`, `pluckAt`, `releaseAt` and `duration` of `IAutoMovieMotionHumanGuitarNote`.
+   * Registered law: `registered("guitarNote", params)`; not a chain method.
+   *
+   * @param params The `prop`, `fret`, `string`, `stopAt`, `pluckAt`,
+   *   `releaseAt` and `duration` of `IAutoMovieMotionHumanGuitarNote`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -60,7 +88,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Strum a guitar chord.
    *
-   * @param params The `prop`, `direction`, `stopAt`, `sweepStartAt`, `sweepEndAt`, `releaseAt` and `duration` of `IAutoMovieMotionHumanGuitarChord`.
+   * Registered law: `registered("guitarChord", params)`; not a chain method.
+   *
+   * @param params The `prop`, `direction`, `stopAt`, `sweepStartAt`,
+   *   `sweepEndAt`, `releaseAt` and `duration` of
+   *   `IAutoMovieMotionHumanGuitarChord`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -68,6 +100,8 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
 
   /**
    * Play a score of piano notes.
+   *
+   * Registered law: `registered("pianoScore", params)`; not a chain method.
    *
    * @param params The `prop` and `notes` of `IAutoMovieMotionHumanPianoScore`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -78,7 +112,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Press and release a piano pedal.
    *
-   * @param params The `prop`, `presses` and `duration` of `IAutoMovieMotionHumanPianoPedal`.
+   * Registered law: `registered("pianoPedal", params)`; not a chain method.
+   *
+   * @param params The `prop`, `presses` and `duration` of
+   *   `IAutoMovieMotionHumanPianoPedal`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -87,7 +124,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Play a piano score with its pedal.
    *
-   * @param params The `pedal` of `IAutoMovieMotionHumanPianoPerformance`, with those of `IAutoMovieMotionHumanPianoScore`.
+   * Registered law: `registered("pianoPerformance", params)`; not a chain
+   * method.
+   *
+   * @param params The `pedal` of `IAutoMovieMotionHumanPianoPerformance`, with
+   *   those of `IAutoMovieMotionHumanPianoScore`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -99,7 +140,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Strike a side drum.
    *
-   * @param params The `stick`, `drum` and `hand` of `IAutoMovieMotionHumanSideDrumStrike`.
+   * Registered law: `registered("sideDrumStrike", params)`; not a chain method.
+   *
+   * @param params The `stick`, `drum` and `hand` of
+   *   `IAutoMovieMotionHumanSideDrumStrike`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -111,7 +155,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Strike a cymbal.
    *
-   * @param params The `stick`, `cymbal` and `hand` of `IAutoMovieMotionHumanCymbalStrike`.
+   * Registered law: `registered("cymbalStrike", params)`; not a chain method.
+   *
+   * @param params The `stick`, `cymbal` and `hand` of
+   *   `IAutoMovieMotionHumanCymbalStrike`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -121,12 +168,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   ): Chain;
 }
 
-/**
- * The parameter types of the Instrument methods.
- */
+/** The parameter types of the Instrument methods. */
 export namespace IAutoMovieMotionHumanInstrument {
   /**
-   * The parameters of `playWindInstrument`: `IAutoMovieMotionHumanPlayWindInstrument.IParams`, the type its law takes.
+   * The parameters of `playWindInstrument`:
+   * `IAutoMovieMotionHumanPlayWindInstrument.IParams`, the type its law takes.
    */
   export type IPlayWindInstrument =
     IAutoMovieMotionHumanPlayWindInstrument.IParams;

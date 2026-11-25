@@ -6,7 +6,13 @@ import {
 
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
 
-/** Replay one admitted cloth domain without resolved moving samples to an absolute fixed-clock step. Body capsules are refused; moving anchor binding metadata is currently ignored in favor of static/rest targets. Domain admission is the caller's responsibility. No production/viewer consumer currently invokes this public solver, while portable unit cases exercise its numerical output.
+/**
+ * Replay one admitted cloth domain without resolved moving samples to an
+ * absolute fixed-clock step. Body capsules are refused; moving anchor binding
+ * metadata is currently ignored in favor of static/rest targets. Domain
+ * admission is the caller's responsibility. No production/viewer consumer
+ * currently invokes this public solver, while portable unit cases exercise its
+ * numerical output.
  */
 export const simulateSoftBody: (
   domain: IAutoMovieSoftBodyDomain,

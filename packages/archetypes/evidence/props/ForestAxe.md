@@ -1,21 +1,3 @@
-# src/props/ForestAxe.ts#ForestAxe
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how the axe stands, its contacts, and why it is its own file.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The axe's read figures as bands, the hickory density that sizes its handle, and one builder.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The bands and the builder `createLongTool` takes for its forest axe.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The head's place on the handle, which no source gives, is a provisional band; the head's thickness is the retailer's.
-
 # src/props/ForestAxe.ts#ForestAxe.build
 
 ## @evidence contracts/development/common.md#meaningful-documentation

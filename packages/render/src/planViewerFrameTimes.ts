@@ -14,12 +14,11 @@ export function planViewerFrameTimes(
 ): number[] {
   const fps: number = request.fps;
   const durationSeconds: number = request.durationSeconds;
-  if (!Number.isFinite(fps) || fps <= 0)
-    throw new Error("fps must be positive and finite");
-  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0)
+  if (fps <= 0) throw new Error("fps must be positive and finite");
+  if (durationSeconds <= 0)
     throw new Error("durationSeconds must be positive and finite");
   const inFilm: (seconds: number) => boolean = (seconds: number): boolean =>
-    Number.isFinite(seconds) && seconds >= 0 && seconds <= durationSeconds;
+    seconds >= 0 && seconds <= durationSeconds;
   const ranged: boolean =
     request.from !== undefined ||
     request.to !== undefined ||
@@ -51,9 +50,9 @@ export function planViewerFrameTimes(
     );
   if ((every === undefined) === (step === undefined))
     throw new Error("A range needs exactly one of every or step");
-  if (every !== undefined && (!Number.isSafeInteger(every) || every <= 0))
+  if (every !== undefined && every <= 0)
     throw new Error("every must be a positive whole number of frames");
-  if (step !== undefined && (!Number.isFinite(step) || step <= 0))
+  if (step !== undefined && step <= 0)
     throw new Error("step must be positive and finite");
 
   // Enumerate whole frame indices so the samples stay on the encoded grid.

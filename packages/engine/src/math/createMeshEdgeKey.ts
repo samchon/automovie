@@ -19,9 +19,9 @@
 export function createMeshEdgeKey(
   vertexCount: number,
 ): (from: number, to: number) => number | string {
-  if (!Number.isSafeInteger(vertexCount) || vertexCount < 0)
+  if (vertexCount < 0 || vertexCount > Number.MAX_SAFE_INTEGER)
     throw new Error("A mesh edge key needs a nonnegative safe vertex count.");
-  return Number.isSafeInteger(vertexCount * vertexCount)
+  return vertexCount * vertexCount <= Number.MAX_SAFE_INTEGER
     ? (from: number, to: number): number => from * vertexCount + to
     : (from: number, to: number): string => `${from}/${to}`;
 }

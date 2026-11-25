@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  ROM_TOLERANCE,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -20,6 +25,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { handGoals } from "../everyday/handGoals";
@@ -27,34 +34,33 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The record of `IBACKItem`'s site. */
+type IBACKItem = { down: number; back: number };
 
 /**
  * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
  * the outgoing runner's hand goes back, open, palm back, and the incoming
- * runner pushes the baton's end into it at a film second both roles state
- * alike (`at`), from where the baton passes to the outgoing hand.
+ * runner pushes the baton's end into it at a film second both roles state alike
+ * (`at`), from where the baton passes to the outgoing hand.
  *
- * The outgoing hand is placed in the runner's own frame: behind and below
- * the shoulder by shares of the arm (the upsweep's hand, provisional), the
- * palm back and the fingers down. The incoming hand is placed each second so
- * the baton's end, read in the hand's frame where the baton is worn
+ * The outgoing hand is placed in the runner's own frame: behind and below the
+ * shoulder by shares of the arm (the upsweep's hand, provisional), the palm
+ * back and the fingers down. The incoming hand is placed each second so the
+ * baton's end, read in the hand's frame where the baton is worn
  * (`IHumanProp.worn`), lies on the outgoing runner's displayed palm. Each arm
- * leaves the run's swing over `REACH` seconds before `at` and goes back to
- * it over `REACH` after `HOLD`. The outgoing role wears the baton on its
- * hand from `at` (`IHumanActionPlan.wears`), so it rides that hand from the
- * exchange on; without a baton the pass is mimed.
+ * leaves the run's swing over `REACH` seconds before `at` and goes back to it
+ * over `REACH` after `HOLD`. The outgoing role wears the baton on its hand from
+ * `at` (`IHumanActionPlan.wears`), so it rides that hand from the exchange on;
+ * without a baton the pass is mimed.
  *
  * With a `zone`, each role refuses a pass whose runner stands outside the
- * takeover zone's two lines at `at` (World Athletics TR24.19).
- * First pass: the free distance is the composition's (where the two runs put
- * the runners at `at`); the runners do not adjust their speed to meet, and
- * the fingers do not close on the baton.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both roles' hands, the shared instant, the timing, the baton's passing and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation An overlay of each runner's arm over its run, sharing one stated instant, with the baton passed by the worn-prop relation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the overlay flag, three constants, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The incoming hand is placed by the outgoing runner's displayed palm, never by a guess of where it will be.
+ * takeover zone's two lines at `at` (World Athletics TR24.19). First pass: the
+ * free distance is the composition's (where the two runs put the runners at
+ * `at`); the runners do not adjust their speed to meet, and the fingers do not
+ * close on the baton.
  */
 export namespace relayPass {
   /** The action's name. */
@@ -68,14 +74,20 @@ export namespace relayPass {
   /** A pass is performed over a run: it claims one arm and its hand. */
   export const overlay: boolean = true;
 
-  /** Seconds each arm takes to leave the run's swing for the pass, and to go back (provisional). */
+  /**
+   * Seconds each arm takes to leave the run's swing for the pass, and to go
+   * back (provisional).
+   */
   export const REACH: number = 0.4;
 
   /** Seconds the hands stay together after `at` (provisional). */
   export const HOLD: number = 0.25;
 
-  /** The outgoing wrist's place from the shoulder, shares of the arm: down and behind (provisional, the upsweep). */
-  export const BACK: Readonly<{ down: number; back: number }> = {
+  /**
+   * The outgoing wrist's place from the shoulder, shares of the arm: down and
+   * behind (provisional, the upsweep).
+   */
+  export const BACK: Readonly<IBACKItem> = {
     down: 0.75,
     back: 0.5,
   };
@@ -85,15 +97,9 @@ export namespace relayPass {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When `at` lies before this action can reach, a baton is named without its end, or the runner is outside the named takeover zone at `at`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives both hands and the timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The outgoing hand is a place of the runner's own frame, carried with the run; the incoming wrist is the outgoing palm less the baton's end as the hand holds it; both arms are carried from the run's own arm angles at each second by the pass's envelope.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The clock, the role's goal, the envelope, the posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An instant too early is refused with the earliest one; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Inactive pass windows return the carrier directly; partial blends retain their original solves, and full share skips the unused carrier-angle solve. Each active current posture shares one yaw transform across its original axes/point/bend. Incoming contact requests only partner hand output and point-only palm geometry, omitting two unused direction rotations. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Current-person FK/ROM loans pass through complete carrier, actual shoulder/baseline observations and arm carry. Exact unchanged partner-body identity permits one local palm reader; opaque partner lookup, film second and displayed bones remain current and use that other person's own pipeline.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns base/baton geometry and one last immutable partner-body point reader, replaced on body change. Optional current-person FK/ROM inputs are borrowed only during the call; no loan, current bones/point, pose/time history or handle enters the plan or outputs.
+   * @throws {HumanRefusal} When `at` lies before this action can reach, a baton
+   *   is named without its end, or the runner is outside the named takeover
+   *   zone at `at`.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRelayPass.IParams>,
@@ -172,13 +178,33 @@ export namespace relayPass {
             ? 1
             : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
 
+    // The run's own arm over each blend, solved at knots AutoKnots places
+    // over the blend (Vitenti et al. 2024, arXiv:2412.13423) to the arm
+    // solver's angular resolution (`ROM_TOLERANCE`) and read from their
+    // course (`prepareHumanSampledCourse`), so a read resolves no posture.
+    const runArm = (t: number): number[] => {
+      const angles: IAutoMovieMotionHumanArmAngles.IAngles =
+        AutoMovieMotionHumanArm.angles(
+          resolveHumanPosture.seeded(body, base.posture(t)).pose,
+          side,
+        );
+      return [...angles.upper, ...angles.lower, ...angles.hand];
+    };
+    const blend: (from: number, to: number) => (t: number) => number[] = (
+      from: number,
+      to: number,
+    ): ((t: number) => number[]) =>
+      prepareHumanSampledCourse({
+        from,
+        to,
+        sample: runArm,
+        tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+        step: AutoMovieMotionHumanArmCourse.STEP,
+      });
+    const into: (t: number) => number[] = blend(Math.max(0, at - REACH), at);
+    const out: (t: number) => number[] = blend(relax, duration);
+
     // The hand's goal at a second, on the run's posture there.
-    let palmReader:
-      | {
-          body: IAutoMovieMotionHumanActionContext["body"];
-          read: ReturnType<typeof HumanHand.preparePoint>;
-        }
-      | undefined;
     const goal: (
       posture: IAutoMovieMotionHumanPosture,
       t: number,
@@ -237,14 +263,12 @@ export namespace relayPass {
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         p.partner,
       );
-      if (palmReader === undefined || palmReader.body !== partner.body)
-        palmReader = {
-          body: partner.body,
-          read: HumanHand.preparePoint(partner.body, side, "palm", "flat"),
-        };
-      const palm: IAutoMovieVector3 = palmReader.read(
-        partner.bones(context.start + t, palmBones),
-      );
+      const palm: IAutoMovieVector3 = HumanHand.preparePoint(
+        partner.body,
+        side,
+        "palm",
+        "flat",
+      )(partner.bones(context.start + t, palmBones));
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: dir(0, 0, 1),
         palm: dir(-sign, 0, 0),
@@ -269,7 +293,11 @@ export namespace relayPass {
       };
     };
 
-    return {
+    // The pass's joint-space carry, solved at its branch points once the
+    // performance is prepared.
+    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+      AutoMovieMotionHumanArmJointCourse.carrier(body);
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "ready", share: Math.max(0, at - REACH) / duration },
@@ -313,29 +341,31 @@ export namespace relayPass {
           [goal(posture, t, resolution)],
         );
         if (w >= 1) return reaching;
-        const run: IAutoMovieMotionHumanArmAngles.IAngles =
-          AutoMovieMotionHumanArm.angles(
-            resolveHumanPosture.seeded(
-              body,
-              posture,
-              undefined,
-              undefined,
-              resolution,
-              undefined,
-              projection,
-            ).pose,
-            side,
-          );
-        return AutoMovieMotionHumanArm.carry(
-          body,
-          reaching,
-          { [side]: run },
-          w,
-          undefined,
+        const a: number[] = (t < at ? into : out)(t);
+        const run: IAutoMovieMotionHumanArmAngles.IAngles = {
+          upper: [a[0]!, a[1]!, a[2]!],
+          lower: [a[3]!, a[4]!, a[5]!],
+          hand: [a[6]!, a[7]!, a[8]!],
+        };
+        return carrier.carry(
+          t,
+          { posture: reaching, sides: [side], held: { [side]: run }, share: w },
           resolution,
           projection,
         );
       },
     };
+    plan.prepare = (): void => {
+      base.prepare?.();
+      // The pass's two blends, the stretches the arm is carried on.
+      carrier.prepare(
+        [
+          [Math.max(0, at - REACH), at],
+          [relax, Math.min(duration, relax + REACH)],
+        ],
+        plan.posture,
+      );
+    };
+    return plan;
   }
 }

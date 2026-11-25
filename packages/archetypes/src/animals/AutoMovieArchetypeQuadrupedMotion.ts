@@ -4,18 +4,26 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import type { createQuadruped } from "./createQuadruped";
 
 /**
- * How a quadruped's swinging foot and its head move through a stride: the foot brought to its next landing by the minimum-jerk path, and the head's nod timed to the footfalls as its species' gait states.
+ * How a quadruped's swinging foot and its head move through a stride: the foot
+ * brought to its next landing by the minimum-jerk path, and the head's nod
+ * timed to the footfalls as its species' gait states.
  *
- * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ * Public only so the package's specs can reach it: it is not part of the
+ * authoring surface, and it moves to an internal subpath when one exists.
  */
 export namespace AutoMovieArchetypeQuadrupedMotion {
   /**
-   * A swinging foot's progress at a share of its swing: along, from where it lifted to where it lands next, and up, from the ground to the swing's clearance and back.
+   * A swinging foot's progress at a share of its swing: along, from where it
+   * lifted to where it lands next, and up, from the ground to the swing's
+   * clearance and back.
    *
    * @param u The swing's share done, 0 to 1.
    * @returns The share of the way along and the share of the clearance up.
+   * @throws {RangeError} When the share lies outside the swing interval.
    */
   export function swing(u: number): { along: number; rise: number } {
+    if (!(u >= 0 && u <= 1))
+      throw new RangeError("A quadruped swing share must be within [0, 1]");
     return {
       along: progress(u),
       rise: progress(2 * Math.min(u, 1 - u)),
@@ -23,12 +31,15 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
   }
 
   /**
-   * The head's pitch at a phase of a stride, degrees, positive nose-down, by half the gait's pitch range either side, timed as the gait's `nod.timing` states.
+   * The head's pitch at a phase of a stride, degrees, positive nose-down, by
+   * half the gait's pitch range either side, timed as the gait's `nod.timing`
+   * states.
    *
    * @param species The species.
    * @param stride The stride's gait and lead.
    * @param phase The stride's phase, from the left fore's landing.
-   * @param duty The duty factor at the speed, the share of the stride a foot is planted.
+   * @param duty The duty factor at the speed, the share of the stride a foot is
+   *   planted.
    * @returns The pitch.
    */
   export function nod(

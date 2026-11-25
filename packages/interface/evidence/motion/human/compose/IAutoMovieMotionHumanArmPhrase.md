@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanArmPhrase.ts#IAutoMovieMotionHumanArmPhrase
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-contact: What the hand bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's sizes: the extent scales a place in the air and a free-space amplitude, and the curvature bows the hand's way out and back. A phrase that states a contact keeps its place whatever the extent. Extent defaults to 1 and curvature to 0 when absent. upper: The upper arm's `[flexion, abduction, twist]`, degrees.
-
-## @evidence contracts/development/design.md#principled-representation
-
-contact: What the hand bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's sizes: the extent scales a place in the air and a free-space amplitude, and the curvature bows the hand's way out and back. A phrase that states a contact keeps its place whatever the extent. Extent defaults to 1 and curvature to 0 when absent. upper: The upper arm's `[flexion, abduction, twist]`, degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.extended, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.bearing, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.visit, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.stroke, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.strike, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.oscillate, props).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionClock, AutoMovieHumanSide, IAutoMovieMotionHumanArmTarget.IOrigin, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanArmPhrase.ts#IAutoMovieMotionHumanArmPhrase.IPhrase
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -9,24 +9,23 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * The contact manifold of two touching convex colliders along a known
- * normal: the points of the patch where they press, each with its witness
- * on both shapes.
+ * The contact manifold of two touching convex colliders along a known normal:
+ * the points of the patch where they press, each with its witness on both
+ * shapes.
  *
- * Each shape's contact feature is its support set along the normal (the
- * first shape's toward `n`, the second's toward `-n`): the vertices, axis
- * ends or centre within `band` metres of its support plane, a round shape's
- * offset by its radius along the normal. Both features are projected onto
- * the plane perpendicular to `n`, each projection is reduced to its convex
- * hull (Andrew's monotone chain), and the patch is their intersection: the
- * second polygon clipped by the first (Sutherland and Hodgman 1974), a
- * segment clipped to a polygon or to a collinear segment, or the single
- * point of a vertex feature. This is the clipping construction of contact
- * manifolds (Ericson, "Real-Time Collision Detection", 2005, sec. 5.5;
- * Gregorius, "Robust Contact Creation for Physics Simulations", GDC 2015).
- * Every patch vertex is lifted back along `n` onto each feature: a
- * face's plane, an edge's line or a vertex's height, so each point's
- * separation along `n` is the two features' gap there. Crossing
+ * Each shape's contact feature is its support set along the normal (the first
+ * shape's toward `n`, the second's toward `-n`): the vertices, axis ends or
+ * centre within `band` metres of its support plane, a round shape's offset by
+ * its radius along the normal. Both features are projected onto the plane
+ * perpendicular to `n`, each projection is reduced to its convex hull (Andrew's
+ * monotone chain), and the patch is their intersection: the second polygon
+ * clipped by the first (Sutherland and Hodgman 1974), a segment clipped to a
+ * polygon or to a collinear segment, or the single point of a vertex feature.
+ * This is the clipping construction of contact manifolds (Ericson, "Real-Time
+ * Collision Detection", 2005, sec. 5.5; Gregorius, "Robust Contact Creation for
+ * Physics Simulations", GDC 2015). Every patch vertex is lifted back along `n`
+ * onto each feature: a face's plane, an edge's line or a vertex's height, so
+ * each point's separation along `n` is the two features' gap there. Crossing
  * edges, which touch at one point, return no point: the caller keeps the
  * nearest-feature witnesses.
  *
@@ -37,14 +36,6 @@ import { Vector3 } from "../math/Vector3";
  * @param normal Unit world normal from the first shape toward the second.
  * @param band Depth below a support plane still counted as touching, metres.
  * @returns The patch points in hull order; empty for crossing edges.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the support features, the band, the projection, each intersection case, the lift and the empty case.
- * @evidence contracts/development/implementation.md#principled-implementation The textbook clipping construction: support features along the normal, polygon clipping in the contact plane and the lift onto both features.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Feature, hull, clip, lift; one helper per step.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The band is the caller's; no point count is capped and no case is guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(V log V) for the hulls and O(V^2) clipping in the features' vertex counts, eight at most for a box.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points; retains nothing.
  */
 export function physicalShapeContactManifold(
   poseA: IAutoMovieRigidTransform,
@@ -82,14 +73,7 @@ export function physicalShapeContactManifold(
   });
 }
 
-/**
- * Companion types of {@link physicalShapeContactManifold}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States that a patch point carries one world witness on each shape.
- * @evidence contracts/development/design.md#principled-representation World metres, one witness per shape, the first on the first shape.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the solver's contact detection and the planner's separation rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The point holds only the two witnesses; its gap is derived from them along the caller's normal.
- */
+/** Companion types of {@link physicalShapeContactManifold}. */
 export namespace physicalShapeContactManifold {
   /** One patch point with its witness on each shape, world metres. */
   export interface IPoint {
@@ -170,9 +154,9 @@ function feature(
 }
 
 /**
- * The height along `n` at which the line through `p` along `n` meets a
- * feature: its plane for three or more points, the segment's line for two,
- * the point's own height for one.
+ * The height along `n` at which the line through `p` along `n` meets a feature:
+ * its plane for three or more points, the segment's line for two, the point's
+ * own height for one.
  */
 function height(
   feature: readonly IAutoMovieVector3[],
@@ -238,7 +222,10 @@ function perpendicular(n: IAutoMovieVector3): IAutoMovieVector3 {
   return Vector3.scale(v, 1 / Vector3.length(v));
 }
 
-/** Counter-clockwise convex hull, merging points within the band; one or two points for a degenerate set. */
+/**
+ * Counter-clockwise convex hull, merging points within the band; one or two
+ * points for a degenerate set.
+ */
 function hull(points: readonly IFlat[], band: number): IFlat[] {
   const sorted: IFlat[] = [...points].sort(
     (p: IFlat, q: IFlat): number => p.x - q.x || p.y - q.y,
@@ -271,7 +258,10 @@ function hull(points: readonly IFlat[], band: number): IFlat[] {
   return [unique[0]!, unique[unique.length - 1]!];
 }
 
-/** The intersection of two hulls; empty when two crossing segments meet at one point. */
+/**
+ * The intersection of two hulls; empty when two crossing segments meet at one
+ * point.
+ */
 function intersect(a: IFlat[], b: IFlat[], band: number): IFlat[] {
   if (a.length === 1) return [a[0]!];
   if (b.length === 1) return [b[0]!];
@@ -297,7 +287,10 @@ function intersect(a: IFlat[], b: IFlat[], band: number): IFlat[] {
   return low === high ? [at(low)] : [at(low), at(high)];
 }
 
-/** A polygon (Sutherland-Hodgman) or a segment (Cyrus-Beck) clipped by a counter-clockwise convex polygon. */
+/**
+ * A polygon (Sutherland-Hodgman) or a segment (Cyrus-Beck) clipped by a
+ * counter-clockwise convex polygon.
+ */
 function clip(subject: IFlat[], window: IFlat[]): IFlat[] {
   if (subject.length === 2) {
     const s: IFlat = subject[0]!;
@@ -343,7 +336,10 @@ function cut(s: IFlat, e: IFlat, ds: number, de: number): IFlat {
   return { x: s.x + (e.x - s.x) * t, y: s.y + (e.y - s.y) * t };
 }
 
-/** Twice the signed area of the triangle `p q r`; positive when `r` lies left of `p -> q`. */
+/**
+ * Twice the signed area of the triangle `p q r`; positive when `r` lies left of
+ * `p -> q`.
+ */
 function cross(p: IFlat, q: IFlat, r: IFlat): number {
   return (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
 }

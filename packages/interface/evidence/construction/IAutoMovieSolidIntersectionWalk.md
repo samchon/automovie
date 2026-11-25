@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidIntersectionWalk.ts#IAutoMovieSolidIntersectionWalk
-
-## @evidence contracts/development/design.md#principled-representation
-
-IWalk binds a reference tracing law to the original four chart preimages and host face at radian trace parameter zero.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidIntersectionWalk produces the seed law consumed by SolidIntersectionTrace; the law and chart tuple retain their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A walk record does not certify closure or regularity of the later intersection trace.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines initial preimage order, host-face identity and reference-law ownership.
-
 # src/construction/IAutoMovieSolidIntersectionWalk.ts#IAutoMovieSolidIntersectionWalk.IWalk
 
 ## @evidence contracts/development/design.md#principled-representation

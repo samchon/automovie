@@ -1,21 +1,3 @@
-# src/core/ArchetypePartOwnership.ts#ArchetypePartOwnership
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes constructor-local observation from long-lived original allocation identity.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Real allocation and normalizer dispatch establish ownership of part records.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the native constructor and private neutral snapshot preparation use these receipts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Weak associations retain no array, model, pose or recipe value.
-
 # src/core/ArchetypePartOwnership.ts#ArchetypePartOwnership.observe
 
 ## @evidence contracts/development/common.md#meaningful-documentation

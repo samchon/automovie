@@ -12,11 +12,15 @@ import {
 import { ViolationCollector } from "./ViolationCollector";
 import { materialTextureSlots } from "./materialTextureSlots";
 
-/** Absolute slack for normalized UV spans and relative multiplier slack for surface-metre tile comparisons. */
+/**
+ * Absolute slack for normalized UV spans and relative multiplier slack for
+ * surface-metre tile comparisons.
+ */
 const SCALE_EPSILON: number = 1e-9;
 
 /**
- * Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn when repeating surface-metre tile size exceeds the span.
+ * Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn
+ * when repeating surface-metre tile size exceeds the span.
  */
 export const validateTextureScale: (
   props: IAutoMovieValidateTextureScale.IProps,
@@ -63,9 +67,11 @@ export const validateTextureScale: (
 /**
  * Fold finite resident mesh UV pairs into positive U/V bounding spans.
  *
- * UV coordinates are measured directly rather than inferred from world dimensions.
+ * UV coordinates are measured directly rather than inferred from world
+ * dimensions.
  *
- * Primitive/missing/degenerate/nonfinite UVs return null, and trailing unmatched scalars are left to mesh admission.
+ * Primitive/missing/degenerate/nonfinite UVs return null, and trailing
+ * unmatched scalars are left to mesh admission.
  *
  * Output spans are coordinate units, not geometric metres by themselves.
  *
@@ -90,7 +96,6 @@ const surfaceSpan: (
   for (let i: number = 0; i + 1 < uvs.length; i += 2) {
     const u: number = uvs[i]!;
     const v: number = uvs[i + 1]!;
-    if (!Number.isFinite(u) || !Number.isFinite(v)) return null;
     minU = Math.min(minU, u);
     maxU = Math.max(maxU, u);
     minV = Math.min(minV, v);
@@ -102,19 +107,23 @@ const surfaceSpan: (
 };
 
 /**
- * Reject excessive normalized spans or warn when1/abs(scale) exceeds a surface-metre span unless clamped.
+ * Reject excessive normalized spans or warn when1/abs(scale) exceeds a
+ * surface-metre span unless clamped.
  *
  * Two fixed axes carry their own scale/wrap and exact slot path.
  *
- * Omitted/source-uv coordinates are exempt; invalid scale admission belongs to validateTextureBinding.
+ * Omitted/source-uv coordinates are exempt; invalid scale admission belongs to
+ * validateTextureBinding.
  *
- * Normalized1e-9 slack, relative tile slack and warning/error distinction are stated.
+ * Normalized1e-9 slack, relative tile slack and warning/error distinction are
+ * stated.
  *
  * Two axes use constant arithmetic and diagnostic text work.
  *
  * Both axes share the measured part span and existing material/slot identity.
  *
- * Only caller-owned diagnostics remain; no UV rewrite or texture resource is acquired.
+ * Only caller-owned diagnostics remain; no UV rewrite or texture resource is
+ * acquired.
  */
 const checkBinding: (props: {
   binding: IAutoMovieTextureReference;
@@ -185,7 +194,7 @@ const checkBinding: (props: {
     // "surface-metres": the span is the surface's own extent and 1 / scale is
     // the tile the finish claims, so the two are directly comparable metres.
     if (axis.scale === undefined) continue;
-    if (!Number.isFinite(axis.scale) || axis.scale === 0) continue;
+    if (axis.scale === 0) continue;
     if (axis.wrap === "clamp") continue;
     const tile: number = 1 / Math.abs(axis.scale);
     if (tile <= axis.span * (1 + SCALE_EPSILON)) continue;

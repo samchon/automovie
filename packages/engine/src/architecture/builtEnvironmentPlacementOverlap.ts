@@ -12,11 +12,20 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 /**
  * Test two named building bodies with the placement kernel's AABB overlap rule.
  *
- * The comparison delegates to {@link propBoundsOverlap}. For positive extents, exact face contact is excluded; a zero-width plane or point strictly inside another box can still pass its strict endpoint comparisons. Population operands stay compact and each operand's basis identifies measured bounds versus an extent-free fallback point.
+ * The comparison delegates to {@link propBoundsOverlap}. For positive extents,
+ * exact face contact is excluded; a zero-width plane or point strictly inside
+ * another box can still pass its strict endpoint comparisons. Population
+ * operands stay compact and each operand's basis identifies measured bounds
+ * versus an extent-free fallback point.
  *
- * An element operand is tested part by part because a multi-part body's union box can include gaps; a population keeps its one reported box. A missing operand makes the status `unresolved`, is listed by side in left-then-right order, and leaves its basis `null`.
+ * An element operand is tested part by part because a multi-part body's union
+ * box can include gaps; a population keeps its one reported box. A missing
+ * operand makes the status `unresolved`, is listed by side in left-then-right
+ * order, and leaves its basis `null`.
  *
- * Parts are axis-aligned CPU box proxies, not mesh solids. Positive overlap can over-admit actual geometry, and a population box can also include gaps between members; `overlapping` is a bounds finding under those premises.
+ * Parts are axis-aligned CPU box proxies, not mesh solids. Positive overlap can
+ * over-admit actual geometry, and a population box can also include gaps
+ * between members; `overlapping` is a bounds finding under those premises.
  */
 export const builtEnvironmentPlacementOverlap: (
   props: IAutoMovieBuiltEnvironmentPlacementOverlap.IProps,

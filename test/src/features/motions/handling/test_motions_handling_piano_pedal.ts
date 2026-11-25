@@ -1,0 +1,53 @@
+import type { IAutoMovieMotionHumanPianoPedal } from "@automovie/interface";
+import { HumanRefusal, pianoPedalStroke } from "@automovie/motions/internal";
+import { TestValidator } from "@nestia/e2e";
+
+/**
+ * `pianoPedalStroke`, the stroke clock of `pianoPedal.plan`: the strokes it
+ * admits, and the pedal's travel fraction at each instant.
+ *
+ * Strokes over 3 s: 0.5 → 1 down, held to 1.5, up by 2; then 2.25 → 2.5 down
+ * and straight back up by 2.75.
+ *
+ * Scenarios:
+ *
+ * 1. The pedal is up before and between strokes and at each stroke's start, fully
+ *    down from `at` to `release`, and halfway at the middle of the press and of
+ *    the release, where the minimum-jerk share of 1/2 is 1/2.
+ * 2. No stroke is refused on `duration`; a stroke starting before the previous one
+ *    ends, and one ending at the duration, are refused on `presses`.
+ */
+export function test_motions_handling_piano_pedal(): void {
+  const presses: IAutoMovieMotionHumanPianoPedal.IPress[] = [
+    { from: 0.5, at: 1, release: 1.5, to: 2 },
+    { from: 2.25, at: 2.5, release: 2.5, to: 2.75 },
+  ];
+  TestValidator.equals(
+    "the pedal's travel through the strokes",
+    [0.25, 0.5, 0.75, 1.25, 1.75, 2.1, 2.5, 2.9].map(
+      (seconds: number): number => pianoPedalStroke.travel(presses, seconds),
+    ),
+    [0, 0, 0.5, 1, 0.5, 0, 1, 0],
+  );
+  const refused = (
+    strokes: IAutoMovieMotionHumanPianoPedal.IPress[],
+    duration: number,
+  ): HumanRefusal["axis"] | undefined => {
+    try {
+      pianoPedalStroke.admit(strokes, duration);
+      return undefined;
+    } catch (error: unknown) {
+      return error instanceof HumanRefusal ? error.axis : undefined;
+    }
+  };
+  TestValidator.equals(
+    "an empty, overlapping or unbounded clock is refused",
+    [
+      refused(presses, 3),
+      refused([], 3),
+      refused([presses[0]!, { from: 1.9, at: 2.1, release: 2.2, to: 2.4 }], 3),
+      refused([presses[0]!], 2),
+    ],
+    [undefined, "duration", "presses", "presses"],
+  );
+}

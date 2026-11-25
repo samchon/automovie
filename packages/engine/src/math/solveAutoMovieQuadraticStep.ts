@@ -10,14 +10,14 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 /**
  * Compute an affine or combined homogeneous Newton direction using one already
  * factored sparse KKT and its constant RHS solution K^-1[-q;b]. The scalar
- * Schur complement retains x'Px/tau, so PSD/zero curvature needs no epigraph
- * or added objective ridge. Orthant centrality is s*z and H=s/z; zero-cone
- * rows have H=0 and a zero slack direction.
+ * Schur complement retains x'Px/tau, so PSD/zero curvature needs no epigraph or
+ * added objective ridge. Orthant centrality is s*z and H=s/z; zero-cone rows
+ * have H=0 and a zero slack direction.
  *
- * Goulart and Chen (2024), sections 3.2-3.3, derive this condensed solve.
- * The combined RHS includes Mehrotra's affine product correction and uses
- * the first-iteration damping of the preceding Clarabel configuration.
- * Twofold sums retain cancellation in the scalar Schur equation and direction
+ * Goulart and Chen (2024), sections 3.2-3.3, derive this condensed solve. The
+ * combined RHS includes Mehrotra's affine product correction and uses the
+ * first-iteration damping of the preceding Clarabel configuration. Twofold sums
+ * retain cancellation in the scalar Schur equation and direction
  * reconstruction. Expanding P*(xi-ci)^2-P*ci^2 removes cancelling ci squares.
  */
 export function solveAutoMovieQuadraticStep(
@@ -134,12 +134,6 @@ export function solveAutoMovieQuadraticStep(
       s[row] = pair[0]! + pair[1]!;
     }
   }
-  if (
-    ![tau, kappa].every(Number.isFinite) ||
-    !x.every(Number.isFinite) ||
-    !z.every(Number.isFinite) ||
-    !s.every(Number.isFinite)
-  )
-    return undefined;
+
   return { x, z, s, tau, kappa };
 }

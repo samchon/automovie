@@ -3,11 +3,12 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 import type { IProductionConstruction } from "./IProductionConstruction";
 import type { NarrativeScope } from "./NarrativeScope";
 
-/**
- * Selects narrative claim families, their stages and additional native claims.
- */
+/** Selects narrative claim families, their stages and additional native claims. */
 export interface IProductionConfigProps {
-  /** Chooses four-layer long work, short brief plus screenplay, or standalone assets. */
+  /**
+   * Chooses four-layer long work, short brief plus screenplay, or standalone
+   * assets.
+   */
   mode: "long" | "short" | "asset";
 
   /** Engineering duties participate globally without a narrative parent. */
@@ -25,8 +26,8 @@ export interface IProductionConfigProps {
    *
    * Use its absolute directory. A workspace passes its root tree, so the shared
    * story contracts resolve there, while the production's own `work` and
-   * `language` contracts always stay under `<location>/docs/contracts`. Omit it for a
-   * standalone production, whose shared contracts sit under its own
+   * `language` contracts always stay under `<location>/docs/contracts`. Omit it
+   * for a standalone production, whose shared contracts sit under its own
    * `.agents/skills`.
    *
    * @default path.join(location, ".agents", "skills")

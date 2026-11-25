@@ -28,20 +28,23 @@ import { pickUpPosture } from "./pickUpPosture";
 import { pickUpSearch } from "./pickUpSearch";
 
 /**
- * A pick-up performed over a carrier (`pickUp` as an overlay): a seated
- * rider takes a revolver from its holster, a carbine from its boot or an
- * arrow from its quiver while the carrier action keeps the body. The grasp
- * is the standing pick-up's (`pickUpSearch` on the entry's body), but the
- * body is never lowered, turned or stepped for it: the carrier owns them,
- * so a grip beyond the arm is refused. The action claims only the reaching
- * arm and its hand. Where the prop rides the performer's own body (worn, or
- * mounted on a carrier worn there), the hand's path rides that bone, so it
- * follows the prop as the body moves under the rider; a prop in the world
- * keeps a world path. The phases are the standing pick-up's: the reach, the
- * load, and the lift along the body's up at the entry.
+ * A pick-up performed over a carrier (`pickUp` as an overlay): a seated rider
+ * takes a revolver from its holster, a carbine from its boot or an arrow from
+ * its quiver while the carrier action keeps the body. The grasp is the standing
+ * pick-up's (`pickUpSearch` on the entry's body), but the body is never
+ * lowered, turned or stepped for it: the carrier owns them, so a grip beyond
+ * the arm is refused. The action claims only the reaching arm and its hand.
+ * Where the prop rides the performer's own body (worn, or mounted on a carrier
+ * worn there), the hand's path rides that bone, so it follows the prop as the
+ * body moves under the rider; a prop in the world keeps a world path. The
+ * phases are the standing pick-up's: the reach, the load, and the lift along
+ * the body's up at the entry.
  */
 export namespace pickUpOver {
-  /** The load phase between contact and lift-off, seconds: the standing pick-up's. */
+  /**
+   * The load phase between contact and lift-off, seconds: the standing
+   * pick-up's.
+   */
   export const LOAD: number = 0.15;
 
   /**
@@ -49,7 +52,9 @@ export namespace pickUpOver {
    *
    * @param context The action's context, its carrier present.
    * @returns The plan.
-   * @throws {HumanRefusal} On `prop` when the grip lies beyond the arm from the carried body, and on `lift` for a second hand asked to lift independently.
+   * @throws {HumanRefusal} On `prop` when the grip lies beyond the arm from the
+   *   carried body, and on `lift` for a second hand asked to lift
+   *   independently.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
@@ -88,7 +93,7 @@ export namespace pickUpOver {
         context.start,
       ),
     );
-    const { chosen, bend }: pickUpSearch.ISearched = pickUpSearch.of(
+    const { chosen, bend }: pickUpSearch.ISearched = pickUpSearch(
       context,
       side,
       lift,
@@ -249,7 +254,10 @@ export namespace pickUpOver {
     };
   }
 
-  /** The bone of this performer the prop rides: worn on it, or mounted on a carrier worn on it; none for a prop in the world. */
+  /**
+   * The bone of this performer the prop rides: worn on it, or mounted on a
+   * carrier worn on it; none for a prop in the world.
+   */
   function carrying(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
   ): AutoMovieHumanoidBone | undefined {

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionProfileRealize.ts#IAutoMovieConstructionProfileRealize
-
-## @evidence contracts/development/design.md#principled-representation
-
-Adds the profile discriminator to the existing pure source declaration, retaining its metre station domains.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ConstructionProfileRealize resolves this declaration against the invocation's source map by name.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Source presence and structural agreement require runtime checks; the discriminator alone supplies no functions.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names source resolution and its declaration-versus-function distinction.
-
 # src/construction/IAutoMovieConstructionProfileRealize.ts#IAutoMovieConstructionProfileRealize.INode
 
 ## @evidence contracts/development/design.md#principled-representation

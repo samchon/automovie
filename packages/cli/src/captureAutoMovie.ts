@@ -11,6 +11,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
+import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieCaptureHostOptions } from "./readAutoMovieCaptureHostOptions";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
@@ -52,15 +53,17 @@ export async function captureAutoMovie(props: {
   /** The caller's output sink, default standard output. */
   write?: (text: string) => void;
 
+  /** The absolute record path verification expects this capture to write. */
   expectedRecord?: string;
+
   /** Receives the absolute path of this attempt's completed capture record. */
   recorded?: (file: string, text: string) => void;
 }): Promise<number> {
   const { root } = props;
-  const render: typeof Render = loadAutoMovieProductionModule(
+  const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,
     "@automovie/render",
-  ) as typeof Render;
+  );
   const options: ReturnType<typeof readAutoMovieCaptureHostOptions> =
     readAutoMovieCaptureHostOptions(
       render.readAutoMovieCaptureArguments(props.args),
@@ -93,7 +96,7 @@ export async function captureAutoMovie(props: {
           ...fs,
           writeFile: async (
             file: string,
-            data: string | Uint8Array,
+            data: Parameters<IAutoMovieCaptureStorage["writeFile"]>[1],
           ): Promise<void> => {
             await fs.writeFile(file, data);
             if (
@@ -118,7 +121,8 @@ export async function captureAutoMovie(props: {
     if (options.out === null) admitFolder(folder);
     const ffmpeg: string = resolveAutoMovieFfmpeg({
       env: props.env,
-      load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
+      load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
+        loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
     });
     const probe: ReturnType<typeof readAutoMovieVideoProbe> =
       readAutoMovieVideoProbe(

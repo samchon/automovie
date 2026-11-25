@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBalance,
@@ -18,7 +17,9 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -26,26 +27,30 @@ import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "./AutoMovieMotionHumanRoot";
 
+/** The alternatives of `CrouchResult`'s site. */
+type CrouchResult = "leftLeg" | "rightLeg";
+
 /**
- * Trunk phrases: the trunk turned on the pelvis, the body sunk into its
- * knees, and the hips moved back under a limb held out.
+ * Trunk phrases: the trunk turned on the pelvis, the body sunk into its knees,
+ * and the hips moved back under a limb held out.
  *
  * The hip shifts are solved by {@link HumanBalance.shift} on the body at the
- * phrase's fullest pose and scaled between by the clock's envelope, so no
- * shift is stated as a constant.
+ * phrase's fullest pose and scaled between by the clock's envelope, so no shift
+ * is stated as a constant.
  */
 export namespace AutoMovieMotionHumanTrunk {
   /** The chest's share of a trunk turn; the lumbar spine takes the rest. */
   export const CHEST: number = 0.6;
 
   /**
-   * A turn: the trunk twists on the pelvis and comes back (the wind-up and
-   * the rotation of a throw or a punch, a turn toward a neighbour).
+   * A turn: the trunk twists on the pelvis and comes back (the wind-up and the
+   * rotation of a throw or a punch, a turn toward a neighbour).
    *
    * @param clock The action's clock.
    * @param rise The instants the turn starts growing and is full at.
    * @param fall The instants the turn starts shrinking and is gone at.
-   * @param degrees The twist at its fullest, degrees; positive toward the performer's left.
+   * @param degrees The twist at its fullest, degrees; positive toward the
+   *   performer's left.
    * @returns The primitive, on the trunk.
    */
   export function turn(
@@ -61,8 +66,8 @@ export namespace AutoMovieMotionHumanTrunk {
   }
 
   /**
-   * Where a posture puts each foot: its ankle and its rotation as the
-   * posture resolves, whether its legs are goals or joint angles alone.
+   * Where a posture puts each foot: its ankle and its rotation as the posture
+   * resolves, whether its legs are goals or joint angles alone.
    *
    * @param body The body.
    * @param posture The posture.
@@ -72,14 +77,17 @@ export namespace AutoMovieMotionHumanTrunk {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture.seeded(body, posture, undefined, {}, resolution).pose,
       resolution(),
-      FEET,
+      HumanBoneGroups.FEET,
     );
-    const at = (side: AutoMovieHumanSide): IAutoMovieMotionHumanFoot.IPlacement => ({
+    const at = (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: bones.get(`${side}Foot`)!.worldPosition,
       rotation: bones.get(`${side}Foot`)!.worldRotation,
     });
@@ -87,10 +95,10 @@ export namespace AutoMovieMotionHumanTrunk {
   }
 
   /**
-   * A posture with legs planted on given feet: each named leg a planted goal
-   * on its foot's placement, its knee hinted over the foot from the
-   * posture's root, so lowering the root bends the knee instead of carrying
-   * the foot down with it.
+   * A posture with legs planted on given feet: each named leg a planted goal on
+   * its foot's placement, its knee hinted over the foot from the posture's
+   * root, so lowering the root bends the knee instead of carrying the foot down
+   * with it.
    *
    * @param body The body.
    * @param posture The posture whose root carries the knees' rest places.
@@ -101,7 +109,9 @@ export namespace AutoMovieMotionHumanTrunk {
   export function planted(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>>,
+    feet: Readonly<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
+    >,
     legs: readonly AutoMovieHumanSide[],
   ): IAutoMovieMotionHumanPosture {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
@@ -120,18 +130,35 @@ export namespace AutoMovieMotionHumanTrunk {
    * Prepare fixed foot placements for repeated actual planted postures.
    *
    * @param body The unchanged body supplying rest knee/toe geometry.
-   * @param feet The unchanged ankle/rotation placements, borrowed for this reader.
-   * @param legs The unchanged ordered legs to plant, both by default; duplicate visits remain duplicate goal writes.
-   * @returns A fresh posture/limb map at each current root/yaw, with original borrowed foot fields and fresh knee/contact values.
+   * @param feet The unchanged ankle/rotation placements, borrowed for this
+   *   reader.
+   * @param legs The unchanged ordered legs to plant, both by default; duplicate
+   *   visits remain duplicate goal writes.
+   * @returns A fresh posture/limb map at each current root/yaw, with original
+   *   borrowed foot fields and fresh knee/contact values.
    */
-  export function preparePlanted(body: IAutoMovieMotionHumanBody,
+  export function preparePlanted(
+    body: IAutoMovieMotionHumanBody,
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
-    legs: readonly AutoMovieHumanSide[] = ["left", "right"]): (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
-    const goals: Partial<Record<AutoMovieHumanSide, ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>>> = {};
+    legs: readonly AutoMovieHumanSide[] = ["left", "right"],
+  ): (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
+    const goals: Partial<
+      Record<
+        AutoMovieHumanSide,
+        ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>
+      >
+    > = {};
     for (const side of legs)
       if (goals[side] === undefined)
-        goals[side] = AutoMovieMotionHumanLeg.prepareGoal(body, side, feet[side], true);
-    return (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+        goals[side] = AutoMovieMotionHumanLeg.prepareGoal(
+          body,
+          side,
+          feet[side],
+          true,
+        );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of legs) limbs[`${side}Leg`] = goals[side]!(posture);
       return { ...posture, limbs };
@@ -139,13 +166,13 @@ export namespace AutoMovieMotionHumanTrunk {
   }
   /**
    * A posture sunk into its knees: the hips lowered and moved back along the
-   * heading, and the trunk inclined forward over them by the lumbopelvic
-   * rhythm (`HumanTrunk.incline`), the pelvis taking no more than the planted
-   * legs' hip flexion leaves it (`HumanTrunk.pelvisLimit`) and the spine the
-   * rest. The legs keep their goals. The hips start where the posture's own
-   * heading (its yaw, pitch and roll) puts them, so a posture already pitched
-   * (a lean an earlier action left) at no depth, back or inclination is
-   * returned in place.
+   * heading, and the trunk inclined forward over them by the lumbopelvic rhythm
+   * (`HumanTrunk.incline`), the pelvis taking no more than the planted legs'
+   * hip flexion leaves it (`HumanTrunk.pelvisLimit`) and the spine the rest.
+   * The legs keep their goals. The hips start where the posture's own heading
+   * (its yaw, pitch and roll) puts them, so a posture already pitched (a lean
+   * an earlier action left) at no depth, back or inclination is returned in
+   * place.
    *
    * @param body The body.
    * @param posture The posture, its pelvis level or already pitched.
@@ -167,7 +194,7 @@ export namespace AutoMovieMotionHumanTrunk {
     const goal: IAutoMovieVector3 = Vector3.add(
       Vector3.add(
         posture.root,
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), hips),
+        Quaternion.rotateVector(humanPostureHeading(posture), hips),
       ),
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -202,73 +229,103 @@ export namespace AutoMovieMotionHumanTrunk {
       ...tipped,
       root: Vector3.subtract(
         goal,
-        Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
+        Quaternion.rotateVector(humanPostureHeading(tipped), hips),
       ),
     };
   }
 
   /**
-   * A crouch: the hips sink and the trunk inclines forward over them
-   * (`sunk`), the hips moved so the centre of mass stays over the feet where
-   * they bear, back over flat feet and forward over a forefoot whose heel the
-   * ankle's range lifts, and the body stands again (a duck, the dip before
-   * a jump, a load taken into the legs). The crouch plants its legs itself
-   * on the feet the standing posture shows (`footing`, `planted`), so the knees bend under
+   * A crouch: the hips sink and the trunk inclines forward over them (`sunk`),
+   * the hips moved so the centre of mass stays over the feet where they bear,
+   * back over flat feet and forward over a forefoot whose heel the ankle's
+   * range lifts, and the body stands again (a duck, the dip before a jump, a
+   * load taken into the legs). The crouch plants its legs itself on the feet
+   * the standing posture shows (`footing`, `planted`), so the knees bend under
    * the sinking hips whatever the action before it left: a stance with leg
-   * goals, or an exercise whose legs are joint angles alone, under which a
-   * root lowered without goals would carry straight legs through the floor.
+   * goals, or an exercise whose legs are joint angles alone, under which a root
+   * lowered without goals would carry straight legs through the floor.
    *
-   * @param props The body, the standing posture, the windows, the depth, the pitch and the legs planted.
+   * @param props The body, the standing posture, the windows, the depth, the
+   *   pitch and the legs planted.
    * @returns The primitive, on the root, the trunk and the planted legs.
    * @throws {Error} When the depth or the pitch is negative.
    */
   export function crouch(
     props: IAutoMovieMotionHumanTrunk.ICrouch,
-    window: HumanPhysics.Window = HumanPhysics.fromClock(props, { balance: { by: "hips" } }, 0, props.clock),
+    window: HumanPhysics.Window = HumanPhysics.fromClock(
+      props,
+      { balance: { by: "hips" } },
+      0,
+      props.clock,
+    ),
   ): IAutoMovieMotionHumanPrimitive {
     if (window?.by === "trunk")
-      HumanPhysics.unsupported(window.by, "the crouch prescribes the trunk pitch and moves the hips under it");
-    const lower: ReturnType<typeof prepareCrouch> = prepareCrouch(props, window);
+      HumanPhysics.unsupported(
+        window.by,
+        "the crouch prescribes the trunk pitch and moves the hips under it",
+      );
+    const lower: ReturnType<typeof prepareCrouch> = prepareCrouch(
+      props,
+      window,
+    );
     const legs: readonly AutoMovieHumanSide[] = props.legs ?? ["left", "right"];
     return {
       channels: [
         "root",
         "trunk",
-        ...legs.map(
-          (side: AutoMovieHumanSide): "leftLeg" | "rightLeg" => `${side}Leg`,
-        ),
+        ...legs.map((side: AutoMovieHumanSide): CrouchResult => `${side}Leg`),
       ],
       from: props.clock.at(props.rise[0]),
       to: props.clock.at(props.fall[1]),
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
-        lower(posture, props.clock.envelope(props.rise, props.fall, seconds), HumanPhysics.weightAt(window, seconds)),
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture =>
+        lower(
+          posture,
+          props.clock.envelope(props.rise, props.fall, seconds),
+          HumanPhysics.weightAt(window, seconds),
+        ),
     };
   }
 
   /**
-   * Prepare one crouch's planted feet and full-depth balance shift so
-   * repeated clock windows can apply the same geometry with their own share.
-   * The body, standing posture and dimensional inputs remain unchanged for
-   * the returned reader's lifetime; a different stance or depth prepares anew.
+   * Prepare one crouch's planted feet and full-depth balance shift so repeated
+   * clock windows can apply the same geometry with their own share. The body,
+   * standing posture and dimensional inputs remain unchanged for the returned
+   * reader's lifetime; a different stance or depth prepares anew.
    *
-   * @param props The body, fixed stance, depth in metres, inclination in degrees and planted legs.
-   * @returns A posture writer at the supplied share in [0, 1], without a clock or sampled pose cache.
+   * @param props The body, fixed stance, depth in metres, inclination in
+   *   degrees and planted legs.
+   * @returns A posture writer at the supplied share in [0, 1], without a clock
+   *   or sampled pose cache.
    * @throws {Error} When depth or pitch is negative or non-numeric.
    */
   export function prepareCrouch(
     props: IAutoMovieMotionHumanTrunk.IShape,
     window?: HumanPhysics.Window,
-  ): (posture: IAutoMovieMotionHumanPosture, share: number, weight?: number) => IAutoMovieMotionHumanPosture {
-    if (window === undefined) HumanPhysics.fixed(props, "a geometric crouch share has no event clock for a timed balance correction");
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    share: number,
+    weight?: number,
+  ) => IAutoMovieMotionHumanPosture {
+    if (window === undefined)
+      HumanPhysics.fixed(
+        props,
+        "a geometric crouch share has no event clock for a timed balance correction",
+      );
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
-    const legs: readonly AutoMovieHumanSide[] = props.legs ?? [
-      "left",
-      "right",
-    ];
-    const feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
-      footing(props.body, props.standing);
-    const plant: ReturnType<typeof preparePlanted> = preparePlanted(props.body, feet, legs);
+    const legs: readonly AutoMovieHumanSide[] = props.legs ?? ["left", "right"];
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = footing(props.body, props.standing);
+    const plant: ReturnType<typeof preparePlanted> = preparePlanted(
+      props.body,
+      feet,
+      legs,
+    );
 
     // The legs are planted before the hips sink, so `sunk` reads the thighs
     // the pelvis's share is limited by, and the knees bend as the root goes
@@ -288,13 +345,22 @@ export namespace AutoMovieMotionHumanTrunk {
         ),
       );
     // Without the balance option the hips sink where they stand: no centre
-    // of mass is read.
-    let back: number | undefined;
-    return (posture: IAutoMovieMotionHumanPosture, share: number, weight: number = 0): IAutoMovieMotionHumanPosture => {
-      if (window === undefined || window === null || weight === 0 || share === 0) return low(posture, share, 0);
-      back ??= HumanBalance.shift(props.body, (b: number): IAutoMovieMotionHumanPosture => low(props.standing, 1, b));
-      return low(posture, share, back * share * weight);
-    };
+    // of mass is read. With it, the full-depth shift is solved once here,
+    // the branch point the crouch's balance is found at.
+    const back: number =
+      window === undefined || window === null
+        ? 0
+        : HumanBalance.shift(
+            props.body,
+            (b: number): IAutoMovieMotionHumanPosture =>
+              low(props.standing, 1, b),
+          );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+      weight: number = 0,
+    ): IAutoMovieMotionHumanPosture =>
+      low(posture, share, back * share * weight);
   }
 
   /**
@@ -308,9 +374,11 @@ export namespace AutoMovieMotionHumanTrunk {
    * @param rise The instants the limb starts extending and is fullest at.
    * @param fall The instants the limb starts returning and is back at.
    * @param extended The action's posture at the limb's fullest extension.
-   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalance`); absent, the hips are not shifted and no centre of mass is read.
+   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalance`);
+   *   absent, the hips are not shifted and no centre of mass is read.
    * @returns The primitive, on the root.
-   * @throws {HumanRefusal} `base` on `balance` when no place of the hips within `HumanBalance.REACH` brings the centre of mass inside the feet.
+   * @throws {HumanRefusal} `base` on `balance` when no place of the hips within
+   *   `HumanBalance.REACH` brings the centre of mass inside the feet.
    */
   export function counterbalance(
     body: IAutoMovieMotionHumanBody,
@@ -322,9 +390,17 @@ export namespace AutoMovieMotionHumanTrunk {
   ): IAutoMovieMotionHumanPrimitive {
     // Without the balance option the hips stay where the action puts them:
     // no centre of mass is read and nothing is shifted.
-    const window: HumanPhysics.Window = HumanPhysics.fromClock({ balance }, { balance: { by: "hips" } }, 0, clock);
+    const window: HumanPhysics.Window = HumanPhysics.fromClock(
+      { balance },
+      { balance: { by: "hips" } },
+      0,
+      clock,
+    );
     if (window?.by === "trunk")
-      HumanPhysics.unsupported(window.by, "the counterbalance primitive moves the root under the extended limb");
+      HumanPhysics.unsupported(
+        window.by,
+        "the counterbalance primitive moves the root under the extended limb",
+      );
     if (window === null)
       return AutoMovieMotionHumanRoot.excursion(clock, rise, fall, {
         point: { x: 0, y: 0, z: 0 },
@@ -361,12 +437,16 @@ export namespace AutoMovieMotionHumanTrunk {
       from: clock.at(rise[0]),
       to: clock.at(fall[1]),
       offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset => ({
-        point: { x: 0, y: 0, z: -back * clock.envelope(rise, fall, seconds) * HumanPhysics.weightAt(window, seconds) },
+        point: {
+          x: 0,
+          y: 0,
+          z:
+            -back *
+            clock.envelope(rise, fall, seconds) *
+            HumanPhysics.weightAt(window, seconds),
+        },
         yaw: 0,
       }),
     });
   }
 }
-
-/** Both displayed foot frames; their parent closure is owned by canonical FK. */
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]);

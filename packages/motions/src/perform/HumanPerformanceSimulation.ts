@@ -7,7 +7,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceState,
@@ -35,34 +34,33 @@ import { planHumanSimulationBody } from "./planHumanSimulationBody";
 import { reachHumanSimulation } from "./reachHumanSimulation";
 import { readHumanSimulatedPose } from "./readHumanSimulatedPose";
 import { sampleHumanSimulationTargets } from "./sampleHumanSimulationTargets";
-import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
 /**
- * The simulated tier (#3434, #3441): a window of a performance baked once
- * through the engine's solver at a fixed step and read back by time.
+ * The simulated tier: a window of a performance baked once through the engine's
+ * solver at a fixed step and read back by time.
  *
- * `bake` builds the engine's input from the placed performance: each
- * simulated performer's profile and its displayed world bones sampled at
- * `RATE`, the performance's impulses at their steps, the grips between
- * simulated performers as collider bindings, the scene's solids within
- * reach as kinematic bodies, and the floor at the canonical frame's y = 0
- * with bounds that hold every body's reach (`planHumanSimulationBody` says
- * which parts the solver owns and when). `pose` reads a performer inside the
- * window: the bones the solver owns at the instant come from the cache and
- * every other bone is the performance's own (`readHumanSimulatedPose`).
- * The solve is a pure function of its sampled input, which the engine
- * hashes into the cache's identity, so two bakes of one window agree bit
- * for bit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the input holds, what a read returns and why bakes agree.
- * @evidence contracts/development/design.md#principled-representation Film seconds outside, the window's local seconds inside the cache, SI units throughout; a reading pairs the engine's record with each performer's rig codec.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `bake`, `covers` and `pose` serve `HumanPerformance.simulate`, `pose` and `bones`; the grid rate is shared with the specs that read the cache.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No scene-specific member; every policy comes from the performance's own forces, grips, falls and solids.
+ * `bake` builds the engine's input from the placed performance: each simulated
+ * performer's profile and its displayed world bones sampled at `RATE`, the
+ * performance's impulses at their steps, the grips between simulated performers
+ * as collider bindings, the scene's solids within reach as kinematic bodies,
+ * and the floor at the canonical frame's y = 0 with bounds that hold every
+ * body's reach (`planHumanSimulationBody` says which parts the solver owns and
+ * when). `pose` reads a performer inside the window: the bones the solver owns
+ * at the instant come from the cache and every other bone is the performance's
+ * own (`readHumanSimulatedPose`). The solve is a pure function of its sampled
+ * input, which the engine hashes into the cache's identity, so two bakes of one
+ * window agree bit for bit.
  */
 export namespace HumanPerformanceSimulation {
-  /** Cached intervals per second: the 120 Hz the window issue fixes (#3434), five per 24 Hz film frame. */
+  /**
+   * Cached intervals per second: the 120 Hz the window issue fixes, five per 24
+   * Hz film frame.
+   */
   export const RATE: number = 120;
-  /** The canonical frame's floor height, metres: every canonical body stands with its lowest point at y = 0. */
+  /**
+   * The canonical frame's floor height, metres: every canonical body stands
+   * with its lowest point at y = 0.
+   */
   export const FLOOR: number = 0;
 
   /** A baked window as a performance reads it. */
@@ -82,33 +80,28 @@ export namespace HumanPerformanceSimulation {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The profile the window solved: the body's, its hands welded with their fingers. */
+    /**
+     * The profile the window solved: the body's, its hands with their fingers,
+     * its toes and its neck with the head welded into the segments above them
+     * (`weldHumanSimulationProfile`).
+     */
     profile: IAutoMoviePhysicalProfile;
 
     /** The body's rig codec, with its joint axes and the humanoid rest frames. */
     codec: IAutoMoviePoseJointCodec.ICodec;
-
-    /** Each welded hand's finger joints as displayed at the window's start, the shape the solver gave the hand. */
-    held: ReadonlyMap<string, readonly IAutoMovieJointPose[]>;
   }
 
   /**
    * Bake a window.
    *
-   * @param performance The performance read for its displayed bones and placed actions; its own earlier windows included.
+   * @param performance The performance read for its displayed bones and placed
+   *   actions; its own earlier windows included.
    * @param state The resolved performance, for its forces, props and obstacles.
    * @param window The window.
    * @param mode The physical policy of every simulated body.
    * @returns The reading.
-   * @throws {HumanRefusal} When the window lies outside the film, is shorter than one interval, or names a performer the performance does not have.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Samples the displayed motion at the cache rate, places each impulse at the boundary that opens its step, and leaves the solve to the engine's fixed-step simulation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, sample, place forces, decide releases and groups, plan bodies, add solids, compute; each decision has its own helper.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The floor box and its depth come from the bodies' own reach; nothing is tuned to a scene.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(P * S) displayed-bone reads for P performers over S steps, then the engine's solve, which dominates.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each step's displayed bones are read once and shared by the targets, the impulse sites and the grips.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The engine frees its native world before resolving; the reading retains the completed simulation for the performance's lifetime.
+   * @throws {HumanRefusal} When the window lies outside the film, is shorter
+   *   than one interval, or names a performer the performance does not have.
    */
   export async function bake(
     performance: IAutoMovieMotionHumanPerformance,
@@ -119,8 +112,7 @@ export namespace HumanPerformanceSimulation {
     const count: number = Math.round((window.to - window.from) * RATE);
     const duration: number = count / RATE;
     if (
-      !Number.isFinite(window.from) ||
-      window.from < 0 ||
+      !(window.from >= 0) ||
       count < 1 ||
       window.from + duration > performance.duration + 1e-9 ||
       duration * RATE !== count
@@ -220,7 +212,7 @@ export namespace HumanPerformanceSimulation {
       );
 
     // A performer is released from its first impulse when the performance
-    // lays it down inside the window (#3430's fall), or from the window's
+    // lays it down inside the window (fall), or from the window's
     // start when the window releases it.
     const releases: Map<string, number> = new Map(
       subjects.map((subject: string): [string, number] => {
@@ -246,7 +238,7 @@ export namespace HumanPerformanceSimulation {
               ): number => impulse.step,
             ),
         );
-        return [subject, Number.isFinite(first) ? first : 1];
+        return [subject, first === Infinity ? 1 : first];
       }),
     );
 
@@ -346,11 +338,6 @@ export namespace HumanPerformanceSimulation {
           {
             body: bodies.get(subject)!,
             profile: profiles.get(subject)!,
-            held: weldHumanSimulationProfile.held(
-              bodies.get(subject)!,
-              profiles.get(subject)!,
-              performance.pose(subject, window.from),
-            ),
             codec: poseJointCodec({
               skeleton: bodies.get(subject)!.skeleton,
               jointAxes: HUMANOID_JOINT_AXES,
@@ -369,14 +356,6 @@ export namespace HumanPerformanceSimulation {
    * @param subject The performer.
    * @param seconds Film seconds.
    * @returns True inside the window for a simulated performer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the closed window and the performer test.
-   * @evidence contracts/development/implementation.md#principled-implementation The window is closed: its end frame is the hand-back's last solved state.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One membership and two comparisons.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function covers(
     reading: IReading,
@@ -397,15 +376,8 @@ export namespace HumanPerformanceSimulation {
    * @param subject The performer, simulated by the window.
    * @param seconds Film seconds inside the window.
    * @param kinematic The pose the performance shows there without the window.
-   * @returns The pose: the solver's bones where it owns them, the kinematic pose's elsewhere.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock change and which bones come from where.
-   * @evidence contracts/development/implementation.md#principled-implementation A bone is the solver's exactly while the cache's causal ownership record says the solver owns its segment (dynamic or returning); an authored segment's cached frame is its target, which the kinematic pose already is.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ownership, then one cache read only when something is owned, then the reconstruction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window's local second is clamped onto the cache's domain only for the floating rounding of film seconds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B * E) ownership lookups for B segments over E ownership events, one interpolated cache read when needed and one rig walk.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the baked cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh pose; retains nothing.
+   * @returns The pose: the solver's bones where it owns them, the kinematic
+   *   pose's elsewhere.
    */
   export function pose(
     reading: IReading,
@@ -436,7 +408,6 @@ export namespace HumanPerformanceSimulation {
       kinematic,
       cache.at(local).bodies[subject]!,
       owned,
-      performer.held,
     );
   }
 
@@ -452,7 +423,10 @@ export namespace HumanPerformanceSimulation {
     });
   }
 
-  /** Whether a placed action lays the body down inside the span: a lying contact opens there. */
+  /**
+   * Whether a placed action lays the body down inside the span: a lying contact
+   * opens there.
+   */
   function falls(
     segments: readonly IAutoMovieMotionHumanSegment[],
     from: number,

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
@@ -14,6 +15,7 @@ import type {
   IAutoMovieMotionHumanPunch,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { DefenceOutcome } from "./DefenceOutcome";
 import { StrikingSkill } from "./StrikingSkill";
@@ -21,6 +23,19 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
+import { strikingReadBack } from "./strikingReadBack";
+
+/** The record of `IPlanAt`'s site. */
+type IPlanAt = {
+  at?: IPlanAtAt;
+};
+
+/** The record of `IPlanAtAt`'s site. */
+type IPlanAtAt = {
+  kind: string;
+  subject?: string;
+  region?: AutoMovieHumanoidRegion;
+};
 
 /**
  * A defence against one placed strike: a glove, forearm or shin brought to
@@ -29,52 +44,48 @@ import { defendGeometry } from "./defendGeometry";
  * When the defence starts comes from the defence outcome law
  * ({@link DefenceOutcome}): the defender reacts to the strike's launch after a
  * seeded reaction time, earlier by the anticipation lead the strike's
- * preparation allows (its telegraph), and the author may force the outcome
- * (in time, late or fail), which the law realises with plausible timing.
- * Where it goes comes from what the defender sees at that start: the
- * attacker's moving limb (the hand or foot whose velocity points most toward
- * the struck region) and the line from it to the region on the defender's own
- * body. Nothing about contact is decided here: the strike stops on the first
- * surface it meets, so an in-time cover is struck on the glove, a late one is
- * struck through, and a slip that moved the head off the line in time is
- * missed (the strike's tracking cannot follow a move that starts within one
- * correction latency of its contact).
+ * preparation allows (its telegraph), and the author may force the outcome (in
+ * time, late or fail), which the law realises with plausible timing. Where it
+ * goes comes from what the defender sees at that start: the attacker's moving
+ * limb (the hand or foot whose velocity points most toward the struck region)
+ * and the line from it to the region on the defender's own body. Nothing about
+ * contact is decided here: the strike stops on the first surface it meets, so
+ * an in-time cover is struck on the glove, a late one is struck through, and a
+ * slip that moved the head off the line in time is missed (the strike's
+ * tracking cannot follow a move that starts within one correction latency of
+ * its contact).
  *
- * Kinds (IBA coaching manual pp. 57 to 67; kickboxing research of #3201,
- * defence table):
+ * Kinds (IBA coaching manual pp. 57 to 67; kickboxing research, defence table):
  *
- * - `cover`: the glove on the attacked side over the attacked head region,
- *   palm toward the incoming line, elbow down (both gloves for a central
- *   region).
- * - `parry`: the glove opposite the punching hand meets the fist on the line
- *   a forearm's length ahead of the region and turns it aside.
- * - `elbowBlock`: the elbow on the attacked side dropped over the attacked
- *   body region, the glove kept at the jaw.
- * - `highBlock`: the forearm on the attacked side braced beside the head,
- *   the glove above the temple.
+ * - `cover`: the glove on the attacked side over the attacked head region, palm
+ *   toward the incoming line, elbow down (both gloves for a central region).
+ * - `parry`: the glove opposite the punching hand meets the fist on the line a
+ *   forearm's length ahead of the region and turns it aside.
+ * - `elbowBlock`: the elbow on the attacked side dropped over the attacked body
+ *   region, the glove kept at the jaw.
+ * - `highBlock`: the forearm on the attacked side braced beside the head, the
+ *   glove above the temple.
  * - `slip`: the head moved off the line by its own radius, the fist's and a
  *   margin, through the knees and a trunk lean, outside the punching arm.
- * - `roll`: the head dropped under the line by two head radii through bent
- *   knees and a forward lean, then up.
- * - `sway`: the upper body leaned back over the rear foot until the head
- *   clears the line.
- * - `check`: the leg on the attacked side lifted, knee up and out, shin
- *   turned into the kick, the foot dorsiflexed (the toes-up variant).
+ * - `roll`: the head dropped under the line by two head radii through bent knees
+ *   and a forward lean, then up.
+ * - `sway`: the upper body leaned back over the rear foot until the head clears
+ *   the line.
+ * - `check`: the leg on the attacked side lifted, knee up and out, shin turned
+ *   into the kick, the foot dorsiflexed (the toes-up variant).
  *
  * The defence holds until just after the strike's contact and returns to the
  * guard over one hand recovery. The geometry itself is built by
  * {@link defendGeometry} on the first posture after the read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when the defence starts, where it goes, each kind with its coaching source, and that contact is left to the strike.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed union of kinds, and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan, and the telegraph the outcome law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, placed-action and outcome types; the strike is named by its anchor, not by a production's scene.
  */
 export namespace defend {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "defend";
 
-  /** Cancel table: a defence flows into a counter punch or another defence once the strike has passed. */
+  /**
+   * Cancel table: a defence flows into a counter punch or another defence once
+   * the strike has passed.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     punch: [
       { window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
@@ -85,24 +96,17 @@ export namespace defend {
   };
 
   /**
-   * How much of a strike its preparation shows, in [0, 1]: provisional
-   * readings of how visible each technique's preparation is, with no
-   * located study measuring it per technique. A round kick's chamber shows
-   * most (1.0), a push kick or knee 0.8, a rear-hand punch's turn 0.6 and a
-   * jab 0.4.
+   * How much of a strike its preparation shows, in [0, 1]: provisional readings
+   * of how visible each technique's preparation is, with no located study
+   * measuring it per technique. A round kick's chamber shows most (1.0), a push
+   * kick or knee 0.8, a rear-hand punch's turn 0.6 and a jab 0.4.
    *
    * @param attack The placed strike.
    * @returns The telegraph.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the range, each technique's value and that the values are provisional for want of a study.
-   * @evidence contracts/development/implementation.md#principled-implementation A lookup of the provisional visibility by technique and hand.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per strike family.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The placed strike's parameters are read through the strike laws' own parameter types, by its action name; values are named provisional readings.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function telegraph(attack: IAutoMovieMotionHumanPlacedAction): number {
+  export function telegraph(
+    attack: Pick<IAutoMovieMotionHumanPlacedAction, "family" | "params">,
+  ): number {
     if (attack.family === "kick")
       return (attack.params as IAutoMovieMotionHumanKick.IParams).technique ===
         "round"
@@ -123,15 +127,9 @@ export namespace defend {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the answered strike has no contact or shown peak, does not strike this performer at a region, or the forced outcome is one plausible timing cannot meet (`DefenceOutcome.decide`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The outcome law times the start from the strike's launch and contact; the goal is built from what the defender sees at that read second, the guard held before it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Decides the timing once, builds the geometry on first use after the read, and evaluates each posture from it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A strike that cannot be defended throws; nothing about contact is decided here, so no outcome is faked geometrically.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original reaction decision, attacker reads and all current native posture fitting remain. Waiting and built-defence branches prepare fixed foot geometry and demanded rig names once, evaluate the movement envelope once per query and borrow genuine current FK/ROM inputs; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The decision is made once and built geometry is dropped on settle when the strike may change. The native context fixes entry feet and body, so waiting shares only their authored geometry/name preparation; every posture remains fresh, and query-supplied exact FK/ROM loans are forwarded without retaining them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one built geometry cleared by settle and one lazy fixed-entry waiting reader. Plan release drops fixed metadata, and current maps, pose fits and borrowed query sources end with each synchronous return or failure.
+   * @throws {HumanRefusal} When the answered strike has no contact or shown
+   *   peak, does not strike this performer at a region, or the forced outcome
+   *   is one plausible timing cannot meet (`DefenceOutcome.decide`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -158,15 +156,7 @@ export namespace defend {
         reason: `${p.against} has no contact or shown peak to defend against`,
         fix: "defend against the anchor of a strike that lands or is shown",
       });
-    const at = (
-      attack.params as {
-        at?: {
-          kind: string;
-          subject?: string;
-          region?: AutoMovieHumanoidRegion;
-        };
-      }
-    ).at;
+    const at = (attack.params as IPlanAt).at;
     if (
       at === undefined ||
       at.kind !== "person" ||
@@ -221,8 +211,8 @@ export namespace defend {
       duration,
       read: Math.max(context.start, decided.start),
     };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const checking: "left" | "right" | undefined =
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
+    const checking: AutoMovieHumanSide | undefined =
       p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined;
     const support: defendFootwork.ISupport | undefined = defendFootwork(
       context,
@@ -232,25 +222,22 @@ export namespace defend {
     // Before the read the defender only holds the guard, and nothing reads
     // the attacker: every read of another performer then looks back in time,
     // so two performers reading each other never recurse at one instant.
-    let built: defendGeometry.IGeometry | undefined;
-    let building: boolean = false;
-    const geometry = (): defendGeometry.IGeometry => {
-      if (built !== undefined) return built;
-      if (building)
-        throw new Error(
-          `${context.subject}: the defence against ${p.against} was read back while it was being planned`,
-        );
-      building = true;
-      try {
-        built = defendGeometry.build(context, timing, support);
-      } finally {
-        building = false;
-      }
-      return built;
-    };
+    // The geometry the plan solved when it was prepared; before that, each
+    // read builds it cold on the performance as placed so far.
+    const shape: AutoMovieMotionPrepared.IValue<defendGeometry.IGeometry> =
+      AutoMovieMotionPrepared(
+        (): defendGeometry.IGeometry =>
+          defendGeometry.build(context, timing, support),
+        (): Error => strikingReadBack("defend", context.subject),
+      );
+    const geometry = (): defendGeometry.IGeometry => shape.read();
     const contacts: IAutoMovieMotionHumanContactWindow[] =
       defendGeometry.windows(checking, timing, support);
-    let waiting: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
+    const waiting: IAutoMovieMotionHumanActionPlan["posture"] = idle(
+      context,
+      lead,
+      support,
+    );
     const out: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
@@ -263,25 +250,21 @@ export namespace defend {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return t <= begin + 1e-9
-          ? (waiting ??= idle(context, lead, support))(
-              t,
-              channels,
-              resolution,
-              projection,
-            )
+          ? waiting(t, channels, resolution, projection)
           : geometry().posture(t, channels, resolution, projection);
       },
-      settle: (): void => {
-        built = undefined;
-      },
+      prepare: (): void => void shape.prepare(),
     };
     return out;
   }
 
-  /** Fixed entry-foot and guard demands while waiting; each query still resolves its complete current authored posture. */
+  /**
+   * Fixed entry-foot and guard demands while waiting; each query still resolves
+   * its complete current authored posture.
+   */
   function idle(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
-    lead: "left" | "right",
+    lead: AutoMovieHumanSide,
     support: defendFootwork.ISupport | undefined,
   ): IAutoMovieMotionHumanActionPlan["posture"] {
     const legs: ReturnType<typeof StrikingStance.prepareLegs> =

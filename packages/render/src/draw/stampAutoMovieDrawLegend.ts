@@ -4,13 +4,28 @@ import type {
   IAutoMovieRasterLabel,
 } from "@automovie/interface";
 
-/** Rows of a stamped label box in font pixels: five glyph rows and two of padding above and below, as the label stamp draws it. */
+/**
+ * Rows of a stamped label box in font pixels: five glyph rows and two of
+ * padding above and below, as the label stamp draws it.
+ */
 const ROW: number = 9;
 
 /**
- * Put a picture's legend on the picture itself, in the corner where it hides the least of what was drawn: one row per entry, a square of the entry's colour followed by the label stamp's text `<label> <count>`, so a reader of the still alone knows what each mark colour means.
+ * Put a picture's legend on the picture itself, in the corner where it hides
+ * the least of what was drawn: one row per entry, a square of the entry's
+ * colour followed by the label stamp's text `<label> <count>`, so a reader of
+ * the still alone knows what each mark colour means.
  *
- * The block is tried in the bottom-left, bottom-right, top-right and top-left corners, in that order; every corner is free, since a contact sheet writes its caption in a strip under each cell rather than over the still. The block goes where the fewest of its pixels differ from the colour of the picture's pixel in that very corner, the background the corner shows, so it covers empty space where the picture has any, and the earlier corner wins a tie. Each swatch is painted now, `ROW × scale` pixels on a side, the height of a stamped label box; the returned labels are the rows' texts, anchored right of their swatches, for the capture run to stamp at the same `scale`. An empty legend paints nothing and returns nothing.
+ * The block is tried in the bottom-left, bottom-right, top-right and top-left
+ * corners, in that order; every corner is free, since a contact sheet writes
+ * its caption in a strip under each cell rather than over the still. The block
+ * goes where the fewest of its pixels differ from the colour of the picture's
+ * pixel in that very corner, the background the corner shows, so it covers
+ * empty space where the picture has any, and the earlier corner wins a tie.
+ * Each swatch is painted now, `ROW × scale` pixels on a side, the height of a
+ * stamped label box; the returned labels are the rows' texts, anchored right of
+ * their swatches, for the capture run to stamp at the same `scale`. An empty
+ * legend paints nothing and returns nothing.
  */
 export function stampAutoMovieDrawLegend(
   picture: IAutoMovieRasterImage,

@@ -16,15 +16,15 @@ export function admitAutoMovieControlPasses(
 ): Exclude<AutoMovieGuidePass, "beauty">[] {
   const admitted: Exclude<AutoMovieGuidePass, "beauty">[] = [];
   for (const pass of passes) {
+    if (!isGuidePass(pass))
+      throw new Error(`Control pass "${pass}" is not a guide pass`);
     if (pass === "beauty")
       throw new Error(
         'Control pass "beauty" is the film itself; name only the guide passes drawn beside it',
       );
-    if (!isGuidePass(pass))
-      throw new Error(`Control pass "${pass}" is not a guide pass`);
-    if ((admitted as string[]).includes(pass))
+    if (admitted.includes(pass))
       throw new Error(`Control pass "${pass}" is named twice`);
-    admitted.push(pass as Exclude<AutoMovieGuidePass, "beauty">);
+    admitted.push(pass);
   }
   return admitted;
 }

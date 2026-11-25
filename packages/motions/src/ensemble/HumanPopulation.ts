@@ -6,7 +6,6 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEnsemble,
   IAutoMovieMotionHumanFormation,
-  IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPopulation,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
@@ -19,39 +18,66 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanFormation } from "./HumanFormation";
 
+/** The record of `ICycleNextS`'s site. */
+type ICycleNextS = { seconds: number; side: string };
+
+/** The record of `ICycleNext`'s site. */
+type ICycleNext = { seconds: number; side: string };
+
+/** The record of `ICycleStart`'s site. */
+type ICycleStart = { seconds: number; side: string };
+
+/** The record of `ICycleStrikesB`'s site. */
+type ICycleStrikesB = { seconds: number };
+
+/** The record of `ICycleStrikesA`'s site. */
+type ICycleStrikesA = { seconds: number };
+
+/** The record of `ICycleStrikesS`'s site. */
+type ICycleStrikesS = { seconds: number };
+
+/** The record of `ICycleStrikesResult`'s site. */
+type ICycleStrikesResult = { seconds: number; side: string };
+
+/** The record of `ICycleStrikesItem`'s site. */
+type ICycleStrikesItem = { seconds: number; side: string };
+
+/** The record of `IDesignResult`'s site. */
+type IDesignResult = { slot: number; actor: string };
+
+/** The record of `IDesignOrigin`'s site. */
+type IDesignOrigin = { at: IAutoMovieVector3; heading: number };
+
 /**
- * Background members handed to the instanced population layer: their
- * places as one formation design, and their motion as a cycle of a
- * performed template member's own displayed poses, so a background soldier
- * marches the march the foreground marches.
+ * Background members handed to the instanced population layer: their places as
+ * one formation design, and their motion as a cycle of a performed template
+ * member's own displayed poses, so a background soldier marches the march the
+ * foreground marches.
  *
- * A population is a detail the author declares (`IHumanEnsemble.detail`),
- * never a camera's choice. A population uses steady motion because a
- * population member cannot be synced, cut or reached, so `cycle` refuses a
- * template whose window is not inside one stepping action. `standing`
- * holds the pose of one settled stand at every phase. The design lays
- * the formation's blocks for the engine's own `formationSlotPosition`, whose
- * placement with the facing turned about is the formation's
- * (`HumanFormation`), so a population member stands on the slot it would
- * have had as a performer; the performed members are its hero overrides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is handed over, who declares it, what may become a population and why the slots agree.
- * @evidence contracts/development/design.md#principled-representation The interface's formation design and a cycle of canonical poses with its period and stride.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `design` places members, and `cycle` and `standing` produce the same pose take the population layer bakes (`IAutoMovieFormationPoseTake`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No generic gait stands in for the template's poses.
+ * A population is a detail the author declares (`IHumanEnsemble.detail`), never
+ * a camera's choice. A population uses steady motion because a population
+ * member cannot be synced, cut or reached, so `cycle` refuses a template whose
+ * window is not inside one stepping action. `standing` holds the pose of one
+ * settled stand at every phase. The design lays the formation's blocks for the
+ * engine's own `formationSlotPosition`, whose placement with the facing turned
+ * about is the formation's (`HumanFormation`), so a population member stands on
+ * the slot it would have had as a performer; the performed members are its hero
+ * overrides.
  */
 export namespace HumanPopulation {
   /**
-   * An ensemble's formation as one formation design: its blocks as the
-   * design's blocks (`IAutoMovieFormationBlock`), its frame at a film second
-   * as the design's anchor and facing turned about (the engine lays a
-   * layout's depth ahead, the formation behind), and every member that is
-   * performed as a hero override, so the population layer draws the others.
+   * An ensemble's formation as one formation design: its blocks as the design's
+   * blocks (`IAutoMovieFormationBlock`), its frame at a film second as the
+   * design's anchor and facing turned about (the engine lays a layout's depth
+   * ahead, the formation behind), and every member that is performed as a hero
+   * override, so the population layer draws the others.
    *
    * @param ensemble The ensemble, standing in a formation.
-   * @param props The design's id and model group, and the film second its frame is read at.
+   * @param props The design's id and model group, and the film second its frame
+   *   is read at.
    * @returns The design.
-   * @throws {HumanRefusal} When the ensemble has no formation or no population member.
+   * @throws {HumanRefusal} When the ensemble has no formation or no population
+   *   member.
    */
   export function design(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -74,8 +100,9 @@ export namespace HumanPopulation {
             : "the ensemble has no population member",
         fix: "give the ensemble a formation and declare its background members `population`",
       });
-    const origin: { at: IAutoMovieVector3; heading: number } =
-      HumanFormation.frame(formation, props.seconds ?? 0);
+    const origin: IDesignOrigin = HumanFormation.prepare(formation).frame(
+      props.seconds ?? 0,
+    );
     return {
       id: props.id,
       model: props.model,
@@ -102,9 +129,7 @@ export namespace HumanPopulation {
             m.detail !== "population",
         )
         .map(
-          (
-            m: IAutoMovieMotionHumanEnsemble.IMember,
-          ): { slot: number; actor: string } => ({
+          (m: IAutoMovieMotionHumanEnsemble.IMember): IDesignResult => ({
             slot: m.index,
             actor: m.subject,
           }),
@@ -120,41 +145,41 @@ export namespace HumanPopulation {
    * @param from The film second the cycle is sought from.
    * @param samples How many phases; positive.
    * @returns The cycle.
-   * @throws {HumanRefusal} When no stepping action of the template holds a whole stride from `from`.
+   * @throws {HumanRefusal} When no stepping action of the template holds a
+   *   whole stride from `from`.
    */
   export function cycle(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: HumanPopulation.IPerformance,
     template: string,
     from: number,
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
-    const segment: IAutoMovieMotionHumanSegment | undefined = performance
+    const segment: HumanPopulation.ISegment | undefined = performance
       .segments(template)
       .find(
-        (s: IAutoMovieMotionHumanSegment): boolean =>
+        (s: HumanPopulation.ISegment): boolean =>
           s.entryTime <= from && from < s.end,
       );
-    const strikes: { seconds: number; side: string }[] = (
-      segment?.plan.events ?? []
-    )
+    const strikes: ICycleStrikesItem[] = (segment?.plan.events ?? [])
       .filter((e: IAutoMovieMotionEvent): boolean =>
         /^(left|right)HeelStrike\d+$/.test(e.name),
       )
-      .map((e: IAutoMovieMotionEvent): { seconds: number; side: string } => ({
-        seconds: segment!.start + e.share * segment!.plan.duration,
-        side: e.name.startsWith("left") ? "left" : "right",
-      }))
+      .map(
+        (e: IAutoMovieMotionEvent): ICycleStrikesResult => ({
+          seconds: segment!.start + e.share * segment!.plan.duration,
+          side: e.name.startsWith("left") ? "left" : "right",
+        }),
+      )
       .filter(
-        (s: { seconds: number }): boolean =>
+        (s: ICycleStrikesS): boolean =>
           s.seconds >= from && s.seconds <= segment!.end,
       )
       .sort(
-        (a: { seconds: number }, b: { seconds: number }): number =>
-          a.seconds - b.seconds,
+        (a: ICycleStrikesA, b: ICycleStrikesB): number => a.seconds - b.seconds,
       );
-    const start: { seconds: number; side: string } | undefined = strikes[0];
-    const next: { seconds: number; side: string } | undefined = strikes.find(
-      (s: { seconds: number; side: string }): boolean =>
+    const start: ICycleStart | undefined = strikes[0];
+    const next: ICycleNext | undefined = strikes.find(
+      (s: ICycleNextS): boolean =>
         start !== undefined &&
         s.side === start.side &&
         s.seconds > start.seconds,
@@ -228,35 +253,29 @@ export namespace HumanPopulation {
   }
 
   /**
-   * Hold the displayed pose at the chosen stand's `settled` event. Every
-   * phase uses that pose with zero stride, expressed at the slot origin
-   * facing +Z with the root height measured above the stand's floor. The
-   * segment's placed duration gives the period of the pose take. The take
-   * may use a settled event at the end when the performance still displays
-   * that stand at the event.
+   * Hold the displayed pose at the chosen stand's `settled` event. Every phase
+   * uses that pose with zero stride, expressed at the slot origin facing +Z
+   * with the root height measured above the stand's floor. The segment's placed
+   * duration gives the period of the pose take. The take may use a settled
+   * event at the end when the performance still displays that stand at the
+   * event.
    *
    * @param performance The performance containing the template stand.
    * @param template The template's subject id.
    * @param from Film second used to select the template's active stand.
-   * @param samples Positive integral phase count below 2^32, matching other takes baked with this one.
+   * @param samples Positive integral phase count below 2^32, matching other
+   *   takes baked with this one.
    * @returns A held `stand` take.
-   * @throws {HumanRefusal} When the selected action has no settled stand on ground within its placed span or the sample count is invalid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the held event, the slot frame and floor datum, phase count, period and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Holds the one displayed sample at the law's settled event. Removing the root's heading and horizontal position relocates it to the slot frame without changing local articulation or height over the stand's bearing floor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects one segment and settled marker, checks the bearing frame, then builds one pose take for the existing population consumer.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the stand's event, contact frames and displayed articulation. No separate standing law or tempo is supplied.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans the template's segments for one containing interval, reads one displayed pose and produces the requested phase references. A second linear pass checks whether a successor owns the displayed sample. The bearing-floor reader evaluates the entry sole sockets once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A held pose is identical at every phase by definition, so the pose take borrows the same pose at each phase.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the pose take to the caller and retains no state.
+   * @throws {HumanRefusal} When the selected action has no settled stand on
+   *   ground within its placed span or the sample count is invalid.
    */
   export function standing(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: HumanPopulation.IPerformance,
     template: string,
     from: number,
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
-    if (!Number.isInteger(samples) || samples <= 0 || samples >= 2 ** 32)
+    if (!(samples > 0 && samples < 2 ** 32))
       throw new HumanRefusal({
         kind: "parameter",
         performer: template,
@@ -265,10 +284,10 @@ export namespace HumanPopulation {
         reason: "a standing take needs a positive whole phase count",
         fix: "give the same positive phase count as the other pose takes",
       });
-    const segments: readonly IAutoMovieMotionHumanSegment[] =
+    const segments: readonly HumanPopulation.ISegment[] =
       performance.segments(template);
-    const segment: IAutoMovieMotionHumanSegment | undefined = segments.find(
-      (s: IAutoMovieMotionHumanSegment): boolean =>
+    const segment: HumanPopulation.ISegment | undefined = segments.find(
+      (s: HumanPopulation.ISegment): boolean =>
         s.entryTime <= from && from < s.end,
     );
     const settled: IAutoMovieMotionEvent | undefined =
@@ -285,7 +304,7 @@ export namespace HumanPopulation {
       segment?.name !== "stand" ||
       !(segment.entryTime <= at && at <= segment.end) ||
       segments.some(
-        (next: IAutoMovieMotionHumanSegment): boolean =>
+        (next: HumanPopulation.ISegment): boolean =>
           next.index > segment.index && next.entryTime <= at + 1e-12,
       ) ||
       segment.plan.contacts.some(
@@ -328,4 +347,28 @@ export namespace HumanPopulation {
       poses: new Array<IAutoMoviePose>(samples).fill(held),
     };
   }
+
+  /** What a take reads of the performance: its segments and displayed poses. */
+  export interface IPerformance {
+    /** The template's placed actions, in placement order. */
+    segments(subject: string): readonly ISegment[];
+
+    /** The displayed pose at a film second. */
+    pose(subject: string, seconds: number): IAutoMoviePose;
+  }
+
+  /**
+   * What a take reads of a placed action: its name and placement, its plan's
+   * events, length and contacts, and its body and entry state.
+   */
+  export type ISegment = Pick<
+    IAutoMovieMotionHumanSegment,
+    "index" | "name" | "start" | "entryTime" | "end"
+  > & {
+    plan: Pick<
+      IAutoMovieMotionHumanSegment["plan"],
+      "events" | "duration" | "contacts"
+    >;
+    context: Pick<IAutoMovieMotionHumanSegment["context"], "body" | "entry">;
+  };
 }

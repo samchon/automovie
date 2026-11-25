@@ -1,7 +1,6 @@
 import { Quaternion, Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -28,68 +27,24 @@ import { poseBones } from "../posture/poseBones";
 import { HumanLadder } from "./HumanLadder";
 import type { ILadderAccessGrip } from "./ILadderAccessGrip";
 import { ladderAccessRails } from "./ladderAccessRails";
+import { ladderAccessSurface } from "./ladderAccessSurface";
+import { planLadderAccessBounds } from "./planLadderAccessBounds";
 import { seatLadderAccessGrips } from "./seatLadderAccessGrips";
-
-/** Both sides, left first, the order each beat moves its limbs in. */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/** The widest gap between the ladder's rung plane and the landing's near edge, metres (provisional: a step across, not a stride). */
-const MAX_GAP: number = 0.25;
-
-/** How far behind the rungs the floor stance stands, metres (provisional: the toes under the first rung). */
-const FLOOR_STANCE: number = 0.38;
-
-/** Heel room on the landing beyond its near edge, foot lengths (provisional: the toe joint inside the edge by most of the foot). */
-const HEEL_ROOM: number = 0.84;
-
-/** Height of the hands' first rung above the floor, statures (provisional: about shoulder height less the arm's bend). */
-const GRIP_HEIGHT: number = 0.69;
-
-/** Seconds per ladder beat (provisional). */
-const BEAT: number = 0.65;
-
-/** Lateral margin of a sole inside a rung's or landing's edge, metres (provisional). */
-const SOLE_MARGIN: number = 0.07;
-
-/** The swing waypoints' height above the landing, foot lengths (provisional: the toe clear of the edge). */
-const EDGE_RISE: number = 0.55;
-
-/** The near waypoint's distance outside the landing's edge, foot lengths (provisional: the toes clear of the edge's face). */
-const EDGE_BUFFER: number = 0.62;
-
-/** Seconds to let go of a rail and stand (provisional). */
-const RELEASE: number = 0.4;
-
-/** Seconds to settle a standing stance at either end of the route (provisional). */
-const SETTLE: number = 0.3;
-
-/** Depth the landing needs beyond the heel room, metres (provisional: the far stance's heel). */
-const LANDING_MARGIN: number = 0.12;
-
-/** The share of the body weight a grip bears on the ladder (provisional). */
-const GRIP_LOAD: number = 0.1;
 
 /**
  * Connect a fixed rung ladder's floor and upper surface in either direction.
  * Every target is a floor point, a point on a real rung or rail, or the
- * landing's surface. The shared support planner fits each change of load.
- * The ascent ends with both feet at an edge stance just inside the landing's
- * near edge; a descent first steps each foot, one at a time, from where the
+ * landing's surface. The shared support planner fits each change of load. The
+ * ascent ends with both feet at an edge stance just inside the landing's near
+ * edge; a descent first steps each foot, one at a time, from where the
  * performer stands to that edge stance, then replays the ascent backwards.
  *
  * @param context The actor and fixed placed geometry.
  * @param ladder The existing physical rung geometry.
  * @param exit The upper supporting surface and selected direction.
  * @returns A fully staged continuous multi-contact route.
- * @throws {HumanRefusal} If the geometry and initial standing stance do not admit the route or a contact cannot bear.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the geometry, direction, contact ownership and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the actor's limb lengths and the named fixed rung, rail and landing geometry to construct the existing support planner's actual contact targets in one direction or its reverse.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixture frames then build one support history, delegating the pose fit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A local prop-point adapter retains true support ownership and uses only positions on the authored fixtures; the staging constants are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the rungs climbed: a fixed number of stances per rung, each fitted once by the support law at plan time.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each staged point is computed once and looked up by its target name for both the fit and the grip seating.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the staged points and grip windows for the plan's lifetime.
+ * @throws {HumanRefusal} If the geometry and initial standing stance do not
+ *   admit the route or a contact cannot bear.
  */
 export function planLadderAccess(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>,
@@ -100,11 +55,10 @@ export function planLadderAccess(
   const frame: HumanFrame.IPrepared = HumanFrame.prepare(ladder.frame);
   const down: boolean = exit.direction === "down";
   const landing: IAutoMovieMotionHumanPropReader = context.prop(exit.prop);
-  const surface: IAutoMovieAffordance | undefined =
-    landing.prop.affordances?.find(
-      (item: IAutoMovieAffordance): boolean =>
-        item.id === exit.point && item.kind === "surface",
-    );
+  const surface: ladderAccessSurface.ISurface | undefined = ladderAccessSurface(
+    landing.prop,
+    exit.point,
+  );
   const refuse = (reason: string): never => {
     throw new HumanRefusal({
       kind: "affordance",
@@ -114,13 +68,7 @@ export function planLadderAccess(
       fix: "stage a fixed horizontal surface directly above the ladder and face it from the departure side",
     });
   };
-  if (
-    landing.prop.fixed !== true ||
-    landing.prop.motion !== undefined ||
-    landing.prop.hasArticulations === true ||
-    surface?.width === undefined ||
-    surface.depth === undefined
-  )
+  if (surface === undefined)
     return refuse(
       "the named landing needs a fixed surface with width and depth",
     );
@@ -165,7 +113,7 @@ export function planLadderAccess(
   const height: number = local.y;
   if (
     -near > 0.03 ||
-    near > MAX_GAP ||
+    near > planLadderAccessBounds.MAX_GAP ||
     height < ladder.spacing ||
     height > (ladder.count + 0.5) * ladder.spacing
   )
@@ -183,7 +131,8 @@ export function planLadderAccess(
         ")",
     );
   const trace: IAutoMovieVector3 = frame.local(context.entry.posture.root);
-  const heelRoom: number = HEEL_ROOM * body.measure.footLength;
+  const heelRoom: number =
+    planLadderAccessBounds.HEEL_ROOM * body.measure.footLength;
   if (
     context.entry.base.kind !== "standing" ||
     Math.abs(wrapDegrees(context.entry.posture.yaw - yaw)) > 15 ||
@@ -220,9 +169,10 @@ export function planLadderAccess(
     HumanLadder.prepareRung(ladder);
   const dip: number = Math.abs(body.rest.get("leftFoot")!.x);
   if (
-    dip + SOLE_MARGIN > ladder.width / 2 ||
-    Math.abs(local.x) + dip + SOLE_MARGIN > surface.width / 2 ||
-    heelRoom + LANDING_MARGIN > surface.depth
+    dip + planLadderAccessBounds.SOLE_MARGIN > ladder.width / 2 ||
+    Math.abs(local.x) + dip + planLadderAccessBounds.SOLE_MARGIN >
+      surface.width / 2 ||
+    heelRoom + planLadderAccessBounds.LANDING_MARGIN > surface.depth
   )
     return refuse("the rung or landing does not leave room for both soles");
 
@@ -236,7 +186,7 @@ export function planLadderAccess(
   };
   const floor: IAutoMovieMotionHumanPosture = stand.posture(
     body,
-    frame.point({ x: 0, y: 0, z: -FLOOR_STANCE }),
+    frame.point({ x: 0, y: 0, z: -planLadderAccessBounds.FLOOR_STANCE }),
     yaw,
   );
   const entered: ReturnType<typeof poseBones> = poseBones(
@@ -259,7 +209,7 @@ export function planLadderAccess(
     left: neutralToe("left").y - ladder.frame.origin.y,
     right: neutralToe("right").y - ladder.frame.origin.y,
   };
-  for (const side of SIDES) {
+  for (const side of planLadderAccessBounds.SIDES) {
     const sole: number = Math.min(
       ...HumanFoot.sockets(body, entered, side).map((socket) => socket.point.y),
     );
@@ -287,13 +237,16 @@ export function planLadderAccess(
   };
   const grips: number = Math.max(
     2,
-    Math.round((GRIP_HEIGHT * body.measure.stature) / ladder.spacing),
+    Math.round(
+      (planLadderAccessBounds.GRIP_HEIGHT * body.measure.stature) /
+        ladder.spacing,
+    ),
   );
   const history: IAutoMovieMotionHumanSupport.IStance[] = [];
   const current: Map<Part, Contact> = new Map();
   const capture = (
     event: string,
-    seconds: number = BEAT,
+    seconds: number = planLadderAccessBounds.BEAT,
     stood: boolean = false,
   ): void => {
     history.push({
@@ -348,14 +301,14 @@ export function planLadderAccess(
       }),
     };
   };
-  for (const side of SIDES) put(feet(side, false));
-  capture("floor", SETTLE, true);
-  for (const side of SIDES) {
+  for (const side of planLadderAccessBounds.SIDES) put(feet(side, false));
+  capture("floor", planLadderAccessBounds.SETTLE, true);
+  for (const side of planLadderAccessBounds.SIDES) {
     put(hand(side, grips));
     capture(side + "Grip");
   }
   for (let n: number = 1; n <= expected; n++) {
-    for (const side of SIDES) {
+    for (const side of planLadderAccessBounds.SIDES) {
       put(hand(side, grips + n));
       capture(side + "Hand" + n);
       put(foot(side, n));
@@ -366,19 +319,19 @@ export function planLadderAccess(
   // ledge, including a shorter actor whose last rung grips still fit.
   const railLevel: number = Math.max(ladder.count + 1, grips + expected);
   if (grips + expected <= ladder.count)
-    for (const side of SIDES) {
+    for (const side of planLadderAccessBounds.SIDES) {
       put(hand(side, railLevel));
       capture(side + "TopRail");
     }
-  for (const side of SIDES) {
+  for (const side of planLadderAccessBounds.SIDES) {
     put(feet(side, true));
     capture(side + "Landing");
   }
-  for (const side of SIDES) {
+  for (const side of planLadderAccessBounds.SIDES) {
     current.delete(side === "left" ? "leftHand" : "rightHand");
-    capture(side + "Release", RELEASE, true);
+    capture(side + "Release", planLadderAccessBounds.RELEASE, true);
   }
-  capture("landing", SETTLE, true);
+  capture("landing", planLadderAccessBounds.SETTLE, true);
   // A descent replays the ascent backwards, but first steps each foot, one
   // at a time, from where the performer stands on the landing back to the
   // edge stance the ascent ends on, so the side rails are within reach.
@@ -392,13 +345,13 @@ export function planLadderAccess(
         {
           contacts: [entryFoot("left"), entryFoot("right")],
           event: "landingEntry",
-          seconds: SETTLE,
+          seconds: planLadderAccessBounds.SETTLE,
           prefer: getUp.POSES.stood,
         },
         {
           contacts: [feet("left", true), entryFoot("right")],
           event: "leftEdge",
-          seconds: BEAT,
+          seconds: planLadderAccessBounds.BEAT,
           prefer: getUp.POSES.stood,
         },
         // Each key is solved from the one before; a descent that starts on
@@ -446,11 +399,14 @@ export function planLadderAccess(
         const above = (z: number): IAutoMovieVector3 =>
           frame.point({
             x: side === "left" ? dip : -dip,
-            y: height + soleLift[side] + body.measure.footLength * EDGE_RISE,
+            y:
+              height +
+              soleLift[side] +
+              body.measure.footLength * planLadderAccessBounds.EDGE_RISE,
             z,
           });
         const beforeEdge: IAutoMovieVector3 = above(
-          near - body.measure.footLength * EDGE_BUFFER,
+          near - body.measure.footLength * planLadderAccessBounds.EDGE_BUFFER,
         );
         const beyondEdge: IAutoMovieVector3 = above(near + heelRoom);
         return landed(next)
@@ -496,7 +452,9 @@ export function planLadderAccess(
       (
         window: IAutoMovieMotionHumanContactWindow,
       ): IAutoMovieMotionHumanContactWindow =>
-        window.kind === "grip" ? { ...window, load: GRIP_LOAD } : window,
+        window.kind === "grip"
+          ? { ...window, load: planLadderAccessBounds.GRIP_LOAD }
+          : window,
     ),
     base: { kind: "standing" },
   };

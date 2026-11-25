@@ -14,20 +14,17 @@ import { createRecoveryFileVectorTable } from "../internal/createRecoveryFileVec
 
 /**
  * Consume the actual contour kernel without retaining complete output channels.
- * Original millimetre vertices and accumulated area vectors use fixed-width files.
- * Face cross products accumulate in original face and corner order, then each
- * vertex is normalized once by the original normal formula. Construction samples
- * and scalar channels publish bounded immutable fragments. Original preparation
- * rings, reports and identity maps still have their actual input/output bounds;
- * this is not a constant-memory claim for the whole kernel.
+ * Original millimetre vertices and accumulated area vectors use fixed-width
+ * files. Face cross products accumulate in original face and corner order, then
+ * each vertex is normalized once by the original normal formula. Construction
+ * samples and scalar channels publish bounded immutable fragments. Original
+ * preparation rings, reports and identity maps still have their actual
+ * input/output bounds; this is not a constant-memory claim for the whole
+ * kernel.
  *
- * @evidence contracts/development/implementation.md#principled-implementation The shared indexed kernel supplies every original vertex and face. Binary64 file round trips preserve values and reduction order before one metre conversion and normalization.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One sink owns file-backed coordinates and normal accumulation, then returns exact fragment bindings for the ordinary artifact writer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source surface or normal, coordinate weld, omitted face, changed triangulation or placeholder validation substitutes for actual generation.
+ * @evidence contracts/development/implementation.md#principled-implementation The shared indexed kernel supplies every original vertex and face. Binary64 file round trips preserve values and reduction order before one metre conversion and normalization. No source surface or normal, coordinate weld, omitted face, changed triangulation or placeholder validation substitutes for actual generation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One sink owns file-backed coordinates and normal accumulation, then returns fragment bindings for the artifact writer. Channel and normal passes take O(V+T+K) scalar work and persisted bytes, in addition to kernel preparation and strip search. Each face contributes one cross product to its three corner accumulators. A scalar channel stages up to 8192 numbers, and each structured ring flushes immediately. Each table retains up to three 65520-byte pages. A miss reads at most one page and can flush one dirty victim. Fragment descriptors and kernel reports grow with admitted output. Cleanup attempts every descriptor close and preserves the primary error.
  * @evidence contracts/development/common.md#meaningful-documentation Separates bounded channel buffers from retained kernel metadata and canonical validation deferred status.
- * @evidence contracts/development/implementation.md#efficient-algorithms Channel and normal passes cost O(V+T+K) scalar work and O(V+T+K) persisted bytes, in addition to unchanged kernel preparation and strip search. Table misses transfer at most one valid page plus a dirty victim; nonlocal access can still cause repeated page I/O.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each original face contributes one cross product to all three original corner accumulators; immutable fragments serve model and sidecar publication.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Scalar channel buffers retain at most 8192 numbers each. Every structured generating ring flushes immediately, so at most one indivisible ring's copied points/phases are pending; its size is bounded by the original retained ring, independently of emitted-mesh limits. Each table owns at most three 65520-byte pages, totaling 393120 bytes across both tables, plus bounded headers and per-face triples. Dirty victims flush before reuse and both tables finish before success. Fragment descriptors and kernel reports grow with actual admitted output. Every acquired descriptor closes independently without replacing a primary failure.
  */
 export function createAutoMovieRecoveryContourFileMesh(
   input: IAutoMovieContourLoft64,
@@ -36,9 +33,7 @@ export function createAutoMovieRecoveryContourFileMesh(
 ): IAutoMovieRecoveryContourFileMesh {
   if (
     !limits ||
-    !Number.isSafeInteger(limits.maxVertices) ||
     limits.maxVertices < 1 ||
-    !Number.isSafeInteger(limits.maxTriangles) ||
     limits.maxTriangles < 1 ||
     limits.maxVertices > Math.floor(Number.MAX_SAFE_INTEGER / 24) ||
     limits.maxTriangles > Math.floor(Number.MAX_SAFE_INTEGER / 3)
@@ -123,10 +118,6 @@ export function createAutoMovieRecoveryContourFileMesh(
         areaTable.append([0, 0, 0]);
         for (const value of point) {
           const metre: number = value * 0.001;
-          if (!Number.isFinite(metre) || !Number.isFinite(Math.fround(metre)))
-            throw new Error(
-              "Contour output position is not representable for upload",
-            );
           append(0, metre);
         }
         vertices++;
@@ -135,8 +126,7 @@ export function createAutoMovieRecoveryContourFileMesh(
         if (
           triangles >= limits.maxTriangles ||
           [a, b, c].some(
-            (index: number): boolean =>
-              !Number.isSafeInteger(index) || index < 0 || index >= vertices,
+            (index: number): boolean => index < 0 || index >= vertices,
           )
         )
           throw new Error(
@@ -198,11 +188,6 @@ export function createAutoMovieRecoveryContourFileMesh(
       const length: number = Math.hypot(...normal);
       for (const value of normal) {
         const normalized: number = length > 0 ? value * (1 / length) : 0;
-        if (
-          !Number.isFinite(normalized) ||
-          !Number.isFinite(Math.fround(normalized))
-        )
-          throw new Error("Contour normal is not representable for upload");
         append(2, normalized);
       }
     }

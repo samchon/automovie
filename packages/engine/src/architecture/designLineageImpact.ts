@@ -11,13 +11,22 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
 /**
  * Name exactly the derived artifacts a set of changed identities invalidates.
  *
- * Impact walks the declared derivation edges backwards, so changing one opening reaches the wall mesh cut around it, the finish pieces cut to that wall, the door leaf hosted in it, the schedule line counting them, and the render that drew them, and reaches nothing else. The untouched artifacts are returned beside the invalidated ones because "only these" is a claim about the complement, and a report naming one side alone cannot be checked.
+ * Impact walks the declared derivation edges backwards, so changing one opening
+ * reaches the wall mesh cut around it, the finish pieces cut to that wall, the
+ * door leaf hosted in it, the schedule line counting them, and the render that
+ * drew them, and reaches nothing else. The untouched artifacts are returned
+ * beside the invalidated ones because "only these" is a claim about the
+ * complement, and a report naming one side alone cannot be checked.
  *
- * A changed derived artifact counts as invalidated itself. All three lists are deduplicated and sorted by code unit. An invalid lineage, or a changed id that is neither a declared subject nor a derived artifact, throws an `Error`.
+ * A changed derived artifact counts as invalidated itself. All three lists are
+ * deduplicated and sorted by code unit. An invalid lineage, or a changed id
+ * that is neither a declared subject nor a derived artifact, throws an
+ * `Error`.
  *
  * @param lineage Lineage whose `derived` inputs define the edges.
  * @param changed Subject or derived-artifact ids that changed.
- * @returns The changed ids, the derived artifacts they reach, and every other derived artifact.
+ * @returns The changed ids, the derived artifacts they reach, and every other
+ *   derived artifact.
  */
 export const designLineageImpact: (
   lineage: IAutoMovieDesignLineage,

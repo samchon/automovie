@@ -89,7 +89,13 @@ export function gridAutoMovieSolidMesh(
   const jets: GridJet[][] = [];
   const columnsAt = surface.tangentAlong ?? surface.jetAlong;
   const reader: IAutoMovieSolidMesh.IGridReport["reader"] =
-    surface.tangentAlong !== undefined ? "column1" : columnsAt !== undefined ? "column2" : surface.jetAt !== undefined ? "row2" : "point2";
+    surface.tangentAlong !== undefined
+      ? "column1"
+      : columnsAt !== undefined
+        ? "column2"
+        : surface.jetAt !== undefined
+          ? "row2"
+          : "point2";
   let columnJets: ((u: number) => IAutoMovieSolidSurface.IFirst)[] | undefined;
   try {
     columnJets =
@@ -300,7 +306,10 @@ export function gridAutoMovieSolidMesh(
     ),
   );
   input.onGrid?.({
-    name: surface.name, rows: stations.length, columns: phases.length, reader,
+    name: surface.name,
+    rows: stations.length,
+    columns: phases.length,
+    reader,
     kept: kept.reduce((total, row) => total + row.filter(Boolean).length, 0),
     trimEdges: trim.length,
     milliseconds: performance.now() - opened,
@@ -460,7 +469,7 @@ export function gridAutoMovieSolidMesh(
     const x: number = lift(a, 0);
     const y: number = lift(b, 0);
     const absolute: number = y - x;
-    const shifted: number = (y + 1) - (x + 1);
+    const shifted: number = y + 1 - (x + 1);
     // Keep the exact old key equality if a distant authority's lift cannot
     // absorb a one-period shift. Both signed zeros and all NaNs stringify alike.
     return (
@@ -644,15 +653,16 @@ function bend(
  * Copy one coherent reading before a subsequent source call can reuse its
  * storage.
  */
-type GridJet = IAutoMovieSolidSurface.IFirst & { normal: AutoMovieVector3Tuple };
+type GridJet = IAutoMovieSolidSurface.IFirst & {
+  normal: AutoMovieVector3Tuple;
+};
 
-function copy(jet: IAutoMovieSolidSurface.IFirst, total: boolean): GridJet | string {
+function copy(
+  jet: IAutoMovieSolidSurface.IFirst,
+  total: boolean,
+): GridJet | string {
   const full = jet as IAutoMovieSolidSurface.IJet;
-  const vectors: AutoMovieVector3Tuple[] = [
-    jet.p,
-    jet.u,
-    jet.v,
-  ];
+  const vectors: AutoMovieVector3Tuple[] = [jet.p, jet.u, jet.v];
   if (total) vectors.push(full.uu, full.uv, full.vv);
   if (
     !vectors.every(
@@ -661,13 +671,15 @@ function copy(jet: IAutoMovieSolidSurface.IFirst, total: boolean): GridJet | str
     )
   )
     return "face source jet must contain finite three-component vectors";
-  const values: AutoMovieVector3Tuple[] = vectors.slice(0, 3).map(
-    (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-      value[0],
-      value[1],
-      value[2],
-    ],
-  );
+  const values: AutoMovieVector3Tuple[] = vectors
+    .slice(0, 3)
+    .map(
+      (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+        value[0],
+        value[1],
+        value[2],
+      ],
+    );
   const normal: AutoMovieVector3Tuple = cross(values[1]!, values[2]!);
   const length: number = norm(normal);
   if (!(Number.isFinite(length) && length > 0))

@@ -22,7 +22,8 @@ type PortReference = Parameters<
   ReturnType<IAutoMovieRecoveryEventRegion.Operation>
 >[0]["ports"][number]["reference"];
 /**
- * Attach contact and port ownership evidence after component topology is complete.
+ * Attach contact and port ownership evidence after component topology is
+ * complete.
  */
 export function RecoveryEventRegionPorts(
   source: Parameters<IAutoMovieRecoveryEventRegionPorts.Operation>[0],
@@ -82,13 +83,10 @@ export function RecoveryEventRegionPorts(
       reference.kind === "boundary"
         ? !reference.name
         : !(
-            Number.isSafeInteger(reference.section) &&
             reference.section >= 0 &&
             (reference.kind === "contact"
-              ? Number.isSafeInteger(reference.observation) &&
-                reference.observation >= 0
+              ? reference.observation >= 0
               : (reference.kind === "closed" || reference.kind === "open") &&
-                Number.isSafeInteger(reference.curve) &&
                 reference.curve >= 0)
           )
     )
@@ -97,10 +95,7 @@ export function RecoveryEventRegionPorts(
     const support: Set<number> = new Set(port.faces);
     if (
       [...support].some(
-        (face: number): boolean =>
-          !Number.isSafeInteger(face) ||
-          face < 0 ||
-          face >= source.triangles.length,
+        (face: number): boolean => face < 0 || face >= source.triangles.length,
       )
     )
       throw new Error("Port support requires original source face addresses");
@@ -108,10 +103,7 @@ export function RecoveryEventRegionPorts(
       (port.edges ?? []).map((edge: readonly [number, number]): string => {
         if (
           edge.length !== 2 ||
-          edge.some(
-            (v: number): boolean =>
-              !Number.isSafeInteger(v) || v < 0 || v >= size,
-          )
+          edge.some((v: number): boolean => v < 0 || v >= size)
         )
           throw new Error(
             "Port edges require original source vertex addresses",

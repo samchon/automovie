@@ -23,18 +23,21 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { CourtStrokeProfiles } from "./CourtStrokeProfiles";
 import { courtRacketWrist } from "./courtRacketWrist";
 import { courtStrokeFeet } from "./courtStrokeFeet";
 
-/** Which registered action inputs the court stroke reads. */
-type Context = IAutoMovieMotionHumanActionContext<{
+/** The record of `IContext`'s site. */
+type IContext = {
   side?: AutoMovieHumanSide;
   manner?: IAutoMovieMotionManner;
-}>;
+};
+
+/** Which registered action inputs the court stroke reads. */
+type Context = IAutoMovieMotionHumanActionContext<IContext>;
 
 /** Optional elected working point and held racket for a stroke. */
 interface IOptions {
@@ -49,28 +52,22 @@ const REFERENCE_STATURE: number = 1.75;
 
 /** Half of the provisional racket contact window, in film seconds. */
 const RACKET_CONTACT_HALF: number = 0.018;
+/** The alternatives of `NominalPosturePhaseAngleAxis`'s site. */
+type NominalPosturePhaseAngleAxis = 0 | 1 | 2;
 
 /**
- * Plan the court athlete from entry stance through support, load, strike
- * and recovery. The planted foot targets stay fixed. A jump carries the
- * feet on a ballistic arc while the pelvis bends into landing over the
- * new support. A named held racket uses its actual face and longitudinal
- * axis in the fitted hand frame; one ball trajectory can use the exposed
- * `stroke` event.
+ * Plan the court athlete from entry stance through support, load, strike and
+ * recovery. The planted foot targets stay fixed. A jump carries the feet on a
+ * ballistic arc while the pelvis bends into landing over the new support. A
+ * named held racket uses its actual face and longitudinal axis in the fitted
+ * hand frame; one ball trajectory can use the exposed `stroke` event.
  *
  * @param context The body, actual entry stance, handedness and manner.
  * @param kind The sport-specific support and stroke profile.
  * @param options The optional explicit contact and held implement.
  * @returns The motion, support windows and retained racket grip.
- * @throws {HumanRefusal} When a named implement is unavailable to the hand or a constrained arm path cannot be fitted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, sports, events, return and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation One clock plans support and root, then fits the actual striking surface and free hand against the resulting shoulder path.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock and support first, carried striking point second, action assembly last.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A named racket face is read from its held transform. The bare-hand and held modes share the sport-specific profiles and phase clock.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant phase and two-foot setup, then existing prepared foot and arm solvers with no sampled state retained globally.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the common clock, support and IK, prior-held prop transform and trunk-turn producer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each plan holds only its fixed bindings and the shared planners' per-action geometry.
+ * @throws {HumanRefusal} When a named implement is unavailable to the hand or a
+ *   constrained arm path cannot be fitted.
  */
 export function courtStroke(
   context: Context,
@@ -87,7 +84,7 @@ export function courtStroke(
   const size: number = body.measure.stature;
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const scale: number = Math.sqrt(size / REFERENCE_STATURE);
-  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     context.params.manner,
   );
@@ -97,7 +94,7 @@ export function courtStroke(
   const end: number = impact + recovery;
   const halfFlight: number = (profile.air * scale) / 2;
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.of(end, [
+    AutoMovieMotionClock(end, [
       { name: "stepStart", seconds: ready * 0.18 },
       { name: "plant", seconds: ready * 0.86 },
       { name: "ready", seconds: ready },
@@ -189,7 +186,7 @@ export function courtStroke(
   ): IAutoMovieMotionHumanPosture => {
     const weight: number = extent(s);
     const t: number = turn(s);
-    const phaseAngle = (axis: 0 | 1 | 2): number =>
+    const phaseAngle = (axis: NominalPosturePhaseAngleAxis): number =>
       weight *
       (profile.chamber[axis] + (profile.hit[axis] - profile.chamber[axis]) * t);
     const horizontal: IAutoMovieVector3 = Vector3.scale(
@@ -218,7 +215,7 @@ export function courtStroke(
   const drop: number =
     touchdown !== undefined
       ? touchdown.root.y -
-        resolveHumanPosture.lower(body, {
+        lowerHumanPosture(body, {
           ...touchdown,
           limbs: {
             leftLeg: AutoMovieMotionHumanLeg.goal(
@@ -404,13 +401,10 @@ export function courtStroke(
       );
       const contactStart: number = strike - half;
       const contactEnd: number = strike + half;
-      const gripClock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-        duration,
-        [
-          { name: "contactStart", seconds: contactStart },
-          { name: "contactEnd", seconds: contactEnd },
-        ],
-      );
+      const gripClock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+        { name: "contactStart", seconds: contactStart },
+        { name: "contactEnd", seconds: contactEnd },
+      ]);
       primitives.push(
         AutoMovieMotionHumanArm.carried({
           body,

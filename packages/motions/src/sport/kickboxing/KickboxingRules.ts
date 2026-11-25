@@ -6,33 +6,42 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
+/** The record of `IRulesAt`'s site. */
+type IRulesAt = { at?: IAutoMovieMotionTarget };
+
+/** The record of `IFoulP2`'s site. */
+type IFoulP2 = {
+  at?: IAutoMovieMotionTarget;
+  technique?: string;
+};
+
+/** The record of `IFoulP`'s site. */
+type IFoulP = { at?: IAutoMovieMotionTarget; technique?: string };
+
 /**
  * The kickboxing ruleset a performance's schedule must keep, in the engine's
- * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`,
- * `kick`, `defend` and `knockdown` actions.
+ * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`, `kick`,
+ * `defend` and `knockdown` actions.
  *
  * From the GLORY Official Rules V2.2, §5.07 (as inspected in the kickboxing
- * research of #3201): elbows, throws and sweeps are banned, so only punches,
- * round kicks, push kicks and knees strike (A.7, A.10); strikes to the back
- * of the head or the back (A.2) and to the groin (A.3) are fouls, and no
- * other target is, the throat included; a linear kick to the legs is a foul,
- * so a push kick may only strike the body (A.4: "an Athlete may only attack
- * the legs with kicks that arc"); the clinch allows one immediate knee, so a knee
- * may not touch another strike of the same fighter (A.11); and no downed
- * opponent may be attacked. A strike
- * at a performer who is down (between the start of their knockdown and the
- * start of their next action) breaks the last rule.
+ * research): elbows, throws and sweeps are banned, so only punches, round
+ * kicks, push kicks and knees strike (A.7, A.10); strikes to the back of the
+ * head or the back (A.2) and to the groin (A.3) are fouls, and no other target
+ * is, the throat included; a linear kick to the legs is a foul, so a push kick
+ * may only strike the body (A.4: "an Athlete may only attack the legs with
+ * kicks that arc"); the clinch allows one immediate knee, so a knee may not
+ * touch another strike of the same fighter (A.11); and no downed opponent may
+ * be attacked. A strike at a performer who is down (between the start of their
+ * knockdown and the start of their next action) breaks the last rule.
  *
- * Fighting style choices such as "kicks finish combinations" are not rules
- * and are not checked here.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each rule with its GLORY article and what is deliberately not a rule.
- * @evidence contracts/development/design.md#principled-representation The rules as the engine's legality rules over a schedule, the fouled regions as sets of the interface's closed region union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two region sets, the foul test and the rule list the legality check and the tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's rule and schedule types and the interface's regions and targets.
+ * Fighting style choices such as "kicks finish combinations" are not rules and
+ * are not checked here.
  */
 export namespace KickboxingRules {
-  /** Regions a strike may not target (GLORY §5.07 A.2 the back of the head or the back, A.3 the groin). */
+  /**
+   * Regions a strike may not target (GLORY §5.07 A.2 the back of the head or
+   * the back, A.3 the groin).
+   */
   export const FOUL_REGIONS: ReadonlySet<AutoMovieHumanoidRegion> =
     new Set<AutoMovieHumanoidRegion>([
       "headBack",
@@ -67,14 +76,6 @@ export namespace KickboxingRules {
    * @param capability The action's name.
    * @param params Its parameters.
    * @returns The reason, or null.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the meaning of null.
-   * @evidence contracts/development/implementation.md#principled-implementation Set membership of the struck region against the GLORY foul regions, and against the leg regions for a push kick.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Early returns for non-strikes and non-person targets, then two membership tests.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parameters arrive untyped from the schedule, so they are read through a narrowed view of the two fields the strikes declare; a strike without a person target is legal by construction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function foul(capability: string, params: object): string | null {
     if (
@@ -83,7 +84,7 @@ export namespace KickboxingRules {
       capability !== "knee"
     )
       return null;
-    const p: { at?: IAutoMovieMotionTarget; technique?: string } = params as { at?: IAutoMovieMotionTarget; technique?: string };
+    const p: IFoulP = params as IFoulP2;
     if (p.at?.kind !== "person") return null;
     if (FOUL_REGIONS.has(p.at.region))
       return `a strike at the ${p.at.region} is a foul`;
@@ -145,7 +146,9 @@ export namespace KickboxingRules {
           entry.intent.capability !== "knee"
         )
           return null;
-        const at: IAutoMovieMotionTarget | undefined = (params(entry) as { at?: IAutoMovieMotionTarget }).at;
+        const at: IAutoMovieMotionTarget | undefined = (
+          params(entry) as IRulesAt
+        ).at;
         if (at?.kind !== "person") return null;
         const down: IAutoMovieScheduleEntry | undefined = schedule.entries.find(
           (other: IAutoMovieScheduleEntry): boolean => {

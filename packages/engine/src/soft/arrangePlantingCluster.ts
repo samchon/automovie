@@ -17,7 +17,11 @@ const SALT_PLACE_YAW: number = 0x79617700;
 
 const SALT_PLACE_SCALE: number = 0x73636c00;
 
-/** Generate seeded full-TRS members in authored slot order, counting slots rejected after their attempt limit. A minSpacing grid tests nearby accepted positions; returned bounds enclose placement origins, not scaled plant geometry. Production planting validation consumes the arrangement.
+/**
+ * Generate seeded full-TRS members in authored slot order, counting slots
+ * rejected after their attempt limit. A minSpacing grid tests nearby accepted
+ * positions; returned bounds enclose placement origins, not scaled plant
+ * geometry. Production planting validation consumes the arrangement.
  */
 export const arrangePlantingCluster: (
   cluster: IAutoMoviePlantingCluster,
@@ -124,8 +128,9 @@ const cell: (side: number, x: number, z: number) => [number, number] = (
  *
  * The grid side is the spacing itself, so a member within that distance can
  * only be in the candidate's own cell or one of the eight around it. Walking
- * those nine answers exactly what walking every member would under representable-grid premises; visited bucket populations determine the cost, which
- * can grow with the size of an ungated or numerically degenerate bed.
+ * those nine answers exactly what walking every member would under
+ * representable-grid premises; visited bucket populations determine the cost,
+ * which can grow with the size of an ungated or numerically degenerate bed.
  */
 const crowded: (
   occupied: Map<string, { x: number; z: number }[]>,

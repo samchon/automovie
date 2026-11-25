@@ -5,7 +5,11 @@ import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT
 /**
  * Interior ratios where a component of Quaternion.slerp is stationary.
  *
- * Inputs are admitted finite, nearly unit quaternion keys. A negative endpoint dot negates the second quaternion for the shorter arc. The near-parallel branch shares the sampler's threshold and equality rule. Endpoints and one-sided key boundaries remain the caller's checks; roots have floating precision.
+ * Inputs are admitted finite, nearly unit quaternion keys. A negative endpoint
+ * dot negates the second quaternion for the shorter arc. The near-parallel
+ * branch shares the sampler's threshold and equality rule. Endpoints and
+ * one-sided key boundaries remain the caller's checks; roots have floating
+ * precision.
  */
 export function quaternionInterpolationCriticalRatios(
   a: IAutoMovieQuaternion,
@@ -25,7 +29,7 @@ export function quaternionInterpolationCriticalRatios(
   }
   const ratios: Set<number> = new Set();
   function keep(ratio: number): void {
-    if (Number.isFinite(ratio) && ratio > 0 && ratio < 1) ratios.add(ratio);
+    if (ratio > 0 && ratio < 1) ratios.add(ratio);
   }
   if (dot > QUATERNION_NLERP_DOT_THRESHOLD) {
     const difference: number[] = right.map(

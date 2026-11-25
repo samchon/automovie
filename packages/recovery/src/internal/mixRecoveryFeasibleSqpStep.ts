@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Try nominal physical mixing, then one original-row-supported coefficient.
- * The numerical branch is not the ideal cubic-rate mixture. Its operation-
- * scaled margin chooses a new vector, never an allowance on that vector's rows.
+ * Try nominal physical mixing, then one original-row-supported coefficient. The
+ * numerical branch is not the ideal cubic-rate mixture. Its operation- scaled
+ * margin chooses a new vector, never an allowance on that vector's rows.
  */
 export function mixRecoveryFeasibleSqpStep(
   rows: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[0],
@@ -29,14 +29,14 @@ export function mixRecoveryFeasibleSqpStep(
       (value: number, at: number): number =>
         (1 - weight) * value + weight * tilted[at]!,
     );
-    if (!step.every(Number.isFinite)) return null;
+    if (step.some(overflowed)) return null;
     for (let at: number = 0; at < rows.length; at++) {
       const row: IAutoMovieSimplexAtom = rows[at]!;
       let slope: number = 0;
       for (let entry: number = 0; entry < row.indices.length; entry++)
         slope += row.values[entry]! * step[row.indices[entry]!]!;
       if (
-        !Number.isFinite(slope) ||
+        overflowed(slope) ||
         (at === 0
           ? !(slope < 0)
           : slope > row.offset || (row.offset === 0 && !(slope < 0)))
@@ -75,10 +75,7 @@ export function mixRecoveryFeasibleSqpStep(
       true,
     );
     const difference: number = second - first;
-    if (
-      ![first, second, margin, difference].every(Number.isFinite) ||
-      !(product < 1)
-    )
+    if ([first, second, margin, difference].some(overflowed) || !(product < 1))
       return result;
     if (difference < 0) {
       if (first > -margin)
@@ -98,4 +95,9 @@ export function mixRecoveryFeasibleSqpStep(
   result.step = candidate(lower);
   result.numericalSupported = result.step !== null;
   return result;
+}
+
+/** Whether a mixed step entry or slope overflowed binary64. */
+function overflowed(value: number): boolean {
+  return value === Infinity || value === -Infinity;
 }

@@ -1,21 +1,3 @@
-# src/render/IAutoMovieMeasureRenderSimulation.ts#IAutoMovieMeasureRenderSimulation
-
-## @evidence contracts/development/design.md#principled-representation
-
-Keep cumulative drawable counts separate from simulation storage and explicit missing-cost lists; declared domain budgets supply the bounds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The caller owns material resolution and gap/owner rows; this phase exposes plain counts and borrowed water records without simulation handles.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing planting prototypes and solver facts remain visible gaps; returned partial numbers alone cannot certify the final metrics.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Members state accumulator scope, byte exclusions, null-cost fallback, collection mutation and synchronous callback lifetime.
-
 # src/render/IAutoMovieMeasureRenderSimulation.ts#IAutoMovieMeasureRenderSimulation.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

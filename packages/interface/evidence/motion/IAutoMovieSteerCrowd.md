@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieSteerCrowd.ts#IAutoMovieSteerCrowd
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Floor trajectories use world metres and film seconds; agents require positive finite radius and desired speed, finite starts and nonempty goals. Empty agents yield empty output without interval admission; other geometry and law ranges remain caller obligations.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieSteerCrowd contracts used by packages/engine/src/motion/steerAutoMovieCrowd.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Floor trajectories use world metres and film seconds; agents require positive finite radius and desired speed, finite starts and nonempty goals. Empty agents yield empty output without interval admission; other geometry and law ranges remain caller obligations. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieSteerCrowd contract belongs to interface; packages/engine/src/motion/steerAutoMovieCrowd.ts and packages/motions/src/ensemble/HumanCrowd.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieSteerCrowd.ts#IAutoMovieSteerCrowd.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

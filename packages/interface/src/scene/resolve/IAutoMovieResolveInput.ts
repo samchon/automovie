@@ -6,7 +6,9 @@ import type { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplicatio
 import type { IAutoMovieResolveSprings } from "./IAutoMovieResolveSprings";
 
 /**
- * Borrowed inputs for one numerical scene frame, with explicit optional cross-frame spring state. Profiles bind before direct policy; the caller owns input lifetime and resets spring history when scene identity changes.
+ * Borrowed inputs for one numerical scene frame, with explicit optional
+ * cross-frame spring state. Profiles bind before direct policy; the caller owns
+ * input lifetime and resets spring history when scene identity changes.
  */
 export interface IAutoMovieResolveInput {
   /** The scene graph: nodes with parent-local rest transforms. */
@@ -36,7 +38,9 @@ export interface IAutoMovieResolveInput {
   springs?: IAutoMovieResolveSprings;
 
   /**
-   * Borrowed profile applications bind and merge before direct limits/drivers. Direct limits clamp last and direct world drivers apply afterward; omit for none.
+   * Borrowed profile applications bind and merge before direct limits/drivers.
+   * Direct limits clamp last and direct world drivers apply afterward; omit for
+   * none.
    */
   profiles?: IAutoMovieProfileApplication[];
 

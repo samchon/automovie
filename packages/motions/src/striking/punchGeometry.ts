@@ -5,6 +5,7 @@ import {
   superposeMinimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
@@ -23,7 +24,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -32,11 +33,19 @@ import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
-import { StrikingWeapon } from "./StrikingWeapon";
+import { punchAnchored } from "./punchAnchored";
+import { punchCompose } from "./punchCompose";
 import { punchContact } from "./punchContact";
+import { punchCorrected } from "./punchCorrected";
 import { punchFootwork } from "./punchFootwork";
 import type { punchLaunch } from "./punchLaunch";
 import type { punchReach } from "./punchReach";
+
+/** The alternatives of `BuildOff`'s site. */
+type BuildOff = "leftArm" | "rightArm";
+
+/** The alternatives of `TimingWhich`'s site. */
+type TimingWhich = "lead" | "rear";
 
 /**
  * A built punch: the stroke of the wrist from the launch through the contact
@@ -44,45 +53,96 @@ import type { punchReach } from "./punchReach";
  *
  * The contact is solved first ({@link punchContact}), the feet and the trunk
  * follow it ({@link punchFootwork}), and the wrist travels on superposed
- * minimum-jerk units through the contact point ({@link StrikingStroke}). A
- * punch stopped on a body holds for the dwell, then its arm and its trunk's
- * turn retrace the approach back to the launch, the wrist carried onto the
- * guard it returns to: every configuration of the approach up to the first
- * contact was clear of the body it met, so the way back is too, where a
- * straight return to the guard cuts through a covering glove.
+ * minimum-jerk units through the contact point ({@link StrikingStroke}). A punch
+ * stopped on a body holds for the dwell, then its arm and its trunk's turn
+ * retrace the approach back to the launch, the wrist carried onto the guard it
+ * returns to: every configuration of the approach up to the first contact was
+ * clear of the body it met, so the way back is too, where a straight return to
+ * the guard cuts through a covering glove.
  *
  * The arm travels between two named configurations
- * (`HumanPosture.IGoal.reference`): the one it launches in, read off the
- * entry pose, and the one it has at the contact, that instant's own solution
- * read once. Every goal of the stroke is anchored at full weight on their
- * mix by the fist's share of the way out, and back by its share of the
- * return, so the elbow stays on one side of the choice where two
- * configurations nearly tie. A reference that fades near the guard left that
- * choice free there, and the elbow jumped 15 cm between two solutions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order of the build, the retraced return of a stopped punch and the arm's one reference solution.
- * @evidence contracts/development/design.md#principled-representation One geometry per committed stop, read as postures in world metres and seconds, contact windows and a record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the timing the plan decides, the built geometry and its builder, which the punch law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, contact window and record types; the stroke scans nothing itself, the stop is the performance's joint resolution.
+ * (`HumanPosture.IGoal.reference`): the one it launches in, read off the entry
+ * pose, and the one it has at the contact, that instant's own solution read
+ * once. Every goal of the stroke is anchored at full weight on their mix by the
+ * fist's share of the way out, and back by its share of the return, so the
+ * elbow stays on one side of the choice where two configurations nearly tie. A
+ * reference that fades near the guard left that choice free there, and the
+ * elbow jumped 15 cm between two solutions.
  */
 export namespace punchGeometry {
+  /** A punch's out, back and sag shares at a second. */
+  export interface IPhases {
+    /** Out to the shown reach. */
+    out(seconds: number): number;
+
+    /** Back over the recoil. */
+    back(seconds: number): number;
+
+    /** The guard's sag: in with the recoil, out again over the drop. */
+    sag(seconds: number): number;
+  }
+
   /**
-   * A punch's timing.
+   * A punch's phases on minimum-jerk shares: out over the time to the shown
+   * reach, back over the recoil, and the guard sagging with the recoil and
+   * rising again over the drop after it, none without a drop.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation Closed side unions and durations in seconds, decided once by the plan.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the contact solution, the footwork and the stroke read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the guard drop type.
+   * @param shown When the punch shows its full reach, seconds.
+   * @param recoil The recoil's seconds.
+   * @param drop The guard's drop's seconds.
+   * @returns The shares.
    */
+  export function phases(shown: number, recoil: number, drop: number): IPhases {
+    const back = (t: number): number => minimumJerk.share((t - shown) / recoil);
+    return {
+      out: (t: number): number => minimumJerk.share(t / shown),
+      back,
+      sag: (t: number): number =>
+        drop > 0 ? back(t) - minimumJerk.share((t - shown - recoil) / drop) : 0,
+    };
+  }
+
+  /** How far a stopped punch has returned, and the stroke clock it shows. */
+  export interface IReturn {
+    /** The return's share, 0 to 1. */
+    w: number;
+
+    /** The stroke's clock, run back from the stop. */
+    clock: number;
+  }
+
+  /**
+   * A punch stopped at its contact returns to the guard after the dwell on a
+   * minimum-jerk share over the rest of the punch, its stroke run back from the
+   * stop by that share.
+   *
+   * @param seconds The punch's seconds.
+   * @param stop The stop's seconds.
+   * @param duration The punch's seconds in all.
+   * @returns The share and the clock.
+   */
+  export function returned(
+    seconds: number,
+    stop: number,
+    duration: number,
+  ): IReturn {
+    const w: number = minimumJerk.share(
+      (seconds - stop - StrikingStroke.DWELL) /
+        Math.max(1e-3, duration - stop - StrikingStroke.DWELL),
+    );
+    return { w, clock: stop * (1 - w) };
+  }
+
+  /** A punch's timing. */
   export interface ITiming {
     /** The punching side. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The stance's lead side. */
-    lead: "left" | "right";
+    lead: AutoMovieHumanSide;
 
     /** Lead or rear hand. */
-    which: "lead" | "rear";
+    which: TimingWhich;
 
     /** Launch to contact, seconds. */
     delivery: number;
@@ -100,25 +160,11 @@ export namespace punchGeometry {
     duration: number;
   }
 
-  /**
-   * A built punch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   * @evidence contracts/development/design.md#principled-representation A posture per second, contact windows as shares and the striking record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, contact window and record types.
-   */
+  /** A built punch. */
   export interface IGeometry {
     /**
-     * The complete posture at local seconds, borrowing only current same-body FK/ROM metadata.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the local clock, complete posture and synchronous unchanged-table metadata lifetime.
-     * @evidence contracts/development/implementation.md#principled-implementation build composes the original footwork, wrist stroke, reference and guard; guard/final native clamps may borrow the same genuine mapper.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual clock reaches the existing compose owner through approach or unchanged dwell/withdrawal clocks.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original goals, cold physical fits, arm/rival clearance, limits, stops and contacts remain; no pose or time observation is cached.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Existing physical work remains; only fixed same-body FK/ROM setup is shared within an observation, with speedup unmeasured.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual law/weapon callers lend metadata for this exact body and unchanged ROM table; another sample gets its own current scope.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned postures contain only original authored data; no borrowed workspace, mapper, getter or query history enters the plan or result.
+     * The complete posture at local seconds, borrowing only current same-body
+     * FK/ROM metadata.
      */
     posture(
       seconds: number,
@@ -138,18 +184,13 @@ export namespace punchGeometry {
    *
    * @param context The action's context.
    * @param timing The punch's timing.
-   * @param fixed The committed stop's second, null when the arm met nothing, undefined when the punch offers no weapon.
-   * @param tangent The varied point within a person's region, when the punch varies.
-   * @param entered What the punch reads of its own entry alone (`punchLaunch`), made once for the plan.
+   * @param fixed The committed stop's second, null when the arm met nothing,
+   *   undefined when the punch offers no weapon.
+   * @param tangent The varied point within a person's region, when the punch
+   *   varies.
+   * @param entered What the punch reads of its own entry alone (`punchLaunch`),
+   *   made once for the plan.
    * @returns The geometry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its inputs and result; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the wrist through the solved contact point, and the mix of the arm's launch and contact solutions anchors every goal of the stroke at full weight.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The contact, the footwork, the stroke, the composed posture, then the record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A feint is shown to its declared share and never into a person's guard; the stroke decides no stop the performance has not made.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each posture preserves actual footwork, guard and full arm/rival fits. Weapon observations may borrow one synchronous exact FK supplier through footwork, guard and final fit; no speedup is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The arm's reference solution at the contact is resolved once and reused by every posture.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds contact, footwork, stroke and per-reach reference values until geometry release. Borrowed exact FK suppliers belong only to one posture invocation and never enter the retained references or plan.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
@@ -159,20 +200,27 @@ export namespace punchGeometry {
     entered: punchLaunch.ILaunch,
   ): IGeometry {
     const p: IAutoMovieMotionHumanPunch.IParams = context.params;
-    const { side, lead, shown, recoil, drop, duration } = timing;
+    const { side, lead, shown, recoil, drop, duration }: ITiming = timing;
     const guardAt: ReturnType<typeof StrikingStance.prepareGuard> =
       StrikingStance.prepareGuard(context.body, { lead });
-    const body = context.body;
+    const body: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>["body"] =
+      context.body;
     const t0: number = context.start;
-    const arm: "leftArm" | "rightArm" =
-      side === "left" ? "leftArm" : "rightArm";
+    const arm: punchCompose.BuildArm = side === "left" ? "leftArm" : "rightArm";
     const contact: punchContact.IContact = punchContact.solve(
       context,
       timing,
       tangent,
       entered,
     );
-    const { line, rotation, socket, tracker, bones, solved } = contact;
+    const {
+      line,
+      rotation,
+      socket,
+      tracker,
+      bones,
+      solved,
+    }: punchContact.IContact = contact;
 
     // The tracker's corrections arrived by a second since the start, each
     // carried into the step, the wrist at contact and the elbow's hint on
@@ -220,12 +268,11 @@ export namespace punchGeometry {
     )!.worldPosition;
 
     // Shares through the punch: out to the contact, back to the guard.
-    const out = (t: number): number => minimumJerk.share(t / shown);
-    const back = (t: number): number => minimumJerk.share((t - shown) / recoil);
-    const sag = (t: number): number =>
-      drop.seconds > 0
-        ? back(t) - minimumJerk.share((t - shown - recoil) / drop.seconds)
-        : 0;
+    const { out, back, sag }: punchGeometry.IPhases = punchGeometry.phases(
+      shown,
+      recoil,
+      drop.seconds,
+    );
     const walk = (advance: (t: number) => number): punchFootwork.IFootwork =>
       punchFootwork.create({
         context,
@@ -242,11 +289,12 @@ export namespace punchGeometry {
 
     // The guard the hand returns to, and the stroke from the launch through
     // the contact back to it, stopping on the struck body's first surface.
-    // Read when the hand returns, at the contact or the stop: by then every
-    // correction that moves the feet has arrived.
-    let ended: IAutoMovieHumanLimbGoal | undefined;
-    const guardEnd = (): IAutoMovieHumanLimbGoal =>
-      (ended ??= guardAt(footwork.base(duration))[arm]!);
+    // Solved once here at the punch's end, where every correction that moves
+    // the feet has arrived.
+    const ended: IAutoMovieHumanLimbGoal = guardAt(footwork.base(duration))[
+      arm
+    ]!;
+    const guardEnd = (): IAutoMovieHumanLimbGoal => ended;
     const rotationAt = (t: number): IAutoMovieQuaternion =>
       Quaternion.slerp(
         Quaternion.slerp(startRotation, rotation, out(t)),
@@ -275,29 +323,9 @@ export namespace punchGeometry {
     // The delivery aims where the arm lands on the launch plan, and each
     // correction carries the wrist to where its own solution lands.
     const reached: IAutoMovieVector3 = landed;
-    const corrected: IAutoMovieMotionHumanStrikingAim.ITracker = {
-      planned: tracker.planned,
-      units: (seconds: number): IAutoMovieSuperposeMinimumJerk.IUnit[] =>
-        contact.corrected(seconds).map(
-          (
-            c: punchReach.ICorrection,
-          ): IAutoMovieSuperposeMinimumJerk.IUnit => ({
-            displacement: c.end,
-            start: c.start,
-            duration: c.duration,
-          }),
-        ),
-      goal: (seconds: number): IAutoMovieVector3 =>
-        contact
-          .corrected(seconds)
-          .reduce(
-            (
-              g: IAutoMovieVector3,
-              c: punchReach.ICorrection,
-            ): IAutoMovieVector3 => Vector3.add(g, c.end),
-            tracker.planned,
-          ),
-    };
+    const corrected: IAutoMovieMotionHumanStrikingAim.ITracker = punchCorrected(
+      { tracker, contact },
+    );
     const units = StrikingStroke.delivery({
       origin,
       impact: reached,
@@ -324,7 +352,6 @@ export namespace punchGeometry {
         contact: t0 + shown,
         back: (): IAutoMovieVector3 => guardEnd().point,
         recoil,
-        scan: { from: t0, to: t0 + shown + StrikingWeapon.TAIL, step: 1 / 96 },
         ...(fixed === undefined ? {} : { fixed }),
       });
 
@@ -334,59 +361,33 @@ export namespace punchGeometry {
     // the contact. Each solution's anchor is the arm resolved on it at the
     // contact, its own step under it; the anchor carried at a second
     // follows the corrections arrived by then.
-    const launch: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+    const launch: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
       context.entry.pose,
       arm,
     );
-    const anchors: Map<punchReach.IReach, IAutoMovieHumanLimbReference> =
-      new Map();
-    const anchor = (reach: punchReach.IReach): IAutoMovieHumanLimbReference => {
-      let found: IAutoMovieHumanLimbReference | undefined = anchors.get(reach);
-      if (found === undefined) {
-        const fixedStep: punchFootwork.IFootwork = walk(
-          (): number => reach.advance,
-        );
-        found = resolveHumanPosture.reference(
-          resolveHumanPosture(
-            body,
-            compose(shown, reach.solved.end, shown, {
-              base: fixedStep.base,
-              hint: (): IAutoMovieVector3 => reach.hint,
-            }),
-          ),
-          arm,
-        );
-        anchors.set(reach, found);
-      }
-      return found;
+    // Each reach's arm anchor is fitted once when the geometry is built
+    // (`anchors`, below `compose`); a read only looks it up.
+    const fitAnchor = (
+      reach: punchReach.IReach,
+    ): IAutoMovieHumanLimbReference => {
+      const fixedStep: punchFootwork.IFootwork = walk(
+        (): number => reach.advance,
+      );
+      return HumanLimbFit.reference(
+        resolveHumanPosture(
+          body,
+          compose(shown, reach.solved.end, shown, {
+            base: fixedStep.base,
+            hint: (): IAutoMovieVector3 => reach.hint,
+          }),
+        ),
+        arm,
+      );
     };
-    const anchored = (clock: number): IAutoMovieHumanLimbReference => {
-      let at: IAutoMovieHumanLimbReference = anchor(contact.launched);
-      for (const c of corrections(clock)) {
-        if (!c.moved) continue;
-        const s: number = minimumJerk.share(
-          (t0 + clock - c.start) / c.duration,
-        );
-        const next: IAutoMovieHumanLimbReference = anchor(c.reach);
-        at = {
-          upper: blendHumanJoint(
-            body,
-            `${side}UpperArm`,
-            at.upper,
-            next.upper,
-            s,
-          ),
-          lower: blendHumanJoint(
-            body,
-            `${side}LowerArm`,
-            at.lower,
-            next.lower,
-            s,
-          ),
-        };
-      }
-      return at;
-    };
+    const anchor = (reach: punchReach.IReach): IAutoMovieHumanLimbReference =>
+      anchors.get(reach)!;
+    const anchored: (clock: number) => IAutoMovieHumanLimbReference =
+      punchAnchored({ anchor, contact, corrections, t0, body, side });
     // The wrist's share of its way from the guard to where the arm lands on
     // the launch plan, on its free path at a clock: the delivery's own reach
     // of the hand, through the contact and held there after.
@@ -409,9 +410,8 @@ export namespace punchGeometry {
     // over the delivery: a punch thrown from a guard keeps it, one thrown
     // from a stand raises it, instead of the guard's goal being taken at the
     // launch and the arm thrown out round it.
-    const off: "leftArm" | "rightArm" =
-      arm === "leftArm" ? "rightArm" : "leftArm";
-    const offSide: "left" | "right" = side === "left" ? "right" : "left";
+    const off: BuildOff = arm === "leftArm" ? "rightArm" : "leftArm";
+    const offSide: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const offHeld: IAutoMovieHumanLimbGoal | undefined =
       context.entry.posture.limbs[off];
     const shownOff: ReturnType<typeof poseBones> | undefined =
@@ -450,91 +450,51 @@ export namespace punchGeometry {
         },
       };
     };
-    const compose = (
+    const compose: (
       t: number,
       end: IAutoMovieVector3,
-      clock: number = t,
-      bare?: {
-        base: punchFootwork.IFootwork["base"];
-        hint: (clock: number) => IAutoMovieVector3;
-      },
+      clock?: number,
+      bare?: punchCompose.IBuildComposeBare,
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
-      const reference: IAutoMovieHumanLimbReference | undefined =
-        bare === undefined ? anchored(clock) : undefined;
+    ) => IAutoMovieMotionHumanPosture = punchCompose({
+      anchored,
+      travelled,
+      back,
+      footwork,
+      raised,
+      guardAt,
+      startElbow,
+      carry,
+      contact,
+      arm,
+      drop,
+      sag,
+      rotationAt,
+      body,
+      side,
+      launch,
+    });
 
-      // The elbow and the arm's reference go out as far as the wrist has: the
-      // wrist launches after the skill's lag and peaks late in its delivery
-      // (`StrikingStroke.delivery`), so an elbow on the delivery's own clock
-      // led it, and mid-flight it stood ahead of the fist with the forearm
-      // sweeping back across the line (the small woman's cross met the
-      // partner's lead elbow 47 ms before impact with the elbow 15 cm ahead
-      // of the wrist). Read as the wrist's share of its way from the guard
-      // to where the arm lands, the elbow stays behind the fist.
-      const gone: number = travelled(clock);
-      const held: number = Math.max(0, Math.min(1, gone - back(clock)));
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(source);
-      const posture: IAutoMovieMotionHumanPosture = (
-        bare?.base ?? footwork.base
-      )(t, clock, resolution);
-      const guard: ReturnType<typeof StrikingStance.guard> = raised(
-        guardAt(posture, resolution, projection),
-        clock,
-      );
-      const elbow: IAutoMovieVector3 = Vector3.lerp(
-        Vector3.lerp(
-          startElbow,
-          bare === undefined
-            ? carry(contact.hint, clock, (c: punchReach.ICorrection) => c.hint)
-            : bare.hint(clock),
-          gone,
+    // The launch's anchor and each moved correction's, fitted once here: the
+    // tracker's every correction (`contact.corrected(Infinity)`) is the set a
+    // read over the whole punch can arrive at.
+    const anchors: Map<punchReach.IReach, IAutoMovieHumanLimbReference> =
+      new Map(
+        [
+          contact.launched,
+          ...corrections(Infinity)
+            .filter((c: punchReach.ICorrection): boolean => c.moved)
+            .map((c: punchReach.ICorrection): punchReach.IReach => c.reach),
+        ].map(
+          (
+            reach: punchReach.IReach,
+          ): [punchReach.IReach, IAutoMovieHumanLimbReference] => [
+            reach,
+            fitAnchor(reach),
+          ],
         ),
-        guard[arm]!.bend,
-        back(clock),
       );
-      const wrist: IAutoMovieVector3 = Vector3.add(end, {
-        x: 0,
-        y: -drop.depth * sag(t),
-        z: 0,
-      });
-      return {
-        ...posture,
-        limbs: {
-          ...posture.limbs,
-          ...guard,
-          [arm]: {
-            point: wrist,
-            bend: elbow,
-            rotation: rotationAt(clock),
-            ...(reference === undefined
-              ? {}
-              : {
-                  reference: {
-                    // Blended as rotations: the launch and the contact
-                    // may be written in different charts of the shoulder.
-                    upper: blendHumanJoint(
-                      body,
-                      `${side}UpperArm`,
-                      launch.upper,
-                      reference.upper,
-                      held,
-                    ),
-                    lower: blendHumanJoint(
-                      body,
-                      `${side}LowerArm`,
-                      launch.lower,
-                      reference.lower,
-                      held,
-                    ),
-                  },
-                }),
-          },
-        },
-      };
-    };
-
     const landing = (): punchReach.IReach =>
       p.feint === undefined
         ? (contact.corrected(Infinity).at(-1)?.reach ?? contact.launched)
@@ -573,11 +533,11 @@ export namespace punchGeometry {
         // Held for the dwell, then the approach is retraced on a minimum-jerk
         // clock, the wrist carried onto the guard it returns to.
         const s: number = at - t0;
-        const w: number = minimumJerk.share(
-          (t - s - StrikingStroke.DWELL) /
-            Math.max(1e-3, duration - s - StrikingStroke.DWELL),
+        const { w, clock }: punchGeometry.IReturn = punchGeometry.returned(
+          t,
+          s,
+          duration,
         );
-        const clock: number = s * (1 - w);
         return compose(
           t,
           Vector3.add(

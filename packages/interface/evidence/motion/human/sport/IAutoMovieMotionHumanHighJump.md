@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanHighJump.ts#IAutoMovieMotionHumanHighJump
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: sport/highJump.ts (highJump.plan, context); sport/highJump.ts (highJump.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/sport/IAutoMovieMotionHumanHighJump.ts#IAutoMovieMotionHumanHighJump.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

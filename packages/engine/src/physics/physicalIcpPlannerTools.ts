@@ -84,35 +84,38 @@ export namespace physicalIcpPlannerTools {
    * entry corner between the entry pivot and the exit corner by e^(-omega
    * t_entry), where t_entry is the swing's split share plus the previous
    * transfer's share after its split, and t_exit the rest of the swing plus the
-   * next transfer's share before its split. A step whose swing is not a number
-   * has no corner points and passes its entry pivot back as the next entry
-   * corner.
+   * next transfer's share before its split. A step without a swing has no
+   * corner points and passes its entry pivot back as the next entry corner.
    *
    * @param input The entry and exit pivots, one more than the corners; the
    *   swing durations and swing splits per step; the transfer durations and
    *   transfer splits per step, one more than the steps; the number of corner
    *   pairs; and omega.
-   * @returns The entry and exit corner points, not a number where skipped.
+   * @returns The entry and exit corner points, undefined where skipped.
    */
   export function cornerPoints(input: {
     entries: readonly IFloor[];
     exits: readonly IFloor[];
-    swings: readonly number[];
+    swings: readonly (number | undefined)[];
     swingSplits: readonly number[];
     transfers: readonly number[];
     transferSplits: readonly number[];
     count: number;
     omega: number;
-  }): { entries: IFloor[]; exits: IFloor[] } {
-    const entries: IFloor[] = new Array<IFloor>(input.count);
-    const exits: IFloor[] = new Array<IFloor>(input.count);
+  }): { entries: (IFloor | undefined)[]; exits: (IFloor | undefined)[] } {
+    const entries: (IFloor | undefined)[] = new Array<IFloor | undefined>(
+      input.count,
+    );
+    const exits: (IFloor | undefined)[] = new Array<IFloor | undefined>(
+      input.count,
+    );
     let next: IFloor = input.entries[input.count]!;
     for (let i: number = input.count - 1; i >= 0; i--) {
-      const swing: number = input.swings[i]!;
-      if (Number.isNaN(swing)) {
+      const swing: number | undefined = input.swings[i];
+      if (swing === undefined) {
         next = input.entries[i]!;
-        exits[i] = { x: Number.NaN, z: Number.NaN };
-        entries[i] = { x: Number.NaN, z: Number.NaN };
+        exits[i] = undefined;
+        entries[i] = undefined;
         continue;
       }
       const split: number = input.swingSplits[i]!;

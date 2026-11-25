@@ -9,11 +9,24 @@ import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 
 /**
- * Measure a mesh's defects and return them as marks lying on the mesh as it is posed.
+ * Measure a mesh's defects and return them as marks lying on the mesh as it is
+ * posed.
  *
- * Every mesh has the quantity, so the inspection measures it itself on the meshes it draws, through the engine's `measureAutoMovieMeshDefects` on the mesh's stored positions. An edge defect becomes a segments mark of its two vertices and a triangle defect a closed polyline of its three. A defect's kind is `defect/<engine kind>`, such as `defect/open`, its path is the mesh's path followed by its kind and its ordinal among that kind on the mesh, such as `panel/defect/open/2`, and its label and colour are those `AUTO_MOVIE_INSPECTION_KINDS` gives the kind, such as `open edge` in red.
+ * Every mesh has the quantity, so the inspection measures it itself on the
+ * meshes it draws, through the engine's `measureAutoMovieMeshDefects` on the
+ * mesh's stored positions. An edge defect becomes a segments mark of its two
+ * vertices and a triangle defect a closed polyline of its three. A defect's
+ * kind is `defect/<engine kind>`, such as `defect/open`, its path is the mesh's
+ * path followed by its kind and its ordinal among that kind on the mesh, such
+ * as `panel/defect/open/2`, and its label and colour are those
+ * `AUTO_MOVIE_INSPECTION_KINDS` gives the kind, such as `open edge` in red.
  *
- * Only the `kinds` asked are returned, and `sliver` is the aspect limit the engine needs for slivers. `measured` caches the engine's answer by geometry, so meshes that share one are measured once. Each mesh still gets its own marks, because their coordinates are read from that mesh's pose: morph targets and linear-blend skinning included, a dual-quaternion skin by its linear-blend pose.
+ * Only the `kinds` asked are returned, and `sliver` is the aspect limit the
+ * engine needs for slivers. `measured` caches the engine's answer by geometry,
+ * so meshes that share one are measured once. Each mesh still gets its own
+ * marks, because their coordinates are read from that mesh's pose: morph
+ * targets and linear-blend skinning included, a dual-quaternion skin by its
+ * linear-blend pose.
  *
  * An engine refusal of the buffers is rethrown naming the mesh's path.
  */
@@ -30,7 +43,10 @@ export function measureAutoMovieInspectionDefects(props: {
   /** Sliver aspect limit, or null when slivers are not measured. */
   sliver: number | null;
 
-  /** The engine's defects by geometry, shared across the meshes of one inspection. */
+  /**
+   * The engine's defects by geometry, shared across the meshes of one
+   * inspection.
+   */
   measured: Map<THREE.BufferGeometry, IAutoMovieMeshDefect[]>;
 }): IAutoMovieInspectionMeasured {
   const mesh: THREE.Mesh = props.mesh;
@@ -75,9 +91,9 @@ export function measureAutoMovieInspectionDefects(props: {
   const posed: THREE.Vector3 = new THREE.Vector3();
   const refresh: () => void = (): void => {
     marks.forEach((mark: IAutoMovieMark, m: number): void => {
-      const points: number[] = (
-        mark.shape as IAutoMovieMark.ISegments | IAutoMovieMark.IPolyline
-      ).points;
+      if (mark.shape.type !== "segments" && mark.shape.type !== "polyline")
+        return;
+      const points: number[] = mark.shape.points;
       runs[m]!.forEach((vertex: number, k: number): void => {
         mesh.getVertexPosition(vertex, posed);
         points[k * 3] = posed.x;
@@ -90,7 +106,10 @@ export function measureAutoMovieInspectionDefects(props: {
   return { anchor: mesh, marks, refresh };
 }
 
-/** Measure one geometry's defects on its stored positions, naming the mesh's path when the engine refuses the buffers. */
+/**
+ * Measure one geometry's defects on its stored positions, naming the mesh's
+ * path when the engine refuses the buffers.
+ */
 function measure(
   geometry: THREE.BufferGeometry,
   path: string,

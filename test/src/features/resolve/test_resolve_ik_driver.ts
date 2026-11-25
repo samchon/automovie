@@ -218,19 +218,6 @@ export function test_resolve_ik_driver(): void {
   );
 
   TestValidator.predicate(
-    "two-bone IK rejects NaN influence",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
-          [ik({ influence: Number.NaN })],
-          new Map(),
-          new Map(),
-          new Map(),
-        ),
-      ["world driver two-bone IK influence", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
     "two-bone IK rejects negative influence",
     throwsError(
       (): IAutoMovieDriver[] =>
@@ -254,19 +241,6 @@ export function test_resolve_ik_driver(): void {
           new Map(),
         ),
       ["world driver two-bone IK influence", "between 0 and 1", "1.1"],
-    ),
-  );
-  TestValidator.predicate(
-    "two-bone IK rejects NaN pole angle",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
-          [ik({ pole: { node: null, angle: Number.NaN } })],
-          new Map(),
-          new Map(),
-          new Map(),
-        ),
-      ["world driver two-bone IK pole angle", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(

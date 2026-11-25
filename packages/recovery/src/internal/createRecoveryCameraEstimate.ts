@@ -21,8 +21,9 @@ import { selectRecoveryCameraPose } from "./selectRecoveryCameraPose";
 /**
  * Qualify completed automatic observations and assemble owned camera evidence.
  * Every independent final gate runs when its required observations exist. A
- * completed observation artifact may refuse its camera; only a candidate passing
- * all gates exposes a relative transform. No shape reconstruction is performed.
+ * completed observation artifact may refuse its camera; only a candidate
+ * passing all gates exposes a relative transform. No shape reconstruction is
+ * performed.
  */
 export function createRecoveryCameraEstimate(
   input: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[0],
@@ -265,8 +266,6 @@ export function createRecoveryCameraEstimate(
         twiceArea += a.x * next.z - a.z * next.x;
       }
       const fraction: number = Math.abs(twiceArea) / 2;
-      if (!Number.isFinite(fraction))
-        throw new Error("camera-evidence: nonrepresentable image hull area");
       fractions.push(fraction);
     }
     consensus.inlierImageHullFractions = [fractions[0]!, fractions[1]!];

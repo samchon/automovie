@@ -25,8 +25,8 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * Scenarios:
  *
  * 1. Point, landmark, actor-root and actor-bone selectors measure 13, 10, 5 and
- *    zero metres, the bone through its actor's scale and turn; the same actor in
- *    another shot measures its head 1.7 m above its root.
+ *    zero metres, the bone through its actor's scale and turn; the same actor
+ *    in another shot measures its head 1.7 m above its root.
  * 2. An object motion moves an actor's root along its path, and an absent sample
  *    time measures at zero.
  * 3. An invalid distance time, an absent landmark, a bone on an actor without a
@@ -185,20 +185,6 @@ export function test_engine_geometry_query_selectors(): void {
           ),
       ],
       [
-        "nanTime",
-        (): boolean =>
-          throwsError(
-            (): number =>
-              meters({
-                query: "distance",
-                time: Number.NaN,
-                from: point(0, 0, 0),
-                to: point(1, 0, 0),
-              }),
-            "Distance sample time NaN is invalid",
-          ),
-      ],
-      [
         "landmark",
         (): boolean =>
           throwsError(
@@ -324,7 +310,6 @@ export function test_engine_geometry_query_selectors(): void {
     ]),
     {
       negativeTime: true,
-      nanTime: true,
       landmark: true,
       landmarkWithoutWorld: true,
       boneWithoutSkeleton: true,

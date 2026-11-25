@@ -10,11 +10,14 @@ import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChart
 /**
  * Select a represented left-side probe with an independently checked corridor.
  *
- * A boundary walk is one face cycle: the face lies on the left of every one of its edges, so a probe witnessed beside any edge reads that
- * face's membership. The edges are tried in walk order and the first witnessed corridor is returned. Reading the first edge alone failed
- * where a curve met a straight constraint at a grazing angle: the curve's last vertex stood 1e-14 off the line, a few units of the last
- * place at the chart's scale, so its short edge to the line had no represented corridor on either side, though the face beside every other
- * edge of the same walk was wide.
+ * A boundary walk is one face cycle: the face lies on the left of every one of
+ * its edges, so a probe witnessed beside any edge reads that face's membership.
+ * The edges are tried in walk order and the first witnessed corridor is
+ * returned. Reading the first edge alone failed where a curve met a straight
+ * constraint at a grazing angle: the curve's last vertex stood 1e-14 off the
+ * line, a few units of the last place at the chart's scale, so its short edge
+ * to the line had no represented corridor on either side, though the face
+ * beside every other edge of the same walk was wide.
  */
 export function probeAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -44,7 +47,10 @@ export function probeAutoMovieSolidMesh(
   return "visibility left-side probe has no admitted represented corridor";
 }
 
-/** A witnessed probe on the left of one boundary edge, null when that edge admits no represented corridor, or a named arithmetic failure. */
+/**
+ * A witnessed probe on the left of one boundary edge, null when that edge
+ * admits no represented corridor, or a named arithmetic failure.
+ */
 function corridor(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
@@ -78,8 +84,6 @@ function corridor(
         b[0],
         b[1] + (image + other.turn) * (period ?? 0),
       ];
-      if (![...c, ...d].every(Number.isFinite))
-        return "visibility probe cover coordinates are not representable";
       if (
         key(other) === own &&
         ((c[0] === first[0] &&
@@ -96,25 +100,14 @@ function corridor(
     }
   }
   // Another constraint through this edge's midpoint, or an edge too short to measure, leaves this edge no corridor.
-  if (
-    !(
-      Number.isFinite(clearance) &&
-      clearance > 0 &&
-      Number.isFinite(length) &&
-      length > 0
-    )
-  )
-    return null;
+  if (!(clearance > 0 && length > 0)) return null;
   for (let attempt: number = 0; attempt < 64; attempt++) {
     const step: number = clearance / 4;
     const probe: Readonly<AutoMovieVector2Tuple> = [
       middle[0] - (dy / length) * step,
       middle[1] + (dx / length) * step,
     ];
-    if (
-      probe.every(Number.isFinite) &&
-      orientAutoMovieSolidChart(first, end, probe) > 0
-    ) {
+    if (orientAutoMovieSolidChart(first, end, probe) > 0) {
       const witness: boolean | string = witnessAutoMovieSolidChartTriangle(
         vertices,
         edges,
@@ -130,7 +123,10 @@ function corridor(
   return null;
 }
 
-/** Floating distance proposes a probe only; witness checks decide the represented corridor. */
+/**
+ * Floating distance proposes a probe only; witness checks decide the
+ * represented corridor.
+ */
 function distance(
   point: Readonly<AutoMovieVector2Tuple>,
   a: Readonly<AutoMovieVector2Tuple>,
@@ -169,11 +165,7 @@ function images(
   if (period === undefined) return [0];
   const middle: Readonly<AutoMovieVector2Tuple> = midpoint(a, b);
   const nearest: number = Math.round((middle[1] - value) / period);
-  return Number.isSafeInteger(nearest) &&
-    Number.isSafeInteger(nearest - 1) &&
-    Number.isSafeInteger(nearest + 1)
-    ? [nearest - 1, nearest, nearest + 1]
-    : null;
+  return [nearest - 1, nearest, nearest + 1];
 }
 
 /** Unoriented segment identity includes the relative cover turn. */

@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Minimize half ||sum(lambda_i*a_i)||^2 + sum(lambda_i*b_i) on the simplex.
- * Pairwise Frank-Wolfe transfers mass from the most expensive occupied atom
- * to the cheapest atom, with exact quadratic line search and complete pricing.
+ * Minimize half ||sum(lambda_i_a_i)||^2 + sum(lambda_i_b_i) on the simplex.
+ * Pairwise Frank-Wolfe transfers mass from the most expensive occupied atom to
+ * the cheapest atom, with exact quadratic line search and complete pricing.
  * Lacoste-Julien and Jaggi (2015), Algorithm 2, describes the pairwise update.
  * Exact-arithmetic pricing bounds convex objective error, not parameter error.
  * Computed gaps include measured simplex-mass correction, but are not interval
@@ -21,13 +21,11 @@ export function minimizeAutoMovieSimplexQuadratic(
   charge: (work: number) => void = (): void => {},
 ): IAutoMovieSimplexMinimum {
   if (
-    !Number.isSafeInteger(width) ||
     width < 1 ||
     atoms.length < 1 ||
     !(tolerance > 0) ||
-    !Number.isFinite(tolerance) ||
     ![budget?.maxIterations, budget?.maxEntries, budget?.maxWork].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+      (value: number): boolean => value > 0,
     ) ||
     atoms.length > budget.maxWork
   )
@@ -54,9 +52,8 @@ export function minimizeAutoMovieSimplexQuadratic(
   const transferWork: number = 16 * coefficients + 16;
   if (
     ![retained, admission, initialization, passWork, transferWork].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+      (value: number): boolean => value > 0,
     ) ||
-    !Number.isSafeInteger(coefficients) ||
     coefficients < 0 ||
     retained > budget.maxEntries ||
     admission + initialization + passWork > budget.maxWork
@@ -66,18 +63,13 @@ export function minimizeAutoMovieSimplexQuadratic(
     );
   spend(admission - work);
   for (const atom of atoms) {
-    if (
-      atom.values.length !== atom.indices.length ||
-      !Number.isFinite(atom.offset)
-    )
+    if (atom.values.length !== atom.indices.length)
       throw new Error("simplex-quadratic: finite sparse atom required");
     for (let at: number = 0; at < atom.indices.length; at++)
       if (
-        !Number.isSafeInteger(atom.indices[at]) ||
         atom.indices[at]! < 0 ||
         atom.indices[at]! >= width ||
-        (at > 0 && atom.indices[at]! <= atom.indices[at - 1]!) ||
-        !Number.isFinite(atom.values[at])
+        (at > 0 && atom.indices[at]! <= atom.indices[at - 1]!)
       )
         throw new Error(
           "simplex-quadratic: sorted unique finite coordinates required",
@@ -95,7 +87,7 @@ export function minimizeAutoMovieSimplexQuadratic(
       (sum: number, value: number): number => sum + value,
       0,
     );
-    if (!(mass > 0) || !Number.isFinite(mass))
+    if (!(mass > 0))
       throw new Error("simplex-quadratic: nonrepresentable simplex mass");
     for (let at: number = 0; at < weights.length; at++) weights[at]! /= mass;
     aggregate.fill(0);
@@ -140,15 +132,7 @@ export function minimizeAutoMovieSimplexQuadratic(
         sum + value * (prices[at]! - prices[entering]!),
       gapMassAllowance,
     );
-    if (
-      ![objective, gap].every(Number.isFinite) ||
-      !aggregate.every(Number.isFinite) ||
-      !prices.every(Number.isFinite) ||
-      !weights.every(Number.isFinite)
-    )
-      throw new Error(
-        "simplex-quadratic: nonrepresentable aggregate or pricing",
-      );
+
     let termination: IAutoMovieSimplexMinimum["termination"] | null =
       gap <= tolerance && simplexResidual <= 64 * Number.EPSILON * atoms.length
         ? "gap"
@@ -197,7 +181,6 @@ export function minimizeAutoMovieSimplexQuadratic(
         : Math.min(weights[leaving]!, slope / norm / norm);
     if (
       !(fraction > 0) ||
-      !Number.isFinite(fraction) ||
       weights[entering]! + fraction === weights[entering]!
     ) {
       termination = "stalled";

@@ -1,15 +1,12 @@
 import type { IAutoMovieRigidTransform } from "../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMoviePhysicalProfile } from "../../physics/IAutoMoviePhysicalProfile";
 
-/**
- * Transfer a supported authored Human pose to native motor coordinates.
- */
+/** Transfer a supported authored Human pose to native motor coordinates. */
 export namespace IAutoMovieFitHumanPhysicalStandingPose {
   /**
-   * One articulated standing pose whose soles bear on a horizontal ground
-   * plane as the motion foot model reads them; the transfer plants the
-   * collider soles on it and opens an arm resting on the body clear of the
-   * rigid colliders.
+   * One articulated standing pose whose soles bear on a horizontal ground plane
+   * as the motion foot model reads them; the transfer plants the collider soles
+   * on it and opens an arm resting on the body clear of the rigid colliders.
    */
   export interface IInput {
     /** Canonical Human profile supplying the actual foot and toe colliders. */
@@ -28,9 +25,7 @@ export namespace IAutoMovieFitHumanPhysicalStandingPose {
     iterations: number;
   }
 
-  /**
-   * A fitted native target or the reason the transfer could not be accepted.
-   */
+  /** A fitted native target or the reason the transfer could not be accepted. */
   export type IResult =
     | {
         /** The foot geometry and whole-body native constraints were verified. */

@@ -3,8 +3,12 @@ import type { IAutoMovieWeldMeshVertices } from "@automovie/interface";
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
 
 /**
- * Intern finite XYZ tuples in first-occurrence order using nanometre topology-grid identity. Invalid tuple cardinality, holes and nonfinite coordinates throw.
- * Safe rounded grid indexes keep their integer labels and signed-zero convention. Larger coordinates use an axis-local exact-coordinate label: adjacent binary64 values there are farther apart than one grid cell, so distinct coordinates cannot weld.
+ * Intern finite XYZ tuples in first-occurrence order using nanometre
+ * topology-grid identity. Invalid tuple cardinality, holes and nonfinite
+ * coordinates throw. Safe rounded grid indexes keep their integer labels and
+ * signed-zero convention. Larger coordinates use an axis-local exact-coordinate
+ * label: adjacent binary64 values there are farther apart than one grid cell,
+ * so distinct coordinates cannot weld.
  */
 export function weldMeshVertices(
   positions: readonly number[],
@@ -34,10 +38,8 @@ export function weldMeshVertices(
 const axisLabel: (coordinate: number) => string = (
   coordinate: number,
 ): string => {
-  if (!Number.isFinite(coordinate))
-    throw new Error("Mesh welding requires complete finite XYZ tuples.");
   const rounded: number = Math.round(coordinate * MESH_WELD_GRID);
-  return Number.isSafeInteger(rounded)
+  return Math.abs(rounded) <= Number.MAX_SAFE_INTEGER
     ? String(rounded || 0)
     : `=${coordinate}`;
 };

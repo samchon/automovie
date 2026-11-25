@@ -9,8 +9,8 @@ import {
 
 /**
  * A potter's wheel with a centred clay form. No source is read: the head's
- * height and diameter, the clay's size, how far its wall rises and the mass
- * are provisional construction estimates of a seated studio wheel.
+ * height and diameter, the clay's size, how far its wall rises and the mass are
+ * provisional construction estimates of a seated studio wheel.
  */
 const SIZE: Readonly<createPotteryWheel.ISize> = {
   height: 0.45,
@@ -23,29 +23,20 @@ const SIZE: Readonly<createPotteryWheel.ISize> = {
 };
 
 /**
- * A potter's wheel: a wheel head turning on a stand, with a form of clay
- * thrown on it whose wall rises as the hands draw it up.
+ * A potter's wheel: a wheel head turning on a stand, with a form of clay thrown
+ * on it whose wall rises as the hands draw it up.
  *
  * The wheel stands on the floor at the origin, its head's axis along `+Y`.
- * `head` is the head's articulation, a crank that turns without limit, so
- * an act spins it. The clay is centred on the head: a lump and a wall of
- * `clay` radius whose top stands `start` above the head and rises by up to
- * `rise` on the `raise` slider as it is drawn up. Clay is round about the
- * head's axis, so every point of its wall at one height is the same
- * contact in the turning head's frame: `outside` is the wall's outer face
- * at its top, facing `+Z`, `inside` its inner face, facing `-Z`, both
- * riding the rise.
+ * `head` is the head's articulation, a crank that turns without limit, so an
+ * act spins it. The clay is centred on the head: a lump and a wall of `clay`
+ * radius whose top stands `start` above the head and rises by up to `rise` on
+ * the `raise` slider as it is drawn up. Clay is round about the head's axis, so
+ * every point of its wall at one height is the same contact in the turning
+ * head's frame: `outside` is the wall's outer face at its top, facing `+Z`,
+ * `inside` its inner face, facing `-Z`, both riding the rise.
  *
  * @param params The optional scene id.
  * @returns The wheel and its contacts, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the head's articulation, the rise and why a contact on the round wall holds in the turning frame.
- * @evidence contracts/development/implementation.md#principled-implementation A column stand the potter's legs straddle, a head on a crank, a lump and a wall on a slider; the wall's contacts ride the slider.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the stand and head, the clay, then the articulations and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clay's flow is not modelled: the wall is a rigid ring raised whole. Every size is a named provisional estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts and four contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createPotteryWheel(
   params: createPotteryWheel.IParams = {},
@@ -137,14 +128,7 @@ export function createPotteryWheel(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createPotteryWheel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The head, the rise and the wall's two faces an act reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is fixed; no dimension is authorable.
- */
+/** The inputs, contacts and size of {@link createPotteryWheel}. */
 export namespace createPotteryWheel {
   /** The head's crank, the wall's rise and its two faces. */
   export type Affordance = "head" | "raise" | "outside" | "inside";

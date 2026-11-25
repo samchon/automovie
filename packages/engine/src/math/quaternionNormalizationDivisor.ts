@@ -10,7 +10,13 @@ export function quaternionNormalizationDivisor(
   z: number,
   w: number = 0,
 ): number {
-  const largest: number = Math.max(Math.abs(x), Math.abs(y), Math.abs(z), Math.abs(w));
-  return Number.isFinite(largest) && largest > 0 &&
-    (largest < 2 ** -511 || largest > 2 ** 510) ? largest : 1;
+  const largest: number = Math.max(
+    Math.abs(x),
+    Math.abs(y),
+    Math.abs(z),
+    Math.abs(w),
+  );
+  return largest > 0 && (largest < 2 ** -511 || largest > 2 ** 510)
+    ? largest
+    : 1;
 }

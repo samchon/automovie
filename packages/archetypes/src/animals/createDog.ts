@@ -19,31 +19,26 @@ import { QuadrupedAnimal } from "./QuadrupedAnimal";
 /**
  * A coarse Husky prototype from one published Pet, Show or Sled cohort mean.
  *
- * The measured surface proportions are AutoMovieArchetypeDogBody's, not a validated skeletal
- * model. Mass is authored because that morphometric table reports no weights;
- * it is the whole model's mass, including any authored collar/lead. Segment
- * density is uniform and paw friction/restitution remain unknown. The optional
- * collar is a solid cylindrical drawing proxy whose dimensions the author
- * supplies; its straight lead offers one real rein contact. Without a named
- * cohort its width must fit every selectable neck, so acceptance never depends
- * on the seed. Naming a cohort admits that cohort's own neck length. No saddle exists.
+ * The measured surface proportions are AutoMovieArchetypeDogBody's, not a
+ * validated skeletal model. Mass is authored because that morphometric table
+ * reports no weights; it is the whole model's mass, including any authored
+ * collar/lead. Segment density is uniform and paw friction/restitution remain
+ * unknown. The optional collar is a solid cylindrical drawing proxy whose
+ * dimensions the author supplies; its straight lead offers one real rein
+ * contact. Without a named cohort its width must fit every selectable neck, so
+ * acceptance never depends on the seed. Naming a cohort admits that cohort's
+ * own neck length. No saddle exists.
  *
- * @param params Required positive mass in kilograms, optional cohort, tempo and authored collar.
+ * @param params Required positive mass in kilograms, optional cohort, tempo and
+ *   authored collar.
  * @param seed Picks one whole cohort and the tempo; absent, Pet and mean tempo.
  * @returns The dog, including its parts and optional lead affordance.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, cohort, tempo or collar dimensions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States source scope, authored mass, contact, units and remaining physical gaps.
- * @evidence contracts/development/implementation.md#principled-implementation One whole-cohort model draw feeds the shared quadruped builder. The head capsule contains each complete ear root disk through the shared radius-aware attachment owner, preserving measured ear length and its authored upright direction; no equine weight law or changed head size is used.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit mass and tack, select the cohort, record dimensions and build the body with ears and optional collar.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No independent trait bands, invented canine mass shares, paw friction or rider contacts.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size coarse rig and at most five added parts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One draw session owns the selected cohort and every dimension.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns an independently owned model without external resources.
+ * @throws {AutoMovieArchetypeRefusal} For invalid mass, cohort, tempo or collar
+ *   dimensions.
  */
 export function createDog(
   params: createDog.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createDog.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension
@@ -120,14 +115,7 @@ export function createDog(
   });
 }
 
-/**
- * The Husky catalogue and authored tack contract of createDog.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states whether it is a measured model or an authored dimension.
- * @evidence contracts/development/design.md#principled-representation Closed cohorts with whole measured height/girth pairs, plus positive authored mass and tack lengths.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only createDog's inputs and the shared quadruped dimensions are exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Tack dimensions have no invented default or breed-size law.
- */
+/** The Husky catalogue and authored tack contract of createDog. */
 export namespace createDog {
   /** A lead is a rein contact, never a rider's seat. */
   export type Affordance = "lead";
@@ -149,7 +137,12 @@ export namespace createDog {
     collar?: ICollar;
   }
 
-  /** An explicitly authored 22 kg specimen for the gallery's reference view. This mass is a presentation choice; the morphometric cohort table supplies no mass. Callers still provide mass to createDog, and the seed still selects a whole cohort. */
+  /**
+   * An explicitly authored 22 kg specimen for the gallery's reference view.
+   * This mass is a presentation choice; the morphometric cohort table supplies
+   * no mass. Callers still provide mass to createDog, and the seed still
+   * selects a whole cohort.
+   */
   export const REFERENCE: Readonly<Pick<IParams, "mass">> = { mass: 22 };
 
   /** The shared dimensions and their physical units. */
@@ -179,7 +172,10 @@ export namespace createDog {
     sled: figures("sled"),
   };
 
-  /** The existing one-standard-deviation authoring range, applied to Light et al. 2010's canine pooled stride-time SD of 0.13 s. */
+  /**
+   * The existing one-standard-deviation authoring range, applied to Light et
+   * al. 2010's canine pooled stride-time SD of 0.13 s.
+   */
   export const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "",
     -1,
@@ -187,7 +183,10 @@ export namespace createDog {
     "one standard deviation around the pooled Labrador stride time: Light et al. 2010, AJVR 71:997, doi:10.2460/ajvr.71.9.997",
   );
 
-  /** Constructed neck lengths, metres; the narrowest limits a collar when any cohort may be drawn. */
+  /**
+   * Constructed neck lengths, metres; the narrowest limits a collar when any
+   * cohort may be drawn.
+   */
   export const NECK_LENGTHS: Readonly<
     Record<AutoMovieArchetypeDogBody.Cohort, number>
   > = {
@@ -243,13 +242,7 @@ export namespace createDog {
     unit: string,
     maximum?: number,
   ): void {
-    if (
-      !(
-        Number.isFinite(value) &&
-        value > 0 &&
-        (maximum === undefined || value <= maximum)
-      )
-    )
+    if (!(value > 0 && (maximum === undefined || value <= maximum)))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "dog",
@@ -267,7 +260,8 @@ export namespace createDog {
    * @param builder The model under construction.
    * @param rig Its rest landmarks.
    * @param tack The admitted positive authored lengths, metres.
-   * @throws {AutoMovieArchetypeRefusal} When the collar is longer than the neck.
+   * @throws {AutoMovieArchetypeRefusal} When the collar is longer than the
+   *   neck.
    */
   export function collar(
     builder: AutoMovieArchetypeBuilder<

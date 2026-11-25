@@ -2,8 +2,8 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
 
 /**
  * Admit an original synchronous redraw only from a new completed observation.
- * Explicit completion is preferred. A legacy void callback may instead expose
- * a new completed-frame record; an unchanged prior record cannot attest a draw.
+ * Explicit completion is preferred. A legacy void callback may instead expose a
+ * new completed-frame record; an unchanged prior record cannot attest a draw.
  * An absent record time inherits the requested original-producer time, while a
  * supplied time must agree exactly. The producer must throw on refusal.
  */
@@ -27,8 +27,7 @@ export function redrawViewerCompletedFrame(
     ) => void;
   },
 ): void {
-  if (!Number.isFinite(seconds) || seconds < 0)
-    throw new Error("A redraw requires finite nonnegative seconds.");
+  if (seconds < 0) throw new Error("A redraw requires nonnegative seconds.");
   const before: number = options.completedCount();
   const previous: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined =
     options.readFrame();

@@ -22,22 +22,15 @@ const MASS: number = 0.25;
 /**
  * Fit a hollow digital carrier to a separate padded two-handed display model.
  *
- * The carrier stands on its closed base, with its channel open along +Y.
- * The display faces down at both root frames. At "seated" its cap is above
- * the base and its guard sits above the physical mouth. At "opening" the
- * whole display clears the mouth. The "belt" hook faces the wearer along −X.
+ * The carrier stands on its closed base, with its channel open along +Y. The
+ * display faces down at both root frames. At "seated" its cap is above the base
+ * and its guard sits above the physical mouth. At "opening" the whole display
+ * clears the mouth. The "belt" hook faces the wearer along −X.
  *
  * @param params A generated padded display model and optional carrier id.
  * @returns The carrier and its model-space contact frames, in metres.
- * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed identity cannot be fitted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the carrier axes, display dependency and four contact frames.
- * @evidence contracts/development/implementation.md#principled-implementation Derives a rectangular channel from the spherical cap and shaft of the digital producer. Separate boxes represent the channel walls and closed bottom.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the display envelope, build the hollow carrier, and place the mouth, opening, seated and wear frames.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No box closes the opening or overlaps the seated cap. The carried model keeps its own geometry and identity.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads three parts of a fixed-size model and builds five boxes and four contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the generated part dimensions rather than duplicating the padded display catalogue.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Does not keep the display model or any external resources.
+ * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed
+ *   identity cannot be fitted.
  */
 export function createStageFittedCarrier(
   params: createStageFittedCarrier.IParams,
@@ -50,12 +43,11 @@ export function createStageFittedCarrier(
     id = "stageFittedCarrier",
   }: createStageFittedCarrier.IParams = params;
   if (
-    !(display instanceof AutoMovieArchetype) ||
     display.archetype !== "stageBladeProp" ||
     display.name !== "padded longsword stage prop" ||
     id === display.id
   )
-    throw invalidEnvelope(display?.id);
+    throw invalidEnvelope(display.id);
   const { tip, guardTop, radius }: IEnvelope = envelope(display);
   const v: typeof Vector3.create = Vector3.create;
   const inner: number = 2 * (radius + GAP);
@@ -144,14 +136,7 @@ export function createStageFittedCarrier(
   return builder.build(MASS);
 }
 
-/**
- * The padded display input and fitted carrier contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the separate padded display, carrier identity and distinct root and physical contact frames.
- * @evidence contracts/development/design.md#principled-representation Each named site is a model-local support or pose frame in metres. The producer validates the counterpart profile.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The counterpart provides the measured dimensions. The caller names two different display subjects. The lazy gallery reference supplies the real padded display through its public producer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry is produced only for an admitted fit.
- */
+/** The padded display input and fitted carrier contacts. */
 export namespace createStageFittedCarrier {
   /** The wear hook, the physical mouth and the two pose frames. */
   export type Affordance = "belt" | "mouth" | "opening" | "seated";
@@ -222,9 +207,7 @@ function envelope(
     shaft.geometry.shape.radius,
   );
   if (
-    ![tip, guardTop, radius].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
-    ) ||
+    ![tip, guardTop, radius].every((value: number): boolean => value > 0) ||
     !(tip - guardTop > GAP)
   )
     throw invalidEnvelope(display.id);

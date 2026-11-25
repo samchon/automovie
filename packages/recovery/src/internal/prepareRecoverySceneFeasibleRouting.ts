@@ -7,27 +7,13 @@ import type {
 
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
-/**
- * Own one explicit scene method request before any user checkpoint.
- */
+/** Own one explicit scene method request before any user checkpoint. */
 export function prepareRecoverySceneFeasibleRouting(
   budget: IAutoMovieRecoveryCameraSceneBudget,
   options: IAutoMovieRecoveryFeasibleJointOptions,
   work: IAutoMovieRecoverySceneWork,
 ): IAutoMovieRecoverySceneFeasibleRouting {
-  if (
-    !options ||
-    typeof options !== "object" ||
-    Array.isArray(options) ||
-    !options.directionBudget ||
-    typeof options.directionBudget !== "object" ||
-    Array.isArray(options.directionBudget)
-  )
-    throw new Error("camera-scene-feasible: fixed method records required");
-  if (
-    !Number.isSafeInteger(budget.maxResidentLinearEntries) ||
-    budget.maxResidentLinearEntries <= 64
-  )
+  if (budget.maxResidentLinearEntries <= 64)
     throw new Error("camera-scene-feasible: fixed routing retention required");
   spendRecoverySceneWork(work, budget, "linearWork", 256);
   const declared: IAutoMovieRecoveryCameraSceneBudget = {
@@ -66,17 +52,7 @@ export function prepareRecoverySceneFeasibleRouting(
       feasible.directionBudget.maxEntries,
       feasible.directionBudget.maxWork,
       feasible.maxResidentLinearEntries,
-    ].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
-    ) ||
-    ![
-      feasible.sqpAcceleration,
-      feasible.adaptiveRegularization,
-      feasible.laggedLagrangianMetric,
-    ].every(
-      (value: boolean | undefined): boolean =>
-        value === undefined || typeof value === "boolean",
-    ) ||
+    ].every((value: number): boolean => value > 0) ||
     (feasible.laggedLagrangianMetric === true &&
       feasible.sqpAcceleration !== true) ||
     feasible.directionBudget.maxEntries > declared.maxLinearEntries ||

@@ -4,14 +4,18 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
-import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
 import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 
 /**
  * Resolve one material texture binding to a configured `three.js` texture.
  *
- * A missing binding, a missing resolver or an unresolved asset leaves the slot empty. A legacy string binding reads with the slot's legacy colour space and UV set 0. The resolver lends a binding-private texture, onto which this writes the colour space, UV channel, optional offset/scale/rotation and optional wrap modes and filters, then marks it for upload; disposal remains with its resolver/cache owner. The same wrapper cannot be claimed by an environment scene; decoding may be shared through separate clones, while scene/material-use state remains exclusive before any sampling or color writes. A cache allocation receipt starts before those writes and acknowledges only their supported sampler/decoding changes and single upload-version increment. Prior fixed-input or uncontrolled version drift remains uncertified.
+ * A missing binding, a missing resolver or an unresolved asset leaves the slot
+ * empty. A legacy string binding reads with the slot's legacy colour space and
+ * UV set 0. The resolver lends a binding-private texture, onto which this
+ * writes the colour space, UV channel, optional offset/scale/rotation and
+ * optional wrap modes and filters, then marks it for upload; disposal remains
+ * with its resolver/cache owner, and decoding may be shared through separate
+ * clones.
  */
 export const resolveAutoMovieMaterialTexture: (
   binding: AutoMovieTextureBinding | null | undefined,
@@ -26,10 +30,6 @@ export const resolveAutoMovieMaterialTexture: (
     return null;
   const texture: THREE.Texture | undefined = resolver(binding);
   if (texture === undefined) return null;
-  AutoMovieEnvironmentTextureOwnership.material(texture);
-  const allocation: ReturnType<
-    typeof AutoMovieTextureCacheAllocationAuthority.beginBinding
-  > = AutoMovieTextureCacheAllocationAuthority.beginBinding(texture);
   const reference: IAutoMovieTextureReference =
     typeof binding === "string"
       ? { asset: binding, texCoord: 0, colorSpace: legacyColorSpace }
@@ -71,10 +71,6 @@ export const resolveAutoMovieMaterialTexture: (
     texture.magFilter = sampling.magFilter;
   }
   texture.needsUpdate = true;
-  AutoMovieTextureCacheAllocationAuthority.finishBinding(allocation, {
-    colorSpace,
-    sampler: sampling,
-  });
   return texture;
 };
 

@@ -26,7 +26,8 @@ interface Bar {
  * Prepare quadruped bone, attachment, sole and floor observations.
  *
  * @param reference Immutable neutral source, absent for unrelated rides.
- * @returns Marks for one posed model, named scene anchor and optional same-sample producer terminal goals. Non-quadrupeds produce none.
+ * @returns Marks for one posed model, named scene anchor and optional
+ *   same-sample producer terminal goals. Non-quadrupeds produce none.
  * @throws {RangeError} For an incomplete source or missing/non-bar posed bone.
  */
 export function archetypeQuadrupedMarks(
@@ -136,7 +137,6 @@ export function archetypeQuadrupedMarks(
     // Support heights are exact; their X/Z projection is an inspection ruler, not a fabricated contact point.
     for (const part of animal.parts) {
       const height: number = QuadrupedRestFloor(part);
-      if (!Number.isFinite(height)) continue;
       const centre: IAutoMovieVector3 = part.transform!.translation;
       marks.push(
         mark(

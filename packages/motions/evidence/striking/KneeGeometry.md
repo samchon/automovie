@@ -1,21 +1,3 @@
-# src/striking/KneeGeometry.ts#KneeGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the lazy knee plan consumer and original carriage/target/leg-key responsibility.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The same physical KneeReach result and entry/contact segment directions describe the law's key; the law retains its original lazy ownership and invalidation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The carriage's settling tolerance, one synchronous solve and the two former key records keep numeric key construction separate from the knee law's clocks, contacts and stop lifecycle.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No authored behavior, solver, sampled pose cache, outcome or physical bound is added; the original numeric body is moved without changing its operations.
-
 # src/striking/KneeGeometry.ts#KneeGeometry.ILeg
 
 ## @evidence contracts/development/common.md#meaningful-documentation

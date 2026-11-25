@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBallSport,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -17,12 +18,15 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IBallSportCasesFastest`'s site. */
+type IBallSportCasesFastest = { speed: number; v: IAutoMovieVector3 };
+
 /**
- * Capture cases of the team ball skills (#3247) from quiet standing, with
- * an implied ball.
+ * Capture cases of the team ball skills from quiet standing, with an implied
+ * ball.
  *
- * Every case reports foot slip at most 5 mm (decision 11's planted-foot
- * bound) and no range-of-motion overshoot. Beyond that:
+ * Every case reports foot slip at most 5 mm (decision 11's planted-foot bound)
+ * and no range-of-motion overshoot. Beyond that:
  *
  * - `team-ball-dribble`: four pushes counted as palm drops, the palm facing
  *   within 30 degrees of straight down at each lowest point;
@@ -31,19 +35,11 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   platform);
  * - `team-ball-set`: both wrists above the crown at `stroke`;
  * - `team-ball-throwIn`: both wrists behind the head at `ready` and, at the
- *   instant the hands move fastest, their path rising between 20 and 40
- *   degrees (about 30 degrees, Linthorne and Everett 2006).
+ *   instant the hands move fastest, their path rising between 20 and 40 degrees
+ *   (about 30 degrees, Linthorne and Everett 2006).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per skill, one verdict block per skill.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function ballSportCases(
   bodies: readonly string[] = ["m-average"],
@@ -64,6 +60,8 @@ export function ballSportCases(
     ] as const satisfies readonly IAutoMovieMotionHumanBallSport.Kind[]) {
       const name: string = `team-ball-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "ball",
@@ -94,8 +92,8 @@ export function ballSportCases(
         "a",
         "strokeEnd",
       );
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];
@@ -203,7 +201,7 @@ export function ballSportCases(
               passed: at(ready, `${side}Hand`).z < at(ready, "head").z,
               detail: `${((at(ready, `${side}Hand`).z - at(ready, "head").z) * 1000).toFixed(1)} mm ahead`,
             });
-          let fastest: { speed: number; v: IAutoMovieVector3 } = {
+          let fastest: IBallSportCasesFastest = {
             speed: 0,
             v: { x: 0, y: 0, z: 0 },
           };

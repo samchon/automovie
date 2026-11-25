@@ -6,14 +6,19 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
- * Timed paths for mounted manoeuvres, as samples `AutoMovieArchetypeCourse.timed` plans: a circular arc at an even rate, a line wheeling about a centre, a station kept on a moving carrier, a place kept behind a leader on its own path, and the windows in which a body faces a target.
+ * Timed paths for mounted manoeuvres, as samples
+ * `AutoMovieArchetypeCourse.timed` plans: a circular arc at an even rate, a
+ * line wheeling about a centre, a station kept on a moving carrier, a place
+ * kept behind a leader on its own path, and the windows in which a body faces a
+ * target.
  *
- * Arcs and wheels are admitted against the speed range of the gait they are ridden at, such as `AutoMovieArchetypeQuadrupedGait.range` gives, and refused with the radii that range allows. Headings are degrees about `+Y` from `+Z`, positive toward `+X`.
+ * Arcs and wheels are admitted against the speed range of the gait they are
+ * ridden at, such as `AutoMovieArchetypeQuadrupedGait.range` gives, and refused
+ * with the radii that range allows. Headings are degrees about `+Y` from `+Z`,
+ * positive toward `+X`.
  */
 export namespace AutoMovieArchetypeManoeuvre {
-  /**
-   * A gait's admitted speeds.
-   */
+  /** A gait's admitted speeds. */
   export interface ISpeedRange {
     /** The slowest admitted speed, metres per second. */
     minimum: number;
@@ -22,9 +27,7 @@ export namespace AutoMovieArchetypeManoeuvre {
     maximum: number;
   }
 
-  /**
-   * A circular arc ridden at an even rate.
-   */
+  /** A circular arc ridden at an even rate. */
   export interface IArc {
     /** The arc's centre on the floor, world metres. */
     centre: IAutoMovieVector3;
@@ -46,7 +49,8 @@ export namespace AutoMovieArchetypeManoeuvre {
   }
 
   /**
-   * A line wheeling about a centre: its files on one ray from the centre, each sweeping the same angle in the same time.
+   * A line wheeling about a centre: its files on one ray from the centre, each
+   * sweeping the same angle in the same time.
    */
   export interface IWheel {
     /** The wheel's centre on the floor, world metres. */
@@ -55,7 +59,10 @@ export namespace AutoMovieArchetypeManoeuvre {
     /** The bearing of the files' ray from the centre, degrees. */
     bearing: number;
 
-    /** The radius of the file nearest the centre, the pivot flank, metres, positive. */
+    /**
+     * The radius of the file nearest the centre, the pivot flank, metres,
+     * positive.
+     */
     inner: number;
 
     /** The distance from file to file along the ray, metres, positive. */
@@ -74,9 +81,7 @@ export namespace AutoMovieArchetypeManoeuvre {
     end: number;
   }
 
-  /**
-   * An interval of film seconds.
-   */
+  /** An interval of film seconds. */
   export interface IWindow {
     /** The first second. */
     from: number;
@@ -86,14 +91,18 @@ export namespace AutoMovieArchetypeManoeuvre {
   }
 
   /**
-   * An arc's samples, every `step` seconds and at its end, admitted against a gait's speeds.
+   * An arc's samples, every `step` seconds and at its end, admitted against a
+   * gait's speeds.
    *
    * @param archetype The name a refusal carries.
    * @param arc The arc.
    * @param range The gait's admitted speeds.
    * @param step Seconds between samples, positive.
    * @returns The samples in time order.
-   * @throws {AutoMovieArchetypeRefusal} On `radius` when the even speed, the swept length over the time, falls outside the range, with the radii that range allows over the same sweep and time; on `end` when the arc does not run forward.
+   * @throws {AutoMovieArchetypeRefusal} On `radius` when the even speed, the
+   *   swept length over the time, falls outside the range, with the radii that
+   *   range allows over the same sweep and time; on `end` when the arc does not
+   *   run forward.
    */
   export function arc(
     archetype: string,
@@ -119,7 +128,9 @@ export namespace AutoMovieArchetypeManoeuvre {
    * @param range The gait's admitted speeds.
    * @param step Seconds between samples, positive.
    * @returns Each file's samples.
-   * @throws {AutoMovieArchetypeRefusal} On `inner` when a file's speed falls outside the range, with the inner radii for which every file stays inside it; on `files` for a count that is not a positive whole number.
+   * @throws {AutoMovieArchetypeRefusal} On `inner` when a file's speed falls
+   *   outside the range, with the inner radii for which every file stays inside
+   *   it; on `files` for a count that is not a positive whole number.
    */
   export function wheel(
     archetype: string,
@@ -127,7 +138,7 @@ export namespace AutoMovieArchetypeManoeuvre {
     range: ISpeedRange,
     step: number,
   ): AutoMovieArchetypeCourse.ISample[][] {
-    if (!(Number.isInteger(wheel.files) && wheel.files >= 1))
+    if (!(wheel.files >= 1))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -156,10 +167,12 @@ export namespace AutoMovieArchetypeManoeuvre {
   }
 
   /**
-   * The samples of a station kept on a moving carrier: a point fixed in the carrier's frame, such as an escort beside a carriage's wheel.
+   * The samples of a station kept on a moving carrier: a point fixed in the
+   * carrier's frame, such as an escort beside a carriage's wheel.
    *
    * @param plan The carrier's course.
-   * @param offset The station in the carrier's frame, metres: `+X` its left, `+Z` ahead.
+   * @param offset The station in the carrier's frame, metres: `+X` its left,
+   *   `+Z` ahead.
    * @param from The first film second.
    * @param to The last film second, after `from`.
    * @param step Seconds between samples, positive.
@@ -186,14 +199,17 @@ export namespace AutoMovieArchetypeManoeuvre {
   }
 
   /**
-   * The samples of a place kept a fixed distance behind a leader along the leader's own path, as a string of animals tied head to tail follows its lead.
+   * The samples of a place kept a fixed distance behind a leader along the
+   * leader's own path, as a string of animals tied head to tail follows its
+   * lead.
    *
    * @param plan The leader's course.
    * @param gap The distance behind along the path, metres, at least 0.
    * @param from The first film second.
    * @param to The last film second, after `from`.
    * @param step Seconds between samples, positive.
-   * @returns The samples in time order; before the leader has gone `gap` the follower stands at the path's start.
+   * @returns The samples in time order; before the leader has gone `gap` the
+   *   follower stands at the path's start.
    */
   export function follow(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -209,7 +225,8 @@ export namespace AutoMovieArchetypeManoeuvre {
   }
 
   /**
-   * The windows in which a body on a course faces a target within a half angle of an aim direction, such as a rider loosing to the left.
+   * The windows in which a body on a course faces a target within a half angle
+   * of an aim direction, such as a rider loosing to the left.
    *
    * @param plan The body's course.
    * @param target The target on the floor, world metres.
@@ -218,7 +235,8 @@ export namespace AutoMovieArchetypeManoeuvre {
    * @param from The first film second.
    * @param to The last film second, after `from`.
    * @param step Seconds between readings, positive.
-   * @returns The windows in time order, their ends placed by bisection between readings.
+   * @returns The windows in time order, their ends placed by bisection between
+   *   readings.
    */
   export function facing(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -268,10 +286,16 @@ export namespace AutoMovieArchetypeManoeuvre {
   }
 }
 
-/** Halvings that place a window's end: forty shrink a one-step bracket below a picosecond. */
+/**
+ * Halvings that place a window's end: forty shrink a one-step bracket below a
+ * picosecond.
+ */
 const REFINE: number = 40;
 
-/** An arc's angular rate, radians per second, refusing a window that does not run forward. */
+/**
+ * An arc's angular rate, radians per second, refusing a window that does not
+ * run forward.
+ */
 function rate(
   archetype: string,
   arc: AutoMovieArchetypeManoeuvre.IArc,
@@ -292,7 +316,10 @@ function rate(
   );
 }
 
-/** Refuse a radius whose even speed, or that of a line `width` beyond it, leaves the range; name the radii it allows. */
+/**
+ * Refuse a radius whose even speed, or that of a line `width` beyond it, leaves
+ * the range; name the radii it allows.
+ */
 function admitSpeed(
   archetype: string,
   axis: string,
@@ -329,7 +356,10 @@ function around(
   };
 }
 
-/** Samples every `step` seconds from `from` and at `to`, each placed by its fraction of the window. */
+/**
+ * Samples every `step` seconds from `from` and at `to`, each placed by its
+ * fraction of the window.
+ */
 function sampled(
   from: number,
   to: number,
@@ -346,7 +376,10 @@ function sampled(
   return samples;
 }
 
-/** The inside end of a bracket between an outside second and an inside one, by bisection. */
+/**
+ * The inside end of a bracket between an outside second and an inside one, by
+ * bisection.
+ */
 function edge(
   inside: (seconds: number) => boolean,
   outside: number,

@@ -1,21 +1,3 @@
-# src/animals/QuadrupedCarriage.ts#QuadrupedCarriage
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States accessory/contact ownership, optional nod-selector vocabulary, neck/trunk policy, bone exclusion and identity/selector refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each non-bone part and affordance has one named carrier from the shared closed bone vocabulary, derived only from the species' declared nod selectors and its explicit trunk default.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The shared ride passes these two complete records to QuadrupedPose; source producers retain geometry/contact identities and AutoMovieArchetypeQuadrupedSkeleton owns rigid emission.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No nearest-bone geometry, coordinate threshold, species case, contact-name heuristic or fixture-specific attachment substitutes for the declared policy.
-
 # src/animals/QuadrupedCarriage.ts#QuadrupedCarriage.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

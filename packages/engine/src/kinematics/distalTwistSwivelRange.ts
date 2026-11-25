@@ -16,91 +16,98 @@ import { swivelArcs } from "./swivelArcs";
  *
  * The end joint cannot twist: its twist reads its fixed zero. With the mid
  * segment twisted by `r` about its long axis `u`, the end joint's local
- * rotation is `rest^-1 T(u, -r) K(s)`, `K(s)` the requested rotation seen
- * from the untwisted mid segment at swivel `s`, and its twist is the angle
- * `atan2(P, Q)` of two components of `T(u, -r) x(s)`, `x(s) = K(s) e` with
- * `e` the end joint's flexion axis (`solveDistalTwist` states the reading).
- * That twist stands at its zero where
+ * rotation is `rest^-1 T(u, -r) K(s)`, `K(s)` the requested rotation seen from
+ * the untwisted mid segment at swivel `s`, and its twist is the angle `atan2(P,
+ * Q)` of two components of `T(u, -r) x(s)`, `x(s) = K(s) e` with `e` the end
+ * joint's flexion axis (`solveDistalTwist` states the reading). That twist
+ * stands at its zero where
  *
  *     normal . T(u, -r) x(s) = 0   and   ahead . T(u, -r) x(s) > 0
  *
- * with `normal` and `ahead` the two fixed combinations of the end joint's
- * rest-carried axes that the zero's sine and cosine give. The first is
- * `A + B cos r + C sin r = 0` in the twist (Rodrigues' formula), at most two
- * twists, and the second keeps the one of them whose reading is the zero
- * itself, not the zero plus a half turn. So every swivel asks one twist
- * `r*(s)` of the mid segment, or none where `|A| > hypot(B, C)`.
+ * With `normal` and `ahead` the two fixed combinations of the end joint's
+ * rest-carried axes that the zero's sine and cosine give. The first is `A + B
+ * cos r + C sin r = 0` in the twist (Rodrigues' formula), at most two twists,
+ * and the second keeps the one of them whose reading is the zero itself, not
+ * the zero plus a half turn. So every swivel asks one twist `r*(s)` of the mid
+ * segment, or none where `|A| > hypot(B, C)`.
  *
- * `K(s)` is a fixed rotation, the swivel's turn about the root-to-target
- * line, and another fixed rotation, so every component of `x(s)` is
- * `a + b cos s + c sin s`, fitted exactly from three swivels. The twist asked
- * reaches an end `r0` of the range where `(T(u, r0) normal) . x(s) = 0`, a
- * sinusoid of the swivel with at most two roots, and the twist stops existing
- * where `|u . x(s)|` passes `|normal across u| / |normal|`, two more
- * sinusoids. The root kept changes only where both components of the reading
- * vanish, the twisted axis lying along `normal x ahead`, which needs
- * `|u . x(s)| = |u . (normal x ahead)| / |normal x ahead|`, two more. Between two neighbouring breakpoints the twist asked stays
- * inside the range or stays outside it, so one test at a point of an
- * interval decides the whole interval (the joint-limit intervals of the
- * swivel, Tolani, Goswami and Badler 2000, section 3.2).
+ * `K(s)` is a fixed rotation, the swivel's turn about the root-to-target line,
+ * and another fixed rotation, so every component of `x(s)` is `a + b cos s + c
+ * sin s`, fitted exactly from three swivels. The twist asked reaches an end
+ * `r0` of the range where `(T(u, r0) normal) . x(s) = 0`, a sinusoid of the
+ * swivel with at most two roots, and the twist stops existing where `|u .
+ * x(s)|` passes `|normal across u| / |normal|`, two more sinusoids. The root
+ * kept changes only where both components of the reading vanish, the twisted
+ * axis lying along `normal x ahead`, which needs `|u . x(s)| = |u . (normal x
+ * ahead)| / |normal x ahead|`, two more. Between two neighbouring breakpoints
+ * the twist asked stays inside the range or stays outside it, so one test at a
+ * point of an interval decides the whole interval (the joint-limit intervals of
+ * the swivel, Tolani, Goswami and Badler 2000, section 3.2).
  */
 export namespace distalTwistSwivelRange {
-  /**
-   * What the reader is given.
-   */
+  /** What the reader is given. */
   export interface IProps {
     /** The mid segment's twist axis in its own articulation frame, unit. */
     axis: IAutoMovieVector3;
 
-    /** The direction the twisted carried axis must be perpendicular to for the end joint's twist to read its zero or its zero plus a half turn, in the mid segment's twisted frame. */
+    /**
+     * The direction the twisted carried axis must be perpendicular to for the
+     * end joint's twist to read its zero or its zero plus a half turn, in the
+     * mid segment's twisted frame.
+     */
     normal: IAutoMovieVector3;
 
-    /** The direction the twisted carried axis must have a positive component on for the reading to be the zero itself, same frame. */
+    /**
+     * The direction the twisted carried axis must have a positive component on
+     * for the reading to be the zero itself, same frame.
+     */
     ahead: IAutoMovieVector3;
 
     /**
-     * The end joint's flexion axis under the requested rotation, seen from the untwisted mid segment at a swivel, degrees (`K(s) e`), unit.
+     * The end joint's flexion axis under the requested rotation, seen from the
+     * untwisted mid segment at a swivel, degrees (`K(s) e`), unit.
      */
     carried: (swivel: number) => IAutoMovieVector3;
 
-    /** The mid segment's twist range about `axis`, rest-relative degrees, the lesser first. */
+    /**
+     * The mid segment's twist range about `axis`, rest-relative degrees, the
+     * lesser first.
+     */
     range: readonly [number, number];
   }
 
-  /**
-   * The swivels' admission by the twist range.
-   */
+  /** The swivels' admission by the twist range. */
   export interface IRange {
     /** The swivels, degrees in [0, 360), at which the admission may change. */
     breaks: number[];
 
     /**
-     * Whether the twist asked at a swivel, degrees, exists and lies inside the range.
+     * Whether the twist asked at a swivel, degrees, exists and lies inside the
+     * range.
      */
     admits: (swivel: number) => boolean;
 
     /**
-     * A certified lower bound, degrees, of how far any pose the two joints
-     * can show misses the requested end rotation over the swivels from `low`
-     * to `high` degrees, never negative. Given the end joint's middle-angle
+     * A certified lower bound, degrees, of how far any pose the two joints can
+     * show misses the requested end rotation over the swivels from `low` to
+     * `high` degrees, never negative. Given the end joint's middle-angle
      * interval (its abduction, rest-relative degrees within a quarter turn
      * either way) and the sense of `axis` along the mid segment (1 when it
-     * points toward the end joint, -1 when away from it), where the end
-     * joint's rest carries its right-handed twist axis onto the mid
-     * segment's direction (`distalEndSwivelReadings`' own premise): with the
-     * mid segment twisted by `r` and the end joint
-     * abducted by `a`, the shown rotation carries the end joint's flexion
-     * axis to `T(axis, r) (cos a ahead - sense sin a axis)`, a rectangle of
-     * latitudes `a` about `axis` and longitudes `r` from `ahead`, while the
-     * requested rotation carries it to the carried axis `x(s)`. A rotation
-     * by an angle moves no unit vector by more than that angle, so the miss
-     * is at least the spherical distance from `x(s)` to that rectangle
+     * points toward the end joint, -1 when away from it), where the end joint's
+     * rest carries its right-handed twist axis onto the mid segment's direction
+     * (`distalEndSwivelReadings`' own premise): with the mid segment twisted by
+     * `r` and the end joint abducted by `a`, the shown rotation carries the end
+     * joint's flexion axis to `T(axis, r) (cos a ahead - sense sin a axis)`, a
+     * rectangle of latitudes `a` about `axis` and longitudes `r` from `ahead`,
+     * while the requested rotation carries it to the carried axis `x(s)`. A
+     * rotation by an angle moves no unit vector by more than that angle, so the
+     * miss is at least the spherical distance from `x(s)` to that rectangle
      * (`sphericalBoxMiss`); `x(s)` moves by at most its circle's radius per
-     * unit of swivel, so over an interval the bound is its value at the
-     * middle less the radius times the half width, lowered by twice the
-     * joints' tolerance (`ROM_TOLERANCE`), within which each of the two
-     * angles may stand past its interval. Its premise is `ahead` unit and
-     * perpendicular to `axis`.
+     * unit of swivel, so over an interval the bound is its value at the middle
+     * less the radius times the half width, lowered by twice the joints'
+     * tolerance (`ROM_TOLERANCE`), within which each of the two angles may
+     * stand past its interval. Its premise is `ahead` unit and perpendicular to
+     * `axis`.
      */
     miss: (
       middle: readonly [number, number],
@@ -111,7 +118,8 @@ export namespace distalTwistSwivelRange {
   /**
    * Read the twist range over a turn of the swivel.
    *
-   * @param props The twist axis, the zero-twist directions, the carried axis by swivel and the range.
+   * @param props The twist axis, the zero-twist directions, the carried axis by
+   *   swivel and the range.
    * @returns The breakpoints and the admission test.
    */
   export function of(props: IProps): IRange {
@@ -119,18 +127,23 @@ export namespace distalTwistSwivelRange {
     const D: number = Quaternion.DEG2RAD;
 
     // x(s) = a + b cos s + c sin s, component by component.
-    const [zero, quarter, half] = [0, 90, 180].map(props.carried) as [
-      IAutoMovieVector3,
-      IAutoMovieVector3,
-      IAutoMovieVector3,
-    ];
+    const carried: IProps["carried"] = props.carried;
+    const zero: IAutoMovieVector3 = carried(0);
+    const quarter: IAutoMovieVector3 = carried(90);
+    const half: IAutoMovieVector3 = carried(180);
     const fit = (
       pick: (v: IAutoMovieVector3) => number,
     ): IAutoMovieSwivelArcs.ISinusoid =>
       swivelArcs.fitted(pick(zero), pick(quarter), pick(half));
-    const onX: IAutoMovieSwivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.x);
-    const onY: IAutoMovieSwivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.y);
-    const onZ: IAutoMovieSwivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.z);
+    const onX: IAutoMovieSwivelArcs.ISinusoid = fit(
+      (v: IAutoMovieVector3): number => v.x,
+    );
+    const onY: IAutoMovieSwivelArcs.ISinusoid = fit(
+      (v: IAutoMovieVector3): number => v.y,
+    );
+    const onZ: IAutoMovieSwivelArcs.ISinusoid = fit(
+      (v: IAutoMovieVector3): number => v.z,
+    );
     const along = (n: IAutoMovieVector3): IAutoMovieSwivelArcs.ISinusoid => ({
       a: n.x * onX.a + n.y * onY.a + n.z * onZ.a,
       b: n.x * onX.b + n.y * onY.b + n.z * onZ.b,

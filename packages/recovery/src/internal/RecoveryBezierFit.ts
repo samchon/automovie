@@ -17,16 +17,18 @@ const add: typeof M.add = M.add,
 
 /**
  * Fits physical ordered observations with adaptive tangent-constrained cubics.
- * Schneider's original Graphics Gems implementation is the algorithmic reference:
+ * Schneider's original Graphics Gems implementation is the algorithmic
+ * reference:
  * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c .
  */
 export namespace RecoveryBezierFit {
   /**
-   * Solve endpoint handle lengths, refine monotone parameters and split the worst interval.
-   * Smooth adaptive joins are G1; physical phase widths do not enforce equal derivative magnitude.
-   * Declared corners retain independent one-sided tangents. Repeated adjacent points reject.
-   * An optional observer receives accepted span-local parameters and private input-point
-   * ranges without changing coefficients or adding source addresses to the result.
+   * Solve endpoint handle lengths, refine monotone parameters and split the
+   * worst interval. Smooth adaptive joins are G1; physical phase widths do not
+   * enforce equal derivative magnitude. Declared corners retain independent
+   * one-sided tangents. Repeated adjacent points reject. An optional observer
+   * receives accepted span-local parameters and private input-point ranges
+   * without changing coefficients or adding source addresses to the result.
    */
   export function fit(
     input: IAutoMoviePolylineFitInput,
@@ -43,18 +45,10 @@ export namespace RecoveryBezierFit {
     const n: number = source.length;
     if (
       n < (input.closed ? 3 : 2) ||
-      !source.every(
-        (p: AutoMovieVector3Tuple): boolean =>
-          p.length === 3 && p.every(Number.isFinite),
-      )
+      !source.every((p: AutoMovieVector3Tuple): boolean => p.length === 3)
     )
       throw new Error("Fitting needs finite ordered physical observations");
-    if (
-      !(input.toleranceMm > 0) ||
-      !Number.isFinite(input.toleranceMm) ||
-      !Number.isSafeInteger(input.maxSpans) ||
-      input.maxSpans < 1
-    )
+    if (!(input.toleranceMm > 0) || input.maxSpans < 1)
       throw new Error(
         "Fitting needs a positive tolerance and integer span budget",
       );
@@ -70,11 +64,7 @@ export namespace RecoveryBezierFit {
     for (let i: number = 1; i < points.length; i++) {
       const length: number = distance(points[i - 1]!, points[i]!);
       const total: number = cumulative[i - 1]! + length;
-      if (
-        !(length > 0) ||
-        !Number.isFinite(total) ||
-        total <= cumulative[i - 1]!
-      )
+      if (!(length > 0) || total === Infinity || total <= cumulative[i - 1]!)
         throw new Error(
           "Adjacent observations collapse or physical length is unresolved",
         );
@@ -82,7 +72,7 @@ export namespace RecoveryBezierFit {
     }
     const knots: Set<number> = new Set([0, points.length - 1]);
     for (const corner of input.corners) {
-      if (!Number.isSafeInteger(corner) || corner < 0 || corner >= n)
+      if (corner < 0 || corner >= n)
         throw new Error("Corner index does not address an observation");
       knots.add(corner);
     }
@@ -143,12 +133,7 @@ export namespace RecoveryBezierFit {
         );
       const total: number = u[u.length - 1]!;
       for (let i: number = 1; i < u.length; i++) u[i] = u[i]! / total;
-      if (
-        !u.every(
-          (x: number, i: number): boolean =>
-            Number.isFinite(x) && (i === 0 || x > u[i - 1]!),
-        )
-      )
+      if (!u.every((x: number, i: number): boolean => i === 0 || x > u[i - 1]!))
         throw new Error("Fitting parameter intervals are not representable");
       const arc: number = cumulative[job.last]! - cumulative[job.first]!;
       const weights: number[] = p.map(
@@ -185,11 +170,7 @@ export namespace RecoveryBezierFit {
             a: AutoMovieVector3Tuple = B.value(dd, u[i]!);
           const denominator: number = dot(v, v) + dot(q, a);
           const candidate: number = u[i]! - dot(q, v) / denominator;
-          if (
-            Number.isFinite(candidate) &&
-            candidate > u[i - 1]! &&
-            candidate < u[i + 1]!
-          )
+          if (candidate > u[i - 1]! && candidate < u[i + 1]!)
             next[i] = candidate;
         }
         if (
@@ -215,7 +196,8 @@ export namespace RecoveryBezierFit {
       }
       if (errors.bound <= input.toleranceMm || p.length === 2) {
         observeCorrespondence?.(spans.length, job.first, job.last, u.slice());
-        spans.push(controls as unknown as AutoMovieCubicBezierControls3);
+        // A cubic fit carries exactly four Bernstein controls.
+        spans.push([controls[0]!, controls[1]!, controls[2]!, controls[3]!]);
         widths.push(cumulative[job.last]! - cumulative[job.first]!);
         sampleMaximumMm = Math.max(sampleMaximumMm, errors.sample);
         polylineUpperEstimateMm = Math.max(
@@ -264,10 +246,7 @@ export namespace RecoveryBezierFit {
     };
   }
 
-  /**
-   * Solve arclength-weighted two-handle normal equations in the physical chart.
-   *
-   */
+  /** Solve arclength-weighted two-handle normal equations in the physical chart. */
   function solve(
     p: AutoMovieVector3Tuple[],
     u: number[],
@@ -307,7 +286,7 @@ export namespace RecoveryBezierFit {
     const fallback: boolean =
       !(determinant > 64 * Number.EPSILON * aa * bb) ||
       !(alpha > 0 && beta > 0) ||
-      !Number.isFinite(alpha + beta);
+      alpha + beta === Infinity;
     if (fallback) {
       alpha = distance(start, end) / 3;
       beta = alpha;
@@ -324,8 +303,8 @@ export namespace RecoveryBezierFit {
   }
 
   /**
-   * Restrict each matched chord interval and bound its elevated polynomial difference.
-   *
+   * Restrict each matched chord interval and bound its elevated polynomial
+   * difference.
    */
   function error(
     p: AutoMovieVector3Tuple[],
@@ -357,23 +336,17 @@ export namespace RecoveryBezierFit {
         split = i + 1;
       }
     }
-    if (!Number.isFinite(sample + bound))
+    if (sample + bound === Infinity)
       throw new Error("Curve fitting arithmetic is unresolved");
     return { sample, bound, split };
   }
 
-  /**
-   * Dot product for the physical least-squares and Newton equations.
-   *
-   */
+  /** Dot product for the physical least-squares and Newton equations. */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /**
-   * Euclidean point distance in millimetres.
-   *
-   */
+  /** Euclidean point distance in millimetres. */
   function distance(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -381,13 +354,10 @@ export namespace RecoveryBezierFit {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 
-  /**
-   * Normalize a measurable tangent without inventing a direction at degeneracy.
-   *
-   */
+  /** Normalize a measurable tangent without inventing a direction at degeneracy. */
   function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const length: number = Math.hypot(...a);
-    if (!(length > 0) || !Number.isFinite(length))
+    if (!(length > 0) || length === Infinity)
       throw new Error("Observation tangent is unresolved");
     return scale(a, 1 / length);
   }

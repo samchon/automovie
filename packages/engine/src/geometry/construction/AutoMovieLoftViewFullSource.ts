@@ -70,8 +70,15 @@ export namespace AutoMovieLoftViewFullSource {
         source.caps.length !== 0,
       );
       if (error !== null) throw new AutoMovieLoftAdmissionError(error);
-      if (original.interior === true && (!hasRegularSpan || original.domain[0] < regular[0] || original.domain[1] > regular[1]))
-        throw new AutoMovieLoftAdmissionError("The interior original section overlaps an original cap.");
+      if (
+        original.interior === true &&
+        (!hasRegularSpan ||
+          original.domain[0] < regular[0] ||
+          original.domain[1] > regular[1])
+      )
+        throw new AutoMovieLoftAdmissionError(
+          "The interior original section overlaps an original cap.",
+        );
     }
     const reliefs = [...AutoMovieLoftReliefCompose.sources(input)];
     const scalar: ReturnType<typeof AutoMovieLoftViewRead.prepare> =
@@ -130,7 +137,7 @@ export namespace AutoMovieLoftViewFullSource {
         local: pole
           ? null
           : external
-            ? original!.pointAt?.(s) ?? ((t) => original!.point(s, t))
+            ? (original!.pointAt?.(s) ?? ((t) => original!.point(s, t)))
             : AutoMovieLoftSectionNative.point(values!),
       };
     };

@@ -7,9 +7,15 @@ import type { IAutoMovieMeshGroup } from "./IAutoMovieMeshGroup";
  * still address a member after the buffers were concatenated.
  */
 export interface IAutoMovieMeshAssembly {
-  /** The merged rigid mesh, members placed by their transforms and concatenated in declaration order. */
+  /**
+   * The merged rigid mesh, members placed by their transforms and concatenated
+   * in declaration order.
+   */
   mesh: IAutoMovieMesh;
 
-  /** One index range per contributing member, in declaration order, covering the whole index buffer without gaps. */
+  /**
+   * One index range per contributing member, in declaration order, covering the
+   * whole index buffer without gaps.
+   */
   groups: IAutoMovieMeshGroup[];
 }

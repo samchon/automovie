@@ -13,43 +13,33 @@ import { WorkoutKind } from "./WorkoutKind";
 import { prepareWorkoutKeyFrames } from "./prepareWorkoutKeyFrames";
 
 /**
- * The exercises of the workout law done on the hands and the toes or feet
- * (#3378): the push-up, the plank, the mountain climber, the burpee, the
- * downward dog and the cobra.
+ * The exercises of the workout law done on the hands and the toes or feet : the
+ * push-up, the plank, the mountain climber, the burpee, the downward dog and
+ * the cobra.
  *
- * A prone support's pitch is solved on the body: the shoulders stand a share
- * of the arm's length above the floor over the toes (`plank`). Every other
- * angle is provisional, read off the exercise's usual description (ACSM's
- * Guidelines, 11th ed.; NSCA's Essentials of Strength Training, 4th ed.).
+ * A prone support's pitch is solved on the body: the shoulders stand a share of
+ * the arm's length above the floor over the toes (`plank`). Every other angle
+ * is provisional, read off the exercise's usual description (ACSM's Guidelines,
+ * 11th ed.; NSCA's Essentials of Strength Training, 4th ed.).
  *
  * First pass: the palms are laid where the first posture's angles put the
  * hands, so a body whose proportions differ from the keys' shows it in the
  * elbows; a burpee has no jump.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what is solved, what is provisional with its sources and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table and the one solved angle it shares.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; heights and pitches follow from the body's measure.
  */
 export namespace WorkoutFloor {
-  /** The share of the straight arm's length the shoulders stand above the floor in a plank (provisional): the elbows a little soft. */
+  /**
+   * The share of the straight arm's length the shoulders stand above the floor
+   * in a plank (provisional): the elbows a little soft.
+   */
   export const REACH: number = 0.95;
 
   /**
-   * The whole-body pitch of a straight body on its toes with the shoulders
-   * at a height.
+   * The whole-body pitch of a straight body on its toes with the shoulders at a
+   * height.
    *
    * @param body The body.
    * @param height The shoulders' height above the floor, metres.
    * @returns Degrees; 90 is level.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and what 90 means.
-   * @evidence contracts/development/implementation.md#principled-implementation The body from the ankles to the shoulders is a straight line of the standing length between them, raised at its shoulder end by the height.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One arcsine.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The toes' own height is neglected against the body's length, so the palms are laid by the arm's solve and not by this angle.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function plank(
     body: IAutoMovieMotionHumanBody,
@@ -61,21 +51,13 @@ export namespace WorkoutFloor {
   }
 
   /**
-   * The key of a family of keys by pitch whose shoulders stand a height
-   * above its toes' joints.
+   * The key of a family of keys by pitch whose shoulders stand a height above
+   * its toes' joints.
    *
    * @param body The body.
    * @param height The shoulders' height above the toes' joints, metres.
    * @param key The key at a pitch, degrees.
    * @returns The key whose pitch gives that height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The height is read by forward kinematics of the key itself, feet and toes included, so the foot stood on its toes raises the ankles as it does on the body; the first pass measured 0.2 m of error from treating the body as a line from the ankles.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the pitch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 10 degrees (nearly upright, the hands on something high) and 150 (the head lower than the feet, the feet on something high); a height outside what that range gives ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each of the unchanged twenty pitch trials resolves one requested shoulder/toe bone map instead of separate full maps for the two means.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both height means read one exact trial map. Fixed name demand and genuine same-search FK/ROM metadata share only checked prerequisites; every arbitrary key callback's current clinical angles still resolve normally, with no source-shape inference, height or FK answer reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed-name/exact FK readers and bounded ROM metadata end on return or throw; no trial pose/map escapes and only the final authored key returns.
    */
   export function pitched(
     body: IAutoMovieMotionHumanBody,
@@ -115,23 +97,16 @@ export namespace WorkoutFloor {
   ]);
 
   /**
-   * The key of a family of keys by roll that rests on its side on two
-   * supports at once: the roll at which the lowest point of the `on`
-   * colliders lies level with the lowest point of the `with` colliders, as
-   * a side plank lies on its forearm and its feet.
+   * The key of a family of keys by roll that rests on its side on two supports
+   * at once: the roll at which the lowest point of the `on` colliders lies
+   * level with the lowest point of the `with` colliders, as a side plank lies
+   * on its forearm and its feet.
    *
    * @param body The body.
-   * @param on The bones that bear besides the feet, such as a forearm and its hand.
+   * @param on The bones that bear besides the feet, such as a forearm and its
+   *   hand.
    * @param key The key at a roll, degrees; negative tips the body to its left.
    * @returns The key at that roll.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, the inputs, the sign and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A body on two supports rests on both, so the roll is the one that puts both on the floor, read by forward kinematics of the key on the body's own colliders, the reading the floor audit makes; a straight line from the feet to the shoulder, as `plank` models a prone support, leaves the forearm's thickness and the hand's place out.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the roll.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The roll is sought between upright and lying on the side; a support that cannot reach the floor in that range ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The two collider groups (the bearing bones the pattern names, and the feet) and their neutral entries are prepared once for the twenty trials; each trial resolves its key and reads both groups' exact minima in one pass (`HumanColliders.prepareMinima`).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The collider floor minimum is the colliders' owner's; only the unchanged body's group membership and same-search FK/ROM metadata share, and each key is observed in full.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed native collider-entry metadata, exact FK reader and bounded ROM metadata end with this synchronous search; only the final authored key returns, without a selector observation, trial map or workspace retained.
    */
   export function rolled(
     body: IAutoMovieMotionHumanBody,
@@ -170,7 +145,11 @@ export namespace WorkoutFloor {
     return key((upright + side) / 2);
   }
 
-  /** The top of a push-up: a straight body on the toes and the straight arms; the hands `raise` degrees out, the relaxed arm's abduction when unstated (`stand.abduction`). */
+  /**
+   * The top of a push-up: a straight body on the toes and the straight arms;
+   * the hands `raise` degrees out, the relaxed arm's abduction when unstated
+   * (`stand.abduction`).
+   */
   const top = (
     body: IAutoMovieMotionHumanBody,
     raise: number = stand.abduction(body),
@@ -186,7 +165,12 @@ export namespace WorkoutFloor {
         ),
     );
 
-  /** The bottom of a push-up: the same line lowered until the upper arms are level, the shoulders at the elbows' height over upright forearms (NSCA's description of the bottom position); the hands `raise` degrees out as at the top. */
+  /**
+   * The bottom of a push-up: the same line lowered until the upper arms are
+   * level, the shoulders at the elbows' height over upright forearms (NSCA's
+   * description of the bottom position); the hands `raise` degrees out as at
+   * the top.
+   */
   const bottom = (
     body: IAutoMovieMotionHumanBody,
     raise: number = stand.abduction(body),
@@ -267,7 +251,10 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /** A mountain climber: from the plank, one knee driven to the chest, alternating; the hands bear and stay. */
+    /**
+     * A mountain climber: from the plank, one knee driven to the chest,
+     * alternating; the hands bear and stay.
+     */
     mountainClimber: {
       base: "leaning",
       anchor: "hips",
@@ -307,7 +294,10 @@ export namespace WorkoutFloor {
       },
     },
 
-    /** A burpee without its jump: a crouch on the hands, the feet shot back to the plank and brought in again. */
+    /**
+     * A burpee without its jump: a crouch on the hands, the feet shot back to
+     * the plank and brought in again.
+     */
     burpee: {
       base: "leaning",
       anchor: "hips",
@@ -350,7 +340,10 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /** The downward dog of yoga: the hips high over the flat feet and the hands, held 15 s (provisional). */
+    /**
+     * The downward dog of yoga: the hips high over the flat feet and the hands,
+     * held 15 s (provisional).
+     */
     downwardDog: {
       base: "leaning",
       anchor: "hips",
@@ -374,7 +367,10 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /** The cobra of yoga: lying face down, the chest raised over the hands, held 10 s (provisional). */
+    /**
+     * The cobra of yoga: lying face down, the chest raised over the hands, held
+     * 10 s (provisional).
+     */
     cobra: {
       base: "lying",
       anchor: "hips",

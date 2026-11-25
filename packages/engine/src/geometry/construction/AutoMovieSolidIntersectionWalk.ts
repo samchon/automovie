@@ -8,9 +8,9 @@ import type {
   IAutoMovieSolidTraceLaw,
 } from "@automovie/interface";
 
-import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
+import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
@@ -23,11 +23,19 @@ type IPoint = IAutoMovieSolidIntersection.IPoint;
 /** The oriented unit world tangent and its two original chart rates per mm. */
 type Heading = { world: Vec3; chart: AutoMovieSolidChartVector4 };
 /** World-vector operations for the original tangent and predictor equations. */
-const { add, cross, dot, norm, scale, solve2, sub }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
+const {
+  add,
+  cross,
+  dot,
+  norm,
+  scale,
+  solve2,
+  sub,
+}: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
- * Original arc-mode loop preparation, separate from parameterized trace publication.
+ * Original arc-mode loop preparation, separate from parameterized trace
+ * publication.
  */
 export namespace AutoMovieSolidIntersectionWalk {
   /**
@@ -35,23 +43,23 @@ export namespace AutoMovieSolidIntersectionWalk {
    * measure its polygonal length and once in equal chords, then make the
    * reference-guide law used for requested normalized arclength.
    *
-   * Each step predicts `P + h T` along the curve's unit tangent
-   * `T = n_A x n_B` (turned with the previous) and corrects on the plane
-   * square to `T` through the prediction. The same chord advances both
-   * original chart addresses by the pullbacks of `T`; the first walk halves a step that
-   * fails or lands more than a quarter step off, and ends where the start
-   * lies ahead within a step; the second takes `walkPoints * count` equal
-   * steps of that length. The first step's length is the arc a part ring
-   * step covers there, `|A_phi| 2 pi / count`.
+   * Each step predicts `P + h T` along the curve's unit tangent `T = n_A x n_B`
+   * (turned with the previous) and corrects on the plane square to `T` through
+   * the prediction. The same chord advances both original chart addresses by
+   * the pullbacks of `T`; the first walk halves a step that fails or lands more
+   * than a quarter step off, and ends where the start lies ahead within a step;
+   * the second takes `walkPoints * count` equal steps of that length. The first
+   * step's length is the arc a part ring step covers there, `|A_phi| 2 pi /
+   * count`.
    *
    * The internal caller supplies captured count/tolerance values and the
-   * unchanged public controls (64 first-walk steps per target, 4 guide
-   * points per target and 6 closing trials). Valid finite counts, host-face
-   * indices and regular callback jets remain premises, not new admissions.
-   * Failed first walks retain at most the two actual terminal direction
-   * contexts. A chord must advance in the directed physical tangent. Distinct
-   * local addresses can map to the same representable world point. A
-   * representable chord can continue through any admitted atlas face.
+   * unchanged public controls (64 first-walk steps per target, 4 guide points
+   * per target and 6 closing trials). Valid finite counts, host-face indices
+   * and regular callback jets remain premises, not new admissions. Failed first
+   * walks retain at most the two actual terminal direction contexts. A chord
+   * must advance in the directed physical tangent. Distinct local addresses can
+   * map to the same representable world point. A representable chord can
+   * continue through any admitted atlas face.
    *
    * @returns The walk, or why it failed.
    */
@@ -65,7 +73,10 @@ export namespace AutoMovieSolidIntersectionWalk {
     walkPoints: number,
     closingSteps: number,
   ): IAutoMovieSolidIntersectionWalk.IWalk | string {
-    /** Read the two original jets and resolve one directed world tangent in both charts. */
+    /**
+     * Read the two original jets and resolve one directed world tangent in both
+     * charts.
+     */
     const tangent = (
       p: IPoint,
       along: Vec3,
@@ -80,21 +91,45 @@ export namespace AutoMovieSolidIntersectionWalk {
         p.y,
         p.theta,
       );
-      if (a === null || b === null) return Observation.fail(observation, a === null ? "part-jet-unavailable" : "host-jet-unavailable", [p.s, p.phi, p.y, p.theta], p.face, { part: a, host: b });
+      if (a === null || b === null)
+        return Observation.fail(
+          observation,
+          a === null ? "part-jet-unavailable" : "host-jet-unavailable",
+          [p.s, p.phi, p.y, p.theta],
+          p.face,
+          { part: a, host: b },
+        );
 
       /** Original normalized intersection tangent, absent at degeneracy. */
       const t: Vec3 | null = AutoMovieSolidVector.unit(
         cross(cross(a.u, a.v), cross(b.u, b.v)),
       );
-      if (t === null) return Observation.fail(observation, "singular-tangent", [p.s, p.phi, p.y, p.theta], p.face, { part: a, host: b });
+      if (t === null)
+        return Observation.fail(
+          observation,
+          "singular-tangent",
+          [p.s, p.phi, p.y, p.theta],
+          p.face,
+          { part: a, host: b },
+        );
       const world: Vec3 = dot(t, along) < 0 ? scale(t, -1) : t;
       const pullback = ({ u, v }: IJet): [number, number] | null => {
         const mixed: number = dot(u, v);
-        return solve2(dot(u, u), mixed, mixed, dot(v, v), [dot(u, world), dot(v, world)]);
+        return solve2(dot(u, u), mixed, mixed, dot(v, v), [
+          dot(u, world),
+          dot(v, world),
+        ]);
       };
-      const pa = pullback(a), pb = pullback(b);
+      const pa = pullback(a),
+        pb = pullback(b);
       if (pa === null || pb === null || ![...pa, ...pb].every(Number.isFinite))
-        return Observation.fail(observation, "singular-first-rate", [p.s, p.phi, p.y, p.theta], p.face, { part: a, host: b });
+        return Observation.fail(
+          observation,
+          "singular-first-rate",
+          [p.s, p.phi, p.y, p.theta],
+          p.face,
+          { part: a, host: b },
+        );
       return { world, chart: [...pa, ...pb] };
     };
 
@@ -153,17 +188,27 @@ export namespace AutoMovieSolidIntersectionWalk {
     );
     if (start === null) return "no meeting near the seed";
 
-    /** The corrected meeting owns both rates used for all initial chord attempts. */
+    /**
+     * The corrected meeting owns both rates used for all initial chord
+     * attempts.
+     */
     const T0: Heading | null = tangent(start, t0);
-    if (T0 === null) return "the corrected seed has no regular continuation on both original charts";
-    const heading = (sense: 1 | -1): Heading => sense === 1 ? T0 : {
-      world: scale(T0.world, -1),
-      chart: [-T0.chart[0], -T0.chart[1], -T0.chart[2], -T0.chart[3]],
-    };
+    if (T0 === null)
+      return "the corrected seed has no regular continuation on both original charts";
+    const heading = (sense: 1 | -1): Heading =>
+      sense === 1
+        ? T0
+        : {
+            world: scale(T0.world, -1),
+            chart: [-T0.chart[0], -T0.chart[1], -T0.chart[2], -T0.chart[3]],
+          };
 
     // One step of length h from a point along its tangent.
 
-    /** Original tangent prediction and correction, including its branch-distance acceptance. */
+    /**
+     * Original tangent prediction and correction, including its branch-distance
+     * acceptance.
+     */
     const step: (
       p: IPoint,
       T: Heading,
@@ -177,22 +222,41 @@ export namespace AutoMovieSolidIntersectionWalk {
       observation?: Observation.IState,
       halving: number = 0,
     ): IPoint | null => {
-      /** The same physical chord advances the world point and both unwrapped chart addresses. */
+      /**
+       * The same physical chord advances the world point and both unwrapped
+       * chart addresses.
+       */
       const predicted: Vec3 = add(p.point, scale(T.world, h));
       const [ds, dphi, dy, dtheta] = T.chart;
       const guess: AutoMovieSolidChartVector4 = [
-        p.s + h * ds, p.phi + h * dphi, p.y + h * dy, p.theta + h * dtheta,
+        p.s + h * ds,
+        p.phi + h * dphi,
+        p.y + h * dy,
+        p.theta + h * dtheta,
       ];
 
-      if (observation !== undefined) observation.step = {
-        h, predicted, tangent: T.world, guess, halving, distance: null, allowance: null,
-      };
+      if (observation !== undefined)
+        observation.step = {
+          h,
+          predicted,
+          tangent: T.world,
+          guess,
+          halving,
+          distance: null,
+          allowance: null,
+        };
       const chart: AutoMovieSolidChartVector4 = [p.s, p.phi, p.y, p.theta];
       const stagnant = (): null => {
         const domain = part.domain;
-        const exitsPart: boolean = domain !== undefined &&
+        const exitsPart: boolean =
+          domain !== undefined &&
           ((p.s === domain[0] && ds < 0) || (p.s === domain[1] && ds > 0));
-        return Observation.fail(observation, exitsPart ? "walk-part-bound" : "walk-no-progress", chart, p.face);
+        return Observation.fail(
+          observation,
+          exitsPart ? "walk-part-bound" : "walk-no-progress",
+          chart,
+          p.face,
+        );
       };
       if (!(dot(sub(predicted, p.point), T.world) > 0)) return stagnant();
 
@@ -211,26 +275,42 @@ export namespace AutoMovieSolidIntersectionWalk {
       const distance: number = norm(sub(next.point, predicted));
       const allowance: number = 0.25 * h + 10 * tolerance;
       if (observation?.step !== undefined && observation.step !== null) {
-        observation.step.distance = distance; observation.step.allowance = allowance;
+        observation.step.distance = distance;
+        observation.step.allowance = allowance;
       }
       // Chart movement or a smaller residual does not advance the
       // pseudo-arclength plane unless the corrected point moves forward.
       if (!(dot(sub(next.point, p.point), T.world) > 0)) return stagnant();
-      return distance <= allowance ? next : Observation.fail(observation, "branch-distance", [next.s, next.phi, next.y, next.theta], next.face);
+      return distance <= allowance
+        ? next
+        : Observation.fail(
+            observation,
+            "branch-distance",
+            [next.s, next.phi, next.y, next.theta],
+            next.face,
+          );
     };
 
     // The first walk: the loop's length.
 
-    /** Original phase-sized initial chord, reduced only by existing failed halvings. */
+    /**
+     * Original phase-sized initial chord, reduced only by existing failed
+     * halvings.
+     */
     const stride: number = (norm(a0.v) * 2 * Math.PI) / count;
 
     /**
-     * The first walk round the loop from the seed, along `T0` times `sense`: the loop's length, or why it failed. A closed loop is the same
-     * curve walked either way, and a point where the two surfaces nearly touch can be passed from one side when it loses the walk from the
-     * other: an ear's mirrored hollow lost its walk at the point its twin passes, the twin walking it the other way round.
+     * The first walk round the loop from the seed, along `T0` times `sense`:
+     * the loop's length, or why it failed. A closed loop is the same curve
+     * walked either way, and a point where the two surfaces nearly touch can be
+     * passed from one side when it loses the walk from the other: an ear's
+     * mirrored hollow lost its walk at the point its twin passes, the twin
+     * walking it the other way round.
      */
     const directions: Observation.IDirection[] = [];
-    const around: (sense: 1 | -1) => number | string = (sense: 1 | -1): number | string => {
+    const around: (sense: 1 | -1) => number | string = (
+      sense: 1 | -1,
+    ): number | string => {
       let h: number = stride;
 
       /** Current accepted point of the first length walk. */
@@ -245,14 +325,34 @@ export namespace AutoMovieSolidIntersectionWalk {
       let attempt: Observation.IState | null = null;
       let before: IPoint | null = null;
 
-      /** Detach only the terminal predecessor, accepted state and attempt before the other direction runs. */
-      const retain: (reason: Observation.Reason) => void = (reason: Observation.Reason): void => {
+      /**
+       * Detach only the terminal predecessor, accepted state and attempt before
+       * the other direction runs.
+       */
+      const retain: (reason: Observation.Reason) => void = (
+        reason: Observation.Reason,
+      ): void => {
         const tried: Observation.IDirection["step"] = attempt?.step ?? null;
-        const address = (at: IPoint): Observation.IDirection["last"] =>
-          ({ chart: [at.s, at.phi, at.y, at.theta], point: [...at.point], face: at.face });
-        directions.push({ sense, reason, length, last: address(p), before: before === null ? null : address(before),
-          step: tried === null ? null : { ...tried, predicted: [...tried.predicted],
-            tangent: [...tried.tangent], guess: [...tried.guess] },
+        const address = (at: IPoint): Observation.IDirection["last"] => ({
+          chart: [at.s, at.phi, at.y, at.theta],
+          point: [...at.point],
+          face: at.face,
+        });
+        directions.push({
+          sense,
+          reason,
+          length,
+          last: address(p),
+          before: before === null ? null : address(before),
+          step:
+            tried === null
+              ? null
+              : {
+                  ...tried,
+                  predicted: [...tried.predicted],
+                  tangent: [...tried.tangent],
+                  guess: [...tried.guess],
+                },
           solve: attempt?.failure ?? null,
         });
       };
@@ -279,8 +379,11 @@ export namespace AutoMovieSolidIntersectionWalk {
           before = p;
           next = step(p, T, h, attempt, halving);
           const reason = attempt.failure?.reason;
-          if ((reason === "walk-no-progress" || reason === "walk-part-bound") &&
-              attempt.step?.distance === null) break;
+          if (
+            (reason === "walk-no-progress" || reason === "walk-part-bound") &&
+            attempt.step?.distance === null
+          )
+            break;
           if (next === null) h /= 2;
         }
         if (next === null) {
@@ -296,20 +399,27 @@ export namespace AutoMovieSolidIntersectionWalk {
 
         /** Continue the first walk with the same tangent orientation. */
         const t: Heading | null = tangent(p, T.world, attempt ?? undefined);
-        if (t === null) { retain(attempt?.failure?.reason ?? "singular-tangent"); return `the original charts have no regular continuation ${length} mm along the walk`; }
+        if (t === null) {
+          retain(attempt?.failure?.reason ?? "singular-tangent");
+          return `the original charts have no regular continuation ${length} mm along the walk`;
+        }
         T = t;
       }
       retain("walk-step-limit");
       return `the walk does not return to its start in ${walkSteps * count} steps`;
     };
 
-    /** The way round the loop the walks go: along `T0`, or against it where the walk along it was lost and the other way round closes. */
+    /**
+     * The way round the loop the walks go: along `T0`, or against it where the
+     * walk along it was lost and the other way round closes.
+     */
     let sense: 1 | -1 = 1;
     const forth: number | string = around(1);
     let length: number;
     if (typeof forth === "string") {
       const back: number | string = around(-1);
-      if (typeof back === "string") return Observation.format(forth, directions);
+      if (typeof back === "string")
+        return Observation.format(forth, directions);
       sense = -1;
       length = back;
     } else length = forth;
@@ -334,7 +444,10 @@ export namespace AutoMovieSolidIntersectionWalk {
       /** Current point of the equal-chord walk. */
       let q: IPoint = start;
 
-      /** Original consistently oriented equal-walk tangent, the way round the first walk went. */
+      /**
+       * Original consistently oriented equal-walk tangent, the way round the
+       * first walk went.
+       */
       let along: Heading = startDirection;
       for (let k: number = 1; k < n; k++) {
         /** Next accepted point of this fixed-chord reference walk. */
@@ -357,11 +470,7 @@ export namespace AutoMovieSolidIntersectionWalk {
             halving < AutoMovieSolidTraceSolve.HALVINGS;
             attempt++
           ) {
-            const part: IPoint | null = step(
-              from,
-              current,
-              Math.min(h, left),
-            );
+            const part: IPoint | null = step(from, current, Math.min(h, left));
             if (part === null) {
               h /= 2;
               halving++;
@@ -395,7 +504,11 @@ export namespace AutoMovieSolidIntersectionWalk {
       const directed: boolean =
         dot(closing, along.world) > 0 && dot(closing, startDirection.world) > 0;
       const distance: number = norm(closing);
-      return { points, directed, mismatch: (directed ? distance : -distance) - chord };
+      return {
+        points,
+        directed,
+        mismatch: (directed ? distance : -distance) - chord,
+      };
     };
 
     /** Current secant chord candidate from the first measured length. */
@@ -428,7 +541,9 @@ export namespace AutoMovieSolidIntersectionWalk {
       return `the equal-chord reference does not close in its starting direction (chord ${c0} mm, signed mismatch ${g0} mm)`;
     // Walked against `T0`, the points are read back in its order from the seed, so the parameter still increases along `n_part x n_host`.
     const ordered: Vec3[] =
-      sense === 1 ? p0.points : [p0.points[0]!, ...p0.points.slice(1).reverse()];
+      sense === 1
+        ? p0.points
+        : [p0.points[0]!, ...p0.points.slice(1).reverse()];
     return {
       law: AutoMovieSolidTraceLaw.arc(ordered),
       x: [start.s, start.phi, start.y, start.theta],

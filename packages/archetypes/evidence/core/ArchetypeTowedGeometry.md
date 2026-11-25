@@ -1,21 +1,3 @@
-# src/core/ArchetypeTowedGeometry.ts#ArchetypeTowedGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the two tow-specific contracts and their query scope.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A tow adds one query that serves contacts from its current posed sources.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns the types for AutoMovieArchetypeRide.towed without duplicating ordinary ride fields.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The types retain world points and the existing film clock.
-
 # src/core/ArchetypeTowedGeometry.ts#ArchetypeTowedGeometry.ITowedSample
 
 ## @evidence contracts/development/common.md#meaningful-documentation

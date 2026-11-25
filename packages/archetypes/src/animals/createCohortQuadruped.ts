@@ -20,11 +20,17 @@ interface PreparedReference {
   body: AutoMovieArchetypeQuadrupedBody.IBody;
   /** Non-emitting collar/lead plan, absent when none was requested. */
   lead: QuadrupedLeadPlan | undefined;
-  /** Non-emitting species/equipment preparation, absent when no extra parts exist. */
+  /**
+   * Non-emitting species/equipment preparation, absent when no extra parts
+   * exist.
+   */
   addition: createCohortQuadruped.Addition | undefined;
 }
 
-/** Coordinate of the table's declared spread; no unreported animal SD is inferred. */
+/**
+ * Coordinate of the table's declared spread; no unreported animal SD is
+ * inferred.
+ */
 const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   "",
   -1,
@@ -35,16 +41,12 @@ const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
 /**
  * Select and build one whole non-equid reference without an equine mass law.
  *
- * @param props Closed whole-reference data, authored selection palette, body constructor and additions.
- * @returns The independent model with authored mass or its selected bare reference mass.
- * @throws {AutoMovieArchetypeRefusal} For invalid reference dimensions, mass, tempo or authored lead lengths.
- * @evidence contracts/development/common.md#meaningful-documentation States exact whole-reference ownership, fixed/seedless/seeded selection, authored catalogue frequency, source versus equipment mass and declared timing spread.
- * @evidence contracts/development/implementation.md#principled-implementation Admit profiles and non-emitting gear plans for the entire unfixed catalogue, including its seedless default, before one whole-row draw. Thus equipment refusal cannot depend on seed. A fixed cohort admits only itself. The selected prepared profile/additions build one model with source or authored mass and unknown foot friction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare source figures, rigs and physical additions for the request's complete choice domain, make one cohort draw, record tempo and emit the selected profile and plans once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No independent trait sampling, unreported population band, equine weight law, invented mass/foot coefficient or renderer-only feature is substituted. A point profile is not presented as completion of population variation.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(K) fixed-size profile/rig/addition planning for K declared reference rows precedes one model construction; no unselected model geometry, mesh or physical simulation is built. Selected body lay reads the same generating definition for its rigid geometry.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One model-axis draw owns reference/provenance selection. Prepared body profiles and selected lead/equipment plans are reused for emission; no seed retry or selected gear replanning occurs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model owns its records. The O(K) profile/plan catalogue, draw session and construction callbacks are call-local and become unreachable after emission; no process, global cache or external handle is retained.
+ * @param props Closed whole-reference data, authored selection palette, body
+ *   constructor and additions.
+ * @returns The independent model with authored mass or its selected bare
+ *   reference mass.
+ * @throws {AutoMovieArchetypeRefusal} For invalid reference dimensions, mass,
+ *   tempo or authored lead lengths.
  */
 export function createCohortQuadruped<Cohort extends string>(
   props: createCohortQuadruped.IProps<Cohort>,
@@ -198,13 +200,16 @@ export function createCohortQuadruped<Cohort extends string>(
     },
   });
 
-  /** Keep both source figures and complete authored mass inside their physical numeric domain. */
+  /**
+   * Keep both source figures and complete authored mass inside their physical
+   * numeric domain.
+   */
   function positive(
     axis: string,
     value: number | undefined,
     unit: AutoMovieArchetypeBandUnit,
   ): void {
-    if (!(value !== undefined && Number.isFinite(value) && value > 0))
+    if (!(value !== undefined && value > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: props.archetype,
@@ -218,19 +223,15 @@ export function createCohortQuadruped<Cohort extends string>(
   }
 }
 
-/**
- * Shared construction inputs of the non-equid cohort producers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States complete authored mass, optional timing/lead and producer-owned source references and additions.
- * @evidence contracts/development/design.md#principled-representation One closed contact vocabulary, shared physical dimensions and a whole reference cohort keep source data separate from authored mass and equipment.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Species adapters own anatomy and identifying parts; the shared factory owns recording/admission and the existing body/lead owners do their construction.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No unknown material coefficient, measured mass, statistical band or population allometry is implied by these prototype inputs.
- */
+/** Shared construction inputs of the non-equid cohort producers. */
 export namespace createCohortQuadruped {
   /** Contacts the non-equid producers may build. */
   export type Affordance = AutoMovieArchetypeQuadrupedEquipment.Affordance;
 
-  /** Emission of already admitted, fixed-size additions into the selected builder. */
+  /**
+   * Emission of already admitted, fixed-size additions into the selected
+   * builder.
+   */
   export type Addition = (
     builder: AutoMovieArchetypeBuilder<
       Affordance,
@@ -238,11 +239,17 @@ export namespace createCohortQuadruped {
     >,
   ) => void;
 
-  /** Authored construction choices, independent of the reference cohort's traits. */
+  /**
+   * Authored construction choices, independent of the reference cohort's
+   * traits.
+   */
   export interface IParams {
     /** Optional instance identity. */
     id?: string;
-    /** Positive complete kilograms; omission is valid only with a measured bare-reference mass. */
+    /**
+     * Positive complete kilograms; omission is valid only with a measured
+     * bare-reference mass.
+     */
     mass?: number;
     /** Coordinate -1..1 of the table's declared timing spread. */
     tempo?: number;
@@ -250,7 +257,10 @@ export namespace createCohortQuadruped {
     lead?: AutoMovieArchetypeQuadrupedLead.IParams;
   }
 
-  /** Selected source dimensions; optional bare mass stays separate from equipment. */
+  /**
+   * Selected source dimensions; optional bare mass stays separate from
+   * equipment.
+   */
   export interface IReference {
     /** Reference withers height, metres. */
     withers: number;
@@ -260,7 +270,10 @@ export namespace createCohortQuadruped {
     mass?: number;
   }
 
-  /** The producer's closed whole-reference catalogue and selected-body consumers. */
+  /**
+   * The producer's closed whole-reference catalogue and selected-body
+   * consumers.
+   */
   export interface IProps<Cohort extends string> {
     /** Producer identity, retained by the draw record. */
     archetype: string;
@@ -268,7 +281,10 @@ export namespace createCohortQuadruped {
     name: (cohort: Cohort) => string;
     /** Every admissible explicit reference key. */
     names: readonly Cohort[];
-    /** Authored equal-choice palette used only when a seed is given without a fixed reference. */
+    /**
+     * Authored equal-choice palette used only when a seed is given without a
+     * fixed reference.
+     */
     choices: readonly Cohort[];
     /** Explicit seedless default, not inferred from palette ordering. */
     reference: Cohort;
@@ -276,12 +292,19 @@ export namespace createCohortQuadruped {
     cohort?: Cohort;
     /** Coherent source figures by key; unselected body geometry is not built. */
     references: Readonly<Record<Cohort, Readonly<IReference>>>;
-    /** Prepare each eligible fixed-size profile; only the selected one emits model parts. */
+    /**
+     * Prepare each eligible fixed-size profile; only the selected one emits
+     * model parts.
+     */
     body: (cohort: Cohort) => AutoMovieArchetypeQuadrupedBody.IBody;
     /** Admitted authoring choices. */
     params: IParams;
-    /** The seed that draws the cohort and the free dimensions left open in `params`; absent, the cohort is `reference` and each free dimension takes the middle of its band. */
-    seed?: number | string;
+    /**
+     * The seed that draws the cohort and the free dimensions left open in
+     * `params`; absent, the cohort is `reference` and each free dimension takes
+     * the middle of its band.
+     */
+    seed?: number;
     /** Admit physical additions without emitting unselected model geometry. */
     prepare?: (
       rig: AutoMovieArchetypeQuadrupedBody.IRig,

@@ -1,73 +1,33 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalSupportPattern } from "./admitPhysicalSupportPattern";
 import { resolvePhysicalPerformanceMode } from "./resolvePhysicalPerformanceMode";
 
 /**
- * Admit one body's declared controller policy independently of its sampled target population.
+ * Admit one body's declared controller policy independently of its sampled
+ * target population.
  */
 export function admitPhysicalBody(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   body: IAutoMoviePhysicalSimulationInput.IBody,
 ): void {
   const positive: (value: number) => boolean = (value: number): boolean =>
-    Number.isFinite(value) && value > 0;
+    value > 0;
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
-    Number.isFinite(value) && value >= 0;
-  for (const policy of [
-    body.selfAvoidance,
-    body.rootTorque,
-    body.supportTracking,
-    body.balance,
-  ])
-    if (policy !== undefined && !isAutoMovieRecord(policy))
-      throw new Error(`${body.id}: invalid optional physical descriptor`);
-  if (
-    body.compensateGravity !== undefined &&
-    typeof body.compensateGravity !== "boolean"
-  )
-    throw new Error(`${body.id}: invalid gravity-compensation policy`);
-  if (
-    body.balance?.bracing !== undefined &&
-    !isAutoMovieRecord(body.balance.bracing)
-  )
-    throw new Error(`${body.id}: invalid bracing recovery envelope`);
+    value >= 0;
   resolvePhysicalPerformanceMode(body.mode);
   const gravity: number =
     body.mode.kind === "exaggerated" ? body.mode.gravity : 1;
-  if (
-    !Number.isFinite(gravity) ||
-    ![
-      input.gravity.x * gravity,
-      input.gravity.y * gravity,
-      input.gravity.z * gravity,
-    ].every(Number.isFinite)
-  )
-    throw new Error(`${body.id}: gravity is not finite`);
   for (const material of body.profile.materials) {
     const compliance: number =
       material.compliance *
       (body.mode.kind === "exaggerated" ? body.mode.compliance : 1);
-    if (
-      !Number.isFinite(compliance) ||
-      (material.compliance > 0 && !(compliance > 0))
-    )
-      throw new Error(
-        `${body.id}: scaled physical compliance is not finite and positive`,
-      );
+    if (material.compliance > 0 && compliance <= 0)
+      throw new Error(`${body.id}: scaled physical compliance is not positive`);
   }
-  if (
-    !Number.isSafeInteger(body.maximumBindings) ||
-    body.maximumBindings! < 1 ||
-    body.maximumBindings! > 256
-  )
+  if (body.maximumBindings! < 1 || body.maximumBindings! > 256)
     throw new Error(`${body.id}: invalid contact binding budget`);
-  if (
-    !Number.isFinite(body.handoffSeconds) ||
-    !(body.handoffSeconds! > 0) ||
-    !Number.isFinite(body.handoffSeconds! * input.rate * input.substeps!)
-  )
+  if (body.handoffSeconds! <= 0)
     throw new Error(`${body.id}: invalid ownership handoff duration`);
   if (
     !body.handoffLimits ||
@@ -79,8 +39,7 @@ export function admitPhysicalBody(
     throw new Error(`${body.id}: invalid ownership handoff residual limits`);
   if (
     body.selfAvoidance &&
-    (!Number.isSafeInteger(body.selfAvoidance.iterations) ||
-      body.selfAvoidance.iterations < 1 ||
+    (body.selfAvoidance.iterations < 1 ||
       body.selfAvoidance.iterations > 64 ||
       !positive(body.selfAvoidance.tolerance) ||
       body.profile.joints.reduce(
@@ -107,12 +66,7 @@ export function admitPhysicalBody(
     throw new Error(
       `${body.id}: self-contact fitting exceeds its declared work budget`,
     );
-  if (
-    (body.actuation !== undefined &&
-      body.actuation !== "world" &&
-      body.actuation !== "internal") ||
-    (body.actuation === "internal" && !body.supportTracking && !body.balance)
-  )
+  if (body.actuation === "internal" && !body.supportTracking && !body.balance)
     throw new Error(`${body.id}: invalid actuator reaction policy`);
   if (
     ![
@@ -123,8 +77,7 @@ export function admitPhysicalBody(
       body.complianceStrength,
     ].every(nonnegative) ||
     body.complianceStrength > 1 ||
-    !Array.isArray(body.targets) ||
-    body.targets.length !== input.duration * input.rate + 1
+    body.targets.length !== Math.round(input.duration * input.rate) + 1
   )
     throw new Error(`${body.id}: invalid tracking settings or target count`);
   if (
@@ -144,9 +97,7 @@ export function admitPhysicalBody(
         positive,
       ) ||
       (policy.iterations !== undefined &&
-        (!Number.isSafeInteger(policy.iterations) ||
-          policy.iterations < 0 ||
-          policy.iterations > 64)) ||
+        (policy.iterations < 0 || policy.iterations > 64)) ||
       (policy.tolerance !== undefined && !positive(policy.tolerance))
     )
       throw new Error(`${body.id}: invalid planted support actuator policy`);
@@ -180,9 +131,7 @@ export function admitPhysicalBody(
       (policy.reactionSeconds !== undefined &&
         !nonnegative(policy.reactionSeconds)) ||
       (policy.iterations !== undefined &&
-        (!Number.isSafeInteger(policy.iterations) ||
-          policy.iterations < 1 ||
-          policy.iterations > 64)) ||
+        (policy.iterations < 1 || policy.iterations > 64)) ||
       (policy.targetTolerance !== undefined &&
         !positive(policy.targetTolerance)) ||
       (policy.maximumRootDrop !== undefined &&
@@ -195,9 +144,7 @@ export function admitPhysicalBody(
           value !== undefined && !positive(value),
       ) ||
       (policy.jointStrength !== undefined &&
-        (!Number.isFinite(policy.jointStrength) ||
-          policy.jointStrength < 0 ||
-          policy.jointStrength > 1))
+        (policy.jointStrength < 0 || policy.jointStrength > 1))
     )
       throw new Error(`${body.id}: invalid landing or recovery budgets`);
   }

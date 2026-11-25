@@ -1,142 +1,135 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanTarget,
-  IAutoMovieMotionHumanTargetGrid,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanTrunk } from "./HumanTrunk";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
 import { gestureStrokeTables } from "./gestureStrokeTables";
+import { gestureStrokeUpright } from "./gestureStrokeUpright";
 import { gestureTouch } from "./gestureTouch";
 
 /**
- * The stroke of each gesture: where each hand surface goes, turned which
- * way and in which shape, as a function of the stroke's progress, and which
- * joints a gesture moves directly.
+ * The stroke of each gesture: where each hand surface goes, turned which way
+ * and in which shape, as a function of the stroke's progress, and which joints
+ * a gesture moves directly.
  *
- * Hand gestures are effector goals. Each names a hand surface, a world
- * point and a hand rotation; the gesture law transports the hand there in the
+ * Hand gestures are effector goals. Each names a hand surface, a world point
+ * and a hand rotation; the gesture law transports the hand there in the
  * preparation phase and back in the retraction, and the arm is solved by
  * inverse kinematics ({@link HumanHand}). Points are built in the performer's
  * own frame (`x` left, `y` up, `z` forward from the root) from the body's
- * measure, or on a target or on the body's own face, so every gesture fits
- * any stature and proportion. A place of the air is written in the names of
+ * measure, or on a target or on the body's own face, so every gesture fits any
+ * stature and proportion. A place of the air is written in the names of
  * {@link AutoMovieMotionHumanTargetGrid.Place} (a height, a lateral and a
  * distance, with a nudge in arm lengths where the stroke moves about it), a
- * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle
- * as a level of {@link AutoMovieMotionHumanRange}:
+ * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle as a
+ * level of {@link AutoMovieMotionHumanRange}:
  *
- * - `wave`: the open palm faces forward beside the head, at eye height,
- *   outside the shoulder and near; the hand swings side to side `0.06` arm
- *   lengths, tilting as the forearm turns about the elbow, about 2.5 cycles a
- *   second (provisional).
- * - `raiseHand`: the open palm forward, raised from the shoulder to overhead
- *   by the extent; `cheer` raises both fists and pumps them `0.08` arm
- *   lengths.
+ * - `wave`: the open palm faces forward beside the head, at eye height, outside
+ *   the shoulder and near; the hand swings side to side `0.06` arm lengths,
+ *   tilting as the forearm turns about the elbow, about 2.5 cycles a second
+ *   (provisional).
+ * - `raiseHand`: the open palm forward, raised from the shoulder to overhead by
+ *   the extent; `cheer` raises both fists and pumps them `0.08` arm lengths.
  * - `stopPalm`: the open palm faces forward at shoulder height, inside the
  *   shoulder and far, pushed `0.05` arm lengths further in the stroke.
- * - `point`: the index fingertip on the line from the eye on the pointing
- *   side to the target, as people point (Henriques and Crawford 2002, J
- *   Neurophysiol 87:1677, found the fingertip placed on the line from the
- *   dominant eye; the side's eye is the provisional choice), at the distance
- *   where the arm reaches with `0.95` of its length, the fingers along the
- *   line and the palm down.
+ * - `point`: the index fingertip on the line from the eye on the pointing side to
+ *   the target, as people point (Henriques and Crawford 2002, J Neurophysiol
+ *   87:1677, found the fingertip placed on the line from the dominant eye; the
+ *   side's eye is the provisional choice), at the distance where the arm
+ *   reaches with `0.95` of its length, the fingers along the line and the palm
+ *   down.
  * - `palmsUp`: both open palms up, forearms forward at the waist, turned a
- *   quarter of the way out, set `0.15` arm lengths out and forward and
- *   lifted `0.03` in the stroke, the offering and not-knowing gesture;
- *   `shrug` adds it under raised shoulders.
- * - `beckon`: the palm up at chest height, `0.05` arm lengths lower and
- *   nearer, while the fingers curl and open, about 1.7 cycles a second
- *   (provisional).
+ *   quarter of the way out, set `0.15` arm lengths out and forward and lifted
+ *   `0.03` in the stroke, the offering and not-knowing gesture; `shrug` adds it
+ *   under raised shoulders.
+ * - `beckon`: the palm up at chest height, `0.05` arm lengths lower and nearer,
+ *   while the fingers curl and open, about 1.7 cycles a second (provisional).
  * - `clap`: both palms face each other ahead of the chest, `0.1` arm lengths
- *   below and `0.17` ahead of its place, part `0.09` and meet at the
- *   midpoint on each beat, four beats a second (free applause clusters near
- *   4 Hz, faster than the near-2 Hz synchronised rhythm, Neda et al.
- *   2000, Nature 403:849).
- * - `thumbsDown`: the fist ahead of the chest, the palm outward and the
- *   knuckles ahead and 45 degrees down, so a straight thumb, which leans
- *   toward the knuckles, points down; the elbow is asked out at the
- *   shoulder's height, which leaves the forearm a quarter turn instead of a
- *   half (provisional place, tip and elbow).
+ *   below and `0.17` ahead of its place, part `0.09` and meet at the midpoint
+ *   on each beat, four beats a second (free applause clusters near 4 Hz, faster
+ *   than the near-2 Hz synchronised rhythm, Neda et al. 2000, Nature 403:849).
+ * - `thumbsDown`: the fist ahead of the chest, the palm outward and the knuckles
+ *   ahead and 45 degrees down, so a straight thumb, which leans toward the
+ *   knuckles, points down; the elbow is asked out at the shoulder's height,
+ *   which leaves the forearm a quarter turn instead of a half (provisional
+ *   place, tip and elbow).
  * - `rubHands`: the palms together, sliding `0.03` arm lengths opposite ways
  *   along the fingers.
- * - `palmsTogether`: the palms pressed together ahead of the chest, the
- *   fingers up and forward, held: the clap's hand pose without its parting
- *   (a prayer, a wai or gassho greeting).
- * - `touchFace`: the index fingertip, hand flat, on a face region with the
- *   palm toward the face and the fingers up, held; `pushGlasses` slides it
- *   12 mm up the nose bridge; `scratchHead` rubs it 15 mm on the head's side
- *   four times a second (provisional).
+ * - `palmsTogether`: the palms pressed together ahead of the chest, the fingers
+ *   up and forward, held: the clap's hand pose without its parting (a prayer, a
+ *   wai or gassho greeting).
+ * - `touchFace`: the index fingertip, hand flat, on a face region with the palm
+ *   toward the face and the fingers up, held; `pushGlasses` slides it 12 mm up
+ *   the nose bridge; `scratchHead` rubs it 15 mm on the head's side four times
+ *   a second (provisional).
  *
  * Gestures of the head, shoulders and trunk are joint angles, stated by
  * {@link gestureJoints}; pointing and self-touch read the posed trunk in
  * {@link gestureTouch}; the strokes ride the signals of {@link gestureSignal}.
  * Amplitudes and distances that express the gesture's size scale with the
  * Effort extent; contact points and the pointing line do not. Each hand goal
- * widens the elbow's hanging hint by its own share of the upper arm (`out`:
- * 0.3 for a wave, 0.2 for a raised hand, a cheer and open palms, 0.1 for
- * palms together, none for the rest; provisional, read from no measured
- * source). Every value above without a source is provisional.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the law, its sources, its units and frames, and which values are provisional.
- * @evidence contracts/development/design.md#principled-representation Pure functions and constants over the interface's vectors and the engine's streams.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The functions and constants the everyday laws and their tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses engine and interface types; no consumer is special-cased.
+ * widens the elbow's hanging hint by its own share of the upper arm (`out`: 0.3
+ * for a wave, 0.2 for a raised hand, a cheer and open palms, 0.1 for palms
+ * together, none for the rest; provisional, read from no measured source).
+ * Every value above without a source is provisional.
  */
 export namespace gestureStroke {
   /**
-   * The interface stroke input with the gesture's prepared touch geometry.
-   * The record (`gestureTouch.IPrepared`) holds motions' own readers, so it
-   * extends the dependency-free contract here instead of entering it.
+   * The interface stroke input with the gesture's prepared touch geometry. The
+   * record (`gestureTouch.IPrepared`) holds motions' own readers, so it extends
+   * the dependency-free contract here instead of entering it.
    */
   export interface IInput extends IAutoMovieMotionHumanGestureStroke.IInput {
-    /** The plan's touch geometry for this hand, when the gesture prepared it; a stroke read without it computes the geometry itself. */
+    /**
+     * The plan's touch geometry for this hand, when the gesture prepared it; a
+     * stroke read without it computes the geometry itself.
+     */
     prepared?: gestureTouch.IPrepared;
 
-    /** The bend of the trunk the gesture was entered on, read once per plan (`bend`); a straight trunk when absent. */
+    /**
+     * The bend of the trunk the gesture was entered on, read once per plan
+     * (`bend`); a straight trunk when absent.
+     */
     bend?: gestureStroke.IBend;
   }
 
-  /** Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its kind. */
+  /**
+   * Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its
+   * kind.
+   */
   export const RHYTHM: typeof gestureStrokeTables.RHYTHM =
     gestureStrokeTables.RHYTHM;
 
-  /** Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here with its kind. */
+  /**
+   * Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here
+   * with its kind.
+   */
   export const HANDS: typeof gestureStrokeTables.HANDS =
     gestureStrokeTables.HANDS;
 
   /**
-   * Extra finger flexion of a stroke, independent of its world hand goal.
-   * Only beckoning adds this curl; all other strokes keep their named shape.
+   * Extra finger flexion of a stroke, independent of its world hand goal. Only
+   * beckoning adds this curl; all other strokes keep their named shape.
    *
    * @param kind The gesture's closed kind.
    * @param u Its stroke share in [0, 1].
    * @param cycles Its repetition count.
    * @param extent The fixed effort amplitude multiplier.
    * @returns Extra flexion, degrees, before the transport envelope.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the beckon-only clinical-degree output, stroke timebase and effort/envelope separation.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same raised-cosine finger pulse at the beckon's published range amplitude; a kind with no extra finger flexion returns zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The full stroke goal and planned-arm finger playback consume one scalar law rather than constructing unused world-space goals for finger data.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The amplitude is the range table's deep index flexion (`gestureJoints.ANGLES.beckon`); it changes no working hand shape, contact surface or arm trajectory.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One closed-kind decision and fixed arithmetic, with no traversal or algorithm choice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Full hand goals and geometry-free finger playback share this same pure formula for identical kind/share/cycle/extent inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
    */
   export function curl(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
@@ -159,15 +152,8 @@ export namespace gestureStroke {
    * @param cycles Stroke cycles.
    * @param input The instant's inputs.
    * @returns The goal.
-   * @throws {Error} For a gesture that moves no hand, or `point` without a target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, the stroke share's range and meaning, and the refusals; the namespace doc gives each gesture's goal and its provisional values.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride {@link gestureSignal.oscillation}.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, live in {@link gestureTouch}; joint gestures live in {@link gestureJoints}.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased. The `thumbsDown` knuckle tilt is a fixed 45 degrees read off the polygon man's thumb (Limitation: it should aim the fist's thumb down from the body's own digit direction).
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures: the heading's sine and cosine are computed once per call, on first need, and serve every point and direction, and the trunk's tilt and its plan-time bend are applied in closed form. Pointing and self-touch cost one trunk forward-kinematics pass each.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one call, the points and directions share one frame preparation of the base's heading; nothing is kept between calls.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
+   * @throws {Error} For a gesture that moves no hand, or `point` without a
+   *   target.
    */
   export function hand(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
@@ -176,7 +162,7 @@ export namespace gestureStroke {
     cycles: number,
     input: gestureStroke.IInput,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
-    const goal: IAutoMovieMotionHumanGestureStroke.IHand = upright(
+    const goal: IAutoMovieMotionHumanGestureStroke.IHand = gestureStrokeUpright(
       kind,
       side,
       u,
@@ -194,9 +180,7 @@ export namespace gestureStroke {
     // the posture the gesture is entered on (`bend`), and carried in the
     // heading frame. Pointing and self-touch already read the posed trunk.
     if (TRUNK_POSED.has(kind)) return goal;
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(
-      input.base,
-    );
+    const heading: IAutoMovieQuaternion = humanPostureHeading(input.base);
     const tilt: IAutoMovieQuaternion = Quaternion.multiply(
       heading,
       Quaternion.inverse(HumanFrame.turn(input.base.yaw)),
@@ -259,14 +243,6 @@ export namespace gestureStroke {
    * @param body The body.
    * @param posture The posture.
    * @returns The bend, or none for a straight trunk.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, against what, in which frame and when it is read.
-   * @evidence contracts/development/implementation.md#principled-implementation The posed and the straightened chest by the trunk's own forward kinematics, their relative rigid motion expressed in the heading frame so it rides the root and the tilt.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two chest frames, one relative motion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A straight trunk gives none, so an upright gesture is untouched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk forward-kinematics passes demanding the chest alone, once per plan; every goal read applies the result in closed form.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the trunk's resolver and the posture's heading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
    */
   export function bend(
     body: IAutoMovieMotionHumanBody,
@@ -277,14 +253,14 @@ export namespace gestureStroke {
       posture,
       undefined,
       undefined,
-      CHEST,
+      HumanBoneGroups.CHEST,
     ).get("chest")!;
     const straight: IAutoMovieResolvedBone = HumanTrunk.resolve(
       body,
       posture,
       { ...posture.joints, ...STRAIGHT },
       undefined,
-      CHEST,
+      HumanBoneGroups.CHEST,
     ).get("chest")!;
     const turn: IAutoMovieQuaternion = Quaternion.multiply(
       posed.worldRotation,
@@ -296,7 +272,7 @@ export namespace gestureStroke {
     )
       return undefined;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      resolveHumanPosture.heading(posture),
+      humanPostureHeading(posture),
     );
     const heading: IAutoMovieQuaternion = Quaternion.inverse(inverse);
     return {
@@ -327,10 +303,6 @@ export namespace gestureStroke {
     to: IAutoMovieVector3;
   }
 
-  /** The bone a place of the air rides. */
-  const CHEST: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["chest"]);
-
   /** The trunk's joints of a body standing straight. */
   const STRAIGHT: IAutoMovieMotionHumanPosture["joints"] = {
     hips: [0, 0, 0],
@@ -346,246 +318,4 @@ export namespace gestureStroke {
       "pushGlasses",
       "scratchHead",
     ]);
-
-  /** A hand's goal for an upright body, in its heading frame. */
-  function upright(
-    kind: IAutoMovieMotionHumanGestureStroke.Kind,
-    side: AutoMovieHumanSide,
-    u: number,
-    cycles: number,
-    input: gestureStroke.IInput,
-  ): IAutoMovieMotionHumanGestureStroke.IHand {
-    const body: IAutoMovieMotionHumanBody = input.body;
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const sign: number = side === "left" ? 1 : -1;
-    const L: number = m.upperArm + m.forearm;
-    const frame: IAutoMovieMotionHumanFrame = {
-      origin: input.base.root,
-      yaw: input.base.yaw,
-    };
-    let transform: HumanFrame.IPrepared | undefined;
-    const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (
-      x: number,
-      y: number,
-      z: number,
-    ): IAutoMovieVector3 =>
-      (transform ??= HumanFrame.prepare({
-        origin: { x: 0, y: 0, z: 0 },
-        yaw: frame.yaw,
-      })).point({ x, y, z }, frame.origin);
-    const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (
-      x: number,
-      y: number,
-      z: number,
-    ): IAutoMovieVector3 =>
-      (transform ??= HumanFrame.prepare({
-        origin: { x: 0, y: 0, z: 0 },
-        yaw: frame.yaw,
-      })).direction({ x, y, z });
-    // A place of the air by its names, in the performer's own frame: the
-    // shares times the stature, the half shoulder width and the arm, ahead
-    // of the root, which a lowered posture carries down with it. `reach`
-    // scales the distance ahead. `named` is the place without its nudge: when
-    // given and the repeat varies, the named place's offset is added, so the
-    // offset is one value through the stroke whatever the nudge does.
-    const put: (
-      place: IAutoMovieMotionHumanTargetGrid.Place,
-      reach?: number,
-      named?: IAutoMovieMotionHumanTargetGrid.Place,
-    ) => IAutoMovieVector3 = (
-      place: IAutoMovieMotionHumanTargetGrid.Place,
-      reach: number = 1,
-      named?: IAutoMovieMotionHumanTargetGrid.Place,
-    ): IAutoMovieVector3 => {
-      const shares: IAutoMovieMotionHumanTarget.IDefault =
-        AutoMovieMotionHumanTargetGrid.place(body, side, place);
-      const base: IAutoMovieMotionHumanTarget.IDefault | undefined =
-        named === undefined || input.vary === undefined
-          ? undefined
-          : AutoMovieMotionHumanTargetGrid.place(body, side, named);
-      const varied: IAutoMovieMotionHumanTarget.IDefault | undefined =
-        base === undefined ? undefined : input.vary!(base);
-      const offset: (key: "lateral" | "height" | "range") => number = (
-        key: "lateral" | "height" | "range",
-      ): number =>
-        base === undefined || varied === undefined
-          ? 0
-          : (varied[key] ?? 0) - (base[key] ?? 0);
-      return at(
-        ((shares.lateral ?? 0) + offset("lateral")) * m.shoulderHalfWidth,
-        (shares.height + offset("height")) * m.stature,
-        (shares.range + offset("range")) * L * reach,
-      );
-    };
-    const facing: (
-      fingers: IAutoMovieMotionHumanHand.Direction,
-      palm: IAutoMovieMotionHumanHand.Direction,
-    ) => IAutoMovieQuaternion = (
-      fingers: IAutoMovieMotionHumanHand.Direction,
-      palm: IAutoMovieMotionHumanHand.Direction,
-    ): IAutoMovieQuaternion =>
-      HumanHand.facing(side, frame.yaw, { fingers, palm });
-    const wave: number = gestureSignal.oscillation(u, cycles);
-    const e: number = input.extent;
-    switch (kind) {
-      case "wave": {
-        // The swing is drawn in the waving hand's own frame, inward first
-        // for either hand, so a left wave is the mirror of a right one; the
-        // fingers lean with the hand the way it swings.
-        const swing: number = 0.06 * e * wave;
-        const tilt: number = Math.atan2(swing * L, m.forearm);
-        return {
-          surface: "palm",
-          shape: "flat",
-          point: put(
-            {
-              at: { height: "eye", lateral: "outside", distance: "near" },
-              nudge: { out: -swing },
-            },
-            1,
-            { height: "eye", lateral: "outside", distance: "near" },
-          ),
-          rotation: HumanHand.rotation(side, {
-            fingers: dir(-sign * Math.sin(tilt), Math.cos(tilt), 0),
-            palm: HumanHand.direction(side, frame.yaw, "forward"),
-          }),
-          out: 0.3,
-        };
-      }
-      case "raiseHand":
-      case "cheer":
-        return {
-          surface: kind === "cheer" ? "fist" : "palm",
-          shape: kind === "cheer" ? "fist" : "flat",
-          point: put({
-            between: [
-              { height: "shoulder", lateral: "shoulder", distance: "close" },
-              { height: "overhead", lateral: "shoulder", distance: "close" },
-            ],
-            share: Math.min(1, e),
-            nudge: { up: kind === "cheer" ? 0.08 * e * Math.max(0, wave) : 0 },
-          }),
-          rotation: facing("up", "forward"),
-          out: 0.2,
-        };
-      case "stopPalm":
-        return {
-          surface: "palm",
-          shape: "flat",
-          point: put(
-            {
-              at: { height: "shoulder", lateral: "inside", distance: "far" },
-              nudge: { forward: 0.05 * gestureSignal.bump(u) },
-            },
-            Math.min(1, e),
-            { height: "shoulder", lateral: "inside", distance: "far" },
-          ),
-          rotation: facing("up", "forward"),
-          out: 0,
-        };
-      case "thumbsDown":
-        // The fist ahead of the chest, the palm outward, so the thumb's side
-        // is down. Under a hanging elbow that is half a turn of the forearm;
-        // with the elbow out at the shoulder's height the arm itself gives a
-        // quarter of it and the forearm turns the other quarter. A straight
-        // thumb leans toward the knuckles (55 degrees from the thumb side's
-        // own direction on the polygon man), so the knuckles are tipped 45
-        // degrees down for the thumb to point down, the forearm sloping
-        // down from the raised elbow with them.
-        return {
-          surface: "fist",
-          shape: "fist",
-          point: put(
-            { height: "chest", lateral: "shoulder", distance: "mid" },
-            Math.min(1, e),
-          ),
-          rotation: HumanHand.rotation(side, {
-            fingers: dir(0, -Math.SQRT1_2, Math.SQRT1_2),
-            palm: dir(sign, 0, 0),
-          }),
-          out: 0,
-          elbow: { out: 0.9, up: 0, forward: 0.3 },
-        };
-      case "point":
-        return gestureTouch.point(input, side);
-      case "palmsUp":
-      case "shrug":
-        return {
-          surface: "palm",
-          shape: "flat",
-          point: put({
-            at: { height: "waist", lateral: "shoulder", distance: "near" },
-            nudge: {
-              out: 0.15 * e,
-              up: 0.03 * e * gestureSignal.bump(u),
-              forward: 0.15,
-            },
-          }),
-          rotation: facing({ between: ["forward", "out"], share: 0.25 }, "up"),
-          out: 0.2,
-        };
-      case "beckon":
-        return {
-          surface: "palm",
-          shape: "flat",
-          point: put({
-            at: { height: "chest", lateral: "inside", distance: "mid" },
-            nudge: { up: -0.05, forward: -0.05 },
-          }),
-          rotation: facing("forward", "up"),
-          out: 0,
-          curl: curl(kind, u, cycles, e),
-        };
-      case "clap":
-      case "rubHands":
-      case "palmsTogether": {
-        // The palms meet ahead of the chest, the fingers up and forward; a
-        // clap parts them, a rub slides them opposite ways along the
-        // fingers, and palms together stay as they meet.
-        const apart: number =
-          kind === "clap"
-            ? 0.09 * e * (0.5 + 0.5 * Math.cos(2 * Math.PI * cycles * u))
-            : 0;
-        const slide: number = kind === "rubHands" ? sign * 0.03 * e * wave : 0;
-        return {
-          surface: "palm",
-          shape: "flat",
-          point: put({
-            at: { height: "chest", lateral: "centre", distance: "near" },
-            nudge: {
-              out: apart,
-              up: -0.1 + PRAYER.up * slide,
-              forward: 0.17 + PRAYER.forward * slide,
-            },
-          }),
-          rotation: facing(
-            { explicit: PRAYER, source: "provisional: everyday-gesture-clap" },
-            "in",
-          ),
-          out: 0.1,
-        };
-      }
-      case "touchFace":
-      case "pushGlasses":
-      case "scratchHead":
-        return gestureTouch.touch(kind, input, side, u, cycles);
-      case "nod":
-      case "shakeHead":
-      case "bow":
-      case "chinLift":
-      case "squareShoulders":
-      case "slump":
-        throw new Error(`The gesture ${kind} moves no hand`);
-    }
-  }
-
-  /**
-   * Where the fingers of two palms held together point: up and forward, 30
-   * degrees above the horizontal (provisional).
-   */
-  const PRAYER: { out: number; up: number; forward: number } = {
-    out: 0,
-    up: 0.5,
-    forward: 0.866,
-  };
 }

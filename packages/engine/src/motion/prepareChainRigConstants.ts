@@ -27,236 +27,243 @@ import { scanJointRom } from "../rom/scanJointRom";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";
 
+/** One chain joint's rig-only members, prepared with the rig. */
+interface IJoint {
+  /** The joint's bone. */
+  bone: AutoMovieHumanoidBone;
+
+  /** The skeleton's record of the bone, when it has one. */
+  record: IAutoMovieBone | undefined;
+
+  /** The bone's domain. */
+  domain: IAutoMovieJointRotationDomain;
+
+  /** The bone's normalized clinical axes. */
+  basis: IAutoMovieJointAxes;
+
+  /** The rest frame its composer was prepared on. */
+  frame: IAutoMovieRestFrame | undefined;
+
+  /** The bone's record composer on that frame. */
+  compose: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
+
+  /** The bone's ROM clamp. */
+  clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+
+  /** The bone's ROM overshoot scorer. */
+  overshoot: (
+    joint: IAutoMovieJointPose,
+    rotation?: IAutoMovieQuaternion,
+  ) => number;
+
+  /** The bone's rotation-only overshoot scorer, or null. */
+  rotatedOvershoot: ((rotation: IAutoMovieQuaternion) => number) | null;
+}
+
 /**
- * The part of a chain fit's lazy rig that the rig alone fixes: what
+ * The part of a chain fit's rig that the rig alone fixes: what
  * `prepareChainFitRig` reads of the skeleton, the merged clinical axes, the
- * rest frames and the chain's pose-independent records, and nothing of a
- * source pose, a goal or a target.
+ * rest frames and the chain's pose-independent records, and nothing of a source
+ * pose, a goal or a target.
  *
  * A fit of one request builds it for itself. A chain's rig constants
- * (`prepareChainConstants`) are built with one, for the clinical tables
- * given there, and a chain placed from those constants (`placeChainPlant`)
- * carries it to its fit, which must pass those same tables.
+ * (`prepareChainConstants`) are built with one, for the clinical tables given
+ * there, and a chain placed from those constants (`placeChainPlant`) carries it
+ * to its fit, which must pass those same tables.
  *
- * Every member is first computed where its first consumer asks for it, so a
- * rig that refuses an axis or an angle refuses it at that consumer's call,
- * and a refusal is not kept.
+ * Every member of the chain's three joints is prepared here; a bone outside the
+ * chain is computed directly where it is asked for.
  *
- * @param props The rig, the chain and the merged clinical tables, unchanged for the record's life.
- * @param fixed The chain's pose-independent records: its two joints' domains and its fixed lower-to-effector rotation. Null for a chain that could not be prepared, whose domains and effector rest are then read from the skeleton as `prepareChainFitRig` read them.
- * @returns The lazy rig-only members and the hinge span holder.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is rig-only, the two owners and their lifetimes, the same-tables premise of a carried record, the lazy first-use admission and the null case.
- * @evidence contracts/development/implementation.md#principled-implementation A bone's record, effective range, normalized basis, clamp, range scorer, the effector's projector coefficients and fixed-rest inverse, the distal-twist effector readings and the hinge's range are functions of the skeleton, the clinical tables and the chain's rest records alone; these are the expressions `prepareChainFitRig` held, moved without change, so a value read here is the value a per-fit rig read.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner holds the rig-only members; `prepareChainFitRig` adds the source pose's and the goal's members over it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target score, callback result, projected joint, source reading or seed is kept; the defaults, lookup conventions and diagnostic paths are the original ones.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each used bone's record, domain, basis, clamp and scorer is prepared once per record, at most three names; the projector, the fixed-rest inverse, the distal readings, the hinge range and the hinge span are prepared once. Carried by a chain's constants, that is once per rig and chain instead of once per fit; unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A record carried by a chain's constants serves every fit of a chain placed from them. The members are pure functions of the rig, the tables and those constants, and the projector's query scratch is leased per query, so sharing them across fits changes no value; that each fit passes the tables the constants were built with is the premise of whoever places the chain.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner keeps one record of bounded size: maps of at most the chain's three bones, one projector, a few fixed records and one span holder. It borrows the skeleton and tables and is released with its owner; no pose, target, result or handle is retained.
+ * @param props The rig, the chain and the merged clinical tables, unchanged for
+ *   the record's life.
+ * @param fixed The chain's pose-independent records: its two joints' domains
+ *   and its fixed lower-to-effector rotation. Null for a chain that could not
+ *   be prepared, whose domains and effector rest are then read from the
+ *   skeleton as `prepareChainFitRig` read them.
+ * @returns The rig-only members and the fixed hinge span.
  */
 export function prepareChainRigConstants(
-  props: Pick<IAutoMovieFitChainToTargetProps, "skeleton" | "chain" | "jointAxes" | "restFrames">,
+  props: Pick<
+    IAutoMovieFitChainToTargetProps,
+    "skeleton" | "chain" | "jointAxes" | "restFrames"
+  >,
   fixed: prepareChainRigConstants.IFixed | null,
 ): prepareChainRigConstants.IRig {
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone | undefined> =
-    new Map();
-  const domains: Map<AutoMovieHumanoidBone, IAutoMovieJointRotationDomain> =
-    new Map();
-  const bases: Map<IAutoMovieJointAxes, IAutoMovieJointAxes> = new Map();
-  const clamps: Map<
-    AutoMovieHumanoidBone,
-    (joint: IAutoMovieJointPose) => IAutoMovieJointPose
-  > = new Map();
-  // Each bone's record composer, by the rest frame record it was prepared on.
-  const composers: Map<
-    AutoMovieHumanoidBone,
-    { frame: IAutoMovieRestFrame | undefined; compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> }
-  > = new Map();
-  const scores: Map<
-    AutoMovieHumanoidBone,
-    (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number
-  > = new Map();
-  const rotatedScores: Map<
-    AutoMovieHumanoidBone,
-    ((rotation: IAutoMovieQuaternion) => number) | null
-  > = new Map();
-  let project: ReturnType<typeof prepareJointRotationProjection> | undefined;
-  let restInverse: IAutoMovieQuaternion | undefined;
-  let distal: ReturnType<typeof solveDistalTwist.prepare> | undefined;
-  let range: { min: number; max: number } | null | undefined;
-  let clampAxes:
-    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-    | undefined;
-
-  /** Cache only successful admission of the actual selected axes; strict and lenient defaults select their own records. */
-  const readBasis: (axes: IAutoMovieJointAxes, path: string) => IAutoMovieJointAxes = (
-    axes: IAutoMovieJointAxes,
+  const recordOf = (bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined =>
+    props.skeleton.bones.find(
+      (candidate: IAutoMovieBone): boolean => candidate.bone === bone,
+    );
+  const domainOf = (
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointRotationDomain =>
+    fixed !== null && bone === props.chain.upper
+      ? fixed.upperDomain
+      : fixed !== null && bone === props.chain.lower
+        ? fixed.lowerDomain
+        : {
+            bone,
+            constraint: getConstraint(bone, recordOf(bone)?.constraint ?? null),
+          };
+  const basisOf = (
+    bone: AutoMovieHumanoidBone,
     path: string,
-  ): IAutoMovieJointAxes => {
-    let basis: IAutoMovieJointAxes | undefined = bases.get(axes);
-    if (basis === undefined) {
-      basis = normalizeJointAxes(axes, path);
-      bases.set(axes, basis);
-    }
-    return basis;
+  ): IAutoMovieJointAxes =>
+    normalizeJointAxes(props.jointAxes?.[bone] ?? DEFAULT_JOINT_AXES, path);
+  const clampAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(props.skeleton, HUMANOID_JOINT_AXES);
+
+  /** The swing-twist frame of a gated bone, prepared with its region. */
+  const rangeOf = (
+    bone: AutoMovieHumanoidBone,
+    domain: IAutoMovieJointRotationDomain,
+    axes: IAutoMovieJointAxes | undefined,
+  ): IAutoMovieJointRotationFrame | undefined => {
+    const constraint: IAutoMovieJointRotationDomain["constraint"] =
+      domain.constraint;
+    if (
+      constraint === null ||
+      constraint.swingTwist === undefined ||
+      constraint.swingTwist === null
+    )
+      return undefined;
+    const frame: IAutoMovieJointRotationFrame | undefined =
+      swingTwistRange.fromAxes(bone, axes);
+    return frame === undefined
+      ? undefined
+      : swingTwistRange.prepare(bone, frame, constraint);
   };
+  const prepareJoint = (bone: AutoMovieHumanoidBone): IJoint => {
+    const record: IAutoMovieBone | undefined = recordOf(bone);
+    const domain: IAutoMovieJointRotationDomain = domainOf(bone);
+    const frame: IAutoMovieRestFrame | undefined = props.restFrames?.[bone];
+    return {
+      bone,
+      record,
+      domain,
+      basis: basisOf(bone, "jointToQuaternion axes"),
+      frame,
+      compose: jointToQuaternionOnBasis.prepare(
+        basisOf(bone, "jointToQuaternion axes"),
+        frame,
+      ),
+      clamp: clampJointToSkeleton.resolved(
+        bone,
+        record,
+        (): IAutoMovieJointRotationFrame | undefined =>
+          rangeOf(bone, domain, clampAxes[bone]),
+      ),
+      overshoot: jointRomOvershoot.prepare(bone, domain.constraint),
+      rotatedOvershoot: scanJointRom.prepareRotated(bone, domain.constraint),
+    };
+  };
+  const joints: IJoint[] = [
+    props.chain.upper,
+    props.chain.lower,
+    props.chain.effector,
+  ].map(prepareJoint);
+  const jointOf = (bone: AutoMovieHumanoidBone): IJoint =>
+    joints.find((candidate: IJoint): boolean => candidate.bone === bone) ??
+    prepareJoint(bone);
+
+  const effectorRest: IAutoMovieQuaternion =
+    fixed?.effectorBaseRotation ??
+    jointOf(props.chain.effector).record?.rest.rotation ??
+    Quaternion.identity();
+  const effector: IJoint = jointOf(props.chain.effector);
+  const project: ReturnType<typeof prepareJointRotationProjection> =
+    prepareJointRotationProjection({
+      domain: effector.domain,
+      basis: effector.basis,
+      frame: props.restFrames?.[props.chain.effector],
+      clamp: effector.clamp,
+    });
+  const distal: ReturnType<typeof solveDistalTwist.prepare> =
+    solveDistalTwist.prepare({
+      effectorRest,
+      effectorBasis: effector.basis,
+      effectorFrame: props.restFrames?.[props.chain.effector],
+    });
+  const restInverse: IAutoMovieQuaternion = Quaternion.inverse(effectorRest);
+  const upperRange: IAutoMovieJointRotationFrame | undefined = rangeOf(
+    props.chain.upper,
+    jointOf(props.chain.upper).domain,
+    HUMANOID_JOINT_AXES[props.chain.upper],
+  );
   const rig: prepareChainRigConstants.IRig = {
-    span: hingedArmSpan.empty(),
-    bone: (bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined => {
-      if (!bones.has(bone))
-        bones.set(
-          bone,
-          props.skeleton.bones.find(
-            (candidate: IAutoMovieBone): boolean => candidate.bone === bone,
-          ),
-        );
-      return bones.get(bone);
-    },
-    domain: (bone: AutoMovieHumanoidBone): IAutoMovieJointRotationDomain => {
-      let domain: IAutoMovieJointRotationDomain | undefined = domains.get(bone);
-      if (domain === undefined) {
-        domain =
-          fixed !== null && bone === props.chain.upper
-            ? fixed.upperDomain
-            : fixed !== null && bone === props.chain.lower
-              ? fixed.lowerDomain
-              : {
-                  bone,
-                  constraint: getConstraint(
-                    bone,
-                    rig.bone(bone)?.constraint ?? null,
-                  ),
-                };
-        domains.set(bone, domain);
-      }
-      return domain;
-    },
-    basis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
-      return readBasis(props.jointAxes?.[bone] ?? DEFAULT_JOINT_AXES, path);
-    },
+    span:
+      fixed === null
+        ? hingedArmSpan.empty()
+        : hingedArmSpan.prepare({
+            midOffset: fixed.lowerOffset,
+            midRest: fixed.lowerRotation,
+            endOffset: fixed.effectorOffset,
+            hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES)
+              .flexion,
+          }),
+    bone: (bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined =>
+      jointOf(bone).record,
+    domain: (bone: AutoMovieHumanoidBone): IAutoMovieJointRotationDomain =>
+      jointOf(bone).domain,
+    basis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes =>
+      joints.some((candidate: IJoint): boolean => candidate.bone === bone)
+        ? jointOf(bone).basis
+        : basisOf(bone, path),
     composer: (
       bone: AutoMovieHumanoidBone,
       frame: IAutoMovieRestFrame | undefined,
     ): ReturnType<typeof jointToQuaternionOnBasis.prepare> => {
-      let known: { frame: IAutoMovieRestFrame | undefined; compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> } | undefined =
-        composers.get(bone);
-      if (known === undefined || known.frame !== frame) {
-        known = {
-          frame,
-          compose: jointToQuaternionOnBasis.prepare(rig.jointBasis(bone, "jointToQuaternion axes"), frame),
-        };
-        composers.set(bone, known);
-      }
-      return known.compose;
+      const joint: IJoint = jointOf(bone);
+      return joint.frame === frame
+        ? joint.compose
+        : jointToQuaternionOnBasis.prepare(joint.basis, frame);
     },
-    jointBasis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
-      const axes: IAutoMovieJointAxes | undefined = props.jointAxes?.[bone];
-      return readBasis(axes === undefined ? DEFAULT_JOINT_AXES : axes, path);
-    },
+    jointBasis: (
+      bone: AutoMovieHumanoidBone,
+      path: string,
+    ): IAutoMovieJointAxes =>
+      joints.some((candidate: IJoint): boolean => candidate.bone === bone)
+        ? jointOf(bone).basis
+        : basisOf(bone, path),
     clamp: (
       bone: AutoMovieHumanoidBone,
-    ): ((joint: IAutoMovieJointPose) => IAutoMovieJointPose) => {
-      let clamp:
-        | ((joint: IAutoMovieJointPose) => IAutoMovieJointPose)
-        | undefined = clamps.get(bone);
-      if (clamp === undefined) {
-        clamp = clampJointToSkeleton.resolved(
-          bone,
-          rig.bone(bone),
-          (): IAutoMovieJointRotationFrame | undefined => {
-            const constraint: IAutoMovieJointRotationDomain["constraint"] =
-              rig.domain(bone).constraint;
-            if (
-              constraint === null ||
-              constraint.swingTwist === undefined ||
-              constraint.swingTwist === null
-            )
-              return undefined;
-            clampAxes ??= skeletonJointAxes(props.skeleton, HUMANOID_JOINT_AXES);
-            return swingTwistRange.fromAxes(bone, clampAxes[bone]);
-          },
-        );
-        clamps.set(bone, clamp);
-      }
-      return clamp;
-    },
+    ): ((joint: IAutoMovieJointPose) => IAutoMovieJointPose) =>
+      jointOf(bone).clamp,
     overshoot: (
       bone: AutoMovieHumanoidBone,
-    ): ((joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number) => {
-      let score: ((joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number) | undefined =
-        scores.get(bone);
-      if (score === undefined) {
-        score = jointRomOvershoot.prepare(bone, rig.domain(bone).constraint);
-        scores.set(bone, score);
-      }
-      return score;
-    },
+    ): ((
+      joint: IAutoMovieJointPose,
+      rotation?: IAutoMovieQuaternion,
+    ) => number) => jointOf(bone).overshoot,
     rotatedOvershoot: (
       bone: AutoMovieHumanoidBone,
-    ): ((rotation: IAutoMovieQuaternion) => number) | null => {
-      let score: ((rotation: IAutoMovieQuaternion) => number) | null | undefined =
-        rotatedScores.get(bone);
-      if (score === undefined) {
-        score = scanJointRom.prepareRotated(bone, rig.domain(bone).constraint);
-        rotatedScores.set(bone, score);
-      }
-      return score;
-    },
-    effectorProjection: (): ReturnType<
-      typeof prepareJointRotationProjection
-    > => {
-      if (project === undefined)
-        project = prepareJointRotationProjection({
-          domain: rig.domain(props.chain.effector),
-          basis: rig.basis(props.chain.effector, "jointToQuaternion axes"),
-          frame: props.restFrames?.[props.chain.effector],
-          clamp: rig.clamp(props.chain.effector),
-        });
-      return project;
-    },
-    effectorRestInverse: (): IAutoMovieQuaternion => {
-      if (restInverse === undefined)
-        restInverse = Quaternion.inverse(
-          fixed?.effectorBaseRotation ??
-            rig.bone(props.chain.effector)?.rest.rotation ??
-            Quaternion.identity(),
-        );
-      return restInverse;
-    },
-    distalTwist: (): ReturnType<typeof solveDistalTwist.prepare> => {
-      distal ??= solveDistalTwist.prepare({
-        effectorRest:
-          fixed?.effectorBaseRotation ??
-          rig.bone(props.chain.effector)?.rest.rotation ??
-          Quaternion.identity(),
-        effectorBasis: rig.basis(props.chain.effector, "jointToQuaternion axes"),
-        effectorFrame: props.restFrames?.[props.chain.effector],
-      });
-      return distal;
-    },
+    ): ((rotation: IAutoMovieQuaternion) => number) | null =>
+      jointOf(bone).rotatedOvershoot,
+    effectorProjection: (): ReturnType<typeof prepareJointRotationProjection> =>
+      project,
+    effectorRestInverse: (): IAutoMovieQuaternion => restInverse,
+    distalTwist: (): ReturnType<typeof solveDistalTwist.prepare> => distal,
     hingeRange: (
       read: () => { min: number; max: number } | null,
-    ): { min: number; max: number } | null => {
-      if (range === undefined) range = read();
-      return range;
-    },
+    ): { min: number; max: number } | null => read(),
+    upperRange,
   };
   return rig;
 }
 
-/**
- * The records of {@link prepareChainRigConstants}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each record and member states its content and owner.
- * @evidence contracts/development/design.md#principled-representation The rig-only members are the same lazy readers `prepareChainFit.IRig` declares, picked from it, beside the hinge span holder; a pose, a goal or a target has no member here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `prepareChainFitRig` reads every member; `prepareChainConstants` builds one record per chain and `placeChainPlant` hands it to the placed chain. `prepareChainFit.IRig` stays the owner of each reader's contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No flag says a record fits a request: a record travels with the constants it was built from, and a chain without one builds its own.
- */
+/** The records of {@link prepareChainRigConstants}. */
 export namespace prepareChainRigConstants {
-  /** The pose-independent records of a chain that the readers read: its two joints' domains and its fixed lower-to-effector rotation. */
+  /**
+   * The pose-independent records of a chain that the readers read: its two
+   * joints' domains and its fixed lower-to-effector rotation.
+   */
   export type IFixed = Pick<
     IAutoMoviePreparedChainPlant,
-    "upperDomain" | "lowerDomain" | "effectorBaseRotation"
+    | "upperDomain"
+    | "lowerDomain"
+    | "effectorBaseRotation"
+    | "lowerOffset"
+    | "lowerRotation"
+    | "effectorOffset"
   >;
 
   /** The interface contract (`IAutoMoviePrepareChainRigConstants.IRig`). */

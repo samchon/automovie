@@ -11,7 +11,10 @@ import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
 /**
- * A realized construction's skin: every face's open end that its chain closes in a pole closed by a fan to the pole, and the body's mesh returned in the tree's metres with its owners as face names. An end with neither a pole nor a shared ring stays open.
+ * A realized construction's skin: every face's open end that its chain closes
+ * in a pole closed by a fan to the pole, and the body's mesh returned in the
+ * tree's metres with its owners as face names. An end with neither a pole nor a
+ * shared ring stays open.
  */
 export namespace AutoMovieConstructionSkin {
   /**
@@ -19,7 +22,8 @@ export namespace AutoMovieConstructionSkin {
    *
    * @param body The drawn body; its mesh receives the fans.
    * @param state The walk's chains and their surfaces.
-   * @param open Each face's open ends, as `AutoMovieSolidBody.draw` returns them.
+   * @param open Each face's open ends, as `AutoMovieSolidBody.draw` returns
+   *   them.
    */
   export function close(
     body: IAutoMovieSolidBody.IBody,
@@ -88,7 +92,8 @@ export namespace AutoMovieConstructionSkin {
    * The body's mesh in metres.
    *
    * @param body The drawn body.
-   * @returns The skin: positions in metres, coordinates in the faces' charts, owners as face names.
+   * @returns The skin: positions in metres, coordinates in the faces' charts,
+   *   owners as face names.
    */
   export function mesh(
     body: IAutoMovieSolidBody.IBody,
@@ -107,7 +112,10 @@ export namespace AutoMovieConstructionSkin {
   }
 }
 
-/** An owned original tip must replay through its value owner, without inventing a physical jet. */
+/**
+ * An owned original tip must replay through its value owner, without inventing
+ * a physical jet.
+ */
 function ownedPoint(
   surface: IAutoMovieSolidSurface,
   station: number,

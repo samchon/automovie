@@ -2,17 +2,32 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
+import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
+
+/** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
+const F32_MAX: number = 3.4028234663852886e38;
+
+/** Whether a binary64 value rounds past the binary32 range of a GPU buffer. */
+const exceedsF32 = (value: number): boolean => Math.abs(value) > F32_MAX;
 
 /**
- * Apply provider-local color and compression to actual vertices, with owned resources.
+ * Apply provider-local color and compression to actual vertices, with owned
+ * resources.
  */
 export function createAutoMovieSurfaceAppearance(input: {
   /** Actual local surfaces and the physical bones carrying their vertices. */
   surfaces: { bone: string; mesh: THREE.Mesh }[];
-  /** Default bone-local rigid vertices; posed-mesh samples the actual linear/DQ skin and inverts its displacement. */
+  /**
+   * Default bone-local rigid vertices; posed-mesh samples the actual linear/DQ
+   * skin and inverts its displacement.
+   */
   space?: "bone-local" | "posed-mesh";
-  /** Sampler in the selected metre frame; mesh.matrixWorld maps posed-mesh points into scene world. */
+  /**
+   * Sampler in the selected metre frame; mesh.matrixWorld maps posed-mesh
+   * points into scene world.
+   */
   sample: (
     bone: string,
     point: IAutoMovieVector3,
@@ -20,11 +35,6 @@ export function createAutoMovieSurfaceAppearance(input: {
     mesh: THREE.Mesh,
   ) => { color: [number, number, number]; displacement: IAutoMovieVector3 };
 }): { update: (seconds: number) => void; dispose: () => void } {
-  if (
-    input.space !== undefined &&
-    !["bone-local", "posed-mesh"].includes(input.space)
-  )
-    throw new Error("Invalid surface appearance coordinate space");
   const meshes: Set<THREE.Mesh> = new Set();
   for (const surface of input.surfaces) {
     if (meshes.has(surface.mesh))
@@ -64,18 +74,7 @@ export function createAutoMovieSurfaceAppearance(input: {
       const originalGeometry: THREE.BufferGeometry = surface.mesh.geometry;
       const originalMaterial: THREE.Material | THREE.Material[] =
         surface.mesh.material;
-      const source: THREE.Material[] = Array.isArray(originalMaterial)
-        ? originalMaterial
-        : [originalMaterial];
-      if (
-        source.some(
-          (material: (typeof source)[number]): boolean =>
-            !("vertexColors" in material),
-        )
-      )
-        throw new Error(
-          "Surface appearance requires vertex-color material support",
-        );
+      const source: THREE.Material[] = [originalMaterial].flat();
       const position:
         | THREE.BufferAttribute
         | THREE.InterleavedBufferAttribute
@@ -84,36 +83,34 @@ export function createAutoMovieSurfaceAppearance(input: {
         throw new Error("Surface appearance requires actual vertex positions");
       const adapter: ReturnType<typeof createAutoMovieSurfaceVertexAdapter> =
         createAutoMovieSurfaceVertexAdapter(surface.mesh);
-      const positions: Float32Array = Float32Array.from(
-        Array.from(
-          { length: position.count * 3 },
-          (_: unknown, index: number): number =>
-            index % 3 === 0
-              ? position.getX(Math.floor(index / 3))
-              : index % 3 === 1
-                ? position.getY(Math.floor(index / 3))
-                : position.getZ(Math.floor(index / 3)),
-        ),
+      const sourcePositions: number[] = Array.from(
+        { length: position.count * 3 },
+        (_: unknown, index: number): number =>
+          index % 3 === 0
+            ? position.getX(Math.floor(index / 3))
+            : index % 3 === 1
+              ? position.getY(Math.floor(index / 3))
+              : position.getZ(Math.floor(index / 3)),
       );
       const previousColor:
         | THREE.BufferAttribute
         | THREE.InterleavedBufferAttribute
         | undefined = originalGeometry.getAttribute("color");
-      const colors: Float32Array = Float32Array.from(
-        Array.from(
-          { length: position.count * 3 },
-          (_: unknown, index: number): number =>
-            !previousColor
-              ? 1
-              : index % 3 === 0
-                ? previousColor.getX(Math.floor(index / 3))
-                : index % 3 === 1
-                  ? previousColor.getY(Math.floor(index / 3))
-                  : previousColor.getZ(Math.floor(index / 3)),
-        ),
+      const sourceColors: number[] = Array.from(
+        { length: position.count * 3 },
+        (_: unknown, index: number): number =>
+          !previousColor
+            ? 1
+            : index % 3 === 0
+              ? previousColor.getX(Math.floor(index / 3))
+              : index % 3 === 1
+                ? previousColor.getY(Math.floor(index / 3))
+                : previousColor.getZ(Math.floor(index / 3)),
       );
-      if (!positions.every(Number.isFinite) || !colors.every(Number.isFinite))
-        throw new Error("Nonfinite surface source exceeds GPU f32 range");
+      if (sourcePositions.some(exceedsF32) || sourceColors.some(exceedsF32))
+        throw new Error("Surface source exceeds GPU f32 range");
+      const positions: Float32Array = Float32Array.from(sourcePositions);
+      const colors: Float32Array = Float32Array.from(sourceColors);
       const geometry: THREE.BufferGeometry = originalGeometry.clone();
       const materials: THREE.Material[] = source.map(
         (material: (typeof source)[number]): THREE.Material => {
@@ -123,7 +120,7 @@ export function createAutoMovieSurfaceAppearance(input: {
           // the existing skin/detail patch operations and their texture ownership.
           copy.onBeforeCompile = material.onBeforeCompile;
           copy.customProgramCacheKey = material.customProgramCacheKey;
-          if (Array.isArray(material.userData.shaderPatches))
+          if (material.userData.shaderPatches !== undefined)
             copy.userData.shaderPatches = [...material.userData.shaderPatches];
           copy.vertexColors = true;
           copy.needsUpdate = true;
@@ -150,9 +147,9 @@ export function createAutoMovieSurfaceAppearance(input: {
         adapter,
       });
       surface.mesh.geometry = geometry;
-      surface.mesh.material = Array.isArray(originalMaterial)
-        ? materials
-        : materials[0]!;
+      surface.mesh.material = AutoMovieThreeKind.isMaterial(originalMaterial)
+        ? materials[0]!
+        : materials;
     }
   } catch (error: unknown) {
     dispose();
@@ -160,19 +157,21 @@ export function createAutoMovieSurfaceAppearance(input: {
   }
   return {
     update: (seconds: number): void => {
-      if (disposed || !Number.isFinite(seconds) || seconds < 0)
+      if (disposed || seconds < 0)
         throw new Error("Invalid surface-appearance update");
       for (const record of records) {
-        const position: THREE.BufferAttribute = record.geometry.getAttribute(
+        const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+          record.geometry,
           "position",
-        ) as THREE.BufferAttribute;
-        const color: THREE.BufferAttribute = record.geometry.getAttribute(
+        );
+        const color: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+          record.geometry,
           "color",
-        ) as THREE.BufferAttribute;
+        );
         position.copyArray(record.positions);
         if (record.moved) {
           position.needsUpdate = true;
-          if (record.mesh instanceof AutoMovieSkinnedMesh)
+          if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(record.mesh))
             record.mesh.invalidatePose();
         }
         let moved: boolean = false;
@@ -190,19 +189,7 @@ export function createAutoMovieSurfaceAppearance(input: {
             seconds,
             record.mesh,
           );
-          if (
-            !sample ||
-            !Array.isArray(sample.color) ||
-            sample.color.length !== 3 ||
-            !sample.displacement ||
-            ![
-              ...sample.color,
-              sample.displacement.x,
-              sample.displacement.y,
-              sample.displacement.z,
-            ].every(Number.isFinite)
-          )
-            throw new Error(`Nonfinite surface response for ${record.bone}`);
+
           const delta: IAutoMovieVector3 =
             input.space === "posed-mesh" &&
             (sample.displacement.x !== 0 ||
@@ -218,13 +205,9 @@ export function createAutoMovieSurfaceAppearance(input: {
             record.colors[index * 3 + 1]! * sample.color[1],
             record.colors[index * 3 + 2]! * sample.color[2],
           ];
-          if (
-            !values.every((value: number): boolean =>
-              Number.isFinite(Math.fround(value)),
-            )
-          )
+          if (values.some(exceedsF32))
             throw new Error(
-              `Nonfinite surface vertex result for ${record.bone}`,
+              `The surface vertex result for ${record.bone} exceeds GPU f32 range`,
             );
           position.setXYZ(index, values[0]!, values[1]!, values[2]!);
           color.setXYZ(index, values[3]!, values[4]!, values[5]!);
@@ -239,9 +222,9 @@ export function createAutoMovieSurfaceAppearance(input: {
           record.geometry.computeVertexNormals();
           record.geometry.computeBoundingSphere();
           record.geometry.computeBoundingBox();
-          if (record.mesh instanceof AutoMovieSkinnedMesh)
+          if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(record.mesh))
             record.mesh.invalidatePose();
-          else if (record.mesh instanceof THREE.SkinnedMesh)
+          else if (AutoMovieThreeKind.isSkinnedMesh(record.mesh))
             AutoMovieSkinnedMesh.clearBounds(record.mesh);
         }
         record.moved = moved;

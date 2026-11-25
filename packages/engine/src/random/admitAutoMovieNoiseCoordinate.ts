@@ -20,8 +20,6 @@ export function admitAutoMovieNoiseCoordinate(
   scale: number,
   bound: number,
 ): void {
-  if (!Number.isFinite(value))
-    throw new Error(`Gradient noise ${name} must be finite: ${value}`);
   const cells: number = value * scale;
   if (!(Math.abs(cells) <= bound))
     throw new Error(

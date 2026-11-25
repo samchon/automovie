@@ -1,7 +1,11 @@
 /**
  * Production-selected source of room-response data.
  *
- * The choice is either the repository's bounded broadband room analysis or an explicitly adopted external result. No solver, provider, asset, or mapping is selected by the engine. Adopted-response declares an external artifact; the pure engine response derivation reports not-run until its bytes are decoded and mapped by a consumer.
+ * The choice is either the repository's bounded broadband room analysis or an
+ * explicitly adopted external result. No solver, provider, asset, or mapping is
+ * selected by the engine. Adopted-response declares an external artifact; the
+ * pure engine response derivation reports not-run until its bytes are decoded
+ * and mapped by a consumer.
  */
 export type IAutoMovieAcousticResponseProfile =
   | {

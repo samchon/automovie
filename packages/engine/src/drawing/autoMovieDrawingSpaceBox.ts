@@ -25,10 +25,10 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * A shell states its vertices, so its box is their bounds. Cells state
  * half-spaces, and a box follows from them only where every plane faces one
  * axis and every axis is closed on both sides; the space's box is then the
- * union of its cells' boxes. A chamfered cell, a cell left open on one side
- * and a space with neither cells nor shell yield `null` rather than an
- * approximation, because a room schedule that printed a made-up extent would
- * be read as a measurement.
+ * union of its cells' boxes. A chamfered cell, a cell left open on one side and
+ * a space with neither cells nor shell yield `null` rather than an
+ * approximation, because a room schedule that printed a made-up extent would be
+ * read as a measurement.
  *
  * @param space The validated space.
  * @returns The declared box in world metres, or `null`.
@@ -63,10 +63,8 @@ const axisAlignedCellBox = (
     if (scale > 0) max[axis] = Math.min(max[axis], value);
     else min[axis] = Math.max(min[axis], value);
   }
-  return AXES.every(
-    (axis: "x" | "y" | "z"): boolean =>
-      Number.isFinite(min[axis]) && Number.isFinite(max[axis]),
-  )
+  // An axis no plane bounds keeps its unbounded maximum.
+  return AXES.every((axis: "x" | "y" | "z"): boolean => max[axis] !== Infinity)
     ? { min, max }
     : null;
 };

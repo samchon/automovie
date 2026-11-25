@@ -13,14 +13,15 @@ import { playbackSampleAt } from "./playbackSampleAt";
  *
  * Both instants resolve through the canonical playback mapping, so trims and
  * playback rates give each endpoint its retimed shot-local second, and an
- * instant on an entry's first output second belongs to that incoming entry.
- * One entry is continuous. A hard cut into the same shot at exactly the source
+ * instant on an entry's first output second belongs to that incoming entry. One
+ * entry is continuous. A hard cut into the same shot at exactly the source
  * second where the previous entry stopped is a continuous seam. Every other
  * entry change, and any transition overlap at either instant, is a cut. A
  * declared break of that shot in `(before, after]` on its clock turns a
  * continuous relation into a discontinuity.
  *
- * @param props The cut, its layout, two output seconds and the deliberate breaks.
+ * @param props The cut, its layout, two output seconds and the deliberate
+ *   breaks.
  * @returns The relation, with both shot clocks unless it is unavailable.
  */
 export function classifyAutoMoviePlaybackBoundary(
@@ -30,8 +31,6 @@ export function classifyAutoMoviePlaybackBoundary(
   const entries: readonly IAutoMoviePlaybackEntry[] = timeline.entries;
   if (
     entries.length === 0 ||
-    !Number.isFinite(before) ||
-    !Number.isFinite(after) ||
     before < 0 ||
     after < before ||
     after >= timeline.runtime
@@ -77,7 +76,8 @@ export function classifyAutoMoviePlaybackBoundary(
 }
 
 /**
- * Whether the incoming entry hard-cuts into the same shot at the source second where the outgoing one stopped.
+ * Whether the incoming entry hard-cuts into the same shot at the source second
+ * where the outgoing one stopped.
  */
 function resumesShot(
   shots: readonly IAutoMovieSequenceEntry[],

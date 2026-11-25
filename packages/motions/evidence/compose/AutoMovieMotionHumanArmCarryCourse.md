@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmCarryCourse.ts#AutoMovieMotionHumanArmCarryCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the inputs that vary and what the course represents.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The authored shoulder and elbow correction is piecewise linear over joint-space blends. Earlier carried arms contribute their corrected angles and later ones their uncorrected angles at the same share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The live carry and native fixed-arrival writer share the same geometry and clearance functions.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A moving goal or clearance body calls the live course. Preparation preserves every existing key and threshold.
-
 # src/compose/AutoMovieMotionHumanArmCarryCourse.ts#AutoMovieMotionHumanArmCarryCourse.fixed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

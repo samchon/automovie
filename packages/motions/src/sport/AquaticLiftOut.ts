@@ -22,10 +22,17 @@ import { HumanHand } from "../posture/HumanHand";
 import { AquaticEdge } from "./AquaticEdge";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** Seconds of the whole lift-out, shared by the rescuer and the victim: provisional. */
+/**
+ * Seconds of the whole lift-out, shared by the rescuer and the victim:
+ * provisional.
+ */
 const DURATION: number = 5;
 
-/** Shares of the phases: the victim faces the wall with its arms up and the rescuer takes its wrists, the hips rise to the deck, the trunk folds over onto it, the victim lies. */
+/**
+ * Shares of the phases: the victim faces the wall with its arms up and the
+ * rescuer takes its wrists, the hips rise to the deck, the trunk folds over
+ * onto it, the victim lies.
+ */
 const FACE: number = 0.2;
 const LIFT: number = 0.55;
 const OVER: number = 0.75;
@@ -33,16 +40,28 @@ const OVER: number = 0.75;
 /** The share by which the rescuer has let go and stands. */
 const RELEASE: number = 0.65;
 
-/** The highest deck above the water a rescuer lifts a victim onto, metres: provisional, about a standing rescuer's knee. */
+/**
+ * The highest deck above the water a rescuer lifts a victim onto, metres:
+ * provisional, about a standing rescuer's knee.
+ */
 const FREEBOARD: number = 0.6;
 
-/** The victim's hips out from the wall as it hangs and rises, metres: provisional, the chest clear of the wall. */
+/**
+ * The victim's hips out from the wall as it hangs and rises, metres:
+ * provisional, the chest clear of the wall.
+ */
 const WALL: number = 0.25;
 
-/** The hanging victim's hips below the surface, metres: provisional, the chest at the surface. */
+/**
+ * The hanging victim's hips below the surface, metres: provisional, the chest
+ * at the surface.
+ */
 const HANG: number = 0.3;
 
-/** How far the rescuer's hips sink at the deepest squat and draw back, over stature: provisional. */
+/**
+ * How far the rescuer's hips sink at the deepest squat and draw back, over
+ * stature: provisional.
+ */
 const SQUAT: number = 0.22;
 const BACK: number = 0.06;
 
@@ -52,19 +71,13 @@ type Wrists = Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>>;
 /**
  * An assisted removal from the water as the American Red Cross Lifeguarding
  * manual describes it: the victim faces the wall with its arms raised, the
- * rescuer on the deck beside its line squats and grips both wrists
- * (`grip`), straightens to raise the victim's hips to the deck (`lifted`),
- * lets go as the victim's trunk folds forward over the edge (`released`),
- * and the victim lies prone on the deck with its legs trailing into the
- * water (`lying`). Both performers read the same clock and the edge; the
- * victim's path is its own, and the rescuer's hands read only the victim's
- * displayed wrists. A deck higher above the water than `FREEBOARD` is
- * refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, the shared clock, the phases, who reads whom and the refusal.
- * @evidence contracts/development/design.md#principled-representation Clinical keys placed by the hips relative to the prop's own edge, the rescuer's feet planted on the deck and its hands coursed onto the displayed wrists.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the assisted removal; the unaided exit is `AquaticEdgeExit`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The deck and edge come from the named prop; the rescuer's grip reads the victim's displayed hands, never a planned stand-in.
+ * rescuer on the deck beside its line squats and grips both wrists (`grip`),
+ * straightens to raise the victim's hips to the deck (`lifted`), lets go as the
+ * victim's trunk folds forward over the edge (`released`), and the victim lies
+ * prone on the deck with its legs trailing into the water (`lying`). Both
+ * performers read the same clock and the edge; the victim's path is its own,
+ * and the rescuer's hands read only the victim's displayed wrists. A deck
+ * higher above the water than `FREEBOARD` is refused.
  */
 export namespace AquaticLiftOut {
   /** The victim: faces the wall, is raised by its wrists and lies over the edge. */
@@ -164,7 +177,10 @@ export namespace AquaticLiftOut {
     };
   }
 
-  /** The rescuer: squats on the deck, grips the wrists, straightens to lift and lets go. */
+  /**
+   * The rescuer: squats on the deck, grips the wrists, straightens to lift and
+   * lets go.
+   */
   export function rescuer(
     context: AquaticPosture.Context,
     water: number,
@@ -374,7 +390,7 @@ export namespace AquaticLiftOut {
     // Both hands reach from the entered arms onto the wrists as one course,
     // hold them through the lift and return to the standing key's arms.
     return courseArmGoal({
-      body,
+      context,
       plan,
       side: "left",
       rest: AquaticPosture.rest(body, entry.posture, "left"),
@@ -398,7 +414,7 @@ export namespace AquaticLiftOut {
     context: AquaticPosture.Context,
     water: number,
   ): AquaticEdge.IEdge {
-    const edge: AquaticEdge.IEdge = AquaticEdge.of(context);
+    const edge: AquaticEdge.IEdge = AquaticEdge(context);
     const freeboard: number = edge.lip.y - water;
     if (freeboard > FREEBOARD)
       throw new HumanRefusal({

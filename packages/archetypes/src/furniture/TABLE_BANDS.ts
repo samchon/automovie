@@ -33,7 +33,11 @@ const SILHOUETTE: string =
 const WOERNER: string =
   "Woerner Industries Church and Funeral Furniture Catalog 2023, p. 09: 5061 Altar, 72 in wide, 30 in deep, 40 in high (https://store.occatholic.com/Images/Woerner_Catalog.pdf)";
 
-/** The band of each free dimension of `createTable`, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. */
+/**
+ * The band of each free dimension of `createTable`, by kind, with the sources
+ * they are read at: kept apart from the producer so each file stays within its
+ * size.
+ */
 export const TABLE_BANDS: typeof createTable.BANDS = {
   dining: {
     height: AutoMovieArchetypeBand.metres(

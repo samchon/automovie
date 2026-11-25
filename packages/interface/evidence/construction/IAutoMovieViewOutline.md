@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieViewOutline.ts#IAutoMovieViewOutline
-
-## @evidence contracts/development/design.md#principled-representation
-
-Outline preparation retains original knots and parameter choice; readings distinguish finite scalar values from nullable physical-station jets and their explicit status.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ViewOutline owns source admission/readings used by view curves, scalar sources and optional ViewHermite preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Singular or nonfinite station derivatives do not discard a finite source value or fabricate zero derivatives; failures remain named.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines closing ends, root/angle coordinates, derivative status and extension location.
-
 # src/construction/IAutoMovieViewOutline.ts#IAutoMovieViewOutline.IEnds
 
 ## @evidence contracts/development/design.md#principled-representation

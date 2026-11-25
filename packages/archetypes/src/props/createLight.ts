@@ -11,12 +11,7 @@ import { createFireTorch } from "./createFireTorch";
 import { createLantern } from "./createLantern";
 import { createPendantLamp } from "./createPendantLamp";
 import { createStandingLamp } from "./createStandingLamp";
-
-/** A saved recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createLight.IParams,
-  seed?: number | string,
-) => AutoMovieArchetype<createLight.Affordance, createLight.Dimension>;
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * Replay a saved light variant with the original dimensions, identifier and
@@ -29,17 +24,10 @@ type Producer = (
  * @returns The original generated model and its local contacts.
  * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
  *   outside its admitted range.
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved light variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the light draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createLight(
   params: createLight.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLight.Affordance, createLight.Dimension> {
   const kind: createLight.Kind = ArchetypeDraw.choice(
     "light",
@@ -49,8 +37,25 @@ export function createLight(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createLight.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createLight.Kind,
+      IArchetypeDispatch<
+        Omit<createLight.IParams, "kind">,
+        AutoMovieArchetype<createLight.Affordance, createLight.Dimension>
+      >
+    >
+  > = {
+    candle: { build: createCandle },
+    fireTorch: { build: createFireTorch },
+    pendant: { build: createPendantLamp },
+    tableLamp: { build: createStandingLamp },
+    floorLamp: { build: createStandingLamp },
+    lantern: { build: createLantern },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createLight}. */

@@ -1,6 +1,4 @@
-/**
- * Require a safe nonnegative glTF byte offset.
- */
+/** Require a safe nonnegative glTF byte offset. */
 export const nonNegativeInteger: (value: unknown, path: string) => void = (
   value: unknown,
   path: string,

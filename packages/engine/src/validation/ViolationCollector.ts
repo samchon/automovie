@@ -6,27 +6,20 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
 import { describeInvalidValue } from "./describeInvalidValue";
+import { directionLength } from "./directionLength";
 import { toValidation } from "./toValidation";
 import { violation } from "./violation";
-
-/** A direction this short or shorter carries no direction at all. */
-const DIRECTION_EPSILON: number = 1e-12;
 
 /** Largest deviation from unit norm a stated rotation may carry. */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
 
-/**
- * Mutable insertion-ordered finding storage shared by validation predicates.
- */
+/** Mutable insertion-ordered finding storage shared by validation predicates. */
 export class ViolationCollector {
   /** Violations accumulated in insertion order. */
   public readonly items: IAutoMovieConstraintViolation[] = [];
 
-  /**
-   * Append one canonical violation in the caller's traversal order.
-   */
+  /** Append one canonical violation in the caller's traversal order. */
   public push(
     kind: AutoMovieViolationKind,
     path: string,
@@ -41,7 +34,9 @@ export class ViolationCollector {
   }
 
   /**
-   * Push a `"warning"`-severity violation, physical-plausibility advice that does not fail validation (see {@link IAutoMovieConstraintViolation.severity}).
+   * Push a `"warning"`-severity violation, physical-plausibility advice that
+   * does not fail validation (see
+   * {@link IAutoMovieConstraintViolation.severity}).
    */
   public warn(
     kind: AutoMovieViolationKind,
@@ -54,31 +49,28 @@ export class ViolationCollector {
   }
 
   /**
-   * Finite range check `[min, max]`; pushes a `range` violation unless `value` is a finite number inside it. `value` is `unknown` so a field read off an untyped payload is narrowed here rather than cast to `number` first. Failed string conversion changes only the diagnostic representation to `an uninspectable value`; the finding retains the original value.
+   * Range check `[min, max]`; pushes a `range` violation unless `value` lies
+   * inside it.
    */
   public range(
     path: string,
-    value: unknown,
+    value: number,
     min: number,
     max: number,
     label: string = "value",
   ): void {
-    if (
-      typeof value !== "number" ||
-      !Number.isFinite(value) ||
-      value < min ||
-      value > max
-    )
+    if (!(value >= min && value <= max))
       this.push(
         "range",
         path,
-        `${label} must be a finite number within [${min}, ${max}], but was ${describeInvalidValue(value)}`,
+        `${label} must be within [${min}, ${max}], but was ${describeInvalidValue(value)}`,
         value,
       );
   }
 
   /**
-   * Pushes a `type` violation when `value` is empty or only whitespace; the message is `<label> must be non-empty`.
+   * Pushes a `type` violation when `value` is empty or only whitespace; the
+   * message is `<label> must be non-empty`.
    *
    * @param path Violation path of the checked string.
    * @param value String that must carry a non-whitespace character.
@@ -90,10 +82,11 @@ export class ViolationCollector {
   }
 
   /**
-   * Checks a direction that need not be unit length: one `range` violation at `<path>.<axis>` per non-finite component, or, when every component is finite, one at `path` if the measured length is nonfinite or `1e-12` or shorter.
+   * Report one range violation if the direction has no representable norm
+   * above the minimum.
    *
    * @param path Violation path of the checked vector.
-   * @param value Direction to check; a finite measured length above 1e-12 passes.
+   * @param value Direction to check. A representable norm above 1e-12 passes.
    * @param label Name of the direction in the messages.
    */
   public direction(
@@ -101,44 +94,18 @@ export class ViolationCollector {
     value: IAutoMovieVector3,
     label: string,
   ): void {
-    this.finiteVector(path, value, label);
-    const length: number = Vector3.length(value);
-    if (
-      [value.x, value.y, value.z].every(Number.isFinite) &&
-      (!Number.isFinite(length) || length <= DIRECTION_EPSILON)
-    )
+    if (directionLength(value) === null)
       this.push(
         "range",
         path,
-        `${label} must have a finite length greater than ${DIRECTION_EPSILON}`,
+        `${label} must have a finite length greater than ${directionLength.MINIMUM}`,
         value,
       );
   }
 
   /**
-   * Pushes one `range` violation at `<path>.<axis>` for each non-finite component of a vector, worded `<label> <axis> must be finite, but was <value>`.
-   *
-   * @param path Violation path of the checked vector.
-   * @param value Vector whose three components must be finite.
-   * @param label Name of the vector in the messages.
-   */
-  public finiteVector(
-    path: string,
-    value: IAutoMovieVector3,
-    label: string,
-  ): void {
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(value[axis]))
-        this.push(
-          "range",
-          `${path}.${axis}`,
-          `${label} ${axis} must be finite, but was ${value[axis]}`,
-          value[axis],
-        );
-  }
-
-  /**
-   * Pushes a `range` violation at `path` unless a value is a finite number strictly above zero; a missing value fails and is reported as `null`.
+   * Pushes a `range` violation at `path` unless a value is a finite number
+   * strictly above zero; a missing value fails and is reported as `null`.
    *
    * @param path Violation path of the checked number.
    * @param value Number that must be finite and positive, or undefined.
@@ -149,7 +116,7 @@ export class ViolationCollector {
     value: number | undefined,
     label: string,
   ): void {
-    if (value === undefined || !Number.isFinite(value) || value <= 0)
+    if (value === undefined || value <= 0)
       this.push(
         "range",
         path,
@@ -159,7 +126,8 @@ export class ViolationCollector {
   }
 
   /**
-   * Pushes a `range` violation at `path` when a quaternion's norm is not finite or differs from 1 by more than `1e-6`, reporting the norm.
+   * Pushes a `range` violation at `path` when a quaternion's norm is not finite
+   * or differs from 1 by more than `1e-6`, reporting the norm.
    *
    * @param path Violation path of the checked rotation.
    * @param value Quaternion that must be a unit rotation.
@@ -171,7 +139,7 @@ export class ViolationCollector {
     label: string,
   ): void {
     const norm: number = Math.hypot(value.x, value.y, value.z, value.w);
-    if (!Number.isFinite(norm) || Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
+    if (Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
       this.push(
         "range",
         path,
@@ -181,7 +149,8 @@ export class ViolationCollector {
   }
 
   /**
-   * Wrap the current findings with canonical severity folding and shared storage.
+   * Wrap the current findings with canonical severity folding and shared
+   * storage.
    */
   public toValidation(): IAutoMovieValidation {
     return toValidation(this.items);

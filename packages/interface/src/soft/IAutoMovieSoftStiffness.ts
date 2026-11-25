@@ -1,6 +1,4 @@
-/**
- * Dimensionless relaxation weight of each lattice constraint family.
- */
+/** Dimensionless relaxation weight of each lattice constraint family. */
 export interface IAutoMovieSoftStiffness {
   /** Row and column neighbours: resists stretching. */
   structural: number;

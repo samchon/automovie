@@ -13,14 +13,13 @@ import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQ
  * Two dimensioned coarse pinna plates rooted in the head capsule.
  *
  * Published ear length/breadth are interpreted as a straight plate's complete
- * base-to-tip centreline and width. A rectangular plate, its thickness and its neutral direction are
- * explicit authored representation choices, not measured ear anatomy. Existing
- * body dimensions, skeletal controls and mass ownership are not changed.
+ * base-to-tip centreline and width. A rectangular plate, its thickness and its
+ * neutral direction are explicit authored representation choices, not measured
+ * ear anatomy. Existing body dimensions, skeletal controls and mass ownership
+ * are not changed.
  */
 export namespace AutoMovieArchetypeQuadrupedEars {
-  /**
-   * Measured-reference proportions and explicitly authored plate construction.
-   */
+  /** Measured-reference proportions and explicitly authored plate construction. */
   export interface IProfile {
     /** Complete base-to-tip length divided by reference withers height. */
     length: number;
@@ -32,17 +31,15 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     direction: IAutoMovieVector3;
   }
 
-  /**
-   * Two admitted plates and their total solid volume, cubic metres.
-   */
+  /** Two admitted plates and their total solid volume, cubic metres. */
   export interface IPrepared {
     /** Two-box volume, cubic metres. */
     readonly volume: number;
     /**
-     * Append both admitted metre-space boxes to the builder in the supplied colour.
-     * A supplied pair weight is split equally; absent, the builder allocates by
-     * volume. Invalid weights refuse before emission; part identity and
-     * material admission remain the builder's responsibility.
+     * Append both admitted metre-space boxes to the builder in the supplied
+     * colour. A supplied pair weight is split equally; absent, the builder
+     * allocates by volume. Invalid weights refuse before emission; part
+     * identity and material admission remain the builder's responsibility.
      */
     emit<Id extends string, Dimension extends string>(
       builder: AutoMovieArchetypeBuilder<Id, Dimension>,
@@ -59,9 +56,12 @@ export namespace AutoMovieArchetypeQuadrupedEars {
    * @param withers Current withers height, metres.
    * @param profile Explicit dimension ratios and authored plate construction.
    * @param color The body's optical colour.
-   * @param totalShare Optional complete two-plate weight budget; absent for existing volume allocation.
-   * @throws {RangeError} For invalid or unrepresentable dimensions/direction or a complete root that cannot fit the head.
-   * @throws {Error} When the shared primitive mass owner cannot represent the positive solid.
+   * @param totalShare Optional complete two-plate weight budget; absent for
+   *   existing volume allocation.
+   * @throws {RangeError} For invalid or unrepresentable dimensions/direction or
+   *   a complete root that cannot fit the head.
+   * @throws {Error} When the shared primitive mass owner cannot represent the
+   *   positive solid.
    */
   export function lay<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
@@ -77,9 +77,7 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     prepare(head, withers, profile).emit(builder, color, totalShare);
   }
 
-  /**
-   * Admit complete roots once and retain the dimensions used for emission.
-   */
+  /** Admit complete roots once and retain the dimensions used for emission. */
   export function prepare(
     head: Pick<
       AutoMovieArchetypeQuadrupedBody.IRig,
@@ -88,22 +86,23 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     withers: number,
     profile: IProfile,
   ): IPrepared {
-    const length: number = profile.length * withers;
-    const width: number = profile.width * withers;
-    const thickness: number = profile.plateThickness * withers;
-    const norm: number = Math.hypot(
-      profile.direction.x,
-      profile.direction.y,
-      profile.direction.z,
+    // IEEE Std 754-2019 §§3.6 and 7.4 bound each ratio before converting it
+    // to metres. A ratio that underflows on conversion has no solid extent.
+    const maximum: number = Math.min(
+      Number.MAX_VALUE,
+      Number.MAX_VALUE / withers,
     );
-    if (
-      ![withers, length, width, thickness, norm].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
-      )
-    )
-      throw new RangeError(
-        "Ear plates require positive finite dimensions and a finite nonzero authored direction",
-      );
+    const length: number = metres(profile.length);
+    const width: number = metres(profile.width);
+    const thickness: number = metres(profile.plateThickness);
+    const direction: IAutoMovieVector3 = profile.direction;
+    const norm: number = Math.hypot(direction.x, direction.y, direction.z);
+    const left: IAutoMovieVector3 =
+      norm > 0 && norm <= Number.MAX_VALUE
+        ? { x: direction.x / norm, y: direction.y / norm, z: direction.z / norm }
+        : Vector3.normalize(direction);
+    if (!(Vector3.length(left) > 0))
+      throw new RangeError("Ear plates require a nonzero authored direction");
     const solid: ReturnType<typeof ArchetypeMassPrimitive> =
       ArchetypeMassPrimitive({
         type: "box",
@@ -113,7 +112,7 @@ export namespace AutoMovieArchetypeQuadrupedEars {
       });
     if (
       solid === null ||
-      !(Number.isFinite(2 * solid.volume) && 2 * solid.volume > 0)
+      !(solid.volume > 0 && solid.volume <= Number.MAX_VALUE / 2)
     )
       throw new RangeError(
         "The complete ear pair must have representable positive solid volume",
@@ -126,9 +125,9 @@ export namespace AutoMovieArchetypeQuadrupedEars {
       ["rightEar", -1],
     ] as const) {
       const direction: IAutoMovieVector3 = {
-        x: (sign * profile.direction.x) / norm,
-        y: profile.direction.y / norm,
-        z: profile.direction.z / norm,
+        x: sign * left.x,
+        y: left.y,
+        z: left.z,
       };
       const root: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
         head,
@@ -143,10 +142,6 @@ export namespace AutoMovieArchetypeQuadrupedEars {
         root,
         Vector3.scale(direction, length / 2),
       );
-      if (![centre.x, centre.y, centre.z].every(Number.isFinite))
-        throw new RangeError(
-          "Ear plate geometry must be finitely representable",
-        );
       plans.push({
         id,
         centre,
@@ -160,10 +155,7 @@ export namespace AutoMovieArchetypeQuadrupedEars {
         color: string,
         totalShare?: number,
       ): void {
-        if (
-          totalShare !== undefined &&
-          !(Number.isFinite(totalShare) && totalShare > 0 && totalShare / 2 > 0)
-        )
+        if (totalShare !== undefined && !(totalShare > 0 && totalShare / 2 > 0))
           throw new RangeError(
             "Actual ear weights must be representably positive",
           );
@@ -180,6 +172,16 @@ export namespace AutoMovieArchetypeQuadrupedEars {
           );
       },
     };
+
+    /** Convert a positive profile ratio to a representable solid extent. */
+    function metres(ratio: number): number {
+      if (!(withers > 0 && ratio > 0 && ratio <= maximum))
+        throw new RangeError("Ear plate dimensions must fit in metres");
+      const extent: number = ratio * withers;
+      if (!(extent > 0 && extent <= Number.MAX_VALUE))
+        throw new RangeError("Ear plate dimensions must fit in metres");
+      return extent;
+    }
   }
 
   /** One fully admitted real plate before either is appended to the body. */

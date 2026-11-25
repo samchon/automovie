@@ -1,8 +1,9 @@
 /**
- * One host memory-accounting sample in bytes, without a process handle or timer.
- * These populations overlap: external and array-buffer accounting must not be
- * added to RSS as disjoint allocations. The host supplies finite nonnegative
- * observations under its own sampling semantics; no allocation ceiling follows.
+ * One host memory-accounting sample in bytes, without a process handle or
+ * timer. These populations overlap: external and array-buffer accounting must
+ * not be added to RSS as disjoint allocations. The host supplies finite
+ * nonnegative observations under its own sampling semantics; no allocation
+ * ceiling follows.
  */
 
 export interface IAutoMovieMemoryUsage {

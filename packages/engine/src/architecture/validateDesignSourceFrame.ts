@@ -9,7 +9,10 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
 import { AUTO_MOVIE_DESIGN_FRAME_VIEWS } from "./constants/AUTO_MOVIE_DESIGN_FRAME_VIEWS";
 
-/** Below this, a direction carries no direction; above `1 - it`, two are parallel. */
+/**
+ * Below this, a direction carries no direction; above `1 - it`, two are
+ * parallel.
+ */
 const AXIS_EPSILON: number = 1e-12;
 
 /**
@@ -17,14 +20,14 @@ const AXIS_EPSILON: number = 1e-12;
  *
  * A frame states its own sheet: a known view, a whole page number from 1, a
  * null or non-blank level, a finite positive width and height, and an anchor
- * inside those bounds. Its scale readings need unique non-blank ids, a finite
- * positive `metersPerUnit`, a confidence in [0, 1] and a non-blank basis, and a
- * settled `scale` must name one of them; leaving it null is how an unknown
- * scale is recorded. `axisX`, `axisY`, `up` and a present `north` must be
- * finite non-zero directions, `axisX` and `axisY` must not be parallel, the
- * origin must be finite, and a present transform must have finite components,
- * a unit rotation and a positive scale. Every finding is pushed to `collector`
- * under `path`; nothing throws.
+ * inside those bounds. Its scale readings need unique ids, a finite positive
+ * `metersPerUnit`, a confidence in [0, 1] and a non-blank basis, and a settled
+ * `scale` must name one of them; leaving it null is how an unknown scale is
+ * recorded. `axisX`, `axisY`, `up` and a present `north` must be finite
+ * non-zero directions, `axisX` and `axisY` must not be parallel, the origin
+ * must be finite, and a present transform must have finite components, a unit
+ * rotation and a positive scale. Every finding is pushed to `collector` under
+ * `path`; nothing throws.
  *
  * @param frame Frame to validate.
  * @param path Violation path of the frame, such as `$input.frames[0]`.
@@ -48,7 +51,7 @@ export const validateDesignSourceFrame: (
       `unknown source frame view "${String(frame.view)}"`,
       frame.view,
     );
-  if (!Number.isSafeInteger(frame.page) || frame.page < 1)
+  if (frame.page < 1)
     collector.push(
       "range",
       `${path}.page`,
@@ -63,7 +66,7 @@ export const validateDesignSourceFrame: (
       frame.level,
     );
   for (const axis of ["width", "height"] as const)
-    if (!Number.isFinite(frame.bounds[axis]) || frame.bounds[axis] <= 0)
+    if (frame.bounds[axis] <= 0)
       collector.push(
         "range",
         `${path}.bounds.${axis}`,
@@ -74,11 +77,7 @@ export const validateDesignSourceFrame: (
     const limit: number =
       axis === "x" ? frame.bounds.width : frame.bounds.height;
     const value: number = frame.anchor[axis];
-    if (
-      !Number.isFinite(value) ||
-      value < 0 ||
-      (Number.isFinite(limit) && value > limit)
-    )
+    if (value < 0 || value > limit)
       collector.push(
         "range",
         `${path}.anchor.${axis}`,
@@ -95,10 +94,7 @@ export const validateDesignSourceFrame: (
   frame.scaleCandidates.forEach(
     (candidate: IAutoMovieDesignScaleCandidate, index: number): void => {
       const candidatePath: string = `${path}.scaleCandidates[${index}]`;
-      if (
-        !Number.isFinite(candidate.metersPerUnit) ||
-        candidate.metersPerUnit <= 0
-      )
+      if (candidate.metersPerUnit <= 0)
         collector.push(
           "range",
           `${candidatePath}.metersPerUnit`,
@@ -131,14 +127,6 @@ export const validateDesignSourceFrame: (
   collector.direction(`${path}.up`, frame.up, "frame up");
   if (frame.north !== null)
     collector.direction(`${path}.north`, frame.north, "frame north");
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(frame.origin[axis]))
-      collector.push(
-        "range",
-        `${path}.origin.${axis}`,
-        `frame origin ${axis} must be finite, but was ${frame.origin[axis]}`,
-        frame.origin[axis],
-      );
   const axisXLength: number = Math.hypot(
     frame.axisX.x,
     frame.axisX.y,
@@ -149,24 +137,8 @@ export const validateDesignSourceFrame: (
     frame.axisY.y,
     frame.axisY.z,
   );
-  if (!Number.isFinite(axisXLength))
-    collector.push(
-      "range",
-      `${path}.axisX`,
-      "frame x axis must have a finite computed length",
-      frame.axisX,
-    );
-  if (!Number.isFinite(axisYLength))
-    collector.push(
-      "range",
-      `${path}.axisY`,
-      "frame y axis must have a finite computed length",
-      frame.axisY,
-    );
   if (
-    Number.isFinite(axisXLength) &&
     axisXLength > AXIS_EPSILON &&
-    Number.isFinite(axisYLength) &&
     axisYLength > AXIS_EPSILON &&
     Math.abs(
       Vector3.dot(

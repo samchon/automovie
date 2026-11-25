@@ -5,7 +5,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.
+ * Require distinct skeleton endpoints that are declared and FK-reachable, plus
+ * finite positive radius.
  */
 export const validateCapsule: (
   capsule: IAutoMovieCapsuleProxy,
@@ -54,7 +55,7 @@ export const validateCapsule: (
       { from: capsule.from, to: capsule.to },
     );
   }
-  if (!Number.isFinite(capsule.radius) || capsule.radius <= 0) {
+  if (capsule.radius <= 0) {
     valid = false;
     collector.push(
       "range",

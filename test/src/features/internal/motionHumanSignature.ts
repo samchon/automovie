@@ -19,20 +19,20 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
  * measure on a performer, read off the displayed bones of a law's film.
  *
  * A signature test stages a law the way the law sweep does (the family stage
- * tables), performs it on a real body and reads, at the instants the act's
- * own events or the film's contacts name, the quantities the literature
- * reports: the trunk's inclination from vertical in the sagittal plane, joint
- * flexions as the angle a limb segment turns from its proximal segment, the
- * whole-body centre of mass, the head's pitch, which feet bear on the floor,
- * the duty factor and the cadence. None of these readings knows a law; the
- * bounds live in the tests with their sources.
+ * tables), performs it on a real body and reads, at the instants the act's own
+ * events or the film's contacts name, the quantities the literature reports:
+ * the trunk's inclination from vertical in the sagittal plane, joint flexions
+ * as the angle a limb segment turns from its proximal segment, the whole-body
+ * centre of mass, the head's pitch, which feet bear on the floor, the duty
+ * factor and the cadence. None of these readings knows a law; the bounds live
+ * in the tests with their sources.
  *
  * Conventions: the performer's forward is the heading of the stage, so a
- * positive inclination tips the neck ahead of the hips; a flexion is 0 with
- * the joint straight and grows as it folds; a head pitch is positive when the
- * face turns down. A foot bears on the floor when its lowest sole socket
- * (heel, ball or toe) lies within `CONTACT` of the floor's height and is
- * nearly still over it (`SLIDE`).
+ * positive inclination tips the neck ahead of the hips; a flexion is 0 with the
+ * joint straight and grows as it folds; a head pitch is positive when the face
+ * turns down. A foot bears on the floor when its lowest sole socket (heel, ball
+ * or toe) lies within `CONTACT` of the floor's height and is nearly still over
+ * it (`SLIDE`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the sign of each reading and the contact rule.
  * @evidence contracts/development/implementation.md#principled-implementation Every reading is geometry of displayed joint centres and the engine's whole-body centre of mass, the quantities motion-capture studies report.
@@ -110,8 +110,8 @@ export namespace motionHumanSignature {
    * parameter from the default carry no interaction with the body's shape
    * beyond what one body per row and every body in some row already reach
    * (Kuhn, Kacker and Lei 2010), so the test's cost grows with the larger of
-   * the two counts, not their product. A bound that compares rows of one
-   * body stages those rows on every body itself.
+   * the two counts, not their product. A bound that compares rows of one body
+   * stages those rows on every body itself.
    *
    * @param rows The rows.
    * @returns The cells, rows in order, each body at least once.
@@ -127,7 +127,7 @@ export namespace motionHumanSignature {
   export function reader(
     staged: IStaged,
   ): IAutoMovieMotionHumanSignature.IReader {
-    return HumanSignature.of(staged.film, "a", staged.body, staged.yaw);
+    return HumanSignature(staged.film, "a", staged.body, staged.yaw);
   }
 
   /** The bones of `a` at a second. */
@@ -150,14 +150,20 @@ export namespace motionHumanSignature {
   /** The performer's forward on the floor. */
   export const forward: typeof HumanSignature.forward = HumanSignature.forward;
 
-  /** The trunk's inclination of `a`, degrees, positive forward (`HumanSignature.trunk`). */
+  /**
+   * The trunk's inclination of `a`, degrees, positive forward
+   * (`HumanSignature.trunk`).
+   */
   export function trunk(staged: IStaged, seconds: number): number {
     return HumanSignature.trunk(reader(staged), seconds);
   }
   /** Each body's quiet-stance trunk reading, computed once a process. */
   const UPRIGHT: Map<string, number> = new Map();
 
-  /** How far from vertical the quiet stance's trunk may read, degrees (provisional tolerance about Kendall et al.'s ideal alignment). */
+  /**
+   * How far from vertical the quiet stance's trunk may read, degrees
+   * (provisional tolerance about Kendall et al.'s ideal alignment).
+   */
   export const STANCE: number = 3;
 
   /**
@@ -180,7 +186,8 @@ export namespace motionHumanSignature {
    * alignment holds with the shoulder joints over the hip joints.
    *
    * @param name The body.
-   * @returns A complaint when the stance reads beyond `STANCE`; empty when it does not.
+   * @returns A complaint when the stance reads beyond `STANCE`; empty when it
+   *   does not.
    */
   export function calibrate(name: motionHumanBody.Name): string[] {
     const reading: number = upright(name);
@@ -191,7 +198,10 @@ export namespace motionHumanSignature {
         ];
   }
 
-  /** The angle a distal segment turns from its proximal one at a joint: 0 straight, degrees. */
+  /**
+   * The angle a distal segment turns from its proximal one at a joint: 0
+   * straight, degrees.
+   */
   export const flexion: typeof HumanSignature.flexion = HumanSignature.flexion;
 
   /** A knee's flexion, degrees. */
@@ -221,7 +231,10 @@ export namespace motionHumanSignature {
     return HumanSignature.elbow(reader(staged), seconds, side);
   }
 
-  /** The head's pitch: how far its forward axis points below the horizon, degrees. */
+  /**
+   * The head's pitch: how far its forward axis points below the horizon,
+   * degrees.
+   */
   export function head(staged: IStaged, seconds: number): number {
     return HumanSignature.head(reader(staged), seconds);
   }
@@ -240,7 +253,10 @@ export namespace motionHumanSignature {
     return HumanSignature.sole(reader(staged), seconds, side);
   }
 
-  /** Whether a foot of `a` bears on a floor at a height (`HumanSignature.bears`). */
+  /**
+   * Whether a foot of `a` bears on a floor at a height
+   * (`HumanSignature.bears`).
+   */
   export function bears(
     staged: IStaged,
     seconds: number,
@@ -254,10 +270,16 @@ export namespace motionHumanSignature {
   /** The least time between two strikes of one foot, seconds. */
   export const STRIDE: number = HumanSignature.STRIDE;
 
-  /** The horizontal speed below which a low sole counts as bearing, metres per second. */
+  /**
+   * The horizontal speed below which a low sole counts as bearing, metres per
+   * second.
+   */
   export const SLIDE: number = HumanSignature.SLIDE;
 
-  /** Samples a second for a mean or an extreme over a held posture or a whole act. */
+  /**
+   * Samples a second for a mean or an extreme over a held posture or a whole
+   * act.
+   */
   export const HELD: number = HumanSignature.HELD;
 
   /** Instants from `from` to `to` at a rate. */
@@ -295,13 +317,16 @@ export namespace motionHumanSignature {
     seconds: number,
   ): IAutoMovieVector3 {
     return HumanSignature.region(
-      HumanSignature.of(staged.film, subject, body, staged.yaw),
+      HumanSignature(staged.film, subject, body, staged.yaw),
       name as AutoMovieHumanoidRegion,
       seconds,
     );
   }
 
-  /** How far apart `a` and `b` stand, metres, negative when a joint lies inside the other body. */
+  /**
+   * How far apart `a` and `b` stand, metres, negative when a joint lies inside
+   * the other body.
+   */
   export function apart(
     staged: IStaged,
     seconds: number,
@@ -309,7 +334,7 @@ export namespace motionHumanSignature {
   ): number {
     return HumanSignature.apart(
       reader(staged),
-      HumanSignature.of(staged.film, "b", partner, staged.yaw),
+      HumanSignature(staged.film, "b", partner, staged.yaw),
       seconds,
     );
   }

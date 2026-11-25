@@ -7,9 +7,9 @@ import type { IAutoMovieInstanceSetDesign } from "../production/IAutoMovieInstan
  * A population pairs a logical-space id with the thing itself, as
  * {@link IAutoMovieBuiltSurface} does, so it is a building fact with an owner
  * rather than a world fact that happens to overlap a building. The set is held
- * by value and lowered to the production world as the same instance set, so
- * one placement law serves both the render and every building query, and no
- * second record of the population's world extent exists to drift from it.
+ * by value and lowered to the production world as the same instance set, so one
+ * placement law serves both the render and every building query, and no second
+ * record of the population's world extent exists to drift from it.
  */
 export interface IAutoMovieBuiltPopulation {
   /**
@@ -32,13 +32,13 @@ export interface IAutoMovieBuiltPopulation {
    * Conservative occupied box of every selectable prototype, in model-local
    * metres before a slot's rotation, scale, and placement are applied.
    *
-   * The set names model groups that the building record does not contain, so
-   * a spatial query cannot measure their meshes; this authored box is the
-   * basis it measures instead. It is one union for the default model and
-   * every weighted prototype. The engine derives the world box from it and the
-   * set's placement law, so changing an anchor, heading, spacing, or scale
-   * needs no edit here, but changing the default model or a weighted
-   * prototype does: nothing re-measures the models against this box.
+   * The set names model groups that the building record does not contain, so a
+   * spatial query cannot measure their meshes; this authored box is the basis
+   * it measures instead. It is one union for the default model and every
+   * weighted prototype. The engine derives the world box from it and the set's
+   * placement law, so changing an anchor, heading, spacing, or scale needs no
+   * edit here, but changing the default model or a weighted prototype does:
+   * nothing re-measures the models against this box.
    *
    * A collapsed axis and a point box are valid and describe flat or degenerate
    * geometry; only an inverted or non-finite box is invalid.

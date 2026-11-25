@@ -1,12 +1,10 @@
 import type {
+  IAutoMovieRecoveryAnalyticDomain,
   IAutoMovieRecoveryArtifact,
   IAutoMovieRecoveryArtifactInput,
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
-import {
-  describeRecoveryNamedDomains,
-  readRecoveryMetadata as read,
-} from "@automovie/recovery";
+import { describeRecoveryNamedDomains } from "@automovie/recovery";
 import path from "node:path";
 
 /**
@@ -14,13 +12,9 @@ import path from "node:path";
  * Tensor, contour and open completion remain separate; construction and ownership
  * come from the same engine outputs. This operation changes no geometry or report.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Saved input hashes, actual engine reports and current publication counters expose the same generated artifact and partial status without inferring source fidelity.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Artifact shape and provenance have one owner; source observation, generation and disk-spool writing remain separate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No copied source geometry, quality promotion, geometry filtering or missing-region substitution enters metadata assembly.
+ * @evidence contracts/development/implementation.md#principled-implementation Saved input hashes, actual engine reports and current publication counters expose the same generated artifact and partial status without inferring source fidelity. No copied source geometry, quality promotion, geometry filtering or missing-region substitution enters metadata assembly.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Artifact shape and provenance have one owner; source observation, generation and disk-spool writing remain separate. Assembly visits interval diagnostics and tensor reports in linear passes; exact declared and reported family-ID binding uses O(F) transient storage. Bulk geometry and report arrays are referenced rather than copied. The publication writer owns serialization costs. The existing model, spool construction and ownership arrays feed checkpoints and final publication without regeneration. One returned plain record belongs to the publication invocation. This helper owns no handles, cache or retained geometry beyond its caller's arrays.
  * @evidence contracts/development/common.md#meaningful-documentation States current-report ownership and the separate tensor, open, source and geometry qualifications.
- * @evidence contracts/development/implementation.md#efficient-algorithms Assembly visits interval diagnostics and tensor reports in linear passes; exact declared and reported family-ID binding uses O(F) transient storage. Bulk geometry and report arrays are referenced rather than copied. The publication writer owns serialization costs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing model, spool construction and ownership arrays feed checkpoints and final publication without regeneration.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One returned plain record belongs to the publication invocation. This helper owns no handles, cache or retained geometry beyond its caller's arrays.
  */
 export function createAutoMovieRecoveryArtifact(
   input: IAutoMovieRecoveryArtifactInput,
@@ -71,12 +65,8 @@ export function createAutoMovieRecoveryArtifact(
         report.observationComplete &&
         report.unrepresentedDomains.length === 0,
     );
-  const declaredAnalytic: unknown = read(bundle, ["analyticDomains"]);
-  const analyticDeclarations: readonly unknown[] = Array.isArray(
-    declaredAnalytic,
-  )
-    ? declaredAnalytic
-    : [];
+  const analyticDeclarations: readonly IAutoMovieRecoveryAnalyticDomain[] =
+    bundle.analyticDomains ?? [];
   const retainedDomainComplete: boolean =
     analyticComplete &&
     complete &&
@@ -110,18 +100,16 @@ export function createAutoMovieRecoveryArtifact(
     analyticReports: base.analyticReports,
     analyticOwnership: analyticMembers.map(
       (member: (typeof named.members)[number], ordinal: number): object => {
-        const domain: unknown = analyticDeclarations[ordinal];
-        const id: unknown = read(domain, ["id"]);
-        const closedGroups: unknown = read(domain, ["closedGroups"]);
-        const openPairs: unknown = read(domain, ["openPairs"]);
-        const openUnresolved: unknown = read(domain, ["openUnresolved"]);
+        const domain: IAutoMovieRecoveryAnalyticDomain | undefined =
+          analyticDeclarations[ordinal];
+        const id: string | undefined = domain?.id;
         return {
-          id: typeof id === "string" && id.length > 0 ? id : null,
+          id: id === undefined || id.length === 0 ? null : id,
           occurrence: member.id,
           admitted: member.admitted,
-          closedGroups: Array.isArray(closedGroups) ? closedGroups : null,
-          openPairs: Array.isArray(openPairs) ? openPairs : null,
-          openUnresolved: Array.isArray(openUnresolved) ? openUnresolved : null,
+          closedGroups: domain?.closedGroups ?? null,
+          openPairs: domain?.openPairs ?? null,
+          openUnresolved: domain?.openUnresolved ?? null,
           diagnostics: member.diagnostics,
           polygonalBoundaryConformityQualified: false,
         };
@@ -219,7 +207,6 @@ export function createAutoMovieRecoveryArtifact(
         "tessellateAutoMovieLocalHermite64",
       ],
       callPath: [
-        "recoveryLocal",
         "reconstructAutoMovieRecoveryLocal",
         "IAutoMovieCurve64.Cubic + source-free ordinary continuation",
         "AutoMovieLocalHermiteField64.prepare",

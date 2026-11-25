@@ -12,10 +12,6 @@ const assertAxisFrame: (
   if (frame === undefined) return;
   if (frame.sign !== 1 && frame.sign !== -1)
     throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
-  if (!Number.isFinite(frame.neutral))
-    throw new Error(
-      `${label} neutral must be finite, but was ${frame.neutral}`,
-    );
 };
 
 const shift: (
@@ -37,7 +33,10 @@ const shift: (
 };
 
 /**
- * Convert clinical degree interval endpoints by (clinical - neutral) / sign and reorder mirrored bounds. Null axes remain immobile and absent frames retain range identity. swingDeg is carried as the existing rest-deviation policy; arbitrary neutral shifts do not prove clinical swing-metric invariance.
+ * Convert clinical degree interval endpoints by (clinical - neutral) / sign and
+ * reorder mirrored bounds. Null axes remain immobile and absent frames retain
+ * range identity. swingDeg is carried as the existing rest-deviation policy;
+ * arbitrary neutral shifts do not prove clinical swing-metric invariance.
  */
 export const restRelativeConstraint: (
   clinical: IAutoMovieJointConstraint,

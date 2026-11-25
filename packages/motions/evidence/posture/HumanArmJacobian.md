@@ -1,21 +1,3 @@
-# src/posture/HumanArmJacobian.ts#HumanArmJacobian
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a column holds, the two kinds of coordinate and where each motion comes from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Segment-origin twists are the geometric serial-chain Jacobian (Siciliano et al. 2009, section 3.1.3), composed with the existing swing-twist coordinate chart's derivative.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Ordered segment columns and one placed-chain reader serve trajectory linearisation and the public derivative checks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Joint-axis math and actual clinical projections remain with HumanJacobian; this adapter preserves chart steps, clamped zero columns and free-coordinate order.
-
 # src/posture/HumanArmJacobian.ts#HumanArmJacobian.columns
 
 ## @evidence contracts/development/common.md#meaningful-documentation

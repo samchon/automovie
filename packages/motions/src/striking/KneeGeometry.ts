@@ -1,5 +1,6 @@
 import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -21,16 +22,57 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/**
- * The original knee's contact key, separated from its phase/contact law.
- */
+/** The original knee's contact key, separated from its phase/contact law. */
 export namespace KneeGeometry {
-  /** The place tolerance the carriage's hip settles to, metres: the limb solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). */
-  export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
+  /** A settled hip and the knee solved from it. */
+  export interface ISettled {
+    /** The hip the carriage settles on, world metres. */
+    hip: IAutoMovieVector3;
+
+    /** The knee's solve from that hip. */
+    solved: KneeReach.ISolution;
+  }
 
   /**
-   * The original thigh and shank directions in the world frame.
+   * Settle the hip at the fixed point of the carriage: solve from the hip,
+   * carry the body under that solve, read the hip it leaves, and repeat until
+   * the hip moves within `TOLERANCE`; a pass that does not shrink the move
+   * cannot converge and is refused.
+   *
+   * @param start The hip before any carriage, world metres.
+   * @param reach The knee's solve from a hip.
+   * @param carry The hip the carriage leaves under a solve.
+   * @param refuse The refusal for a move that does not shrink, metres.
+   * @returns The settled hip and its solve.
+   * @throws {HumanRefusal} When the carriage does not settle.
    */
+  export function settle(
+    start: IAutoMovieVector3,
+    reach: (hip: IAutoMovieVector3) => KneeReach.ISolution,
+    carry: (solved: KneeReach.ISolution) => IAutoMovieVector3,
+    refuse: (change: number) => HumanRefusal,
+  ): ISettled {
+    let hip: IAutoMovieVector3 = start;
+    let solved: KneeReach.ISolution = reach(hip);
+    let moved: number = Infinity;
+    for (;;) {
+      const next: IAutoMovieVector3 = carry(solved);
+      const change: number = Vector3.distance(next, hip);
+      hip = next;
+      solved = reach(hip);
+      if (change <= TOLERANCE) return { hip, solved };
+      if (!(change < moved)) throw refuse(change);
+      moved = change;
+    }
+  }
+
+  /**
+   * The place tolerance the carriage's hip settles to, metres: the limb
+   * solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
+   */
+  export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
+
+  /** The original thigh and shank directions in the world frame. */
   export interface ILeg {
     /** From the hip to the knee. */
     thigh: IAutoMovieVector3;
@@ -39,9 +81,7 @@ export namespace KneeGeometry {
     shank: IAutoMovieVector3;
   }
 
-  /**
-   * The original solved knee key and the course it is reached on.
-   */
+  /** The original solved knee key and the course it is reached on. */
   export interface IGeometry extends KneeReach.ISolution {
     /** The target point, world metres. */
     target: IAutoMovieVector3;
@@ -56,16 +96,15 @@ export namespace KneeGeometry {
     to: ILeg;
 
     /**
-     * What the stance's planted ankle lies from the ankle `from` puts under
-     * the stance's hip, world metres: zero unless the stance stretches the
-     * leg past its length.
+     * What the stance's planted ankle lies from the ankle `from` puts under the
+     * stance's hip, world metres: zero unless the stance stretches the leg past
+     * its length.
      */
     slack: IAutoMovieVector3;
 
     /** The driven foot's world rotation at the contact. */
     foot: IAutoMovieQuaternion;
   }
-
 
   /**
    * Build the knee law's original target/carriage/contact interpolation key.
@@ -74,16 +113,23 @@ export namespace KneeGeometry {
    * @param side The kicking side already selected by the law.
    * @param feet The actual entry foot placements.
    * @param carriage The law's original lowered/pivoted carriage producer.
-   * @param before The key this plan built before, when it has one: returned as it is when the launch reads the same target point, so a plan solves its key once and again only when a settle shows the target elsewhere at the launch's reading.
-   * @returns The same measured reach/key used by the free and displayed courses.
-   * @throws {HumanRefusal} A `reach` refusal when solving the knee again from the hip its carriage leaves stops shrinking that hip's move before it is within `TOLERANCE`.
+   * @returns The same measured reach/key used by the free and displayed
+   *   courses.
+   * @throws {HumanRefusal} A `reach` refusal when solving the knee again from
+   *   the hip its carriage leaves stops shrinking that hip's move before it is
+   *   within `TOLERANCE`.
    */
   export function solve(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnee.IParams>,
-    side: "left" | "right",
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
-    carriage: (thrust: IAutoMovieVector3, turn: number, whole: number, drive: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
-    before?: IGeometry,
+    side: AutoMovieHumanSide,
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+    carriage: (
+      thrust: IAutoMovieVector3,
+      turn: number,
+      whole: number,
+      drive: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ) => IAutoMovieMotionHumanPosture,
   ): IGeometry {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -96,21 +142,12 @@ export namespace KneeGeometry {
       t0 - StrikingTarget.LOOK,
       (): number => 0.8 * m.thigh,
     );
-
-    // The key follows the one reading the launch makes of its target, on a
-    // body, an entry and feet that are the plan's own: a key made before on
-    // the same point is this one, and its carriage rounds are not run again.
-    if (
-      before !== undefined &&
-      before.target.x === target.x &&
-      before.target.y === target.y &&
-      before.target.z === target.z
-    )
-      return before;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
-    const projection: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
-      (projector ??= prepareHumanPostureProjection(body));
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const projected: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const projection = (): ReturnType<typeof prepareHumanPostureProjection> =>
+      projected;
     const line: IAutoMovieVector3 = StrikingTarget.line(
       entry.root,
       target,
@@ -126,40 +163,45 @@ export namespace KneeGeometry {
     const start: IAutoMovieVector3 = KickCarriage.hip(
       body,
       carriage({ x: 0, y: 0, z: 0 }, 0, 0, 0, resolution),
-      side, resolution, projection(),
-    );
-    let hip: IAutoMovieVector3 = start;
-    let solved: KneeReach.ISolution = reach(hip);
-    const turn: number = wrapDegrees(
-      StrikingTarget.heading(solved.heading) - entry.yaw,
+      side,
+      resolution,
+      projection(),
     );
     // The hip is the fixed point of the carriage under the solve it carries:
     // each pass solves the knee again from the hip the last carriage left,
     // until that hip moves within the limb solver's place tolerance. A pass
     // that does not shrink the move cannot converge, and the knee is refused
     // rather than solved from a hip the figure does not show.
-    let moved: number = Infinity;
-    for (;;) {
-      const next: IAutoMovieVector3 = Vector3.subtract(
-        KickCarriage.hip(body, carriage(solved.thrust, turn, 1, 1, resolution), side, resolution, projection()),
-        solved.thrust,
-      );
-      const change: number = Vector3.distance(next, hip);
-      hip = next;
-      solved = reach(hip);
-      if (change <= TOLERANCE) break;
-      if (!(change < moved))
-        throw new HumanRefusal({
+    const turn: number = wrapDegrees(
+      StrikingTarget.heading(reach(start).heading) - entry.yaw,
+    );
+    const { hip, solved }: KneeGeometry.ISettled = KneeGeometry.settle(
+      start,
+      reach,
+      (at: KneeReach.ISolution): IAutoMovieVector3 =>
+        Vector3.subtract(
+          KickCarriage.hip(
+            body,
+            carriage(at.thrust, turn, 1, 1, resolution),
+            side,
+            resolution,
+            projection(),
+          ),
+          at.thrust,
+        ),
+      (change: number): HumanRefusal =>
+        new HumanRefusal({
           kind: "reach",
           axis: "target",
           value: `${(Vector3.distance(start, target) * 1000).toFixed(0)} mm`,
-          feasible: { kind: "alternatives", values: ["a target the hip's drive settles on"] },
+          feasible: {
+            kind: "alternatives",
+            values: ["a target the hip's drive settles on"],
+          },
           reason: `the knee's carriage does not settle: solving the knee again from the hip the carriage leaves still moves that hip ${(change * 1000).toFixed(1)} mm`,
           fix: "aim the knee at a nearer or lower target, or stand nearer it",
-        });
-      moved = change;
-    }
-
+        }),
+    );
     // The stance's leg under the stance's hip, its knee bent toward the line
     // (no knee is read, so the plant's triangle takes the line's side), and
     // the contact's.
@@ -181,7 +223,10 @@ export namespace KneeGeometry {
       ),
       shank: Vector3.normalize(Vector3.subtract(solved.ankle, solved.knee)),
     };
-    const axes: ReturnType<typeof KneeReach.foot> = KneeReach.foot(to.shank, solved.heading);
+    const axes: ReturnType<typeof KneeReach.foot> = KneeReach.foot(
+      to.shank,
+      solved.heading,
+    );
     return {
       ...solved,
       target,
@@ -200,6 +245,5 @@ export namespace KneeGeometry {
       ),
       foot: StrikingBody.foot(axes.toes, axes.instep),
     };
-
   }
 }

@@ -1,17 +1,19 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Projected aperture margins, depth windows and segment-addressed spatial grids. Runtime construction and admission remain with AutoMovieHumanLoftAperture in Human.
+ * Projected aperture margins, depth windows and segment-addressed spatial
+ * grids. Runtime construction and admission remain with
+ * AutoMovieHumanLoftAperture in Human.
  */
 export namespace IAutoMovieHumanLoftApertureConstruction {
   /**
    * The margin seen along the aperture's `forward` axis.
    *
-   * Points are projected onto the plane perpendicular to `forward`, spanned
-   * by `lateral` and `up`, and keep their depth along `forward`. `lateral`
-   * is `forward x` world up (world +X for an opening facing within 25
-   * degrees of vertical, such as a nostril, where that product vanishes), and
-   * `up = lateral x forward`, which is world up for a horizontal `forward`.
+   * Points are projected onto the plane perpendicular to `forward`, spanned by
+   * `lateral` and `up`, and keep their depth along `forward`. `lateral` is
+   * `forward x` world up (world +X for an opening facing within 25 degrees of
+   * vertical, such as a nostril, where that product vanishes), and `up =
+   * lateral x forward`, which is world up for a horizontal `forward`.
    */
   export interface IOutline {
     /** Unit direction the opening faces. */
@@ -38,9 +40,9 @@ export namespace IAutoMovieHumanLoftApertureConstruction {
 
   /**
    * A square grid of cells over an outline's bounding box, each cell listing
-   * the segments whose bounding box overlaps it, and each row of cells (a
-   * band) listing the segments whose height range overlaps it. Segment `i`
-   * runs from point `i - 1` (the last for `i = 0`) to point `i`.
+   * the segments whose bounding box overlaps it, and each row of cells (a band)
+   * listing the segments whose height range overlaps it. Segment `i` runs from
+   * point `i - 1` (the last for `i = 0`) to point `i`.
    */
   export interface IGrid {
     /** Lower corner `[lateral, up]` of the first cell, mm. */
@@ -63,7 +65,8 @@ export namespace IAutoMovieHumanLoftApertureConstruction {
   }
 
   /**
-   * Lowest and highest world heights of the aperture margin, in millimetres, in that order.
+   * Lowest and highest world heights of the aperture margin, in millimetres, in
+   * that order.
    */
   export type RangeResult = [number, number];
 }

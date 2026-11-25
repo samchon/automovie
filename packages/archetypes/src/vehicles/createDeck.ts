@@ -16,32 +16,49 @@ import {
 const ISO_5480: string =
   "ISO 5480:2020, Ships and marine technology - Guardrails for cargo ships, clause 5 (https://cdn.standards.iteh.ai/samples/74627/8b1132a3a0654ce98249a55f7c4ff165/ISO-5480-2020.pdf), which meets the 1966 Load Line Convention's regulation 25(2) and (3): bulwarks or guard rails at least 1 m high, at least three courses, the opening below the lowest course at most 230 mm and the others at most 380 mm apart, stanchions about 1.5 m apart (MCA, Instructions to Surveyors - International Load Line, MSIS41 R05.23, p. 78, https://assets.publishing.service.gov.uk/media/644633e96dda69000d11e2e6/MSIS41_International_Load_Line_R05.23.pdf)";
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `plate`, the deck plating's thickness under the walking surface. Searched for #3497's deck without a figure: the Liberty ship EC2-S-C1's deck plating and scantlings; the 1984 ASME landmark brochure, the NPS and MARAD pages and the Liberty ship design pages give the hull's dimensions only. The source to read is the ship's midship section drawing. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `plate`, the deck plating's thickness under the
+ * walking surface. Searched for #3497's deck without a figure: the Liberty ship
+ * EC2-S-C1's deck plating and scantlings; the 1984 ASME landmark brochure, the
+ * NPS and MARAD pages and the Liberty ship design pages give the hull's
+ * dimensions only. The source to read is the ship's midship section drawing.
+ */
 const ESTIMATES: Readonly<{ plate: number }> = { plate: 0.02 };
 
 /**
- * A stretch of a ship's flush weather deck between its two sides, with a guardrail along each side: a steel tube toprail and round-bar lower rails on flat-bar stanchions.
+ * A stretch of a ship's flush weather deck between its two sides, with a
+ * guardrail along each side: a steel tube toprail and round-bar lower rails on
+ * flat-bar stanchions.
  *
- * The length and the beam are the ship's, site dimensions as a wall's run is, so the author gives them; `createDeck.REFERENCE` is a Liberty ship's whole deck. The guardrails are ISO 5480's: the toprail's top at the drawn height, the stanchions as many as keep every bay inside the drawn spacing, evenly set from end to end, and the lower rails the fewest that keep every opening inside its drawn bound, the lowest at its greatest opening above the deck and the others evenly spaced up to the toprail. The deck is drawn as the rectangle the length and the beam bound: a ship's taper toward its ends, its sheer and its camber are not modelled.
+ * The length and the beam are the ship's, site dimensions as a wall's run is,
+ * so the author gives them; `createDeck.REFERENCE` is a Liberty ship's whole
+ * deck. The guardrails are ISO 5480's: the toprail's top at the drawn height,
+ * the stanchions as many as keep every bay inside the drawn spacing, evenly set
+ * from end to end, and the lower rails the fewest that keep every opening
+ * inside its drawn bound, the lowest at its greatest opening above the deck and
+ * the others evenly spaced up to the toprail. The deck is drawn as the
+ * rectangle the length and the beam bound: a ship's taper toward its ends, its
+ * sheer and its camber are not modelled.
  *
- * The walking surface is the `XZ` plane at the origin, the bow toward `+Z` and the left side toward `+X`. `deck` is the walking surface between the stanchions, where people stand and a gun or cargo is set; `leftRail` and `rightRail` are the toprails along the sides, each a bar a hand grips. A deck floats on a seeded sea by riding a course (`AutoMovieArchetypeRide.along`) floated with `AutoMovieArchetypeSea.float`, and carries guns or cargo as an `AutoMovieArchetypeAssembly`.
+ * The walking surface is the `XZ` plane at the origin, the bow toward `+Z` and
+ * the left side toward `+X`. `deck` is the walking surface between the
+ * stanchions, where people stand and a gun or cargo is set; `leftRail` and
+ * `rightRail` are the toprails along the sides, each a bar a hand grips. A deck
+ * floats on a seeded sea by riding a course (`AutoMovieArchetypeRide.along`)
+ * floated with `AutoMovieArchetypeSea.float`, and carries guns or cargo as an
+ * `AutoMovieArchetypeAssembly`.
  *
  * @param params The deck's length and beam and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The deck.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a length that is not positive, or a beam no wider than the two stanchions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the stretch is, which dimensions are the site's, how the guardrails are laid out, what is not modelled, its axes and contacts, and how it floats and carries.
- * @evidence contracts/development/implementation.md#principled-implementation Every guardrail size is ISO 5480's, single figures at its limits; the stanchions the fewest bays inside the spacing, the lower rails the fewest courses inside the openings, both derived from the drawn bounds and the site's length; the mass is steel's density times the parts' volumes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, admit the site, lay out the stanchions and the courses, the plate, each side's guardrail, then the contacts and the mass.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The plate's thickness is a construction estimate after a recorded search; the taper, sheer, camber, stays and brackets are not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms One box per stanchion and one rod per course per side.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a
+ *   length that is not positive, or a beam no wider than the two stanchions.
  */
 export function createDeck(
   params: createDeck.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDeck.Affordance, createDeck.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDeck.Dimension> =
     new AutoMovieArchetypeDrawSession<createDeck.Dimension>(
@@ -55,7 +72,7 @@ export function createDeck(
     number
   > = draw.dimensions(createDeck.BANDS);
   const { length, beam }: createDeck.IParams = params;
-  if (!(Number.isFinite(length) && length > 0))
+  if (!(length > 0))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deck",
@@ -65,7 +82,7 @@ export function createDeck(
       reason: `a deck of ${length} m has no length`,
       fix: "give the stretch of deck's length in metres",
     });
-  if (!(Number.isFinite(beam) && beam > 2 * d.breadth))
+  if (!(beam > 2 * d.breadth))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deck",
@@ -173,16 +190,12 @@ export function createDeck(
   );
 }
 
-/**
- * Companion types, reference and bands of {@link createDeck}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and dimension states what it is; each band its source; the reference its ship.
- * @evidence contracts/development/design.md#principled-representation The deck's length and beam required site parameters, the ship's; one cited band per guardrail dimension, each a single figure at the standard's limit; the mass derived, not drawn.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What standing on a moving deck, holding its rail and carrying a gun or cargo read (#3497): the walking surface and the two toprails.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The limits are taken as single figures, not widened into a guessed range; the plate's thickness is a stated estimate.
- */
+/** Companion types, reference and bands of {@link createDeck}. */
 export namespace createDeck {
-  /** The affordance ids: `deck`, the walking surface between the stanchions; `leftRail`, `rightRail`, the toprails along the `+X` and `-X` sides. */
+  /**
+   * The affordance ids: `deck`, the walking surface between the stanchions;
+   * `leftRail`, `rightRail`, the toprails along the `+X` and `-X` sides.
+   */
   export type Affordance = "deck" | "leftRail" | "rightRail";
 
   /**
@@ -192,10 +205,12 @@ export namespace createDeck {
    * - `toprail`: the toprail tube's outside diameter.
    * - `wall`: the toprail tube's wall thickness.
    * - `rail`: a lower rail's round-bar diameter.
-   * - `lowest`: the opening below the lowest rail, from the deck to the rail's underside, at most.
+   * - `lowest`: the opening below the lowest rail, from the deck to the rail's
+   *   underside, at most.
    * - `opening`: the clear opening between two courses above it, at most.
    * - `spacing`: between two stanchions, at most.
-   * - `breadth`, `thickness`: a stanchion's flat bar, across the ship and along it.
+   * - `breadth`, `thickness`: a stanchion's flat bar, across the ship and along
+   *   it.
    * - `mass`: the stretch's steel, kilograms, derived from its volume.
    */
   export type Dimension =
@@ -226,26 +241,44 @@ export namespace createDeck {
     mass: "kg",
   };
 
-  /** The parameters: the deck's length and beam, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the deck's length and beam, and any free dimension fixed to
+   * a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The stretch of deck's length fore and aft, metres, a site dimension: the ship's. */
+    /**
+     * The stretch of deck's length fore and aft, metres, a site dimension: the
+     * ship's.
+     */
     length: number;
 
-    /** The deck's breadth between the ship's sides, metres, a site dimension: the ship's. */
+    /**
+     * The deck's breadth between the ship's sides, metres, a site dimension:
+     * the ship's.
+     */
     beam: number;
 
     /** The model's id, unique in a scene; `deck` when absent. */
     id?: string;
   }
 
-  /** A Liberty ship's whole deck, for a caller that needs one without a ship: 441 ft 6 in long with an extreme beam of 57 ft, a flush deck (ASME, Liberty Ship, U.S. Maritime Commission Emergency Cargo Vessel EC2-S-C1, a National Historic Mechanical Engineering Landmark, 18 September 1984, p. 3, https://www.asme.org/wwwasmeorg/media/ResourceFiles/AboutASME/Who%20We%20Are/Engineering%20History/Landmarks/98-SS-Jeremiah-O-Brien-1943.pdf). */
+  /**
+   * A Liberty ship's whole deck, for a caller that needs one without a ship:
+   * 441 ft 6 in long with an extreme beam of 57 ft, a flush deck (ASME, Liberty
+   * Ship, U.S. Maritime Commission Emergency Cargo Vessel EC2-S-C1, a National
+   * Historic Mechanical Engineering Landmark, 18 September 1984, p. 3,
+   * https://www.asme.org/wwwasmeorg/media/ResourceFiles/AboutASME/Who%20We%20Are/Engineering%20History/Landmarks/98-SS-Jeremiah-O-Brien-1943.pdf).
+   */
   export const REFERENCE: Readonly<IParams> = {
     length:
       441 * AutoMovieArchetypeUnits.FOOT + 6 * AutoMovieArchetypeUnits.INCH,
     beam: 57 * AutoMovieArchetypeUnits.FOOT,
   };
 
-  /** The band of each drawn dimension, each the standard's single figure at its limit. */
+  /**
+   * The band of each drawn dimension, each the standard's single figure at its
+   * limit.
+   */
   export const BANDS: Readonly<
     Record<Exclude<Dimension, "mass">, IAutoMovieArchetypeBand>
   > = {

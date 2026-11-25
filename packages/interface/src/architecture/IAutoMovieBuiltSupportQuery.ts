@@ -24,8 +24,8 @@ export interface IAutoMovieBuiltSupportQuery {
   kind: "bearing" | "suspended";
 
   /**
-   * Finite, non-negative contact tolerance in metres: how far off the support
-   * a member may sit and still count as resting. Omission uses the engine's
+   * Finite, non-negative contact tolerance in metres: how far off the support a
+   * member may sit and still count as resting. Omission uses the engine's
    * placement epsilon, `1e-9` metres. A negative or non-finite value throws a
    * `RangeError` instead of being defaulted, because it would make every
    * distance read as `floating` or `sunk`.

@@ -7,16 +7,26 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `IPrepareWaltzBoxResult`'s site. */
+type IPrepareWaltzBoxResult = {
+  yaw: (seconds: number) => number;
+  depth: (seconds: number) => number;
+  rotate: (
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
+    seconds: number,
+  ) => IAutoMovieMotionHumanFoot.IPlacement;
+};
+
 /**
  * Prepare the optional waltz box's common clock, turning placements and
  * vertical excursion. Yoshida et al. (2022, DOI 10.3389/fspor.2022.941042)
- * observed role-dependent rotation in a closed-hold spin. This figure
- * rotates the dancer through whichever angle the score gives them; the
- * modest excursion of the pelvis is provisional. With 	ravel, the pivot
- * itself progresses along the line of dance on the figure's minimum-jerk
- * clock, so a pair sharing pivot and travel moves down the floor together
- * and successive figures with different travels change direction; each foot
- * reads the pivot at its own footfall, so a planted foot stays put.
+ * observed role-dependent rotation in a closed-hold spin. This figure rotates
+ * the dancer through whichever angle the score gives them; the modest excursion
+ * of the pelvis is provisional. With ravel, the pivot itself progresses along
+ * the line of dance on the figure's minimum-jerk clock, so a pair sharing pivot
+ * and travel moves down the floor together and successive figures with
+ * different travels change direction; each foot reads the pivot at its own
+ * footfall, so a planted foot stays put.
  *
  * @param options The pivot and signed turn for this dancer's figure.
  * @param origin The dancer's starting root in world metres.
@@ -25,15 +35,8 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @param firstBeat The first beat's second, local to the action.
  * @param lastBeat The last beat's second, local to the action.
  * @param duration The duration including the exit beat, in seconds.
- * @returns The timed placement, heading change and lowering from standing height.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, rhythm, rotation source and authored values.
- * @evidence contracts/development/implementation.md#principled-implementation Fixed floor targets rotate about an authored common pivot at their own footfalls; pelvis yaw and three-count vertical excursion read the same clock.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation course supplies both foot placements and root yaw.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pivot and turn are authored, and the lowering scales with stature.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The retained yaw curve supplies both endpoint placement and displayed yaw.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callbacks retain only numeric phase values and the pivot.
+ * @returns The timed placement, heading change and lowering from standing
+ *   height.
  */
 export function prepareWaltzBox(
   options: NonNullable<IAutoMovieMotionHumanDance.IParams["waltz"]>,
@@ -43,14 +46,7 @@ export function prepareWaltzBox(
   firstBeat: number,
   lastBeat: number,
   duration: number,
-): {
-  yaw: (seconds: number) => number;
-  depth: (seconds: number) => number;
-  rotate: (
-    placement: IAutoMovieMotionHumanFoot.IPlacement,
-    seconds: number,
-  ) => IAutoMovieMotionHumanFoot.IPlacement;
-} {
+): IPrepareWaltzBoxResult {
   const start: IAutoMovieVector3 = options.pivot ?? origin;
   const turn: number = options.turn ?? 0;
   const travel: IAutoMovieVector3 = options.travel ?? { x: 0, y: 0, z: 0 };

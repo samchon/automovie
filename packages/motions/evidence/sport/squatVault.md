@@ -1,21 +1,3 @@
-# src/sport/squatVault.ts#squatVault
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the phases with their owners, the flight's derivation, the box's reading, the refusal, the events and the provisional landing place.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record composing the support planner's keys, a ballistic flight and the quiet stance, over the prop's own affordance.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The box is the prop's affordance, gravity the engine's and the speeds follow from the heights; no height or speed is typed.
-
 # src/sport/squatVault.ts#squatVault.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

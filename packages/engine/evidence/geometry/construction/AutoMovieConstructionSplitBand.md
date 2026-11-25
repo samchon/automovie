@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionSplitBand.ts#AutoMovieConstructionSplitBand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the clock, both ribbons, the crease, the correspondence and its admission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents One band of a split (`IAutoMovieConstructionSplit`): the join strip between a child's loop on the host's end and the child's rail, published as a two-layer chain (`AutoMovieSolidBlendChain.strip`): companion namespace of 13 members (`IAutoMovieConstructionSplitBand.ISide`, `IAutoMovieConstructionSplitBand.IInput`, `IAutoMovieConstructionSplitBand.IBand`, `IAutoMovieConstructionSplitBand.IStrip`, `create`, `refine`, ...); units and frames named in its text: radians, degrees, degree, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConstructionSplitBand` in packages/engine/src/geometry/construction/AutoMovieConstructionSplitBand.ts; its surface is the 13 members listed and the text shows 7 other files naming it, mostly packages/engine (3), packages/human (2), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds a use of `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieConstructionSplitBand.ts#AutoMovieConstructionSplitBand.railAt
 
 ## @evidence contracts/development/implementation.md#principled-implementation

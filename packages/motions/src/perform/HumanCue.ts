@@ -3,42 +3,41 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
+/** The record of `IInstantsI2`'s site. */
+type IInstantsI2 = { label: string; seconds: number };
+
+/** The record of `IInstantsI`'s site. */
+type IInstantsI = { label: string };
+
+/** The record of `IOrdersTrackItem`'s site. */
+type IOrdersTrackItem = { cue: IAutoMovieScheduleCue; order: number };
+
 /**
- * Cue tracks: the named instants for speech, music and staged actions,
- * to sync to and cut on (`HumanPerformance.IInput.cues`).
+ * Cue tracks: the named instants for speech, music and staged actions, to sync
+ * to and cut on (`HumanPerformance.IInput.cues`).
  *
- * The screenplay and the score decide these instants; nothing here listens
- * to audio or guesses a stress. A track is a list of named film seconds, so
- * a production may also write one by hand for anything else that happens at
- * a known time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a track is, who decides its instants and what is out of scope.
- * @evidence contracts/development/design.md#principled-representation A track is the schedule's own list of named instants, so cues are addressed exactly as an action's events are.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Adds builders for the authored sources of named schedule cues.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No instant is derived from a guessed speech rate; an accent is given or absent.
+ * The screenplay and the score decide these instants; nothing here listens to
+ * audio or guesses a stress. A track is a list of named film seconds, so a
+ * production may also write one by hand for anything else that happens at a
+ * known time.
  */
 export namespace HumanCue {
   /**
    * Emit one `section` cue per authored section, addressed by its zero-based
-   * index. Sections may share an authored film second. With path distances,
-   * a section responds at `from + distance / speed`.
+   * index. Sections may share an authored film second. With path distances, a
+   * section responds at `from + distance / speed`.
    *
-   * A stadium wave passes from section to section
-   * ([Farkas, Helbing and Vicsek, 2002](https://doi.org/10.1038/419131a)).
-   * Commencement can cue several sections together
-   * ([Penn's ceremony instructions](https://commencement.upenn.edu/graduates)).
+   * A stadium wave passes from section to section ([Farkas, Helbing and Vicsek,
+   * 2002](https://doi.org/10.1038/419131a)). Commencement can cue several
+   * sections together ([Penn's ceremony
+   * instructions](https://commencement.upenn.edu/graduates)).
    *
-   * @param wave The sections' film seconds or their distances, origin second and speed.
+   * @param wave The sections' film seconds or their distances, origin second
+   *   and speed.
    * @returns A cue track ready for `HumanPerformance` or the schedule resolver.
-   * @throws {Error} If timing sources conflict, the list is empty, values are outside the documented ranges, or computed seconds are nonfinite or fail to advance at distinct distances.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines cue indexing, time units, application examples and refusal conditions.
-   * @evidence contracts/development/implementation.md#principled-implementation Computes every propagated time independently from the path origin and preserves the input order in the track.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits one timing source before a single scan of section values and resulting seconds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the authored speed and distances directly. It rejects malformed timing instead of sorting, clamping or inserting a guessed interval.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear time and output space in the number of sections.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns ordinary schedule cues so alignment and section indexing use the existing scheduler.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the returned list and retains no input or state.
+   * @throws {Error} If timing sources conflict, the list is empty, values are
+   *   outside the documented ranges, or computed seconds are nonfinite or fail
+   *   to advance at distinct distances.
    */
   export function sectionWave(
     wave: IAutoMovieMotionHumanCue.ISectionWave,
@@ -56,17 +55,17 @@ export namespace HumanCue {
       throw new Error("A section wave needs exactly one timing source");
 
     const values: readonly number[] | undefined = seconds ?? distances;
-    if (!Array.isArray(values) || values.length === 0)
+    if (values === undefined || values.length === 0)
       throw new Error("A section wave needs at least one section");
 
     let origin: number = 0;
     let rate: number = 1;
     if (seconds === undefined) {
-      if (typeof from !== "number" || !Number.isFinite(from) || from < 0)
+      if (from === undefined || !(from >= 0))
         throw new Error(
           "A section wave needs a finite nonnegative origin second",
         );
-      if (typeof speed !== "number" || !Number.isFinite(speed) || speed <= 0)
+      if (speed === undefined || !(speed > 0))
         throw new Error("A section wave needs a finite positive speed");
       origin = from;
       rate = speed;
@@ -77,12 +76,12 @@ export namespace HumanCue {
     let previousSecond: number = origin;
     for (let index: number = 0; index < values.length; ++index) {
       const value: number = values[index]!;
-      if (!Number.isFinite(value) || value < 0)
+      if (!(value >= 0))
         throw new Error(`Section ${index} needs a finite nonnegative value`);
       if (value < previous) throw new Error(`Section ${index} is out of order`);
 
       const at: number = seconds === undefined ? origin + value / rate : value;
-      if (!Number.isFinite(at) || (value > previous && at <= previousSecond))
+      if (value > previous && at <= previousSecond)
         throw new Error(
           `Section ${index} needs a finite, advancing film second`,
         );
@@ -95,29 +94,23 @@ export namespace HumanCue {
   }
 
   /**
-   * A command track: for each order its preparatory word `${word}Caution`
-   * (when it has one) and its word of execution `${word}`, in film order, as
-   * drill gives a command in two parts (US Army TC 3-21.5: the preparatory
-   * command and the command of execution). An action synced to a word with
-   * `latency: "reaction"` is warned when its preparatory word is on the
-   * track. The words' seconds are the screenplay's.
+   * A command track: for each order its preparatory word `${word}Caution` (when
+   * it has one) and its word of execution `${word}`, in film order, as drill
+   * gives a command in two parts (US Army TC 3-21.5: the preparatory command
+   * and the command of execution). An action synced to a word with `latency:
+   * "reaction"` is warned when its preparatory word is on the track. The words'
+   * seconds are the screenplay's.
    *
    * @param orders The commands, in the order given.
    * @returns The track.
-   * @throws {Error} When a second is not finite, a caution is not positive, a preparatory word falls before the film, or one falls at or before an earlier command's word of execution, naming both words.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the event names, the source of the two parts and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each order contributes its two instants; the track is ordered by time, an earlier order first on a tie.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One validation pass, one loop and one stable sort.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No interval between words is invented: every second is given.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants, which are few.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
+   * @throws {Error} When a second is not finite, a caution is not positive, a
+   *   preparatory word falls before the film, or one falls at or before an
+   *   earlier command's word of execution, naming both words.
    */
   export function orders(
     orders: readonly IAutoMovieMotionHumanCue.IOrder[],
   ): IAutoMovieScheduleCue[] {
-    const track: { cue: IAutoMovieScheduleCue; order: number }[] = [];
+    const track: IOrdersTrackItem[] = [];
     const sorted: IAutoMovieMotionHumanCue.IOrder[] = [...orders].sort(
       (
         a: IAutoMovieMotionHumanCue.IOrder,
@@ -126,8 +119,6 @@ export namespace HumanCue {
     );
     sorted.forEach(
       (order: IAutoMovieMotionHumanCue.IOrder, i: number): void => {
-        if (!Number.isFinite(order.at))
-          throw new Error(`The command ${order.word} has no finite second`);
         if (order.caution !== undefined) {
           if (!(order.caution > 0))
             throw new Error(
@@ -161,22 +152,14 @@ export namespace HumanCue {
   }
 
   /**
-   * A cue track from published instants, read structurally from anything
-   * that publishes them (an archetype ride's footfalls and gait changes), so
-   * a rider, a squadron's riders or a dancer read a support's or a band's
-   * events without this package importing what publishes them.
+   * A cue track from published instants, read structurally from anything that
+   * publishes them (an archetype ride's footfalls and gait changes), so a
+   * rider, a squadron's riders or a dancer read a support's or a band's events
+   * without this package importing what publishes them.
    *
    * @param source What publishes the instants.
    * @param names The labels to keep; every label when absent.
    * @returns The track, in time order, each instant under its label.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and why it is read structurally.
-   * @evidence contracts/development/implementation.md#principled-implementation Each kept instant becomes a cue of its label; the track is ordered by time, the source's order kept on a tie.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter, one map and one stable sort.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is renamed or invented.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
   export function instants(
     source: IAutoMovieMotionHumanCue.IInstants,
@@ -184,10 +167,10 @@ export namespace HumanCue {
   ): IAutoMovieScheduleCue[] {
     return source.instants
       .filter(
-        (i: { label: string }): boolean =>
+        (i: IInstantsI): boolean =>
           names === undefined || names.includes(i.label),
       )
-      .map((i: { label: string; seconds: number }, order: number) => ({
+      .map((i: IInstantsI2, order: number) => ({
         cue: { name: i.label, seconds: i.seconds },
         order,
       }))
@@ -197,20 +180,13 @@ export namespace HumanCue {
 
   /**
    * A beat track: `beat` at every beat and `downbeat` at the first beat of
-   * every bar, so `{ event: "beat", index: 5 }` is the sixth beat and
-   * `{ event: "downbeat", index: 1 }` the start of the second bar.
+   * every bar, so `{ event: "beat", index: 5 }` is the sixth beat and `{ event:
+   * "downbeat", index: 1 }` the start of the second bar.
    *
    * @param beats The tempo, the first beat, the count and the meter.
    * @returns The track.
-   * @throws {Error} When the tempo is not positive, or the count or the meter is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two event names, how they index and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Beat `i` falls `60 / bpm` seconds after beat `i - 1`, each computed from the first beat so no error accumulates.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the beats.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The inputs are validated; the meter's default is the common time the member documents.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the beat count, which is the output's size.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
+   * @throws {Error} When the tempo is not positive, or the count or the meter
+   *   is not a positive whole number.
    */
   export function beats(
     beats: IAutoMovieMotionHumanCue.IBeats,
@@ -222,7 +198,7 @@ export namespace HumanCue {
       ["count", beats.count],
       ["meter", meter],
     ] as const)
-      if (!(Number.isInteger(value) && value > 0))
+      if (!(value > 0))
         throw new Error(`A beat track's ${name} is a positive whole number`);
     const track: IAutoMovieScheduleCue[] = [];
     for (let i: number = 0; i < beats.count; ++i) {
@@ -235,21 +211,14 @@ export namespace HumanCue {
 
   /**
    * A dialogue track: for each line `lineStart`, its `accent`s and
-   * `phraseEnd`s, and `lineEnd`, in film order across the lines, so
-   * `{ event: "accent", index: 3 }` is the fourth stressed syllable of the
-   * scene and `{ event: "lineEnd", index: 0 }` the end of the first line.
+   * `phraseEnd`s, and `lineEnd`, in film order across the lines, so `{ event:
+   * "accent", index: 3 }` is the fourth stressed syllable of the scene and `{
+   * event: "lineEnd", index: 0 }` the end of the first line.
    *
    * @param lines The lines, in the order spoken.
    * @returns The track.
-   * @throws {Error} When a line ends before it starts, or an accent or a phrase end lies outside its line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the four event names, how they index and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each line contributes its own instants, checked to lie inside it; the track is ordered by time, an earlier line first on a tie.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the lines and one stable sort.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No accent is invented for a line that gives none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants, which are few.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
+   * @throws {Error} When a line ends before it starts, or an accent or a phrase
+   *   end lies outside its line.
    */
   export function dialogue(
     lines: readonly IAutoMovieMotionHumanCue.ILine[],

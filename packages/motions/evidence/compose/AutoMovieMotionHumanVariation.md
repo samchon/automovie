@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what a slot is, where the owner sits, how a spread is read and bounded, how a name is kept and how draws are keyed.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Movement variability as the motor control literature models it: a spread that narrows with skill (Schmidt et al. 1979; Wing and Kristofferson 1973), an end point ellipse along the arrival (Gordon et al. 1994; van Beers et al. 2004), and task-relevant slots narrowing more than the rest (Scholz and Schoner 1999; Todorov and Jordan 2002).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One source record, the spread table, the fixed bounds and the functions of a strike point, a direction, a duration and a pause; the other slot types and the draws have their own files. `HumanSkill` keeps the skill quantities and the engine the streams.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A law never writes an offset and no attribute is added: `IManner.variation` is the only switch, and a bound is a rule over the names and the body, never a clamp.
-
-# src/compose/AutoMovieMotionHumanVariation.ts#AutoMovieMotionHumanVariation.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States what is read, the absent result and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

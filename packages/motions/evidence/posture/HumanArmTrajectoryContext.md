@@ -1,21 +1,3 @@
-# src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines fixed arm setup, per-waypoint frames, original allowances, ordinary fresh setup and explicit unchanged-operation setup preparation with borrowed metadata lifetime.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Actual frames and ordered arm coordinates retain the existing trajectory problem; one same-base FK reader shares only identical completed math across its arm frames.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One problem record and one numerical builder serve ordinary contexts and a prepared static-setup reader used by actual following/refinement work; no caller-supplied setup verdict is exposed.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No candidate, range, rest, external reference or contact allowance is changed by sharing the synchronous frame-construction reader.
-
 # src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext.IProblem
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -64,7 +46,7 @@ A callable slot defines no cache.
 
 A callable slot retains nothing.
 
-# src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext.of
+# src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -76,7 +58,7 @@ Prepares actual arm charts, hard intervals and contact geometry; exact same-base
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Setup and per-second frame construction precede waypoint reuse and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map and is created only when an actual frame miss requests it.
+Setup and per-second frame construction precede the waypoints and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map, created for a base two arms read.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -84,15 +66,15 @@ Keeps arm/time order, original reference depths, bidirectional declared rests, g
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. An all-hit frame map allocates no resolution reader or FK maps. Waypoint geometry is built only for new base/site combinations, and allowance maps evaluate each requested pair key once.
+Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. Each waypoint's geometry is built once per context, and allowance maps evaluate each requested pair key once.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses existing setup, frame, waypoint and audit owners; one operation-local reader serves only the same base's arm frames, and the existing store preserves actual frame/site-identity matches across refinement.
+Uses existing setup, frame, waypoint and audit owners; one operation-local reader serves only the same base's arm frames; a refinement keeps its previous context's speed bound and beyond reading.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-A same-base FK reader dies after its synchronous map. Existing weak context stores retain distinct queried waypoint seconds and their pair keys while a continued context lives; closures borrow the original problem and current points, with no new global result cache.
+A same-base FK reader dies after its synchronous map. The context owns its waypoints and pair-key maps; closures borrow the original problem and current points, with no global result cache.
 
 # src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext.prepare
 

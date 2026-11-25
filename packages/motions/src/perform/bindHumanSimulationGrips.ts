@@ -14,34 +14,31 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
 /**
- * The grips one simulated performer holds on another inside a window, each
- * as the solver's collider relationship (#3441): a hand's contact window of
- * kind `grip` whose support is a person the window also simulates.
+ * The grips one simulated performer holds on another inside a window, each as
+ * the solver's collider relationship: a hand's contact window of kind `grip`
+ * whose support is a person the window also simulates.
  *
- * The gripping hand's actuator chain is its upper arm, forearm and hand. The
- * receiver is the partner's segment that carries the gripped region or
- * bone, the nearest profile segment up the rig when the bone carries none.
- * Of the hand's colliders and the receiver's, the pair nearest each other
- * in the sampled poses at the grip's first step is the pair bound, the pair
- * the authored grip actually closes.
+ * The gripping hand's actuator chain is its upper arm, forearm and the segment
+ * that carries the hand: the hand's own, or the forearm when the window welds
+ * the hand into it (`weldHumanSimulationProfile`). The receiver is the
+ * partner's segment that carries the gripped region or bone, the nearest
+ * profile segment up the rig when the bone carries none. Of the hand's own
+ * colliders, wherever they ride, and the receiver's, the pair nearest each
+ * other in the sampled poses at the grip's first step is the pair bound, the
+ * pair the authored grip actually closes.
  *
  * @param performance The performance the window samples.
  * @param bodies The simulated performers' bodies, by subject.
- * @param profiles The profiles the window solves, by subject: the bodies' with the hands welded.
+ * @param profiles The profiles the window solves, by subject: the bodies' with
+ *   their welds applied.
  * @param targets Each simulated performer's sampled segment poses, by step.
  * @param clock The window's first film second, interval count and rate.
  * @returns The grips, in performer then placement order.
- * @throws {HumanRefusal} When a gripping arm has no actuator segment in the profile.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which contact windows become grips, the chain, the receiver and the collider choice.
- * @evidence contracts/development/implementation.md#principled-implementation A grip of the reduced-order coupling (#3437, #3439) is the same hand-on-person relationship the engine's binding fits as motor intent (`IAutoMoviePhysicalContactBinding`); its colliders are the touching pair, measured with the engine's convex pair distance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Finds the windows, maps their bones to segments and picks the colliders; the per-step bindings and groups are the body planner's.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No grip is assumed; a profile without the arm's segments is refused by name instead of binding another chain.
- * @evidence contracts/development/implementation.md#efficient-algorithms One scan of the performers' contact windows; collider pairs are measured once per grip, at its first step.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh grip records; retains nothing.
+ * @throws {HumanRefusal} When a gripping arm has no actuator segment in the
+ *   profile.
  */
 export function bindHumanSimulationGrips(
   performance: IAutoMovieMotionHumanPerformance,
@@ -73,18 +70,16 @@ export function bindHumanSimulationGrips(
         if (span[0] > span[1]) continue;
         const side: AutoMovieHumanSide =
           window.part === "leftHand" ? "left" : "right";
-        const chain: string[] = [
+        const profile: IAutoMoviePhysicalProfile = profiles.get(subject)!;
+        const arm: readonly AutoMovieHumanoidBone[] = [
           `${side}UpperArm`,
           `${side}LowerArm`,
-          `${side}Hand`,
         ];
-        for (const bone of chain)
+        for (const bone of arm)
           if (
-            !profiles
-              .get(subject)!
-              .segments.some(
-                (s: IAutoMoviePhysicalSegment): boolean => s.bone === bone,
-              )
+            !profile.segments.some(
+              (s: IAutoMoviePhysicalSegment): boolean => s.bone === bone,
+            )
           )
             throw new HumanRefusal({
               kind: "parameter",
@@ -94,6 +89,14 @@ export function bindHumanSimulationGrips(
               reason: `${subject}'s physical profile has no ${bone} segment for its grip on ${support.subject}`,
               fix: "simulate a body whose profile carries the arm's segments",
             });
+
+        // The hand rides its carrier when the window welds it
+        // (`weldHumanSimulationProfile`), so the chain ends at the carrier and
+        // the bound collider is one of the hand's own, wherever it rides.
+        const hand: AutoMovieHumanoidBone = `${side}Hand`;
+        const carried: string = carrier(bodies.get(subject)!, profile, hand);
+        const chain: string[] = [...new Set<string>([...arm, carried])];
+        const own: ReadonlySet<string> = subtree(bodies.get(subject)!, hand);
         const held: AutoMovieHumanoidBone =
           "region" in support
             ? partner.surfaces.regions[support.region].bone
@@ -104,8 +107,11 @@ export function bindHumanSimulationGrips(
           held,
         );
         const first: readonly [string, string] = nearest(
-          profiles.get(subject)!,
-          `${side}Hand`,
+          profile,
+          carried,
+          (shape: IAutoMoviePhysicalShape): boolean =>
+            carried === hand ||
+            own.has(weldHumanSimulationProfile.rider(shape.id) ?? carried),
           targets.get(subject)![span[0]]!,
           profiles.get(support.subject)!,
           receiver,
@@ -116,7 +122,7 @@ export function bindHumanSimulationGrips(
           partner: support.subject,
           side,
           chain,
-          source: { bone: `${side}Hand`, shape: first[0] },
+          source: { bone: carried, shape: first[0] },
           target: { bone: receiver, shape: first[1] },
           from: span[0],
           to: span[1],
@@ -127,7 +133,10 @@ export function bindHumanSimulationGrips(
 
 /** Companion types of {@link bindHumanSimulationGrips}. */
 export namespace bindHumanSimulationGrips {
-  /** A window's grid: its first film second, interval count and intervals per second. */
+  /**
+   * A window's grid: its first film second, interval count and intervals per
+   * second.
+   */
   export interface IClock {
     /** First film second, step zero. */
     from: number;
@@ -159,10 +168,13 @@ export namespace bindHumanSimulationGrips {
     /** The gripping hand. */
     side: AutoMovieHumanSide;
 
-    /** The actuator chain, proximal to distal, ending at the hand. */
+    /**
+     * The actuator chain, proximal to distal, ending at the segment carrying
+     * the hand.
+     */
     chain: string[];
 
-    /** The hand's collider. */
+    /** The hand's collider, on the segment that carries it. */
     source: ICollider;
 
     /** The partner's collider. */
@@ -176,7 +188,10 @@ export namespace bindHumanSimulationGrips {
   }
 }
 
-/** The first and last steps of a contact window inside the window's grid; the first exceeds the last when it holds at none. */
+/**
+ * The first and last steps of a contact window inside the window's grid; the
+ * first exceeds the last when it holds at none.
+ */
 function steps(
   segment: IAutoMovieMotionHumanSegment,
   window: IAutoMovieMotionHumanContactWindow,
@@ -201,7 +216,10 @@ function steps(
   return [first, last];
 }
 
-/** The profile segment that carries a rig bone: the bone's own, or its nearest ancestor's. */
+/**
+ * The profile segment that carries a rig bone: the bone's own, or its nearest
+ * ancestor's.
+ */
 function carrier(
   body: IAutoMovieMotionHumanBody,
   profile: IAutoMoviePhysicalProfile,
@@ -216,10 +234,30 @@ function carrier(
   return at.bone;
 }
 
-/** The nearest pair of colliders of two segments in their sampled poses. */
+/** A rig bone and every bone below it. */
+function subtree(
+  body: IAutoMovieMotionHumanBody,
+  root: AutoMovieHumanoidBone,
+): Set<string> {
+  const found: Set<string> = new Set([root]);
+  const visit = (bone: AutoMovieHumanoidBone): void => {
+    for (const child of body.topology.childrenByParent.get(bone) ?? []) {
+      found.add(child.bone);
+      visit(child.bone);
+    }
+  };
+  visit(root);
+  return found;
+}
+
+/**
+ * The nearest pair of colliders of two segments in their sampled poses, the
+ * first segment's colliders limited to those `keep` admits.
+ */
 function nearest(
   a: IAutoMoviePhysicalProfile,
   boneA: string,
+  keep: (shape: IAutoMoviePhysicalShape) => boolean,
   posesA: Record<string, IAutoMovieRigidTransform>,
   b: IAutoMoviePhysicalProfile,
   boneB: string,
@@ -234,7 +272,7 @@ function nearest(
     )!.shapes;
   let best: readonly [string, string] = ["", ""];
   let least: number = Infinity;
-  for (const shapeA of shapes(a, boneA))
+  for (const shapeA of shapes(a, boneA).filter(keep))
     for (const shapeB of shapes(b, boneB)) {
       const distance: number = physicalShapePairDistance(
         posesA[boneA]!,

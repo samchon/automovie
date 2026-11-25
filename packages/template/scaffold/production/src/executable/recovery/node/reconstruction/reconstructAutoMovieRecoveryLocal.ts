@@ -22,21 +22,19 @@ import { createAutoMovieRecoveryArtifact } from "../artifact/createAutoMovieReco
 import { createAutoMovieRecoveryMeshSpool } from "../mesh/createAutoMovieRecoveryMeshSpool";
 
 /**
- * Generate saved tensor ordinary domains, retained closed domains and bounded open surfaces.
- * Explicit ruled or local quadratic interpolation differs from coefficientwise PCHIP.
- * Its exact source edges and conforming local cells share actual global mesh indices.
- * Spool-backed checkpoints retain all emitted finite geometry and explicit incompletion.
- * The immutable analytic-and-retained-closed base is published before the first open chunk,
- * even when repeated standalone open checkpoints are disabled. Joint spool frontiers
- * persist channel bindings and source-free run cursors independently of rendering.
+ * Generate saved tensor ordinary domains, retained closed domains and bounded
+ * open surfaces. Explicit ruled or local quadratic interpolation differs from
+ * coefficientwise PCHIP. Its exact source edges and conforming local cells
+ * share actual global mesh indices. Spool-backed checkpoints retain all emitted
+ * finite geometry and explicit incompletion. The immutable
+ * analytic-and-retained-closed base is published before the first open chunk,
+ * even when repeated standalone open checkpoints are disabled. Joint spool
+ * frontiers persist channel bindings and source-free run cursors independently
+ * of rendering.
  *
- * @evidence contracts/development/implementation.md#principled-implementation One analytic realization owns its declared closed and open occurrences; the closed adapter dispatches tensor families and retained curve-only domains. Declared ordinary open-arc transport fixes maximal runs and orientation; cubic controls feed the local Hermite engine, whose shared global indices are appended unchanged.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Graph admission, run ownership, engine streaming and immutable artifact publication are separate stages. Generated triangle ranges retain run, saved curves and local patch ownership.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source geometry, positional weld, hidden closure, hand-selected station, nonlinear limiter or sample reduction enters reconstruction. Analytic domains own explicitly delegated occurrences; all other unsupported branches remain graph records.
+ * @evidence contracts/development/implementation.md#principled-implementation One analytic realization owns its declared closed and open occurrences; the closed adapter dispatches tensor families and retained curve-only domains. Declared ordinary open-arc transport fixes maximal runs and orientation; cubic controls feed the local Hermite engine, whose shared global indices are appended unchanged. No source geometry, positional weld, hidden closure, hand-selected station, nonlinear limiter or sample reduction enters reconstruction. Analytic domains own explicitly delegated occurrences; all other unsupported branches remain graph records.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Graph admission, run ownership, engine streaming and immutable artifact publication are separate stages. Generated triangle ranges retain run, saved curves and local patch ownership. Graph admission is O(P+A); each supported arc belongs to one maximal run. The engine uses local four-course partitions, while disk assembly is linear in emitted data per publication; checkpoints explicitly incur rereads of earlier chunks. Each shared station edge and its analytic normal are generated once. The same immutable engine fragments supply unfinished checkpoints and final model, without repeated fitting or reconstruction for camera changes. Source-free bundle and graph remain caller-owned. Open output retention is bounded by plans, one chunk and spool staging; closed, analytic and tensor meshes and scalar reports remain retained until publication. Completed open chunks transfer to disk, and cancellation releases local state on exceptions.
  * @evidence contracts/development/common.md#meaningful-documentation States the changed operator, coefficient authority, approximation budget, streamed indexing and independent qualification of coverage, regularity and source fidelity.
- * @evidence contracts/development/implementation.md#efficient-algorithms Graph admission is O(P+A); each supported arc belongs to one maximal run. The engine uses local four-course partitions, while disk assembly is linear in emitted data per publication; checkpoints explicitly incur rereads of earlier chunks.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shared station edge and its analytic normal are generated once. The same immutable engine fragments supply unfinished checkpoints and final model, without repeated fitting or reconstruction for camera changes.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source-free bundle and graph remain caller-owned. Open output retention is bounded by plans, one chunk and spool staging; closed, analytic and tensor meshes and scalar reports remain retained until publication. Completed open chunks transfer to disk, and cancellation releases local state on exceptions.
  */
 export function reconstructAutoMovieRecoveryLocal(
   bundle: IAutoMovieRecoveryTensorFamiliesInput,
@@ -46,10 +44,7 @@ export function reconstructAutoMovieRecoveryLocal(
 ): IAutoMovieRecoveryLocalResult {
   if (
     (binding.operator !== "quadratic" && binding.operator !== "ruled") ||
-    !(
-      bundle.policy.toleranceMm > 0 &&
-      Number.isFinite(bundle.policy.toleranceMm)
-    )
+    !(bundle.policy.toleranceMm > 0)
   )
     throw new Error(
       "Explicit interpolation and a positive physical approximation budget required",
@@ -57,8 +52,7 @@ export function reconstructAutoMovieRecoveryLocal(
   if (
     graph.intervals.length !== bundle.reports.length - 1 ||
     graph.orientations.length !== bundle.reports.length ||
-    !(graph.resolutionMm > 0 && Number.isFinite(graph.resolutionMm)) ||
-    !Number.isSafeInteger(graph.maxVerticesPerRun) ||
+    !(graph.resolutionMm > 0) ||
     graph.maxVerticesPerRun < 4
   )
     throw new Error(

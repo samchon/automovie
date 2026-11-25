@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanFitGoals.ts#IAutoMovieMotionHumanFitGoals
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-degrees: Desired included angle or ordered inclusive bounds, degrees in (0, 180). price: Price per milliradian missed; the fit's price when absent. point: Metres in that bone's frame; its origin when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-degrees: Desired included angle or ordered inclusive bounds, degrees in (0, 180). price: Price per milliradian missed; the fit's price when absent. point: Metres in that bone's frame; its origin when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanBodyFit.ts (HumanBodyFit.fit, target); posture/HumanBodyFitMerit.ts (HumanBodyFitMerit.of.misses, target); posture/HumanFitGoals.ts (HumanFitGoals.read, angles); posture/HumanFitGoals.ts (HumanFitGoals.read, target); posture/HumanFitGoals.ts (HumanFitGoals.angle, target); posture/HumanFitGoals.ts (HumanFitGoals.bounds, target).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanFitGoals.ts#IAutoMovieMotionHumanFitGoals.IAngle
 
 ## @evidence contracts/development/common.md#meaningful-documentation

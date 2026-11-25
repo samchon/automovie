@@ -45,10 +45,10 @@ const WASTE_MEDIUM: string = "waste-water";
  * Refuses rather than repairs. An unknown zone, an unknown drain node, a node
  * standing off the lattice and a derived id that collides with an authored one
  * each raise, because every one of them would otherwise produce a domain that
- * silently conserves the wrong amount of water.
- * The returned domain shares unchanged grid, bed and authored entry records;
- * only source/drain arrays and derived entries are new. There is currently no
- * production caller for this composition, only service drainage tests.
+ * silently conserves the wrong amount of water. The returned domain shares
+ * unchanged grid, bed and authored entry records; only source/drain arrays and
+ * derived entries are new. There is currently no production caller for this
+ * composition, only service drainage tests.
  */
 export const lowerWetZoneDrainage: (
   props: IAutoMovieLowerWetZoneDrainage.IProps,
@@ -171,8 +171,6 @@ const cellOf: (
   );
   if (
     !(
-      Number.isFinite(column) &&
-      Number.isFinite(row) &&
       column >= 0 &&
       row >= 0 &&
       column < domain.grid.columns &&

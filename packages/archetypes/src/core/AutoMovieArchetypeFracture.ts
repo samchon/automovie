@@ -15,14 +15,25 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 
 /**
- * How an archetype breaks: the sets of its parts a hit breaks off as fragments, and what is left.
+ * How an archetype breaks: the sets of its parts a hit breaks off as fragments,
+ * and what is left.
  *
- * A producer declares its fragment sets (`AutoMovieArchetypeBuilder.fracture`), each a group of its own parts that leaves as one fragment, and a calibrated `contact.fracture` energy. At or above it, each set becomes an archetype carrying its parts' masses, declared static contacts, wholly departing articulations and their riding contacts. The remainder keeps the other parts and contacts; a partly surviving articulation binds only its surviving parts. References to a carrier or driver in another piece are detached. Pieces use authored neutral coordinates, not the current displayed pose: removing a coupling can reset its nonzero default travel. No piece breaks again. Fragments share momentum with common velocity p/M, the minimum-energy allocation at fixed momentum, without an invented spread. This is not a complete collision or fracture-work model. The same archetype and hit always break the same way.
+ * A producer declares its fragment sets (`AutoMovieArchetypeBuilder.fracture`),
+ * each a group of its own parts that leaves as one fragment, and a calibrated
+ * `contact.fracture` energy. At or above it, each set becomes an archetype
+ * carrying its parts' masses, declared static contacts, wholly departing
+ * articulations and their riding contacts. The remainder keeps the other parts
+ * and contacts; a partly surviving articulation binds only its surviving parts.
+ * References to a carrier or driver in another piece are detached. Pieces use
+ * authored neutral coordinates, not the current displayed pose: removing a
+ * coupling can reset its nonzero default travel. No piece breaks again.
+ * Fragments share momentum with common velocity p/M, the minimum-energy
+ * allocation at fixed momentum, without an invented spread. This is not a
+ * complete collision or fracture-work model. The same archetype and hit always
+ * break the same way.
  */
 export namespace AutoMovieArchetypeFracture {
-  /**
-   * One fragment set: the parts that break off together.
-   */
+  /** One fragment set: the parts that break off together. */
   export interface ISet {
     /** The fragment's id, unique among the archetype's sets. */
     id: string;
@@ -30,35 +41,42 @@ export namespace AutoMovieArchetypeFracture {
     /** The parts it carries away, by part id. */
     parts: readonly string[];
 
-    /** Static contacts on these parts, such as a bottle's body grip. Articulations whose complete bound-part list belongs to the set, and zero-part contacts riding them (or following them without a carrier), transfer automatically. A declared contact cannot bind parts outside this set; cross-piece rides/follows are detached in authored neutral coordinates. Absent, no additional static contacts. */
+    /**
+     * Static contacts on these parts, such as a bottle's body grip.
+     * Articulations whose complete bound-part list belongs to the set, and
+     * zero-part contacts riding them (or following them without a carrier),
+     * transfer automatically. A declared contact cannot bind parts outside this
+     * set; cross-piece rides/follows are detached in authored neutral
+     * coordinates. Absent, no additional static contacts.
+     */
     affordances?: readonly string[];
   }
 
-  /**
-   * A hit on an archetype.
-   */
+  /** A hit on an archetype. */
   export interface IHit {
     /** The hit's finite nonnegative energy, joules. */
     energy: number;
 
-    /** The hit's finite-component momentum, kilogram metres per second, in the archetype's space. */
+    /**
+     * The hit's finite-component momentum, kilogram metres per second, in the
+     * archetype's space.
+     */
     momentum: IAutoMovieVector3;
   }
 
-  /**
-   * What a hit leaves of an archetype.
-   */
+  /** What a hit leaves of an archetype. */
   export interface IBroken<Id extends string, Dimension extends string> {
-    /** What stays, its parts and the affordances on them; null when every part broke off. */
+    /**
+     * What stays, its parts and the affordances on them; null when every part
+     * broke off.
+     */
     remainder: AutoMovieArchetype.IProps<Id, Dimension> | null;
 
     /** Each fragment, its parts and mass, and the velocity it leaves with. */
     fragments: readonly IFragment<Dimension, Id>[];
   }
 
-  /**
-   * One fragment's rest record and the velocity it leaves with.
-   */
+  /** One fragment's rest record and the velocity it leaves with. */
   export interface IFragment<
     Dimension extends string,
     Id extends string = never,
@@ -66,7 +84,10 @@ export namespace AutoMovieArchetypeFracture {
     /** The set's id. */
     id: string;
 
-    /** Its parts, mass and transferred contacts, in authored neutral coordinates. */
+    /**
+     * Its parts, mass and transferred contacts, in authored neutral
+     * coordinates.
+     */
     props: AutoMovieArchetype.IProps<Id, Dimension>;
 
     /** The velocity it leaves with, metres per second, in the archetype's space. */
@@ -74,7 +95,8 @@ export namespace AutoMovieArchetypeFracture {
   }
 
   /**
-   * What a hit leaves of an archetype, as archetypes: what `AutoMovieArchetype.broken` returns.
+   * What a hit leaves of an archetype, as archetypes: what
+   * `AutoMovieArchetype.broken` returns.
    */
   export interface IPieces<Id extends string, Dimension extends string> {
     /** What stays; null when every part broke off. */
@@ -84,14 +106,15 @@ export namespace AutoMovieArchetypeFracture {
     fragments: IPiece<Dimension, Id>[];
   }
 
-  /**
-   * One fragment as an archetype, and the velocity it leaves with.
-   */
+  /** One fragment as an archetype, and the velocity it leaves with. */
   export interface IPiece<Dimension extends string, Id extends string = never> {
     /** The set's id. */
     id: string;
 
-    /** The fragment with transferred contacts; detached couplings reset to authored neutral coordinates. */
+    /**
+     * The fragment with transferred contacts; detached couplings reset to
+     * authored neutral coordinates.
+     */
     archetype: AutoMovieArchetype<Id, Dimension>;
 
     /** The velocity it leaves with, metres per second, in the archetype's space. */
@@ -103,14 +126,18 @@ export namespace AutoMovieArchetypeFracture {
    *
    * @param rest The archetype's rest record.
    * @param hit The hit.
-   * @returns The remainder and fragments with independently owned velocity records, or null when no sets or no calibrated threshold are declared, or the hit is below that threshold.
-   * @throws {AutoMovieArchetypeRefusal} When hit or threshold data are invalid, departing mass or velocity is not finite and positive where required, or the supplied energy cannot carry the fragment momentum.
+   * @returns The remainder and fragments with independently owned velocity
+   *   records, or null when no sets or no calibrated threshold are declared, or
+   *   the hit is below that threshold.
+   * @throws {AutoMovieArchetypeRefusal} When hit or threshold data are invalid,
+   *   departing mass or velocity is not finite and positive where required, or
+   *   the supplied energy cannot carry the fragment momentum.
    */
   export function split<Id extends string, Dimension extends string>(
     rest: AutoMovieArchetype.IProps<Id, Dimension>,
     hit: IHit,
   ): IBroken<Id, Dimension> | null {
-    if (!(Number.isFinite(hit.energy) && hit.energy >= 0))
+    if (!(hit.energy >= 0 && hit.energy < Infinity))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: rest.archetype,
@@ -120,17 +147,29 @@ export namespace AutoMovieArchetypeFracture {
         reason: "a hit needs finite nonnegative kinetic energy",
         fix: "give a finite energy at least zero",
       });
-    if (!finiteVector(hit.momentum))
-      throw momentumRefusal(
-        rest.archetype,
-        hit.momentum,
-        "a hit needs finite momentum components",
-      );
+    if (
+      !(
+        Math.max(
+          Math.abs(hit.momentum.x),
+          Math.abs(hit.momentum.y),
+          Math.abs(hit.momentum.z),
+        ) < Infinity
+      )
+    )
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: rest.archetype,
+        axis: "momentum",
+        value: hit.momentum,
+        feasible: null,
+        reason: "the hit needs finite momentum along each axis",
+        fix: "supply finite momentum components",
+      });
 
     const threshold: number | undefined = rest.contact?.fracture;
     if (rest.fractures.length === 0 || threshold === undefined) return null;
 
-    if (!(Number.isFinite(threshold) && threshold > 0))
+    if (!(threshold > 0 && threshold < Infinity))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: rest.archetype,
@@ -159,7 +198,7 @@ export namespace AutoMovieArchetypeFracture {
       );
       const masses: number[] = parts.map((p: IAutoMovieModelPart): number => {
         const value: number | undefined = rest.masses[p.id];
-        if (!(value !== undefined && Number.isFinite(value) && value >= 0))
+        if (!(value !== undefined && value >= 0 && value < Infinity))
           throw massRefusal(
             rest.archetype,
             value,
@@ -168,7 +207,7 @@ export namespace AutoMovieArchetypeFracture {
         return value;
       });
       const mass: number = ArchetypeMassArithmetic.sum(masses);
-      if (!(Number.isFinite(mass) && mass > 0))
+      if (!(mass > 0) || mass === Infinity)
         throw massRefusal(
           rest.archetype,
           mass,
@@ -244,7 +283,7 @@ export namespace AutoMovieArchetypeFracture {
     const total: number = ArchetypeMassArithmetic.sum(
       fragments.map((f: FragmentRecord): number => f.props.properties.mass),
     );
-    if (!(Number.isFinite(total) && total > 0))
+    if (!(total > 0) || total === Infinity)
       throw massRefusal(
         rest.archetype,
         total,
@@ -256,12 +295,22 @@ export namespace AutoMovieArchetypeFracture {
       y: hit.momentum.y / total,
       z: hit.momentum.z / total,
     };
-    if (!finiteVector(velocity))
-      throw momentumRefusal(
-        rest.archetype,
-        hit.momentum,
-        "the hit's momentum over the fragments' mass produces a non-finite velocity",
-      );
+    if (
+      Math.max(
+        Math.abs(velocity.x),
+        Math.abs(velocity.y),
+        Math.abs(velocity.z),
+      ) === Infinity
+    )
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: rest.archetype,
+        axis: "momentum",
+        value: hit.momentum,
+        feasible: null,
+        reason: "the departing mass cannot carry a representable velocity",
+        fix: "give a momentum whose velocity is representable for the departing mass",
+      });
 
     const energy: ReturnType<typeof ArchetypeFractureEnergy> =
       ArchetypeFractureEnergy(hit.energy, total, hit.momentum);
@@ -311,32 +360,6 @@ export namespace AutoMovieArchetypeFracture {
     };
   }
 
-  /** Admit each physical vector component without a magnitude cutoff. */
-  function finiteVector(value: IAutoMovieVector3): boolean {
-    return (
-      Number.isFinite(value.x) &&
-      Number.isFinite(value.y) &&
-      Number.isFinite(value.z)
-    );
-  }
-
-  /** Keep invalid momentum and unrepresentable output in the author's refusal contract. */
-  function momentumRefusal(
-    archetype: string,
-    value: IAutoMovieVector3,
-    reason: string,
-  ): AutoMovieArchetypeRefusal {
-    return new AutoMovieArchetypeRefusal({
-      kind: "parameter",
-      archetype,
-      axis: "momentum",
-      value,
-      reason,
-      feasible: null,
-      fix: "give finite momentum components whose fragment velocity is finite",
-    });
-  }
-
   /** Refuse unsupported mass before the shared mass-property arithmetic sees it. */
   function massRefusal(
     archetype: string,
@@ -355,8 +378,8 @@ export namespace AutoMovieArchetypeFracture {
   }
 
   /**
-   * Contacts not transferred to fragments, retaining only surviving part bindings
-   * and detaching ride/follow references outside the remainder.
+   * Contacts not transferred to fragments, retaining only surviving part
+   * bindings and detaching ride/follow references outside the remainder.
    *
    * @param rest The archetype's rest record.
    * @param kept The remainder's parts.
@@ -398,7 +421,10 @@ export namespace AutoMovieArchetypeFracture {
       );
   }
 
-  /** Keep declared static contacts and wholly departing articulations, then their riding contacts. */
+  /**
+   * Keep declared static contacts and wholly departing articulations, then
+   * their riding contacts.
+   */
   function carried<Id extends string, Dimension extends string>(
     rest: AutoMovieArchetype.IProps<Id, Dimension>,
     set: ISet,

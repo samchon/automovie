@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanBreath.ts#IAutoMovieMotionHumanBreath
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-rate: Breaths a minute at rest; a seeded draw from the adult band when absent. from: Film second the bout starts; under way since before the film when absent. recovery: Recovery seconds; 60 when absent, the onset's span (Whipp and Ward 1990).
-
-## @evidence contracts/development/design.md#principled-representation
-
-rate: Breaths a minute at rest; a seeded draw from the adult band when absent. from: Film second the bout starts; under way since before the film when absent. recovery: Recovery seconds; 60 when absent, the onset's span (Whipp and Ward 1990).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.state, exertion); everyday/HumanBreath.ts (HumanBreath.state, return); everyday/HumanBreath.ts (HumanBreath.layer, options).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in HumanBreath.state.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanBreath.ts#IAutoMovieMotionHumanBreath.IOptions
 
 ## @evidence contracts/development/common.md#meaningful-documentation

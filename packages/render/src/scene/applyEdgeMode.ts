@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { EDGE_SHELL_NAME } from "./EDGE_SHELL_NAME.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
@@ -19,7 +20,13 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Inverted-hull shell material: extrude by edgeWidth along the normalized model-space normal after native morph targets and then skinning, the beauty pass's order, then apply instance/object and camera transforms. White back faces exposed beyond the black fill form contours; subsequent scaling and perspective determine their world and screen thickness. Both stages include three's clipping chunks, so a clipping plane given to the material cuts the shell as it cuts the fill.
+ * Inverted-hull shell material: extrude by edgeWidth along the normalized
+ * model-space normal after native morph targets and then skinning, the beauty
+ * pass's order, then apply instance/object and camera transforms. White back
+ * faces exposed beyond the black fill form contours; subsequent scaling and
+ * perspective determine their world and screen thickness. Both stages include
+ * three's clipping chunks, so a clipping plane given to the material cuts the
+ * shell as it cuts the fill.
  */
 const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
   edgeWidth: number,
@@ -60,17 +67,23 @@ const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
       }`,
   });
 
-/** The culling volumes a skinned or instanced mesh carries on itself, which a plain mesh does not have. */
+/**
+ * The culling volumes a skinned or instanced mesh carries on itself, which a
+ * plain mesh does not have.
+ */
 interface IPosedVolumes {
   /** Sphere the renderer culls the mesh by, or null until it is computed. */
-  boundingSphere?: THREE.Sphere | null;
+  boundingSphere: THREE.Sphere | null;
 
   /** Box of the posed mesh, or null until it is computed. */
-  boundingBox?: THREE.Box3 | null;
+  boundingBox: THREE.Box3 | null;
 }
 
 /**
- * Bring a shell to its mesh as the mesh stands now, by rewriting every value the shallow clone took by value: the local transform, the visibility flag, the morph target influences, an instanced mesh's count and instance matrices, and the culling volumes of a skinned or instanced mesh.
+ * Bring a shell to its mesh as the mesh stands now, by rewriting every value
+ * the shallow clone took by value: the local transform, the visibility flag,
+ * the morph target influences, an instanced mesh's count and instance matrices,
+ * and the culling volumes of a skinned or instanced mesh.
  */
 const followEdgeShell: (
   mesh: AutoMovieRenderModeMesh,
@@ -96,8 +109,8 @@ const followEdgeShell: (
   }
 
   if (
-    mesh instanceof THREE.InstancedMesh &&
-    shell instanceof THREE.InstancedMesh
+    AutoMovieThreeKind.isInstancedMesh(mesh) &&
+    AutoMovieThreeKind.isInstancedMesh(shell)
   ) {
     shell.count = mesh.count;
     if (shell.instanceMatrix.array.length === mesh.instanceMatrix.array.length)
@@ -110,28 +123,42 @@ const followEdgeShell: (
     shell.instanceMatrix.needsUpdate = true;
   }
 
-  const posed: IPosedVolumes = mesh as IPosedVolumes;
-  const volumes: IPosedVolumes = shell as IPosedVolumes;
-  if (posed.boundingSphere !== undefined)
-    volumes.boundingSphere =
-      posed.boundingSphere === null ? null : posed.boundingSphere.clone();
-  if (posed.boundingBox !== undefined)
-    volumes.boundingBox =
-      posed.boundingBox === null ? null : posed.boundingBox.clone();
+  if (
+    AutoMovieThreeKind.isSkinnedMesh(mesh) &&
+    AutoMovieThreeKind.isSkinnedMesh(shell)
+  )
+    followEdgeVolumes(mesh, shell);
+  if (
+    AutoMovieThreeKind.isInstancedMesh(mesh) &&
+    AutoMovieThreeKind.isInstancedMesh(shell)
+  )
+    followEdgeVolumes(mesh, shell);
+};
+
+/** Copy the culling volumes of one posed mesh onto its shell. */
+const followEdgeVolumes: (from: IPosedVolumes, to: IPosedVolumes) => void = (
+  from: IPosedVolumes,
+  to: IPosedVolumes,
+): void => {
+  to.boundingSphere = from.boundingSphere?.clone() ?? null;
+  to.boundingBox = from.boundingBox?.clone() ?? null;
 };
 
 /**
- * Inverted-hull outline pass: each mesh gets a white back-face shell extruded along its model-space normals and a black fill, over black background. The exposed shell forms a contour without host post-processing; it is a surface-dependent projection rather than a fixed pixel-width edge detector.
+ * Inverted-hull outline pass: each mesh gets a white back-face shell extruded
+ * along its model-space normals and a black fill, over black background. The
+ * exposed shell forms a contour without host post-processing; it is a
+ * surface-dependent projection rather than a fixed pixel-width edge detector.
  *
  * Width is a finite nonnegative model-space extrusion; object scaling affects
  * its world-space thickness. Returned restore removes shells, disposes their
  * materials and restores original fill/background state. A clipping plane
- * assigned to the shell and fill materials cuts both, so a section of the
- * scene is a section of its outline.
+ * assigned to the shell and fill materials cuts both, so a section of the scene
+ * is a section of its outline.
  *
  * A shell is a shallow copy of its mesh, so it shares the geometry and the
- * skeleton and follows a skinned pose by itself. What the copy took by value
- * is brought up to date by the handle's `update()`: the local transform, the
+ * skeleton and follows a skinned pose by itself. What the copy took by value is
+ * brought up to date by the handle's `update()`: the local transform, the
  * visibility flag, the morph target influences, an instanced mesh's count and
  * instance matrices, and the culling volumes a skinned or instanced mesh
  * carries. A mesh attached, detached or moved to another parent after
@@ -189,9 +216,7 @@ export const applyEdgeMode: (
       if (dual) applyDualQuaternionSkinning(shellMaterial);
       cache.set(cycle, shellMaterial);
     }
-    const shell: AutoMovieRenderModeMesh = mesh.clone(
-      false,
-    ) as AutoMovieRenderModeMesh;
+    const shell: AutoMovieRenderModeMesh = mesh.clone(false);
     shell.name = EDGE_SHELL_NAME;
     shell.material = shellMaterial;
     mesh.parent!.add(shell);

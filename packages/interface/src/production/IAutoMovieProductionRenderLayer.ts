@@ -6,8 +6,8 @@
  * resolves every participating shot at one declared source instant.
  * `sampleProductionRenderFrame` produces it; `productionRenderLayersForPass`
  * composites beauty layers by weight and gives a structural guide pass only the
- * heaviest layer, the incoming one on a tie, and production checks a mask chunk's semantic sidecars
- * against that selection.
+ * heaviest layer, the incoming one on a tie, and production checks a mask
+ * chunk's semantic sidecars against that selection.
  */
 export interface IAutoMovieProductionRenderLayer {
   /** Id of the compiled shot this layer renders, as the timeline names it. */
@@ -17,8 +17,8 @@ export interface IAutoMovieProductionRenderLayer {
   sourceFrame: number;
 
   /**
-   * Linear compositing weight in `[0, 1]`: `1` for a plain cut, the fade
-   * factor during a fade, and complementary values across a dissolve.
+   * Linear compositing weight in `[0, 1]`: `1` for a plain cut, the fade factor
+   * during a fade, and complementary values across a dissolve.
    */
   weight: number;
 }

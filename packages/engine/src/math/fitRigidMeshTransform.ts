@@ -1,15 +1,17 @@
 import type { IAutoMovieFitRigidMeshTransform } from "@automovie/interface";
 
 import { Quaternion } from "./Quaternion";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
  * Fit a proper rotation and translation between corresponding mesh vertices.
  * The facial basis builder uses this to perform a shape-edited rigid component
  * without allowing expression targets to scale, shear or reflect its geometry.
- * Inputs are flat XYZ buffers in the same units, and a nonempty, unique selection
- * indexes both. No input is mutated. Apply the returned rotation to a point minus
- * referenceCenter, then add targetCenter. Centered application avoids cancellation
- * between a large translation and a rotated absolute coordinate.
+ * Inputs are flat XYZ buffers in the same units, and a nonempty, unique
+ * selection indexes both. No input is mutated. Apply the returned rotation to a
+ * point minus referenceCenter, then add targetCenter. Centered application
+ * avoids cancellation between a large translation and a rotated absolute
+ * coordinate.
  *
  * Horn's absolute-orientation method (JOSA A 4, 1987, pp. 629–642, section 4)
  * maximizes q^T N q for a unit quaternion. N is symmetric 4 by 4; its largest
@@ -39,10 +41,7 @@ export function fitRigidMeshTransform(
     reference.length % 3 !== 0 ||
     vertices.length === 0 ||
     new Set(vertices).size !== vertices.length ||
-    vertices.some(
-      (v: number): boolean =>
-        !Number.isInteger(v) || v < 0 || v * 3 >= reference.length,
-    )
+    vertices.some((v: number): boolean => v < 0 || v * 3 >= reference.length)
   )
     throw new Error(
       "Rigid fitting needs aligned XYZ and distinct resident vertices.",
@@ -53,10 +52,8 @@ export function fitRigidMeshTransform(
     for (let k: number = 0; k < 3; k++) {
       const x: number = reference[3 * vertex + k];
       const y: number = target[3 * vertex + k];
-      if (!Number.isFinite(x) || !Number.isFinite(y))
-        throw new Error("Rigid fitting needs finite corresponding positions.");
-      a[k] += x / vertices.length;
-      b[k] += y / vertices.length;
+      a[k] = representable(a[k] + representable(x / vertices.length));
+      b[k] = representable(b[k] + representable(y / vertices.length));
     }
   let referenceScale: number = 0;
   let targetScale: number = 0;
@@ -64,15 +61,13 @@ export function fitRigidMeshTransform(
     for (let k: number = 0; k < 3; k++) {
       referenceScale = Math.max(
         referenceScale,
-        Math.abs(reference[3 * vertex + k] - a[k]),
+        Math.abs(representable(reference[3 * vertex + k] - a[k])),
       );
       targetScale = Math.max(
         targetScale,
-        Math.abs(target[3 * vertex + k] - b[k]),
+        Math.abs(representable(target[3 * vertex + k] - b[k])),
       );
     }
-  if (![...a, ...b, referenceScale, targetScale].every(Number.isFinite))
-    throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");
   // Positive uniform rescaling of either cloud leaves the maximizing rotation
   // unchanged. Normalize before multiplication to avoid overflow and underflow.
   const referenceDivisor: number = referenceScale === 0 ? 1 : referenceScale;
@@ -155,4 +150,11 @@ export function fitRigidMeshTransform(
     referenceCenter: { x: a[0], y: a[1], z: a[2] },
     targetCenter: { x: b[0], y: b[1], z: b[2] },
   };
+}
+
+/** One centroid sum or centred difference, refused where it overflows. */
+function representable(result: number): number {
+  if (overflowsBinary64(result))
+    throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");
+  return result;
 }

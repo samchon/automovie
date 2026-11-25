@@ -8,19 +8,17 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
 /**
- * The integration of one extended position-based dynamics substep
- * (Mueller, Macklin, Chentanez, Jeschke and Kim 2020, Algorithm 2): the
- * prediction before the position passes and the velocity derivation after
- * them.
+ * The integration of one extended position-based dynamics substep (Mueller,
+ * Macklin, Chentanez, Jeschke and Kim 2020, Algorithm 2): the prediction before
+ * the position passes and the velocity derivation after them.
  */
 export namespace AutoMovieXpbdIntegration {
   /**
-   * Integrate one body's velocities and predict its pose; carry a
-   * kinematic body to its set pose. The previous pose is kept for the
-   * derivation: velocities gain gravity and the accumulated wrench over the
-   * substep, the angular one with the gyroscopic term `w x I w`, then the
-   * pose advances by them, the orientation by `q + 1/2 h [w, 0] q`
-   * normalized.
+   * Integrate one body's velocities and predict its pose; carry a kinematic
+   * body to its set pose. The previous pose is kept for the derivation:
+   * velocities gain gravity and the accumulated wrench over the substep, the
+   * angular one with the gyroscopic term `w x I w`, then the pose advances by
+   * them, the orientation by `q + 1/2 h [w, 0] q` normalized.
    *
    * @param body The body.
    * @param gravity World gravitational acceleration, metres per second squared.
@@ -81,8 +79,8 @@ export namespace AutoMovieXpbdIntegration {
   }
 
   /**
-   * Re-derive a body's velocities from its pose change over the substep:
-   * `v = dx / h`, `w = 2 vec(dq q^-1) / h` on the shorter arc.
+   * Re-derive a body's velocities from its pose change over the substep: `v =
+   * dx / h`, `w = 2 vec(dq q^-1) / h` on the shorter arc.
    *
    * @param body The body.
    * @param h The substep, seconds.

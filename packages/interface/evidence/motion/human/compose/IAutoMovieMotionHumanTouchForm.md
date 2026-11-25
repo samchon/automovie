@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTouchForm.ts#IAutoMovieMotionHumanTouchForm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-lift: The lift's greatest height, a share of the hand's length. travel: The travel's greatest offset each way, a share of the hand's length. speed: The travel's peak speed, metres per second; sets the period when present.
-
-## @evidence contracts/development/design.md#principled-representation
-
-lift: The lift's greatest height, a share of the hand's length. travel: The travel's greatest offset each way, a share of the hand's length. speed: The travel's peak speed, metres per second; sets the period when present.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanTouchForm.ts (AutoMovieMotionHumanTouchForm.curled, kind); compose/AutoMovieMotionHumanTouchForm.ts (AutoMovieMotionHumanTouchForm.period, kind); compose/AutoMovieMotionHumanTouchForm.ts (AutoMovieMotionHumanTouchForm.tangent, tangent); compose/AutoMovieMotionHumanTouchLaid.ts (AutoMovieMotionHumanTouchLaid.bend, tangent); compose/AutoMovieMotionHumanTouchLaid.ts (AutoMovieMotionHumanTouchLaid.laid, tangent); compose/AutoMovieMotionHumanTouchLaid.ts (AutoMovieMotionHumanTouchLaid.rest, tangent).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanTiming.Span identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTouchForm.ts#IAutoMovieMotionHumanTouchForm.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

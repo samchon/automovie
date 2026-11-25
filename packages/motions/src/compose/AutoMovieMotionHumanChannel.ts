@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanDigit,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannelClaim,
   AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelContract,
@@ -12,19 +13,48 @@ import type {
 import { HumanPosture } from "../posture/HumanPosture";
 
 /**
- * Channel ordering, bone ownership and posture merging for the canonical channel vocabulary.
- * ORDER is constrained by the interface union. The readers below use this order
- * and ownership partition when composing primitives, including individual-digit claims.
+ * The channel that owns a bone's joint.
+ *
+ * @param bone The bone.
+ * @returns Its channel.
+ */
+export function AutoMovieMotionHumanChannel(
+  bone: AutoMovieHumanoidBone,
+): AutoMovieMotionHumanChannelContract {
+  const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
+    ? "left"
+    : bone.startsWith("right")
+      ? "right"
+      : undefined;
+  if (side === undefined)
+    return bone === "neck" || bone === "head" || bone === "jaw"
+      ? "head"
+      : "trunk";
+  const part: string = bone.slice(side.length);
+  if (part === "Eye") return "head";
+  if (part === "Shoulder") return "trunk";
+  if (/^(Thumb|Index|Middle|Ring|Little)/.test(part)) return `${side}Hand`;
+  if (part === "UpperArm" || part === "LowerArm" || part === "Hand")
+    return `${side}Arm`;
+  return `${side}Leg`;
+}
+
+/**
+ * Channel ordering, bone ownership and posture merging for the canonical
+ * channel vocabulary. ORDER is constrained by the interface union. The readers
+ * below use this order and ownership partition when composing primitives,
+ * including individual-digit claims.
  */
 export namespace AutoMovieMotionHumanChannel {
   /**
-   * The order channels are written in: the body is placed first and the
-   * arms last, so a primitive reads every part its own part hangs from as
-   * the action already placed it. The hands' fingers come before the arms
-   * although they hang from them: an arm's goal lays a surface of the hand
-   * (the palm, a fingertip, the fist) on its target, and the arm's fit reads
-   * that surface with the fingers as their own primitive shapes them, while
-   * a finger's angles read nothing of the arm. The channels as data, checked against the canonical union.
+   * The order channels are written in: the body is placed first and the arms
+   * last, so a primitive reads every part its own part hangs from as the action
+   * already placed it. The hands' fingers come before the arms although they
+   * hang from them: an arm's goal lays a surface of the hand (the palm, a
+   * fingertip, the fist) on its target, and the arm's fit reads that surface
+   * with the fingers as their own primitive shapes them, while a finger's
+   * angles read nothing of the arm. The channels as data, checked against the
+   * canonical union.
    */
   export const ORDER = [
     "root",
@@ -39,31 +69,9 @@ export namespace AutoMovieMotionHumanChannel {
   ] as const satisfies readonly NonNullable<AutoMovieMotionHumanChannelContract>[];
 
   /**
-   * The channel that owns a bone's joint.
-   *
-   * @param bone The bone.
-   * @returns Its channel.
+   * The bones `trunkTurn` covers: the spine and the chest above the pelvis, not
+   * the shoulder girdles.
    */
-  export function of(bone: AutoMovieHumanoidBone): AutoMovieMotionHumanChannelContract {
-    const side: "left" | "right" | undefined = bone.startsWith("left")
-      ? "left"
-      : bone.startsWith("right")
-        ? "right"
-        : undefined;
-    if (side === undefined)
-      return bone === "neck" || bone === "head" || bone === "jaw"
-        ? "head"
-        : "trunk";
-    const part: string = bone.slice(side.length);
-    if (part === "Eye") return "head";
-    if (part === "Shoulder") return "trunk";
-    if (/^(Thumb|Index|Middle|Ring|Little)/.test(part)) return `${side}Hand`;
-    if (part === "UpperArm" || part === "LowerArm" || part === "Hand")
-      return `${side}Arm`;
-    return `${side}Leg`;
-  }
-
-  /** The bones `trunkTurn` covers: the spine and the chest above the pelvis, not the shoulder girdles. */
   export const TURN: readonly AutoMovieHumanoidBone[] = [
     "spine",
     "chest",
@@ -76,27 +84,37 @@ export namespace AutoMovieMotionHumanChannel {
    * @param bone The bone.
    * @returns Its digit; none for a bone of no digit.
    */
-  export function digit(bone: AutoMovieHumanoidBone): AutoMovieHumanDigit | undefined {
+  export function digit(
+    bone: AutoMovieHumanoidBone,
+  ): AutoMovieHumanDigit | undefined {
     const found: RegExpMatchArray | null = bone.match(
       /^(left|right)(Thumb|Index|Middle|Ring|Little)/,
     );
-    return found === null ? undefined : (`${found[1]}${found[2]}` as AutoMovieHumanDigit);
+    return found === null
+      ? undefined
+      : (`${found[1]}${found[2]}` as AutoMovieHumanDigit);
   }
 
   /**
-   * Whether claims cover a claim: they name it, or it is a digit of a hand
-   * they name.
+   * Whether claims cover a claim: they name it, or it is a digit of a hand they
+   * name.
    *
    * @param claims The claims.
    * @param claim The claim asked about.
    * @returns Whether it is covered.
    */
-  export function claims(claims: readonly AutoMovieMotionHumanChannelClaim[], claim: AutoMovieMotionHumanChannelClaim): boolean {
+  export function claims(
+    claims: readonly AutoMovieMotionHumanChannelClaim[],
+    claim: AutoMovieMotionHumanChannelClaim,
+  ): boolean {
     if (claims.includes(claim)) return true;
     const side: RegExpMatchArray | null = claim.match(
       /^(left|right)(Thumb|Index|Middle|Ring|Little)$/,
     );
-    return ( side !== null && claims.includes(`${side[1]}Hand` as AutoMovieMotionHumanChannelClaim));
+    return (
+      side !== null &&
+      claims.includes(`${side[1]}Hand` as AutoMovieMotionHumanChannelClaim)
+    );
   }
 
   /**
@@ -110,18 +128,18 @@ export namespace AutoMovieMotionHumanChannel {
     claims: readonly AutoMovieMotionHumanChannelClaim[],
     bone: AutoMovieHumanoidBone,
   ): boolean {
-    if (claims.includes(of(bone))) return true;
+    if (claims.includes(AutoMovieMotionHumanChannel(bone))) return true;
     if (claims.includes("trunkTurn") && TURN.includes(bone)) return true;
     const own: AutoMovieHumanDigit | undefined = digit(bone);
     return own !== undefined && claims.includes(own);
   }
 
   /**
-   * A posture with some channels taken from another: every field the
-   * channels own is copied from `written`, everything else stays as `base`
-   * has it. A joint or a limb goal `written` no longer sets is cleared. A
-   * digit claim takes that digit's joints and its digit goal only; a hand's
-   * channel takes all five.
+   * A posture with some channels taken from another: every field the channels
+   * own is copied from `written`, everything else stays as `base` has it. A
+   * joint or a limb goal `written` no longer sets is cleared. A digit claim
+   * takes that digit's joints and its digit goal only; a hand's channel takes
+   * all five.
    *
    * @param base The posture the other channels keep.
    * @param written The posture the channels were written on.
@@ -136,41 +154,57 @@ export namespace AutoMovieMotionHumanChannel {
     return merged(
       base,
       written,
-      (channel: AutoMovieMotionHumanChannelContract): boolean => channels.includes(channel),
+      (channel: AutoMovieMotionHumanChannelContract): boolean =>
+        channels.includes(channel),
       (bone: AutoMovieHumanoidBone): boolean => covers(channels, bone),
-      (digit: AutoMovieHumanDigit): boolean => AutoMovieMotionHumanChannel.claims(channels, digit),
+      (digit: AutoMovieHumanDigit): boolean =>
+        AutoMovieMotionHumanChannel.claims(channels, digit),
     );
   }
 
   /**
-   * Prepare the immutable claim decisions of repeated posture merges.
-   * Actual joint triples, goals, roots and optional fields remain inputs of
-   * every call, and the returned records keep merge's original ownership.
+   * Prepare the immutable claim decisions of repeated posture merges. Actual
+   * joint triples, goals, roots and optional fields remain inputs of every
+   * call, and the returned records keep merge's original ownership.
    *
-   * @param channels The fixed channel/digit/trunk-turn claims, copied at preparation.
-   * @returns The same merge with claim membership and encountered bone ownership shared.
+   * @param channels The fixed channel/digit/trunk-turn claims, copied at
+   *   preparation.
+   * @returns The same merge with fixed channel and digit claim membership.
    */
   export function prepareMerge(
     channels: readonly AutoMovieMotionHumanChannelClaim[],
-  ): (base: IAutoMovieMotionHumanPosture, written: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
+  ): (
+    base: IAutoMovieMotionHumanPosture,
+    written: IAutoMovieMotionHumanPosture,
+  ) => IAutoMovieMotionHumanPosture {
     const fixed: readonly AutoMovieMotionHumanChannelClaim[] = [...channels];
     const owned: ReadonlySet<AutoMovieMotionHumanChannelClaim> = new Set(fixed);
     const digits: ReadonlySet<AutoMovieHumanDigit> = new Set(
-      HumanPosture.DIGITS.filter((digit: AutoMovieHumanDigit): boolean => claims(fixed, digit)),
+      HumanPosture.DIGITS.filter((digit: AutoMovieHumanDigit): boolean =>
+        claims(fixed, digit),
+      ),
     );
-    const bones: Map<AutoMovieHumanoidBone, boolean> = new Map();
     const coversBone = (bone: AutoMovieHumanoidBone): boolean => {
-      let known: boolean | undefined = bones.get(bone);
-      if (known === undefined) bones.set(bone, (known = covers(fixed, bone)));
-      return known;
+      if (owned.has(AutoMovieMotionHumanChannel(bone))) return true;
+      if (owned.has("trunkTurn") && TURN.includes(bone)) return true;
+      const own: AutoMovieHumanDigit | undefined = digit(bone);
+      return own !== undefined && digits.has(own);
     };
-    const owns = (channel: AutoMovieMotionHumanChannelContract): boolean => owned.has(channel);
-    const ownsDigit = (digit: AutoMovieHumanDigit): boolean => digits.has(digit);
-    return (base: IAutoMovieMotionHumanPosture, written: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
+    const owns = (channel: AutoMovieMotionHumanChannelContract): boolean =>
+      owned.has(channel);
+    const ownsDigit = (digit: AutoMovieHumanDigit): boolean =>
+      digits.has(digit);
+    return (
+      base: IAutoMovieMotionHumanPosture,
+      written: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture =>
       merged(base, written, owns, coversBone, ownsDigit);
   }
 
-  /** Keep cold and prepared selection identical, including property insertion order. */
+  /**
+   * Keep cold and prepared selection identical, including property insertion
+   * order.
+   */
   function merged(
     base: IAutoMovieMotionHumanPosture,
     written: IAutoMovieMotionHumanPosture,
@@ -210,7 +244,7 @@ export namespace AutoMovieMotionHumanChannel {
     }
 
     // A whole-body rotation turns the root, so it goes with the root's
-    // channel (#3423); a posture that has none keeps none.
+    // channel; a posture that has none keeps none.
     const rotation: IAutoMovieHumanPostureRotation | undefined = (
       owns("root") ? written : base
     ).rotation;

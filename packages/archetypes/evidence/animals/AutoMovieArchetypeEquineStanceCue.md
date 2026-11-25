@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineStanceCue.ts#AutoMovieArchetypeEquineStanceCue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a cue is, its phases and where its vocabulary comes from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A discriminated union of responses sharing an entry, hold and exit in film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned here and read by `AutoMovieArchetypeEquineStance`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Alternatives are union members, never optional fields that combine into meaningless states.
-
 # src/animals/AutoMovieArchetypeEquineStanceCue.ts#AutoMovieArchetypeEquineStanceCue.IPhases
 
 ## @evidence contracts/development/common.md#meaningful-documentation

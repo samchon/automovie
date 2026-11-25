@@ -8,23 +8,23 @@ import type {
 import { RecoveryChartPhysicalJet as P } from "./RecoveryChartPhysicalJet";
 
 /**
- * Integrate private piecewise-affine source observations inside axis-aligned leaves.
- * Positive UV triangles are clipped at the tensor knots before a seven-by-seven
- * Gauss rule on a Duffy triangle supplies physical-area weighted correspondences.
- * An optional rectangular leaf partition replaces the tensor product; its open
- * interiors must cover the unit square once. Every local map remains affine.
- * For a bicubic field minus an affine source this integrates its squared residual
- * exactly in real arithmetic. Binary64 arithmetic and continuous maximum error
- * remain separate qualifications. No private source triangle leaves this operation.
- * Optional physical-gradient frames are computed once per source-triangle/leaf
- * intersection by thin QR. The same samples then stream two derivative rows;
- * their squared polynomial degree is at most ten, within the same Gauss rule.
+ * Integrate private piecewise-affine source observations inside axis-aligned
+ * leaves. Positive UV triangles are clipped at the tensor knots before a
+ * seven-by-seven Gauss rule on a Duffy triangle supplies physical-area weighted
+ * correspondences. An optional rectangular leaf partition replaces the tensor
+ * product; its open interiors must cover the unit square once. Every local map
+ * remains affine. For a bicubic field minus an affine source this integrates
+ * its squared residual exactly in real arithmetic. Binary64 arithmetic and
+ * continuous maximum error remain separate qualifications. No private source
+ * triangle leaves this operation. Optional physical-gradient frames are
+ * computed once per source-triangle/leaf intersection by thin QR. The same
+ * samples then stream two derivative rows; their squared polynomial degree is
+ * at most ten, within the same Gauss rule.
  */
 export function RecoveryChartAreaObservations(
   input: Parameters<IAutoMovieRecoveryChartAreaObservations.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartAreaObservations.Operation> {
   if (
-    !Number.isSafeInteger(input.maxObservations) ||
     input.maxObservations < 49 ||
     input.parameters.length !== input.verticesMm.length
   )
@@ -33,10 +33,7 @@ export function RecoveryChartAreaObservations(
     );
   if (
     input.physicalGradientLengthMm !== undefined &&
-    !(
-      input.physicalGradientLengthMm >= 0 &&
-      Number.isFinite(input.physicalGradientLengthMm)
-    )
+    !(input.physicalGradientLengthMm >= 0)
   )
     throw new Error(
       "The physical-gradient exchange length must be finite and nonnegative",
@@ -46,10 +43,7 @@ export function RecoveryChartAreaObservations(
       knots.length < 2 ||
       knots[0] !== 0 ||
       knots.at(-1) !== 1 ||
-      knots.some(
-        (x: number, i: number): boolean =>
-          !Number.isFinite(x) || (i > 0 && x <= knots[i - 1]!),
-      )
+      knots.some((x: number, i: number): boolean => i > 0 && x <= knots[i - 1]!)
     )
       throw new Error("Increasing unit-chart tensor knots are required");
   const rectangles: readonly (readonly [number, number, number, number])[] =
@@ -71,7 +65,6 @@ export function RecoveryChartAreaObservations(
     rectangles.some(
       (r: readonly number[]): boolean =>
         r.length !== 4 ||
-        !r.every(Number.isFinite) ||
         !(
           0 <= r[0]! &&
           r[0]! < r[1]! &&
@@ -174,10 +167,11 @@ export function RecoveryChartAreaObservations(
         uv[axis] = bound;
         output.push({
           uv,
-          point: [0, 1, 2].map(
-            (k: number): number =>
-              a.point[k]! + t * (b.point[k]! - a.point[k]!),
-          ) as [number, number, number],
+          point: [
+            a.point[0]! + t * (b.point[0]! - a.point[0]!),
+            a.point[1]! + t * (b.point[1]! - a.point[1]!),
+            a.point[2]! + t * (b.point[2]! - a.point[2]!),
+          ],
         });
       }
     }
@@ -191,17 +185,11 @@ export function RecoveryChartAreaObservations(
     maximumRelativeAreaDiscrepancy: number = 0;
   for (const triangle of input.triangles) {
     const source: Vertex[] = triangle.map((id: number): Vertex => {
-      if (!Number.isSafeInteger(id) || id < 0 || id >= input.verticesMm.length)
+      if (id < 0 || id >= input.verticesMm.length)
         throw new Error("Private source triangle address is invalid");
       const uv: readonly number[] = input.parameters[id]!,
         point: Readonly<AutoMovieVector3Tuple> = input.verticesMm[id]!;
-      if (
-        uv.length !== 2 ||
-        uv.some(
-          (x: number): boolean => !Number.isFinite(x) || x < 0 || x > 1,
-        ) ||
-        point.some((x: number): boolean => !Number.isFinite(x))
-      )
+      if (uv.length !== 2 || uv.some((x: number): boolean => x < 0 || x > 1))
         throw new Error("Finite unit-chart source observations are required");
       return { uv: [uv[0]!, uv[1]!], point };
     });
@@ -215,7 +203,7 @@ export function RecoveryChartAreaObservations(
       source[1]!.point,
       source[2]!.point,
     );
-    if (!(determinant > 0 && sourceArea > 0 && Number.isFinite(sourceArea)))
+    if (!(determinant > 0 && sourceArea > 0))
       throw new Error(
         "Positive private UV and physical source triangles are required for area fitting",
       );
@@ -258,7 +246,7 @@ export function RecoveryChartAreaObservations(
           c: Vertex = polygon[k + 1]!;
         const childArea: number = area(a.point, b.point, c.point);
         if (childArea === 0) continue;
-        if (!(childArea > 0 && Number.isFinite(childArea)))
+        if (!(childArea > 0))
           throw new Error("Clipped observation area is not representable");
         if (observations.length + 49 > input.maxObservations)
           throw new Error(
@@ -280,15 +268,20 @@ export function RecoveryChartAreaObservations(
                 beta * (b.uv[axis]! - a.uv[axis]!) +
                 gamma * (c.uv[axis]! - a.uv[axis]!),
             );
-            const pointMm: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-              (axis: number): number =>
-                a.point[axis]! +
-                beta * (b.point[axis]! - a.point[axis]!) +
-                gamma * (c.point[axis]! - a.point[axis]!),
-            ) as [number, number, number];
+            const pointMm: Readonly<AutoMovieVector3Tuple> = [
+              a.point[0]! +
+                beta * (b.point[0]! - a.point[0]!) +
+                gamma * (c.point[0]! - a.point[0]!),
+              a.point[1]! +
+                beta * (b.point[1]! - a.point[1]!) +
+                gamma * (c.point[1]! - a.point[1]!),
+              a.point[2]! +
+                beta * (b.point[2]! - a.point[2]!) +
+                gamma * (c.point[2]! - a.point[2]!),
+            ];
             const weight: number =
               2 * childArea * x * weights[r]! * weights[s]!;
-            if (!(weight > 0 && Number.isFinite(weight)))
+            if (!(weight > 0))
               throw new Error(
                 "A positive source-area quadrature weight is not representable",
               );
@@ -314,8 +307,8 @@ export function RecoveryChartAreaObservations(
   }
   if (
     !observations.length ||
-    !Number.isFinite(sourceAreaMm2) ||
-    !Number.isFinite(integratedAreaMm2)
+    sourceAreaMm2 === Infinity ||
+    integratedAreaMm2 === Infinity
   )
     throw new Error("Finite positive source-area coverage is required");
   return {

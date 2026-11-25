@@ -18,10 +18,8 @@ import { publishAutoMovieRecoveryArtifact } from "../../src/executable/recovery/
  * 2. Nonboolean predicate results fail, while a nonfunction predicate refuses, without output.
  * 3. False permits exact JSON publication and a later cancellation preserves the existing bytes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the shipped Node publication host and observes terminal tags, predicate invocation count, filesystem absence and exact surviving JSON bytes.
- * @evidence contracts/development/testing.md#independent-expectations Literal predicates and callback errors determine the terminal outcomes; an owned empty directory independently exposes any premature publication.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates true/false, thrown callback, undefined/null/string/number result, malformed callback and cancellation after an immutable output already exists.
- * @evidence contracts/development/testing.md#execution-ownership The entry owns one unique temporary directory and removes it in finally; it replaces no foreign method and starts no subprocess, compiler, renderer or timer.
+ * @evidence contracts/development/testing.md#behavioral-verification The discovered Node integration check uses one temporary directory to observe the real publication boundary. It checks the returned status, callback count, presence of the file and preservation of its bytes, then removes the directory in finally.
+ * @evidence contracts/development/testing.md#independent-expectations Literal callbacks and malformed runtime inputs distinguish cancellation, failure and successful publication. The directory exposes any premature write. Parsed JSON verifies the first publication's value, and the captured bytes are the oracle for preserving it on cancellation.
  * @evidence contracts/development/common.md#meaningful-documentation States pre-work cancellation and failure behavior alongside exact output/lifetime checks.
  */
 export function test_recovery_publication_cancellation(): void {

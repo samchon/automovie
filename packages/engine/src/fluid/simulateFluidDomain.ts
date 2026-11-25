@@ -4,11 +4,14 @@ import {
 } from "@automovie/interface";
 
 /**
- * Replay a caller-admitted fluid domain to one absolute step of its fixed clock.
+ * Replay a caller-admitted fluid domain to one absolute step of its fixed
+ * clock.
  *
  * ## The equations
  *
- * The Arakawa C grid stores depth h at cell centres over bed elevation b and horizontal velocity on faces between cells. With free surface eta = b + h, each step approximates:
+ * The Arakawa C grid stores depth h at cell centres over bed elevation b and
+ * horizontal velocity on faces between cells. With free surface eta = b + h,
+ * each step approximates:
  *
  * ```text
  *   ∂u/∂t = −g·∂η/∂x − k·u                  (x momentum, on x faces)
@@ -16,37 +19,70 @@ import {
  *   ∂h/∂t = −∂(h·u)/∂x − ∂(h·v)/∂z + q      (continuity, at cell centres)
  * ```
  *
- * `k` is linear drag and `q` is the declared source/drain volume rate per unit area. Momentum omits advection, so this gravity-wave approximation does not resolve full Navier-Stokes flow or breaking waves.
+ * `k` is linear drag and `q` is the declared source/drain volume rate per unit
+ * area. Momentum omits advection, so this gravity-wave approximation does not
+ * resolve full Navier-Stokes flow or breaking waves.
  *
- * Continuity uses first-order upwind flux `u * h_donor * dz * dt` on x faces and the analogous x-span expression on z faces. Each shared face enters neighboring updates with opposite signs; sources, drains and open edges supply the explicit ledger terms. Binary64 accumulation and the final depth clamp can introduce balance error.
+ * Continuity uses first-order upwind flux `u * h_donor * dz * dt` on x faces
+ * and the analogous x-span expression on z faces. Each shared face enters
+ * neighboring updates with opposite signs; sources, drains and open edges
+ * supply the explicit ledger terms. Binary64 accumulation and the final depth
+ * clamp can introduce balance error.
  *
  * ## Face and outflow rules
  *
- * - Equal computed `bed + depth` elevations give zero pressure difference. An unchanged lake also needs closed edges, no effective sources/drains and representable arithmetic; multiplying depth by area then dividing can round even with zero flux.
- * - Each cell's requested drain and face outflow is scaled against its pre-source held volume. One donor supplies each face's scale, preserving a shared face flux; sources are added afterward and do not fund this step's outgoing limiter.
- * - A side at or below dryDepth blocks the face when its computed elevation is at least the other side's elevation. Subthreshold depth is still part of that elevation.
+ * - Equal computed `bed + depth` elevations give zero pressure difference. An
+ *   unchanged lake also needs closed edges, no effective sources/drains and
+ *   representable arithmetic; multiplying depth by area then dividing can round
+ *   even with zero flux.
+ * - Each cell's requested drain and face outflow is scaled against its pre-source
+ *   held volume. One donor supplies each face's scale, preserving a shared face
+ *   flux; sources are added afterward and do not fund this step's outgoing
+ *   limiter.
+ * - A side at or below dryDepth blocks the face when its computed elevation is at
+ *   least the other side's elevation. Subthreshold depth is still part of that
+ *   elevation.
  * - Wall edges and faces touching solid cells have zero velocity.
- * - Open edges use a dry ghost at the interior bed height. An inward velocity has a ghost donor and contributes zero volume; outward flux is recorded in outflowVolume.
+ * - Open edges use a dry ghost at the interior bed height. An inward velocity has
+ *   a ghost donor and contributes zero volume; outward flux is recorded in
+ *   outflowVolume.
  *
  * ## Stability
  *
- * The validator compares the gravity-wave Courant expression at referenceDepth with one:
+ * The validator compares the gravity-wave Courant expression at referenceDepth
+ * with one:
  *
  * ```text
  *   dt · √(g · referenceDepth) · √(1/dx² + 1/dz²) ≤ 1
  * ```
  *
- * `fluidCourantNumber` evaluates this expression directly. The validator's greater-than comparison misses derived NaN, and sources can raise depths beyond referenceDepth without another check, so passing admission does not prove stability throughout replay.
+ * `fluidCourantNumber` evaluates this expression directly. The validator's
+ * greater-than comparison misses derived NaN, and sources can raise depths
+ * beyond referenceDepth without another check, so passing admission does not
+ * prove stability throughout replay.
  *
  * ## Determinism
  *
- * Every call starts from the supplied depths with zero face velocities and retains no inter-call state. Unchanged inputs and arithmetic therefore follow the same operation order regardless of prior seeks. This is an in-process replay property, not observed Windows/POSIX byte identity or a GPU equivalence claim.
+ * Every call starts from the supplied depths with zero face velocities and
+ * retains no inter-call state. Unchanged inputs and arithmetic therefore follow
+ * the same operation order regardless of prior seeks. This is an in-process
+ * replay property, not observed Windows/POSIX byte identity or a GPU
+ * equivalence claim.
  *
- * The caller must run `validateFluidDomain`; replay does not repeat array, scalar, flow-site or budget admission. Sources and drains use step-start times in [start, end), with null end unbounded. A drain requests its full step volume only when the pre-update free surface exceeds sillLevel; the sill does not cap removal at that height.
+ * The caller must run `validateFluidDomain`; replay does not repeat array,
+ * scalar, flow-site or budget admission. Sources and drains use step-start
+ * times in [start, end), with null end unbounded. A drain requests its full
+ * step volume only when the pre-update free surface exceeds sillLevel; the sill
+ * does not cap removal at that height.
  *
- * Drag divides the pressure-updated velocity by `1 + dt * drag`. For finite positive damping this reduces magnitude without reversing sign; damping and other intermediate products are not independently checked.
+ * Drag divides the pressure-updated velocity by `1 + dt * drag`. For finite
+ * positive damping this reduces magnitude without reversing sign; damping and
+ * other intermediate products are not independently checked.
  *
- * Throws for a noninteger, negative or over-budget step and for non-finite depth/face velocities remaining after an update. Step zero skips that finite scan. The assignment `updated > 0 ? updated : 0` also turns NaN into zero before the scan, and clock, source/drain/outflow ledgers and final volume have no finite-result gate. Extreme finite flow products can therefore corrupt totals without a named refusal.
+ * A replay uses whole absolute steps within the domain's declared budget.
+ * Each computed face velocity and depth update must fit in the field before
+ * it is written. The depth clamp applies only after this check, so it cannot
+ * turn an indeterminate update into an apparently dry cell.
  */
 export const simulateFluidDomain: (
   domain: IAutoMovieFluidDomain,
@@ -55,11 +91,12 @@ export const simulateFluidDomain: (
   domain: IAutoMovieFluidDomain,
   step: number,
 ): IAutoMovieFluidState => {
-  if (!Number.isInteger(step) || step < 0)
+  const ticks: number = Math.floor(step);
+  if (!(ticks >= 0 && ticks < Infinity && ticks === step))
     throw new Error(
       `fluid domain "${domain.id}" cannot be seeked to step ${step}: an absolute step must be a non-negative integer`,
     );
-  if (step > domain.solver.maxSteps)
+  if (ticks > domain.solver.maxSteps)
     throw new Error(
       `fluid domain "${domain.id}" cannot be seeked to step ${step}: the declared budget stops at ${domain.solver.maxSteps}`,
     );
@@ -90,7 +127,7 @@ export const simulateFluidDomain: (
   let drainVolume: number = 0;
   let outflowVolume: number = 0;
 
-  for (let index: number = 0; index < step; ++index) {
+  for (let index: number = 0; index < ticks; ++index) {
     const time: number = index * dt;
 
     // ---- momentum and upwind flux on the x faces --------------------------
@@ -118,6 +155,8 @@ export const simulateFluidDomain: (
           span: dx,
           damping,
         });
+        if (!(Math.abs(speed) < Infinity))
+          throw nonFiniteState(domain.id, index + 1);
         velocityX[face] = speed;
         const donor: number = speed > 0 ? left : speed < 0 ? right : -1;
         donorX[face] = donor;
@@ -147,6 +186,8 @@ export const simulateFluidDomain: (
           span: dz,
           damping,
         });
+        if (!(Math.abs(speed) < Infinity))
+          throw nonFiniteState(domain.id, index + 1);
         velocityZ[face] = speed;
         const donor: number = speed > 0 ? back : speed < 0 ? front : -1;
         donorZ[face] = donor;
@@ -217,21 +258,18 @@ export const simulateFluidDomain: (
         const netZ: number = fluxZ[southFace] - fluxZ[southFace + columns];
         const net: number = netX + netZ + (sourceCell[cell] - drainCell[cell]);
         const updated: number = (depth[cell] * area + net) / area;
+        if (!(Math.abs(updated) < Infinity))
+          throw nonFiniteState(domain.id, index + 1);
         depth[cell] = updated > 0 ? updated : 0;
       }
-
-    if (allFinite([depth, velocityX, velocityZ]) === false)
-      throw new Error(
-        `fluid domain "${domain.id}" produced a non-finite state at step ${index + 1}`,
-      );
   }
 
   let volume: number = 0;
   for (let cell: number = 0; cell < cells; ++cell) volume += depth[cell] * area;
   return {
     domain: domain.id,
-    step,
-    time: step * dt,
+    step: ticks,
+    time: ticks * dt,
     depth: Array.from(depth),
     velocityX: Array.from(velocityX),
     velocityZ: Array.from(velocityZ),
@@ -242,10 +280,23 @@ export const simulateFluidDomain: (
   };
 };
 
+/** Identify the first tick whose derived velocity or depth cannot be stored. */
+function nonFiniteState(domain: string, step: number): Error {
+  return new Error(
+    `fluid domain "${domain}" produced a non-finite state at step ${step}`,
+  );
+}
+
 /**
  * One face's velocity after this step's momentum update.
  *
- * `before`/`after` separate the face in increasing index order, with absent cells replaced by dry ghosts. Walls/solids return zero before arithmetic; a side at or below dryDepth also blocks when its bed-plus-depth elevation is at least the opposite elevation. Otherwise pressure updates the previous velocity before implicit damping. All work is scalar and call-local; finite inputs can still produce non-finite sums/products, which the owning replay checks only after its update.
+ * `before`/`after` separate the face in increasing index order, with absent
+ * cells replaced by dry ghosts. Walls/solids return zero before arithmetic; a
+ * side at or below dryDepth also blocks when its bed-plus-depth elevation is at
+ * least the opposite elevation. Otherwise pressure updates the previous
+ * velocity before implicit damping. All work is scalar and call-local; finite
+ * inputs can still produce non-finite sums or products. The owning replay
+ * checks the returned velocity before it writes the face.
  */
 const faceSpeed: (props: {
   previous: number;
@@ -286,19 +337,13 @@ const faceSpeed: (props: {
   );
 };
 
-/** Scalar half-open activity test at the step start; null end is unbounded. Admission belongs to the caller, and the predicate neither retains nor clamps its inputs. */
+/**
+ * Scalar half-open activity test at the step start; null end is unbounded.
+ * Admission belongs to the caller, and the predicate neither retains nor clamps
+ * its inputs.
+ */
 const active: (start: number, end: number | null, time: number) => boolean = (
   start: number,
   end: number | null,
   time: number,
 ): boolean => time >= start && (end === null || time < end);
-
-/** Scan borrowed arrays until the first non-finite entry, with O(total entries) time and constant local storage. The caller supplies depth/velocities only; this does not inspect ledgers, clocks or pre-clamp intermediates. */
-const allFinite: (arrays: Float64Array[]) => boolean = (
-  arrays: Float64Array[],
-): boolean => {
-  for (const values of arrays)
-    for (let index: number = 0; index < values.length; ++index)
-      if (Number.isFinite(values[index]) === false) return false;
-  return true;
-};

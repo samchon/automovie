@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionCoupling,
@@ -24,14 +25,9 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedLift } from "./HumanCarriedLift";
 
 /**
- * The plan of being carried in a named carry (`HumanCarried.borne`): the
- * borne body on the bearer by the carry's coupled meeting (#3437), with the
- * lift and the set-down, and the seconds reader both carry laws share.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is planned and for which law.
- * @evidence contracts/development/design.md#principled-representation The law's plan as a function of its context, kept beside the law record `HumanCarried` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The plan and the seconds reader the carry laws share; regions are read by `HumanCarriedCouplingPose.region`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The record, the parameters and the rows stay `HumanCarried`'s.
+ * The plan of being carried in a named carry (`HumanCarried.borne`): the borne
+ * body on the bearer by the carry's coupled meeting, with the lift and the
+ * set-down, and the seconds reader both carry laws share.
  */
 export namespace HumanCarriedBorne {
   /**
@@ -40,14 +36,6 @@ export namespace HumanCarriedBorne {
    * @param context The carried person's context.
    * @returns The plan.
    * @throws {HumanRefusal} As `HumanCarried.borne` states.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and where the law is documented.
-   * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting; each second the key posture rides the first bearer's displayed anchor bone at the key offset (`HumanCarriedCouplingPose.posture`); without a solid meeting the resting region is placed on the carrier's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A second helper on a carry with no other side is refused; the posture is rigid in the carry and its angles provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key construction and one frame composition per posture; each bearer's displayed bones are read only for the anchor and the regions the coupling grips (with no coupling, the hips and the carry's regions), and with their ancestors.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone sets each bearer is read for follow from the carry and the coupling alone, so they are built once per plan; every posture reads the bearers' displayed bones at its own second, with no cache by time. The caller's forward-kinematics reader serves only the borne body's own trunk resolution.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its carry, participants, coupling and at most three bone sets of a few names; each posture's bone maps end with it.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
@@ -69,7 +57,7 @@ export namespace HumanCarriedBorne {
     const carrier: IAutoMovieMotionHumanPerformerReader | undefined =
       by === undefined ? undefined : context.performer(by);
 
-    // A second helper takes the carry's other side (#3440).
+    // A second helper takes the carry's other side.
     const second: string | undefined = context.params.with;
     if (
       second !== undefined &&
@@ -97,7 +85,7 @@ export namespace HumanCarriedBorne {
       rightLowerLeg: [knee, 0, 0],
     };
 
-    // A carrier makes the carry a coupled meeting (#3437): the borne body
+    // A carrier makes the carry a coupled meeting: the borne body
     // rests on every contact of the coupling, each with its load share.
     const coupling: IAutoMovieMotionCoupling | undefined =
       by === undefined
@@ -288,7 +276,7 @@ export namespace HumanCarriedBorne {
           };
           const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
           (["left", "right"] as const).forEach(
-            (side: "left" | "right", index: number): void => {
+            (side: AutoMovieHumanSide, index: number): void => {
               const region: AutoMovieHumanoidRegion | null =
                 row.clings[index] ?? null;
               if (region !== null)
@@ -314,14 +302,6 @@ export namespace HumanCarriedBorne {
    * @param seconds The seconds.
    * @returns The seconds.
    * @throws {HumanRefusal} A `parameter` refusal on `seconds`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A carry lasts a positive time.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refused, never clamped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanBound.above`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lasting(seconds: number): number {
     return HumanBound.above("hold", seconds, 0, "s");

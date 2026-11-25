@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanInterrupt.ts#IAutoMovieMotionHumanInterrupt
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Cancel rows by name: when an action may be cancelled, as a window of its phrase, and how fast the next action blends in.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed choices "anytime", "fromStroke", "fromStrokeEnd", "fromRelax", "reflex", "quick", "smooth" distinguish the admitted cases.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanInterrupt.ts (AutoMovieMotionHumanInterrupt.row, window); compose/AutoMovieMotionHumanInterrupt.ts (AutoMovieMotionHumanInterrupt.table, rows); compose/AutoMovieMotionHumanInterrupt.ts (AutoMovieMotionHumanInterrupt.row, blend); compose/AutoMovieMotionHumanInterrupt.ts (AutoMovieMotionHumanInterrupt.WINDOWS); compose/AutoMovieMotionHumanInterrupt.ts (AutoMovieMotionHumanInterrupt.table).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The literal vocabulary is declared independently of runtime values; implementations are checked against this exact set.
-
 # src/motion/human/compose/IAutoMovieMotionHumanInterrupt.ts#IAutoMovieMotionHumanInterrupt.Window
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -5,15 +5,16 @@ import { prepareLinearSystem } from "../math/prepareLinearSystem";
 
 /**
  * Execute the digit task-priority descent and retain the actual primary
- * linearization at its final accepted point. Every nonempty-variable stop follows a Jacobian
- * of that same point; empty variables have the exact empty-column Jacobian.
- * Rejected damping trials never replace its variables,
+ * linearization at its final accepted point. Every nonempty-variable stop
+ * follows a Jacobian of that same point; empty variables have the exact
+ * empty-column Jacobian. Rejected damping trials never replace its variables,
  * residual or Jacobian. The public descent returns only the variables, while
  * digit continuation uses this completed data for its original restart test.
  *
- * @param props The original pure fixed-dimension tasks, projection, resolution and tolerance.
- * @returns Final projected variables, their actual primary residual and their current feasible-probe primary Jacobian.
- *
+ * @param props The original pure fixed-dimension tasks, projection, resolution
+ *   and tolerance.
+ * @returns Final projected variables, their actual primary residual and their
+ *   current feasible-probe primary Jacobian.
  * @evidence contracts/development/common.md#meaningful-documentation States the returned point/linearization relationship, pure callback scope, original stop and the public/continuation consumers.
  * @evidence contracts/development/implementation.md#principled-implementation Task-priority damped least squares keeps its projected active set. Separable clipped probes use actual coordinate span; interior/coupled probes retain central differences. Damped N is not exact, so primary-met trials use binary projected backtracking under original lexicographic acceptance (Bertsekas 1982). With a secondary task, once the primary is met and squared secondary is zero, strict secondary improvement is impossible, so no trial can change the point; with none, the primary has nothing to yield to and is descended to the variables' resolution. Empty variables have the exact empty-column Jacobian. Acceptance replaces variables/residuals/Jacobians together. A rejection multiplies the damping by a doubling factor, restarting a damping that underflowed to zero from the least positive double, so consecutive rejections overflow it within about sqrt(2 * 2098) = 65 and the primary factor then refuses. Each acceptance strictly lowers the residual its phase serves; a phase change follows the caller's tolerance at the new point, whose exclusion of revisited points is not proven here.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner separates feasible differencing, fixed-point linearization, damped direction, projected backtracking and original acceptance/damping. fitDigitDescent selects variables; fitDigitToTarget consumes actual final primary data for its unchanged restart test.
@@ -22,10 +23,20 @@ import { prepareLinearSystem } from "../math/prepareLinearSystem";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure fixed-dimension callbacks make x/residuals/Jacobians/free sets equivalent across damping rejection and scale trials. Every retained projected iterate/probe and task residual is copied before later callbacks can reuse output storage. Acceptance replaces the fixed point; rejected scales never replace it. Final primary data use the same feasible differencing owner and resolution as the solve, without replacing demands or retaining answers across descents.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One descent owns its copied point, two projected probe arrays per live column, task/Jacobian arrays and one damping linearization. Backtracking retains only the current trial/residuals and halves finite step magnitude until existing resolution; no trial history grows. Final values/residual/primary Jacobian transfer to the synchronous caller; other state releases on return/throw.
  */
-export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): descendDigitTasks.IResult {
-  const { primary, secondary, project, step }: IAutoMovieFitDigitDescent.IProps = props;
+export function descendDigitTasks(
+  props: IAutoMovieFitDigitDescent.IProps,
+): descendDigitTasks.IResult {
+  const {
+    primary,
+    secondary,
+    project,
+    step,
+  }: IAutoMovieFitDigitDescent.IProps = props;
   const n: number = props.start.length;
-  const jacobian: (f: (x: readonly number[]) => number[], x: readonly number[]) => number[][] = (
+  const jacobian: (
+    f: (x: readonly number[]) => number[],
+    x: readonly number[],
+  ) => number[][] = (
     f: (x: readonly number[]) => number[],
     x: readonly number[],
   ): number[][] => {
@@ -40,11 +51,20 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
       // A separable bound can shorten just this coordinate's probe. Its
       // residual difference must use that actual feasible displacement;
       // dividing by 2*step would halve a derivative at either active end.
-      const clipped: boolean = projectedUp.length === n && projectedDown.length === n &&
-        x.every((value: number, index: number): boolean => index === i ||
-          (Object.is(projectedUp[index], value) && Object.is(projectedDown[index], value))) &&
-        (!Object.is(projectedUp[i], up[i]) || !Object.is(projectedDown[i], down[i]));
-      const span: number = clipped ? projectedUp[i]! - projectedDown[i]! : 2 * step;
+      const clipped: boolean =
+        projectedUp.length === n &&
+        projectedDown.length === n &&
+        x.every(
+          (value: number, index: number): boolean =>
+            index === i ||
+            (Object.is(projectedUp[index], value) &&
+              Object.is(projectedDown[index], value)),
+        ) &&
+        (!Object.is(projectedUp[i], up[i]) ||
+          !Object.is(projectedDown[i], down[i]));
+      const span: number = clipped
+        ? projectedUp[i]! - projectedDown[i]!
+        : 2 * step;
       const divisor: number = span === 0 ? 2 * step : span;
       const a: number[] = f(clipped ? projectedUp : up);
       const b: number[] = f(clipped ? projectedDown : down);
@@ -54,9 +74,13 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
       columns.map((c: number[]): number => c[k]!),
     );
   };
-  const squared: (r: readonly number[]) => number = (r: readonly number[]): number =>
-    r.reduce((sum: number, v: number): number => sum + v * v, 0);
-  const gram: (J: readonly (readonly number[])[], at: readonly number[]) => number[][] = (
+  const squared: (r: readonly number[]) => number = (
+    r: readonly number[],
+  ): number => r.reduce((sum: number, v: number): number => sum + v * v, 0);
+  const gram: (
+    J: readonly (readonly number[])[],
+    at: readonly number[],
+  ) => number[][] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
   ): number[][] =>
@@ -68,7 +92,11 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
         ),
       ),
     );
-  const times: (J: readonly (readonly number[])[], at: readonly number[], r: readonly number[]) => number[] = (
+  const times: (
+    J: readonly (readonly number[])[],
+    at: readonly number[],
+    r: readonly number[],
+  ) => number[] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
     r: readonly number[],
@@ -80,7 +108,10 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
         0,
       ),
     );
-  const damped: (A: number[][], mu: number) => number[][] = (A: number[][], mu: number): number[][] =>
+  const damped: (A: number[][], mu: number) => number[][] = (
+    A: number[][],
+    mu: number,
+  ): number[][] =>
     A.map((row: number[], i: number): number[] =>
       row.map((v: number, j: number): number => (i === j ? v + mu : v)),
     );
@@ -89,9 +120,14 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
   let r1: number[] = [...primary(x)];
   let r2: number[] = [...secondary(x)];
   if (n === 0)
-    return { values: x, primary: r1,
-      primaryJacobian: r1.map((): number[] => []) };
-  const together: (at: readonly number[]) => number[] = (at: readonly number[]): number[] =>
+    return {
+      values: x,
+      primary: r1,
+      primaryJacobian: r1.map((): number[] => []),
+    };
+  const together: (at: readonly number[]) => number[] = (
+    at: readonly number[],
+  ): number[] =>
     r2.length === 0 ? [...primary(at)] : [...primary(at), ...secondary(at)];
   let J: number[][] = jacobian(together, x);
   let J1: number[][] = J.slice(0, r1.length);
@@ -134,8 +170,8 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
       const secondaryGradient: number[] | undefined =
         J2.length === 0 || !served ? undefined : times(J2, all, r2);
       const free: number[] = all.filter((i: number): boolean => {
-        const gradient: number = primaryGradient[i]! +
-          (secondaryGradient?.[i] ?? 0);
+        const gradient: number =
+          primaryGradient[i]! + (secondaryGradient?.[i] ?? 0);
         if (gradient === 0) return true;
         const probe: number[] = [...x];
         probe[i] = x[i]! - Math.sign(gradient) * step;
@@ -153,8 +189,14 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
         ),
       };
     }
-    const { met, served, free, gram: G, right, secondary: J2f }: ILinearization =
-      linearization;
+    const {
+      met,
+      served,
+      free,
+      gram: G,
+      right,
+      secondary: J2f,
+    }: ILinearization = linearization;
 
     // The damped complement can move the point. Use it for the secondary
     // direction only after the existing primary admission has been met.
@@ -165,11 +207,8 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
     const h1: number[] = solvePrimary(right);
     let h: number[] = h1;
     if (served) {
-      const P: number[][] = free.map(
-        (_c: number, c: number): number[] =>
-          solvePrimary(
-            G.map((row: number[]): number => row[c]!),
-          ),
+      const P: number[][] = free.map((_c: number, c: number): number[] =>
+        solvePrimary(G.map((row: number[]): number => row[c]!)),
       );
       // N = I - P, P's columns solved above.
       const N: number[][] = free.map((_r: number, a: number): number[] =>
@@ -208,7 +247,9 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
             ),
         );
     }
-    let maximum: number = Math.max(...h.map((v: number): number => Math.abs(v)));
+    let maximum: number = Math.max(
+      ...h.map((v: number): number => Math.abs(v)),
+    );
     if (maximum <= step) break;
 
     // Damped N is an approximate null complement. Once the primary is met,
@@ -221,19 +262,27 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
     let t2: number[] = r2;
     let accepted: boolean = false;
     for (;;) {
-      trial = [...project(
-        x.map((v: number, i: number): number => {
-          const a: number = free.indexOf(i);
-          return a < 0 ? v : v + scale * h[a]!;
-        }),
-      )];
+      trial = [
+        ...project(
+          x.map((v: number, i: number): number => {
+            const a: number = free.indexOf(i);
+            return a < 0 ? v : v + scale * h[a]!;
+          }),
+        ),
+      ];
       t1 = [...primary(trial)];
       t2 = [...secondary(trial)];
       accepted = !served
         ? squared(t1) < squared(r1)
         : Math.sqrt(squared(t1)) <= met && squared(t2) < squared(r2);
-      if (accepted || !served || J2.length === 0 ||
-        !Number.isFinite(maximum) || !(maximum / 2 > step)) break;
+      if (
+        accepted ||
+        !served ||
+        J2.length === 0 ||
+        !Number.isFinite(maximum) ||
+        !(maximum / 2 > step)
+      )
+        break;
       scale /= 2;
       maximum /= 2;
     }
@@ -291,7 +340,10 @@ interface ILinearization {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps original tasks and units, with no alternate goal, stop or solver certificate represented.
  */
 export namespace descendDigitTasks {
-  /** Actual final accepted point and primary data, retained until its caller releases them. */
+  /**
+   * Actual final accepted point and primary data, retained until its caller
+   * releases them.
+   */
   export interface IResult {
     /** Final projected variables, in the original variable units and order. */
     values: number[];
@@ -299,9 +351,16 @@ export namespace descendDigitTasks {
     /** Primary residual at values, metres, with its original dimension. */
     primary: readonly number[];
 
-    /** Primary feasible differences at values, metres per variable unit, in task-row/variable-column order. */
+    /**
+     * Primary feasible differences at values, metres per variable unit, in
+     * task-row/variable-column order.
+     */
     primaryJacobian: readonly (readonly number[])[];
   }
 }
-/** The damping start of Levenberg-Marquardt relative to the largest diagonal entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2, tau = 1e-3 for a start believed close). */
+/**
+ * The damping start of Levenberg-Marquardt relative to the largest diagonal
+ * entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2,
+ * tau = 1e-3 for a start believed close).
+ */
 const TAU: number = 1e-3;

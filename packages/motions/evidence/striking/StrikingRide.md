@@ -1,21 +1,3 @@
-# src/striking/StrikingRide.ts#StrikingRide
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States one-sided normal displacement, dwell/withdrawal semantics and the ascending lagged grid that breaks mutual-read cycles.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride owns an existing fixed stop contact and ascending world frames for its met bone; body/geometry queries stay with their canonical owners.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The stop, actual partner reader, own goal and weapon axis produce one carry operation without another contact or pose representation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Keeps the original 1/240-second grid, two-step lag, six finite-difference probes, nine axis samples and outward-only push; requested FK removes only frames the met-bone/contact query never reads.
-
 # src/striking/StrikingRide.ts#StrikingRide.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

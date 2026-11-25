@@ -7,12 +7,12 @@ import type { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
- * A rider's or a cue's named-gait requests on a timed path: over each film-second interval the ride takes the named gait and lead, as a course leg naming them does; elsewhere the declared change rule chooses by speed.
+ * A rider's or a cue's named-gait requests on a timed path: over each
+ * film-second interval the ride takes the named gait and lead, as a course leg
+ * naming them does; elsewhere the declared change rule chooses by speed.
  */
 export namespace QuadrupedTimedCues {
-  /**
-   * One named-gait request.
-   */
+  /** One named-gait request. */
   export interface ICue {
     /** The film second the request begins. */
     from: number;
@@ -24,10 +24,11 @@ export namespace QuadrupedTimedCues {
     lead?: AutoMovieArchetypeQuadrupedGait.Lead;
   }
 
-  /**
-   * A timed path with its cues.
-   */
+  /** A timed path with its cues. */
   export interface ICued {
+    /** Discriminant of a cued route among a ride's routes. */
+    kind: "cued";
+
     /** The planned course, such as `AutoMovieArchetypeCourse.timed`'s. */
     plan: AutoMovieArchetypeCourse.IPlan;
     /** The requests, in order and not overlapping. */
@@ -35,13 +36,16 @@ export namespace QuadrupedTimedCues {
   }
 
   /**
-   * Split a timed route's one leg at its cues' distances, naming each cued leg's gait and lead.
+   * Split a timed route's one leg at its cues' distances, naming each cued
+   * leg's gait and lead.
    *
    * @param route The route `QuadrupedTimedRoute.of` read from the plan.
    * @param cues The requests.
    * @param archetype The archetype's name, for a refusal.
-   * @returns The route with one leg per cued or uncued stretch, and its leg spans with each stretch's fastest speed.
-   * @throws {AutoMovieArchetypeRefusal} For a cue that is not finite, is empty, runs backward or overlaps the one before.
+   * @returns The route with one leg per cued or uncued stretch, and its leg
+   *   spans with each stretch's fastest speed.
+   * @throws {AutoMovieArchetypeRefusal} For a cue that is not finite, is empty,
+   *   runs backward or overlaps the one before.
    */
   export function split(
     route: QuadrupedTimedRoute.IRoute,
@@ -52,11 +56,7 @@ export namespace QuadrupedTimedCues {
     const cuts: ICut[] = [];
     let last: number = -Infinity;
     for (const cue of cues) {
-      if (
-        !(Number.isFinite(cue.from) && Number.isFinite(cue.to)) ||
-        !(cue.to > cue.from) ||
-        cue.from < last
-      )
+      if (!(cue.to > cue.from) || cue.from < last)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype,

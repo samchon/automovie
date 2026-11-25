@@ -16,8 +16,8 @@ import type { liftStopHeights } from "./liftStopHeights";
  * Bake the staged cab and sliding door panels into one ordinary object clip.
  * The first cab pose comes from the checked building connector. Every other
  * pose is its rigid displacement along the same resolved shaft. Keys are
- * shot-local seconds. Translation is linear between keys and holds at
- * either endpoint. There is no physics or platform motion simulation.
+ * shot-local seconds. Translation is linear between keys and holds at either
+ * endpoint. There is no physics or platform motion simulation.
  */
 export function liftObjectMotion(
   environment: IAutoMovieBuiltEnvironment,

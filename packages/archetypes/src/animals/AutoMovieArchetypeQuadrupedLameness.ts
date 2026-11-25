@@ -12,24 +12,36 @@ import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
- * An authored forelimb or hindlimb lameness at the walk or trot: the head and pelvis movement asymmetry of a lame horse.
+ * An authored forelimb or hindlimb lameness at the walk or trot: the head and
+ * pelvis movement asymmetry of a lame horse.
  *
- * Rhodin et al. 2018 (Vertical movement symmetry of the withers in horses with induced forelimb and hindlimb lameness at trot, Equine Vet J 50:818, https://pmc.ncbi.nlm.nih.gov/articles/PMC6175082/) describe the pattern this follows:
- * - a lame forelimb shows as the head dropping less during that limb's stance (head asymmetry HDmin);
- * - a lame hindlimb shows as the pelvis dropping less during that limb's stance (PDmin), with the withers moving 0.55 mm toward the contralateral side per mm of PDmin;
- * - a compensatory head nod can mimic an ipsilateral forelimb lameness.
+ * Rhodin et al. 2018 (Vertical movement symmetry of the withers in horses with
+ * induced forelimb and hindlimb lameness at trot, Equine Vet J 50:818,
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC6175082/) describe the pattern this
+ * follows:
  *
- * A forelimb case nods the head up about the neck's root, peaking at the lame fore's mid-stance. A hindlimb case pitches the trunk nose-down during the lame hind's stance about the lateral axis that gives that withers-to-pelvis ratio of −0.55. That pitch lowers the head too, by its lever ahead of the axis; the head asymmetry the literature measures is the head's whole vertical movement (a poll sensor), so a compensatory nod supplies only the measured head asymmetry less that passive part. The grade's rows are in `head` and `pelvis`. Its stance timing is left as the gait's: Rhodin et al. report no stance-duration change.
+ * - A lame forelimb shows as the head dropping less during that limb's stance
+ *   (head asymmetry HDmin);
+ * - A lame hindlimb shows as the pelvis dropping less during that limb's stance
+ *   (PDmin), with the withers moving 0.55 mm toward the contralateral side per
+ *   mm of PDmin;
+ * - A compensatory head nod can mimic an ipsilateral forelimb lameness.
+ *
+ * A forelimb case nods the head up about the neck's root, peaking at the lame
+ * fore's mid-stance. A hindlimb case pitches the trunk nose-down during the
+ * lame hind's stance about the lateral axis that gives that withers-to-pelvis
+ * ratio of −0.55. That pitch lowers the head too, by its lever ahead of the
+ * axis; the head asymmetry the literature measures is the head's whole vertical
+ * movement (a poll sensor), so a compensatory nod supplies only the measured
+ * head asymmetry less that passive part. The grade's rows are in `head` and
+ * `pelvis`. Its stance timing is left as the gait's: Rhodin et al. report no
+ * stance-duration change.
  */
 export namespace AutoMovieArchetypeQuadrupedLameness {
-  /**
-   * The lameness grades.
-   */
+  /** The lameness grades. */
   export type Grade = "subtle" | "mild" | "moderate";
 
-  /**
-   * An authored lameness.
-   */
+  /** An authored lameness. */
   export interface ILameness {
     /** The lame limb. */
     limb: AutoMovieArchetypeQuadrupedBody.Limb;
@@ -40,7 +52,10 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
   }
 
   /**
-   * The head's vertical asymmetry of a forelimb grade, metres. The subtle grade is Rhodin et al.'s 6 mm HDmin inclusion threshold; mild and moderate are its double and quadruple, authored and provisional, because the paper scores grades subjectively and reports no per-grade values.
+   * The head's vertical asymmetry of a forelimb grade, metres. The subtle grade
+   * is Rhodin et al.'s 6 mm HDmin inclusion threshold; mild and moderate are
+   * its double and quadruple, authored and provisional, because the paper
+   * scores grades subjectively and reports no per-grade values.
    *
    * @param grade The grade.
    * @returns Metres.
@@ -50,7 +65,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
   }
 
   /**
-   * The pelvis's vertical asymmetry of a hindlimb grade, metres. The subtle grade is Rhodin et al.'s 3 mm PDmin inclusion threshold; mild and moderate are its double and quadruple, authored and provisional.
+   * The pelvis's vertical asymmetry of a hindlimb grade, metres. The subtle
+   * grade is Rhodin et al.'s 3 mm PDmin inclusion threshold; mild and moderate
+   * are its double and quadruple, authored and provisional.
    *
    * @param grade The grade.
    * @returns Metres.
@@ -59,9 +76,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     return 0.003 * multiple(grade);
   }
 
-  /**
-   * The head nod and trunk tilt of a lame stride at one phase.
-   */
+  /** The head nod and trunk tilt of a lame stride at one phase. */
   export interface IOffset {
     /** Nod change, degrees, positive nose-down. */
     nod: number;
@@ -69,9 +84,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     tilt: EquinePitch.ITilt;
   }
 
-  /**
-   * A prepared lameness for one animal's ride.
-   */
+  /** A prepared lameness for one animal's ride. */
   export type Offset = (
     strides: QuadrupedStridePlan.IPlan,
     phase: number,
@@ -79,16 +92,19 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
   ) => IOffset;
 
   /**
-   * Admit a lameness and prepare its offsets from the animal's neutral geometry.
+   * Admit a lameness and prepare its offsets from the animal's neutral
+   * geometry.
    *
    * @param archetype The archetype name, for refusals.
    * @param lameness The authored lameness, if any.
    * @param legs The course's legs.
-   * @param fallback The gait an unnamed leg is checked as: the ride's gait, else the fastest it could reach.
+   * @param fallback The gait an unnamed leg is checked as: the ride's gait,
+   *   else the fastest it could reach.
    * @param parts The animal's neutral parts.
    * @param limbs The neutral limb chains.
    * @returns The offset reader, or undefined without a lameness.
-   * @throws {AutoMovieArchetypeRefusal} For a gait other than walk or trot, an unknown grade or a malformed record.
+   * @throws {AutoMovieArchetypeRefusal} For a gait other than walk or trot, an
+   *   unknown grade or a malformed record.
    */
   export function prepare(
     archetype: string,
@@ -103,7 +119,6 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     if (lameness === undefined) return undefined;
     if (
       lameness === null ||
-      typeof lameness !== "object" ||
       !(lameness.limb in limbs) ||
       !["subtle", "mild", "moderate"].includes(lameness.grade)
     )
@@ -118,11 +133,12 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
         "Lameness is measured at the walk and trot only; name walk or trot on every leg",
       );
     const fore: boolean = lameness.limb.endsWith("Fore");
-    const side: string = lameness.limb.startsWith("left") ? "left" : "right";
     const nodder: AutoMovieArchetypeQuadrupedBody.Limb | undefined = fore
       ? lameness.limb
       : lameness.compensation === true
-        ? (`${side}Fore` as AutoMovieArchetypeQuadrupedBody.Limb)
+        ? lameness.limb.startsWith("left")
+          ? "leftFore"
+          : "rightFore"
         : undefined;
     const withers: number = (limbs.leftFore[0]!.z + limbs.rightFore[0]!.z) / 2;
     const rear: IAutoMovieVector3 = centre(parts, "hindquarters");
@@ -216,7 +232,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
       (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
     )!;
     const half: number =
-      part.geometry.type === "primitive" && "height" in part.geometry.shape
+      part.geometry.type === "primitive" &&
+      part.geometry.shape.type !== "sphere" &&
+      part.geometry.shape.type !== "plane"
         ? part.geometry.shape.height / 2
         : 0;
     return Vector3.add(
@@ -229,7 +247,10 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     );
   }
 
-  /** The grade's multiple of the detection threshold: 1, 2 and 4, authored and provisional above the subtle grade. */
+  /**
+   * The grade's multiple of the detection threshold: 1, 2 and 4, authored and
+   * provisional above the subtle grade.
+   */
   function multiple(grade: Grade): number {
     switch (grade) {
       case "subtle":

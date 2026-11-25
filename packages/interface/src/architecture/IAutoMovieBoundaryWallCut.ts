@@ -5,7 +5,11 @@ import type { IAutoMovieWallOpening } from "../geometry/IAutoMovieWallOpening";
 /**
  * The rectangular wall panel and cut voids one boundary's own face implies.
  *
- * Produced by `builtBoundaryWallCut`. The panel is the axis-aligned bounding rectangle of the face outline in local XY, centred on its plane. Each void bounds `outlineHull`'s straight arc-enclosing ring, which can remain non-convex, measured from the panel's lower-left corner. A profile-less opening contributes no void.
+ * Produced by `builtBoundaryWallCut`. The panel is the axis-aligned bounding
+ * rectangle of the face outline in local XY, centred on its plane. Each void
+ * bounds `outlineHull`'s straight arc-enclosing ring, which can remain
+ * non-convex, measured from the panel's lower-left corner. A profile-less
+ * opening contributes no void.
  */
 export interface IAutoMovieBoundaryWallCut {
   /** Panel extent along the boundary's local X, in metres. */

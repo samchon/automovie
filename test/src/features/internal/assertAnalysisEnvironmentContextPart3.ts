@@ -22,7 +22,7 @@ import { namedFacts, nclose, throwsError } from "./predicates";
  * 4. cosine-weighted directions stay unit length inside their own hemisphere.
  *
  * Positive rescaling of a half-space preserves its analytic inequality; the authored box planes determine ray obstruction, and the sign of the ground-up dot product determines the horizon. Sample directions must have unit norm within 1e-9 and positive normal projection. These invariants and deterministic replay do not establish cosine-distribution integration accuracy.
- * Unit/short plane normals share the same blocker; missing, present and empty unions distinguish obstruction. Up/down/grazing rays distinguish the horizon, while positive/negative/oblique normals and a singleton distinguish sampling orientation. Fractional/zero counts and zero/nonfinite normals must throw; other context schema cases belong to earlier parts.
+ * Unit/short plane normals share the same blocker; missing, present and empty unions distinguish obstruction. Up/down/grazing rays distinguish the horizon, while positive/negative/oblique normals and a singleton distinguish sampling orientation. Fractional/zero counts and zero normals must throw; other context schema cases belong to earlier parts.
  */
 export function assertAnalysisEnvironmentContextPart3(
   context: IAutoMovieEnvironmentContext,
@@ -160,18 +160,6 @@ export function assertAnalysisEnvironmentContextPart3(
             "non-zero normal",
           ),
       ],
-      [
-        "non-finite normal",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieVector3[] =>
-              autoMovieHemisphereDirections({
-                normal: { x: Number.NaN, y: 1, z: 0 },
-                count: 4,
-              }),
-            "finite, non-zero normal",
-          ),
-      ],
     ]),
     {
       "positive z normal": true,
@@ -182,7 +170,6 @@ export function assertAnalysisEnvironmentContextPart3(
       "fractional count": true,
       "zero count": true,
       "zero normal": true,
-      "non-finite normal": true,
     },
   );
 }

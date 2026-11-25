@@ -7,17 +7,17 @@ import type {
 /**
  * Create the vertex registry of a surface rig.
  *
- * A point is one vertex per identity. Points other than sweep points get
- * their writer when first registered. A sweep point records, on each side
- * along `u` and `v`, the finest spacing to a neighbouring sample that any
- * sampling of it reports, and `finalize` makes its writer from that cell
- * with `IAutoMovieSweepRig.sample`, a side none reached mirroring the other
- * and an axis none spans having no extent, so the point does not depend on
- * which patch sampled it first. Its writer slot is held in registration
- * order, so writers still run after everything they read. After resolving every
- * sweep writer, finalization binds dependent geometric node writers and probes
- * once, before sweep sealing. This field is independent of later control pins.
- * Registering or binding after finalization, or finalizing twice, is refused.
+ * A point is one vertex per identity. Points other than sweep points get their
+ * writer when first registered. A sweep point records, on each side along `u`
+ * and `v`, the finest spacing to a neighbouring sample that any sampling of it
+ * reports, and `finalize` makes its writer from that cell with
+ * `IAutoMovieSweepRig.sample`, a side none reached mirroring the other and an
+ * axis none spans having no extent, so the point does not depend on which patch
+ * sampled it first. Its writer slot is held in registration order, so writers
+ * still run after everything they read. After resolving every sweep writer,
+ * finalization binds dependent geometric node writers and probes once, before
+ * sweep sealing. This field is independent of later control pins. Registering
+ * or binding after finalization, or finalizing twice, is refused.
  *
  * @param sweepRig The rig of a sweep by name.
  * @returns The empty registry.
@@ -88,12 +88,10 @@ export const registerAutoMovieSurfaceVertices: (
         for (const axis of [0, 2]) {
           const below: number = entry.cell[axis]!;
           const above: number = entry.cell[axis + 1]!;
-          cell[axis] = Number.isFinite(below)
-            ? below
-            : Number.isFinite(above)
-              ? above
-              : 0;
-          cell[axis + 1] = Number.isFinite(above) ? above : cell[axis]!;
+          // An unbounded side keeps the initial Infinity sentinel.
+          cell[axis] =
+            below !== Infinity ? below : above !== Infinity ? above : 0;
+          cell[axis + 1] = above !== Infinity ? above : cell[axis]!;
         }
         entry.cell = cell;
         entry.write = sweepRig(entry.sweep).sample(entry.u, entry.v, cell);
@@ -129,7 +127,10 @@ export const registerAutoMovieSurfaceVertices: (
   };
 };
 
-/** A sweep point awaiting its writer: the sweep, domain point, the finest spacing reported on each side, and the writer once made. */
+/**
+ * A sweep point awaiting its writer: the sweep, domain point, the finest
+ * spacing reported on each side, and the writer once made.
+ */
 interface IPending {
   sweep: string;
   u: number;

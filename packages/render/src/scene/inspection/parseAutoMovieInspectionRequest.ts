@@ -24,6 +24,11 @@ const REACH: number = 1;
  */
 const TICKS: number = 5;
 
+/** Whether a text names a shade, narrowing it to the shade it names. */
+const isShade: (text: string) => text is AutoMovieInspectionShade = (
+  text: string,
+): text is AutoMovieInspectionShade => SHADE_NAMES.has(text);
+
 /** Every shade, keyed so the compiler refuses a list that misses one. */
 const SHADES: Record<AutoMovieInspectionShade, true> = {
   beauty: true,
@@ -37,6 +42,9 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
   clay: true,
   faces: true,
 };
+
+/** The shade names, for membership checks. */
+const SHADE_NAMES: ReadonlySet<string> = new Set(Object.keys(SHADES));
 
 /**
  * Read an inspection request from named text values, the form both a page
@@ -80,14 +88,14 @@ export function parseAutoMovieInspectionRequest(
   read: (key: string) => string | null | undefined,
 ): IAutoMovieInspectionRequest {
   const shade: string = read("shade") ?? "beauty";
-  if (!Object.hasOwn(SHADES, shade))
+  if (!isShade(shade))
     throw new Error(
       `Inspection shade "${shade}" is not one of ${Object.keys(SHADES).join(", ")}`,
     );
   return {
     parts: list(read("parts")),
     hide: list(read("hide")),
-    shade: shade as AutoMovieInspectionShade,
+    shade,
     surface: flag("surface", read("surface"), true),
     marks: list(read("marks")),
     sliver: positive("sliver", read("sliver")),
@@ -143,10 +151,30 @@ function positive(key: string, text: string | null | undefined): number | null {
   return value;
 }
 
-/** The number a text spells, NaN for blank or malformed text. */
+/**
+ * A numeric literal as `Number` reads one: decimal with an optional exponent,
+ * or a binary, octal or hexadecimal integer.
+ */
+const NUMERIC: RegExp =
+  /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
+
+/**
+ * The number a text spells, NaN for blank, malformed or overflowing text.
+ *
+ * A spelled number is admitted up to the largest exactly representable integer,
+ * 2^53 - 1: counts such as ticks must stay exact integers, and for the metres,
+ * seconds and pixels of the other keys any product of two such numbers stays
+ * below 2^106, far inside binary64.
+ */
 function finite(text: string): number {
-  const value: number = text.trim() === "" ? Number.NaN : Number(text);
-  return Number.isFinite(value) ? value : Number.NaN;
+  if (!NUMERIC.test(text)) return Number.NaN;
+  const value: number = Number(text);
+  return Math.abs(value) <= Number.MAX_SAFE_INTEGER ? value : Number.NaN;
+}
+
+/** Whether a text spells a number within the same bound as {@link finite}. */
+function numeric(text: string): boolean {
+  return NUMERIC.test(text) && Math.abs(Number(text)) <= Number.MAX_SAFE_INTEGER;
 }
 
 /** The cut a text spells, in either of its two forms. */
@@ -167,8 +195,8 @@ function section(
     halves[0]!.trim(),
   );
   if (axis !== null) {
+    if (!numeric(halves[1]!)) return refuse();
     const offset: number = finite(halves[1]!);
-    if (Number.isNaN(offset)) return refuse();
     const sign: number = axis[1] === "-" ? -1 : 1;
     return {
       point: {
@@ -189,9 +217,9 @@ function section(
     half.split(",").map(finite),
   );
   if (
+    halves.some((half: string): boolean => !half.split(",").every(numeric)) ||
     point!.length !== 3 ||
     normal!.length !== 3 ||
-    [...point!, ...normal!].some(Number.isNaN) ||
     normal!.every((component: number): boolean => component === 0)
   )
     return refuse();

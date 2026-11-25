@@ -15,31 +15,23 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * How far a hand laid at a world rotation reaches past one of its own
- * surfaces along a world direction: the highest point of the hand's and the
- * fingers' colliders along it, the hand in a shape, less the surface's own.
- * A hand laid with that surface on another body's collider keeps its own
- * colliders clear of it by laying the surface this far off along the
- * direction. The shape is set on the posture's own hand once, and each
- * direction is read in that hand's frame, which the laid hand turns to the
- * rotation, so the reach depends on the shape alone, not on where the arm
- * holds the hand.
+ * How far a hand laid at a world rotation reaches past one of its own surfaces
+ * along a world direction: the highest point of the hand's and the fingers'
+ * colliders along it, the hand in a shape, less the surface's own. A hand laid
+ * with that surface on another body's collider keeps its own colliders clear of
+ * it by laying the surface this far off along the direction. The shape is set
+ * on the posture's own hand once, and each direction is read in that hand's
+ * frame, which the laid hand turns to the rotation, so the reach depends on the
+ * shape alone, not on where the arm holds the hand.
  *
  * @param body The body.
  * @param posture The posture whose hand is read; only its joints matter.
  * @param side The hand.
  * @param rotation The world rotation the hand is laid at.
  * @param surface The hand surface laid on the place.
- * @param shape The imposed hand shape. Omit it to observe the current finger articulation.
+ * @param shape The imposed hand shape. Omit it to observe the current finger
+ *   articulation.
  * @returns The reach along a world direction, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is measured, in which frame, against which surface and why the arm does not matter.
- * @evidence contracts/development/implementation.md#principled-implementation The hand's and the digits' collider spans along the direction, read in the hand bone's frame, less the surface's point along it: the support function of the hand's own colliders.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One shaped pose, one placement, then one span scan per direction.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The colliders are the body's own; no hand thickness is assumed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution and the hand's own bones' forward kinematics per call; each direction then scans only the hand's and the digits' shapes.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the rests' chin fist (`restGoals`) and the seated palms on the thighs (`seatedHands`).
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned reader holds one placement of the hand's bones and nothing else.
  */
 export function handReach(
   body: IAutoMovieMotionHumanBody,
@@ -59,10 +51,15 @@ export function handReach(
   );
   const bones: ReturnType<typeof poseBones> = poseBones(
     body,
-    resolveHumanPosture(body, shape === undefined ? posture : {
-      ...posture,
-      joints: { ...posture.joints, ...HumanHand.shape(side, shape) },
-    }),
+    resolveHumanPosture(
+      body,
+      shape === undefined
+        ? posture
+        : {
+            ...posture,
+            joints: { ...posture.joints, ...HumanHand.shape(side, shape) },
+          },
+    ),
     undefined,
     new Set([...requested, ...HumanHand.frameBones(body, side, surface)]),
   );

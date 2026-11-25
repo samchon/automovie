@@ -26,59 +26,59 @@ import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFl
 import { flyPerformanceFlight } from "./flyPerformanceFlight";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
+/** The record of `IACCURACYItem`'s site. */
+type IACCURACYItem = { relative: number; absolute: number };
+
 /**
- * Hand each placed flight its rigid turn after placement and contacts.
- * Authored turn counts use the performance's staged default: exact
- * unwrapped angles about the law's composed centre, with its existing
- * articulation and heading. This path samples only numeric centre/root
- * playback data and creates no physical history or momentum verdict.
- * Explicit physical mode and every supplied momentum use the physical
- * path below. Both hand a reader back once through the same plan hook.
+ * Hand each placed flight its rigid turn after placement and contacts. Authored
+ * turn counts use the performance's staged default: exact unwrapped angles
+ * about the law's composed centre, with its existing articulation and heading.
+ * This path samples only numeric centre/root playback data and creates no
+ * physical history or momentum verdict. Explicit physical mode and every
+ * supplied momentum use the physical path below. Both hand a reader back once
+ * through the same plan hook.
  *
- * The shape is the person's displayed body before the flight's rotation:
- * the carrier, overlays and layers at each actual integration or physical
- * probe instant from take-off. FK starts at an identity root to express
- * that already composed articulation directly in the root's own frame,
- * so a rigid world placement is not applied and then undone for every bone.
- * The result does not depend on where or facing which way the flight happens.
- * Its history
- * gives the composite inertia and the segments' relative momentum
- * (`integrateAirborneRotation.tabulated`), read inside the flight alone,
- * from take-off to touchdown, so the push-off and the landing are not read; the
- * momentum is the plan's, or the
- * one `solveAirborneTakeoff` finds for its turns within the take-off's
- * ceiling (the moment of the take-off's momentum about the foot, at most
- * the centre's distance from it, unless the plan states its own), and a
- * request it cannot meet within it is refused on the action, naming the
- * turns. The root's orientation
- * `q(t)` is integrated from the displayed one at take-off, and the rotation
- * handed back is `q(t) R(t)⁻¹` about the composed centre of mass, `R(t)` the
- * unturned root's own rotation, so the turned root is exactly `q(t)` and
- * the centre stays where the composed shape put it. `R(t)` and the centre
- * are tabulated at the flight's knots (the fewest equal intervals no longer
- * than `1 / HumanPoseKnots.RATE` s; a staged flight keeps the integrator's
- * default step) and read between those
- * instants by slerp and by line, so the plan's posture reads no displayed
- * pose and the pass has no cycle; `q(t)` is integrated under error control
- * (`ACCURACY` and an independent physical momentum budget), its steps as short as the shape's changes need, and read
- * between its knots by the integrator's own continuous extension, so a
- * shape that changes fast turns at its momentum's rate there too.
- * The shape's history is tabulated once at those knots
+ * The shape is the person's displayed body before the flight's rotation: the
+ * carrier, overlays and layers at each actual integration or physical probe
+ * instant from take-off. FK starts at an identity root to express that already
+ * composed articulation directly in the root's own frame, so a rigid world
+ * placement is not applied and then undone for every bone. The result does not
+ * depend on where or facing which way the flight happens. Its history gives the
+ * composite inertia and the segments' relative momentum
+ * (`integrateAirborneRotation.tabulated`), read inside the flight alone, from
+ * take-off to touchdown, so the push-off and the landing are not read; the
+ * momentum is the plan's, or the one `solveAirborneTakeoff` finds for its turns
+ * within the take-off's ceiling (the moment of the take-off's momentum about
+ * the foot, at most the centre's distance from it, unless the plan states its
+ * own), and a request it cannot meet within it is refused on the action, naming
+ * the turns. The root's orientation `q(t)` is integrated from the displayed one
+ * at take-off, and the rotation handed back is `q(t) R(t)⁻¹` about the composed
+ * centre of mass, `R(t)` the unturned root's own rotation, so the turned root
+ * is exactly `q(t)` and the centre stays where the composed shape put it.
+ * `R(t)` and the centre are tabulated at the flight's knots (the fewest equal
+ * intervals no longer than `1 / HumanPoseKnots.RATE` s; a staged flight keeps
+ * the integrator's default step) and read between those instants by slerp and
+ * by line, so the plan's posture reads no displayed pose and the pass has no
+ * cycle; `q(t)` is integrated under error control (`ACCURACY` and an
+ * independent physical momentum budget), its steps as short as the shape's
+ * changes need, and read between its knots by the integrator's own continuous
+ * extension, so a shape that changes fast turns at its momentum's rate there
+ * too. The shape's history is tabulated once at those knots
  * (`integrateAirborneRotation.tabulated`): the inertia and the relative
  * momentum of the exact unturned pose at each knot, read between them by a
- * cubic, in place of a shape read at every stage and a millisecond either
- * side of it. One unturned pose a knot serves the shape, the take-off
- * attitude and the playback table; the take-off's momentum ceiling reads its
- * two own instants. Every physical acceptance bound remains unchanged.
+ * cubic, in place of a shape read at every stage and a millisecond either side
+ * of it. One unturned pose a knot serves the shape, the take-off attitude and
+ * the playback table; the take-off's momentum ceiling reads its two own
+ * instants. Every physical acceptance bound remains unchanged.
  */
 export namespace HumanPerformanceFlight {
   /**
    * The original embedded orientation RMS and same-unit sensitivity-matrix
-   * budgets, with no absolute floor. This local state estimate does not
-   * bound the dense angular rate or its inertia-conditioned momentum error;
-   * the independent physical momentum budget checks the latter directly.
+   * budgets, with no absolute floor. This local state estimate does not bound
+   * the dense angular rate or its inertia-conditioned momentum error; the
+   * independent physical momentum budget checks the latter directly.
    */
-  export const ACCURACY: Readonly<{ relative: number; absolute: number }> = {
+  export const ACCURACY: Readonly<IACCURACYItem> = {
     relative: 0.01 / 2,
     absolute: 0,
   };
@@ -88,8 +88,11 @@ export namespace HumanPerformanceFlight {
    *
    * @param self The performance, placed and its contacts resolved.
    * @param people The people.
-   * @param observation Optional native cumulative history-work observer, borrowed only during planning; no diagnostic callback is invoked by this pass.
-   * @throws {HumanRefusal} For invalid staged data or physical turns the take-off cannot meet.
+   * @param observation Optional native cumulative history-work observer,
+   *   borrowed only during planning; no diagnostic callback is invoked by this
+   *   pass.
+   * @throws {HumanRefusal} For invalid staged data or physical turns the
+   *   take-off cannot meet.
    */
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -149,7 +152,10 @@ export namespace HumanPerformanceFlight {
     }
   }
 
-  /** Hand back authored turns without constructing a physical history or take-off problem. */
+  /**
+   * Hand back authored turns without constructing a physical history or
+   * take-off problem.
+   */
   function staged(
     self: IAutoMovieMotionHumanPerformanceState,
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -201,26 +207,26 @@ export namespace HumanPerformanceFlight {
     );
   }
 }
+/** The alternatives of `Playback`'s site. */
+type Playback = "step" | "times" | "table";
 
 /** Numeric playback data shared by staged and physical rotation policies. */
 type IPlayback = Pick<
   Parameters<typeof HumanPerformanceFlightRotation>[0],
-  "step" | "times" | "table"
+  Playback
 >;
 
-/** Sample the existing playback grid once, without retaining its displayed-pose reader. */
+/**
+ * Sample the existing playback grid once, without retaining its displayed-pose
+ * reader.
+ */
 function samples(
   from: number,
   to: number,
   read: (seconds: number) => IPlayback["table"][number],
 ): IPlayback {
   if (
-    !(
-      Number.isFinite(from) &&
-      Number.isFinite(to) &&
-      Number.isFinite(to - from) &&
-      to > from
-    )
+    !(to > from)
   )
     throw new Error("Flight playback needs a positive finite interval");
   const step: number = integrateMotionTrajectory.STEP;

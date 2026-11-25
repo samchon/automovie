@@ -13,36 +13,113 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
 import { HumanMount } from "./HumanMount";
 
+/** The alternatives of `Frame2`'s site. */
+type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";
+
+/**
+ * The course's reader.
+ *
+ * @param c The climb.
+ * @returns The frame at a second of the climb.
+ */
+export function HumanMountOnFrame(
+  c: HumanMountOnFrame.IClimb,
+): (t: number) => HumanMountOnFrame.Frame {
+  const {
+    body,
+    seat,
+    start,
+    goal,
+    climb,
+    hop,
+    final,
+  }: HumanMountOnFrame.IClimb = c;
+  const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
+    ...stand.relaxed(body),
+    ...standUpright(body).joints,
+  };
+  const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
+    Object.entries(final.joints) as [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+    ][];
+  const across: readonly [number, number] = HumanMountOnFrame.crossing(
+    climb,
+    seat.astride === true,
+  );
+  return (t: number): HumanMountOnFrame.Frame => {
+    const crossed: number = minimumJerk.share(
+      (t - across[0]) / (across[1] - across[0]),
+    );
+    const socket: IAutoMovieVector3 = {
+      x: start.x + (goal.x - start.x) * crossed,
+      y:
+        start.y +
+        (goal.y + hop - start.y) *
+          minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
+        hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
+      z: start.z + (goal.z - start.z) * crossed,
+    };
+    const settle: number = minimumJerk.share((t - 0.6 * climb) / (0.4 * climb));
+    const lean: number =
+      t < 0.6 * climb
+        ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
+        : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
+    for (const [bone, a] of finish) {
+      const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+      joints[bone] = [
+        was[0] + a[0] * settle,
+        was[1] + a[1] * settle,
+        was[2] + a[2] * settle,
+      ];
+    }
+    // The hanging arms open out while the legs climb, clear of a thigh
+    // the leading leg lifts, and close again as the body settles.
+    const open: number =
+      HumanMount.OPEN * minimumJerk.share(t / (0.3 * climb)) * (1 - settle);
+    for (const side of ["left", "right"] as const) {
+      const arm: readonly [number, number, number] = joints[
+        `${side}UpperArm`
+      ] ?? [0, 0, 0];
+      joints[`${side}UpperArm`] = [arm[0], arm[1] + open, arm[2]];
+    }
+    const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+      joints,
+      lean,
+    );
+    const yaw: number = c.yaw + c.turn * crossed;
+    // A tipped or tilted seat, as a saddle on a grade, tips the pelvis with it as the body crosses onto it.
+    const pitch: number = tilt.pitch + (seat.pitch ?? 0) * crossed;
+    const roll: number = (seat.roll ?? 0) * crossed;
+    return {
+      root: seated.root(body, socket, { yaw, pitch, roll }),
+      yaw,
+      pitch,
+      roll,
+      joints: tilt.joints,
+    };
+  };
+}
+
 /**
  * The pelvis's and the trunk's course in getting onto a high seat
- * (`HumanMountOn`): the seat socket travels up from 10 % of the climb,
- * passes `HumanMount.HOP` above the seat and sets down on it at 80 %, the
- * contact; it crosses to a seat sat on with the legs ahead over the first
- * 70 %, and to one sat astride from 30 % to the contact. The trunk leans
- * forward `HumanMount.LEAN` degrees at 40 % and settles to the seated
- * pitch from 60 %, the seated joints coming in with it, and the hanging
- * arms open out while the legs climb.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the socket's path, the crossing, the lean and the arms with their shares.
- * @evidence contracts/development/design.md#principled-representation A root, a heading, a pitch, a roll and the set joints at a second of the climb.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanMountOn` asks of its pelvis and trunk, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every share is a named share of the climb; every length is the body's or `HumanMount`'s.
+ * (`HumanMountOn`): the seat socket travels up from 10 % of the climb, passes
+ * `HumanMount.HOP` above the seat and sets down on it at 80 %, the contact; it
+ * crosses to a seat sat on with the legs ahead over the first 70 %, and to one
+ * sat astride from 30 % to the contact. The trunk leans forward
+ * `HumanMount.LEAN` degrees at 40 % and settles to the seated pitch from 60 %,
+ * the seated joints coming in with it, and the hanging arms open out while the
+ * legs climb.
  */
 export namespace HumanMountOnFrame {
-  /** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
-  export type Frame = Pick<
-    IAutoMovieMotionHumanPosture,
-    "root" | "yaw" | "pitch" | "roll" | "joints"
-  >;
-
   /**
-   * The climb the course is read over.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and frame.
-   * @evidence contracts/development/design.md#principled-representation World metres, seconds and degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `HumanMountOn` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The seated end is the sitting's own.
+   * Where the pelvis is at an instant of getting on: the root, the heading, the
+   * pelvis pitch and the set joints.
    */
+  export type Frame = Pick<IAutoMovieMotionHumanPosture, Frame2>;
+
+  /** The climb the course is read over. */
   export interface IClimb {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -72,14 +149,7 @@ export namespace HumanMountOnFrame {
     final: IFinal;
   }
 
-  /**
-   * The seated end a climb settles into.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation A pitch in degrees and clinical joint angles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Given by the sitting.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The sitting's own seated posture.
-   */
+  /** The seated end a climb settles into. */
   export interface IFinal {
     /** The seated trunk pitch, degrees. */
     pitch: number;
@@ -92,8 +162,8 @@ export namespace HumanMountOnFrame {
 
   /**
    * The seconds the pelvis crosses to the seat over: late astride, after the
-   * far leg has left the floor, to the contact at 80 % of the climb; from
-   * the start onto a seat sat with the legs ahead.
+   * far leg has left the floor, to the contact at 80 % of the climb; from the
+   * start onto a seat sat with the legs ahead.
    *
    * @param climb The climb's seconds.
    * @param astride Whether the seat is sat astride.
@@ -104,93 +174,5 @@ export namespace HumanMountOnFrame {
     astride: boolean,
   ): readonly [number, number] {
     return astride ? [0.3 * climb, 0.8 * climb] : [0, 0.7 * climb];
-  }
-
-  /**
-   * The course's reader.
-   *
-   * @param c The climb.
-   * @returns The frame at a second of the climb.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Every path is a minimum-jerk share (Flash and Hogan 1985) of a named stretch of the climb.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The socket, the settle, the lean, the joints, the arms, then the root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shares are provisional, named in the namespace's account.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per frame beyond the trunk's incline.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The relaxed and seated joints are read once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The reader holds only the climb.
-   */
-  export function of(c: IClimb): (t: number) => Frame {
-    const { body, seat, start, goal, climb, hop, final }: IClimb = c;
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
-      ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
-    };
-    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-      Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][];
-    const across: readonly [number, number] = crossing(
-      climb,
-      seat.astride === true,
-    );
-    return (t: number): Frame => {
-      const crossed: number = minimumJerk.share(
-        (t - across[0]) / (across[1] - across[0]),
-      );
-      const socket: IAutoMovieVector3 = {
-        x: start.x + (goal.x - start.x) * crossed,
-        y:
-          start.y +
-          (goal.y + hop - start.y) *
-            minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
-          hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
-        z: start.z + (goal.z - start.z) * crossed,
-      };
-      const settle: number = minimumJerk.share(
-        (t - 0.6 * climb) / (0.4 * climb),
-      );
-      const lean: number =
-        t < 0.6 * climb
-          ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
-          : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
-      for (const [bone, a] of finish) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          was[0] + a[0] * settle,
-          was[1] + a[1] * settle,
-          was[2] + a[2] * settle,
-        ];
-      }
-      // The hanging arms open out while the legs climb, clear of a thigh
-      // the leading leg lifts, and close again as the body settles.
-      const open: number =
-        HumanMount.OPEN * minimumJerk.share(t / (0.3 * climb)) * (1 - settle);
-      for (const side of ["left", "right"] as const) {
-        const arm: readonly [number, number, number] = joints[
-          `${side}UpperArm`
-        ] ?? [0, 0, 0];
-        joints[`${side}UpperArm`] = [arm[0], arm[1] + open, arm[2]];
-      }
-      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-        joints,
-        lean,
-      );
-      const yaw: number = c.yaw + c.turn * crossed;
-      // A tipped or tilted seat, as a saddle on a grade, tips the pelvis with it as the body crosses onto it.
-      const pitch: number = tilt.pitch + (seat.pitch ?? 0) * crossed;
-      const roll: number = (seat.roll ?? 0) * crossed;
-      return {
-        root: seated.root(body, socket, { yaw, pitch, roll }),
-        yaw,
-        pitch,
-        roll,
-        joints: tilt.joints,
-      };
-    };
   }
 }

@@ -1,19 +1,3 @@
-# src/handling/HumanGraspUsePreparation.ts#HumanGraspUsePreparation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the setup, its world-metre points and rotations, and its refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Canonical context, affordance, point and quaternion types; no solved pose is carried.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `of` supplies exactly what `HumanGraspUse.presented` reads, kept apart so that file stays under the size bound.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No tool kind is named; every point comes from the prop's affordances and the body's regions.
-
 # src/handling/HumanGraspUsePreparation.ts#HumanGraspUsePreparation.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -50,7 +34,7 @@ Every member feeds the worn branch or the key builder of `presented`.
 
 No fixed pose or sampled frame.
 
-# src/handling/HumanGraspUsePreparation.ts#HumanGraspUsePreparation.of
+# src/handling/HumanGraspUsePreparation.ts#HumanGraspUsePreparation
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

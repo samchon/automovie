@@ -7,23 +7,23 @@ import type {
 import { createAutoMovieQuadraticConstraintBasis } from "./createAutoMovieQuadraticConstraintBasis";
 
 /**
- * Minimize the unchanged diagonal PSD objective on an independent working space.
- * Householder QR of sqrt(H)*Z avoids a Schur normal-equation factor. Exact flat
- * columns retain their coordinate when their linear term is zero; otherwise a
- * zero-curvature descent direction requires the caller's complete-row blocker.
- * Other numerical rank ambiguity refuses without removing a constraint or adding
- * objective curvature. The caller retains its feasible native state and alone
- * checks the original full KKT. Gill and Wong (2014), sections 2-3:
- * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf
- * The finite arithmetic and rank test establish no convergence guarantee.
- * A normal projection at the affine origin is a separate least-residual dual
- * candidate, even when a flat direction prevents a working-space minimum.
- * It is not a second-order-consistent LP basis or a subspace-optimum certificate.
- * Column-pivoted QR's A*P=Q*R convention is documented by LAPACK DGEQP3:
- * https://www.netlib.org/lapack/double/dgeqp3.f
- * An unavailable normal projection leaves a valid flat continuation available.
- * Inputs are borrowed after the refinement owner's complete QP validation;
- * owned dense coordinates have finite-memory limits, not full-row scalability.
+ * Minimize the unchanged diagonal PSD objective on an independent working
+ * space. Householder QR of sqrt(H)_Z avoids a Schur normal-equation factor.
+ * Exact flat columns retain their coordinate when their linear term is zero;
+ * otherwise a zero-curvature descent direction requires the caller's
+ * complete-row blocker. Other numerical rank ambiguity refuses without removing
+ * a constraint or adding objective curvature. The caller retains its feasible
+ * native state and alone checks the original full KKT. Gill and Wong (2014),
+ * sections 2-3: https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf The finite
+ * arithmetic and rank test establish no convergence guarantee. A normal
+ * projection at the affine origin is a separate least-residual dual candidate,
+ * even when a flat direction prevents a working-space minimum. It is not a
+ * second-order-consistent LP basis or a subspace-optimum certificate.
+ * Column-pivoted QR's A_P=Q*R convention is documented by LAPACK DGEQP3:
+ * https://www.netlib.org/lapack/double/dgeqp3.f An unavailable normal
+ * projection leaves a valid flat continuation available. Inputs are borrowed
+ * after the refinement owner's complete QP validation; owned dense coordinates
+ * have finite-memory limits, not full-row scalability.
  */
 export function solveAutoMovieQuadraticWorkingSetStep(
   diagonal: readonly number[],
@@ -73,7 +73,6 @@ export function solveAutoMovieQuadraticWorkingSetStep(
           (value: number, at: number): number =>
             value + diagonal[at]! * values[at]!,
         );
-        if (!originalGradient.every(Number.isFinite)) return null;
         // A_W' P D^-1 = Q R: R*c = -Q'g, y_W = P D^-1 c.
         // The unrepresented normal component remains for original KKT admission.
         const multipliers: number[] = basis.range.map(
@@ -88,7 +87,7 @@ export function solveAutoMovieQuadraticWorkingSetStep(
         const projected: number[] = new Array<number>(rows.length).fill(0);
         for (let at: number = 0; at < basis.rank; at++)
           projected[basis.order[at]] = multipliers[at] / basis.divisors[at];
-        return projected.every(Number.isFinite) ? projected : null;
+        return projected;
       } catch (error: unknown) {
         if (error instanceof RangeError) return null;
         throw error;
@@ -103,8 +102,7 @@ export function solveAutoMovieQuadraticWorkingSetStep(
       for (let at: number = 0; at < origin.length; at++)
         origin[at] += column[at]! * coordinate;
     }
-    if (!origin.every(Number.isFinite))
-      return fail("working-affine-origin-not-representable");
+
     result.origin = origin;
     result.normalDual = projectDual(origin);
     const gradient: number[] = linear.map(
@@ -126,13 +124,11 @@ export function solveAutoMovieQuadraticWorkingSetStep(
     const flatLinear: number[] = linear.map(
       (value: number, at: number): number => (diagonal[at] === 0 ? value : 0),
     );
-    if (!objectiveTarget.every(Number.isFinite))
-      return fail("working-objective-target-not-representable");
+
     for (let at: number = 0; at < basis.nullspace.length; at++) {
       const column: number[] = basis.nullspace[at]!;
       const value: number = dot(column, gradient);
-      if (!Number.isFinite(value))
-        return fail("working-projected-objective-not-representable");
+
       const curved: boolean = column.some(
         (coefficient: number, i: number): boolean =>
           diagonal[i]! > 0 && coefficient !== 0,
@@ -151,7 +147,6 @@ export function solveAutoMovieQuadraticWorkingSetStep(
           Math.sqrt(diagonal[i]!) * coefficient,
       );
       if (
-        !weights.every(Number.isFinite) ||
         weights.some(
           (coefficient: number, i: number): boolean =>
             coefficient === 0 && diagonal[i]! > 0 && column[i] !== 0,
@@ -200,7 +195,7 @@ export function solveAutoMovieQuadraticWorkingSetStep(
         primal[at] += amount * vector[at]!;
     }
     const dual: number[] | null = projectDual(primal);
-    if (!primal.every(Number.isFinite) || dual === null)
+    if (dual === null)
       return fail("working-objective-candidate-not-representable");
     result.primal = primal;
     result.dual = dual;

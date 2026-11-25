@@ -9,7 +9,10 @@ import type { createCar } from "./createCar";
 const HONDA: string =
   "Honda UK specifications (https://www.honda.co.uk/cars/new/jazz-hybrid/specifications.html, https://www.honda.co.uk/cars/new/civic-hybrid/specifications.html)";
 
-/** The sedans, read at a secondary source: one search for each maker's sheet found none. */
+/**
+ * The sedans, read at a secondary source: one search for each maker's sheet
+ * found none.
+ */
 const TOYOTA: string =
   "the Toyota Corolla (E210) saloon and Camry (XV70) infoboxes, secondary: one search for each maker's sheet found none (https://en.wikipedia.org/wiki/Toyota_Corolla_(E210), https://en.wikipedia.org/wiki/Toyota_Camry_(XV70))";
 
@@ -17,14 +20,20 @@ const TOYOTA: string =
 const TRANSIT: string =
   "Ford Transit Custom 2023 technical specification, L1H1 van, p. 3 (https://www.fordpers.be/content/documents/news/2023/2023_10_09_transit_custom_2023_technical_specification_eu.pdf)";
 
-/** The long van, read at a dealer's guide only: one search for the maker's sheet found none. */
+/**
+ * The long van, read at a dealer's guide only: one search for the maker's sheet
+ * found none.
+ */
 const TRANSIT_LONG: string =
   "the vansdirect.co.uk sizing guide's L2 H1 Transit Custom, secondary: one search for Ford's L2 sheet found none (https://www.vansdirect.co.uk/load-sizing-guide/ford-transit-custom-dimensions/)";
 
 /** A tyre's outer diameter from its size (`AutoMovieArchetypeUnits.tyre`). */
 const tyre: typeof AutoMovieArchetypeUnits.tyre = AutoMovieArchetypeUnits.tyre;
 
-/** The Jazz's body, every grade's but the Crosstar's: 4089 x 1694 x 1526 mm on a 2517 mm wheelbase. */
+/**
+ * The Jazz's body, every grade's but the Crosstar's: 4089 x 1694 x 1526 mm on a
+ * 2517 mm wheelbase.
+ */
 const JAZZ: Readonly<Partial<Record<createCar.Dimension, number>>> = {
   length: 4.089,
   width: 1.694,
@@ -32,7 +41,10 @@ const JAZZ: Readonly<Partial<Record<createCar.Dimension, number>>> = {
   wheelbase: 2.517,
 };
 
-/** The Civic's body, every grade's: 4560 x 1802 x 1408 mm on a 2734 mm wheelbase. */
+/**
+ * The Civic's body, every grade's: 4560 x 1802 x 1408 mm on a 2734 mm
+ * wheelbase.
+ */
 const CIVIC: Readonly<Partial<Record<createCar.Dimension, number>>> = {
   length: 4.56,
   width: 1.802,
@@ -40,10 +52,19 @@ const CIVIC: Readonly<Partial<Record<createCar.Dimension, number>>> = {
   wheelbase: 2.734,
 };
 
-/** The Transit Custom's front overhang, metres: 958 mm from the front of the van to the front wheels' centre, CarExpert's MK3 listings and a Ford brochure seen in search results, secondary; with the 992 mm rear overhang it closes both bodies exactly, 958 + 3,100 + 992 = 5,050 mm and 958 + 3,500 + 992 = 5,450 mm. */
+/**
+ * The Transit Custom's front overhang, metres: 958 mm from the front of the van
+ * to the front wheels' centre, CarExpert's MK3 listings and a Ford brochure
+ * seen in search results, secondary; with the 992 mm rear overhang it closes
+ * both bodies exactly, 958 + 3,100 + 992 = 5,050 mm and 958 + 3,500 + 992 =
+ * 5,450 mm.
+ */
 const TRANSIT_NOSE: number = 0.958;
 
-/** The Transit Custom L1's read figures, the L2's load length being derived from them: Ford's specification, p. 3. */
+/**
+ * The Transit Custom L1's read figures, the L2's load length being derived from
+ * them: Ford's specification, p. 3.
+ */
 const TRANSIT_L1: Readonly<Partial<Record<createCar.Dimension, number>>> = {
   length: 5.05,
   width: 2.032,
@@ -53,10 +74,16 @@ const TRANSIT_L1: Readonly<Partial<Record<createCar.Dimension, number>>> = {
   loadLength: 2.394,
 };
 
-/** The Transit Custom L2's overall length, metres: the dealer's guide's 5,450 mm. */
+/**
+ * The Transit Custom L2's overall length, metres: the dealer's guide's 5,450
+ * mm.
+ */
 const TRANSIT_L2_LENGTH: number = 5.45;
 
-/** The Transit Custom's tyres: 215/65 R16C on its standard wheels, 215/60 R17C on its optional ones (p. 2). */
+/**
+ * The Transit Custom's tyres: 215/65 R16C on its standard wheels, 215/60 R17C
+ * on its optional ones (p. 2).
+ */
 const TRANSIT_TYRES: Readonly<
   Partial<
     Record<
@@ -69,7 +96,10 @@ const TRANSIT_TYRES: Readonly<
   r17c: { wheelDiameter: tyre(215, 60, 17) },
 };
 
-/** The Ranger's tyres, by wheel option rather than drive: 255/70R17 on the 17-inch wheels, 255/65R18 on the 18-inch (p. 2). */
+/**
+ * The Ranger's tyres, by wheel option rather than drive: 255/70R17 on the
+ * 17-inch wheels, 255/65R18 on the 18-inch (p. 2).
+ */
 const RANGER_TYRES: Readonly<
   Partial<
     Record<
@@ -83,9 +113,23 @@ const RANGER_TYRES: Readonly<
 };
 
 /**
- * The read car models by class: each model's figures whole, the ranges a single model's source states inside it, and the tyres a model is offered on, picked as their own axis.
+ * The read car models by class: each model's figures whole, the ranges a single
+ * model's source states inside it, and the tyres a model is offered on, picked
+ * as their own axis.
  *
- * A hatchback is one of the Jazz's grades (Elegance, Advance, Crosstar Advance, Advance Sport) or the Civic's (Elegance, Sport, Advance), each with its own body, tyre, lock-to-lock turns and kerb mass, read at Honda UK's specification pages; a sedan the Corolla saloon (international) or the Camry, secondary; a van the Transit Custom L1H1, read at Ford's specification, or the L2H1, read at a dealer's guide, secondary, whose load length to the bulkhead is the L1's lengthened by the 400 mm the L2's body is longer; a pickup the 2025 Ranger SuperCrew 4x2 or 4x4, which differ in height, curb weight and lift-in height (Ford's specification, p. 3). A tyre's outer diameter is computed from its size (`tyre`). Where one model's source states a range, as a grade's kerb mass over its options or a saloon's height over its trims, the range is that model's band; nothing is drawn across two models.
+ * A hatchback is one of the Jazz's grades (Elegance, Advance, Crosstar Advance,
+ * Advance Sport) or the Civic's (Elegance, Sport, Advance), each with its own
+ * body, tyre, lock-to-lock turns and kerb mass, read at Honda UK's
+ * specification pages; a sedan the Corolla saloon (international) or the Camry,
+ * secondary; a van the Transit Custom L1H1, read at Ford's specification, or
+ * the L2H1, read at a dealer's guide, secondary, whose load length to the
+ * bulkhead is the L1's lengthened by the 400 mm the L2's body is longer; a
+ * pickup the 2025 Ranger SuperCrew 4x2 or 4x4, which differ in height, curb
+ * weight and lift-in height (Ford's specification, p. 3). A tyre's outer
+ * diameter is computed from its size (`tyre`). Where one model's source states
+ * a range, as a grade's kerb mass over its options or a saloon's height over
+ * its trims, the range is that model's band; nothing is drawn across two
+ * models.
  */
 export const CAR_MODELS: Readonly<{
   figures: Readonly<

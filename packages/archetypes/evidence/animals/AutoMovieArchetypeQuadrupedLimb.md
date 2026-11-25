@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedLimb.ts#AutoMovieArchetypeQuadrupedLimb
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source controls, the two-piece triangle, degrees/metres and fixed root/terminal goals; unreachable requests refuse instead of changing the support.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Four control-bar lengths and the lower carriage's neutral relative angles define each solve independently of species proportions or a gait's follow coefficient.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One prepared chain exposes its geometric distance band and exact-root solve to the shared ride; the ride owns support planning and the rest-pose solver keeps its different distal-carriage contract.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species branches, surrogate standing-angle table, moving attachment, stretched bone or projected terminal goal substitutes for the chain.
-
 # src/animals/AutoMovieArchetypeQuadrupedLimb.ts#AutoMovieArchetypeQuadrupedLimb.IRange
 
 ## @evidence contracts/development/common.md#meaningful-documentation

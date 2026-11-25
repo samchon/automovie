@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -13,7 +14,7 @@ import type {
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -21,7 +22,7 @@ import { StrikingTwist } from "./StrikingTwist";
 import type { strikingStepSupport } from "./strikingStepSupport";
 
 /** A single stance side. */
-type Side = "left" | "right";
+type Side = AutoMovieHumanSide;
 
 /** Both feet in world metres with their actual rotations. */
 type Feet = Record<Side, IAutoMovieMotionHumanFoot.IPlacement>;
@@ -78,30 +79,22 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * pivots the lead shoe around its ball and moves the root and rear shoe around
  * that anchor. A traveling turn takes two steps on a new line. A lead exchange
  * lets the old rear foot move first on its own lane and finishes in the new
- * lead. The AIBA coaching illustrations distinguish these support patterns.
- * A cut keeps the inherited bearing shoe as the first support or pivot, and
- * lands the airborne shoe within the incoming beat.
- * The beat windows, vertical load, heel rise and trunk lag are provisional
- * choreography, expressed as beat shares or relative to the body.
- * @see https://www.iba.sport/wp-content/uploads/2018/07/AIBA-Coach-Regulations-Manual_WEB.pdf
+ * lead. The AIBA coaching illustrations distinguish these support patterns. A
+ * cut keeps the inherited bearing shoe as the first support or pivot, and lands
+ * the airborne shoe within the incoming beat. The beat windows, vertical load,
+ * heel rise and trunk lag are provisional choreography, expressed as beat
+ * shares or relative to the body.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the support geometry, rotation axis, lead order, timing and sources.
- * @evidence contracts/development/design.md#principled-representation Foot placements, support windows and pelvis and trunk paths feed the same posture and leg solvers as the straight step.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Receives only the validated step controls and returns its normal action plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared ball pivot and leg swing rather than rotating a locked ankle or teleporting the stance.
+ * @see https://www.iba.sport/wp-content/uploads/2018/07/AIBA-Coach-Regulations-Manual_WEB.pdf
  */
 export namespace StrikingStepTransition {
   /**
    * Plan the prescribed support transfers and the carried full-body posture.
    *
    * @param context The step's action context and actual entry placements.
-   * @param props The resolved beat count, duration, travel, turn and entry lead.
+   * @param props The resolved beat count, duration, travel, turn and entry
+   *   lead.
    * @returns The deterministic full-body plan and its support windows.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Computes turn and lead geometry once per beat, then solves each posture from its time and active supports.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Separates beat geometry, event scheduling and current posture.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Plans linearly in beat count, with one indexed beat per posture read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its beat geometry and entry only.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,
@@ -255,7 +248,7 @@ export namespace StrikingStepTransition {
           left: bearingAt(beat, "left", local),
           right: bearingAt(beat, "right", local),
         };
-        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const posture: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           {
             root: {
@@ -271,7 +264,7 @@ export namespace StrikingStepTransition {
             ),
             limbs: StrikingStance.legs(body, placed, down),
           },
-          resolveHumanPosture.KNEE,
+          lowerHumanPosture.KNEE,
         );
         return {
           ...posture,
@@ -292,77 +285,127 @@ export namespace StrikingStepTransition {
       },
     };
   }
-}
 
-/** Apply a world turn around an anchor without changing the point's height. */
-function rotateAround(
-  point: IAutoMovieVector3,
-  anchor: IAutoMovieVector3,
-  yaw: number,
-): IAutoMovieVector3 {
-  return HumanFrame.point(
-    { origin: anchor, yaw },
-    Vector3.subtract(point, anchor),
-  );
-}
+  /** A step beat's foot windows, as its bearing and its contacts read them. */
+  export interface IFootwork {
+    /** Each foot's swing window, shares of the beat; none for a foot that stays. */
+    windows: Record<
+      AutoMovieHumanSide,
+      readonly [from: number, to: number] | undefined
+    >;
 
-/** Travel one chord in the direction of the stance at the middle of the beat. */
-function travel(
-  root: IAutoMovieVector3,
-  direction: IAutoMovieMotionHumanStep.IParams["direction"],
-  yaw: number,
-  length: number,
-): IAutoMovieVector3 {
-  const x: number =
-    direction === "left" ? length : direction === "right" ? -length : 0;
-  const z: number =
-    direction === "forward" ? length : direction === "back" ? -length : 0;
-  return HumanFrame.point({ origin: root, yaw }, { x, y: 0, z });
-}
+    /** The foot that pivots, if any. */
+    pivot: { side: AutoMovieHumanSide } | undefined;
 
-/** Rotate the placement from one stance frame into the next. */
-function moved(
-  foot: IAutoMovieMotionHumanFoot.IPlacement,
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-  turn: number,
-): IAutoMovieMotionHumanFoot.IPlacement {
-  return {
-    ankle: HumanFrame.point(
-      { origin: to, yaw: turn },
-      Vector3.subtract(foot.ankle, from),
-    ),
-    rotation: Quaternion.multiply(
-      Quaternion.fromAxisAngle(UP, turn),
-      foot.rotation,
-    ),
-  };
-}
+    /** The feet still landing from a cut step, if any. */
+    airborne: strikingStepSupport.ISupport["landings"] | undefined;
+  }
+  /** Apply a world turn around an anchor without changing the point's height. */
+  export function rotateAround(
+    point: IAutoMovieVector3,
+    anchor: IAutoMovieVector3,
+    yaw: number,
+  ): IAutoMovieVector3 {
+    return HumanFrame.point(
+      { origin: anchor, yaw },
+      Vector3.subtract(point, anchor),
+    );
+  }
 
-/** Pick the near foot first for travel without changing lead. */
-function firstSide(
-  direction: IAutoMovieMotionHumanStep.IParams["direction"],
-  lead: Side,
-): Side {
-  if (direction === "forward") return lead;
-  if (direction === "back") return StrikingStance.rear({ lead });
-  return direction;
-}
+  /** Travel one chord in the direction of the stance at the middle of the beat. */
+  export function travel(
+    root: IAutoMovieVector3,
+    direction: IAutoMovieMotionHumanStep.IParams["direction"],
+    yaw: number,
+    length: number,
+  ): IAutoMovieVector3 {
+    const x: number =
+      direction === "left" ? length : direction === "right" ? -length : 0;
+    const z: number =
+      direction === "forward" ? length : direction === "back" ? -length : 0;
+    return HumanFrame.point({ origin: root, yaw }, { x, y: 0, z });
+  }
 
-/** Ease into and out of a foot's own motion window. */
-function progress(window: Window, local: number): number {
-  return minimumJerk.share((local - window[0]) / (window[1] - window[0]));
-}
+  /** Rotate the placement from one stance frame into the next. */
+  export function moved(
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    turn: number,
+  ): IAutoMovieMotionHumanFoot.IPlacement {
+    return {
+      ankle: HumanFrame.point(
+        { origin: to, yaw: turn },
+        Vector3.subtract(foot.ankle, from),
+      ),
+      rotation: Quaternion.multiply(
+        Quaternion.fromAxisAngle(UP, turn),
+        foot.rotation,
+      ),
+    };
+  }
 
-/** The bearing selection includes the anchored ball throughout its pivot. */
-function bearingAt(beat: IBeat, side: Side, local: number): boolean {
-  const window: Window | undefined = beat.windows[side];
-  return (
-    beat.pivot?.side === side ||
-    window === undefined ||
-    (local <= window[0] && beat.airborne?.[side] === undefined) ||
-    local >= window[1]
-  );
+  /** Pick the near foot first for travel without changing lead. */
+  export function firstSide(
+    direction: IAutoMovieMotionHumanStep.IParams["direction"],
+    lead: AutoMovieHumanSide,
+  ): AutoMovieHumanSide {
+    if (direction === "forward") return lead;
+    if (direction === "back") return StrikingStance.rear({ lead });
+    return direction;
+  }
+
+  /** Ease into and out of a foot's own motion window. */
+  export function progress(
+    window: readonly [from: number, to: number],
+    local: number,
+  ): number {
+    return minimumJerk.share((local - window[0]) / (window[1] - window[0]));
+  }
+
+  /** The bearing selection includes the anchored ball throughout its pivot. */
+  export function bearingAt(
+    beat: IFootwork,
+    side: AutoMovieHumanSide,
+    local: number,
+  ): boolean {
+    const window: readonly [from: number, to: number] | undefined =
+      beat.windows[side];
+    return (
+      beat.pivot?.side === side ||
+      window === undefined ||
+      (local <= window[0] && beat.airborne?.[side] === undefined) ||
+      local >= window[1]
+    );
+  }
+
+  /** Declare only the ground windows occupied by each motion. */
+  export function book(
+    contacts: IAutoMovieMotionHumanContactWindow[],
+    beat: IFootwork,
+    side: AutoMovieHumanSide,
+    index: number,
+    count: number,
+  ): void {
+    const add = (kind: "plant" | "pivot", from: number, to: number): void => {
+      if (from < to)
+        contacts.push({
+          part: `${side}Foot`,
+          kind,
+          from: (index + from) / count,
+          to: (index + to) / count,
+          support: { kind: "ground" },
+        });
+    };
+    const window: readonly [from: number, to: number] | undefined =
+      beat.windows[side];
+    if (window === undefined) add("plant", 0, 1);
+    else {
+      if (beat.airborne?.[side] === undefined) add("plant", 0, window[0]);
+      if (beat.pivot?.side === side) add("pivot", window[0], window[1]);
+      add("plant", window[1], 1);
+    }
+  }
 }
 
 /** Evaluate the pivot or swing of one foot on its own clock. */
@@ -375,7 +418,7 @@ function placement(
 ): IAutoMovieMotionHumanFoot.IPlacement {
   const window: Window | undefined = beat.windows[side];
   if (window === undefined) return beat.from[side];
-  const share: number = progress(window, local);
+  const share: number = StrikingStepTransition.progress(window, local);
   if (share === 0) return beat.from[side];
   if (share === 1) return beat.to[side];
   if (beat.pivot?.side === side)
@@ -393,31 +436,4 @@ function placement(
     lift,
     share,
   );
-}
-
-/** Declare only the ground windows occupied by each motion. */
-function book(
-  contacts: IAutoMovieMotionHumanContactWindow[],
-  beat: IBeat,
-  side: Side,
-  index: number,
-  count: number,
-): void {
-  const add = (kind: "plant" | "pivot", from: number, to: number): void => {
-    if (from < to)
-      contacts.push({
-        part: `${side}Foot`,
-        kind,
-        from: (index + from) / count,
-        to: (index + to) / count,
-        support: { kind: "ground" },
-      });
-  };
-  const window: Window | undefined = beat.windows[side];
-  if (window === undefined) add("plant", 0, 1);
-  else {
-    if (beat.airborne?.[side] === undefined) add("plant", 0, window[0]);
-    if (beat.pivot?.side === side) add("pivot", window[0], window[1]);
-    add("plant", window[1], 1);
-  }
 }

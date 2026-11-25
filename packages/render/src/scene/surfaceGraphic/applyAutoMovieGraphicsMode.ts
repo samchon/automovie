@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { overrideAutoMovieRenderModeMaterials } from "../overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
@@ -43,7 +44,9 @@ export function applyAutoMovieGraphicsMode(
       (
         original: THREE.Material | THREE.Material[],
       ): THREE.Material | THREE.Material[] =>
-        Array.isArray(original) ? original.map(holdOut) : holdOut(original),
+        AutoMovieThreeKind.isMaterial(original)
+          ? holdOut(original)
+          : original.map(holdOut),
       (mesh: THREE.Mesh): boolean => graphics.has(mesh),
     );
   const background: THREE.Scene["background"] = scene.background;

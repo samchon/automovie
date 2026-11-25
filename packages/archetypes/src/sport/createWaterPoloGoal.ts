@@ -21,26 +21,19 @@ type Build = AutoMovieArchetypeBuilder<
 >;
 
 /**
- * One floating water polo goal for deep water. The front of the aperture is
- * Z = 0, the waterline is Y = 0 and the playing area lies along +Z. The
- * recorded goal mouth is the inside opening from water to crossbar, without
- * counting the posts or the net. Frame and aperture dimensions follow the
- * federation. Net thickness, floats and the assembly mass are staged.
+ * One floating water polo goal for deep water. The front of the aperture is Z =
+ * 0, the waterline is Y = 0 and the playing area lies along +Z. The recorded
+ * goal mouth is the inside opening from water to crossbar, without counting the
+ * posts or the net. Frame and aperture dimensions follow the federation. Net
+ * thickness, floats and the assembly mass are staged.
  *
  * @param params Optional scene identity and fixed aperture overrides.
  * @param seed Provenance seed. The reference dimensions are fixed.
  * @returns A floating frame, open scoring aperture and visible net pocket.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the score plane, physical opening and specified regulation.
- * @evidence contracts/development/implementation.md#principled-implementation Visible rectangular posts surround a 3 by 0.90 metre opening and a thin top, side and rear net pocket set behind the score plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the dimensions, put the posts and floats outside the mouth, then create the pocket and mouth frame.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mouth stays open from the front. The depth is the cleared space behind the score line.
- * @evidence contracts/development/implementation.md#efficient-algorithms The net uses a fixed coarse lattice with about sixty rigid strands.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fore and aft frame and net coordinates share the drawn dimensions.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All geometry belongs to the returned model.
  */
 export function createWaterPoloGoal(
   params: createWaterPoloGoal.IParams = {},
-  seed?: string | number,
+  seed?: number,
 ): AutoMovieArchetype<
   createWaterPoloGoal.Affordance,
   createWaterPoloGoal.Dimension
@@ -113,7 +106,10 @@ export function createWaterPoloGoal(
   return builder.build(d.mass);
 }
 
-/** The three side surfaces and the top of the pocket use one shared set of corners. */
+/**
+ * The three side surfaces and the top of the pocket use one shared set of
+ * corners.
+ */
 function net(
   builder: Build,
   d: Readonly<Record<createWaterPoloGoal.Dimension, number>>,
@@ -163,14 +159,7 @@ function net(
   }
 }
 
-/**
- * The aperture and net dimensions for one deep-water reference field.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the mouth, its fixed dimensions, and the staged assembly mass.
- * @evidence contracts/development/design.md#principled-representation The dimensions represent physical inside-to-inside distances and depth behind the front plane.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The single mouth frame is the open-scoring volume consumed by shot resolution.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The regulation dimensions and staging estimate preserve their own provenance.
- */
+/** The aperture and net dimensions for one deep-water reference field. */
 export namespace createWaterPoloGoal {
   /** Goal opening at the front face. */
   export type Affordance = "mouth";
@@ -191,7 +180,10 @@ export namespace createWaterPoloGoal {
     depth: "m",
     mass: "kg",
   };
-  /** The fixed opening and bar section, with a model pocket beyond the required clearance. */
+  /**
+   * The fixed opening and bar section, with a model pocket beyond the required
+   * clearance.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     width: AutoMovieArchetypeBand.metres(3, 3, RULES),
     height: AutoMovieArchetypeBand.metres(0.9, 0.9, RULES),

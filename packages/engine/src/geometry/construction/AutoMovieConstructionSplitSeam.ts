@@ -9,9 +9,19 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
- * A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord. Its local frame holds the chord and the host end's outward normal, with a third direction for measured spatial guides.
+ * A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve
+ * both bands start from in place of the straight chord. Its local frame holds
+ * the chord and the host end's outward normal, with a third direction for
+ * measured spatial guides.
  *
- * The curve is the clamped cubic spline, on chord-length parameters (mm) between its knots, so it is parameterized by its own course and may run out along the host before it turns across the end, through the seam's first end (the host's end ring at phase `a`), the authored knots and its second end (phase `b`). At each end its unit tangent is the line where the host's tangent plane meets the seam plane: out of the host at the first end, into it at the second. The seam therefore leaves both forks along the host's own surface. Columns read it at equal arclength shares.
+ * The curve is the clamped cubic spline, on chord-length parameters (mm)
+ * between its knots, so it is parameterized by its own course and may run out
+ * along the host before it turns across the end, through the seam's first end
+ * (the host's end ring at phase `a`), the authored knots and its second end
+ * (phase `b`). At each end its unit tangent is the line where the host's
+ * tangent plane meets the seam plane: out of the host at the first end, into it
+ * at the second. The seam therefore leaves both forks along the host's own
+ * surface. Columns read it at equal arclength shares.
  */
 export namespace AutoMovieConstructionSplitSeam {
   /**
@@ -23,7 +33,8 @@ export namespace AutoMovieConstructionSplitSeam {
    * @param input.seam The seam's host phases `[a, b]`, radians.
    * @param input.normal The host end section's unit normal out of the host.
    * @param input.knots The interior knots `[along, depth, lateral?]`, mm.
-   * @param input.heading A direction the plane holds in place of the end normal (`IAutoMovieConstructionSplit.IProfile.heading`), or absent.
+   * @param input.heading A direction the plane holds in place of the end normal
+   *   (`IAutoMovieConstructionSplit.IProfile.heading`), or absent.
    * @returns The seam, or the refusal.
    */
   export function create(
@@ -65,7 +76,13 @@ export namespace AutoMovieConstructionSplitSeam {
     // chord's span; coincident neighbours are refused with the spans below.
     const points: AutoMovieVector3Tuple[] = [[0, 0, 0]];
     for (const [along, depth, lateral = 0] of input.knots) {
-      if (!(Number.isFinite(along) && Number.isFinite(depth) && Number.isFinite(lateral)))
+      if (
+        !(
+          Number.isFinite(along) &&
+          Number.isFinite(depth) &&
+          Number.isFinite(lateral)
+        )
+      )
         return `the seam's knot (${along}, ${depth}, ${lateral}) mm is not finite`;
       if (!(along >= 0 && along <= chord))
         return `the seam's knot (${along}, ${depth}) mm stands beyond the chord's span [0, ${chord}] mm`;
@@ -88,14 +105,24 @@ export namespace AutoMovieConstructionSplitSeam {
       const v: AutoMovieVector3Tuple = [j.v[0]!, j.v[1]!, j.v[2]!];
       if (input.observed === true) {
         const plane: AutoMovieVector3Tuple | null = unit(cross(u, v));
-        const transverse: AutoMovieVector3Tuple | null = unit(scale(sub(u, scale(v, dot(u, v) / dot(v, v))), input.into));
+        const transverse: AutoMovieVector3Tuple | null = unit(
+          scale(sub(u, scale(v, dot(u, v) / dot(v, v))), input.into),
+        );
         if (plane === null || transverse === null) return null;
         // A spatial seam need not start in the divider plane. Its first
         // supported source direction is projected into the exact parent
         // tangent plane. A direction into kept parent material cannot bound
         // the new patch, so the parent's own transverse line supplies it.
-        const measured: AutoMovieVector3Tuple | null = route === undefined ? null : unit(sub(route, scale(plane, dot(route, plane))));
-        const out: AutoMovieVector3Tuple = scale(measured !== null && dot(measured, transverse) > 0 ? measured : transverse, sign);
+        const measured: AutoMovieVector3Tuple | null =
+          route === undefined
+            ? null
+            : unit(sub(route, scale(plane, dot(route, plane))));
+        const out: AutoMovieVector3Tuple = scale(
+          measured !== null && dot(measured, transverse) > 0
+            ? measured
+            : transverse,
+          sign,
+        );
         return [dot(out, e1), dot(out, e2), dot(out, normal)];
       }
       const along: AutoMovieVector3Tuple | null = unit(
@@ -111,8 +138,18 @@ export namespace AutoMovieConstructionSplitSeam {
       return [dot(out, e1), dot(out, e2), 0];
     };
     const found: boolean = points.length > 2;
-    const start: AutoMovieVector3Tuple | null = tangent(first, 1, found ? vector(sub(points[1]!, points[0]!)) : undefined);
-    const finish: AutoMovieVector3Tuple | null = tangent(second, -1, found ? vector(sub(points[points.length - 2]!, points.at(-1)!)) : undefined);
+    const start: AutoMovieVector3Tuple | null = tangent(
+      first,
+      1,
+      found ? vector(sub(points[1]!, points[0]!)) : undefined,
+    );
+    const finish: AutoMovieVector3Tuple | null = tangent(
+      second,
+      -1,
+      found
+        ? vector(sub(points[points.length - 2]!, points.at(-1)!))
+        : undefined,
+    );
     if (start === null || finish === null)
       return "the host's tangent plane at a fork holds no direction of the seam plane leaving its end";
 
@@ -172,9 +209,13 @@ export namespace AutoMovieConstructionSplitSeam {
       const gap: AutoMovieVector3Tuple = sub(points[i + 1]!, a);
       const b: AutoMovieVector3Tuple = scale(D[i]!, H);
       const end: AutoMovieVector3Tuple = scale(D[i + 1]!, H);
-      const c: AutoMovieVector3Tuple = sub(sub(scale(gap, 3), scale(b, 2)), end);
+      const c: AutoMovieVector3Tuple = sub(
+        sub(scale(gap, 3), scale(b, 2)),
+        end,
+      );
       const d: AutoMovieVector3Tuple = add(sub(b, scale(gap, 2)), end);
-      const dx = (axis: 0 | 1 | 2, x: number): number => b[axis] + x * (2 * c[axis] + 3 * x * d[axis]);
+      const dx = (axis: 0 | 1 | 2, x: number): number =>
+        b[axis] + x * (2 * c[axis] + 3 * x * d[axis]);
       return {
         speed: (s: number): number => {
           const x: number = s / H;
@@ -182,11 +223,17 @@ export namespace AutoMovieConstructionSplitSeam {
         },
         read: (s: number) => {
           const x: number = s / H;
-          const value = (axis: 0 | 1 | 2): number => a[axis] + x * (b[axis] + x * (c[axis] + x * d[axis]));
-          const second = (axis: 0 | 1 | 2): number => (2 * c[axis] + 6 * x * d[axis]) / (H * H);
+          const value = (axis: 0 | 1 | 2): number =>
+            a[axis] + x * (b[axis] + x * (c[axis] + x * d[axis]));
+          const second = (axis: 0 | 1 | 2): number =>
+            (2 * c[axis] + 6 * x * d[axis]) / (H * H);
           return {
             p: [value(0), value(1), value(2)] as AutoMovieVector3Tuple,
-            d: [dx(0, x) / H, dx(1, x) / H, dx(2, x) / H] as AutoMovieVector3Tuple,
+            d: [
+              dx(0, x) / H,
+              dx(1, x) / H,
+              dx(2, x) / H,
+            ] as AutoMovieVector3Tuple,
             dd: [second(0), second(1), second(2)] as AutoMovieVector3Tuple,
           };
         },
@@ -215,7 +262,10 @@ export namespace AutoMovieConstructionSplitSeam {
       ends: [A, B],
       normal,
       length,
-      at: (t: number, withBendRate = false): IAutoMovieConstructionSplitSeam.IPoint => {
+      at: (
+        t: number,
+        withBendRate = false,
+      ): IAutoMovieConstructionSplitSeam.IPoint => {
         let target: number = Math.min(1, Math.max(0, t)) * length;
         let i: number = 0;
         while (i < lengths.length - 1 && target > lengths[i]!)
@@ -238,14 +288,24 @@ export namespace AutoMovieConstructionSplitSeam {
           speed > 0
             ? vector(scale(sub(dd, scale(at.d, turn)), 1 / speed))
             : [0, 0, 0];
-        const result: IAutoMovieConstructionSplitSeam.IPoint = { point: add(A, vector(at.p)), tangent: d ?? e1, bend };
+        const result: IAutoMovieConstructionSplitSeam.IPoint = {
+          point: add(A, vector(at.p)),
+          tangent: d ?? e1,
+          bend,
+        };
         if (withBendRate && d !== null && speed > 0) {
           const a = vector(dd);
           const j = vector(span.third());
           const v = Math.sqrt(speed);
           const rate = dot(a, d);
           // Differentiate (a - (a . T) T) / speed^2 through ds/dt = speed.
-          result.bendRate = add(scale(sub(j, scale(d, dot(j, d) + v * dot(a, bend))), 1 / (v * speed)), scale(bend, -3 * rate / speed));
+          result.bendRate = add(
+            scale(
+              sub(j, scale(d, dot(j, d) + v * dot(a, bend))),
+              1 / (v * speed),
+            ),
+            scale(bend, (-3 * rate) / speed),
+          );
         }
         return result;
       },
@@ -253,32 +313,60 @@ export namespace AutoMovieConstructionSplitSeam {
   }
 
   /**
-   * The straight chord between the seam's forks read as a seam, in the same plane a curved one stands in, for a split into more than two
-   * whose seam declares no profile.
+   * The straight chord between the seam's forks read as a seam, in the same
+   * plane a curved one stands in, for a split into more than two whose seam
+   * declares no profile.
    *
    * @param input.host The host face's surface.
    * @param input.station The host's end station, mm.
    * @param input.seam The seam's host phases `[a, b]`, radians.
    * @param input.normal The host end section's unit normal out of the host.
-   * @param input.heading A direction the plane holds in place of the end normal (a composed end's bisector, `IAutoMovieConstructionSplit.ICompose`), or absent.
+   * @param input.heading A direction the plane holds in place of the end normal
+   *   (a composed end's bisector, `IAutoMovieConstructionSplit.ICompose`), or
+   *   absent.
    * @returns The chord as a seam, or the refusal.
    */
   export function straight(
     input: IAutoMovieConstructionSplitSeam.IStraightInput,
   ): IAutoMovieConstructionSplitSeam.ISeam | string {
-    const pa: readonly number[] = input.host.jet(input.station, input.seam[0]).p;
-    const pb: readonly number[] = input.host.jet(input.station, input.seam[1]).p;
+    const pa: readonly number[] = input.host.jet(
+      input.station,
+      input.seam[0],
+    ).p;
+    const pb: readonly number[] = input.host.jet(
+      input.station,
+      input.seam[1],
+    ).p;
     const A: AutoMovieVector3Tuple = [pa[0]!, pa[1]!, pa[2]!];
     const B: AutoMovieVector3Tuple = [pb[0]!, pb[1]!, pb[2]!];
     const e1: AutoMovieVector3Tuple | null = unit(sub(B, A));
     if (e1 === null) return "the seam's ends coincide";
     // The plane's second axis, as `create` takes it: a composed end's bisector when one is given, else the end normal.
     const toward: AutoMovieVector3Tuple = input.heading ?? input.normal;
-    const square: AutoMovieVector3Tuple | null = unit(sub(toward, scale(e1, dot(toward, e1))));
-    if (square === null) return input.heading === undefined ? "the host end's normal runs along the chord, so no seam plane stands" : "the seam's heading runs along the chord, so no seam plane stands";
-    const e2: AutoMovieVector3Tuple = dot(square, input.normal) < 0 ? scale(square, -1) : square;
+    const square: AutoMovieVector3Tuple | null = unit(
+      sub(toward, scale(e1, dot(toward, e1))),
+    );
+    if (square === null)
+      return input.heading === undefined
+        ? "the host end's normal runs along the chord, so no seam plane stands"
+        : "the seam's heading runs along the chord, so no seam plane stands";
+    const e2: AutoMovieVector3Tuple =
+      dot(square, input.normal) < 0 ? scale(square, -1) : square;
     const length: number = norm(sub(B, A));
-    return { ends: [A, B], normal: cross(e1, e2), length, at: (t: number, withBendRate = false): IAutoMovieConstructionSplitSeam.IPoint => ({ point: add(A, scale(e1, Math.min(1, Math.max(0, t)) * length)), tangent: e1, bend: [0, 0, 0], ...(withBendRate ? {bendRate: [0, 0, 0]} : {}) }) };
+    return {
+      ends: [A, B],
+      normal: cross(e1, e2),
+      length,
+      at: (
+        t: number,
+        withBendRate = false,
+      ): IAutoMovieConstructionSplitSeam.IPoint => ({
+        point: add(A, scale(e1, Math.min(1, Math.max(0, t)) * length)),
+        tangent: e1,
+        bend: [0, 0, 0],
+        ...(withBendRate ? { bendRate: [0, 0, 0] } : {}),
+      }),
+    };
   }
 
   /** 8-point Gauss-Legendre nodes and weights on [-1, 1]. */

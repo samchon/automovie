@@ -32,16 +32,17 @@ import { railShuttle } from "./railShuttle";
  * A reusable environment reaches an active production shot.
  *
  * Scenarios:
- * 1. A graded approach, an operative building entry and a furnished café
- *    lower into one ordinary shot. Walkable height, the staged visitor and
- *    the door's animated track agree at the transition. The compiled wrist
- *    stays near the grip and its reading in the leaf frame moves under 5 mm.
- * 2. A building-free trail mounts a custom marker, a bench and one compact
- *    grove, with a wet region unavailable to the walking performer.
- * 3. Two occupants starting at the same XZ retain their distinct floor
- *    assignments while one crosses the bridge and a third rides the lift.
- * 4. One coaster carries an enacted rider through a banked lap. The same
- *    course and boarding producer moves a rail carriage between two platforms.
+ *
+ * 1. A graded approach, an operative building entry and a furnished café lower
+ *    into one ordinary shot. Walkable height, the staged visitor and the door's
+ *    animated track agree at the transition. The compiled wrist stays near the
+ *    grip and its reading in the leaf frame moves under 5 mm.
+ * 2. A building-free trail mounts a custom marker, a bench and one compact grove,
+ *    with a wet region unavailable to the walking performer.
+ * 3. Two occupants starting at the same XZ retain their distinct floor assignments
+ *    while one crosses the bridge and a third rides the lift.
+ * 4. One coaster carries an enacted rider through a banked lap. The same course
+ *    and boarding producer moves a rail carriage between two platforms.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the scenario and the stage, motion and topographic facts it pins.
  * @evidence contracts/development/testing.md#behavioral-verification Compiles the same authored configuration served by the native capture module. Observes the returned scene support, prop channels, frame targets and closing performer placement.

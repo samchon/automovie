@@ -12,18 +12,15 @@ import path from "node:path";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
- * Own append-only engine mesh buffers as immutable bounded JSON array fragments.
- * A published prefix is one indexed mesh: shared station vertices keep their actual
- * global index across chunks and runs. Source-free chunk ownership maps generated
- * triangles back to run, interval and patch records without carrying source faces.
+ * Own append-only engine mesh buffers as immutable bounded JSON array
+ * fragments. A published prefix is one indexed mesh: shared station vertices
+ * keep their actual global index across chunks and runs. Source-free chunk
+ * ownership maps generated triangles back to run, interval and patch records
+ * without carrying source faces.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Sequential vertex suffixes and already-declared global indices preserve the engine's shared boundary contract; byte-bound array fragments assemble the interface mesh without regenerating geometry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns generated mesh placeholders, bounded pending arrays, fragment bindings and prefix publication.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source mesh, coordinate weld, numeric rounding, chunk-local duplicated boundary or replacement of existing output is permitted.
+ * @evidence contracts/development/implementation.md#principled-implementation Sequential vertex suffixes and already-declared global indices preserve the engine's shared boundary contract; byte-bound array fragments assemble the interface mesh without regenerating geometry. No source mesh, coordinate weld, numeric rounding, chunk-local duplicated boundary or replacement of existing output is permitted.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One closure owns generated mesh placeholders, bounded pending arrays, fragment bindings and prefix publication. Appending and final serialization are linear in generated values. Each frontier serializes only new fragment bindings plus its caller-supplied context; repeated context has its own cumulative cost. Each standalone prefix rereads its immutable fragments to verify bytes and assemble the artifact. The same generated fragments serve successive explicit prefixes and final output; shared vertices are written once rather than copied into separate mesh parts. All seven pending channels flush at 8192 items or a one-MiB encoded-size upper estimate, plus one indivisible admitted record. Fragment and frontier descriptors grow with persisted output. Publication owns temporary descriptors through the writer; immutable spool and journal files remain lineage artifacts.
  * @evidence contracts/development/common.md#meaningful-documentation States units, append-only indices, generated ownership and immutable prefix semantics.
- * @evidence contracts/development/implementation.md#efficient-algorithms Appending and final serialization are linear in generated values. Each frontier serializes only new fragment bindings plus its caller-supplied context; repeated context has its own cumulative cost. Each standalone prefix rereads its immutable fragments to verify bytes and assemble the artifact.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The same generated fragments serve successive explicit prefixes and final output; shared vertices are written once rather than copied into separate mesh parts.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All seven pending channels flush at 8192 items or a one-MiB encoded-size upper estimate, plus one indivisible admitted record. Fragment and frontier descriptors grow with persisted output. Publication owns temporary descriptors through the writer; immutable spool and journal files remain lineage artifacts.
  */
 export function createAutoMovieRecoveryMeshSpool(
   directory: string,
@@ -143,15 +140,12 @@ export function createAutoMovieRecoveryMeshSpool(
       const count: number = chunk.positions.length / 3;
       if (
         chunk.vertexStart !== counts.vertices ||
-        !Number.isSafeInteger(count) ||
+        chunk.positions.length % 3 !== 0 ||
         chunk.normals.length !== chunk.positions.length ||
         chunk.physicalVertexIds.length !== count ||
         chunk.indices.length % 3 ||
-        chunk.positions.some((x: number): boolean => !Number.isFinite(x)) ||
-        chunk.normals.some((x: number): boolean => !Number.isFinite(x)) ||
         chunk.indices.some(
-          (x: number): boolean =>
-            !Number.isSafeInteger(x) || x < 0 || x >= counts.vertices + count,
+          (x: number): boolean => x < 0 || x >= counts.vertices + count,
         )
       )
         throw new Error(

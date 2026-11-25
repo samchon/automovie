@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidSocket,
   IAutoMovieComposition,
   IAutoMovieMotionHumanPerformance,
@@ -11,28 +12,22 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IGrappleCasesWorst`'s site. */
+type IGrappleCasesWorst = { value: number; where: string };
+
 /**
- * Capture cases of the grappling family (#3242): performer `a` takes a
- * clinch grip on performer `b`, who stands 0.55 m away facing it, in the
- * plum (`grapple-plum`) and in the collar and sleeve grip
- * (`grapple-collarSleeve`).
+ * Capture cases of the grappling family: performer `a` takes a clinch grip on
+ * performer `b`, who stands 0.55 m away facing it, in the plum (`grapple-plum`)
+ * and in the collar and sleeve grip (`grapple-collarSleeve`).
  *
  * Every case reports each performer's foot slip at most 5 mm and no
- * range-of-motion overshoot, and that through every grip window each of
- * `a`'s gripping surfaces (the palm in the plum, the grip otherwise) stays
- * within 10 mm of its place on `b`'s displayed region (the issue's M11 grip
- * bound).
+ * range-of-motion overshoot, and that through every grip window each of `a`'s
+ * gripping surfaces (the palm in the plum, the grip otherwise) stays within 10
+ * mm of its place on `b`'s displayed region (the issue's M11 grip bound).
  *
- * @param bodies The sweep bodies, each gripping itself; `m-average` when absent.
+ * @param bodies The sweep bodies, each gripping itself; `m-average` when
+ *   absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and verdicts with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the partner's displayed regions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over two grips over the shared kit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read displayed poses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function grappleCases(
   bodies: readonly string[] = ["m-average"],
@@ -65,10 +60,11 @@ export function grappleCases(
         );
       const segment = performance.segments("a")[0]!;
       const table = clinch.regions(grip, "right");
-      let worst: { value: number; where: string } = { value: 0, where: "none" };
+      let worst: IGrappleCasesWorst = { value: 0, where: "none" };
       for (const c of segment.plan.contacts) {
         if (c.kind !== "grip") continue;
-        const side: "left" | "right" = c.part === "leftHand" ? "left" : "right";
+        const side: AutoMovieHumanSide =
+          c.part === "leftHand" ? "left" : "right";
         const name: AutoMovieHumanoidSocket =
           grip === "plum"
             ? side === "left"

@@ -7,14 +7,14 @@ import type {
 import { Quaternion } from "./Quaternion";
 
 /**
- * The one constructor of {@link IAutoMovieTransform} records: a translation,
- * a rotation and a per-axis scale, metres, a unit quaternion and
- * dimensionless factors.
+ * The one constructor of {@link IAutoMovieTransform} records: a translation, a
+ * rotation and a per-axis scale, metres, a unit quaternion and dimensionless
+ * factors.
  *
  * A frame that does not scale carries the unit scale, `(1, 1, 1)`; it is
  * written here once instead of at every site that builds a frame. Every
- * function returns a new record, because callers spread and build on the
- * frames they are given and must never alias one shared record.
+ * function returns a new record, because callers spread and build on the frames
+ * they are given and must never alias one shared record.
  */
 export namespace Transform {
   /**

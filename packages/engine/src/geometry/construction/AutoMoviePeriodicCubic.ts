@@ -1,4 +1,5 @@
 import type { IAutoMoviePeriodicCubic } from "@automovie/interface";
+
 import { adjacentAutoMovieFloat64 as adjacent } from "../../math/adjacentAutoMovieFloat64";
 
 /** One finite closed enclosure in the scalar source's units. */
@@ -17,7 +18,9 @@ export namespace AutoMoviePeriodicCubic {
    * reader lifetime. Value reading retains the original caller-owned admission;
    * range validates those premises and its finite proof arithmetic explicitly.
    */
-  export function create(values: readonly number[]): IAutoMoviePeriodicCubic.IPrepared {
+  export function create(
+    values: readonly number[],
+  ): IAutoMoviePeriodicCubic.IPrepared {
     const m: number = values.length;
     const h: number = (2 * Math.PI) / m;
     const y: (j: number) => number = (j: number): number =>
@@ -35,8 +38,7 @@ export namespace AutoMoviePeriodicCubic {
 
     /** The original value expression, including its rounded phase cell. */
     const at: (psi: number) => number = (psi: number): number => {
-      const x: number =
-        ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const x: number = ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       const j: number = Math.min(m - 1, Math.floor(x / h));
       const t: number = x - j * h;
       const [a, b]: [number, number] = [M[j]!, M[(j + 1) % m]!];
@@ -45,17 +47,29 @@ export namespace AutoMoviePeriodicCubic {
     };
 
     /** Range failure leaves the original value capability unchanged. */
-    const range: () => readonly [number, number] = (): readonly [number, number] => {
+    const range: () => readonly [number, number] = (): readonly [
+      number,
+      number,
+    ] => {
       try {
-        if (m < 3 || !values.every(Number.isFinite) || !M.every(Number.isFinite))
-          throw new Error("needs at least three finite controls and curvatures");
+        if (m < 3)
+          throw new Error(
+            "needs at least three finite controls and curvatures",
+          );
         let low: number = Infinity;
         let high: number = -Infinity;
         for (let j: number = 0; j < m; j++) {
           const a: number = M[j]!;
           const b: number = M[(j + 1) % m]!;
           const slope: number = (y(j + 1) - y(j)) / h - (h * (2 * a + b)) / 6;
-          const span: Interval = enclose(y(j), slope, a / 2, b - a, 6 * h, cell(j, m, h));
+          const span: Interval = enclose(
+            y(j),
+            slope,
+            a / 2,
+            b - a,
+            6 * h,
+            cell(j, m, h),
+          );
           low = Math.min(low, span[0]);
           high = Math.max(high, span[1]);
         }
@@ -63,7 +77,7 @@ export namespace AutoMoviePeriodicCubic {
       } catch (error) {
         throw new Error(
           "periodic cubic range unavailable: " +
-          (error instanceof Error ? error.message : String(error)),
+            (error instanceof Error ? error.message : String(error)),
         );
       }
     };
@@ -73,7 +87,7 @@ export namespace AutoMoviePeriodicCubic {
 
 /** Refuse an unrepresentable enclosure instead of returning an infinity. */
 function finite(low: number, high: number): Interval {
-  if (!(Number.isFinite(low) && Number.isFinite(high) && low <= high))
+  if (!(low <= high))
     throw new Error("finite ordered enclosure is not representable");
   return [low, high];
 }
@@ -83,7 +97,10 @@ function point(value: number): Interval {
   return finite(value, value);
 }
 
-/** One adjacent value encloses an exact finite sum, including subnormal rounding. */
+/**
+ * One adjacent value encloses an exact finite sum, including subnormal
+ * rounding.
+ */
 function add(a: Interval, b: Interval): Interval {
   return finite(adjacent(a[0] + b[0], false), adjacent(a[1] + b[1], true));
 }
@@ -95,23 +112,39 @@ function subtract(a: Interval, b: Interval): Interval {
 
 /** Four endpoint products cover a bilinear scalar product on its rectangle. */
 function multiply(a: Interval, b: Interval): Interval {
-  const products: number[] = [a[0] * b[0], a[0] * b[1], a[1] * b[0], a[1] * b[1]];
-  return finite(adjacent(Math.min(...products), false), adjacent(Math.max(...products), true));
+  const products: number[] = [
+    a[0] * b[0],
+    a[0] * b[1],
+    a[1] * b[0],
+    a[1] * b[1],
+  ];
+  return finite(
+    adjacent(Math.min(...products), false),
+    adjacent(Math.max(...products), true),
+  );
 }
 
 /** Positive denominator intervals admit endpoint division without a pole. */
 function divide(a: Interval, b: Interval): Interval {
   if (!(b[0] > 0)) throw new Error("enclosure denominator is not positive");
-  const quotients: number[] = [a[0] / b[0], a[0] / b[1], a[1] / b[0], a[1] / b[1]];
-  return finite(adjacent(Math.min(...quotients), false), adjacent(Math.max(...quotients), true));
+  const quotients: number[] = [
+    a[0] / b[0],
+    a[0] / b[1],
+    a[1] / b[0],
+    a[1] / b[1],
+  ];
+  return finite(
+    adjacent(Math.min(...quotients), false),
+    adjacent(Math.max(...quotients), true),
+  );
 }
 
 /**
  * Enclose every rounded t that the existing modulo/divide/floor cell can use.
- * With q=RN(x/h), |q-x/h| <= u|x/h|+eta and 0<=x<2pi.
- * For j<m-1, j<=q<j+1; the clamped last cell only needs q>=j.
- * These inequalities are inverted outward before subtracting the literal
- * RN(j*h). This includes boundary rounding without changing any query.
+ * With q=RN(x/h), |q-x/h| <= u|x/h|+eta and 0<=x<2pi. For j<m-1, j<=q<j+1; the
+ * clamped last cell only needs q>=j. These inequalities are inverted outward
+ * before subtracting the literal RN(j*h). This includes boundary rounding
+ * without changing any query.
  */
 function cell(j: number, m: number, h: number): Interval {
   const u: Interval = point(Number.EPSILON / 2);
@@ -132,11 +165,10 @@ function cell(j: number, m: number, h: number): Interval {
 }
 
 /**
- * Convert the same real cubic backbone on its complete rounded cell.
- * In t=l+w*u its power coefficients are p0, w*p'(l),
- * w^2*(A+3*l*D/H), w^3*D/H. Their Bernstein coefficients are
- * p0, p0+p1/3, p0+2*p1/3+p2/3, and p0+p1+p2+p3.
- * Each conversion operation is outward, so the control hull encloses P.
+ * Convert the same real cubic backbone on its complete rounded cell. In t=l+w_u
+ * its power coefficients are p0, w_p'(l), w^2*(A+3_l_D/H), w^3_D/H. Their
+ * Bernstein coefficients are p0, p0+p1/3, p0+2_p1/3+p2/3, and p0+p1+p2+p3. Each
+ * conversion operation is outward, so the control hull encloses P.
  */
 function enclose(
   y: number,
@@ -154,31 +186,61 @@ function enclose(
   const l: Interval = point(domain[0]);
   const w: Interval = subtract(point(domain[1]), l);
   const c: Interval = divide(point(delta), point(divisor));
-  const p0: Interval = add(point(y), multiply(l, add(point(slope), multiply(l, add(point(a), multiply(l, c))))));
-  const p1: Interval = multiply(w, add(point(slope), multiply(l, add(point(2 * a), multiply(point(3), multiply(l, c))))));
+  const p0: Interval = add(
+    point(y),
+    multiply(l, add(point(slope), multiply(l, add(point(a), multiply(l, c))))),
+  );
+  const p1: Interval = multiply(
+    w,
+    add(
+      point(slope),
+      multiply(l, add(point(2 * a), multiply(point(3), multiply(l, c)))),
+    ),
+  );
   const w2: Interval = multiply(w, w);
-  const p2: Interval = multiply(w2, add(point(a), multiply(point(3), multiply(l, c))));
+  const p2: Interval = multiply(
+    w2,
+    add(point(a), multiply(point(3), multiply(l, c))),
+  );
   const p3: Interval = multiply(multiply(w2, w), c);
   const controls: Interval[] = [
     p0,
     add(p0, divide(p1, point(3))),
-    add(add(p0, divide(multiply(point(2), p1), point(3))), divide(p2, point(3))),
+    add(
+      add(p0, divide(multiply(point(2), p1), point(3))),
+      divide(p2, point(3)),
+    ),
     add(add(add(p0, p1), p2), p3),
   ];
-  const error: number = allowance(y, slope, a, delta, divisor, Math.max(Math.abs(domain[0]), Math.abs(domain[1])));
+  const error: number = allowance(
+    y,
+    slope,
+    a,
+    delta,
+    divisor,
+    Math.max(Math.abs(domain[0]), Math.abs(domain[1])),
+  );
   return finite(
-    adjacent(Math.min(...controls.map((control: Interval): number => control[0])) - error, false),
-    adjacent(Math.max(...controls.map((control: Interval): number => control[1])) + error, true),
+    adjacent(
+      Math.min(...controls.map((control: Interval): number => control[0])) -
+        error,
+      false,
+    ),
+    adjacent(
+      Math.max(...controls.map((control: Interval): number => control[1])) +
+        error,
+      true,
+    ),
   );
 }
 
 /**
  * Bound the seven remaining rounded operations of the literal value reader.
- * gamma7*Q bounds their relative errors, Q=|y|+T(|s|+T(|A|+T|D|/H)).
- * Every operation also contributes at most eta absolute underflow error.
- * Its downstream weights sum to T^2/H+2*T^2+2*T+2, enlarged by
- * 1/(1-7u). All bound arithmetic is itself outward. Coefficient preparation
- * is not recomputed: y,s,A,D,H are the actual binary64 data of this reader.
+ * gamma7_Q bounds their relative errors, Q=|y|+T(|s|+T(|A|+T|D|/H)). Every
+ * operation also contributes at most eta absolute underflow error. Its
+ * downstream weights sum to T^2/H+2_T^2+2*T+2, enlarged by 1/(1-7u). All bound
+ * arithmetic is itself outward. Coefficient preparation is not recomputed:
+ * y,s,A,D,H are the actual binary64 data of this reader.
  */
 function allowance(
   y: number,
@@ -194,7 +256,19 @@ function allowance(
   const gamma: Interval = divide(point(7 * (Number.EPSILON / 2)), denominator);
   const q: Interval = add(
     point(Math.abs(y)),
-    multiply(t, add(point(Math.abs(slope)), multiply(t, add(point(Math.abs(a)), divide(multiply(t, point(Math.abs(delta))), point(divisor)))))),
+    multiply(
+      t,
+      add(
+        point(Math.abs(slope)),
+        multiply(
+          t,
+          add(
+            point(Math.abs(a)),
+            divide(multiply(t, point(Math.abs(delta))), point(divisor)),
+          ),
+        ),
+      ),
+    ),
   );
   const weight: Interval = add(
     add(divide(t2, point(divisor)), multiply(point(2), t2)),

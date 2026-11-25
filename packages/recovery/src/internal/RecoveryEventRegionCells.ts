@@ -12,9 +12,7 @@ type Cell = ReturnType<
   ReturnType<IAutoMovieRecoveryEventRegion.Operation>
 >["cells"][number];
 
-/**
- * Clip one ordered candidate population into fresh private query cells.
- */
+/** Clip one ordered candidate population into fresh private query cells. */
 export function RecoveryEventRegionCells(
   source: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[0],
   prepared: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[1],
@@ -29,7 +27,7 @@ export function RecoveryEventRegionCells(
   }: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> = prepared;
   const lower: number = query.beforeMm,
     upper: number = query.afterMm;
-  if (!Number.isFinite(lower) || !Number.isFinite(upper) || !(lower < upper))
+  if (!(lower < upper))
     throw new Error("Finite increasing event-region bounds are required");
   const result: ReturnType<
     ReturnType<IAutoMovieRecoveryEventRegion.Operation>
@@ -121,11 +119,7 @@ export function RecoveryEventRegionCells(
   };
   let previous: number = -1;
   for (const face of query.candidates) {
-    if (
-      !Number.isSafeInteger(face) ||
-      face <= previous ||
-      face >= source.triangles.length
-    )
+    if (face <= previous || face >= source.triangles.length)
       throw new Error(
         "Event candidates must be increasing original face addresses",
       );
@@ -164,7 +158,7 @@ export function RecoveryEventRegionCells(
       id: result.cells.length,
       face,
       dimension,
-      sourceGeometryRank: ranks[face] as 0 | 1 | 2,
+      sourceGeometryRank: ranks[face]! < 1 ? 0 : ranks[face] === 1 ? 1 : 2,
       scalarKind:
         dimension < 2
           ? "boundary-contact"

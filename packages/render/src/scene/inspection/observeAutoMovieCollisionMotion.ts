@@ -28,29 +28,24 @@ interface ILayerState {
 }
 
 /**
- * Check the motion between the preceding output instant and the placed one
- * for crossings that neither placed frame shows, by bounded subdivision.
+ * Check the motion between the preceding output instant and the placed one for
+ * crossings that neither placed frame shows, by bounded subdivision.
  *
- * Both endpoints are placed through the subject's own synchronous placement.
- * A pair is examined when it is external, neither endpoint confirms it, its
- * motion exceeds half the thinner part's thickness, and its conservative
- * swept bounds overlap: each endpoint box enlarged by half of the part's
- * largest feature displacement, which covers a rotation of up to half a turn.
- * The interval is bisected at placed instants until a midpoint confirms the
- * pair, every remaining span moves less than that half-thickness or leaves
- * the swept bounds apart, or the placement or depth limit is reached. No
- * interval crossing a cut or a declared break is examined. The drawn instant
- * is placed again before returning, so every host keeps drawing it.
+ * Both endpoints are placed through the subject's own synchronous placement. A
+ * pair is examined when it is external, neither endpoint confirms it, its
+ * motion exceeds half the thinner part's thickness, and its conservative swept
+ * bounds overlap: each endpoint box enlarged by half of the part's largest
+ * feature displacement, which covers a rotation of up to half a turn. The
+ * interval is bisected at placed instants until a midpoint confirms the pair,
+ * every remaining span moves less than that half-thickness or leaves the swept
+ * bounds apart, or the placement or depth limit is reached. No interval
+ * crossing a cut or a declared break is examined. The drawn instant is placed
+ * again before returning, so every host keeps drawing it.
  *
- * @param props The span, its continuity, the placement and layer readers, the contact query and the work limits.
- * @returns Sub-frame findings with their bracketing span, and one coverage row per layer and per unresolved pair.
- * @evidence contracts/development/common.md#meaningful-documentation States the candidate rule, the swept bound, the stopping rule, the cut rule and the restoration.
- * @evidence contracts/development/implementation.md#principled-implementation Places actual instants through the playback placement, measures each with the same pair resolution as a placed frame, and stops by feature motion against thickness.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Endpoint snapshots, candidate selection, bisection and reporting are separate steps sharing one instant memo.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No motion law is assumed between placed instants; a reached limit defers the pair rather than clearing it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Pairs that barely move or never approach cost no extra placement; each placed instant is shared by every pair that needs it.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Collected parts, solids and posed surfaces are memoized per instant.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Releases every instant at return and restores the drawn placement.
+ * @param props The span, its continuity, the placement and layer readers, the
+ *   contact query and the work limits.
+ * @returns Sub-frame findings with their bracketing span, and one coverage row
+ *   per layer and per unresolved pair.
  */
 export function observeAutoMovieCollisionMotion(
   props: observeAutoMovieCollisionMotion.IProps,
@@ -166,23 +161,29 @@ export function observeAutoMovieCollisionMotion(
       "motion-subdivision-limit",
     );
   if (props.spent !== undefined)
-    for (const kind of Object.keys(budget) as (keyof typeof budget)[])
-      props.spent[kind] = props.limits[kind]! - budget[kind]!;
+    for (const kind of LIMIT_KINDS) {
+      const limit: number | undefined = props.limits[kind];
+      const left: number | undefined = budget[kind];
+      if (limit !== undefined && left !== undefined)
+        props.spent[kind] = limit - left;
+    }
   return { findings, coverage };
 }
 
-/**
- * The span, placement, layers and limits of one motion observation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each layer field's clock, each limit's unit and each input.
- * @evidence contracts/development/design.md#principled-representation ILayer is the same layer identity, root, ownership and windows the placed-frame observer reads; ILimits adds placements and bisection depth beside the witness limits; IProps is the drawn clock, the preceding instant, the continuity of the span and the host's placement.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ILayer carries only what the pair resolution needs, the host chooses ILimits per mode, and the production inspection entry point supplies IProps.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A layer missing at an instant contributes no pair there, a reached limit defers and never clears, and the host decides continuity from its cut instead of the observer guessing it.
- */
+/** Every kind of work an observation may spend. */
+const LIMIT_KINDS: readonly (keyof observeAutoMovieCollisionMotion.ILimits)[] =
+  [
+    "placements",
+    "depth",
+    "comparisons",
+    "posedVertices",
+    "surfaceTriangles",
+    "parts",
+  ];
+
+/** The span, placement, layers and limits of one motion observation. */
 export namespace observeAutoMovieCollisionMotion {
-  /**
-   * A collision layer readable at any placed instant.
-   */
+  /** A collision layer readable at any placed instant. */
   export interface ILayer extends collectAutoMovieCollisionParts.ILayer {
     /** Distinct layer identity, shared with the placed-frame rows. */
     readonly id: string;
@@ -194,9 +195,7 @@ export namespace observeAutoMovieCollisionMotion {
     readonly allowances?: readonly Collision.IAllowance[];
   }
 
-  /**
-   * Work the observation may spend.
-   */
+  /** Work the observation may spend. */
   export interface ILimits {
     /** Extra instants that may be placed, including the preceding one. */
     placements: number;
@@ -212,9 +211,7 @@ export namespace observeAutoMovieCollisionMotion {
     parts?: number;
   }
 
-  /**
-   * One motion observation.
-   */
+  /** One motion observation. */
   export interface IProps {
     /** The drawn sample's clock. */
     readonly time: Diagnostic.ITime;
@@ -346,7 +343,10 @@ function candidates(
   return pairs;
 }
 
-/** Bisect a pair's span at placed instants until a witness, clearance or a limit. */
+/**
+ * Bisect a pair's span at placed instants until a witness, clearance or a
+ * limit.
+ */
 function bisect(
   pair: {
     id: string;

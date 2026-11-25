@@ -3,16 +3,19 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
- * An authored shot cue for the visible polygon body. The cue moves the
- * selected rigid part and its descendants at source time. A bend follows
- * the living pose's joint. A detached part leaves from the cue's sampled
- * pose and then follows the authored shot-world displacement.
+ * An authored shot cue for the visible polygon body. The cue moves the selected
+ * rigid part and its descendants at source time. A bend follows the living
+ * pose's joint. A detached part leaves from the cue's sampled pose and then
+ * follows the authored shot-world displacement.
  */
 export type IAutoMoviePolygonBodyCue = {
   /** Id of the staged actor whose polygon drawing receives the cue. */
   readonly subject: string;
 
-  /** Root of a branch with a visible polygon part. The body drawing has no eye or jaw branches. */
+  /**
+   * Root of a branch with a visible polygon part. The body drawing has no eye
+   * or jaw branches.
+   */
   readonly bone: Exclude<AutoMovieHumanoidBone, "leftEye" | "rightEye" | "jaw">;
 
   /** Cue start in shot-local seconds. */

@@ -11,9 +11,9 @@ import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
 /**
  * Solve a nonempty positive-semidefinite diagonal quadratic program. Finite
  * coefficients and endpoints must have magnitude below 1e30, the numerical
- * infinity sentinel; larger finite values cannot be represented as such by
- * this backend. Diagonal entries are nonnegative, not necessarily positive.
- * Sparse arrays, duplicate indices and reversed bounds are refused.
+ * infinity sentinel; larger finite values cannot be represented as such by this
+ * backend. Diagonal entries are nonnegative, not necessarily positive. Sparse
+ * arrays, duplicate indices and reversed bounds are refused.
  *
  * Status 1 is the full solved status. Other statuses and all residuals are
  * retained, including infeasibility and incomplete iteration. A caller must

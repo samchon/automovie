@@ -18,7 +18,10 @@ const assertUniqueProfileGaitNames: (
 };
 
 /**
- * Synthesize each uniquely named profile gait into a clip targeting the supplied skeleton id, keyed by the exact gait name; absent gaits yield an empty object. This assigns clinical controls and identity without inspecting body geometry.
+ * Synthesize each uniquely named profile gait into a clip targeting the
+ * supplied skeleton id, keyed by the exact gait name; absent gaits yield an
+ * empty object. This assigns clinical controls and identity without inspecting
+ * body geometry.
  */
 export const bindProfileGaits: (
   profile: IAutoMovieProfile,

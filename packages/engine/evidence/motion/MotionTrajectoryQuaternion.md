@@ -1,21 +1,3 @@
-# src/motion/MotionTrajectoryQuaternion.ts#MotionTrajectoryQuaternion
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States internal borrowing, public copying, held endpoints and the fixed/adaptive numeric inputs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Completed knot orientations/rates or dense rotation coefficients define the same curve independently of vector-state interpolation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-MotionTrajectoryRead consumes both factories for its existing at and optional orientation projections.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No RHS, shape history, physical budget or second orientation representation is retained.
-
 # src/motion/MotionTrajectoryQuaternion.ts#MotionTrajectoryQuaternion.fixed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

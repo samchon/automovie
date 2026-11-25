@@ -12,22 +12,15 @@ import { KeyboardHardware } from "./KeyboardHardware";
  * An open laptop with a key field, screen and lid grasp.
  *
  * The base rests centered at the origin with its typing edge toward `+Z`.
+ *
  * @param params The manufacturer's model and optional model identifier.
  * @param seed The seed used to select a model when omitted.
  * @returns The input device and its named contacts.
  * @throws {AutoMovieArchetypeRefusal} When the requested input is inadmissible.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the input device, its frame and contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the original model figures and place the standard key field, then add the raised lid and its screen and grasp.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Share the base and add the laptop lid in this producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lid has the original stated estimated tilt and thickness.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds two parts and four contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The original draw and the key field construction serve both input devices.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer retains nothing.
  */
 export function createLaptop(
   params: createLaptop.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLaptop.Affordance, createLaptop.Dimension> {
   const {
     builder,
@@ -79,25 +72,24 @@ export function createLaptop(
   return builder.build(d.mass);
 }
 
-/**
- * The parameters and contact identifiers of {@link createLaptop}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names its admitted models and contacts.
- * @evidence contracts/development/design.md#principled-representation The closed model names select the corresponding recorded manufacturer figures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Inputs carry the optional identifier and this device's model choice.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This producer exposes only its built contacts and supported manufacturer models.
- */
+/** The parameters and contact identifiers of {@link createLaptop}. */
 export namespace createLaptop {
   /** The `model` choices this producer admits. */
   export type Model = "air13" | "air15";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The identifiers of contacts this producer builds. */
   export type Affordance = "homeRow" | "keys" | Display;
 
-  /** The display contacts the laptop adds to the shared keyboard deck: its screen and its lid hinge. */
+  /**
+   * The display contacts the laptop adds to the shared keyboard deck: its
+   * screen and its lid hinge.
+   */
   export type Display = "screen" | "lid";
 
   /** The constructor input. */

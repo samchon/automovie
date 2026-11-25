@@ -8,9 +8,9 @@ import {
  * Select automatic formation LOD from distance and projected contribution.
  *
  * Twenty-four projected pixels are neutral. A prior tier retains a 10% boundary
- * deadband so camera jitter cannot thrash instance buffers.
- * The caller supplies an ordered admitted tier list, finite distance/pixel
- * values and an optional fractional hysteresis. Returned lod aliases that list.
+ * deadband so camera jitter cannot thrash instance buffers. The caller supplies
+ * an ordered admitted tier list, finite distance/pixel values and an optional
+ * fractional hysteresis. Returned lod aliases that list.
  */
 export const selectFormationLod: (
   input: IAutoMovieFormationLodInput,

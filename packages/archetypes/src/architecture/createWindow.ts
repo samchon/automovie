@@ -17,11 +17,17 @@ import { ADA_RANGES } from "./ADA_RANGES";
 /** Window sizes, for which no standard was read. */
 const SIZE: string = "window opening size, not read at a source";
 
-/** The sill band between the residential and the commercial fall-protection triggers. */
+/**
+ * The sill band between the residential and the commercial fall-protection
+ * triggers.
+ */
 const SILL: string =
   "sill below the 36 in (914 mm) at which IBC 2021 1015.8 requires fall protection (https://up.codes/s/window-openings) and above the 24 in of IRC R312.2.1, which was not read";
 
-/** Authored sash construction, metres; these are geometry conventions, not measured window specifications. */
+/**
+ * Authored sash construction, metres; these are geometry conventions, not
+ * measured window specifications.
+ */
 const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
   rail: 0.08,
   depth: 0.03,
@@ -29,30 +35,33 @@ const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
 };
 
 /**
- * A window in a piece of wall: a casement that swings out, or a sash that slides up or sideways.
+ * A window in a piece of wall: a casement that swings out, or a sash that
+ * slides up or sideways.
  *
- * The window stands in the `XY` plane, its wall's foot at the origin and the room on the `+Z` side. Four sash rails surround a separate pane and carry the handle: a casement's and a sliding sash's on the stile that leaves the frame, at the drawn handle height, and a hung sash's on its bottom rail. They move together on `sash`. The `sill` is the ledge under the opening and the `aperture` is the opening itself. Only an explicitly authored `fractureEnergy` enables breakage: the pane leaves as one `shards` fragment while the rails, handle and their articulation remain. Without that calibration the pane's failure energy is unknown.
+ * The window stands in the `XY` plane, its wall's foot at the origin and the
+ * room on the `+Z` side. Four sash rails surround a separate pane and carry the
+ * handle: a casement's and a sliding sash's on the stile that leaves the frame,
+ * at the drawn handle height, and a hung sash's on its bottom rail. They move
+ * together on `sash`. The `sill` is the ledge under the opening and the
+ * `aperture` is the opening itself. Only an explicitly authored
+ * `fractureEnergy` enables breakage: the pane leaves as one `shards` fragment
+ * while the rails, handle and their articulation remain. Without that
+ * calibration the pane's failure energy is unknown.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The window.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or a nonpositive or non-finite fracture calibration.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the window's plane, which side the room is on and what moves.
- * @evidence contracts/development/implementation.md#principled-implementation A wall panel below the sill, two jambs and a head surround two full-height stiles and two rails between them, with a nonoverlapping pane in their clear opening. Named authored rail width, sash depth and pane thickness determine those solids. A casement's downward hinge axis on `+X` swings it toward `-Z`; sliders run up or toward `-X`. The parent articulation binds all sash geometry, and fracture retains its surviving rails and handle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the surround and the sash, place the handle, then the articulation and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One sash, no glazing bars or fixed sliding half. Rail construction and equal-density volume-based mass allocation are authored approximations. The pane leaves whole, without an invented shard pattern. No bag-impact reference or universal glass threshold is substituted for the author's specimen calibration.
- * @evidence contracts/development/implementation.md#efficient-algorithms Ten primitive parts and four affordances; work and storage are constant per window.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
+ *   a nonpositive or non-finite fracture calibration.
  */
 export function createWindow(
   params: createWindow.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWindow.Affordance, createWindow.Dimension> {
   if (
     params.fractureEnergy !== undefined &&
-    !(Number.isFinite(params.fractureEnergy) && params.fractureEnergy > 0)
+    !(params.fractureEnergy > 0 && params.fractureEnergy < Infinity)
   )
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
@@ -237,23 +246,27 @@ export function createWindow(
   });
 }
 
-/**
- * Companion types and bands of {@link createWindow}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sill a body leans on or climbs, the handle's height and the sash's travel (#3371).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `sash` is a hinge on one kind and a slider on the others, the articulation each really has, under one id an opening act names. A hung sash's handle sits on its bottom rail, so its height follows the sill and that kind declares no `handleHeight` it would not use; sill plus rail stays inside the cited reach range.
- */
+/** Companion types and bands of {@link createWindow}. */
 export namespace createWindow {
-  /** Historical bag-impact reference, joules: 25 ft-lbf was the first drop breaking through two of five new annealed panes in Meshulam's IIBEC 2019 test (https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/). It is neither a universal glass threshold nor a sash-release measurement, and is never applied automatically; `fractureEnergy` is an independent authored calibration. */
+  /**
+   * Historical bag-impact reference, joules: 25 ft-lbf was the first drop
+   * breaking through two of five new annealed panes in Meshulam's IIBEC 2019
+   * test
+   * (https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/).
+   * It is neither a universal glass threshold nor a sash-release measurement,
+   * and is never applied automatically; `fractureEnergy` is an independent
+   * authored calibration.
+   */
   export const BREAKING: number =
     25 *
     AutoMovieArchetypeUnits.FOOT *
     AutoMovieArchetypeUnits.POUND *
     AutoMovieGravity.STANDARD;
 
-  /** The kinds of window: a side-hung casement, a vertically sliding hung sash, a horizontally sliding sash. */
+  /**
+   * The kinds of window: a side-hung casement, a vertically sliding hung sash,
+   * a horizontally sliding sash.
+   */
   export type Kind = "casement" | "hung" | "sliding";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -262,8 +275,14 @@ export namespace createWindow {
   /**
    * The affordance ids:
    *
-   * - `sash`: the sash's articulation: a casement's hinge on its `+X` edge swinging it out, a hung sash's slide up, a sliding sash's run toward `-X`.
-   * - `handle`: the sash's handle on its room face, which rides the sash: a casement's on its `-X` stile, away from the hinge, at `handleHeight`; a sliding sash's on its `+X` stile, the edge that leaves the jamb, at `handleHeight`; a hung sash's at the middle of its bottom rail, just above the sill.
+   * - `sash`: the sash's articulation: a casement's hinge on its `+X` edge
+   *   swinging it out, a hung sash's slide up, a sliding sash's run toward
+   *   `-X`.
+   * - `handle`: the sash's handle on its room face, which rides the sash: a
+   *   casement's on its `-X` stile, away from the hinge, at `handleHeight`; a
+   *   sliding sash's on its `+X` stile, the edge that leaves the jamb, at
+   *   `handleHeight`; a hung sash's at the middle of its bottom rail, just
+   *   above the sill.
    * - `sill`: the ledge under the opening, facing into the room.
    * - `aperture`: the opening, passed through from the room toward `-Z`.
    */
@@ -274,7 +293,8 @@ export namespace createWindow {
    *
    * - `width`, `height`: the opening.
    * - `sillHeight`: the sill above the floor.
-   * - `handleHeight`: a casement's or a sliding sash's handle above the floor; a hung sash has none, its handle following the sill.
+   * - `handleHeight`: a casement's or a sliding sash's handle above the floor; a
+   *   hung sash has none, its handle following the sill.
    * - `swing`: how far a casement opens, degrees.
    * - `travel`: how far a sliding sash runs.
    * - `mass`: the window with its piece of wall, kilograms.
@@ -301,7 +321,10 @@ export namespace createWindow {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which window. */
     kind: Kind;
@@ -309,7 +332,10 @@ export namespace createWindow {
     /** The model's id, unique in a scene; `window` when absent. */
     id?: string;
 
-    /** An explicit specimen or authored pane-failure calibration, joules, finite and positive; absent means unknown and does not enable fracture. */
+    /**
+     * An explicit specimen or authored pane-failure calibration, joules, finite
+     * and positive; absent means unknown and does not enable fracture.
+     */
     fractureEnergy?: number;
   }
 

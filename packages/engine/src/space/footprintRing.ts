@@ -4,7 +4,8 @@ import {
 } from "@automovie/interface";
 
 /**
- * Prepare a borrowed world ring and its owned XZ projection for repeated footprint queries.
+ * Prepare a borrowed world ring and its owned XZ projection for repeated
+ * footprint queries.
  */
 export const footprintRing: (
   points: readonly IAutoMovieVector3[],

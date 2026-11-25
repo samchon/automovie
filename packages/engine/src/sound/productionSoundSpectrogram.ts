@@ -3,9 +3,7 @@ import type { IAutoMovieProductionSoundRaster } from "@automovie/interface";
 import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "./AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
 import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterInput";
 
-/**
- * Draw a fixed 256-sample Hann-window log-magnitude stereo spectrum.
- */
+/** Draw a fixed 256-sample Hann-window log-magnitude stereo spectrum. */
 export const productionSoundSpectrogram: (
   pcm: Float32Array<ArrayBufferLike>,
   width?: number,
@@ -56,7 +54,10 @@ export const productionSoundSpectrogram: (
   return { width, height, rgba };
 };
 
-/** Write one row-major opaque RGBA pixel at the loop's admitted coordinates using the bounded level palette. */
+/**
+ * Write one row-major opaque RGBA pixel at the loop's admitted coordinates
+ * using the bounded level palette.
+ */
 const setPixel: (
   rgba: Uint8Array<ArrayBufferLike>,
   width: number,
@@ -81,7 +82,10 @@ const setPixel: (
   rgba[index + 3] = 255;
 };
 
-/** Bound the fixed-window logarithmic display level to [0,1]; this maps display contrast without changing the supplied PCM. */
+/**
+ * Bound the fixed-window logarithmic display level to [0,1]; this maps display
+ * contrast without changing the supplied PCM.
+ */
 const clamp: (value: number, minimum: number, maximum: number) => number = (
   value: number,
   minimum: number,

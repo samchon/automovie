@@ -11,21 +11,14 @@ import type { defendGeometry } from "./defendGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
- * Continue an interrupted step beneath the defence's own clock. A checking
- * leg that bears at the cut can lift once the other foot has landed.
+ * Continue an interrupted step beneath the defence's own clock. A checking leg
+ * that bears at the cut can lift once the other foot has landed.
  *
  * @param context The displayed cut entry.
  * @param timing The defence's own action-relative timing.
  * @param checking The checking foot, when the defence lifts one.
- * @returns The shared landing, release and displayed leg goals, or undefined when the defence starts from settled feet.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the arrival and release constraints shared by both defence branches.
- * @evidence contracts/development/implementation.md#principled-implementation Keeps the displayed starting sole height and grounds each pending landing before marking it planted.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared rig placements and action clock govern each foot's path and support predicate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reuses the striking support and leg goals without changing the defence reaction clock.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and sampling for two feet.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Waiting, active geometry and contact windows share the same floor and timing.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps two foot placements, the body and timing until the defence plan is released.
+ * @returns The shared landing, release and displayed leg goals, or undefined
+ *   when the defence starts from settled feet.
  */
 export function defendFootwork(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -40,15 +33,16 @@ export function defendFootwork(
       ...StrikingTarget.feet(context.entry),
       ...recovery.landings,
     };
-  const arrival: number = Math.max(timing.begin, 0.5 * timing.movement);
-  const touchdown: defendFootwork.ISupport["touchdown"] = {
-    left: recovery.landings.left === undefined ? 0 : arrival,
-    right: recovery.landings.right === undefined ? 0 : arrival,
-  };
-  const release: number =
-    checking !== undefined && checking === recovery.bearing
-      ? arrival
-      : timing.begin;
+  const { touchdown, release }: defendFootwork.ISchedule =
+    defendFootwork.schedule(
+      timing,
+      {
+        left: recovery.landings.left !== undefined,
+        right: recovery.landings.right !== undefined,
+      },
+      checking,
+      recovery.bearing,
+    );
   return {
     touchdown,
     release,
@@ -66,8 +60,13 @@ export function defendFootwork(
             };
       };
       const down = (side: AutoMovieHumanSide): boolean =>
-        seconds >= touchdown[side] &&
-        (side !== checking || seconds <= release || seconds >= timing.duration);
+        defendFootwork.down(
+          side,
+          seconds,
+          { touchdown, release },
+          checking,
+          timing.duration,
+        );
       return StrikingStance.legs(
         context.body,
         { left: foot("left"), right: foot("right") },
@@ -79,6 +78,68 @@ export function defendFootwork(
 
 /** The landing a defence completes after a cut from an interrupted step. */
 export namespace defendFootwork {
+  /** When each foot lands and when a checking leg leaves. */
+  export interface ISchedule {
+    /** Each foot's touchdown, seconds; 0 for a foot already down. */
+    touchdown: Record<AutoMovieHumanSide, number>;
+
+    /** The checking leg's release, seconds. */
+    release: number;
+  }
+
+  /**
+   * The footwork's schedule after a step: a landing foot touches down at the
+   * defence's start or halfway through its movement, whichever is later; a
+   * check by the bearing leg waits for that landing, any other leaves at the
+   * start.
+   *
+   * @param timing The defence's start and movement, seconds.
+   * @param landing Which feet are still landing.
+   * @param checking The checking leg, if any.
+   * @param bearing The leg that bore the step, if any.
+   * @returns The schedule.
+   */
+  export function schedule(
+    timing: Pick<defendGeometry.ITiming, "begin" | "movement">,
+    landing: Record<AutoMovieHumanSide, boolean>,
+    checking: AutoMovieHumanSide | undefined,
+    bearing: AutoMovieHumanSide | undefined,
+  ): ISchedule {
+    const arrival: number = Math.max(timing.begin, 0.5 * timing.movement);
+    return {
+      touchdown: {
+        left: landing.left ? arrival : 0,
+        right: landing.right ? arrival : 0,
+      },
+      release:
+        checking !== undefined && checking === bearing ? arrival : timing.begin,
+    };
+  }
+
+  /**
+   * Whether a foot bears at a second: once it has touched down, and for the
+   * checking leg, not between its release and the defence's end.
+   *
+   * @param side The foot.
+   * @param seconds The defence's seconds.
+   * @param schedule The touchdowns and the release.
+   * @param checking The checking leg, if any.
+   * @param duration The defence's seconds in all.
+   * @returns Whether it bears.
+   */
+  export function down(
+    side: AutoMovieHumanSide,
+    seconds: number,
+    schedule: ISchedule,
+    checking: AutoMovieHumanSide | undefined,
+    duration: number,
+  ): boolean {
+    return (
+      seconds >= schedule.touchdown[side] &&
+      (side !== checking || seconds <= schedule.release || seconds >= duration)
+    );
+  }
+
   /**
    * The landing a defence completes after a cut from an interrupted step,
    * shared by its waiting and reacting poses, on the defence's own clock.
@@ -89,10 +150,16 @@ export namespace defendFootwork {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A foot that bears at the cut touches down at zero, so no flag duplicates the landing record.
    */
   export interface ISupport {
-    /** Each foot's touchdown second on the defence's clock; zero for a foot that bears at the cut. */
+    /**
+     * Each foot's touchdown second on the defence's clock; zero for a foot that
+     * bears at the cut.
+     */
     touchdown: Record<AutoMovieHumanSide, number>;
 
-    /** The second the checking leg may leave the floor, after the other foot has landed. */
+    /**
+     * The second the checking leg may leave the floor, after the other foot has
+     * landed.
+     */
     release: number;
 
     /** The displayed leg goals at a second of the defence. */

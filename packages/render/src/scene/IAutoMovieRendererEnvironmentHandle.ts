@@ -1,9 +1,5 @@
-/**
- * A reversible renderer configuration for one beauty or structural pass.
- */
+/** A reversible renderer configuration for one beauty or structural pass. */
 export interface IAutoMovieRendererEnvironmentHandle {
-  /**
-   * Restore every renderer property touched by the configuration.
-   */
+  /** Restore every renderer property touched by the configuration. */
   restore: () => void;
 }

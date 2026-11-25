@@ -1,10 +1,10 @@
 /**
  * Encode two equally long normalized channels as a canonical 44-byte-header
- * RIFF/WAVE file of 16-bit little-endian PCM stereo. Each sample is
- * quantized by `round(x * 32767)` for nonnegative and `round(x * 32768)` for
- * negative amplitudes, the inverse of the 1/32768 decode scale up to
- * rounding; a nonfinite or out-of-range amplitude is refused rather than
- * clipped. Deterministic: equal channels give equal bytes.
+ * RIFF/WAVE file of 16-bit little-endian PCM stereo. Each sample is quantized
+ * by `round(x * 32767)` for nonnegative and `round(x * 32768)` for negative
+ * amplitudes, the inverse of the 1/32768 decode scale up to rounding; a
+ * nonfinite or out-of-range amplitude is refused rather than clipped.
+ * Deterministic: equal channels give equal bytes.
  *
  * @param left Left channel, amplitudes in [-1, 1].
  * @param right Right channel, the same length.
@@ -20,7 +20,6 @@ export function encodeAutoMovieWavPcm16(
     left.length === 0 ||
     left.length !== right.length ||
     left.length > (0xffffffff - 36) / 4 ||
-    !Number.isSafeInteger(sampleRate) ||
     sampleRate <= 0
   )
     throw new Error("Invalid stereo PCM length or rate");
@@ -46,7 +45,7 @@ export function encodeAutoMovieWavPcm16(
   for (let k: number = 0; k < left.length; k++)
     for (let channel: number = 0; channel < 2; channel++) {
       const x: number = (channel === 0 ? left : right)[k]!;
-      if (!Number.isFinite(x) || Math.abs(x) > 1)
+      if (Math.abs(x) > 1)
         throw new Error(`PCM amplitude ${x} at frame ${k}, channel ${channel}`);
       view.setInt16(
         44 + 4 * k + 2 * channel,

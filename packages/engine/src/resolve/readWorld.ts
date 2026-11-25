@@ -1,5 +1,7 @@
 /**
- * Return a borrowed required world matrix, or throw the supplied owner/role and node id on absence. The default owner is world driver; springs use their existing diagnostic owner.
+ * Return a borrowed required world matrix, or throw the supplied owner/role and
+ * node id on absence. The default owner is world driver; springs use their
+ * existing diagnostic owner.
  */
 export const readWorld: (
   world: Map<string, number[]>,

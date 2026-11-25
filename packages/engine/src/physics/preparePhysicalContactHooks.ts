@@ -18,16 +18,16 @@ interface ISegment {
 }
 
 /**
- * Build the world's collider-pair filter for one bound run: two colliders
- * of the same segment, of a joint's two segments, or of a pair the profile
- * declares in `collisionExclusions` never touch; colliders of different
- * scene bodies, and a body's undeclared non-adjacent segments, always may.
- * The world consults the filter for contact response and for sensor
- * overlaps alike, so the compliant layer sees the same pairs as the rigid
- * solve. Every collider of a segment shares its record, including a
- * compliant surface's rigid core. A collider the binding does not identify
- * is resolved by `isPhysicalPairExcluded` on the live input, which the
- * floor and unknown colliders pass.
+ * Build the world's collider-pair filter for one bound run: two colliders of
+ * the same segment, of a joint's two segments, or of a pair the profile
+ * declares in `collisionExclusions` never touch; colliders of different scene
+ * bodies, and a body's undeclared non-adjacent segments, always may. The world
+ * consults the filter for contact response and for sensor overlaps alike, so
+ * the compliant layer sees the same pairs as the rigid solve. Every collider of
+ * a segment shares its record, including a compliant surface's rigid core. A
+ * collider the binding does not identify is resolved by
+ * `isPhysicalPairExcluded` on the live input, which the floor and unknown
+ * colliders pass.
  *
  * @param input The admitted simulation input: profiles, joints and exclusions.
  * @param bound The world's binding: collider identities by handle.
@@ -70,7 +70,10 @@ export function preparePhysicalContactHooks(
     second: AutoMovieXpbdCollider,
   ): boolean => !excluded(first.handle, second.handle);
 
-  /** Resolve the same-owner pairs once, keeping the profile lookup for unmapped handles. */
+  /**
+   * Resolve the same-owner pairs once, keeping the profile lookup for unmapped
+   * handles.
+   */
   function excluded(first: number, second: number): boolean {
     const left: ISegment | undefined = owners.get(first);
     const right: ISegment | undefined = owners.get(second);

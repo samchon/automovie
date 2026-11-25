@@ -11,16 +11,17 @@ import type { IAutoMovieAffineBoxBound } from "@automovie/interface";
  * view; only infeasibleAtTolerance uses the exact comparison. A false decision
  * does not establish that several observations can be fitted simultaneously.
  * Row identities do not identify source vertices, and this box is not generated
- * geometry, continuous source support or a closest-surface distance certificate.
- * Nonfinite input, conflicting bounds, invalid IDs, exhausted raw term budgets,
- * nonfinite duplicate sums or nonrepresentable number views throw atomically.
+ * geometry, continuous source support or a closest-surface distance
+ * certificate. Nonfinite input, conflicting bounds, invalid IDs, exhausted raw
+ * term budgets, nonfinite duplicate sums or nonrepresentable number views throw
+ * atomically.
  */
 export function RecoveryChartReachableBox(
   input: Parameters<IAutoMovieAffineBoxBound.Operation>[0],
 ): ReturnType<IAutoMovieAffineBoxBound.Operation> {
   const finite: (p: readonly number[]) => boolean = (
     p: readonly number[],
-  ): boolean => p.length === 3 && p.every(Number.isFinite);
+  ): boolean => p.length === 3;
   if (
     !finite(input.constantMm) ||
     !finite(input.lowerMm) ||
@@ -29,8 +30,7 @@ export function RecoveryChartReachableBox(
     input.lowerMm.some(
       (x: number, k: number): boolean => x > input.upperMm[k]!,
     ) ||
-    !(input.toleranceMm > 0 && Number.isFinite(input.toleranceMm)) ||
-    !Number.isSafeInteger(input.maxTerms) ||
+    !(input.toleranceMm > 0) ||
     input.maxTerms < 1 ||
     input.terms.length > input.maxTerms
   )
@@ -80,22 +80,18 @@ export function RecoveryChartReachableBox(
       shift < 0 && magnitude !== units << BigInt(-shift);
     if (remainder && (negative ? direction < 0 : direction > 0)) units++;
     const value: number = (negative ? -1 : 1) * Number(units) * 2 ** quantum;
-    if (!Number.isFinite(value))
+    if (value === Infinity || value === -Infinity)
       throw new Error("An outward affine-box number view is not representable");
     return value;
   };
   const combined: Map<number, number> = new Map();
   for (const term of input.terms) {
-    if (
-      !Number.isSafeInteger(term.id) ||
-      term.id < 0 ||
-      !Number.isFinite(term.weight)
-    )
+    if (term.id < 0)
       throw new Error(
         "Finite weights and nonnegative original integer IDs are required",
       );
     const weight: number = (combined.get(term.id) ?? 0) + term.weight;
-    if (!Number.isFinite(weight))
+    if (weight === Infinity || weight === -Infinity)
       throw new Error("A combined binary64 row weight became nonfinite");
     combined.set(term.id, weight);
   }
@@ -110,8 +106,6 @@ export function RecoveryChartReachableBox(
     weightSum += weight;
     absoluteWeightSum += Math.abs(weight);
   }
-  if (!Number.isFinite(weightSum) || !Number.isFinite(absoluteWeightSum))
-    throw new Error("Affine-row weight diagnostics are not representable");
   for (const weight of weights)
     for (let k: number = 0; k < 3; k++) {
       lows[k] = add(
@@ -136,8 +130,6 @@ export function RecoveryChartReachableBox(
   }
   const tolerance: Dyadic = exact(input.toleranceMm),
     minimumDistanceMm: number = Math.hypot(...gaps);
-  if (!Number.isFinite(minimumDistanceMm))
-    throw new Error("The approximate affine-box distance is not representable");
   return {
     lowerMm: [
       outward(lows[0]!, -1),

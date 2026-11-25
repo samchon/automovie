@@ -12,12 +12,14 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
 
 /**
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
- * parametric primitive or bicubic atlas through its engine owner, or uploading raw mesh arrays. Finite partial atlas output remains drawable with its processing diagnostics. Morph
- * targets become relative `morphAttributes` named after their targets, which a
- * mesh constructed on the geometry lists in `morphTargetDictionary`.
- * Its buffer object is owned before tessellation or attribute initialization;
- * an initialization refusal independently reports disposal and its original
- * cause rather than leaving an unreturned allocation with no owner.
+ * parametric primitive or bicubic atlas through its engine owner, or uploading
+ * raw mesh arrays. Finite partial atlas output remains drawable with its
+ * processing diagnostics. Morph targets become relative `morphAttributes` named
+ * after their targets, which a mesh constructed on the geometry lists in
+ * `morphTargetDictionary`. Its buffer object is owned before tessellation or
+ * attribute initialization; an initialization refusal independently reports
+ * disposal and its original cause rather than leaving an unreturned allocation
+ * with no owner.
  */
 export const buildGeometry: (
   geometry: IAutoMovieGeometry,

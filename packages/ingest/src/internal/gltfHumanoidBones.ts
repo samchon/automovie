@@ -8,7 +8,11 @@ import { requiredArray } from "./requiredArray";
 /**
  * Resolve first-claim glTF skin joints to recognized humanoid naming slots.
  *
- * The caller has admitted skin joint indices. Nodes are visited in source order, eligible only when listed in a skin, with the first recognized name per slot retained; unrecognized names and later duplicate slots are ignored. Returned slots describe naming correspondence rather than anatomy or positive skin-weight coverage.
+ * The caller has admitted skin joint indices. Nodes are visited in source
+ * order, eligible only when listed in a skin, with the first recognized name
+ * per slot retained; unrecognized names and later duplicate slots are ignored.
+ * Returned slots describe naming correspondence rather than anatomy or positive
+ * skin-weight coverage.
  */
 export const gltfHumanoidBones: (
   nodes: unknown[],

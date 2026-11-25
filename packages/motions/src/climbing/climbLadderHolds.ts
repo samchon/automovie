@@ -18,21 +18,16 @@ import type { HumanLadder } from "./HumanLadder";
  * stands on with its swing arc between them, each hand's grip point on every
  * rung it holds with its path between them, and the legs' placements.
  * `climbLadder` owns the beats and the clock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is prepared, its frames and its owner.
- * @evidence contracts/development/design.md#principled-representation Per-side placements and world points, indexed by rung from the floor (0).
- * @evidence contracts/development/design.md#minimal-and-owned-surface The holds record and the one builder climbLadder.plan calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every hold is a point of the ladder's own rungs.
  */
 export namespace climbLadderHolds {
   /**
-   * The prepared holds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, its index and frame.
-   * @evidence contracts/development/design.md#principled-representation World placements and points by rung, and the arcs and paths between consecutive ones.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The five members climbLadder.plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read-only after preparation.
+   * How far below the shoulder the hands' first rung is sought, upper-arm
+   * lengths (provisional: a grip with the elbow part bent rather than a
+   * straight overhead reach).
    */
+  export const GRIP_DROP: number = 0.5;
+
+  /** The prepared holds. */
   export interface IHolds {
     /** Each foot's placement on the floor (0) and on each rung it climbs. */
     footprints: Record<
@@ -62,14 +57,7 @@ export namespace climbLadderHolds {
     >;
   }
 
-  /**
-   * The bounds a standing entry must meet before the ladder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each bound and its unit.
-   * @evidence contracts/development/design.md#principled-representation The climb's own facing, toe-distance and grip-drop bounds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three bounds admit reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Supplied by climbLadder's constants.
-   */
+  /** The bounds a standing entry must meet before the ladder. */
   export interface IBounds {
     /** Largest turn from the ladder's heading, degrees. */
     facing: number;
@@ -77,18 +65,14 @@ export namespace climbLadderHolds {
     /** Largest distance of the toes from the rungs, metres. */
     near: number;
 
-    /** How far below the shoulder the first hand rung is sought, upper-arm lengths. */
+    /**
+     * How far below the shoulder the first hand rung is sought, upper-arm
+     * lengths.
+     */
     gripDrop: number;
   }
 
-  /**
-   * An admitted entry: each foot's lateral place and the hands' first rung.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members.
-   * @evidence contracts/development/design.md#principled-representation Lateral places in the ladder frame, metres, and a rung index.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values climbLadder.plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Computed only by admit.
-   */
+  /** An admitted entry: each foot's lateral place and the hands' first rung. */
   export interface IAdmitted {
     /** Each foot's lateral place in the ladder frame, metres. */
     lateral: Record<AutoMovieHumanSide, number>;
@@ -107,15 +91,9 @@ export namespace climbLadderHolds {
    * @param count How many rungs the feet climb.
    * @param bounds The climb's bounds.
    * @returns The lateral places and the hands' first rung.
-   * @throws {HumanRefusal} When the climber does not face the ladder, stands too far from it or beside it, or the ladder has too few rungs above the hands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the checks, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the entry's feet in the ladder frame and the shoulder height in rungs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound per check, in order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses rather than moves the climber.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} When the climber does not face the ladder, stands
+   *   too far from it or beside it, or the ladder has too few rungs above the
+   *   hands.
    */
   export function admit(
     body: IAutoMovieMotionHumanBody,
@@ -163,21 +141,14 @@ export namespace climbLadderHolds {
    * @param body The canonical motion body.
    * @param ladder The ladder.
    * @param atRung The rung point reader.
-   * @param quiet The settled stance's foot placements, whose headings the rungs keep.
+   * @param quiet The settled stance's foot placements, whose headings the rungs
+   *   keep.
    * @param flat Each foot's entry placement on the floor.
    * @param lateral Each foot's lateral place in the ladder frame, metres.
    * @param count How many rungs the feet climb.
    * @param reach The hands' first rung.
    * @param clearance The swing's clearance over a rung, metres.
    * @returns The holds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units and result.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot stands with its ball on the rung's top at its lateral place; a hand grips its rung in its shoulder's plane within the rung's width.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Feet, their arcs and leg placements, then hands and their paths.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every hold comes from the ladder's rungs and the body's rest geometry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the rungs climbed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each placement and arc is prepared once and shared by every sample.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The arrays grow with the rungs climbed and are released with the plan.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -192,7 +163,7 @@ export namespace climbLadderHolds {
   ): IHolds {
     // A foot's placement on a rung: the ball on the rung's top.
     const onRung: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof HumanFoot.prepareAt>
     > = {
       left: HumanFoot.prepareAt(
@@ -211,10 +182,10 @@ export namespace climbLadderHolds {
       ),
     };
     const footOn: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       index: number,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       index: number,
     ): IAutoMovieMotionHumanFoot.IPlacement =>
       index === 0
@@ -227,7 +198,7 @@ export namespace climbLadderHolds {
             }),
           );
     const footprints: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement[]
     > = {
       left: Array.from(
@@ -242,7 +213,7 @@ export namespace climbLadderHolds {
       ),
     };
     const footArcs: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>[]
     > = {
       left: footprints.left
@@ -273,7 +244,7 @@ export namespace climbLadderHolds {
         ),
     };
     const goals: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     > = {
       left: AutoMovieMotionHumanLeg.preparePlacement(
@@ -311,7 +282,7 @@ export namespace climbLadderHolds {
       ),
     };
     const handArcs: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof Vector3.prepareLerp>[]
     > = {
       left: handholds.left

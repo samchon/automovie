@@ -1,11 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidSocket,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
   IAutoMovieMotionHumanPerformance,
@@ -19,40 +13,38 @@ import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { motionCaseSocket } from "./motionCaseSocket";
+
+/** The record of `IAffordanceCasesWorst`'s site. */
+type IAffordanceCasesWorst = { value: number; at: number };
+
+/** The record of `IAffordanceCasesMechanismsItem`'s site. */
+type IAffordanceCasesMechanismsItem = { kind: "insert" };
 
 /**
- * Capture cases of the articulated affordances family (#3233), each from
- * quiet standing with the right hand, every part within the 2010 ADA
- * hardware band (865 to 1220 mm, 404.2.7) or at a drawer's height:
+ * Capture cases of the articulated affordances family, each from quiet standing
+ * with the right hand, every part within the 2010 ADA hardware band (865 to
+ * 1220 mm, 404.2.7) or at a drawer's height:
  *
  * - `affordance-button`: a lift button at 1.1 m pressed 5 mm;
  * - `affordance-knob`: a door knob at 0.95 m turned 90 degrees;
- * - `affordance-drawer`: a drawer handle at 0.85 m, 0.5 m ahead, pulled
- *   0.25 m, which a planted performer leans into and straightens from;
- * - `affordance-door`: a door handle at 1.0 m, 0.75 m from its hinge and
- *   0.7 m ahead, pulled open 35 degrees: as far as the leaf swings before
- *   its handle comes within 0.27 m of a performer who does not step back
- *   (the law's stated gap), reached with a lean at the start.
+ * - `affordance-drawer`: a drawer handle at 0.85 m, 0.5 m ahead, pulled 0.25 m,
+ *   which a planted performer leans into and straightens from;
+ * - `affordance-door`: a door handle at 1.0 m, 0.75 m from its hinge and 0.7 m
+ *   ahead, pulled open 35 degrees: as far as the leaf swings before its handle
+ *   comes within 0.27 m of a performer who does not step back (the law's stated
+ *   gap), reached with a lean at the start.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. Beyond that, from `ready` to `relax` the hand's surface (the
- * index fingertip on the button, the grip elsewhere) stays within 10 mm of
- * the part's place as the mechanism moves it (the issue's handle bound; on
- * the knob this is the knob's axis), and the button's tip travels along the
- * button's axis within 2 degrees (the issue's press bound). The knob also
- * reports the hand's roll about its axis against the turn, within 10 degrees
- * (provisional).
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot.
+ * Beyond that, from `ready` to `relax` the hand's surface (the index fingertip
+ * on the button, the grip elsewhere) stays within 10 mm of the part's place as
+ * the mechanism moves it (the issue's handle bound; on the knob this is the
+ * knob's axis), and the button's tip travels along the button's axis within 2
+ * degrees (the issue's press bound). The knob also reports the hand's roll
+ * about its axis against the turn, within 10 degrees (provisional).
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the mechanism's own state.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over four mechanisms over the shared kit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read displayed poses.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function affordanceCases(
   bodies: readonly string[] = ["m-average"],
@@ -70,7 +62,10 @@ export function affordanceCases(
     });
     const mechanisms: [
       string,
-      Exclude<IAutoMovieMotionHumanOperate.Mechanism, { kind: "insert" }>,
+      Exclude<
+        IAutoMovieMotionHumanOperate.Mechanism,
+        IAffordanceCasesMechanismsItem
+      >,
     ][] = [
       ["button", { kind: "button", at: at(-0.15, 1.1, 0.5) }],
       ["knob", { kind: "knob", at: at(-0.2, 0.95, 0.5), turn: 90 }],
@@ -94,19 +89,20 @@ export function affordanceCases(
         FamilyCaseKit.perform(
           "affordance",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("operate", { kind: mechanism }),
+          HumanChain.subject("a").act("operate", { kind: mechanism }).node,
         );
       const ready: number = FamilyCaseKit.event(performance, "ready");
       const start: number = FamilyCaseKit.event(performance, "strokeStart");
       const end: number = FamilyCaseKit.event(performance, "strokeEnd");
       const relax: number = FamilyCaseKit.event(performance, "relax");
+      if (mechanism.at.kind !== "point") continue;
       const rest = {
-        point: (mechanism.at as { at: IAutoMovieVector3 }).at,
+        point: mechanism.at.at,
         normal: towardPerformer,
       };
       const hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined =
-        mechanism.kind === "hinge"
-          ? { point: (mechanism.hinge as { at: IAutoMovieVector3 }).at }
+        mechanism.kind === "hinge" && mechanism.hinge?.kind === "point"
+          ? { point: mechanism.hinge.at }
           : undefined;
       const progress = (t: number): number =>
         t <= start ? 0 : t >= end ? 1 : (t - start) / (end - start);
@@ -119,13 +115,13 @@ export function affordanceCases(
               "indexTip",
               "point",
             ).point
-          : socket(who.body, performance, t, "gripRight");
+          : motionCaseSocket(who.body, performance, "a", t, "gripRight");
       // The plan moves the part on the clock's minimum-jerk progress.
       const smooth = (t: number): number => {
         const u: number = progress(t);
         return u * u * u * (10 - 15 * u + 6 * u * u);
       };
-      let worst: { value: number; at: number } = { value: 0, at: ready };
+      let worst: IAffordanceCasesWorst = { value: 0, at: ready };
       for (let t: number = ready; t <= relax + 1e-9; t += 1 / 24) {
         const want: IAutoMovieVector3 = operate.state(
           mechanism,
@@ -224,18 +220,4 @@ export function affordanceCases(
     }
   }
   return out;
-}
-
-/** A body socket's displayed world point. */
-function socket(
-  body: IAutoMovieMotionHumanBody,
-  performance: IAutoMovieMotionHumanPerformance,
-  seconds: number,
-  name: AutoMovieHumanoidSocket,
-): IAutoMovieVector3 {
-  const frame = body.surfaces.sockets[name];
-  return resolveAutoMovieHumanoidSurfaces.place(
-    frame,
-    performance.bones("a", seconds).get(frame.bone)!,
-  ).point;
 }

@@ -11,12 +11,11 @@ import { EquineLibertyRows } from "./EquineLibertyRows";
 import type { EquineStanceRows } from "./EquineStanceRows";
 
 /**
- * The stance rows planned outside the stance's own file: the comfort rows, the liberty cue poses, the encounter's strikes and kicks and the hobbled hops.
+ * The stance rows planned outside the stance's own file: the comfort rows, the
+ * liberty cue poses, the encounter's strikes and kicks and the hobbled hops.
  */
 export namespace EquineStanceExtras {
-  /**
-   * Any row planned here.
-   */
+  /** Any row planned here. */
   export type Row =
     | AutoMovieArchetypeEquineComfortCue.Row
     | AutoMovieArchetypeEquineLibertyCue.Row

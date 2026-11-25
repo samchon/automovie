@@ -6,24 +6,32 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeFrame } from "../core";
+import { type AutoMovieArchetypeConvexCell, AutoMovieArchetypeFrame } from "../core";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
- * The lowest height above a plane, in the plane's own frame, of a part's surface points that lie over the plane's rectangle. A bar straddling a seam between two planes is therefore judged only by its points above each plane, not by its lowest point anywhere.
+ * The lowest height above a plane, in the plane's own frame, of a part's
+ * surface points that lie over the plane's rectangle. A bar straddling a seam
+ * between two planes is therefore judged only by its points above each plane,
+ * not by its lowest point anywhere.
  *
- * Cylinders, capsules and spheres are sampled at 17 sections by 16 directions, plus the capsule's poles, so a penetration shallower than about 2 % of the radius can pass. Other solids return their exact global lowest point, which is conservative.
+ * Cylinders, capsules and spheres are sampled at 17 sections by 16 directions,
+ * plus the capsule's poles, so a penetration shallower than about 2 % of the
+ * radius can pass. Other solids return their exact global lowest point, which
+ * is conservative.
  *
  * @param part The part with its world transform.
  * @param plane The plane, for its world rectangle.
  * @param frame The world-to-plane frame, whose Y is the height above the plane.
+ * @param cells The producer's convex solids, if supplied.
  * @returns Metres; Infinity when no sampled point lies over the rectangle.
  */
 export function QuadrupedFootingClip(
   part: IAutoMovieModelPart,
   plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
   frame: IAutoMovieTransform,
+  cells?: AutoMovieArchetypeConvexCell.Table,
 ): number {
   const shape: IAutoMovieModelPart["geometry"] = part.geometry;
   if (
@@ -32,10 +40,10 @@ export function QuadrupedFootingClip(
       shape.shape.type !== "capsule" &&
       shape.shape.type !== "sphere")
   )
-    return QuadrupedRestFloor({
-      ...part,
-      transform: AutoMovieArchetypeFrame.compose(frame, part.transform!),
-    });
+    return QuadrupedRestFloor(
+      { ...part, transform: AutoMovieArchetypeFrame.compose(frame, part.transform!) },
+      cells,
+    );
   const radius: number = shape.shape.radius;
   const half: number =
     shape.shape.type === "sphere" ? 0 : shape.shape.height / 2;

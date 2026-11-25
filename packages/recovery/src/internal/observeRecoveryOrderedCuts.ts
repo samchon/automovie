@@ -17,13 +17,15 @@ import { cutExact } from "./mesh-observations/cutExact";
 import { planeFrame } from "./mesh-observations/planeFrame";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
-/** Reobserve requested saved planes without reading or fitting a coefficient.
+/**
+ * Reobserve requested saved planes without reading or fitting a coefficient.
  * The caller verifies native and saved artifact bytes; this function compares
  * their declared source/selection/frame identities and rechecks complete raw
  * populations, closure and broad/exact face sets through the official binder.
  * Binary64 cutting is not certified exact arithmetic. No aggregate metadata
  * byte ceiling or cancellation hook is provided; the synchronous caller bounds
- * its selected mesh and saved-plane request and keeps borrowed inputs immutable.
+ * its selected mesh and saved-plane request and keeps borrowed inputs
+ * immutable.
  */
 export function observeRecoveryOrderedCuts(
   input: IAutoMovieRecoveryOrderedLineage.Input,
@@ -41,16 +43,14 @@ export function observeRecoveryOrderedCuts(
   if (
     ![frame.n, frame.u, frame.v].every(
       (v: Readonly<AutoMovieVector3Tuple>): boolean =>
-        v.every(Number.isFinite) && Math.abs(Math.hypot(...v) - 1) < 1e-10,
+        Math.abs(Math.hypot(...v) - 1) < 1e-10,
     )
   )
     throw new Error("Ordered lineage requires a finite orthonormal frame");
   if (
     input.originalTriangleIds.length !== input.triangles.length ||
     new Set(input.originalTriangleIds).size !== input.triangles.length ||
-    input.originalTriangleIds.some(
-      (v: number): boolean => !Number.isSafeInteger(v) || v < 0,
-    )
+    input.originalTriangleIds.some((v: number): boolean => v < 0)
   )
     throw new Error("Original face mapping is not a complete injection");
   const inverse: Map<number, number> = new Map(
@@ -87,7 +87,6 @@ export function observeRecoveryOrderedCuts(
   for (const saved of input.savedSections) {
     if (
       seen.has(saved.coordinateMm) ||
-      !Number.isFinite(saved.coordinateMm) ||
       saved.sourceIdentity !== input.sourceIdentity ||
       saved.sourceSelectionIdentity !== input.sourceSelectionIdentity ||
       saved.exactCoordinateAliases !== input.exactCoordinateAliases ||
@@ -226,11 +225,11 @@ export function observeRecoveryOrderedCuts(
     sections,
   };
 }
-/** Measure a chord between two registered observation points in mm.
- * Math.hypot limits intermediate sum overflow but is not exact arithmetic;
- * extreme finite inputs can still produce Infinity, which this helper does
- * not independently refuse. No approximation or coordinate correction occurs.
- *
+/**
+ * Measure a chord between two registered observation points in mm. Math.hypot
+ * limits intermediate sum overflow but is not exact arithmetic; extreme finite
+ * inputs can still produce Infinity, which this helper does not independently
+ * refuse. No approximation or coordinate correction occurs.
  */
 function distance(
   a: Readonly<AutoMovieVector3Tuple>,

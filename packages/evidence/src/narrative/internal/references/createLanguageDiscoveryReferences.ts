@@ -5,9 +5,7 @@ import type {
 
 import { createLocalContractReference } from "./createLocalContractReference";
 
-/**
- * Selects the installed language's active open-world calibration questions.
- */
+/** Selects the installed language's active open-world calibration questions. */
 export function createLanguageDiscoveryReferences(
   location: string,
 ): IEvidenceReference[] {

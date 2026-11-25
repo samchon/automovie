@@ -5,13 +5,11 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *
  * Operations return fresh values unless their name explicitly ends in Into;
  * those write only the supplied target after reading every source component.
- * The engine keeps this small math layer independent of the renderer so it
- * runs headless without depending on `three.js`.
+ * The engine keeps this small math layer independent of the renderer so it runs
+ * headless without depending on `three.js`.
  */
 export namespace Vector3 {
-  /**
-   * A new vector from its components, each zero when omitted.
-   */
+  /** A new vector from its components, each zero when omitted. */
   export const create: (
     x?: number,
     y?: number,
@@ -26,9 +24,7 @@ export namespace Vector3 {
     z,
   });
 
-  /**
-   * The component-wise sum `a + b`.
-   */
+  /** The component-wise sum `a + b`. */
   export const add: (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -41,9 +37,7 @@ export namespace Vector3 {
     z: a.z + b.z,
   });
 
-  /**
-   * The component-wise difference `a - b`, the vector from `b` to `a`.
-   */
+  /** The component-wise difference `a - b`, the vector from `b` to `a`. */
   export const subtract: (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -52,9 +46,7 @@ export namespace Vector3 {
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
 
-  /**
-   * Every component of `a` multiplied by the scalar `s`.
-   */
+  /** Every component of `a` multiplied by the scalar `s`. */
   export const scale: (a: IAutoMovieVector3, s: number) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     s: number,
@@ -85,9 +77,7 @@ export namespace Vector3 {
     return { x: a.x + offsetX, y: a.y + offsetY, z: a.z + offsetZ };
   }
 
-  /**
-   * The dot product `a · b`, which is `|a| |b| cos θ`.
-   */
+  /** The dot product `a · b`, which is `|a| |b| cos θ`. */
   export const dot: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -110,8 +100,8 @@ export namespace Vector3 {
   });
 
   /**
-   * Write `(a - origin) × (b - origin)` into a caller-owned target.
-   * The two differences and right-handed cross product retain subtract/cross
+   * Write `(a - origin) × (b - origin)` into a caller-owned target. The two
+   * differences and right-handed cross product retain subtract/cross
    * arithmetic, including nonfinite values and signed zeros. Every source is
    * read before any write, so target may alias origin, a or b.
    *
@@ -144,11 +134,11 @@ export namespace Vector3 {
    * The Euclidean length of `a`.
    *
    * Components whose squares stay in the normal binary64 range use
-   * `Math.sqrt(dot(a, a))`, so the result equals that expression exactly.
-   * When the largest component is below `2^-511` or above `2^511`, squaring
-   * would underflow or overflow, and `Math.hypot` measures it instead, so any
-   * representable length is returned. A non-finite component gives a
-   * non-finite length.
+   * `Math.sqrt(dot(a, a))`, so the result equals that expression exactly. When
+   * the largest component is below `2^-511` or above `2^511`, squaring would
+   * underflow or overflow, and `Math.hypot` measures it instead, so any
+   * representable length is returned. A non-finite component gives a non-finite
+   * length.
    */
   export const length: (a: IAutoMovieVector3) => number = (
     a: IAutoMovieVector3,
@@ -158,20 +148,22 @@ export namespace Vector3 {
       : Math.hypot(a.x, a.y, a.z);
 
   /**
-   * Euclidean distance between two points in the same frame and unit.
-   * It equals length(subtract(a, b)) with the same ordinary arithmetic,
-   * extreme-magnitude branch and nonfinite propagation, without a vector.
+   * Euclidean distance between two points in the same frame and unit. It equals
+   * length(subtract(a, b)) with the same ordinary arithmetic, extreme-magnitude
+   * branch and nonfinite propagation, without a vector.
    *
    * @param a The first point, read before b on each X/Y/Z subtraction.
    * @param b The second point in the same frame and unit.
-   * @returns Their scalar separation in that unit, including the original nonfinite result.
+   * @returns Their scalar separation in that unit, including the original
+   *   nonfinite result.
    */
   export function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     const x: number = a.x - b.x;
     const y: number = a.y - b.y;
     const z: number = a.z - b.z;
     const squared: number = x * x + y * y + z * z;
-    if (squared >= 2 ** -1000 && squared <= 2 ** 1000) return Math.sqrt(squared);
+    if (squared >= 2 ** -1000 && squared <= 2 ** 1000)
+      return Math.sqrt(squared);
     const largest: number = Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
     return extremeScale(largest) === 0
       ? Math.sqrt(squared)
@@ -216,17 +208,18 @@ export namespace Vector3 {
     return extremeScale(largest);
   };
 
-  /** Shared binary64 magnitude gate; zero and nonfinite inputs retain the ordinary norm path. */
-  const extremeScale: (largest: number) => number = (largest: number): number =>
-    Number.isFinite(largest) &&
-      largest > 0 &&
-      (largest < 2 ** -511 || largest > 2 ** 511)
-      ? largest
-      : 0;
+  /**
+   * Shared binary64 magnitude gate; zero and nonfinite inputs retain the
+   * ordinary norm path.
+   */
+  const extremeScale: (largest: number) => number = (
+    largest: number,
+  ): number =>
+    largest > 0 && (largest < 2 ** -511 || largest > 2 ** 511) ? largest : 0;
 
   /**
-   * The component-wise linear interpolation `a + (b - a) · t`, giving `a` at
-   * `t = 0` and `b`, up to rounding, at `t = 1`; a `t` outside `[0, 1]`
+   * The component-wise linear interpolation `a + (b - a) · t`, giving `a` at `t
+   * = 0` and `b`, up to rounding, at `t = 1`; a `t` outside `[0, 1]`
    * extrapolates.
    */
   export const lerp: (

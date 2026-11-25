@@ -1,8 +1,7 @@
 import type { IAutoMovieHumanFingerPose } from "./IAutoMovieHumanFingerPose";
 import type { IAutoMovieHumanThumbPose } from "./IAutoMovieHumanThumbPose";
 
-/** Thumb and fingers of one hand, thumb first, then index to little.
- */
+/** Thumb and fingers of one hand, thumb first, then index to little. */
 export interface IAutoMovieHumanHandPose {
   /** Thumb. */
   thumb?: IAutoMovieHumanThumbPose;

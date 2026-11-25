@@ -1,21 +1,3 @@
-# src/render/IAutoMovieEncodePng.ts#IAutoMovieEncodePng
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Raw image samples supplied to the deterministic PNG encoder. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Pixel dimensions and an interleaved byte buffer remain distinct from the encoder's base64 output.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Procedural image callers supply IProps; image ids and MIME metadata remain with IAutoMovieImage.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The closed channel count names the supported PNG subset without promising compression or color conversion.
-
 # src/render/IAutoMovieEncodePng.ts#IAutoMovieEncodePng.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

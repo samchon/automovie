@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieSweptCapsuleCollision.ts#IAutoMovieSweptCapsuleCollision
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents affine input authority, world units, sample brackets, tested work and unknown outcomes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A span holds endpoints of each capsule centre segment at the same two times, with a fixed radius. A closed union distinguishes proven clearance, sampled violation and unverified motion or work.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The caller supplies one continuous affine span after splitting at source knots, cuts and contact windows. Geometry and time stay independent from a host's reports and marks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A null span conveys unavailable evidence. A sampled violation supplies a witness time and enclosing checked interval, without an asserted first time of impact.
-
 # src/validation/IAutoMovieSweptCapsuleCollision.ts#IAutoMovieSweptCapsuleCollision.ISpan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -12,9 +12,9 @@ import { Matrix4 } from "./math/Matrix4";
  * when there are no points.
  *
  * The transform is composed as `T * R * S` by `Matrix4.compose`, each point is
- * moved through it, and the componentwise minimum and maximum are folded as
- * the points are placed, so no placed copy of the point list is built. Units
- * follow the points and the translation, metres for every subject.
+ * moved through it, and the componentwise minimum and maximum are folded as the
+ * points are placed, so no placed copy of the point list is built. Units follow
+ * the points and the translation, metres for every subject.
  *
  * @param points Model-frame points, typically a model's or a part's vertices.
  * @param transform Placement of the model in world space.

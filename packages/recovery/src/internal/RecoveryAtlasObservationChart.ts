@@ -18,11 +18,11 @@ import { RecoveryDiskChart } from "./RecoveryDiskChart";
 import { RecoveryMultiBoundaryChart } from "./RecoveryMultiBoundaryChart";
 import { refineRecoveryChartBoundaryChords } from "./refineRecoveryChartBoundaryChords";
 
-type Run = { side: "before" | "after" | "physical"; nodes: string[] };
 type Prepared =
   Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**
- * Prepare an annular, natural-side or general disk chart without changing its declared correspondence.
+ * Prepare an annular, natural-side or general disk chart without changing its
+ * declared correspondence.
  */
 export function RecoveryAtlasObservationChart(
   context: Parameters<IAutoMovieRecoveryAtlasObservationChart.Operation>[0],
@@ -201,12 +201,13 @@ export function RecoveryAtlasObservationChart(
       anchorTurningDegrees: disk.cornerRule.anchorTurningDegrees,
       sourceAreaDifferenceMm2,
     };
-  } else
-    sides = ordered.map((run: Run, i: number): number[] =>
-      (i < 2 ? run.nodes : [...run.nodes].reverse()).map(
+  } else {
+    const side = (i: 0 | 1 | 2 | 3): number[] =>
+      (i < 2 ? ordered[i]!.nodes : [...ordered[i]!.nodes].reverse()).map(
         (id: string): number => slots.get(id)!,
-      ),
-    ) as [number[], number[], number[], number[]];
+      );
+    sides = [side(0), side(1), side(2), side(3)];
+  }
   if (input.inventoryOnly) {
     inventory.push({
       chart: name,

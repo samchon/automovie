@@ -40,24 +40,33 @@ type Ring = IAutoMovieContourLoftWork64.Ring;
 type Group = IAutoMovieContourLoftWork64.Group;
 type Slab = IAutoMovieContourLoftWork64.Slab;
 /**
- * Generate an indexed contour loft from actual cubic coefficients and declared signed topology.
+ * Generate an indexed contour loft from actual cubic coefficients and declared
+ * signed topology.
  *
- * Cubics are admitted and adaptively subdivided by the engine's Bernstein operator.
- * Optional complete interval groups supply exact continuation; otherwise ordinary boundaries use legacy greedy nearest geometric continuation. Critical incidence overrides the legacy policy. Unsupported explicit groups remain local gaps without discarding other contours at the same cut.
- * Oriented slit walks support splits and cavity changes, with a regular exterior seam before
- * fixed-seam minimum-area elementary tiling (Fuchs, Kedem and Uselton 1977,
- * https://www.cs.jhu.edu/~misha/Fall13b/Papers/Fuchs77.pdf).
- * The fixed-seam optimum is not a global cyclic optimum or an injectivity certificate.
- * Only an isolated declared minimum or maximum receives its explicit generating terminal.
- * Finite unmatched contours remain unresolved. Output callbacks retain original face order; the sink owns actual normal accumulation and publication.
- * Empty sections exactly at declared critical coordinates have no generating boundary and are omitted;
- * the event's explicitly declared before/after section brackets remain mandatory.
- * Coordinates convert from millimetres to metres exactly once at output publication.
- * Unrepresentable curve boundaries or source identities remain local unresolved groups.
- * Finite positive-area tiles remain displayable when incidence, links or orientation are unqualified.
- * Strip observations distinguish quality diagnostics and computational work from missing geometry.
- * A failed millimetre cubic retains its dense finite endpoint in construction only; an untrusted endpoint leaves empty construction. Addressable malformed events remain local diagnostics.
- * A closest polygon-chord slit selects a source phase; its actual point and child
+ * Cubics are admitted and adaptively subdivided by the engine's Bernstein
+ * operator. Optional complete interval groups supply exact continuation;
+ * otherwise ordinary boundaries use legacy greedy nearest geometric
+ * continuation. Critical incidence overrides the legacy policy. Unsupported
+ * explicit groups remain local gaps without discarding other contours at the
+ * same cut. Oriented slit walks support splits and cavity changes, with a
+ * regular exterior seam before fixed-seam minimum-area elementary tiling
+ * (Fuchs, Kedem and Uselton 1977,
+ * https://www.cs.jhu.edu/~misha/Fall13b/Papers/Fuchs77.pdf). The fixed-seam
+ * optimum is not a global cyclic optimum or an injectivity certificate. Only an
+ * isolated declared minimum or maximum receives its explicit generating
+ * terminal. Finite unmatched contours remain unresolved. Output callbacks
+ * retain original face order; the sink owns actual normal accumulation and
+ * publication. Empty sections exactly at declared critical coordinates have no
+ * generating boundary and are omitted; the event's explicitly declared
+ * before/after section brackets remain mandatory. Coordinates convert from
+ * millimetres to metres exactly once at output publication. Unrepresentable
+ * curve boundaries or source identities remain local unresolved groups. Finite
+ * positive-area tiles remain displayable when incidence, links or orientation
+ * are unqualified. Strip observations distinguish quality diagnostics and
+ * computational work from missing geometry. A failed millimetre cubic retains
+ * its dense finite endpoint in construction only; an untrusted endpoint leaves
+ * empty construction. Addressable malformed events remain local diagnostics. A
+ * closest polygon-chord slit selects a source phase; its actual point and child
  * restrictions come from that saved polynomial. Child chord bounds and shared
  * ring interactions are re-established before emission. The final bridge is not
  * certified globally closest, nonintersecting or embedded.
@@ -69,13 +78,6 @@ export function generateAutoMovieContourLoft64(
   const document: IAutoMoviePrepareContourDocument64Document =
     prepareAutoMovieContourDocument64(input);
   const events: IAutoMovieContourLoft64.IEvent[] = document.declaredEvents;
-  if (
-    !sink ||
-    typeof sink.vertex !== "function" ||
-    typeof sink.triangle !== "function" ||
-    typeof sink.construction !== "function"
-  )
-    throw new Error("A complete synchronous contour output sink is required");
   let vertexCount: number = 0,
     triangleCount: number = 0,
     outputFailed: boolean = false;
@@ -99,13 +101,10 @@ export function generateAutoMovieContourLoft64(
     IAutoMovieContourLoft64.IResult["stripObservations"]
   > = [];
   const vertexMap: Map<string, number> = new Map();
-  const owners: WeakMap<V3, Ring> = new WeakMap();
-  const keys: WeakMap<V3, string> = new WeakMap();
-  const phases: WeakMap<
-    Readonly<AutoMovieVector3Tuple>,
-    number
-  > = new WeakMap();
-  const leaves: WeakMap<V3, IAutoMovieContourLoftCurves64.Leaf> = new WeakMap();
+  const owners: Map<V3, Ring> = new Map();
+  const keys: Map<V3, string> = new Map();
+  const phases: Map<Readonly<AutoMovieVector3Tuple>, number> = new Map();
+  const leaves: Map<V3, IAutoMovieContourLoftCurves64.Leaf> = new Map();
   const register: (
     ring: Ring,
     knot: IAutoMovieContourLoftCurves64.Knot,
@@ -146,8 +145,6 @@ export function generateAutoMovieContourLoft64(
         "A generated surface point has no declared curve or terminal identity",
       );
     if (!vertexMap.has(key)) {
-      if (!Number.isSafeInteger(vertexCount + 1))
-        throw new Error("Contour output vertex count exceeds safe indexing");
       deliver((): void => sink.vertex(vertexCount, p));
       vertexMap.set(key, vertexCount);
       vertexCount++;
@@ -162,8 +159,6 @@ export function generateAutoMovieContourLoft64(
     const ia: number = index(a),
       ib: number = index(b),
       ic: number = index(c);
-    if (!Number.isSafeInteger(triangleCount + 1))
-      throw new Error("Contour output triangle count exceeds safe indexing");
     deliver((): void => sink.triangle(ia, ib, ic));
     triangleCount++;
   };
@@ -349,11 +344,8 @@ export function generateAutoMovieContourLoft64(
         if (
           ids.some((id: string | undefined): boolean => id === undefined) ||
           new Set(ids).size !== 3 ||
-          !(
-            area.millimetresSquared > 0 &&
-            Number.isFinite(area.millimetresSquared)
-          ) ||
-          !(area.metresSquared > 0 && Number.isFinite(area.metresSquared))
+          !(area.millimetresSquared > 0) ||
+          !(area.metresSquared > 0)
         ) {
           omitted++;
           quality.add(

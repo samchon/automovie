@@ -3,14 +3,16 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
 import type { AutoMovieHumanLimb } from "./AutoMovieHumanLimb";
 
 /**
- * Contracts of `humanLimbReads`: what each limb's fit reads of a pose, read once from the rig.
+ * Contracts of `humanLimbReads`: what each limb's fit reads of a pose, read
+ * once from the rig.
  */
 export namespace IAutoMovieMotionHumanLimbReads {
-  /**
-   * One limb's reads under one placement.
-   */
+  /** One limb's reads under one placement. */
   export interface IRead {
-    /** The bones whose records the limb's reduced pose keeps, closed under parents. */
+    /**
+     * The bones whose records the limb's reduced pose keeps, closed under
+     * parents.
+     */
     bones: ReadonlySet<AutoMovieHumanoidBone>;
 
     /** The bones the limb's source read demands. */
@@ -21,7 +23,10 @@ export namespace IAutoMovieMotionHumanLimbReads {
   }
 
   /**
-   * Every limb's reads: `[limb][0]` with the other arm not placed, `[limb][1]` with it placed.
+   * Every limb's reads: `[limb][0]` with the other arm not placed, `[limb][1]`
+   * with it placed.
    */
-  export type IReads = Readonly<Record<AutoMovieHumanLimb, readonly [IRead, IRead]>>;
+  export type IReads = Readonly<
+    Record<AutoMovieHumanLimb, readonly [IRead, IRead]>
+  >;
 }

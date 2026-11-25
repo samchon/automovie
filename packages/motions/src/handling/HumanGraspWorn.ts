@@ -21,49 +21,51 @@ import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The record of `IKeyProps`'s site. */
+type IKeyProps = {
+  context: Pick<IAutoMovieMotionHumanActionContext, KeyPropsContext>;
+  held: IAutoMovieMotionHumanPropReader;
+  world: IAutoMovieRigidTransform;
+  tip: IAutoMovieAffordance;
+  at: AutoMovieHumanoidRegion;
+  site: IAutoMovieVector3;
+
+  side: AutoMovieHumanSide;
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  round?: boolean;
+  clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
+};
+
+/** The alternatives of `KeyPropsContext`'s site. */
+type KeyPropsContext = "body" | "entry" | "start";
+
 /**
  * The key pose a grasp taken to wear a thing must also hold
- * (`HumanGraspUse.IUse`, line `worn`): the thing's whole frame where it is
- * worn on the performer's own region (`HumanWorn.frame`, the one `dress`
- * puts it at), the hand following rigidly from the candidate grasp, so the
- * grasp is judged at the very pose it is put on in.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the key, the frame it is read from and why.
- * @evidence contracts/development/design.md#principled-representation The worn frame is the one owner's (`HumanWorn`); the hand is the candidate grasp's rigid offset carried onto it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The turn step and one key builder, read by `HumanGraspUse.presented`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No wearable is named: the socket is the thing's own `wear` contact and the region the use's.
+ * (`HumanGraspUse.IUse`, line `worn`): the thing's whole frame where it is worn
+ * on the performer's own region (`HumanWorn.frame`, the one `dress` puts it
+ * at), the hand following rigidly from the candidate grasp, so the grasp is
+ * judged at the very pose it is put on in.
  */
 export namespace HumanGraspWorn {
-  /** The refinement step of a round worn thing's turn about its region, and the spacing of the turns tried first round it, degrees (search resolution: an eighth of a turn, halving to under 6). */
+  /**
+   * The refinement step of a round worn thing's turn about its region, and the
+   * spacing of the turns tried first round it, degrees (search resolution: an
+   * eighth of a turn, halving to under 6).
+   */
   export const ROUND: number = 45;
 
   /**
    * The key pose of a grasp taken to wear a thing.
    *
-   * @param props The action's context, the held thing and its world frame at closure and `wear` contact, the region and its point on the entry's body, the hand, the candidate grasp's hand, whether the thing is round about the region, and how far the closed hand at a wrist keeps out of the body's other parts (none when absent).
-   * @returns The key, with its judge: the fitted hand's wear socket off the region, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is left to the body (`HumanPosture.IGoal.elbow`): the least hand error, then the least strain, read from the fit's own sweep; never placed by a share of the arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's offset, the key of a turn, its fitted miss, one choice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The judge is the quantity `dress` judges, never a mix of degrees and millimetres.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each turn is fitted once, kept in a map, however often the search returns to it; a thing not round is fitted at its one turn.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per candidate grasp.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map lives for the call.
+   * @param props The action's context, the held thing and its world frame at
+   *   closure and `wear` contact, the region and its point on the entry's body,
+   *   the hand, the candidate grasp's hand, whether the thing is round about
+   *   the region, and how far the closed hand at a wrist keeps out of the
+   *   body's other parts (none when absent).
+   * @returns The key, with its judge: the fitted hand's wear socket off the
+   *   region, metres.
    */
-  export function key(props: {
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "start">;
-    held: IAutoMovieMotionHumanPropReader;
-    world: IAutoMovieRigidTransform;
-    tip: IAutoMovieAffordance;
-    at: AutoMovieHumanoidRegion;
-    site: IAutoMovieVector3;
-
-    side: AutoMovieHumanSide;
-    wrist: IAutoMovieMotionHumanHand.IWrist;
-    round?: boolean;
-    clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
-  }): IAutoMovieMotionHumanGrasp.IKey {
+  export function key(props: IKeyProps): IAutoMovieMotionHumanGrasp.IKey {
     const { context, held, world, tip, at, site }: typeof props = props;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
@@ -86,7 +88,9 @@ export namespace HumanGraspWorn {
         props.wrist.point,
       ),
     );
-    const keyed: (degrees: number) => IAutoMovieMotionHumanHand.IWrist = (degrees: number): IAutoMovieMotionHumanHand.IWrist => {
+    const keyed: (degrees: number) => IAutoMovieMotionHumanHand.IWrist = (
+      degrees: number,
+    ): IAutoMovieMotionHumanHand.IWrist => {
       const worn: IAutoMovieRigidTransform = HumanWorn.frame(
         context.body,
         context.entry.posture,
@@ -163,11 +167,7 @@ export namespace HumanGraspWorn {
         {
           kind: "wrapped",
           step:
-            props.round === true
-              ? props.side === "left"
-                ? -ROUND
-                : ROUND
-              : 0,
+            props.round === true ? (props.side === "left" ? -ROUND : ROUND) : 0,
           period: 360,
         },
       ],

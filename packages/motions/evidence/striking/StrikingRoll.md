@@ -1,21 +1,3 @@
-# src/striking/StrikingRoll.ts#StrikingRoll
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what limits a held tool's pose, how a pose is judged and what is refused.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pose is judged by fitting it and reading the result, the motion skill's rule that a search measures each trial after the joint limits are applied.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Actual pose misses, geometric ranks, chosen frames and physical refusals serve the existing blade/firearm consumers; fixed-axis rigid sampling stays with StrikingRollHand.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No tool kind is named and no wrist range is restated: the fit owns the ranges.
-
 # src/striking/StrikingRoll.ts#StrikingRoll.miss
 
 ## @evidence contracts/development/common.md#meaningful-documentation

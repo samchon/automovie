@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieAdmitContourEvents64.ts#IAutoMovieAdmitContourEvents64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Admitted event records stay aligned with optional local reasons in original input order.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-This namespace owns the admission result used to build the prepared contour document.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Local refusal preserves saved addresses without inventing incidence.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IResult specifies copying, alignment and global versus local refusal.
-
 # src/geometry/curve/IAutoMovieAdmitContourEvents64.ts#IAutoMovieAdmitContourEvents64.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -21,7 +21,8 @@ interface Dyadic {
  * @param a First finite chart point.
  * @param b Second finite chart point.
  * @param c Third finite chart point.
- * @returns +1 for counterclockwise, -1 for clockwise and 0 for exact collinearity.
+ * @returns +1 for counterclockwise, -1 for clockwise and 0 for exact
+ *   collinearity.
  * @throws RangeError for a nonfinite input coordinate.
  */
 export function orientAutoMovieSolidChart(
@@ -35,17 +36,6 @@ export function orientAutoMovieSolidChart(
   const by: number = b[1];
   const cx: number = c[0];
   const cy: number = c[1];
-  if (
-    !(
-      Number.isFinite(ax) &&
-      Number.isFinite(ay) &&
-      Number.isFinite(bx) &&
-      Number.isFinite(by) &&
-      Number.isFinite(cx) &&
-      Number.isFinite(cy)
-    )
-  )
-    throw new RangeError("Chart orientation needs finite coordinates");
 
   // Axis-aligned constraints need only order comparisons, even at extreme scales.
   if (ax === bx)
@@ -79,8 +69,6 @@ export function orientAutoMovieSolidChart(
     normal(y1) &&
     normal(left) &&
     normal(right) &&
-    Number.isFinite(determinant) &&
-    Number.isFinite(bound) &&
     bound > 0 &&
     Math.abs(determinant) > bound
   )
@@ -106,10 +94,13 @@ export function orientAutoMovieSolidChart(
 
 /** Whether a value is finite and of at least the smallest normal magnitude. */
 function normal(value: number): boolean {
-  return Number.isFinite(value) && Math.abs(value) >= NORMAL;
+  return Math.abs(value) >= NORMAL;
 }
 
-/** Decode a finite double without arithmetic on its significand. Calls are synchronous and have no callbacks. */
+/**
+ * Decode a finite double without arithmetic on its significand. Calls are
+ * synchronous and have no callbacks.
+ */
 function decode(value: number): Dyadic {
   VIEW.setFloat64(0, value, false);
   const bits: bigint = VIEW.getBigUint64(0, false);
@@ -122,7 +113,10 @@ function decode(value: number): Dyadic {
   };
 }
 
-/** Smallest normal binary64 magnitude; a representation boundary, not a geometry tolerance. */
+/**
+ * Smallest normal binary64 magnitude; a representation boundary, not a geometry
+ * tolerance.
+ */
 const NORMAL: number = 2 ** -1022;
 
 /** Fixed decoding storage, never exposed or retained by an input/result. */

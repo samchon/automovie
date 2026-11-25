@@ -1,19 +1,3 @@
-# src/animals/EquineSaddle.ts#EquineSaddle
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is laid, where the saddle sits and which parts carry mass.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The saddle as a box, the straps as round bars, the contacts as a seat, handles, stirrups and reins.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `lay` and `lead`, with the saddle's read weight and the estimates they read; `createHorse` calls them for `tack` `saddle`, `both` and `pack`. `rein` is shared with the side saddle (`EquineSideSaddle`), and `bareback` lays the bridle and back seat of `tack` `bareback`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every size no source gives is a named estimate; the saddle's weight is its maker's.
-
 # src/animals/EquineSaddle.ts#EquineSaddle.lay
 
 ## @evidence contracts/development/common.md#meaningful-documentation

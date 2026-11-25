@@ -1,21 +1,3 @@
-# src/kinematics/distalEndSwivelReadings.ts#distalEndSwivelReadings
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the premise, the derivation of both angles and what each member holds; `of` states every case that returns null.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The direction's three components as exact sinusoids of the swivel and the box as rest-relative degree intervals, the terms both readers of the box are written in.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and its reader, shared by the refused arcs (`distalEndSwivelArcs`) and the least rotation miss (`distalEndSwivelMiss`).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A joint the analysis does not cover is null, never an approximation; the sinusoids and the interval lift are `swivelArcs`'s and `swivelJointReadings`'s.
-
 # src/kinematics/distalEndSwivelReadings.ts#distalEndSwivelReadings.IReadings
 
 ## @evidence contracts/development/common.md#meaningful-documentation

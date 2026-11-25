@@ -14,9 +14,9 @@ import { triangulateAutoMoviePolygon } from "./triangulateAutoMoviePolygon";
  *
  * A separation is a slab, not a sheet: the face outline swept along its own
  * outward normal by its stated thickness. Both caps are triangulated so the
- * solid is closed, because a plan cut through an open shell would draw only
- * the two ends of a wall, and an elevation of an open shell would draft both
- * rings where one silhouette belongs.
+ * solid is closed, because a plan cut through an open shell would draw only the
+ * two ends of a wall, and an elevation of an open shell would draft both rings
+ * where one silhouette belongs.
  *
  * The outline may be concave, so the caps are ear-clipped by
  * {@link triangulateAutoMoviePolygon} rather than fanned from one corner, which

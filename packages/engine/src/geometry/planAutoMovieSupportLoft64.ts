@@ -16,9 +16,9 @@ import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBerns
  * use the existing normalized binary64 cubic solver; they are numerical
  * construction events, not certified intervals. The determinant owner's
  * exact-sign fallback distinguishes continuous zero incidence from a small
- * nonzero coefficient without replacing either by a geometric tolerance.
- * Near event phases can share one phase only when all their plane equations
- * hold there within the same relative arithmetic bound; otherwise they refuse.
+ * nonzero coefficient without replacing either by a geometric tolerance. Near
+ * event phases can share one phase only when all their plane equations hold
+ * there within the same relative arithmetic bound; otherwise they refuse.
  */
 export function planAutoMovieSupportLoft64(
   input: IAutoMoviePlanSupportLoft64.IInput,
@@ -81,10 +81,6 @@ export function planAutoMovieSupportLoft64(
               determinant,
           );
         }
-        if (![...x, ...z].every(Number.isFinite))
-          throw new Error(
-            "nonfinite-support-curve: plane intersection overflow",
-          );
         span.curves.set(`${i}:${j}`, { pair: [i, j], determinant, x, z });
       }
     const excluded: Set<string> = new Set();
@@ -159,10 +155,9 @@ export function planAutoMovieSupportLoft64(
         (normal: readonly [number, number], k: number): boolean => {
           const slack: number =
             normal[0] * x + normal[1] * z - B.scalar(field.offsets[k], phase);
-          return (
-            Number.isFinite(slack) &&
-            (triple.includes(k) ? Math.abs(slack) <= epsilon : slack <= epsilon)
-          );
+          return triple.includes(k)
+            ? Math.abs(slack) <= epsilon
+            : slack <= epsilon;
         },
       );
     };
@@ -319,7 +314,7 @@ export function planAutoMovieSupportLoft64(
         ),
       );
       cells += pairs.length * segments;
-      if (!Number.isSafeInteger(cells) || cells > input.maxCells)
+      if (cells > input.maxCells)
         throw new Error("support-cell-budget-exhausted: no geometry emitted");
       span.intervals.push({
         before: interval - 1,

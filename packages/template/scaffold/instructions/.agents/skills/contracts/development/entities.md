@@ -22,11 +22,7 @@ Keep law, action and archetype parameters within their owner's range. Source mea
 
 Keep durable choices at their owner. Cite a [short's scene decisions](../../story/layers/brief.md#what-it-holds) by file and anchor. A direct screenplay owns story choices. Instructions own [implementation choices for a fixed screenplay](../../story/correction/repair.md#concretization) and standalone asset decisions.
 
-## Realization comments
-
-Can a reader trace each value the entity or its capabilities set, and each default they rely on, to the record fact, study section or decision it realizes?
-
-Comment each such value with its source and how it realizes it, so a reader can check it against that source without deriving it again.
+In [source comments](../../development/modules.md#documenting-source), trace entity and capability choices to the record fact, study section or decision.
 
 ## Object shape
 

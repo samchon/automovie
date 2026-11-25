@@ -6,7 +6,7 @@ One row maps a sequence entry to output frame indices of the delivered file: sec
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`planAutoMovieDeliveredCut` produces it, `IAutoMovieDrawnVideoResult.cut` carries it, and the CLI writes it into `render-report.json` for the scaffold's assembly handoff and request records. The copied entry fields are the ones the issue's report row names; `playbackRate` stays optional because the source entry omits it at the default rate, and copying absence keeps the row from inventing a rate.
+The planner `planAutoMovieDeliveredCut` produces it, `IAutoMovieDrawnVideoResult.cut` carries it, and the CLI writes it into `render-report.json` for the scaffold's assembly handoff and request records. The copied entry fields are the ones the issue's report row names; `playbackRate` stays optional because the source entry omits it at the default rate, and copying absence keeps the row from inventing a rate.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

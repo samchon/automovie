@@ -16,19 +16,31 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stuntFallPose } from "../reaction/stuntFallPose";
 import { edgeRescueScene } from "./edgeRescueScene";
 
-/** Seconds the faller takes to settle from its entry into the hang (provisional). */
+/**
+ * Seconds the faller takes to settle from its entry into the hang
+ * (provisional).
+ */
 const SETTLE: number = 0.3;
 
-/** How far out from the lip the hanging body's hands sit, metres: the wall's face clear of the knuckles (provisional). */
+/**
+ * How far out from the lip the hanging body's hands sit, metres: the wall's
+ * face clear of the knuckles (provisional).
+ */
 const CLEAR: number = 0.05;
 
-/** How far up past the lip the hips clear it as the faller comes over, metres (provisional). */
+/**
+ * How far up past the lip the hips clear it as the faller comes over, metres
+ * (provisional).
+ */
 const OVER: number = 0.15;
 
 /** Seconds a missed faller takes to collapse on the ground (provisional). */
 const COLLAPSE: number = 0.5;
 
-/** The hang: arms up on the lip, the body hanging straight (provisional angles, degrees). */
+/**
+ * The hang: arms up on the lip, the body hanging straight (provisional angles,
+ * degrees).
+ */
 const HANG: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -48,23 +60,15 @@ const HANG: IAutoMovieMotionHumanLieDown.IPose = {
  * The faller's part in an edge rescue, closed form over the shared scene:
  * hanging by both hands from the lip, facing the wall; at release falling
  * freely, the right hand drawn out to the grip as the body drops to it; once
- * caught, hanging by the right hand from the grip as the rescuer hauls it;
- * then coming over the lip, the hips lifted `OVER` above it, into a kneel on
- * the top facing the rescuer. A missed catch falls on to the ground and
- * collapses supine.
+ * caught, hanging by the right hand from the grip as the rescuer hauls it; then
+ * coming over the lip, the hips lifted `OVER` above it, into a kneel on the top
+ * facing the rescuer. A missed catch falls on to the ground and collapses
+ * supine.
  *
  * @param context The faller's context.
  * @param p The parameters.
  * @param scene The shared scene.
  * @returns The faller's plan.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each phase, the hand placements and the missed fall.
- * @evidence contracts/development/implementation.md#principled-implementation The hang is placed by its hands' offset from the root; the fall is free fall; the haul hangs the right hand on the scene's grip path; the kneel blends through a waypoint over the lip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets read once, then one posture writer over the phases.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The constants are provisional and stated as such; every timing is the scene's.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three resolves at plan time; constant work per sample.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the offsets and the scene.
  */
 export function edgeRescueFaller(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEdgeRescue.IParams>,
@@ -138,8 +142,11 @@ export function edgeRescueFaller(
     root: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture => ({ ...hang, root });
 
-  // The landed body's hips offset from its root, read once.
-  let landedHips: IAutoMovieVector3 | undefined;
+  // The landed body's hips offset from its root, the hang's own.
+  const landedHips: IAutoMovieVector3 = stuntFallPose.offset(
+    body,
+    at({ x: 0, y: 0, z: 0 }),
+  );
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
@@ -170,7 +177,9 @@ export function edgeRescueFaller(
           minimumJerk.share(Math.min(1, (s - missFall) / COLLAPSE)),
         ),
         {
-          x: landed.root.x + (landedHips ??= stuntFallPose.offset(body, landed)).x,
+          x:
+            landed.root.x +
+            landedHips.x,
           y: ground,
           z: landed.root.z + landedHips.z,
         },

@@ -5,7 +5,8 @@ import type { IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "@autom
  * Scalars are millimetres along the observation's normalized sweep direction.
  * Positive overlap uses before < upper and after > lower; merely touching the
  * window does not select a slab. Endpoints are never moved or newly inserted.
- * The retained whole slabs may extend beyond the window, and report those bounds.
+ * The retained whole slabs may extend beyond the window, and report those
+ * bounds.
  */
 export function selectRecoveryScalarIntervals(
   levelsMm: Parameters<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>[0],
@@ -15,28 +16,19 @@ export function selectRecoveryScalarIntervals(
   if (
     levelsMm.length < 2 ||
     levelsMm.some(
-      (value: number, i: number): boolean =>
-        !Number.isFinite(value) || (i > 0 && value <= levelsMm[i - 1]!),
+      (value: number, i: number): boolean => i > 0 && value <= levelsMm[i - 1]!,
     )
   )
     throw new Error("Finite increasing scalar levels are required");
   if (
     order.length !== levelsMm.length - 1 ||
     new Set(order).size !== order.length ||
-    order.some(
-      (id: number): boolean =>
-        !Number.isSafeInteger(id) || id < 0 || id >= order.length,
-    )
+    order.some((id: number): boolean => id < 0 || id >= order.length)
   )
     throw new Error(
       "Scalar priority must be a complete saved-interval permutation",
     );
-  if (
-    windowMm &&
-    (windowMm.length !== 2 ||
-      !windowMm.every(Number.isFinite) ||
-      !(windowMm[0] < windowMm[1]))
-  )
+  if (windowMm && (windowMm.length !== 2 || !(windowMm[0] < windowMm[1])))
     throw new Error("An increasing finite physical scalar window is required");
   const intervals: number[] = order.filter(
     (id: number): boolean =>

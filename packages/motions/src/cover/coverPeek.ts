@@ -16,7 +16,10 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { coverWall } from "./coverWall";
 
-/** How far the head crosses the end's plane by default, metres (provisional: one eye past the corner). */
+/**
+ * How far the head crosses the end's plane by default, metres (provisional: one
+ * eye past the corner).
+ */
 const EXPOSURE: number = 0.12;
 
 /** Seconds the head holds out by default (provisional). */
@@ -25,7 +28,10 @@ const HOLD: number = 0.8;
 /** Seconds to lean out and to lean back (provisional). */
 const LEAN: number = 0.5;
 
-/** The steepest lean of the standing body, degrees (provisional: a lean that keeps the planted feet loaded). */
+/**
+ * The steepest lean of the standing body, degrees (provisional: a lean that
+ * keeps the planted feet loaded).
+ */
 const MAX_LEAN: number = 20;
 
 /** The head's turn toward the hidden side at full lean, degrees (provisional). */
@@ -33,24 +39,17 @@ const TURN: number = 35;
 
 /**
  * Peek past a wall's end: from the standing entry the whole body leans, its
- * feet planted, until the head crosses the plane through the face's end by
- * the exposure, the head turning to look along the hidden side; it holds
- * and leans back. The lean is a tilt of the standing posture about its root
- * whose direction is found by moving the displayed head; its size is the
- * closed form `asin(shift / height)`.
+ * feet planted, until the head crosses the plane through the face's end by the
+ * exposure, the head turning to look along the hidden side; it holds and leans
+ * back. The lean is a tilt of the standing posture about its root whose
+ * direction is found by moving the displayed head; its size is the closed form
+ * `asin(shift / height)`.
  *
  * @param context The action's context, standing beside the wall.
  * @param p The peek.
  * @returns The peek, ending in the entry stance.
- * @throws {HumanRefusal} If a foot is past the end already, the head is already past it, or the lean would exceed `MAX_LEAN`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the lean, its direction and size, the timing and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The head's offset from a tilt about the feet is the head height times the sine of the tilt, so the needed tilt follows in closed form; the planted legs keep their ankles.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the end, admit the stance, find the lean, then one timed posture writer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The exposure is measured on the displayed head at full lean and refused if out of range; the constants are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three posture resolves at plan time; constant work per sample.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The stance is built once.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the stance.
+ * @throws {HumanRefusal} If a foot is past the end already, the head is already
+ *   past it, or the lean would exceed `MAX_LEAN`.
  */
 export function coverPeek(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCover.IParams>,

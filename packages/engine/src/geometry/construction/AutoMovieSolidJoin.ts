@@ -100,7 +100,10 @@ export namespace AutoMovieSolidJoin {
     const columns: IAutoMovieSolidJoin.IColumn[] = [];
     const addresses: number[] = curve.points
       .map((_, i: number): number => i)
-      .sort((i: number, j: number): number => curve.points[i]!.t - curve.points[j]!.t);
+      .sort(
+        (i: number, j: number): number =>
+          curve.points[i]!.t - curve.points[j]!.t,
+      );
 
     /** Resolve the exact predeclared trace column at t, if it is one. */
     const tracedColumn = (

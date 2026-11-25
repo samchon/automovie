@@ -19,26 +19,128 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop";
+
 /**
- * A long prop held in one hand or two, placed by its line: the carrying
- * hand's grip, the prop's axis from that grip to its end, and its roll about
- * that axis. Each hand holds the prop rigidly as it took it
- * (`AutoMovieMotionHumanHeld`), so the prop's frame fixes every holding
- * hand's rotation and grip: a vaulter's top hand and the lower hand a pole's
- * length apart along it.
+ * The prop the entry holds in one hand or both, with an end.
  *
- * The roll is free, the prop being held round its axis, so it is chosen to
- * keep the arms at their ease: each hand's way from the wrist toward its
- * elbow, as the hand sits on the forearm at the wrist's neutral, turned as
- * near as it goes to the way from the grip to that arm's shoulder, which
- * leaves the elbow between them and the wrist and the forearm twist near
- * their neutral. The roll ψ maximising Σ (R(ψ) v_k) · t_k about the axis a is
- * ψ = atan2(B, A), A = Σ (v_k · t_k − (a · v_k)(a · t_k)), B = Σ (a × v_k) · t_k.
+ * @param context The action's context.
+ * @param prop The prop's subject id.
+ * @param end The end's affordance id.
+ * @returns The pole; undefined when no hand holds it or it declares no such
+ *   end.
+ */
+export function walkPoleFrame(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  prop: string,
+  end: string,
+): walkPoleFrame.IPole | undefined {
+  const hands: walkPoleFrame.IHand[] = [];
+  let at: IAutoMovieVector3 | undefined;
+  for (const side of ["right", "left"] as const) {
+    if (context.entry.holds[side] !== prop) continue;
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+      context,
+      side,
+      prop,
+    );
+    const found: IAutoMovieAffordance | undefined = held.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === end,
+    );
+    if (found === undefined) return undefined;
+    at = found.frame.translation;
+    // The grip socket in the hand, holding the prop as it entered.
+    const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(
+        context.body,
+        context.entry.pose,
+        undefined,
+        HumanHand.frameBones(context.body, side, "grip"),
+      );
+    const bone: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
+    // The forearm's way in the hand at the wrist's neutral: the arm at
+    // clinical zero.
+    const hung: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanTrunk.resolve(
+        context.body,
+        context.entry.posture,
+        {
+          ...context.entry.posture.joints,
+          [`${side}UpperArm`]: [0, 0, 0],
+          [`${side}LowerArm`]: [0, 0, 0],
+          [`${side}Hand`]: [0, 0, 0],
+        },
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
+      );
+    const hand: IAutoMovieResolvedBone = hung.get(`${side}Hand`)!;
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      held.frame.rotation,
+    );
+    hands.push({
+      side,
+      held: held.frame,
+      socket: Quaternion.rotateVector(
+        Quaternion.inverse(bone.worldRotation),
+        Vector3.subtract(
+          HumanHand.frame(context.body, entered, side, "grip").point,
+          bone.worldPosition,
+        ),
+      ),
+      proximal: Vector3.normalize(
+        Quaternion.rotateVector(
+          Quaternion.inverse(hand.worldRotation),
+          Vector3.subtract(
+            hung.get(`${side}LowerArm`)!.worldPosition,
+            hand.worldPosition,
+          ),
+        ),
+      ),
+      grip: Quaternion.rotateVector(
+        inverse,
+        Vector3.scale(held.frame.position, -1),
+      ),
+    });
+  }
+  if (hands.length === 0 || at === undefined) return undefined;
+  const tip: IAutoMovieVector3 = at;
+  hands.sort(
+    (a: walkPoleFrame.IHand, b: walkPoleFrame.IHand): number =>
+      Vector3.distance(b.grip, tip) - Vector3.distance(a.grip, tip),
+  );
+  const carrying: walkPoleFrame.IHand = hands[0]!;
+  const axis: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(tip, carrying.grip),
+  );
+  return {
+    prop,
+    hands,
+    end: tip,
+    axis,
+    length: Vector3.distance(tip, carrying.grip),
+    fulcrum:
+      hands.length > 1
+        ? Vector3.dot(Vector3.subtract(hands[1]!.grip, carrying.grip), axis)
+        : 0,
+  };
+}
+
+/**
+ * A long prop held in one hand or two, placed by its line: the carrying hand's
+ * grip, the prop's axis from that grip to its end, and its roll about that
+ * axis. Each hand holds the prop rigidly as it took it
+ * (`AutoMovieMotionHumanHeld`), so the prop's frame fixes every holding hand's
+ * rotation and grip: a vaulter's top hand and the lower hand a pole's length
+ * apart along it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what places the prop, the rigid holds and the roll's closed form.
- * @evidence contracts/development/design.md#principled-representation The prop's frame in each holding hand's grip frame, read once, and the prop's line in the world.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One reading of the holds and one placement, read by the walk's carriage and the vault.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop is named: the end is the caller's affordance id and the holds are the entry's.
+ * The roll is free, the prop being held round its axis, so it is chosen to keep
+ * the arms at their ease: each hand's way from the wrist toward its elbow, as
+ * the hand sits on the forearm at the wrist's neutral, turned as near as it
+ * goes to the way from the grip to that arm's shoulder, which leaves the elbow
+ * between them and the wrist and the forearm twist near their neutral. The roll
+ * ψ maximising Σ (R(ψ) v_k) · t_k about the axis a is ψ = atan2(B, A), A = Σ
+ * (v_k · t_k − (a · v_k)(a · t_k)), B = Σ (a × v_k) · t_k.
  */
 export namespace walkPoleFrame {
   /** A hand holding the prop. */
@@ -46,13 +148,19 @@ export namespace walkPoleFrame {
     /** The hand. */
     side: AutoMovieHumanSide;
 
-    /** The prop's frame in the hand's grip frame: inverse(hand) times prop, the grip socket its origin. */
+    /**
+     * The prop's frame in the hand's grip frame: inverse(hand) times prop, the
+     * grip socket its origin.
+     */
     held: IAutoMovieRigidTransform;
 
     /** The grip from the wrist, metres, in the hand bone's axes. */
     socket: IAutoMovieVector3;
 
-    /** The unit way from the wrist toward the elbow with the wrist at its neutral, in the hand bone's axes. */
+    /**
+     * The unit way from the wrist toward the elbow with the wrist at its
+     * neutral, in the hand bone's axes.
+     */
     proximal: IAutoMovieVector3;
 
     /** The hand's grip in the prop's frame, metres. */
@@ -70,13 +178,19 @@ export namespace walkPoleFrame {
     /** The end, metres, in the prop's frame. */
     end: IAutoMovieVector3;
 
-    /** The unit axis from the carrying hand's grip to the end, in the prop's frame. */
+    /**
+     * The unit axis from the carrying hand's grip to the end, in the prop's
+     * frame.
+     */
     axis: IAutoMovieVector3;
 
     /** The carrying hand's grip to the end, metres. */
     length: number;
 
-    /** How far along the axis the other hand holds from the carrying hand, metres: the fulcrum; 0 with one hand. */
+    /**
+     * How far along the axis the other hand holds from the carrying hand,
+     * metres: the fulcrum; 0 with one hand.
+     */
     fulcrum: number;
   }
 
@@ -96,117 +210,6 @@ export namespace walkPoleFrame {
   }
 
   /**
-   * The prop the entry holds in one hand or both, with an end.
-   *
-   * @param context The action's context.
-   * @param prop The prop's subject id.
-   * @param end The end's affordance id.
-   * @returns The pole; undefined when no hand holds it or it declares no such end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and when nothing is.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hand's held frame and grip socket from the displayed entry; its forearm's way at the wrist's neutral by one forward-kinematics pass of the arm at clinical zero on the entry's trunk.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the two hands, then the carrying order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop without the end, or held by no hand, gives none.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two held-frame reads and two forward-kinematics passes at most, once per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held-prop reader, the grip frame and the trunk's forward kinematics.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
-    prop: string,
-    end: string,
-  ): IPole | undefined {
-    const hands: IHand[] = [];
-    let at: IAutoMovieVector3 | undefined;
-    for (const side of ["right", "left"] as const) {
-      if (context.entry.holds[side] !== prop) continue;
-      const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
-        context,
-        side,
-        prop,
-      );
-      const found: IAutoMovieAffordance | undefined = held.affordances.find(
-        (a: IAutoMovieAffordance): boolean => a.id === end,
-      );
-      if (found === undefined) return undefined;
-      at = found.frame.translation;
-      // The grip socket in the hand, holding the prop as it entered.
-      const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(
-          context.body,
-          context.entry.pose,
-          undefined,
-          HumanHand.frameBones(context.body, side, "grip"),
-        );
-      const bone: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
-      // The forearm's way in the hand at the wrist's neutral: the arm at
-      // clinical zero.
-      const hung: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        HumanTrunk.resolve(
-          context.body,
-          context.entry.posture,
-          {
-            ...context.entry.posture.joints,
-            [`${side}UpperArm`]: [0, 0, 0],
-            [`${side}LowerArm`]: [0, 0, 0],
-            [`${side}Hand`]: [0, 0, 0],
-          },
-          undefined,
-          new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
-        );
-      const hand: IAutoMovieResolvedBone = hung.get(`${side}Hand`)!;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-        held.frame.rotation,
-      );
-      hands.push({
-        side,
-        held: held.frame,
-        socket: Quaternion.rotateVector(
-          Quaternion.inverse(bone.worldRotation),
-          Vector3.subtract(
-            HumanHand.frame(context.body, entered, side, "grip").point,
-            bone.worldPosition,
-          ),
-        ),
-        proximal: Vector3.normalize(
-          Quaternion.rotateVector(
-            Quaternion.inverse(hand.worldRotation),
-            Vector3.subtract(
-              hung.get(`${side}LowerArm`)!.worldPosition,
-              hand.worldPosition,
-            ),
-          ),
-        ),
-        grip: Quaternion.rotateVector(
-          inverse,
-          Vector3.scale(held.frame.position, -1),
-        ),
-      });
-    }
-    if (hands.length === 0 || at === undefined) return undefined;
-    const tip: IAutoMovieVector3 = at;
-    hands.sort(
-      (a: IHand, b: IHand): number =>
-        Vector3.distance(b.grip, tip) - Vector3.distance(a.grip, tip),
-    );
-    const carrying: IHand = hands[0]!;
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(tip, carrying.grip),
-    );
-    return {
-      prop,
-      hands,
-      end: tip,
-      axis,
-      length: Vector3.distance(tip, carrying.grip),
-      fulcrum:
-        hands.length > 1
-          ? Vector3.dot(Vector3.subtract(hands[1]!.grip, carrying.grip), axis)
-          : 0,
-    };
-  }
-
-  /**
    * Each holding hand's goal for the prop placed by its line.
    *
    * @param pole The prop and its hands.
@@ -214,14 +217,6 @@ export namespace walkPoleFrame {
    * @param axis The unit way from that grip to the end, world.
    * @param shoulder Each holding arm's shoulder joint, world metres.
    * @returns One goal per holding hand, the carrying one first.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the roll and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The least turn of the prop's axis onto the line, the roll about the line in closed form (atan2(B, A) of the arms' alignment), then each hand by its rigid hold.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The turn, the roll, the hands.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each hand is the prop's frame through its own hold; no hand is placed apart from the prop.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per hand; no kinematics.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
    */
   export function place(
     pole: IPole,
@@ -253,8 +248,7 @@ export namespace walkPoleFrame {
       const t: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(shoulder(hand.side), at),
       );
-      a +=
-        Vector3.dot(v, t) - Vector3.dot(axis, v) * Vector3.dot(axis, t);
+      a += Vector3.dot(v, t) - Vector3.dot(axis, v) * Vector3.dot(axis, t);
       b += Vector3.dot(Vector3.cross(axis, v), t);
     }
     const frame: IAutoMovieQuaternion = Quaternion.normalize(
@@ -277,7 +271,10 @@ export namespace walkPoleFrame {
       );
       return {
         side: hand.side,
-        wrist: Vector3.subtract(at, Quaternion.rotateVector(rotation, hand.socket)),
+        wrist: Vector3.subtract(
+          at,
+          Quaternion.rotateVector(rotation, hand.socket),
+        ),
         rotation,
         grip: at,
       };
@@ -293,14 +290,6 @@ export namespace walkPoleFrame {
    * @param goals The holding hands' goals.
    * @param bend Each arm's elbow hint, world metres.
    * @returns The posture with those goals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is written and what the elbow is left to.
-   * @evidence contracts/development/implementation.md#principled-implementation The fit's own least-error, least-strain elbow (`IAutoMovieHumanLimbGoal.elbow`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal per hand.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Other limbs are kept.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per hand.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function write(
     posture: IAutoMovieMotionHumanPosture,
@@ -319,20 +308,12 @@ export namespace walkPoleFrame {
   }
 
   /**
-   * The angle between the carrying forearm and the pole's way to its end
-   * with the wrist at its neutral, degrees: the power grip's own angle, the
-   * pole crossing the palm, read from the carrying hand's hold.
+   * The angle between the carrying forearm and the pole's way to its end with
+   * the wrist at its neutral, degrees: the power grip's own angle, the pole
+   * crossing the palm, read from the carrying hand's hold.
    *
    * @param pole The prop and its hands.
    * @returns The angle, degrees in [0, 180].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the angle, its frame and where it is read.
-   * @evidence contracts/development/implementation.md#principled-implementation The forearm's way in the hand at the wrist's neutral (the reverse of `proximal`) against the pole's axis carried into the hand by the hold.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two directions and one angle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angle is the hold's own, never a constant.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function neutral(pole: IPole): number {
     const hand: IHand = pole.hands[0]!;
@@ -353,24 +334,16 @@ export namespace walkPoleFrame {
   }
 
   /**
-   * A body's power-grip angle before it holds anything: the angle between
-   * the forearm, the wrist at its neutral, and the bar a grasp wraps
-   * (`HumanGraspHand` lays the grip frame's forward along the bar's
-   * wrapped axis), on the bar's side that makes it acute, as a grasp from a
-   * bar's declared frame leaves the planted end (`neutral` reads the same
-   * angle off a hold).
+   * A body's power-grip angle before it holds anything: the angle between the
+   * forearm, the wrist at its neutral, and the bar a grasp wraps
+   * (`HumanGraspHand` lays the grip frame's forward along the bar's wrapped
+   * axis), on the bar's side that makes it acute, as a grasp from a bar's
+   * declared frame leaves the planted end (`neutral` reads the same angle off a
+   * hold).
    *
    * @param body The body.
    * @param side The hand.
    * @returns The angle, degrees in [0, 90].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the angle, its source and the side taken.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip frame's forward, across its normal, against the forearm's way in the hand from one forward-kinematics pass of the arm at clinical zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One grip frame, one pass, one angle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angle is the body's own grasp geometry, never a constant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function power(
     body: IAutoMovieMotionHumanBody,
@@ -420,36 +393,28 @@ export namespace walkPoleFrame {
       ),
     );
     const angle: number =
-      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(fore, forward)))) *
-        180) /
+      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(fore, forward)))) * 180) /
       Math.PI;
     return Math.min(angle, 180 - angle);
   }
 
   /**
-   * The straight carrying arm's elevation at a plant, and the grip's height
-   * and the pole's elevation it gives: the arm raised so the forearm meets
-   * the pole at the grip's neutral angle (`neutral`), the pole running from
-   * the grip to its end on the floor ahead. With the grip at height
-   * h(e) = s + r·sin e and the pole at −asin(h / ℓ) below the horizontal,
-   * the angle between them, e + asin(h(e) / ℓ), rises with e, so it meets
-   * the neutral angle at one elevation, found by bisection on that monotone
-   * function, no higher than lets the pole lean `lean` from upright.
+   * The straight carrying arm's elevation at a plant, and the grip's height and
+   * the pole's elevation it gives: the arm raised so the forearm meets the pole
+   * at the grip's neutral angle (`neutral`), the pole running from the grip to
+   * its end on the floor ahead. With the grip at height h(e) = s + r·sin e and
+   * the pole at −asin(h / ℓ) below the horizontal, the angle between them, e +
+   * asin(h(e) / ℓ), rises with e, so it meets the neutral angle at one
+   * elevation, found by bisection on that monotone function, no higher than
+   * lets the pole lean `lean` from upright.
    *
    * @param shoulder The carrying shoulder's height above the floor, metres.
    * @param reach The carrying arm's shoulder-to-wrist length, metres.
    * @param length The carrying grip's distance from the pole's end, metres.
    * @param neutral The grip's neutral angle, degrees (`neutral`).
    * @param lean The pole's least lean from upright, degrees.
-   * @returns The plant; undefined when the pole is too short to reach the floor from the lowest grip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the condition, its monotone form, the bound and the refusal case.
-   * @evidence contracts/development/implementation.md#principled-implementation The forearm at the grip's neutral angle to the pole holds the pole with the wrist and the forearm twist neutral; the angle is monotone in the elevation, so its root is bracketed and bisected.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The bracket, the bisection, the plant.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An angle the bracket never reaches takes the bracket's nearer end; a pole too short at the lowest grip gives none.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `SPLITS` halvings of a half turn, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns The plant; undefined when the pole is too short to reach the floor
+   *   from the lowest grip.
    */
   export function plant(
     shoulder: number,
@@ -489,11 +454,17 @@ export namespace walkPoleFrame {
     /** The grip's height above the floor, metres. */
     high: number;
 
-    /** The pole's elevation from the grip to its end, degrees, below the horizontal. */
+    /**
+     * The pole's elevation from the grip to its end, degrees, below the
+     * horizontal.
+     */
     pole: number;
   }
 
-  /** The halvings the plant's bisection takes: a half turn to a millionth of a degree. */
+  /**
+   * The halvings the plant's bisection takes: a half turn to a millionth of a
+   * degree.
+   */
   const SPLITS: number = 28;
 
   /** The shortest turn carrying one unit direction onto another. */

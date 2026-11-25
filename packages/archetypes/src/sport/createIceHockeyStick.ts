@@ -14,23 +14,20 @@ const BLADE: number = 0.015;
 /**
  * An ice hockey stick with a blade face and a two-hand shaft grip.
  *
- * The blade extends along +X from the heel at the model origin. Its striking face points +Z.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * The blade extends along +X from the heel at the model origin. Its striking
+ * face points +Z.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
- * @evidence contracts/development/implementation.md#principled-implementation Form the blade and rectangular shaft from the recorded IIHF length and section bands.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the profile and build its parts and contacts at the same dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The coarse blade thickness retains its named estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The profile has a fixed number of parts and contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved recipes call this producer with the original seed namespace and geometry.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call returns an independent model and retains no inputs.
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
+ * @returns The model with its named contacts in its local frame.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createIceHockeyStick(
   params: createIceHockeyStick.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createIceHockeyStick.Affordance,
   createIceHockeyStick.Dimension
@@ -62,16 +59,12 @@ export function createIceHockeyStick(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createIceHockeyStick}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the profile's dimensions, authoring choices and contacts.
- * @evidence contracts/development/design.md#principled-representation The contact union covers playing and grasp surfaces realized by this shape. Dimensions use metres and mass uses kilograms. The draw checks the retained bands and measured choices.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs name only controls this producer accepts, and contacts are those built for motion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
- */
+/** The authored parameters and contact names for {@link createIceHockeyStick}. */
 export namespace createIceHockeyStick {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "depth"
     | "head"

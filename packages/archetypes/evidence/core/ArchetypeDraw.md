@@ -1,21 +1,3 @@
-# src/core/ArchetypeDraw.ts#ArchetypeDraw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it checks and where the draws went.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Membership in a closed list, refused with the list.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, `choice`, which producers call for a kind and the session calls for a model's name.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-An unknown value is refused, never replaced by a default.
-
 # src/core/ArchetypeDraw.ts#ArchetypeDraw.choice
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedRootRange.ts#AutoMovieArchetypeQuadrupedRootRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines model-space metre constraints, one shared vertical translation, the above-foot branch and refusal of an empty intersection.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each limb combines its fixed neutral attachment, unchanged terminal goal and folded-chain reach; all four constrain the same scalar root translation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns vertical feasibility only; limb reach, contact goals, neutral body construction and pose lowering retain their separate owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No limb root moves independently, no foot target is clipped and no species, speed, seed or clinical limit supplies a substitute reach.
-
 # src/animals/AutoMovieArchetypeQuadrupedRootRange.ts#AutoMovieArchetypeQuadrupedRootRange.IConstraint
 
 ## @evidence contracts/development/common.md#meaningful-documentation

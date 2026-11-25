@@ -18,12 +18,12 @@ No socket or outline corner is removed, and no posed/world point or target is ca
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear preparation in a foot's sole points once per unchanged body/side; each placement retains the original linear quaternion/translation work while omitting repeated socket/rest-frame conversions.
+Linear preparation in a foot's sole points per prepared reader; each placement retains the original linear quaternion/translation work while omitting repeated socket/rest-frame conversions.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The immutable body's rest joints and surface/outline frames fix ankle-local points, matching HumanFootOutline's existing per-body lifetime; another body is required to adopt geometry edits.
+The immutable body's rest joints and surface/outline frames fix ankle-local points, computed once per prepared reader and shared by every placement it reads; another body is required to adopt geometry edits.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-A weak body map owns at most two side readers and their local-point lists per live body; action-owned borrowed readers release with their actions, and no angle, pose or queried-placement history grows the cache.
+The returned reader owns its local-point list and is released with its caller; no angle, pose or queried-placement history is kept.

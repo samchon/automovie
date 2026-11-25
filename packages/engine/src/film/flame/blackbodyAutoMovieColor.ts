@@ -20,7 +20,7 @@ const SECOND_RADIATION: number = 1.438776877e-2;
  * @throws {RangeError} When `kelvin` is not finite and positive.
  */
 export function blackbodyAutoMovieColor(kelvin: number): IAutoMovieColor {
-  if (!Number.isFinite(kelvin) || kelvin <= 0)
+  if (kelvin <= 0)
     throw new RangeError(
       `blackbody temperature must be positive, got ${kelvin}`,
     );

@@ -8,24 +8,24 @@ import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArtic
 import { solveXpbdContacts } from "./solveXpbdContacts";
 
 /**
- * The support rows of one articulation: which contacts take part, the rows
- * each patch gives, and how a row reads and moves the tree.
+ * The support rows of one articulation: which contacts take part, the rows each
+ * patch gives, and how a row reads and moves the tree.
  *
- * A patch takes part when one side is a body of the tree and the other is
- * not dynamic (the floor, a kinematic prop), with its points the step
- * pressed (`normalLambda > 0`) and those touching inside the allowed depth,
- * which a sequential-impulse solver's velocity rows also cover (Catto 2006,
- * "Fast and Simple Physics using Sequential Impulses"). Each such point
- * gives a normal row along its push direction; each patch gives two
- * tangential rows at its points' centroid (patch friction) and, when asked,
- * a torsional row, a unit moment about its normal. A sole's friction resists
- * its turning about the normal through the lever of each pressed point, as
- * TSID's six-dimensional contact models a sole by its four corner points,
- * each in its own friction cone, and sums their moments into the contact
- * wrench (`contact-6d.cpp`, `updateForceGeneratorMatrix` and
- * `updateForceInequalityConstraints`); the torsional row carries that moment,
- * bounded by the points' levers and never held, as the patch's turning is
- * the contact passes' (`solveXpbdSupportCascade`).
+ * A patch takes part when one side is a body of the tree and the other is not
+ * dynamic (the floor, a kinematic prop), with its points the step pressed
+ * (`normalLambda > 0`) and those touching inside the allowed depth, which a
+ * sequential-impulse solver's velocity rows also cover (Catto 2006, "Fast and
+ * Simple Physics using Sequential Impulses"). Each such point gives a normal
+ * row along its push direction; each patch gives two tangential rows at its
+ * points' centroid (patch friction) and, when asked, a torsional row, a unit
+ * moment about its normal. A sole's friction resists its turning about the
+ * normal through the lever of each pressed point, as TSID's six-dimensional
+ * contact models a sole by its four corner points, each in its own friction
+ * cone, and sums their moments into the contact wrench (`contact-6d.cpp`,
+ * `updateForceGeneratorMatrix` and `updateForceInequalityConstraints`); the
+ * torsional row carries that moment, bounded by the points' levers and never
+ * held, as the patch's turning is the contact passes'
+ * (`solveXpbdSupportCascade`).
  */
 export namespace AutoMovieXpbdSupportRows {
   /**
@@ -35,8 +35,8 @@ export namespace AutoMovieXpbdSupportRows {
    * @param contacts The step's contacts.
    * @param h The substep, seconds.
    * @param torsion Whether each patch also gives its torsional row.
-   * @returns The rows and patches, normals then tangents then the torsional
-   *   row per patch.
+   * @returns The rows and patches, normals then tangents then the torsional row
+   *   per patch.
    */
   export function collect(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -108,8 +108,10 @@ export namespace AutoMovieXpbdSupportRows {
       );
       const centroid: IAutoMovieVector3 = Vector3.scale(
         points.reduce(
-          (sum: IAutoMovieVector3, point: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(sum, point),
+          (
+            sum: IAutoMovieVector3,
+            point: IAutoMovieVector3,
+          ): IAutoMovieVector3 => Vector3.add(sum, point),
           { x: 0, y: 0, z: 0 },
         ),
         1 / points.length,
@@ -198,29 +200,30 @@ export namespace AutoMovieXpbdSupportRows {
   }
 
   /**
-   * A row's unit spatial impulse on its body: a force along the direction
-   * at the point, or a torsional row's moment about the direction.
+   * A row's unit spatial impulse on its body: a force along the direction at
+   * the point, or a torsional row's moment about the direction.
    *
    * @param row The row.
    * @returns The spatial impulse, moment then force, about the tree origin.
    */
-  export function impulse(row: Contacts.IRow): number[] {
+  export function impulse(
+    row: Pick<Contacts.IRow, "moment" | "direction" | "point">,
+  ): number[] {
     return row.moment === true
       ? [row.direction.x, row.direction.y, row.direction.z, 0, 0, 0]
       : AutoMovieXpbdArticulation.spatialImpulse(row.point, row.direction);
   }
 
   /**
-   * A row's velocity change under a response, along its direction: the
-   * point's linear change, or a torsional row's angular change about the
-   * direction.
+   * A row's velocity change under a response, along its direction: the point's
+   * linear change, or a torsional row's angular change about the direction.
    *
    * @param row The row.
    * @param response The response.
    * @returns Metres per second, or radians per second for a torsional row.
    */
   export function along(
-    row: Contacts.IRow,
+    row: Pick<Contacts.IRow, "state" | "moment" | "direction" | "point">,
     response: AutoMovieXpbdArticulation.IResponse,
   ): number {
     const change: number[] = response.change[row.state]!;
@@ -231,21 +234,22 @@ export namespace AutoMovieXpbdSupportRows {
         row.direction.z * change[2]!
       );
     return Vector3.dot(
-          row.direction,
-          AutoMovieXpbdArticulation.pointChange(change, row.point),
-        );
+      row.direction,
+      AutoMovieXpbdArticulation.pointChange(change, row.point),
+    );
   }
 
   /**
    * A patch's torsional capacity per unit friction coefficient: each pressed
-   * point's normal impulse on its pyramid lever from the centroid, sum_i
-   * (|r_i . t1| + |r_i . t2|) N_i, the most moment about the normal its
-   * points' linearized cones give (TSID `contact-6d.cpp`); zero for a patch
-   * pressed at one point or loaded only where it has no lever.
+   * point's normal impulse on its pyramid lever from the centroid, sum_i (|r_i
+   * . t1| + |r_i . t2|) N_i, the most moment about the normal its points'
+   * linearized cones give (TSID `contact-6d.cpp`); zero for a patch pressed at
+   * one point or loaded only where it has no lever.
    *
    * @param levers Each pressed point's offset from the centroid, metres.
    * @param tangents The patch's two unit tangents.
-   * @param normals Each point's normal impulse, newton seconds; a negative one counts as none.
+   * @param normals Each point's normal impulse, newton seconds; a negative one
+   *   counts as none.
    * @returns The capacity, newton metre seconds.
    */
   export function capacity(
@@ -266,7 +270,9 @@ export namespace AutoMovieXpbdSupportRows {
   /** Two unit tangents completing a unit normal to a right-handed basis. */
   function tangents(n: IAutoMovieVector3): IAutoMovieVector3[] {
     const seed: IAutoMovieVector3 =
-      Math.abs(n.x) < Math.SQRT1_2 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
+      Math.abs(n.x) < Math.SQRT1_2
+        ? { x: 1, y: 0, z: 0 }
+        : { x: 0, y: 1, z: 0 };
     const t1: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(n, seed));
     return [t1, Vector3.cross(n, t1)];
   }

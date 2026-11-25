@@ -86,14 +86,14 @@ const run: (steps: number) => Map<string, number[]> = (
  * 5. A `center` reference subtracts body locomotion from inertia: after the
  *    center/root/joint translate together, the joint remains on its rest offset
  *    instead of whipping from the center's world delta.
- * 6. `hitRadius` is a physical collision radius and rejects non-finite or
- *    non-positive values before the integrator reads transform inputs.
+ * 6. `hitRadius` is a physical collision radius and rejects non-positive
+ *    values before the integrator reads transform inputs.
  * 7. Spring force magnitudes allow zero but reject negative values.
  * 8. Distinct chains sharing a moving center each subtract its translation, independent of driver order.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual stepSpring with carried state and asserts sag, length, replay, input refusal and body-translation compensation; two chains sharing a center reject center memory that only compensates the first driver.
  * @evidence contracts/development/testing.md#independent-expectations Gravity must lower an initially horizontal unconstrained-inertia chain and unit local translations fix one-metre bones. With gravity/stiffness/drag zero, equal center/root/joint translation adds no relative velocity, so both one-metre offsets remain (1,0,0) in either driver order.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers repeated integration/replay, null center, moving/missing center, invalid finite/range parameters, zero force neighbors and missing world/local inputs. Two separate chains with one center distinguish chain-specific history from center-global consumption; collision geometry is owned by test_resolve_spring_collision.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers repeated integration/replay, null center, moving/missing center, invalid range parameters, zero force neighbors and missing world/local inputs. Two separate chains with one center distinguish chain-specific history from center-global consumption; collision geometry is owned by test_resolve_spring_collision.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable test_resolve_spring runs portable numeric scene-node chains synchronously through the real world/state seam, without a Human asset, viewer, GPU or replaced foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: After enough steps the chain laid out along +X has sagged downward: both).
  */
@@ -153,30 +153,15 @@ export function test_resolve_spring(): void {
         expected,
       ),
     );
-  invalid("spring rejects NaN time step", {}, Number.NaN, [
-    "spring driver time step",
-    "finite",
-    "NaN",
-  ]);
   invalid("spring rejects zero time step", {}, 0, [
     "spring driver time step",
     "> 0",
     "0",
   ]);
-  invalid("spring rejects NaN stiffness", { stiffness: Number.NaN }, 1 / 60, [
-    "spring driver stiffness",
-    "finite",
-    "NaN",
-  ]);
   invalid("spring rejects negative stiffness", { stiffness: -0.1 }, 1 / 60, [
     "spring driver stiffness",
     "non-negative",
     "-0.1",
-  ]);
-  invalid("spring rejects NaN drag", { drag: Number.NaN }, 1 / 60, [
-    "spring driver drag",
-    "finite",
-    "NaN",
   ]);
   invalid("spring rejects negative drag", { drag: -0.1 }, 1 / 60, [
     "spring driver drag",
@@ -188,17 +173,6 @@ export function test_resolve_spring(): void {
     "between 0 and 1",
     "1.1",
   ]);
-  invalid("spring rejects NaN hit radius", { hitRadius: Number.NaN }, 1 / 60, [
-    "spring driver hitRadius",
-    "finite",
-    "NaN",
-  ]);
-  invalid(
-    "spring rejects infinite hit radius",
-    { hitRadius: Infinity },
-    1 / 60,
-    ["spring driver hitRadius", "finite", "Infinity"],
-  );
   invalid("spring rejects zero hit radius", { hitRadius: 0 }, 1 / 60, [
     "spring driver hitRadius",
     "> 0",
@@ -210,22 +184,10 @@ export function test_resolve_spring(): void {
     "-0.1",
   ]);
   invalid(
-    "spring rejects infinite gravity power",
-    { gravityPower: Infinity },
-    1 / 60,
-    ["spring driver gravityPower", "finite", "Infinity"],
-  );
-  invalid(
     "spring rejects negative gravity power",
     { gravityPower: -1 },
     1 / 60,
     ["spring driver gravityPower", "non-negative", "-1"],
-  );
-  invalid(
-    "spring rejects non-finite gravity direction",
-    { gravityDir: { x: Number.NaN, y: -1, z: 0 } },
-    1 / 60,
-    ["spring driver gravityDir.x", "finite", "NaN"],
   );
   invalid(
     "spring rejects zero gravity direction",

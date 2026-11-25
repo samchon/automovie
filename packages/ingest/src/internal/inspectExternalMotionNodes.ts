@@ -6,7 +6,12 @@ import { object } from "./object";
 /**
  * Read glTF motion nodes as finite canonical local TRS records.
  *
- * The caller supplies a validated acyclic parent table. Omitted translation, rotation and scale use glTF defaults; present tuples must be finite, scales positive and quaternion magnitude within 1e-4 of one before normalization. Matrix transforms throw instead of being decomposed. Records use source-index ids, null for absent/empty names or root parents, and fresh transform objects.
+ * The caller supplies a validated acyclic parent table. Omitted translation,
+ * rotation and scale use glTF defaults; present tuples must be finite, scales
+ * positive and quaternion magnitude within 1e-4 of one before normalization.
+ * Matrix transforms throw instead of being decomposed. Records use source-index
+ * ids, null for absent/empty names or root parents, and fresh transform
+ * objects.
  */
 export const inspectExternalMotionNodes: (
   values: unknown[],

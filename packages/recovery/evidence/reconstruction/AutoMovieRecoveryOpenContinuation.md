@@ -1,21 +1,3 @@
-# src/reconstruction/AutoMovieRecoveryOpenContinuation.ts#AutoMovieRecoveryOpenContinuation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States observation-only source use, saved-fit reuse and the distinction between orientation qualification and topology.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Saved physical stations and unchanged cubic identities bind source observations to candidate open-arc continuation pairs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Recovery reuses the scalar/cut/open-slab owners and returns the common source-free continuation contract without refitting saved coefficients.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The caller verifies source and artifact bytes; orientation warnings and unsupported topology remain explicit instead of changing geometry.
-
 # src/reconstruction/AutoMovieRecoveryOpenContinuation.ts#AutoMovieRecoveryOpenContinuation.observe
 
 ## @evidence contracts/development/implementation.md#principled-implementation

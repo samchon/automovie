@@ -9,8 +9,8 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
 /**
  * A depth material normalized on a scene-stable metric range instead of the
  * camera's clip planes. The vertex stage includes three's morph and skinning
- * chunks in the order of its own depth shader (a plain rigid mesh compiles
- * them out), so the depth of a posed skinned character with correctives is the
+ * chunks in the order of its own depth shader (a plain rigid mesh compiles them
+ * out), so the depth of a posed skinned character with correctives is the
  * deformed surface's, morph before skin, not the bind pose's. Both stages
  * include three's clipping chunks, so a clipping plane given to the material
  * cuts the pass as it cuts a built-in material.
@@ -63,7 +63,8 @@ const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (
  * A finite positive range in metres is a caller premise. Restoring the returned
  * handle restores borrowed materials/background and retires pass materials.
  * Active or failed scene retirement refuses before background mutation; failed
- * restoration retains its owned callback and original cause through that scene.
+ * restoration retains its owned callback and original cause through that
+ * scene.
  */
 export const applyDepthMode: (
   scene: THREE.Scene,

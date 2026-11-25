@@ -1,5 +1,6 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -10,26 +11,24 @@ import type {
 import { AutoMovieMotionHumanAuditBalance } from "../../audit/AutoMovieMotionHumanAuditBalance";
 import { HumanFoot } from "../../posture/HumanFoot";
 
+/** The record of `IWorstOutsideWorst`'s site. */
+type IWorstOutsideWorst = { value: number; at: number };
+
+/** The record of `IWorstOutsideResult`'s site. */
+type IWorstOutsideResult = { value: number; at: number };
+
 /**
- * Measures of a held stance on displayed poses, shared by the step 4
- * capture cases (stretching, dance, sport): how far the body's extrapolated
- * centre of mass stands outside one standing foot, a joint's clinical angle,
- * and the angle between two bones.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each measure reads and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Balance is Hof's margin of stability (Hof, Gazendam and Sinke 2005): the body's own mass model on the displayed bones, its centre extrapolated by its velocity over the inverted pendulum's eigenfrequency, against the standing foot's bearing outline (`HumanFoot.base`), as the balance audit reads it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three small measures.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No measure reads a law's goal or a collider's shape.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three displayed poses per balance reading, for the centre and its central difference.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * Measures of a held stance on displayed poses, shared by the step 4 capture
+ * cases (stretching, dance, sport): how far the body's extrapolated centre of
+ * mass stands outside one standing foot, a joint's clinical angle, and the
+ * angle between two bones.
  */
 export namespace StanceVerdicts {
   /**
    * How far the extrapolated centre of mass lies outside one standing foot's
-   * bearing outline, metres: the margin of stability negated, negative
-   * inside. The velocity is the central difference over the balance audit's
-   * step (`AutoMovieMotionHumanAuditBalance.STEP`), clamped into the film.
+   * bearing outline, metres: the margin of stability negated, negative inside.
+   * The velocity is the central difference over the balance audit's step
+   * (`AutoMovieMotionHumanAuditBalance.STEP`), clamped into the film.
    *
    * @param performance The performance.
    * @param subject The performer.
@@ -42,7 +41,7 @@ export namespace StanceVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
   ): number {
     const centre: (t: number) => IAutoMovieVector3 = (
@@ -95,11 +94,11 @@ export namespace StanceVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     from: number,
     to: number,
-  ): { value: number; at: number } {
-    let worst: { value: number; at: number } = { value: -Infinity, at: from };
+  ): IWorstOutsideResult {
+    let worst: IWorstOutsideWorst = { value: -Infinity, at: from };
     for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
       const v: number = outside(performance, subject, body, side, t);
       if (v > worst.value) worst = { value: v, at: t };
@@ -117,7 +116,7 @@ export namespace StanceVerdicts {
    * @returns Flexion, abduction and twist; zeros when the pose omits the joint.
    */
   export function joint(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
     bone: AutoMovieHumanoidBone,
     seconds: number,
@@ -142,7 +141,7 @@ export namespace StanceVerdicts {
    * @returns Degrees.
    */
   export function included(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "bones">,
     subject: string,
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,

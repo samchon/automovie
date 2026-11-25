@@ -21,29 +21,30 @@ interface Located {
 /**
  * Convex rational cubic G2 Hermite interpolation of a short conic end.
  *
- * Degree-elevating a rational quadratic gives weights [1,u0,u0,1].
- * For a fixed control polygon, start curvature is proportional to v/u^2
- * and end curvature to u/v^2. Thus [1,u0/tau^(2/3),u0/tau^(1/3),1]
- * changes only the start curvature by tau. This is the standard rational
- * cubic osculatory problem described by Habib and Sakai (2001, p341),
+ * Degree-elevating a rational quadratic gives weights [1,u0,u0,1]. For a fixed
+ * control polygon, start curvature is proportional to v/u^2 and end curvature
+ * to u/v^2. Thus [1,u0/tau^(2/3),u0/tau^(1/3),1] changes only the start
+ * curvature by tau. This is the standard rational cubic osculatory problem
+ * described by Habib and Sakai (2001, p341),
  * https://www.jams.or.jp/scm/contents/Vol-5-5/5-41.pdf .
  *
- * The original segment and this positive-weight convex cubic lie between
- * its chord and first tangent. For T<=1/2 their same-ray radial separation
- * is at most (a-x(T))/cos(phi(T)) <= 4*T^2*hypot(a,b). The chosen T is
- * smaller than the square root of that error budget. It also vanishes
- * linearly with 1-tau. Near tau=1, the radial correction is
- * O((1-tau)*T^2), its phase derivative O((1-tau)*T), and its second phase
- * derivative O(1-tau). Scaling the compact angular interval then makes all
- * mixed derivatives of total order at most two tend to zero. Away from
- * that branch the positive regular rational inverse is smooth.
+ * The original segment and this positive-weight convex cubic lie between its
+ * chord and first tangent. For T<=1/2 their same-ray radial separation is at
+ * most (a-x(T))/cos(phi(T)) <= 4_T^2_hypot(a,b). The chosen T is smaller than
+ * the square root of that error budget. It also vanishes linearly with 1-tau.
+ * Near tau=1, the radial correction is O((1-tau)*T^2), its phase derivative
+ * O((1-tau)*T), and its second phase derivative O(1-tau). Scaling the compact
+ * angular interval then makes all mixed derivatives of total order at most two
+ * tend to zero. Away from that branch the positive regular rational inverse is
+ * smooth.
  *
- * Small x deficits are stored separately from a, avoiding subtraction of
- * nearly equal world coordinates before differentiating.
+ * Small x deficits are stored separately from a, avoiding subtraction of nearly
+ * equal world coordinates before differentiating.
  */
 export namespace AutoMovieConicHermite {
   /**
-   * Prepare a convex G2 end approximation or an explicit finite-arithmetic failure.
+   * Prepare a convex G2 end approximation or an explicit finite-arithmetic
+   * failure.
    */
   export function create(
     a: number,
@@ -54,9 +55,7 @@ export namespace AutoMovieConicHermite {
     return prepare(AutoMovieConicFieldJet.NUMBER, a, b, r, shared);
   }
 
-  /**
-   * Prepare the same rational G2 end in NUMBER or source-Hessian algebra.
-   */
+  /** Prepare the same rational G2 end in NUMBER or source-Hessian algebra. */
   export function prepare<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     a: T,
@@ -68,9 +67,7 @@ export namespace AutoMovieConicHermite {
     return AutoMovieConicPreparation.end(ops, a, b, r, shared, own);
   }
 
-  /**
-   * Cartesian point and two derivatives in this cubic's own unit parameter.
-   */
+  /** Cartesian point and two derivatives in this cubic's own unit parameter. */
   export function jet(
     patch: IAutoMovieConicHermite.IPatch,
     t: number,
@@ -118,9 +115,7 @@ export namespace AutoMovieConicHermite {
     ];
   }
 
-  /**
-   * Polar jet on this admitted end's closed angular interval.
-   */
+  /** Polar jet on this admitted end's closed angular interval. */
   export function radius(
     patch: IAutoMovieConicHermite.IPatch,
     angle: number,
@@ -128,9 +123,7 @@ export namespace AutoMovieConicHermite {
     return locate(patch, angle)?.radial ?? [NaN, NaN, NaN];
   }
 
-  /**
-   * Locate a G2 ray once, preserving explicit endpoint identities.
-   */
+  /** Locate a G2 ray once, preserving explicit endpoint identities. */
   export function locate(
     patch: IAutoMovieConicHermite.IPatch,
     angle: number,
@@ -146,22 +139,16 @@ export namespace AutoMovieConicHermite {
         );
   }
 
-  /**
-   * Same admitted ray inverse and projective point without full geometry.
-   */
+  /** Same admitted ray inverse and projective point without full geometry. */
   export function point(
     patch: IAutoMovieConicHermite.IPatch,
     angle: number,
   ): readonly [number, number] | null {
     const selected: Located | null = locateReading(patch, angle);
-    return selected !== null && selected.reading.point.every(Number.isFinite)
-      ? selected.reading.point
-      : null;
+    return selected !== null ? selected.reading.point : null;
   }
 
-  /**
-   * Read only the radius of the same admitted projective source point.
-   */
+  /** Read only the radius of the same admitted projective source point. */
   export function value(
     patch: IAutoMovieConicHermite.IPatch,
     angle: number,
@@ -172,7 +159,7 @@ export namespace AutoMovieConicHermite {
       selected.position === "first"
         ? patch.extent
         : Math.hypot(...selected.reading.point);
-    return Number.isFinite(value) && value > 0 ? value : NaN;
+    return value > 0 ? value : NaN;
   }
 
   /** The original inverse, including its exact endpoint and residual policy. */
@@ -180,13 +167,11 @@ export namespace AutoMovieConicHermite {
     patch: IAutoMovieConicHermite.IPatch,
     angle: number,
   ): Located | null {
-    if (!(Number.isFinite(angle) && angle >= 0 && angle <= patch.angle))
-      return null;
+    if (!(angle >= 0 && angle <= patch.angle)) return null;
 
     const ops: IAutoMovieConicFieldJet.IAlgebra<number> =
       AutoMovieConicFieldJet.NUMBER;
     const weightLogs: number[] = patch.weights.map(Math.log);
-    if (!weightLogs.every(Number.isFinite)) return null;
 
     if (angle === 0 || angle === patch.angle) {
       const position: "first" | "last" = angle === 0 ? "first" : "last";
@@ -236,7 +221,7 @@ export namespace AutoMovieConicHermite {
       Number.EPSILON *
       (1 + Math.abs(clock) + Math.max(...weightLogs.map(Math.abs))) *
       patch.angle;
-    if (!(Number.isFinite(residual) && residual <= floor)) return null;
+    if (!(residual <= floor)) return null;
 
     return { reading, clock, position: "interior" };
   }

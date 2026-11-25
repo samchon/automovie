@@ -2,12 +2,14 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMoviePathGround } from "./AutoMoviePathGround";
 import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 
-/**
- * Data and callback contracts shared by the FollowPathMotion operations.
- */
+/** Data and callback contracts shared by the FollowPathMotion operations. */
 export namespace IAutoMovieFollowPathMotion {
   /**
-   * Bake an admitted in-place gait along an authored world XZ polyline, ignoring waypoint Y and sampling height from optional ground. Whole cycles nearest requested speed determine exact-arrival duration; yaw follows the tangent with a shortest-arc corner blend, and gait root bob/sway rotates with heading. Pathfinding is outside this operation.
+   * Bake an admitted in-place gait along an authored world XZ polyline,
+   * ignoring waypoint Y and sampling height from optional ground. Whole cycles
+   * nearest requested speed determine exact-arrival duration; yaw follows the
+   * tangent with a shortest-arc corner blend, and gait root bob/sway rotates
+   * with heading. Pathfinding is outside this operation.
    */
   export type IProps = {
     /** Output clip id. */

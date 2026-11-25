@@ -1,9 +1,10 @@
 /**
- * Window-coordinate jets and dimensionless palmar mass proportions with millimetre frame sizes. Runtime construction and admission remain with AutoMovieHumanHandWindow in Human.
+ * Window-coordinate jets and dimensionless palmar mass proportions with
+ * millimetre frame sizes. Runtime construction and admission remain with
+ * AutoMovieHumanHandWindow in Human.
  */
 export namespace IAutoMovieHumanHandWindow {
-  /** A function's value and its first and second derivatives.
-   */
+  /** A function's value and its first and second derivatives. */
   export interface IJet {
     /** Value. */
     value: number;
@@ -16,10 +17,10 @@ export namespace IAutoMovieHumanHandWindow {
   }
 
   /**
-   * An elliptic mass over the palmar skin, `h(s, t) = height D (1 - (s /
-   * a)^2 - (t / b)^2)^3` with `a = length L` and `b = width W`: its height
-   * over a depth `D` and its footprint's half extents over a length `L` and a
-   * half width `W` of its own frame, all CONVENTIONS (no mass of the hand is
+   * An elliptic mass over the palmar skin, `h(s, t) = height D (1 - (s / a)^2 -
+   * (t / b)^2)^3` with `a = length L` and `b = width W`: its height over a
+   * depth `D` and its footprint's half extents over a length `L` and a half
+   * width `W` of its own frame, all CONVENTIONS (no mass of the hand is
    * measured in the repository). It vanishes with slope and curvature at the
    * footprint's edge (rule J7), so it meets the skin under it without a seam.
    */
@@ -34,8 +35,7 @@ export namespace IAutoMovieHumanHandWindow {
     width: number;
   }
 
-  /** A mass's fixed sizes in its own frame, mm.
-   */
+  /** A mass's fixed sizes in its own frame, mm. */
   export interface IMassSize {
     /** The length `L` its footprint's half length is a share of. */
     length: number;

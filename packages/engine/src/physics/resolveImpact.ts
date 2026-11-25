@@ -15,33 +15,11 @@ const THROUGH_TRANSFER: number = 0.3 as const; // fraction of momentum a pass-th
 
 type ImpactCoefficient = "restitution" | "hardness" | "penetrability";
 
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
-
-const assertImpactVector: (
-  label: "a" | "b",
-  name: "velocity",
-  vector: IAutoMovieVector3,
-) => void = (
-  label: "a" | "b",
-  name: "velocity",
-  vector: IAutoMovieVector3,
-): void => {
-  for (const axis of VECTOR_AXES)
-    if (!Number.isFinite(vector[axis]))
-      throw new RangeError(
-        `impact body ${label} ${name}.${axis} must be finite, but was ${vector[axis]}`,
-      );
-};
-
 const assertImpactMass: (label: "a" | "b", mass: number) => void = (
   label: "a" | "b",
   mass: number,
 ): void => {
-  if (!Number.isFinite(mass))
-    throw new RangeError(
-      `impact body ${label} mass must be finite, but was ${mass}`,
-    );
-  if (!(mass > 0))
+  if (mass <= 0)
     throw new RangeError(
       `impact body ${label} mass must be > 0, but was ${mass}`,
     );
@@ -56,10 +34,6 @@ const assertImpactCoefficient: (
   name: ImpactCoefficient,
   value: number,
 ): void => {
-  if (!Number.isFinite(value))
-    throw new RangeError(
-      `impact body ${label} ${name} must be finite, but was ${value}`,
-    );
   if (value < 0 || value > 1)
     throw new RangeError(
       `impact body ${label} ${name} must be within [0, 1], but was ${value}`,
@@ -71,7 +45,6 @@ const assertImpactBody: (
   body: IAutoMovieImpactBodyState,
 ) => void = (label: "a" | "b", body: IAutoMovieImpactBodyState): void => {
   assertImpactMass(label, body.mass);
-  assertImpactVector(label, "velocity", body.velocity);
   assertImpactCoefficient(label, "restitution", body.restitution);
   assertImpactCoefficient(label, "hardness", body.hardness);
   assertImpactCoefficient(label, "penetrability", body.penetrability);
@@ -102,10 +75,6 @@ export const resolveImpact: (
   assertImpactBody("b", b);
 
   const normalLengthSq: number = Vector3.dot(normal, normal);
-  if (!Number.isFinite(normalLengthSq))
-    throw new RangeError(
-      `impact normal must be finite, but was (${normal.x}, ${normal.y}, ${normal.z})`,
-    );
   if (normalLengthSq === 0)
     throw new RangeError("impact normal must be non-zero");
 

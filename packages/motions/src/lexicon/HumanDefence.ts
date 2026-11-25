@@ -16,93 +16,88 @@ import { HUMAN_DEFENCE_SWAY_BACK } from "../next/presets/HUMAN_DEFENCE_SWAY_BACK
 import { defend } from "../striking/defend";
 
 /**
- * The defences as rows on the grammar (#3362): each named defence is a row
- * of `defend`, the law that owns the defender's role and the outcome shared
- * with the strike it answers, and the brace a row of `brace`, a base
- * adaptation. The composition gives the strike answered (`against`) and,
- * where the scene decides it, the outcome.
+ * The defences as rows on the grammar: each named defence is a row of `defend`,
+ * the law that owns the defender's role and the outcome shared with the strike
+ * it answers, and the brace a row of `brace`, a base adaptation. The
+ * composition gives the strike answered (`against`) and, where the scene
+ * decides it, the outcome.
  *
- * | Row | Law | Fixed |
- * | --- | --- | --- |
- * | `cover`, `handParry`, `elbowBlock`, `highBlock`, `checkKick` | `defend` | the block |
- * | `slip`, `rollUnder`, `swayBack` | `defend` | the evasion |
- * | `braceImpact`, `bracePush` | `brace` | what is braced for |
+ * | Row                                                          | Law      | Fixed              |
+ * | ------------------------------------------------------------ | -------- | ------------------ |
+ * | `cover`, `handParry`, `elbowBlock`, `highBlock`, `checkKick` | `defend` | the block          |
+ * | `slip`, `rollUnder`, `swayBack`                              | `defend` | the evasion        |
+ * | `braceImpact`, `bracePush`                                   | `brace`  | what is braced for |
  *
- * Every `defend` row shares one timing ({@link IAutoMovieMotionHumanDefend}): the
- * defender starts after a reaction time of about 0.3 s less the anticipation the
- * strike's preparation shows, and its limb or head takes 0.30 s at novice to
- * 0.20 s at elite to move, so against a rear straight of 0.310 s a defence is in time
- * only when it anticipates, and a kick or a fast strike is met late by a
- * novice. `slip`, `rollUnder` and `swayBack` fit a punch; `cover`,
- * `elbowBlock` and `highBlock` fit a punch or a kick to the guarded region;
- * `checkKick` fits a kick to the leg. The `brace` rows set the stance for an
- * impact or a push and state no time.
+ * Every `defend` row shares one timing ({@link IAutoMovieMotionHumanDefend}):
+ * the defender starts after a reaction time of about 0.3 s less the
+ * anticipation the strike's preparation shows, and its limb or head takes 0.30
+ * s at novice to 0.20 s at elite to move, so against a rear straight of 0.310 s
+ * a defence is in time only when it anticipates, and a kick or a fast strike is
+ * met late by a novice. `slip`, `rollUnder` and `swayBack` fit a punch;
+ * `cover`, `elbowBlock` and `highBlock` fit a punch or a kick to the guarded
+ * region; `checkKick` fits a kick to the leg. The `brace` rows set the stance
+ * for an impact or a push and state no time.
  *
  * `handParry`, `rollUnder` and `swayBack` are named apart from the blade's
- * `parry`, the regrasp's `roll` and the drill's `sway`, so a name a
- * performance registers is one row.
+ * `parry`, the regrasp's `roll` and the drill's `sway`, so a name a performance
+ * registers is one row.
  *
  * Each `defend` row fixes the kind of the preset of the same name in
  * `AutoMovieMotionHumanDefence` (`COVER`, `SLIP` and the rest), so the values
  * are written once.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of and what the composition gives.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface The named defences of #3362's table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the outcome stays the defence law's.
  */
 export namespace HumanDefence {
   /** Both forearms brought up to cover the head. */
   export const cover: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["cover"]
-  > = HumanActionRow.of("cover", defend, HUMAN_DEFENCE_COVER);
+  > = HumanActionRow("cover", defend, HUMAN_DEFENCE_COVER);
 
   /** The incoming fist deflected by the hand. */
   export const handParry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["handParry"]
-  > = HumanActionRow.of("handParry", defend, HUMAN_DEFENCE_HAND_PARRY);
+  > = HumanActionRow("handParry", defend, HUMAN_DEFENCE_HAND_PARRY);
 
   /** A body strike taken on the elbow. */
   export const elbowBlock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["elbowBlock"]
-  > = HumanActionRow.of("elbowBlock", defend, HUMAN_DEFENCE_ELBOW_BLOCK);
+  > = HumanActionRow("elbowBlock", defend, HUMAN_DEFENCE_ELBOW_BLOCK);
 
   /** A high strike taken on the raised forearm. */
   export const highBlock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["highBlock"]
-  > = HumanActionRow.of("highBlock", defend, HUMAN_DEFENCE_HIGH_BLOCK);
+  > = HumanActionRow("highBlock", defend, HUMAN_DEFENCE_HIGH_BLOCK);
 
   /** A kick checked with the raised shin. */
   export const checkKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["checkKick"]
-  > = HumanActionRow.of("checkKick", defend, HUMAN_DEFENCE_CHECK_KICK);
+  > = HumanActionRow("checkKick", defend, HUMAN_DEFENCE_CHECK_KICK);
 
   /** The head moved off the line of a straight punch. */
   export const slip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["slip"]
-  > = HumanActionRow.of("slip", defend, HUMAN_DEFENCE_SLIP);
+  > = HumanActionRow("slip", defend, HUMAN_DEFENCE_SLIP);
 
   /** The body rolled under a hook. */
   export const rollUnder: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["rollUnder"]
-  > = HumanActionRow.of("rollUnder", defend, HUMAN_DEFENCE_ROLL_UNDER);
+  > = HumanActionRow("rollUnder", defend, HUMAN_DEFENCE_ROLL_UNDER);
 
   /** The trunk swayed back from a strike. */
   export const swayBack: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["swayBack"]
-  > = HumanActionRow.of("swayBack", defend, HUMAN_DEFENCE_SWAY_BACK);
+  > = HumanActionRow("swayBack", defend, HUMAN_DEFENCE_SWAY_BACK);
 
   /** The stance widened and lowered for an impact. */
   export const braceImpact: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["braceImpact"]
-  > = HumanActionRow.of("braceImpact", brace, {
+  > = HumanActionRow("braceImpact", brace, {
     kind: "impact",
   });
 
   /** The stance set against a push. */
   export const bracePush: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["bracePush"]
-  > = HumanActionRow.of("bracePush", brace, {
+  > = HumanActionRow("bracePush", brace, {
     kind: "push",
   });
 }

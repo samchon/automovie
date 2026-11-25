@@ -2,8 +2,8 @@ import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
 
 /**
  * Check logical numerical retention before incremental designs are allocated.
- * The shared joint bound covers copied blocks, reduced factors and landmarks;
- * a caller adds transient point or resection factors retained during growth.
+ * The shared joint bound covers copied blocks, reduced factors and landmarks; a
+ * caller adds transient point or resection factors retained during growth.
  * These scalar slots exclude JS overhead and the separately bounded seed fit.
  */
 export function assertRecoverySceneLinearRetention(
@@ -23,7 +23,7 @@ export function assertRecoverySceneLinearRetention(
   if (
     cameras < 2 ||
     ![cameras, observations, landmarks, transientEntries, slots].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value >= 0,
+      (value: number): boolean => value >= 0,
     ) ||
     slots > budget.maxResidentLinearEntries
   ) {

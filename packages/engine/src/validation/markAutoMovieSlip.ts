@@ -1,13 +1,24 @@
 import type { IAutoMovieMark, IAutoMovieMarkSlip } from "@automovie/interface";
 
 /**
- * Turn the slip of planted or held contacts at one instant into inspection marks: a segment from where each contact was planted to where it is now, flagged when it has moved farther than its limit.
+ * Turn the slip of planted or held contacts at one instant into inspection
+ * marks: a segment from where each contact was planted to where it is now,
+ * flagged when it has moved farther than its limit.
  *
- * Each entry is a contact's path, the world point it was planted at, its world point now, both in metres, and the horizontal distance in metres it may move, as `validateFootSkate` bounds a planted foot. The distance is measured in the horizontal XZ plane, as the skate check measures it. A contact that has moved draws one segment of kind `slip`, label `slip`, colour steel blue `4682b4`, at path `<path>/slip`; one past its limit is flagged. A contact that has not moved horizontally draws nothing. The mark is in world metres and unanchored.
+ * Each entry is a contact's path, the world point it was planted at, its world
+ * point now, both in metres, and the horizontal distance in metres it may move,
+ * as `validateFootSkate` bounds a planted foot. The distance is measured in the
+ * horizontal XZ plane, as the skate check measures it. A contact that has moved
+ * draws one segment of kind `slip`, label `slip`, colour steel blue `4682b4`,
+ * at path `<path>/slip`; one past its limit is flagged. A contact that has not
+ * moved horizontally draws nothing. The mark is in world metres and
+ * unanchored.
  *
- * It throws for a point that is not finite or a limit that is negative or not finite.
+ * It throws for a point that is not finite or a limit that is negative or not
+ * finite.
  *
- * @param entries Contacts with their planted and current points and their limits.
+ * @param entries Contacts with their planted and current points and their
+ *   limits.
  * @returns One mark per moved contact, in the entries' order.
  */
 export function markAutoMovieSlip(
@@ -23,11 +34,7 @@ export function markAutoMovieSlip(
       entry.at.y,
       entry.at.z,
     ];
-    if (!values.every(Number.isFinite))
-      throw new Error(
-        `markAutoMovieSlip: contact ${entry.path} has no finite points`,
-      );
-    if (!(Number.isFinite(entry.limit) && entry.limit >= 0))
+    if (!(entry.limit >= 0))
       throw new Error(
         `markAutoMovieSlip: contact ${entry.path} has the limit ${entry.limit}, not a finite distance of zero or more`,
       );

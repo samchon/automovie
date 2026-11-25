@@ -18,9 +18,13 @@ import { AutoMovieViewParallelAxis } from "./AutoMovieViewParallelAxis";
 import { rollAutoMovieViewAxis } from "./rollAutoMovieViewAxis";
 
 /**
- * A construction tree's view part as the view-to-section operator's input (`IAutoMovieViewPart`): declared metres become kernel millimetres once, while an explicit source leaf reads its already evaluated input from this call's context.
+ * A construction tree's view part as the view-to-section operator's input
+ * (`IAutoMovieViewPart`): declared metres become kernel millimetres once, while
+ * an explicit source leaf reads its already evaluated input from this call's
+ * context.
  *
- * Lengths (stations, chart coordinates, girths, axis points, steps) are scaled by {@link SCALE}; shares, departures and directions are not.
+ * Lengths (stations, chart coordinates, girths, axis points, steps) are scaled
+ * by {@link SCALE}; shares, departures and directions are not.
  */
 export namespace AutoMovieConstructionViews {
   /** Millimetres per metre: the kernel's unit over the tree's. */
@@ -30,9 +34,11 @@ export namespace AutoMovieConstructionViews {
    * The operator's part for a view.
    *
    * @param view A declarative metre view or an explicit evaluated-source leaf.
-   * @param sources This invocation's immutable source map, containing millimetre inputs and their actual function owners.
-   * @returns The part in millimetres, or the axis/source admission rule it broke.
-   *   Outline/order/section admission belongs to ViewLoft, not this copy.
+   * @param sources This invocation's immutable source map, containing
+   *   millimetre inputs and their actual function owners.
+   * @returns The part in millimetres, or the axis/source admission rule it
+   *   broke. Outline/order/section admission belongs to ViewLoft, not this
+   *   copy.
    */
   export function part(
     view: IAutoMovieConstructionView | IAutoMovieConstructionSource,
@@ -67,7 +73,10 @@ export namespace AutoMovieConstructionViews {
    * The frame function an axis record names.
    *
    * @param axis The axis, metres.
-   * @returns The axis in millimetres, or the admission rule it broke. An explicitly requested jointed material roll preserves the base origin/normal plane and scales its two physical stations once while retaining the caller's signed direction.
+   * @returns The axis in millimetres, or the admission rule it broke. An
+   *   explicitly requested jointed material roll preserves the base
+   *   origin/normal plane and scales its two physical stations once while
+   *   retaining the caller's signed direction.
    */
   export function frame(
     axis: IAutoMovieConstructionAxis,
@@ -116,7 +125,8 @@ export namespace AutoMovieConstructionViews {
   }
 
   /**
-   * A join curve's parameter record as the trace's parameter, the angle's centre in millimetres.
+   * A join curve's parameter record as the trace's parameter, the angle's
+   * centre in millimetres.
    *
    * @param p The parameter, metres.
    * @returns The kernel's parameter.
@@ -142,8 +152,10 @@ export namespace AutoMovieConstructionViews {
   /**
    * Copy a world point from construction-frame metres to kernel millimetres.
    *
-   * @param p World coordinates, metres; finite representable scaled values are a consumer premise.
-   * @returns A new three-component millimetre vector, with nonfinite products left observable.
+   * @param p World coordinates, metres; finite representable scaled values are
+   *   a consumer premise.
+   * @returns A new three-component millimetre vector, with nonfinite products
+   *   left observable.
    */
   export function point(p: IAutoMovieVector3): [number, number, number] {
     return [p.x * SCALE, p.y * SCALE, p.z * SCALE];
@@ -152,17 +164,24 @@ export namespace AutoMovieConstructionViews {
   /**
    * Copy a direction's components without a length-unit conversion.
    *
-   * @param p Dimensionless direction in the construction's frame; this copy does not admit its length or angle.
-   * @returns A new tuple with exactly the supplied components, without normalization.
+   * @param p Dimensionless direction in the construction's frame; this copy
+   *   does not admit its length or angle.
+   * @returns A new tuple with exactly the supplied components, without
+   *   normalization.
    */
   export function vector(p: IAutoMovieVector3): [number, number, number] {
     return [p.x, p.y, p.z];
   }
 
   /**
-   * An original length-valued outline in millimetres, with its source parameter preserved.
+   * An original length-valued outline in millimetres, with its source parameter
+   * preserved.
    *
-   * Converts source station, scalar and parameter-endpoint lengths together by the metre-to-millimetre factor through the shared outline owner. Named knots and parameter identity survive without sampling. One linear knot copy and constant parameter conversion produce caller-owned data; the helper retains nothing and coordinates no effectful work.
+   * Converts source station, scalar and parameter-endpoint lengths together by
+   * the metre-to-millimetre factor through the shared outline owner. Named
+   * knots and parameter identity survive without sampling. One linear knot copy
+   * and constant parameter conversion produce caller-owned data; the helper
+   * retains nothing and coordinates no effectful work.
    */
   function length(
     outline: IAutoMovieConstructionOutline,
@@ -171,9 +190,14 @@ export namespace AutoMovieConstructionViews {
   }
 
   /**
-   * An original dimensionless outline, with only station and parameter-endpoint lengths converted to millimetres.
+   * An original dimensionless outline, with only station and parameter-endpoint
+   * lengths converted to millimetres.
    *
-   * Converts station and source-parameter endpoints once through the same owner as length outlines, preserving dimensionless values with a unit scalar factor. It neither scales a fullness share nor infers a parameter from sections. One linear knot copy and constant parameter conversion produce caller-owned data, with no retained state or effectful work to coordinate.
+   * Converts station and source-parameter endpoints once through the same owner
+   * as length outlines, preserving dimensionless values with a unit scalar
+   * factor. It neither scales a fullness share nor infers a parameter from
+   * sections. One linear knot copy and constant parameter conversion produce
+   * caller-owned data, with no retained state or effectful work to coordinate.
    */
   function share(
     outline: IAutoMovieConstructionOutline,

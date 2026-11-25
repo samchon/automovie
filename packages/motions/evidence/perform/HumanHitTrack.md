@@ -1,21 +1,3 @@
-# src/perform/HumanHitTrack.ts#HumanHitTrack
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States track naming and provisional/committed sources; EVENT is the hit instant label and PREFIX is hit:, the routing prefix recognized by instants.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A track of the schedule's own named instants, so a hit is addressed exactly as a cue is.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The hit's address, the track's name and its instants.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The hits are the record's; the provisional sweep uses the one contact resolver.
-
 # src/perform/HumanHitTrack.ts#HumanHitTrack.name
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Reads the environment as unknown until a record guard admits it, then checks the domains its numerical lighting consumers require. Image/background exclusivity prevents two authored background authorities; shared validateColor and resolveAutoMovieShadowProfile own color and contextual filter laws, so this gate does not invent rendering fallbacks.
+Checks the domains its numerical lighting consumers require. Image/background exclusivity prevents two authored background authorities; shared validateColor and resolveAutoMovieShadowProfile own color and contextual filter laws, so this gate does not invent rendering fallbacks.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmCarry.ts#AutoMovieMotionHumanArmCarry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two things the file holds, what the primitive delegates to and who names them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A free arm movement is described by its joint angles (Soechting and Lacquaniti 1981), so the carry reads and writes triples and solves a goal only to read its angles.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The carry, its record and its primitive; `AutoMovieMotionHumanArm` re-exports each by name.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The blend and the clearing are their owners' (`blendHumanJoint`, `HumanArmClearing`), not restated.
-
 # src/compose/AutoMovieMotionHumanArmCarry.ts#AutoMovieMotionHumanArmCarry.carry
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -54,7 +36,7 @@ States the two ways an arm is carried, what each reads, the channel claimed and 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). With an attitude, the hand between the ends is solved to it on the carried arm.
+A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). The planned arm is shown from its span's first instant, its rest, the arm the display shows as the course takes over, so a course that starts on its hold leaves from that arm and not from another fit of the goal there. With an attitude, the hand between the ends is solved to it on the carried arm.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -62,7 +44,7 @@ The group joined once; per second the planned arm or one `carry`, whose goal an 
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice, and a solve that refuses keeps its refusal (`ITogether.refused`), which every later read of a member throws again instead of solving again; the hand's fingers are not claimed, so a row that shapes them composes with this one.
+The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice, and a solve that refuses keeps its refusal (`ITogether.refused`), which every later read of a member throws again instead of solving again; the hand's fingers are not claimed, so a row that shapes them composes with this one; on its plan the arm plays its hand (`plays`): the fingers its plan carries in joint space, from the bases the planner read the hand by (`AutoMovieMotionHumanArmPlayed.written`), with the hand's digit goals removed so no digit is fitted after the plan, MoveIt's grasp convention (moveit_msgs/Grasp, BSD-3-Clause). Off its plan it returns the hand as it found it, which its reads there keep evaluated.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

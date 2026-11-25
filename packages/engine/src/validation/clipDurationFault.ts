@@ -1,20 +1,11 @@
 import type { IAutoMovieClipShapeFault } from "@automovie/interface";
 
-/**
- * Return the first sampler-duration fault or null for finite nonnegative seconds.
- */
+/** Return the first sampler-duration fault or null for nonnegative seconds. */
 export const clipDurationFault: (
-  duration: unknown,
+  duration: number,
 ) => IAutoMovieClipShapeFault | null = (
-  duration: unknown,
+  duration: number,
 ): IAutoMovieClipShapeFault | null => {
-  if (typeof duration !== "number" || !Number.isFinite(duration))
-    return {
-      kind: "range",
-      field: "duration",
-      message: `duration must be finite, but was ${String(duration)}`,
-      value: duration,
-    };
   if (duration < 0)
     return {
       kind: "range",

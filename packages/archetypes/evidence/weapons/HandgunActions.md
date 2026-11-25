@@ -1,21 +1,3 @@
-# src/weapons/HandgunActions.ts#HandgunActions
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how each handgun stands, what each mechanism does and where the unread places are.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The parts a hand works and the articulations that move them, the cylinder's turn coupled to the hammer's by a ratio.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The contacts the firearm laws read (`grip`, `trigger`, `sight`, `frontSight`, `muzzle`) and the ones #3488's revolver rows bind to: `hammer`, `cylinder`, `gate` and the chambers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every unread place is a named estimate here; the hammer's angle is derived from Colt's read travel at its spur.
-
 # src/weapons/HandgunActions.ts#HandgunActions.hammer
 
 ## @evidence contracts/development/common.md#meaningful-documentation

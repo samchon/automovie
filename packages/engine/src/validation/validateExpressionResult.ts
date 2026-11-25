@@ -6,7 +6,8 @@ import {
 import { validateExpression } from "./validateExpression";
 
 /**
- * Convert validateExpression's collected violations into the canonical validation result.
+ * Convert validateExpression's collected violations into the canonical
+ * validation result.
  */
 export const validateExpressionResult: (
   expression: IAutoMovieExpression,

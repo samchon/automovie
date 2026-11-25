@@ -1,11 +1,11 @@
 import type {
-  IAutoMovieMotionHumanArmClearance,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanArmTrajectory,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanArmOptimiser } from "./HumanArmOptimiser";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectory } from "./HumanArmTrajectory";
@@ -16,17 +16,22 @@ import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
+import { HumanArmTrajectoryPaced } from "./HumanArmTrajectoryPaced";
+import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
+import { HumanArmTrajectoryRetime as Retime } from "./HumanArmTrajectoryRetime";
+import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretch";
+import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
 /**
- * The work of `HumanArmTrajectory.solve`: site refinement, the optimisation
- * on the knots and the admit-split-continue loop on the frame grid, as that
- * function documents. A refused course's hold whose hand pose its law
- * prescribes is first tracked frame by frame on the swivel, the arm's one
- * freedom there (Tolani, Goswami and Badler 2000, section 3.2), and only
- * what that leaves failing is optimised. It records in `told` whether it
- * reads the mirror image, so `solve` can tell a refusal in the author's
- * names.
+ * The work of `HumanArmTrajectory.solve`: one solve per span. A refused
+ * course's hold whose hand pose its law prescribes is first tracked frame by
+ * frame on the swivel, the arm's one freedom there (Tolani, Goswami and Badler
+ * 2000, section 3.2). An earlier solution admitted as it stands is the plan.
+ * Otherwise solve the hold poses before optimising the trajectory between them.
+ * It records in `told` whether it reads the mirror image, so `solve` can tell a
+ * refusal in the author's names.
  *
  * @param read The problem on given waypoints' seconds.
  * @param times The first knots' seconds, ascending, on the frame grid.
@@ -35,14 +40,14 @@ import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
  * @param stretches Whether the span is its law's own, lengthened by a replan.
  * @param told Set when the problem is solved in its mirror image.
  * @returns Each arm's trajectory, in the problem's order, and the solution.
- * @throws {HumanRefusal} When no trajectory meets the constraints at its knots and on the frame grid.
- *
+ * @throws {HumanRefusal} When no trajectory meets the constraints at its knots
+ *   and on the frame grid.
  * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the mirror record and the refusal; HumanArmTrajectory.solve documents the method.
- * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them, refined where the frame-grid admission fails, as HumanArmTrajectory.solve states.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The site refinement, one optimisation, then the admit-split-continue loop; solve keeps only the mirror-name translation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands. A prescribed hold's frame that no swivel clears at the exact asked attitude leaves the course as laid: the hold's task limits bound points within metres, so the optimiser trades the attitude within them, and the course's own reading refuses what they cannot hold.
- * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables and its rounds' readings are the knots'; refinement splits only failing intervals.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A warm solution and a laid course's reading are reused only for this action's span.
+ * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them through every frame (Schulman et al. 2014), the whole span solved once from the sampling planner's path, as MoveIt's optimiser adapter seeds every optimisation (`OptimizerAdapter::adaptAndPlan`, moveit/moveit moveit_planners/chomp/chomp_optimizer_adapter/src/chomp_optimizer_adapter.cpp lines 177-209 at commit 811328b1ba700f5d2dff69afc9737ac6cab66c9b, BSD-3-Clause), or from an earlier solution of the same action on refined waypoints.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The tracked hold, the memoised solution, then one solve per span; solve keeps only the mirror-name translation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands. A rest inside a body, the span's fixed first instant no solve moves, is refused at that instant before any solve. A prescribed hold's frame that no swivel clears at the exact asked attitude leaves the course as laid: the hold's task limits bound points within metres, so the optimiser trades the attitude within them, and the course's own reading refuses what they cannot hold.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One solve per span, no restart and no nested solve, its knots split only in the intervals whose course between knots fails; the optimiser's variables are the knots' and its clearance reads the knots and their intervals.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A warm solution and a laid course's reading (its knot times, its tracked hold and its pace) are reused only for this action's span.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setups, final times and solution state.
  */
 export function planHumanArmTrajectory(
@@ -60,201 +65,91 @@ export function planHumanArmTrajectory(
   const grid: readonly number[] =
     course?.read.context.times ??
     Pace.uniform(times[0]!, times[times.length - 1]!);
-  const snap = (of: readonly number[]): number[] => {
-    const out: number[] = [0];
-    let near: number = 0;
-    for (const t of of) {
-      while (
-        near + 1 < grid.length &&
-        Math.abs(grid[near + 1]! - t) <= Math.abs(grid[near]! - t)
-      )
-        ++near;
-      if (near > out[out.length - 1]!) out.push(near);
-    }
-    if (out[out.length - 1] !== grid.length - 1) out.push(grid.length - 1);
-    return out;
-  };
-  const snapped: number[] = snap(times);
-  let knots: number[] = snapped;
-  const seconds = (of: readonly number[]): number[] =>
-    of.map((g: number): number => grid[g]!);
-  const first: HumanArmTrajectory.IProblem = read(seconds(knots));
+  const snapped: number[] = Stretch.snap(grid, times);
+  const first: HumanArmTrajectory.IProblem = read(
+    snapped.map((g: number): number => grid[g]!),
+  );
   const flip: boolean = Mirror.leftFirst(first);
   told.flip = flip;
-  const reading: (times: readonly number[]) => HumanArmTrajectory.IProblem =
-    flip
-      ? (t: readonly number[]): HumanArmTrajectory.IProblem =>
-          Mirror.mirrored(read(t))
-      : read;
-  let problem: HumanArmTrajectory.IProblem = flip
+  const reading: Stretch.Reading = flip
+    ? (t: readonly number[]): HumanArmTrajectory.IProblem =>
+        Mirror.mirrored(read(t))
+    : read;
+  const problem: HumanArmTrajectory.IProblem = flip
     ? Mirror.mirrored(first)
     : first;
-  const contextOf: ReturnType<typeof HumanArmTrajectoryContext.prepare> =
+  const contextOf: Stretch.ContextOf =
     course?.read.of ??
     HumanArmTrajectoryContext.prepare(
       problem.body,
       problem.arms.map(
-        (arm: HumanArmTrajectory.IArm): "left" | "right" => arm.side,
+        (arm: HumanArmTrajectory.IArm): AutoMovieHumanSide => arm.side,
       ),
     );
   const fine: M.IContext = course?.read.context ?? contextOf(reading(grid));
-  let context: M.IContext = contextOf(problem, fine);
+  const whole: Stretch.IGrid = { reading, contextOf, grid, fine };
+  const initial: Stretch.IKnots = {
+    knots: snapped,
+    problem,
+    context: contextOf(problem, fine),
+  };
+  // The span's first instant is fixed: the arm the course leaves from, as
+  // the action is entered, which no solve moves. A rest inside a body is
+  // refused at once, naming the instant: no path leaves it clear.
+  const inside: HumanRefusal | undefined = restInside(fine, problem);
+  if (inside !== undefined) throw inside;
 
-  // A laid course whose worst term is its speed is met by the same course
-  // over a longer span: scaling time by a factor divides every speed by it
-  // (Hollerbach 1984), so the span the course needs is its own times its
-  // fastest probe's speed over the bound. Where the span is the law's own,
-  // which a replan at a slower tempo lengthens (`stretches`), no
-  // trajectory is optimised at this span for it: the caller is handed that
-  // span at once, as the optimiser's refusal hands it below. A span an end
-  // of which a meeting fixes is not lengthened by the tempo, so its course
-  // goes to the optimiser, which may find a shorter path within it.
+  // A laid course whose worst term is its speed is retimed along its own path
+  // (TOPP-RA, `HumanArmTrajectoryRetime`): its least duration within every
+  // joint's velocity limit and the law's own pace, its time map slowed to the
+  // span where the span holds it, and the retimed course read again in full,
+  // which admits it or hands it on. Where the least exceeds a span the law's
+  // own tempo sets (`stretches`), the caller is handed that least at once; a
+  // span an end of which a meeting fixes goes to the optimiser.
   if (
-    stretches &&
     course !== undefined &&
     warm === undefined &&
     course.refused === "speed"
   ) {
     const span: number = fine.times[fine.n - 1]! - fine.times[0]!;
-    const factor: number = Pace.slower(
-      fine,
-      course.read.x,
-      course.read.evaluation?.placed,
-    );
-    if (factor > 1)
+    const timing: Retime.ITiming = Retime.timing(fine, course.read.x);
+    const least: number = timing.timed.times[timing.timed.times.length - 1]!;
+    if (timing.status === "ok" && least <= span) {
+      const x: number[][][] = Retime.retimed(
+        fine,
+        course.read.x,
+        timing.timed,
+        span,
+      );
+      const evaluation: M.IEvaluation = M.evaluate(fine, x);
+      if (evaluation.worst.value <= M.TOLERANCE) {
+        const rates: Knots.IRates = Knots.bounded(fine, x);
+        return {
+          trajectories: problem.arms.map(
+            (
+              _: HumanArmTrajectory.IArm,
+              a: number,
+            ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
+              HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a, rates),
+          ),
+          state: { times: [...fine.times], x, penalty: 0 },
+        };
+      }
+    } else if (stretches)
       throw new HumanRefusal({
         kind: "reach",
         axis: "duration",
         value: span,
         feasible: {
           kind: "range",
-          minimum: Pace.duration(span * factor),
+          minimum: Pace.duration(timing.status === "ok" ? least : Infinity),
           maximum: null,
           unit: "s",
         },
         reason: `the laid course of the ${problem.arms.map((a: HumanArmTrajectory.IArm): string => a.side).join(" and ")} arm over the action moves faster than the law's own pace`,
         fix: "give the action more time",
       });
-  }
-  // The arms carried by their own interpolant onto knots with the given
-  // intervals split; the knots kept keep what the last context built.
-  const refine = (x: number[][][], split: readonly number[]): number[][][] => {
-    const next: number[] = HumanArmRefine.split(knots, split);
-    const carried: number[][][] = x.map((arm: number[][]): number[][] =>
-      next.map((g: number): number[] =>
-        HumanArmRefine.hermite(context.times, arm, grid[g]!),
-      ),
-    );
-    knots = next;
-    problem = reading(seconds(next));
-    context = contextOf(problem, context);
-    return carried;
-  };
-  type Solved = {
-    x: number[][][];
-    evaluation: M.IEvaluation;
-    penalty: number;
-    played: Admission.IReading;
-  };
-  const optimised: (from: number[][][], penalty?: number) => Solved = (
-    from: number[][][],
-    penalty?: number,
-  ): Solved => {
-    // The knots stay few, TrajOpt's few timesteps: a moving site is held at
-    // every frame through the knots' interpolant, which the optimiser reads
-    // and linearises on the whole grid, and an interval is split only where
-    // the solved path's frame-grid reading fails it (below), never ahead of
-    // a solve on the site points' own interpolant, which split a stroke's
-    // knots down to the frame grid before anything was solved.
-    const seed: number[][][] = from;
-    // The waypoints are knots of the frame grid: the optimiser reads and
-    // linearises every grid instant on their interpolant and steps the
-    // knots (`HumanArmTrajectoryKnots`), so its last evaluation is the
-    // played trajectory's own reading. Where the knots are the grid
-    // itself, the reading is theirs.
-    //
-    let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
-      HumanArmOptimiser.optimise(context, seed, penalty, fine);
-
-    // The continuous check's refinement (Schulman et al. 2013, section
-    // V): where the knots' converged path fails its frame-grid reading
-    // between two knots, that interval and its neighbours are split and
-    // the path solved again from itself at the penalty it reached, until
-    // the reading admits it, the affected intervals are already frames, or
-    // the refinement stops paying: at most `REFINEMENTS` passes, each of
-    // which must cut the worst miss by `PROGRESS` of what it was, so an
-    // infeasible hold is read and refused after a bounded number of solves
-    // rather than split down to the frame grid.
-    let passes: number = 0;
-    let previous: number = Infinity;
-    while (
-      solved.evaluation.worst.value > M.TOLERANCE &&
-      context.n < fine.n &&
-      passes < REFINEMENTS &&
-      solved.evaluation.worst.value < previous * (1 - PROGRESS)
-    ) {
-      previous = solved.evaluation.worst.value;
-      ++passes;
-      // A hand that misses its site or a task point at a knot whose two
-      // intervals are already single frames misses it with every freedom a
-      // path can have there: no finer interval exists about it, only a larger
-      // problem to solve again. Such a path is refused as it stands, naming
-      // what holds the hand off. A knot with a wider interval beside it may
-      // miss only because the few knots' interpolant pulls it off, so its
-      // intervals are split as any failing frame's.
-      const framed: ReadonlySet<number> = new Set(
-        knots.filter(
-          (g: number, i: number): boolean =>
-            (i === 0 || g - knots[i - 1]! <= 1) &&
-            (i === knots.length - 1 || knots[i + 1]! - g <= 1),
-        ),
-      );
-      if (
-        (solved.evaluation.worst.term === "site" ||
-          solved.evaluation.worst.term === "limit") &&
-        solved.evaluation.failing.some(
-          (failed: boolean, g: number): boolean => failed && framed.has(g),
-        )
-      )
-        break;
-      // A frame depends on its bracket and the adjacent Hermite slopes.
-      // Open every such interval for all failed frames in the same pass.
-      const affected: Set<number> = new Set();
-      let bracket: number = 0;
-      solved.evaluation.failing.forEach((failed: boolean, g: number): void => {
-        while (bracket + 2 < knots.length && knots[bracket + 1]! <= g)
-          ++bracket;
-        if (!failed) return;
-        for (const i of [bracket - 1, bracket, bracket + 1])
-          if (i >= 0 && i + 1 < knots.length && knots[i + 1]! - knots[i]! >= 2)
-            affected.add(i);
-      });
-      const split: number[] = [...affected];
-      if (split.length === 0) break;
-
-      // The refinement replaces the context, so it runs before the solve
-      // reads it.
-      const carried: number[][][] = refine(solved.x, split);
-      solved = HumanArmOptimiser.optimise(
-        context,
-        carried,
-        solved.penalty,
-        fine,
-      );
-    }
-    const played: Admission.IReading =
-      !context.still && fine.n > context.n
-        ? {
-            x: Knots.read(context.times, fine.times, solved.x),
-            evaluation: solved.evaluation,
-          }
-        : Admission.read(context, fine, solved.x);
-    return { ...solved, played };
-  };
-  const met = (solved: Solved): boolean =>
-    solved.played.evaluation.worst.value <= M.TOLERANCE;
-
-  // A hold whose law prescribes the hand's pose at every instant (its site
+  } // A hold whose law prescribes the hand's pose at every instant (its site
   // and its asked attitude) leaves the arm one freedom an instant, the
   // elbow's swivel about the shoulder-wrist axis (Tolani, Goswami and
   // Badler 2000, section 3.2), so it is tracked, not optimised: the
@@ -314,13 +209,14 @@ export function planHumanArmTrajectory(
       reading: verdict,
       laid: changed,
     });
+    const rates: Knots.IRates = Knots.bounded(fine, x);
     return {
       trajectories: problem.arms.map(
         (
           _: HumanArmTrajectory.IArm,
           a: number,
         ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-          HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a),
+          HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a, rates),
       ),
       admitted: evaluation.worst.value <= M.TOLERANCE,
       refused:
@@ -329,174 +225,8 @@ export function planHumanArmTrajectory(
     };
   };
 
-  // The closed form first: a laid course is kept wherever the model admits
-  // it, and only the stretches it fails on are optimised, each between two
-  // instants of the course held fixed, the rest of the course played as it
-  // was laid. A stretch is the failing instants widened to the knot before
-  // and after them and one knot interval more on either side, the room
-  // the optimiser's cubic needs to leave the course and rejoin it; touching
-  // stretches are one. The course with its stretches solved is admitted by
-  // the model's reading of the whole frame grid, the test any solved
-  // trajectory is admitted by; a stretch that is refused, a course that
-  // fails over its whole span, or a splice the reading refuses leaves the
-  // whole span to the optimiser below.
-  const repair = (
-    laid: HumanArmTrajectory.IAdmitted,
-    verdict: M.IEvaluation,
-  ): HumanArmTrajectory.ISolved | undefined => {
-    if (fine.still) return undefined;
-    const stretches: [number, number][] = [];
-    verdict.failing.forEach((failing: boolean, g: number): void => {
-      if (!failing) return;
-      let before: number = 0;
-      while (before + 1 < snapped.length && snapped[before + 1]! < g) ++before;
-      let after: number = snapped.length - 1;
-      while (after > 0 && snapped[after - 1]! > g) --after;
-      const from: number = snapped[Math.max(0, before - 1)]!;
-      const to: number = snapped[Math.min(snapped.length - 1, after + 1)]!;
-      const last: [number, number] | undefined =
-        stretches[stretches.length - 1];
-      if (last !== undefined && from <= last[1])
-        last[1] = Math.max(last[1], to);
-      else stretches.push([from, to]);
-    });
-    if (
-      stretches.length === 0 ||
-      (stretches.length === 1 &&
-        stretches[0]![0] === 0 &&
-        stretches[0]![1] === grid.length - 1)
-    )
-      return undefined;
-    const x: number[][][] = laid.read.x.map((arm: number[][]): number[][] => [
-      ...arm,
-    ]);
-    const changed: boolean[] = new Array<boolean>(grid.length).fill(false);
-    let penalty: number = 0;
-    for (const [from, to] of stretches) {
-      // The stretch's problem: the course's arms at its two instants as
-      // its rest and its return, its last instant fixed where the span goes
-      // on past it.
-      const start: IAutoMovieMotionHumanArmClearance.IArm[] =
-        laid.trajectories.map(
-          (
-            t: IAutoMovieMotionHumanArmTrajectory.Trajectory,
-          ): IAutoMovieMotionHumanArmClearance.IArm => t(grid[from]!),
-        );
-      const end: IAutoMovieMotionHumanArmClearance.IArm[] =
-        laid.trajectories.map(
-          (
-            t: IAutoMovieMotionHumanArmTrajectory.Trajectory,
-          ): IAutoMovieMotionHumanArmClearance.IArm => t(grid[to]!),
-        );
-      const cut = (
-        p: HumanArmTrajectory.IProblem,
-      ): HumanArmTrajectory.IProblem => ({
-        ...p,
-        arms: p.arms.map(
-          (
-            arm: HumanArmTrajectory.IArm,
-            a: number,
-          ): HumanArmTrajectory.IArm => ({
-            ...arm,
-            ...(from > 0
-              ? { rest: start[a]!, back: arm.back ?? arm.rest }
-              : {}),
-            ...(to < grid.length - 1
-              ? {
-                  back: end[a]!,
-                  sites: arm.sites.map(
-                    (
-                      s: HumanArmTrajectory.ISite | undefined,
-                      k: number,
-                    ): HumanArmTrajectory.ISite | undefined =>
-                      k === arm.sites.length - 1 ? undefined : s,
-                  ),
-                }
-              : {}),
-          }),
-        ),
-      });
-      const within = (t: number): boolean =>
-        t > grid[from]! + 1e-9 && t < grid[to]! - 1e-9;
-      const own: number[] = grid.slice(from, to + 1);
-      const local: M.IContext = contextOf(cut(reading(own)), fine);
-      // The course goes on beyond the stretch, so its ends' accelerations
-      // read the course's next instants, not an arm at rest.
-      local.beyond = {
-        ...(from > 0
-          ? { before: x.map((arm: number[][]): number[] => arm[from - 1]!) }
-          : {}),
-        ...(to < grid.length - 1
-          ? { after: x.map((arm: number[][]): number[] => arm[to + 1]!) }
-          : {}),
-      };
-      let solved: HumanArmTrajectory.ISolved;
-      try {
-        solved = HumanArmTrajectory.solve(
-          (t: readonly number[]): HumanArmTrajectory.IProblem => cut(read(t)),
-          [grid[from]!, ...times.filter(within), grid[to]!],
-          {
-            trajectories: laid.trajectories,
-            admitted: false,
-            refused: laid.refused,
-            read: {
-              of: contextOf,
-              context: local,
-              x: x.map((arm: number[][]): number[][] =>
-                arm.slice(from, to + 1),
-              ),
-            },
-          },
-        );
-      } catch (error) {
-        if (error instanceof HumanRefusal) return undefined;
-        throw error;
-      }
-      const played: number[][][] = Knots.splice(
-        solved.state.times,
-        solved.state.x,
-        grid,
-        laid.read.x,
-        from,
-        to,
-      );
-      // Interior joins hold their last pose. An open end of the full
-      // action is a solved contact and must keep the repaired last frame.
-      const after: number = to === grid.length - 1 && fine.open ? to + 1 : to;
-      for (let g: number = from + 1; g < after; ++g) {
-        changed[g] = true;
-        for (let a: number = 0; a < x.length; ++a)
-          x[a]![g] = played[a]![g - from]!;
-      }
-      penalty = Math.max(penalty, solved.state.penalty);
-    }
-    if (
-      M.evaluate(fine, x, { reading: verdict, laid: changed }).worst.value >
-      M.TOLERANCE
-    )
-      return undefined;
-    return {
-      trajectories: problem.arms.map(
-        (
-          _: HumanArmTrajectory.IArm,
-          a: number,
-        ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-          HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a),
-      ),
-      state: { times: [...fine.times], x, penalty },
-    };
-  };
-
-  // A laid course seeds the optimiser in place of the sampling planner;
-  // a course that leads it to no admitted trajectory is followed by the
-  // planner's seed on the first knots, TrajOpt's multiple
-  // initialisations (Schulman et al. 2013, section VI).
-  const initial: HumanArmTrajectory.IProblem = problem;
-
   // A hold whose hand pose its law prescribes is tracked frame by frame
-  // before anything is optimised (`tracked`), a warm start included: it
-  // needs no solve. Only what it leaves failing, the reach and the return
-  // about it, goes on to the warm start, the repair and the optimiser.
+  // before anything is optimised (`tracked`): it needs no solve.
   if (course?.read.evaluation !== undefined) {
     course = tracked(course, course.read.evaluation);
     if (course.admitted)
@@ -506,133 +236,134 @@ export function planHumanArmTrajectory(
       };
   }
 
-  // An earlier plan's solution of this action is tried next: on its own
-  // knots as it stands, returned where the model admits it at them and on
-  // the frame grid, and continued from at its penalty where not.
-  let solved: Solved | undefined;
-  if (warm !== undefined && warm.x.length === initial.arms.length) {
-    knots = snap(warm.times);
-    problem = reading(seconds(knots));
-    context = contextOf(problem, fine);
-    const c: M.IContext = context;
+  // An earlier plan's solution of this action, read on its own knots as it
+  // stands, is the plan where the model admits it there and on the frame
+  // grid.
+  let earlier: Stretch.ISolved | undefined;
+  if (warm !== undefined && warm.x.length === problem.arms.length) {
+    const knotted: Stretch.IKnots = Stretch.on(
+      whole,
+      Stretch.snap(grid, warm.times),
+    );
+    const c: M.IContext = knotted.context;
     const seed: number[][][] = warm.x.map(
-      (arm: readonly (readonly number[])[], a: number): number[][] =>
-        knots.map((g: number, k: number): number[] =>
+      (arm: readonly (readonly number[])[], a: number): number[][] => {
+        const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+          HumanArmRefine.prepareHermite(warm.times, arm);
+        return knotted.knots.map((g: number, k: number): number[] =>
           k === 0
             ? [...c.rest[a]!]
             : k === c.n - 1 && !c.open
               ? [...c.back[a]!]
-              : M.ranged(
-                  c,
-                  a,
-                  HumanArmRefine.hermite(warm.times, arm, grid[g]!),
-                ),
-        ),
+              : M.ranged(c, a, curve(grid[g]!).coordinates),
+        );
+      },
     );
-    const kept: Solved = {
+    const rates: Knots.IRates = Knots.bounded(c, seed);
+    const played: Admission.IReading = Admission.read(c, fine, seed, rates);
+    earlier = {
+      ...knotted,
       x: seed,
-      evaluation: M.evaluate(c, seed),
+      rates,
+      evaluation: played.evaluation,
       penalty: warm.penalty,
-      played: Admission.read(c, fine, seed),
+      played,
     };
-    solved = met(kept) ? kept : optimised(seed, warm.penalty);
-    if (!met(solved)) {
-      solved = undefined;
-      knots = snapped;
-      problem = initial;
-      context = contextOf(problem, fine);
-    }
+    if (Stretch.met(earlier)) return Stretch.played(earlier);
   }
-  if (solved === undefined && course?.read.evaluation !== undefined) {
-    const repaired: HumanArmTrajectory.ISolved | undefined = repair(
-      course,
-      course.read.evaluation,
-    );
-    if (repaired !== undefined) return repaired;
-  }
-  if (solved === undefined) {
-    const laid: number[][][] | undefined =
-      course === undefined
-        ? undefined
-        : Pace.coursed(context, course.trajectories);
 
-    // A hold no configuration meets has no trajectory: it is refused by
-    // its own still problem before the whole trajectory's penalties are
-    // spent on it (`HumanArmSeed.held`), and the configuration found is
-    // the planner seed's hold where that seed follows.
-    const hold: number[][] | undefined =
-      laid === undefined
-        ? undefined
-        : HumanArmSeed.held(problem, context, laid);
-    solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
-    // A stretch cut from a course is solved from that course alone: its
-    // refusal leaves the whole span to the optimiser.
-    if (course?.read.evaluation !== undefined && !met(solved)) {
-      knots = snapped;
-      problem = initial;
-      context = contextOf(problem, fine);
-      solved = optimised(HumanArmSeed.seed(problem, context, hold));
-    }
+  // Establish feasible hold positions before planning a route. The earlier
+  // iterate or the laid course supplies seeds for the hold's IK; RRT-Connect
+  // supplies the initial route when there is no earlier iterate.
+  const from: Stretch.IKnots = earlier ?? initial;
+  const laid: number[][][] | undefined =
+    course === undefined
+      ? undefined
+      : Pace.coursed(from.context, course.trajectories);
+  const pinned: HumanArmSeed.IHolds = HumanArmSeed.holds(
+    from.problem,
+    from.context,
+    earlier?.x ?? laid,
+  );
+  const seed: number[][][] =
+    earlier?.x ?? HumanArmSeed.seed(from.context, pinned, fine);
+  const solved: Stretch.ISolved = Stretch.optimise(
+    whole,
+    from,
+    seed,
+    earlier?.penalty,
+    pinned,
+  );
+  if (!Stretch.met(solved)) {
+    const paceOnly: boolean =
+      solved.played.evaluation.placement.value <= M.TOLERANCE &&
+      solved.played.evaluation.worst.axis === "duration";
+    const paced: HumanRefusal | undefined =
+      stretches && paceOnly
+        ? HumanArmTrajectoryPaced(whole, solved, told)
+        : undefined;
+    if (paced !== undefined) throw paced;
+    throw Stretch.refused(whole, solved, told);
   }
-  const last: Solved = solved;
-  const n: number = context.n;
-  const at: readonly number[] = context.times;
-  if (!met(last)) {
-    const worst: M.IEvaluation["worst"] =
-      last.evaluation.worst.value > M.TOLERANCE
-        ? last.evaluation.worst
-        : last.played.evaluation.worst;
-    // The path a refusal for time was reached at is the replan's start:
-    // over the span the refusal names, the same path moves within the bound
-    // (Hollerbach 1984), so the replan at the slower time begins where this
-    // solve ended rather than solving the whole span again.
-    if (worst.axis === "duration")
-      told.state = { times: [...at], x: last.x, penalty: last.penalty };
-    throw new HumanRefusal({
+  return Stretch.played(solved);
+}
+/**
+ * The refusal of a span whose fixed first instant, each arm's rest, lies inside
+ * a body past what the admission allows: the reading the solve makes at every
+ * inner waypoint (`HumanArmTrajectoryPairs`: each part's deepest probe, the
+ * body's corners in the arm, the two arms in each other), made once at the
+ * instant it never reads, since no solve moves it. A declared rest touches by
+ * design and is not read. None where every rest is clear.
+ */
+function restInside(
+  c: M.IContext,
+  problem: HumanArmTrajectory.IProblem,
+): HumanRefusal | undefined {
+  const at: string = c.times[0]!.toFixed(3);
+  const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = c.rest.map(
+    (rest: number[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      G.placed(c.setups[a]!, c.frames[a]![0]!, rest, true),
+  );
+  const refuse = (a: number, short: number, what: string): HumanRefusal =>
+    new HumanRefusal({
       kind: "reach",
-      axis: worst.axis,
-      value: worst.axis === "duration" ? at[n - 1]! - at[0]! : worst.value,
-      // A path too fast for the speed bound is met by the same path over a
-      // longer span: scaling time by a factor divides every speed by it
-      // (Hollerbach 1984, "Dynamic scaling of manipulator trajectories"),
-      // so the span it needs is its own times the fastest probe's speed over
-      // the bound, read at the knots and on the frame grid.
-      feasible:
-        worst.axis === "duration"
-          ? {
-              kind: "range",
-              minimum: Pace.duration(
-                (at[n - 1]! - at[0]!) *
-                  Math.max(
-                    Pace.slower(context, last.x),
-                    Pace.slower(fine, last.played.x),
-                  ),
-              ),
-              maximum: null,
-              unit: "s",
-            }
-          : null,
-      reason: `no path of the ${problem.arms.map((a: HumanArmTrajectory.IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site, the arm clear and its speed within the law's own pace: ${worst.what}`,
-      fix:
-        worst.axis === "duration"
-          ? "give the action more time"
-          : "put the hand on a site its arm reaches with the body clear",
+      axis: "region",
+      value: short,
+      feasible: null,
+      reason: `the ${problem.arms[a]!.side} arm leaves the action from inside a body: ${what} at ${at} s, the instant the action is entered`,
+      fix: "enter the action with the arm clear of the body, or plan it from where the arm is shown",
     });
+  for (let a: number = 0; a < placed.length; ++a) {
+    for (const pair of P.deepest(c, a, 0, placed[a]!, 0).values())
+      if (!pair.rested && pair.short - T.SKIN > M.TOLERANCE)
+        return refuse(
+          a,
+          pair.short,
+          `${nameArmTrajectoryPair(c, a, 0, pair.probe, pair.shape)} ${pair.short.toFixed(1)} mm deep`,
+        );
+    for (const pair of P.embedded(c, a, 0, placed[a]!, 0).values())
+      if (!pair.rested && pair.short - T.SKIN > M.TOLERANCE)
+        return refuse(
+          a,
+          pair.short,
+          `the body's ${pair.bone} ${pair.short.toFixed(1)} mm inside the arm's ${pair.shape.bone}`,
+        );
   }
-  const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = context.setups;
-  return {
-    trajectories: problem.arms.map(
-      (
-        _: HumanArmTrajectory.IArm,
-        a: number,
-      ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-        HumanArmTrajectoryPlayback(setups, at, last.x, a),
-    ),
-    state: { times: [...at], x: last.x, penalty: last.penalty },
-  };
+  if (placed.length === 2)
+    for (const pair of P.crossing(c, 0, placed[0]!, placed[1]!, 0).values())
+      if (!pair.rested && pair.short - T.SKIN > M.TOLERANCE)
+        return refuse(
+          pair.a,
+          pair.short,
+          `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside the other arm's ${pair.bone}`,
+        );
+  return undefined;
 }
 
-/** Whether every arm's site at a frame prescribes the hand's pose: a site with its asked attitude, on nothing that moves with another arm. */
+/**
+ * Whether every arm's site at a frame prescribes the hand's pose: a site with
+ * its asked attitude, on nothing that moves with another arm.
+ */
 function prescribed(c: M.IContext, g: number): boolean {
   return (
     g >= 0 &&
@@ -647,7 +378,11 @@ function prescribed(c: M.IContext, g: number): boolean {
   );
 }
 
-/** An arm's configuration at a prescribed hold's first frame: of the clear swivels there, the one nearest the course's own; none where no swivel is clear. */
+/**
+ * An arm's configuration at a prescribed hold's first frame: of the clear
+ * swivels there, the one nearest the course's own; none where no swivel is
+ * clear.
+ */
 function entered(
   c: M.IContext,
   a: number,
@@ -667,10 +402,3 @@ function entered(
   }
   return best;
 }
-
-
-/** The most refinement passes a planned course takes over its frame grid's failing intervals: four halvings bring a knot interval of sixteen frames to single frames (provisional). */
-const REFINEMENTS: number = 4;
-
-/** The share of the worst miss a refinement pass must cut to earn the next one; a pass that cuts less has stopped paying, and the course is read as it stands (provisional). */
-const PROGRESS: number = 0.1;

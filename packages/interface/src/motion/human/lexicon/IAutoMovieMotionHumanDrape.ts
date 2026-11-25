@@ -1,7 +1,9 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
- * A limp body laid across a saddle and carried (#3951): face down over the seat, folded at the hips, the head and arms hanging down one side and the legs down the other, carried by the carrier's contact.
+ * A limp body laid across a saddle and carried: face down over the seat, folded
+ * at the hips, the head and arms hanging down one side and the legs down the
+ * other, carried by the carrier's contact.
  */
 export interface IAutoMovieMotionHumanDrape {
   /** The carrier's subject id. */
@@ -10,7 +12,10 @@ export interface IAutoMovieMotionHumanDrape {
   /** The carrier contact the body lies across, as the saddle's `seat`. */
   frame: string;
 
-  /** The carrier's side the head and arms hang on; its left, the near side, when absent. */
+  /**
+   * The carrier's side the head and arms hang on; its left, the near side, when
+   * absent.
+   */
   head?: AutoMovieHumanSide;
 
   /** How long the body is carried, seconds. */

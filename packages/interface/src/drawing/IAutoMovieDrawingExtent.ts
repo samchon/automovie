@@ -5,7 +5,8 @@ import type { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  *
  * Taken over every line endpoint, region and opening outline point, and every
  * resolved dimension endpoint and note anchor; stale targets contribute
- * nothing. `autoMovieDrawingToSvg` sizes the sheet from it plus a fixed margin.
+ * nothing. `autoMovieDrawingToSvg` sizes the sheet from it plus a fixed
+ * margin.
  */
 export interface IAutoMovieDrawingExtent {
   /** Lowest page coordinate on each axis. */

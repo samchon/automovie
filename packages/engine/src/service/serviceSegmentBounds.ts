@@ -9,10 +9,10 @@ import {
  *
  * This is the broad-phase companion to {@link serviceSegmentSpanBounds}: one box
  * a caller can index, cull or draw a bounding volume from without walking every
- * leg. Interference is decided on the spans, never on this.
- * Coordinates and radius use metres and must already be admitted; empty routes
- * throw, while a singleton gives its radius-padded point box. No live product
- * caller currently consumes this broad-phase query.
+ * leg. Interference is decided on the spans, never on this. Coordinates and
+ * radius use metres and must already be admitted; empty routes throw, while a
+ * singleton gives its radius-padded point box. No live product caller currently
+ * consumes this broad-phase query.
  */
 export const serviceSegmentBounds: (
   segment: IAutoMovieServiceSegment,

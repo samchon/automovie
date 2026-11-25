@@ -15,12 +15,13 @@ import type {
 /**
  * Add bounded effects, cloth, planting and water to the render inventory.
  * Inputs include the cumulative population counts; local accumulation continues
- * their exact addition order and returns new counts without changing the subject.
- * The caller owns material resolution and appended owner/gap rows. Domain budget
- * functions supply simulation costs; prototype buffers are counted once per batch.
- * Missing prototype or solver costs remain explicit gaps that make the affected
- * final metrics null. A one-cell surface has no quad and creates no visible draw.
- * This phase must precede material closure, geometry memory and frame-wide passes.
+ * their exact addition order and returns new counts without changing the
+ * subject. The caller owns material resolution and appended owner/gap rows.
+ * Domain budget functions supply simulation costs; prototype buffers are
+ * counted once per batch. Missing prototype or solver costs remain explicit
+ * gaps that make the affected final metrics null. A one-cell surface has no
+ * quad and creates no visible draw. This phase must precede material closure,
+ * geometry memory and frame-wide passes.
  */
 
 import { fluidDomainBudget } from "../fluid/fluidDomainBudget";
@@ -34,7 +35,8 @@ import { AUTOMOVIE_POSITION_BYTES } from "./constants/AUTOMOVIE_POSITION_BYTES";
 import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
 
 /**
- * Extend prior counts with simulated drawable costs and explicit missing inputs.
+ * Extend prior counts with simulated drawable costs and explicit missing
+ * inputs.
  */
 export const measureRenderSimulation: (
   props: IAutoMovieMeasureRenderSimulation.IProps,
@@ -103,7 +105,7 @@ export const measureRenderSimulation: (
   // preflight bound must hold at the cue's peak rather than at frame zero.
   for (const effect of subject.effects ?? []) {
     const cap: number = effect.recipe.budget.maxParticles;
-    if (!Number.isSafeInteger(cap) || cap <= 0)
+    if (cap <= 0)
       throw new Error(
         `render inventory cannot measure effect "${effect.id}": maxParticles must be a positive safe integer, but was ${cap}`,
       );
@@ -378,7 +380,7 @@ const statedPrototype: (
     ["vertices", cost.vertices],
     ["triangles", cost.triangles],
   ] as const)
-    if (!Number.isSafeInteger(value) || value < 0)
+    if (value < 0)
       throw new Error(
         `render inventory cannot measure ${cited} prototype: ${field} must be a safe integer at or above zero, but was ${value}`,
       );

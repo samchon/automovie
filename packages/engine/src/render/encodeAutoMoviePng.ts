@@ -1,24 +1,39 @@
 import type { IAutoMovieEncodePng } from "@automovie/interface";
 
 /**
- * Encode raw 8-bit pixels as a PNG file in the padded base64 an `IAutoMovieImage` carries, for an image code generates together with a model.
+ * Encode raw 8-bit pixels as a PNG file in the padded base64 an
+ * `IAutoMovieImage` carries, for an image code generates together with a
+ * model.
  *
- * The file is a signature, `IHDR`, one `IDAT` and `IEND` (PNG, W3C second edition, sections 5, 11.2): bit depth 8, non-interlaced, colour type 0, 4, 2 or 6 for one to four channels, which is the subset engine admission and the viewer decode. Each scanline takes filter type 0, and the zlib stream (RFC 1950) holds the filtered bytes in stored deflate blocks of at most 65,535 bytes (RFC 1951 section 3.2.4), with the Adler-32 of the uncompressed data; each chunk ends in the CRC-32 of its type and data. Stored blocks keep the encoder a few lines and the output a pure function of the pixels, at the cost of no compression: the file is the raw size plus about 0.1 percent. Base64 follows RFC 4648 section 4 without `Buffer` or `btoa`, so the bytes are the same in Node and every browser.
+ * The file is a signature, `IHDR`, one `IDAT` and `IEND` (PNG, W3C second
+ * edition, sections 5, 11.2): bit depth 8, non-interlaced, colour type 0, 4, 2
+ * or 6 for one to four channels, which is the subset engine admission and the
+ * viewer decode. Each scanline takes filter type 0, and the zlib stream (RFC
+ * 1950) holds the filtered bytes in stored deflate blocks of at most 65,535
+ * bytes (RFC 1951 section 3.2.4), with the Adler-32 of the uncompressed data;
+ * each chunk ends in the CRC-32 of its type and data. Stored blocks keep the
+ * encoder a few lines and the output a pure function of the pixels, at the cost
+ * of no compression: the file is the raw size plus about 0.1 percent. Base64
+ * follows RFC 4648 section 4 without `Buffer` or `btoa`, so the bytes are the
+ * same in Node and every browser.
  *
  * @param props.width Image width in pixels, a positive integer
  * @param props.height Image height in pixels, a positive integer
- * @param props.channels Samples per pixel: 1 grey, 2 grey and alpha, 3 RGB, 4 RGBA
- * @param props.pixels Row-major samples, the first row first, `width * height * channels` bytes; only read
+ * @param props.channels Samples per pixel: 1 grey, 2 grey and alpha, 3 RGB, 4
+ *   RGBA
+ * @param props.pixels Row-major samples, the first row first, `width * height *
+ *   channels` bytes; only read
  * @returns Padded base64 of the PNG file, without a `data:` prefix
- * @throws {Error} When a dimension is not a positive integer, the channel count is not 1 to 4, or the pixel buffer has the wrong length
+ * @throws {Error} When a dimension is not a positive integer, the channel count
+ *   is not 1 to 4, or the pixel buffer has the wrong length
  */
 export const encodeAutoMoviePng: (
   props: IAutoMovieEncodePng.IProps,
 ) => string = (props: IAutoMovieEncodePng.IProps): string => {
   const { width, height, channels, pixels } = props;
-  if (!Number.isSafeInteger(width) || width < 1)
+  if (width < 1)
     throw new Error(`png width must be a positive integer, got ${width}`);
-  if (!Number.isSafeInteger(height) || height < 1)
+  if (height < 1)
     throw new Error(`png height must be a positive integer, got ${height}`);
   if (![1, 2, 3, 4].includes(channels))
     throw new Error(`png channels must be 1 to 4, got ${channels}`);

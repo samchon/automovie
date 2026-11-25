@@ -27,37 +27,61 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 
+/** The alternatives of `TurnedSignAxis2`'s site. */
+type TurnedSignAxis2 = 1 | 2;
+
+/** The alternatives of `TurnedSignAxis`'s site. */
+type TurnedSignAxis = 1 | 2;
+
+/** The alternatives of `TurnedSide`'s site. */
+type TurnedSide = 1 | -1;
+
+/** The record of `IReaction3`'s site. */
+type IReaction3 = { part: "trunk"; away: IAutoMovieVector3 };
+
+/** The record of `IReaction2`'s site. */
+type IReaction2 = {
+  part: "head";
+  away: IAutoMovieVector3;
+  angles: IAutoMovieMotionHumanJoints.Angles;
+};
+
 /**
  * Giving way to a contact: the head turned aside by a slap, or the trunk
- * carried by a hand that pushes or pulls, then a return to what the body
- * held. It is the receiver's part of a stage slap, a grab or a light push
- * that does not cost the feet their place; a push that does is `stagger`.
+ * carried by a hand that pushes or pulls, then a return to what the body held.
+ * It is the receiver's part of a stage slap, a grab or a light push that does
+ * not cost the feet their place; a push that does is `stagger`. A leg giving
+ * way to a low kick is not a give: use `stagger` or a short `step`.
  *
- * The contact comes from a target (the striking hand, the grabbing arm),
- * read one look before the start. The head turns about the neck to the side
- * away from it, by `TURN` at full intensity with a slight tilt the same way;
- * the trunk leans from the hips and shifts away from it, or toward it when
- * it pulls. The movement starts at the action's start, peaks after `RISE`
- * and returns over `RETURN`. Sync the action's start to the contact of the
- * action it answers.
+ * The contact comes from a target (the striking hand, the grabbing arm), read
+ * one look before the start. The head turns about the neck to the side away
+ * from it, by `TURN` at full intensity with a slight tilt the same way; the
+ * trunk leans from the hips and shifts away from it, or toward it when it
+ * pulls. The movement starts at the action's start, peaks after `RISE` and
+ * returns over `RETURN`. Sync the action's start to the contact of the action
+ * it answers.
  *
- * It rides whatever base the body is on (standing, seated) and claims the
- * head, or the root and the trunk; the feet and the arms stay as they were.
+ * It rides whatever base the body is on (standing, seated) and claims the head,
+ * or the root and the trunk; the feet and the arms stay as they were.
  *
- * Every size and time is provisional: #3347 located no study of a slapped
- * head's rotation, and the stage-combat convention (the receiver turns the
- * head with the hand's passage) gives the direction only.
+ * Every size and time is provisional: the research located no study of a
+ * slapped head's rotation, and the stage-combat convention (the receiver turns
+ * the head with the hand's passage) gives the direction only.
  */
 export namespace give {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "give";
 
-  /** Cancel table: anything may follow from the peak on, a stagger or a knockdown at any time. */
+  /**
+   * Cancel table: anything may follow from the peak on, a stagger or a
+   * knockdown at any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       any: ["fromStroke", "smooth"],
@@ -65,11 +89,17 @@ export namespace give {
       knockdown: ["anytime", "reflex"],
     });
 
-  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  /**
+   * A reaction interrupts whatever the body was doing, at any instant, as a
+   * reflex.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-  /** The head's turn at full intensity, degrees (provisional), inside the neck's rotation of about 80 degrees each way. */
+  /**
+   * The head's turn at full intensity, degrees (provisional), inside the neck's
+   * rotation of about 80 degrees each way.
+   */
   export const TURN: number = 45;
 
   /** The head's tilt with the turn at full intensity, degrees (provisional). */
@@ -85,6 +115,24 @@ export namespace give {
   export const SHIFT: number = 0.03;
 
   /**
+   * A give's timetable: the body gives over `RISE` to the `stroke`, holds the
+   * first part of `RETURN` and recovers over its second; its intensity lies in
+   * (0, 1].
+   *
+   * @param intensity The give's intensity.
+   * @returns The phrase clock.
+   * @throws {HumanRefusal} When the intensity lies outside (0, 1].
+   */
+  export function timetable(intensity: number): IAutoMovieMotionClock {
+    HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
+    return AutoMovieMotionClock.phrase({
+      prepare: 0,
+      attack: RISE,
+      hold: RETURN[0],
+      retract: RETURN[1],
+    });
+  }
+  /**
    * Plan the reaction.
    *
    * @param context The action's context.
@@ -96,15 +144,9 @@ export namespace give {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGive.IParams = context.params;
     const intensity: number = p.intensity ?? 1;
-    HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
+    const clock: IAutoMovieMotionClock = timetable(intensity);
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-      prepare: 0,
-      attack: RISE,
-      hold: RETURN[0],
-      retract: RETURN[1],
-    });
     const rise: readonly [string, string] = [
       AutoMovieMotionClock.START,
       "stroke",
@@ -115,18 +157,12 @@ export namespace give {
     // forward; reversed for a pull.
     // The head's actual place and, for a head reaction, the neck's sign.
     /** The observation transfers only the actual direction and chosen angles. */
-    type IReaction =
-      | {
-          part: "head";
-          away: IAutoMovieVector3;
-          angles: IAutoMovieMotionHumanJoints.Angles;
-        }
-      | { part: "trunk"; away: IAutoMovieVector3 };
+    type IReaction = IReaction2 | IReaction3;
     const reaction: IReaction = ((): IReaction => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const headAt: ReturnType<typeof HumanTrunk.prepareResolve> =
-        HumanTrunk.prepareResolve(body, HEAD);
+        HumanTrunk.prepareResolve(body, HumanBoneGroups.HEAD);
       const trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         headAt(entry, resolution);
       const head: IAutoMovieVector3 = trunk.get("head")!.worldPosition;
@@ -197,11 +233,14 @@ export namespace give {
     };
   }
 
-  /** The neck and head angles that turn and tilt the head to a side: 1 for the performer's left, -1 for the right. */
+  /**
+   * The neck and head angles that turn and tilt the head to a side: 1 for the
+   * performer's left, -1 for the right.
+   */
   function turned(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
     trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: 1 | -1,
+    side: TurnedSide,
     intensity: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     headAt: ReturnType<typeof HumanTrunk.prepareResolve>,
@@ -213,8 +252,8 @@ export namespace give {
     );
 
     // Which sign of a neck angle moves the head's forward, or its up, to the left.
-    const sign: (axis: 1 | 2, probe: IAutoMovieVector3) => number = (
-      axis: 1 | 2,
+    const sign: (axis: TurnedSignAxis, probe: IAutoMovieVector3) => number = (
+      axis: TurnedSignAxis2,
       probe: IAutoMovieVector3,
     ): number => {
       const held: readonly [number, number, number] = entry.joints.neck ?? [
@@ -248,8 +287,4 @@ export namespace give {
       head: [0, tilt.head?.[1] ?? 0, twist.head?.[2] ?? 0],
     };
   }
-
-  /** All reaction observations read only this head and its actual ancestry. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["head"]);
 }

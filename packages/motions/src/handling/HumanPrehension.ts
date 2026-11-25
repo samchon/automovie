@@ -15,45 +15,50 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { HumanSkill } from "../skill/HumanSkill";
-import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
+
+/** The alternatives of `ShapesEntryItem`'s site. */
+type ShapesEntryItem = "entry" | "open" | "closed";
+
+/** The record of `IAPPROACHItem`'s site. */
+type IAPPROACHItem = { end: number; start: number };
 
 /**
  * Reach to grasp as two coupled components, the model of prehension since
- * Jeannerod (1981, 1984): the transport carries the hand to the object and
- * the grasp shapes the hand, opening it to a peak aperture during the
- * transport and closing it on the object as the transport ends. Every number
- * here belongs to the reaching and grasping family; none is borrowed from
- * striking or locomotion.
+ * Jeannerod (1981, 1984): the transport carries the hand to the object and the
+ * grasp shapes the hand, opening it to a peak aperture during the transport and
+ * closing it on the object as the transport ends. Every number here belongs to
+ * the reaching and grasping family; none is borrowed from striking or
+ * locomotion.
  *
- * - Movement time. McIntosh, Mon-Williams and Tresilian (2018, J. Exp.
- *   Psychol. Hum. Percept. Perform. 44:1022, table 1) found reach-to-grasp
- *   time poorly fitted by Fitts' law and well fitted by a two-factor model,
- *   `MT = a + b lg A + c W` for the grasped width, with the group fit
- *   a = -306.07 ms, b = 297.27 ms per decade of amplitude A in millimetres and
- *   c = 0.65 ms per millimetre of width W (r^2 = 0.97). Amplitudes below the
- *   study's shortest (170 mm) take its value, since the fit is not valid
- *   there; skill varies the duration through the cross-task timing
- *   variability (`HumanSkill.jitter`), no study of reaching speed by
- *   proficiency having been located.
- * - Peak aperture. It scales with the object's width with a slope of about
- *   0.8 (Smeets and Brenner 1999, Motor Control 3:237, as cited by Utz et al.
+ * - Movement time. McIntosh, Mon-Williams and Tresilian (2018, J. Exp. Psychol.
+ *   Hum. Percept. Perform. 44:1022, table 1) found reach-to-grasp time poorly
+ *   fitted by Fitts' law and well fitted by a two-factor model, `MT = a + b lg
+ *   A + c W` for the grasped width, with the group fit a = -306.07 ms, b =
+ *   297.27 ms per decade of amplitude A in millimetres and c = 0.65 ms per
+ *   millimetre of width W (r^2 = 0.97). Amplitudes below the study's shortest
+ *   (170 mm) take its value, since the fit is not valid there; skill varies the
+ *   duration through the cross-task timing variability (`HumanSkill.jitter`),
+ *   no study of reaching speed by proficiency having been located.
+ * - Peak aperture. It scales with the object's width with a slope of about 0.8
+ *   (Smeets and Brenner 1999, Motor Control 3:237, as cited by Utz et al.
  *   2015); the intercept, 25 mm, is provisional (the full regression was not
- *   reachable): it keeps the peak 5 mm above the widest graspable object,
- *   about 100 mm (McIntosh et al. 2018's hypothetical maximum grip).
- * - Peak timing. Aperture peaks at 60 to 70 % of the transport (Jeannerod
- *   1984, J. Mot. Behav. 16:235); a seeded draw places it inside that band.
+ *   reachable): it keeps the peak 5 mm above the widest graspable object, about
+ *   100 mm (McIntosh et al. 2018's hypothetical maximum grip).
+ * - Peak timing. Aperture peaks at 60 to 70 % of the transport (Jeannerod 1984,
+ *   J. Mot. Behav. 16:235); a seeded draw places it inside that band.
  *
- * The transport path superposes two minimum-jerk units (Flash and Hogan
- * 1985; Flash and Henis 1991): the first carries the wrist from where it is to
- * an approach point set back from the grasp along the object's approach axis,
- * the second, overlapping its end, carries it the last stretch along that axis
- * onto the grasp, so the hand arrives moving along the approach and never
- * through the object, as the deceleration phase of a reach to grasp is the
- * longer one (McIntosh 2018, time after peak speed). Both units end at rest,
- * so the wrist stops exactly on the grasp with zero velocity and acceleration.
- * The hand turns to its grasp rotation on a minimum-jerk slerp finished by
- * the second unit's start, so it is oriented before the final approach.
+ * The transport path superposes two minimum-jerk units (Flash and Hogan 1985;
+ * Flash and Henis 1991): the first carries the wrist from where it is to an
+ * approach point set back from the grasp along the object's approach axis, the
+ * second, overlapping its end, carries it the last stretch along that axis onto
+ * the grasp, so the hand arrives moving along the approach and never through
+ * the object, as the deceleration phase of a reach to grasp is the longer one
+ * (McIntosh 2018, time after peak speed). Both units end at rest, so the wrist
+ * stops exactly on the grasp with zero velocity and acceleration. The hand
+ * turns to its grasp rotation on a minimum-jerk slerp finished by the second
+ * unit's start, so it is oriented before the final approach.
  */
 export namespace HumanPrehension {
   /** McIntosh et al. 2018 two-factor intercept, seconds. */
@@ -69,11 +74,10 @@ export namespace HumanPrehension {
   export const SHORTEST: number = AutoMovieMotionHumanTiming.SHORTEST;
 
   /**
-   * Peak wrist speed while an object is carried in the hand, metres per
-   * second; provisional. McIntosh's fit times a fast unloaded reach, and no
-   * absolute transport time of a giver's loaded arm was located (Kopnarski
-   * 2023 reviews none), so the loaded transports are capped at a moderate
-   * peak instead.
+   * Peak wrist speed while an object is carried in the hand, metres per second;
+   * provisional. McIntosh's fit times a fast unloaded reach, and no absolute
+   * transport time of a giver's loaded arm was located (Kopnarski 2023 reviews
+   * none), so the loaded transports are capped at a moderate peak instead.
    */
   export const CARRY_PEAK: number = 1.0;
 
@@ -84,14 +88,13 @@ export namespace HumanPrehension {
   export const APERTURE_INTERCEPT: number = 0.025;
 
   /**
-   * The shares of the transport at which the first unit ends and the
-   * approach unit starts (provisional: no located study gives the split of a
-   * two-unit reach to grasp; the overlap of 0.3 of the transport keeps the
-   * approach unit the longer one, 0.55 of the transport, as a reach to
-   * grasp's deceleration phase is, McIntosh et al. 2018). The hand's turn
-   * also finishes by `start`.
+   * The shares of the transport at which the first unit ends and the approach
+   * unit starts (provisional: no located study gives the split of a two-unit
+   * reach to grasp; the overlap of 0.3 of the transport keeps the approach unit
+   * the longer one, 0.55 of the transport, as a reach to grasp's deceleration
+   * phase is, McIntosh et al. 2018). The hand's turn also finishes by `start`.
    */
-  export const APPROACH: Readonly<{ end: number; start: number }> = {
+  export const APPROACH: Readonly<IAPPROACHItem> = {
     end: 0.75,
     start: 0.45,
   };
@@ -149,8 +152,8 @@ export namespace HumanPrehension {
   }
 
   /**
-   * Where in the transport the aperture peaks: a seeded share in Jeannerod's
-   * 60 to 70 % band.
+   * Where in the transport the aperture peaks: a seeded share in Jeannerod's 60
+   * to 70 % band.
    *
    * @param random The draw stream.
    * @returns The share.
@@ -164,8 +167,10 @@ export namespace HumanPrehension {
    *
    * @param from The wrist's start, metres.
    * @param to The wrist's grasp point, metres.
-   * @param approach The unit direction the hand arrives along (into the object).
-   * @param setback How far back along the approach the first unit ends, metres; 0 for a direct reach.
+   * @param approach The unit direction the hand arrives along (into the
+   *   object).
+   * @param setback How far back along the approach the first unit ends, metres;
+   *   0 for a direct reach.
    * @param rotation The hand's world rotation at the start and at the grasp.
    * @param seconds The transport's duration.
    * @returns The transport.
@@ -215,20 +220,28 @@ export namespace HumanPrehension {
     return {
       duration: seconds,
       wrist: (t: number): IAutoMovieVector3 =>
-        superposeMinimumJerk.position(from, units, Math.min(seconds, Math.max(0, t))),
-      turn: (t: number): IAutoMovieQuaternion => Quaternion.slerp(
-        rotation.from, rotation.to, minimumJerk.share(t / turning),
-      ),
+        superposeMinimumJerk.position(
+          from,
+          units,
+          Math.min(seconds, Math.max(0, t)),
+        ),
+      turn: (t: number): IAutoMovieQuaternion =>
+        Quaternion.slerp(
+          rotation.from,
+          rotation.to,
+          minimumJerk.share(t / turning),
+        ),
     };
   }
 
   /**
-   * The finger angles of a grasp at a share of its transport: from the
-   * entry shape to the open pre-shape by the peak share, then closing onto
-   * the grasp by the end, each phase on a minimum-jerk profile so the digits
-   * start and stop smoothly.
+   * The finger angles of a grasp at a share of its transport: from the entry
+   * shape to the open pre-shape by the peak share, then closing onto the grasp
+   * by the end, each phase on a minimum-jerk profile so the digits start and
+   * stop smoothly.
    *
-   * @param shapes The entry, pre-shape and grasp angles of the hand's digits, clinical degrees.
+   * @param shapes The entry, pre-shape and grasp angles of the hand's digits,
+   *   clinical degrees.
    * @param peak The share of the peak aperture.
    * @param u The share of the transport, clamped to [0, 1].
    * @returns The angles.
@@ -236,7 +249,7 @@ export namespace HumanPrehension {
   export function shape(
     shapes: Readonly<
       Record<
-        "entry" | "open" | "closed",
+        ShapesEntryItem,
         Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
         >
@@ -246,35 +259,49 @@ export namespace HumanPrehension {
     u: number,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const s: number = Math.min(1, Math.max(0, u));
-    const [a, b, w]: [ReturnType<typeof shape>, ReturnType<typeof shape>, number] = s <= peak
-      ? [shapes.entry, shapes.open, minimumJerk.share(s / peak)]
-      : [shapes.open, shapes.closed, minimumJerk.share((s - peak) / (1 - peak))];
+    const [a, b, w]: [
+      ReturnType<typeof shape>,
+      ReturnType<typeof shape>,
+      number,
+    ] =
+      s <= peak
+        ? [shapes.entry, shapes.open, minimumJerk.share(s / peak)]
+        : [
+            shapes.open,
+            shapes.closed,
+            minimumJerk.share((s - peak) / (1 - peak)),
+          ];
     return prepareHumanShapeBlend(a, b)(w);
   }
 
   /**
-   * The schedule of {@link shape} prepared for a plan that samples it at
-   * many shares: each phase's blend is prepared on its first use.
+   * The schedule of {@link shape} prepared for a plan that samples it at many
+   * shares: each phase's blend is prepared on its first use.
    *
-   * @param shapes The entry, pre-shape and grasp angles, clinical degrees; unchanged through the plan.
+   * @param shapes The entry, pre-shape and grasp angles, clinical degrees;
+   *   unchanged through the plan.
    * @param peak The share of the peak aperture.
-   * @returns The angles at a share of the transport, clamped to [0, 1], fresh tuples.
+   * @returns The angles at a share of the transport, clamped to [0, 1], fresh
+   *   tuples.
    */
   export function prepareShape(
     shapes: Parameters<typeof shape>[0],
     peak: number,
   ): (u: number) => ReturnType<typeof shape> {
-    let opening: ReturnType<typeof prepareHumanShapeBlend> | undefined;
-    let closing: ReturnType<typeof prepareHumanShapeBlend> | undefined;
+    const opening: ReturnType<typeof prepareHumanShapeBlend> =
+      prepareHumanShapeBlend(shapes.entry, shapes.open);
+    const closing: ReturnType<typeof prepareHumanShapeBlend> =
+      prepareHumanShapeBlend(shapes.open, shapes.closed);
     return (u: number): ReturnType<typeof shape> => {
       const s: number = Math.min(1, Math.max(0, u));
       const opens: boolean = s <= peak;
-      const w: number = opens ? minimumJerk.share(s / peak) : minimumJerk.share((s - peak) / (1 - peak));
+      const w: number = opens
+        ? minimumJerk.share(s / peak)
+        : minimumJerk.share((s - peak) / (1 - peak));
       const blend: ReturnType<typeof prepareHumanShapeBlend> = opens
-        ? (opening ??= prepareHumanShapeBlend(shapes.entry, shapes.open))
-        : (closing ??= prepareHumanShapeBlend(shapes.open, shapes.closed));
+        ? opening
+        : closing;
       return blend(w);
     };
   }
 }
-

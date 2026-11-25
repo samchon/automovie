@@ -27,6 +27,7 @@ import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -38,50 +39,58 @@ const ROOM: number = 0.005;
 /** Extra horizontal margin at each jamb, in metres. */
 const JAMB: number = 0.002;
 
-/** The side-on lane's offset toward the actor's back, hip heights (provisional: the flexed knees and toes reach further forward than the back). */
+/**
+ * The side-on lane's offset toward the actor's back, hip heights (provisional:
+ * the flexed knees and toes reach further forward than the back).
+ */
 const SIDE_LANE: number = 0.085;
 
-/** The side-on swing's toe lift over a level sill, metres (provisional: no riser to clear). */
+/**
+ * The side-on swing's toe lift over a level sill, metres (provisional: no riser
+ * to clear).
+ */
 const SIDE_LIFT: number = 0.012;
 
-/** The most a side step raises the pelvis out of the forward gait's knee bend, hip heights (provisional). */
+/**
+ * The most a side step raises the pelvis out of the forward gait's knee bend,
+ * hip heights (provisional).
+ */
 const SIDE_RISE: number = 0.06;
 
-/** The share of the leg's length a raised pelvis leaves the stance leg, short of a locked knee (provisional). */
+/**
+ * The share of the leg's length a raised pelvis leaves the stance leg, short of
+ * a locked knee (provisional).
+ */
 const STRAIGHT: number = 0.997;
 
 /** The deepest duck, as a share of the hip height (provisional: a half squat). */
 const DROP: number = 0.33;
 
-/** Clearance the duck adds under the lintel before the trunk's pitch, metres (provisional). */
+/**
+ * Clearance the duck adds under the lintel before the trunk's pitch, metres
+ * (provisional).
+ */
 const HEAD_ROOM: number = 0.06;
 
 /** The duck's forward trunk pitch at its deepest, degrees (provisional). */
 const PITCH: number = 19;
 /**
- * Stage a lowered, side-on or prone crossing of a fixed opening whose sill
- * is at floor height. A duck walks through with the pelvis lowered and the
- * trunk pitched while the root is within a leg length of the solid; a
- * squeeze walks side-on along a lane offset toward the back, re-centred
- * once on the measured envelope if that makes it fit; a crawl travels
- * prone (`planProneOpening`). The displayed body's collider envelope over
- * the solid's whole depth must fit the opening's width and height, or the
- * crossing is refused with the dimension the posed body needs.
+ * Stage a lowered, side-on or prone crossing of a fixed opening whose sill is
+ * at floor height. A duck walks through with the pelvis lowered and the trunk
+ * pitched while the root is within a leg length of the solid; a squeeze walks
+ * side-on along a lane offset toward the back, re-centred once on the measured
+ * envelope if that makes it fit; a crawl travels prone (`planProneOpening`).
+ * The displayed body's collider envelope over the solid's whole depth must fit
+ * the opening's width and height, or the crossing is refused with the dimension
+ * the posed body needs.
  *
  * @param context The performer, selected action and scene.
  * @param obstacle The fixed solid containing the named opening.
  * @param opening Its world sill and clear dimensions.
  * @param out Unit vector in the direction of travel.
  * @returns A crossing whose displayed body fits through the depth.
- * @throws {HumanRefusal} For a moving or raised opening, or a sampled part outside the clear opening.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the fixed level opening, the source of support and the geometric refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the final fitted pose in the aperture frame at the motion evidence cadence and checks each posed shape overlapping the complete solid depth.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the opening frame once, choose its route, and measure the admitted volume.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the other staged obstacles in the walking planner and derives the limiting dimensions from fitted geometry; the posture constants are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms One walk or crawl plan and one envelope pass over the motion-evidence sample times; a side step that fits once centred is planned and measured once more.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The re-centred side step has a different lane, so nothing is shared.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the delegated plan.
+ * @throws {HumanRefusal} For a moving or raised opening, or a sampled part
+ *   outside the clear opening.
  */
 export function planReducedOpening(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelDoor.IParams>,
@@ -246,7 +255,10 @@ function measureOpening(
   return envelope;
 }
 
-/** Fit the standing gait to the doorway without sending its feet off their marks. */
+/**
+ * Fit the standing gait to the doorway without sending its feet off their
+ * marks.
+ */
 function planReducedWalk(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelDoor.IParams>,
   through: string,
@@ -335,7 +347,7 @@ function sideStepPosture(
   const hips: ReturnType<typeof hipJoints> = hipJoints(
     body,
     posture.root,
-    resolveHumanPosture.heading(posture),
+    humanPostureHeading(posture),
     posture.joints.hips,
   );
   const length: number = (body.measure.thigh + body.measure.shank) * STRAIGHT;

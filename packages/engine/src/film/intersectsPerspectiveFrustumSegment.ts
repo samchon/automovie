@@ -12,7 +12,15 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
 /**
  * Whether a world-space segment intersects a perspective-camera frustum.
  *
- * The frustum is the intersection of six half-spaces, so it is convex and the segment is clipped against them one plane at a time in its own parameter. Each plane is linear in camera-local coordinates, which gives algebraic crossings rather than chosen samples. This is why the helper exists: a close shot frames the band between roughly 0.71 and 0.99 of a subject's height, so neither end of the subject is on screen while its middle fills the frame. Testing chosen points, the base, the top or the midpoint, reports such a subject absent; clipping finds it. Touching a face counts as meeting it, and a malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
+ * The frustum is the intersection of six half-spaces, so it is convex and the
+ * segment is clipped against them one plane at a time in its own parameter.
+ * Each plane is linear in camera-local coordinates, which gives algebraic
+ * crossings rather than chosen samples. This is why the helper exists: a close
+ * shot frames the band between roughly 0.71 and 0.99 of a subject's height, so
+ * neither end of the subject is on screen while its middle fills the frame.
+ * Testing chosen points, the base, the top or the midpoint, reports such a
+ * subject absent; clipping finds it. Touching a face counts as meeting it, and
+ * a malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
  *
  * @param props.camera Camera placement, looking down its local −Z.
  * @param props.from Segment start in world metres.

@@ -1,3 +1,4 @@
+import { physicalHullFaces } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -9,13 +10,26 @@ import type {
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 
 /**
- * Primitive or declared convex-cell colliders in the model's space, using the engine's contact-query vocabulary.
+ * Primitive or declared convex-cell colliders in the model's space, using the
+ * engine's contact-query vocabulary.
  *
- * A hand closes its fingers on these and a grasp reads a grip's width from them, so each collider is the part's own solid, never a padded one: a box is a box, a sphere a sphere, a capsule a capsule. A cylinder at least four radii long becomes a capsule inside it, its round ends ending where the cylinder ends, which keeps the width across it exact and costs the queries least; a shorter cylinder and a cone become the convex hull of a ring of `SIDES` points on each rim, exact along the part's own X and Z and inside the true circle by less than 4 % of the radius between them. A plane has no solid and gives none.
- * A declared cell uses its exact local generating points under the visible part's current rigid transform; separate wall cells preserve cavities. An arbitrary mesh or atlas still has no inferred collider.
+ * A hand closes its fingers on these and a grasp reads a grip's width from
+ * them, so each collider is the part's own solid, never a padded one: a box is
+ * a box, a sphere a sphere, a capsule a capsule. A cylinder at least four radii
+ * long becomes a capsule inside it, its round ends ending where the cylinder
+ * ends, which keeps the width across it exact and costs the queries least; a
+ * shorter cylinder and a cone become the convex hull of a ring of `SIDES`
+ * points on each rim, exact along the part's own X and Z and inside the true
+ * circle by less than 4 % of the radius between them. A plane has no solid and
+ * gives none. A declared cell uses its exact local generating points under the
+ * visible part's current rigid transform; separate wall cells preserve
+ * cavities. An arbitrary mesh or atlas still has no inferred collider.
  */
 export namespace ArchetypeShapes {
-  /** The contact material every archetype collider cites, which the consumer's profile supplies. */
+  /**
+   * The contact material every archetype collider cites, which the consumer's
+   * profile supplies.
+   */
   export const MATERIAL: string = "archetype";
 
   /** How many points lie on each rim of a hulled cylinder or cone. */
@@ -24,8 +38,10 @@ export namespace ArchetypeShapes {
   /**
    * The colliders of parts.
    *
-   * @param parts The model's parts at their current transforms, with unit scale.
-   * @param cells Explicit convex cells bound to their visible parts; omitted for primitives.
+   * @param parts The model's parts at their current transforms, with unit
+   *   scale.
+   * @param cells Explicit convex cells bound to their visible parts; omitted
+   *   for primitives.
    * @returns One collider per supported solid part, preserving its id.
    */
   export function of(
@@ -54,12 +70,14 @@ export namespace ArchetypeShapes {
           throw new Error(
             `Convex cell ${part.id} no longer matches its visible geometry`,
           );
+        const points: IAutoMovieVector3[] = cell.points.map(
+          (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
+        );
         shapes.push({
           ...base,
           kind: "hull",
-          points: cell.points.map(
-            (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
-          ),
+          points,
+          hull: physicalHullFaces(points),
         });
         continue;
       }
@@ -96,26 +114,32 @@ export namespace ArchetypeShapes {
               radius: shape.radius,
               halfLength: shape.height / 2 - shape.radius,
             });
-          else
+          else {
+            const points: IAutoMovieVector3[] = [
+              ...ring(shape.radius, shape.height / 2),
+              ...ring(shape.radius, -shape.height / 2),
+            ];
             shapes.push({
               ...base,
               kind: "hull",
-              points: [
-                ...ring(shape.radius, shape.height / 2),
-                ...ring(shape.radius, -shape.height / 2),
-              ],
+              points,
+              hull: physicalHullFaces(points),
             });
+          }
           break;
-        case "cone":
+        case "cone": {
+          const points: IAutoMovieVector3[] = [
+            ...ring(shape.radius, shape.height / 2),
+            { x: 0, y: -shape.height / 2, z: 0 },
+          ];
           shapes.push({
             ...base,
             kind: "hull",
-            points: [
-              ...ring(shape.radius, shape.height / 2),
-              { x: 0, y: -shape.height / 2, z: 0 },
-            ],
+            points,
+            hull: physicalHullFaces(points),
           });
           break;
+        }
         case "plane":
           break;
       }

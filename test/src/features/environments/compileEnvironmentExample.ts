@@ -29,8 +29,8 @@ import {
 import { environmentExampleBody } from "./environmentExampleBody";
 
 /**
- * Compile one authored environment through the same registered shot and
- * runtime boundary that a production calls. The optional motion table carries
+ * Compile one authored environment through the same registered shot and runtime
+ * boundary that a production calls. The optional motion table carries
  * composition laws through the compiler's authored `enact` port.
  */
 export function compileEnvironmentExample(

@@ -5,22 +5,43 @@ import {
   type IAutoMovieWallOpening,
 } from "@automovie/interface";
 
-import { finitePoint } from "./finitePoint";
 import { positive } from "./positive";
 
 /**
- * Build a rectangular wall in local XY, depth along Z, with rectangular door and window openings cut through it.
+ * Build a rectangular wall in local XY, depth along Z, with rectangular door
+ * and window openings cut through it.
  *
- * The wall is partitioned at every opening edge, the cells an opening covers are dropped, and each standing cell emits only the faces no standing neighbour hides. Openings are therefore real holes in beauty, depth, normal and mask passes rather than metadata over an uncut wall, and the standing wall is a closed 2-manifold: a union of one box per cell would leave an interior face between every adjacent pair, an edge shared by four triangles that `validateMeshTopology`, and so `validateModel`, refuses, plus triangles no camera reaches that a budget still counts.
+ * The wall is partitioned at every opening edge, the cells an opening covers
+ * are dropped, and each standing cell emits only the faces no standing
+ * neighbour hides. Openings are therefore real holes in beauty, depth, normal
+ * and mask passes rather than metadata over an uncut wall, and the standing
+ * wall is a closed 2-manifold: a union of one box per cell would leave an
+ * interior face between every adjacent pair, an edge shared by four triangles
+ * that `validateMeshTopology`, and so `validateModel`, refuses, plus triangles
+ * no camera reaches that a budget still counts.
  *
- * Every cell corner is a lattice coordinate minus one half-extent, so the face two adjacent cells share reads the same pair of doubles from both sides and welds exactly. The result is centred on the wall and spans `-depth / 2` to `+depth / 2`; it carries flat per-face normals and no texture coordinates, because which cell a point belongs to depends on the opening list, and an atlas laid on that lattice would shift whenever an opening moves. `extrudeAutoMovieRegion`, with the panel as its outer ring and the openings as holes, is the atlas-bearing form that also cuts arbitrary outlines.
+ * Every cell corner is a lattice coordinate minus one half-extent, so the face
+ * two adjacent cells share reads the same pair of doubles from both sides and
+ * welds exactly. The result is centred on the wall and spans `-depth / 2` to
+ * `+depth / 2`; it carries flat per-face normals and no texture coordinates,
+ * because which cell a point belongs to depends on the opening list, and an
+ * atlas laid on that lattice would shift whenever an opening moves.
+ * `extrudeAutoMovieRegion`, with the panel as its outer ring and the openings
+ * as holes, is the atlas-bearing form that also cuts arbitrary outlines.
  *
- * All openings are admitted before the lattice is built, so a refusal never leaves a partial mesh. Refused: a nonpositive or non-finite wall size; an opening with a blank or repeated id, a non-finite origin, a nonpositive size, or a rectangle outside the wall; two overlapping openings; openings meeting only at a corner, which would pinch the wall to a line that needs a general boolean this kernel does not have; and openings that remove the whole wall. Opening records are only read.
+ * All openings are admitted before the lattice is built, so a refusal never
+ * leaves a partial mesh. Refused: a nonpositive or non-finite wall size; an
+ * opening with a repeated id, a non-finite origin, a nonpositive size, or a
+ * rectangle outside the wall; two overlapping openings; openings meeting only
+ * at a corner, which would pinch the wall to a line that needs a general
+ * boolean this kernel does not have; and openings that remove the whole wall.
+ * Opening records are only read.
  *
  * @param props.width Wall width along X in metres.
  * @param props.height Wall height along Y in metres.
  * @param props.depth Wall thickness along Z in metres.
- * @param props.openings Rectangles to cut, in wall-local metres from the bottom-left corner.
+ * @param props.openings Rectangles to cut, in wall-local metres from the
+ *   bottom-left corner.
  * @returns A closed mesh with flat normals and no UVs.
  */
 export const buildAutoMovieWall: (
@@ -32,12 +53,9 @@ export const buildAutoMovieWall: (
   const ids: Set<string> = new Set();
   props.openings.forEach(
     (opening: IAutoMovieWallOpening, index: number): void => {
-      if (opening.id.trim().length === 0)
-        throw new Error(`wall opening[${index}] id must be non-empty`);
       if (ids.has(opening.id))
         throw new Error(`wall opening id "${opening.id}" must be unique`);
       ids.add(opening.id);
-      finitePoint(opening, `wall opening[${index}]`);
       positive(opening.width, `wall opening[${index}] width`);
       positive(opening.height, `wall opening[${index}] height`);
       if (
@@ -148,7 +166,9 @@ export const buildAutoMovieWall: (
 };
 
 /**
- * The four in-plane sides of a wall cell, each with the neighbour that hides it. The two depth faces have no neighbour in a one-cell-deep wall and are always emitted, so they are not listed.
+ * The four in-plane sides of a wall cell, each with the neighbour that hides
+ * it. The two depth faces have no neighbour in a one-cell-deep wall and are
+ * always emitted, so they are not listed.
  */
 const WALL_CELL_SIDES: ReadonlyArray<
   readonly [axis: 0 | 1, outward: 1 | -1, alongX: number, alongY: number]
@@ -160,11 +180,17 @@ const WALL_CELL_SIDES: ReadonlyArray<
 ];
 
 /**
- * Append one outward face of an axis-aligned cell, wound counter-clockwise seen from outside.
+ * Append one outward face of an axis-aligned cell, wound counter-clockwise seen
+ * from outside.
  *
- * The two in-plane axes are taken in the cyclic order after the face's own axis, so the corner cycle's right-hand normal is the face's outward normal by construction rather than by a corner table kept in step with it.
+ * The two in-plane axes are taken in the cyclic order after the face's own
+ * axis, so the corner cycle's right-hand normal is the face's outward normal by
+ * construction rather than by a corner table kept in step with it.
  *
- * Borrow the admitted cell extremes and append four corners/normals plus two triangles to the caller's tessellation. Constant per-face scratch arrays are released immediately; only appended buffers survive, with no cached face or wall-specific case.
+ * Borrow the admitted cell extremes and append four corners/normals plus two
+ * triangles to the caller's tessellation. Constant per-face scratch arrays are
+ * released immediately; only appended buffers survive, with no cached face or
+ * wall-specific case.
  */
 const pushCellFace: (
   target: IAutoMovieTessellation,
@@ -210,7 +236,12 @@ const pushCellFace: (
   target.indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
 };
 
-/** Sort the wall ends and authored opening edges numerically after exact Set deduplication. Admitted finite edges are the premise; no tolerance weld or coordinate repair changes them. O(E log E) time/O(E) new list storage returns to the wall call without retained state. */
+/**
+ * Sort the wall ends and authored opening edges numerically after exact Set
+ * deduplication. Admitted finite edges are the premise; no tolerance weld or
+ * coordinate repair changes them. O(E log E) time/O(E) new list storage returns
+ * to the wall call without retained state.
+ */
 const sortedCuts: (extent: number, edges: readonly number[]) => number[] = (
   extent: number,
   edges: readonly number[],
@@ -219,7 +250,12 @@ const sortedCuts: (extent: number, edges: readonly number[]) => number[] = (
     (a: number, b: number): number => a - b,
   );
 
-/** Compare strict overlap on both admitted axis intervals, so edge contact is allowed and corner pinches remain a separate lattice check. Endpoint addition uses ordinary binary64 arithmetic; constant work borrows both records without mutation or retained state. */
+/**
+ * Compare strict overlap on both admitted axis intervals, so edge contact is
+ * allowed and corner pinches remain a separate lattice check. Endpoint addition
+ * uses ordinary binary64 arithmetic; constant work borrows both records without
+ * mutation or retained state.
+ */
 const overlaps: (
   left: IAutoMovieWallOpening,
   right: IAutoMovieWallOpening,

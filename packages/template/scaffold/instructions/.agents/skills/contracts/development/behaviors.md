@@ -21,13 +21,7 @@ Identify the screenplay facts, installed actions and operators the relation uses
 
 Add and register a [motion law](../../motion/laws/SKILL.md) only for an action the installed vocabulary cannot compose. Derive its poses, reach, contacts and variation from the study. Scale [time and speed](../../motion/laws/declaration.md#time-scale) to the body and test them against the observations. Give the factor and reason for deliberate stylization.
 
-Test a rule or table against independently expected classifications and boundaries.
-
-## Realization comments
-
-Can a reader trace each value the behavior sets, and each default it relies on, to the screenplay fact, study observation or rule it realizes?
-
-Comment each such value with its source and how it realizes it, so a reader can check it against that source without deriving it again.
+In [source comments](../../development/modules.md#documenting-source), trace choices to the screenplay fact, study observation or rule. Test a rule or table against independently expected classifications and boundaries.
 
 ## Relational goals
 

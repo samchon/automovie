@@ -1,15 +1,14 @@
 import type { IAutoMovieHumanBranchSplit } from "./IAutoMovieHumanBranchSplit";
 
-/** Split of a parent's end ring into its children's adjacent end rings.
- */
+/** Split of a parent's end ring into its children's adjacent end rings. */
 export interface IAutoMovieHumanBranchEvent {
   /** Parent chain whose end layer is the contact section. */
   parent: string;
 
   /**
-   * `down`: the contact is the parent's bottom layer and the children lie
-   * below it; `up`: the contact is the parent's top layer and the
-   * children lie above it.
+   * `down`: the contact is the parent's bottom layer and the children lie below
+   * it; `up`: the contact is the parent's top layer and the children lie above
+   * it.
    */
   direction: "down" | "up";
 
@@ -17,8 +16,8 @@ export interface IAutoMovieHumanBranchEvent {
   splits: IAutoMovieHumanBranchSplit[];
 
   /**
-   * Length over which a child turns onto the parent's tangent plane, in
-   * radii of its end ring. Absent, the child turns within its last interval.
+   * Length over which a child turns onto the parent's tangent plane, in radii
+   * of its end ring. Absent, the child turns within its last interval.
    */
   fillet?: number;
 

@@ -8,11 +8,11 @@ Build each entity from its settings or brief facts. Compose fragments into capab
 
 Compose a person's action in the installed vocabulary using its prepared body, recorded proficiency and scene targets. Settle it under [action axes](../motion/compose/composition.md#action-axes).
 
-Compose capabilities with the installed vocabulary and engine. Use the screenplay's outcomes. Delegate alignment and contact timing to the vocabulary.
+Scenes, films and catalog cases compose entity capabilities, interactions and consequences with installed operators. Their owners handle calculations, constants, geometry, direct law imports, loads and runtime selection. The vocabulary resolves alignment and contact timing.
 
 Resolve one immutable schedule per film and evaluate each second from it. Derive all streams from one film seed. Start a continuation from the prior film's final state snapshots.
 
-A film only composes, as the films contract's [composition only](../contracts/development/films.md#composition-only) item requires. The catalog and the screenplay films call the same capabilities with the same kind of parameters, as the catalog contract's [composition only](../contracts/development/catalog.md#composition-only) item requires, so a case accepted in the catalog plays the same way in the film.
+Use the same capabilities and parameter kinds in the catalog and screenplay. Apply an accepted case to a scene when its recorded inputs, conditions and versions match under the [catalog record](../motion/catalog-cases.md#record).
 
 The object shell over a functional core is the production's own style; installed packages keep theirs.
 
@@ -44,4 +44,4 @@ Pass facts that vary by production as constructor inputs or parameters. Keep uni
 
 ## Documenting source
 
-Each changed declaration answers its development contracts in its doc comment. Document invariants and the material the module realizes. Comment each value with its source and how it realizes it, as its contract's realization comments require. Give one short composition example under [Meaningful documentation](../contracts/development/common.md#meaningful-documentation).
+Answer each declaration's contracts in its doc comment. Beside each authored value and relied-on default, name the source fact or decision and explain how the value realizes it. Give one short composition example under [meaningful documentation](../contracts/development/common.md#meaningful-documentation).

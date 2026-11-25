@@ -8,11 +8,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Generate new geometry, normal fans and construction from saved support curves.
- * Independent coordinate edits transform the support equations by the inverse
- * diagonal map and renormalize each plane, preserving other axis extents.
- * No source image, measurement row, source mesh or source normal is consulted.
- * Partial denotes inferred finite-view coverage, regardless of completed emission.
+ * Generate new geometry, normal fans and construction from saved support
+ * curves. Independent coordinate edits transform the support equations by the
+ * inverse diagonal map and renormalize each plane, preserving other axis
+ * extents. No source image, measurement row, source mesh or source normal is
+ * consulted. Partial denotes inferred finite-view coverage, regardless of
+ * completed emission.
  */
 export function compileAutoMovieRecoverySupportLoft(
   recipe: IAutoMovieRecoverySupportLoft,
@@ -24,23 +25,16 @@ export function compileAutoMovieRecoverySupportLoft(
     if (
       !recipe ||
       recipe.family !== "finite-view-convex-support" ||
-      typeof recipe.objectId !== "string" ||
       !recipe.objectId.trim() ||
-      typeof recipe.frame !== "string" ||
       !recipe.frame.trim() ||
       !recipe.loft ||
-      !Array.isArray(recipe.loft.planes) ||
-      !Array.isArray(recipe.loft.spans) ||
       !recipe.loft.spans.length ||
       !recipe.dimensions ||
       ![
         recipe.dimensions.widthScale,
         recipe.dimensions.depthScale,
         recipe.dimensions.heightScale,
-      ].every(
-        (scale: number): boolean =>
-          Number.isFinite(scale) && scale >= 0.25 && scale <= 4,
-      ) ||
+      ].every((scale: number): boolean => scale >= 0.25 && scale <= 4) ||
       recipe.coverage?.lateralSurface !==
         "inferred-finite-view-convex-support" ||
       recipe.coverage.endCaps !== "unobserved" ||
@@ -49,7 +43,6 @@ export function compileAutoMovieRecoverySupportLoft(
       recipe.coverage.cameras !== "supplied" ||
       recipe.coverage.enclosure !== "not-certified" ||
       !budget ||
-      !Number.isSafeInteger(budget.maxPlanes) ||
       budget.maxPlanes < 3 ||
       recipe.loft.planes.length > budget.maxPlanes
     )
@@ -59,10 +52,7 @@ export function compileAutoMovieRecoverySupportLoft(
     for (const plane of recipe.loft.planes)
       if (
         !plane ||
-        !Array.isArray(plane.normal) ||
         plane.normal.length !== 2 ||
-        !Number.isFinite(plane.normal[0]) ||
-        !Number.isFinite(plane.normal[1]) ||
         Math.abs(Math.hypot(...plane.normal) - 1) > 64 * Number.EPSILON
       )
         throw new Error(
@@ -93,18 +83,19 @@ export function compileAutoMovieRecoverySupportLoft(
         (
           span: IAutoMovieConvexSupportLoft["spans"][number],
         ): IAutoMovieConvexSupportLoft["spans"][number] => ({
-          interval: span.interval.map(
-            (y: number): number =>
-              anchor + (y - anchor) * recipe.dimensions.heightScale,
-          ) as [number, number],
+          interval: [
+            anchor +
+              (span.interval[0] - anchor) * recipe.dimensions.heightScale,
+            anchor +
+              (span.interval[1] - anchor) * recipe.dimensions.heightScale,
+          ],
           offsets: span.offsets.map(
-            (q: number[], i: number): [number, number, number, number] =>
-              q.map((h: number): number => h / lengths[i]) as [
-                number,
-                number,
-                number,
-                number,
-              ],
+            (q: number[], i: number): [number, number, number, number] => [
+              q[0]! / lengths[i]!,
+              q[1]! / lengths[i]!,
+              q[2]! / lengths[i]!,
+              q[3]! / lengths[i]!,
+            ],
           ),
         }),
       ),

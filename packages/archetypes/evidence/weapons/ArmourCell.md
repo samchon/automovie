@@ -1,21 +1,3 @@
-# src/weapons/ArmourCell.ts#ArmourCell
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines model-metre panel bounds and radial wall faces, with positive-volume refusal and caller-owned corner records.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Cartesian intervals and one radial outer face define wall volumes without a second renderer, triangulator or mass solver.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Rectangular panels serve torso openings; radial faces serve current helmet and limb walls. Both return the same current builder cell record.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Neither operation hulls a whole hollow object, accepts a zero wall or invents a physical thickness.
-
 # src/weapons/ArmourCell.ts#ArmourCell.box
 
 ## @evidence contracts/development/common.md#meaningful-documentation

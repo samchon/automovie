@@ -7,18 +7,20 @@ import {
   Quaternion,
   jointToQuaternion,
   measurePhysicalJointLimits,
+  scanJointRom,
 } from "@automovie/engine";
 import {
   AutoMovieHumanCanonicalBody,
   AutoMovieHumanCanonicalSolids,
 } from "@automovie/human";
 import type {
+  AutoMovieClinicalAxis,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieHumanCanonicalBody,
   IAutoMovieHumanCanonicalSolids,
-  IAutoMovieHumanParameters,
   IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
   IAutoMovieMeasurePhysicalJointLimits,
   IAutoMovieMotionAudit,
   IAutoMoviePhysicalFrame,
@@ -31,46 +33,53 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import PEOPLE from "../internal/MOTION_HUMAN_PEOPLE.json";
+import type { IMotionHumanPerson } from "../internal/people/IMotionHumanPerson";
+import { MOTION_HUMAN_PEOPLE } from "../internal/people/MOTION_HUMAN_PEOPLE";
 
 /**
  * The canonical Human profile agrees with the sources its provider names.
  *
  * Scenarios:
- * 1. Every Dempster group of Winter Table 4.1 carries its share of the
- *    measured mass, and the shares close to the whole body.
+ *
+ * 1. Every Dempster group of Winter Table 4.1 carries its share of the measured
+ *    mass, and the shares close to the whole body.
  * 2. The whole-body centre of mass equals the share-weighted, volume-weighted
  *    centroid of the drawn solids and phalanx capsules rebuilt from the
  *    published joints.
- * 3. Every hull collider is one drawn solid at its world place, every drawn
- *    solid is used once on its carrier, and every phalanx capsule spans its
- *    joint to its child joint or fingertip at the joint's girth radius.
+ * 3. Every hull collider is one drawn solid at its world place, every drawn solid
+ *    is used once on its carrier, and every phalanx capsule spans its joint to
+ *    its child joint or fingertip at the joint's girth radius.
  * 4. Each clinical range-of-motion end, posed through the displayed
  *    clinical-to-rig conversion, lies on its physical axis limit: no excess at
  *    the end, the full excess two degrees beyond it, and no rotation leaking
- *    onto another physical axis.
- * 5. The motion audit measures floor clearance on the profile's colliders: a
- *    floor one millimetre above the lowest collider point is a finding, one
+ *    onto another physical axis. A joint gated by swing and twist (the
+ *    shoulders, the thumbs' bases) is held on the displayed gate instead, whose
+ *    clinical box is a reading only: each end of its twist interval reads no
+ *    excess and no swing, the full twist excess two degrees beyond it, and
+ *    every clinical end, at it and two degrees beyond it, reads natively
+ *    exactly what the displayed gate reads of the same angles.
+ * 5. The motion audit measures floor clearance on the profile's colliders: a floor
+ *    one millimetre above the lowest collider point is a finding, one
  *    millimetre below it is not, although every bone origin stays above both.
  *
  * Mass, centre and collider positions are evaluated in the displayed T-pose
- * rest geometry. Joint limits are evaluated on the native joint coordinates
- * the simulation enforces, read from displayed frames. Rest-pose self-contact
+ * rest geometry. Joint limits are evaluated on the native joint coordinates the
+ * simulation enforces, read from displayed frames. Rest-pose self-contact
  * between non-adjacent segments belongs to the support work of #3092.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Prepares an actual canonical Human with `AutoMovieHumanCanonicalBody.prepare`, then asserts its profile mass groups, centre, colliders and joint axes, poses ROM ends through `jointToQuaternion` and measures them with `measurePhysicalJointLimits`, and runs `AutoMovieMotionAudit` on the profile against two floors. Each scenario collects measured defects and fails on any.
- * @evidence contracts/development/testing.md#independent-expectations Shares are Winter Table 4.1 literals with de Leva's head share. The centre and colliders are rebuilt from `AutoMovieHumanCanonicalSolids.build` and the published joints with closed-form capsule volume and centroid, not from the provider's mass combination. Joint expectations are the clinical ROM table posed through the display conversion. The audit floors come from the lowest rebuilt collider point.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers every mass group, both collider kinds, each ROM end inside and two degrees outside its limit, off-axis leakage, and a floor on each side of the lowest collider point while bone origins stay above both. Native tracking and refusals belong to test_physical_human_profile, drawn-surface fidelity to test_human_canonical_solids_surface.
+ * @evidence contracts/development/testing.md#independent-expectations Shares are Winter Table 4.1 literals with de Leva's head share. The centre and colliders are rebuilt from `AutoMovieHumanCanonicalSolids.build` and the published joints with closed-form capsule volume and centroid, not from the provider's mass combination. Joint expectations are the clinical ROM table posed through the display conversion; a bone the ROM table gates by swing and twist has the gate as its displayed limit, so its box ends are not limits there (the box premise does not hold for it), and its expectations are the gate's twist interval and the displayed gate's own reading (`scanJointRom.overshoot`) of each posed end. The audit floors come from the lowest rebuilt collider point.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers every mass group, both collider kinds, each ROM end inside and two degrees outside its limit, off-axis leakage, a gated joint's twist ends and its box ends against the displayed gate, and a floor on each side of the lowest collider point while bone origins stay above both. Native tracking and refusals belong to test_physical_human_profile, drawn-surface fidelity to test_human_canonical_solids_surface.
  * @evidence contracts/development/testing.md#execution-ownership The portable unit test test_physical_human_profile_sources prepares one installed canonical body in memory and calls public Engine and Human entries with no simulation, viewer or file host.
  * @evidence contracts/development/common.md#meaningful-documentation Documents the five source comparisons, their reference sources and which tolerances belong to displayed geometry and which to native joint coordinates.
  */
 export async function test_physical_human_profile_sources(): Promise<void> {
-  const person: { mass: number; params: unknown } = PEOPLE["m-average"];
+  const person: IMotionHumanPerson = MOTION_HUMAN_PEOPLE["m-average"];
   const body: IAutoMovieHumanCanonicalBody.IBody =
-    AutoMovieHumanCanonicalBody.prepare(
-      person.params as IAutoMovieHumanParameters,
-      { mass: person.mass, id: "m-average" },
-    );
+    AutoMovieHumanCanonicalBody.prepare(person.params, {
+      mass: person.mass,
+      id: "m-average",
+    });
   const profile: IAutoMoviePhysicalProfile = body.profile;
   const joints: Map<string, IAutoMovieHumanCanonicalSolids.IJoint> = new Map(
     body.joints.map(
@@ -332,6 +341,92 @@ export async function test_physical_human_profile_sources(): Promise<void> {
     const rom: IAutoMovieJointConstraint | undefined =
       DEFAULT_HUMANOID_ROM[bone];
     if (rom === undefined) continue;
+    const pose = (
+      angles: IAutoMovieJointPose,
+    ): IAutoMovieMeasurePhysicalJointLimits.IResult =>
+      measurePhysicalJointLimits(joint, REST, {
+        position: REST.position,
+        rotation: jointToQuaternion(
+          angles,
+          HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES,
+          HUMANOID_REST_FRAME[bone],
+        ),
+      });
+    const gate: IAutoMovieJointConstraint["swingTwist"] = rom.swingTwist;
+    if (joint.range !== undefined && gate !== undefined && gate !== null) {
+      // A joint gated by swing and twist is held on the displayed gate:
+      // its twist ends lie on the native twist limit with no swing, and
+      // every clinical end, at it and beyond it, reads natively what the
+      // displayed gate reads of the same angles.
+      for (const [end, outward] of [
+        [gate.twist.min, -1],
+        [gate.twist.max, 1],
+      ] as const) {
+        const at: IAutoMovieMeasurePhysicalJointLimits.IResult = pose(
+          angles(bone, "twist", end),
+        );
+        posed++;
+        const twist: number = at.find(
+          (c: IAutoMovieMeasurePhysicalJointLimits.IResult[number]): boolean =>
+            c.axis === "y",
+        )!.violation;
+        const swing: number = at.find(
+          (c: IAutoMovieMeasurePhysicalJointLimits.IResult[number]): boolean =>
+            c.axis === "x",
+        )!.angle;
+        if (!(twist <= 1e-9))
+          romDefects.push(
+            `${bone} gate twist ${end} deg exceeds by ${twist / radian} deg`,
+          );
+        if (!(Math.abs(swing) <= 1e-9))
+          romDefects.push(
+            `${bone} gate twist ${end} deg leaks ${swing / radian} deg onto the swing`,
+          );
+        if (Math.abs(end) + beyond >= 180) continue;
+        const past: number = pose(
+          angles(bone, "twist", end + outward * beyond),
+        ).find(
+          (c: IAutoMovieMeasurePhysicalJointLimits.IResult[number]): boolean =>
+            c.axis === "y",
+        )!.violation;
+        if (!close(past, beyond * radian, 1e-9))
+          romDefects.push(
+            `${bone} gate twist ${beyond} deg past ${end} deg reads ${past / radian} deg excess`,
+          );
+      }
+      for (const clinical of ["flexion", "abduction", "twist"] as const) {
+        const range: IAutoMovieAngleRange | null | undefined = rom[clinical];
+        if (range === null || range === undefined) continue;
+        for (const value of [
+          range.min,
+          range.max,
+          range.min - beyond,
+          range.max + beyond,
+        ]) {
+          if (Math.abs(value) >= 180) continue;
+          const posedAngles: IAutoMovieJointPose = angles(
+            bone,
+            clinical,
+            value,
+          );
+          const native: number = pose(posedAngles).reduce(
+            (
+              sum: number,
+              c: IAutoMovieMeasurePhysicalJointLimits.IResult[number],
+            ): number => sum + c.violation,
+            0,
+          );
+          const displayed: number =
+            scanJointRom.overshoot(posedAngles, rom) * radian;
+          posed++;
+          if (!close(native, displayed, 1e-9))
+            romDefects.push(
+              `${bone}.${clinical} ${value} deg reads ${native / radian} deg natively, the displayed gate ${displayed / radian} deg`,
+            );
+        }
+      }
+      continue;
+    }
     for (const clinical of ["flexion", "abduction", "twist"] as const) {
       const range: IAutoMovieAngleRange | null | undefined = rom[clinical];
       if (range === null || range === undefined) continue;
@@ -351,19 +446,7 @@ export async function test_physical_human_profile_sources(): Promise<void> {
         const measure = (
           degrees: number,
         ): IAutoMovieMeasurePhysicalJointLimits.IResult =>
-          measurePhysicalJointLimits(joint, REST, {
-            position: REST.position,
-            rotation: jointToQuaternion(
-              {
-                flexion: null,
-                abduction: null,
-                twist: null,
-                [clinical]: degrees,
-              },
-              HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES,
-              HUMANOID_REST_FRAME[bone],
-            ),
-          });
+          pose(angles(bone, clinical, degrees));
         const at: IAutoMovieMeasurePhysicalJointLimits.IResult = measure(end);
         posed++;
         const own: IAutoMovieMeasurePhysicalJointLimits.IResult[number] =
@@ -509,6 +592,21 @@ const DIGITS: readonly (readonly string[])[] = [
     `${d}Distal`,
   ]),
 ];
+
+/** A joint's clinical angles with one axis set and the others at rest. */
+function angles(
+  bone: AutoMovieHumanoidBone,
+  clinical: AutoMovieClinicalAxis,
+  degrees: number,
+): IAutoMovieJointPose {
+  return {
+    bone,
+    flexion: null,
+    abduction: null,
+    twist: null,
+    [clinical]: degrees,
+  };
+}
 
 /** A parent frame at the origin with identity rotation. */
 const REST: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } = {

@@ -1,5 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSwim,
@@ -17,28 +19,20 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of swimming (#3254) on a water plane at 1.2 m, drawn as a
- * thin box, three cycles each.
+ * Capture cases of swimming on a water plane at 1.2 m, drawn as a thin box,
+ * three cycles each.
  *
  * Every case reports no range-of-motion overshoot. Beyond that (the M25
  * acceptance):
  *
  * - `swim-treadWater`: the mouth above the plane throughout;
- * - `swim-frontCrawl`: each hand entering ahead of its shoulder by at least
- *   0.3 of the arm along the swim, the mouth above the plane at each
- *   `breath`, and the cycle periodic: the right wrist's place relative to
- *   the hips the same within 10 mm at each cycle's start.
+ * - `swim-frontCrawl`: each hand entering ahead of its shoulder by at least 0.3
+ *   of the arm along the swim, the mouth above the plane at each `breath`, and
+ *   the cycle periodic: the right wrist's place relative to the hips the same
+ *   within 10 mm at each cycle's start.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones and the mouth region against the plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per stroke, one verdict block per stroke.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's curves; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function swimCases(
   bodies: readonly string[] = ["m-average"],
@@ -59,6 +53,8 @@ export function swimCases(
     ] as IAutoMovieMotionHumanSwim.Kind[]) {
       const name: string = `swim-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "swim",
@@ -81,8 +77,8 @@ export function swimCases(
         out.push(FamilyCaseKit.refused(name, error));
         continue;
       }
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const mouth = (t: number): number =>
         TouchVerdicts.place(
           performance,
@@ -120,7 +116,8 @@ export function swimCases(
               `entry${side}${i}`,
             );
             named.push([t, `entry${side}${i}`]);
-            const lower: "left" | "right" = side === "Right" ? "right" : "left";
+            const lower: AutoMovieHumanSide =
+              side === "Right" ? "right" : "left";
             shortest = Math.min(
               shortest,
               at(t, `${lower}Hand`).z - at(t, `${lower}UpperArm`).z,

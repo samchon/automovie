@@ -1,5 +1,6 @@
 import { Quaternion, RigidCarrierSample, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanProp,
@@ -12,25 +13,19 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanObjectCord } from "./HumanObjectCord";
 
 /**
- * Attach actions to an object: an object says where a person meets it
- * through its affordances (a seat, a handle, a surface), and this gives the
- * actions what they read of it, placed in the world.
+ * Attach actions to an object: an object says where a person meets it through
+ * its affordances (a seat, a handle, a surface), and this gives the actions
+ * what they read of it, placed in the world.
  *
- * The object is any model that declares affordances in its own space, such
- * as an archetype; nothing here depends on how it was made. Its place is
- * where the scene puts it. A sitting action then sits on the seat the chair
- * declares, at the height and depth the chair has, and a grasp, a touch or
- * a look goes to the contact the object names instead of to coordinates
- * written by hand.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what an object declares, what this gives the actions and what it does not depend on.
- * @evidence contracts/development/design.md#principled-representation An object is read through the interface's affordance record alone, and placed by a rigid world frame; each result is the type an action already takes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The object's shape, its placement, and one function per thing an action reads: a prop and a seat.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is special-cased; a wrong or missing affordance is refused with the ids that fit.
+ * The object is any model that declares affordances in its own space, such as
+ * an archetype; nothing here depends on how it was made. Its place is where the
+ * scene puts it. A sitting action then sits on the seat the chair declares, at
+ * the height and depth the chair has, and a grasp, a touch or a look goes to
+ * the contact the object names instead of to coordinates written by hand.
  */
 export namespace HumanObject {
   /**
@@ -38,14 +33,6 @@ export namespace HumanObject {
    *
    * @param placement The placement.
    * @returns The frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A heading is a rotation about the world's up by that angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on which form was given.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A frame given as one is returned as its position and rotation.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function frame(
     placement: IAutoMovieMotionHumanObject.Placement,
@@ -62,28 +49,29 @@ export namespace HumanObject {
   }
 
   /**
-   * An object as a prop of a performance: actions aim at its contacts by
-   * their ids, hands grasp its handles, and it rides the hand that holds it.
+   * An object as a prop of a performance: actions aim at its contacts by their
+   * ids, hands grasp its handles, and it rides the hand that holds it.
    *
-   * Every affordance is also a named point of the prop, at the contact with
-   * the contact's `+Y` as its outward normal, so `{ kind: "prop", subject,
-   * point: "pull" }` is a target.
+   * Every affordance is also a named point of the prop, at the contact with the
+   * contact's `+Y` as its outward normal, so `{ kind: "prop", subject, point:
+   * "pull" }` is a target.
    *
    * @param subject The prop's subject id in the performance.
    * @param model The object.
    * @param placement Where it rests before any hand takes it.
-   * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
-   * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
-   * @param tracks The object's own movements after a trigger, each an articulation's travel from its start (`IHumanProp.tracks`); none when absent.
-   * @returns The prop with any declared articulation capability, and with its pose reader for drives and tracks when the model supplies one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
-   * @evidence contracts/development/implementation.md#principled-implementation A contact frame's translation is its point and its rotated `+Y` its outward normal, the affordance record's own convention.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the affordances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The colliders are the object's own when it gives them, and absent otherwise.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work An exact native model and callback pair can pass its existing stationary domains to the prop reader without invoking either callback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prop owns its affordances, colliders and any issued carrier domain metadata for its lifetime.
+   * @param motion Where it is at a film second, for an object that moves by
+   *   itself, such as a vehicle on its course; it stays at its placement when
+   *   absent.
+   * @param contact The world frame of one of its contacts at a film second, for
+   *   an object whose parts move within it, such as a pedal on its crank (an
+   *   archetype ride's `frame`); each contact moves rigidly with the object
+   *   when absent.
+   * @param tracks The object's own movements after a trigger, each an
+   *   articulation's travel from its start (`IHumanProp.tracks`); none when
+   *   absent.
+   * @param modelAt The model posed in its own frame at a film second, read
+   *   when action preparation asks for a material snapshot.
+   * @returns The prop with the pose readers supplied by the model and its track.
    */
   export function prop(
     subject: string,
@@ -92,6 +80,7 @@ export namespace HumanObject {
     motion?: (seconds: number) => IAutoMovieMotionHumanObject.Placement,
     contact?: (id: string, seconds: number) => IAutoMovieTransform,
     tracks?: readonly IAutoMovieMotionHumanProp.ITrack[],
+    modelAt?: (seconds: number) => IAutoMovieMotionHumanObject.IModel,
   ): IAutoMovieMotionHumanProp {
     const affordances: readonly IAutoMovieAffordance[] =
       model.affordances ?? [];
@@ -134,19 +123,14 @@ export namespace HumanObject {
         : {
             articulate: (
               state: Readonly<Record<string, number>>,
-            ): IAutoMovieMotionHumanProp.IPosed => {
-              const posed: IAutoMovieMotionHumanObject.IModel =
-                model.articulate!(state);
-              const moved: IAutoMoviePhysicalShape[] | undefined =
-                posed.shapes?.();
-              return {
-                affordances: posed.affordances ?? [],
-                ...(moved === undefined ? {} : { shapes: moved }),
-                ...(posed.span === undefined
-                  ? {}
-                  : { span: posed.span.bind(posed) }),
-              };
-            },
+            ): IAutoMovieMotionHumanProp.IPosed =>
+              posedModel(model.articulate!(state)),
+          }),
+      ...(modelAt === undefined
+        ? {}
+        : {
+            poseAt: (seconds: number): IAutoMovieMotionHumanProp.IPosed =>
+              posedModel(modelAt(seconds)),
           }),
       ...(motion === undefined
         ? {}
@@ -180,16 +164,8 @@ export namespace HumanObject {
   }
 
   /**
-   * Create a soft cord on a model span's own endpoints and rest length.
-   * The owning prop and returned cord both belong in the performance props.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the model and line identity and how to supply the result.
-   * @evidence contracts/development/implementation.md#principled-implementation HumanObjectCord discretizes the existing model line in world metres and binds both endpoints to the owning prop.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This is the object authoring entry. The cord's domain construction belongs to HumanObjectCord.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The author supplies no second endpoint declaration. The cord constructor refuses invalid span and domain inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One call to the linear cord discretization and domain validator.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the provider's public span reader and the existing soft solver settings.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a soft prop and its finite domain. Film-state ownership stays with the performance.
+   * Create a soft cord on a model span's own endpoints and rest length. The
+   * owning prop and returned cord both belong in the performance props.
    */
   export function cord(
     model: IAutoMovieMotionHumanObject.ISpanModel,
@@ -200,24 +176,20 @@ export namespace HumanObject {
   }
 
   /**
-   * An object's seat in the world, for the actions that sit on one: the
-   * middle of its front edge, the heading a sitter faces, and the depth and
-   * backrest it declares.
+   * An object's seat in the world, for the actions that sit on one: the middle
+   * of its front edge, the heading a sitter faces, and the depth and backrest
+   * it declares.
    *
    * @param model The object.
    * @param placement Where the scene puts it.
    * @param id The seat's affordance id; the object's only seat when absent.
-   * @param carrier The subject of the prop the object is, when it may move, so a sit follows the seat in its frame and the seat's own contact within it (`IAutoMovieMotionHumanSeated.ISeat.carrier` and `point`); absent for a seat in the world.
+   * @param carrier The subject of the prop the object is, when it may move, so
+   *   a sit follows the seat in its frame and the seat's own contact within it
+   *   (`IAutoMovieMotionHumanSeated.ISeat.carrier` and `point`); absent for a
+   *   seat in the world.
    * @returns The seat.
-   * @throws {HumanRefusal} When the object has no such seat, or several and none is named, listing its seats.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read of the seat and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A seat contact's frame sits on the front edge with `+Z` toward the sitter's front and `+Y` up, so the placed frame's origin is the seat's place and its turned `+Z` the heading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the seat, place its frame, read the heading.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing or ambiguous seat is refused, never guessed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @throws {HumanRefusal} When the object has no such seat, or several and
+   *   none is named, listing its seats.
    */
   export function seat(
     model: IAutoMovieMotionHumanObject.IModel,
@@ -260,8 +232,11 @@ export namespace HumanObject {
       Quaternion.multiply(world.rotation, found.frame.rotation),
       { x: 0, y: 0, z: 1 },
     );
-    const rests: Partial<Record<"left" | "right", IAutoMovieVector3>> =
-      footrests(model.affordances ?? [], found, world);
+    const rests: ReturnType<typeof footrests> = footrests(
+      model.affordances ?? [],
+      found,
+      world,
+    );
     return {
       at: Vector3.add(
         world.position,
@@ -276,7 +251,12 @@ export namespace HumanObject {
         : { workingSeat: found.workingSeat }),
       ...(found.astride === undefined ? {} : { astride: found.astride }),
       ...(found.mount === undefined ? {} : { mount: found.mount }),
-      ...(Object.keys(rests).length === 0 ? {} : { footrests: rests }),
+      ...(Object.keys(rests.at).length === 0
+        ? {}
+        : {
+            footrests: rests.at,
+            ...(carrier === undefined ? {} : { footrestPoints: rests.ids }),
+          }),
       ...(carrier === undefined ? {} : { carrier, point: found.id }),
     };
   }
@@ -284,18 +264,18 @@ export namespace HumanObject {
   /**
    * Where the feet rest on an object while its seat is sat on: the tread
    * nearest the seat on each side among the object's pedals and stirrups, or,
-   * when it has none below the seat, two points of the nearest bar below it,
-   * a quarter of the bar's length to each side of its middle.
+   * when it has none below the seat, two points of the nearest bar below it, a
+   * quarter of the bar's length to each side of its middle.
    *
-   * A point counts as below the seat when it lies under the sitting surface
-   * in the seat's own frame, whose `+X` is the sitter's left. Whether a leg
+   * A point counts as below the seat when it lies under the sitting surface in
+   * the seat's own frame, whose `+X` is the sitter's left. Whether a leg
    * reaches a rest is the sitting law's to judge on the body that sits.
    */
   function footrests(
     affordances: readonly IAutoMovieAffordance[],
     seat: IAutoMovieAffordance,
     world: IAutoMovieRigidTransform,
-  ): Partial<Record<"left" | "right", IAutoMovieVector3>> {
+  ): ISeatFootrests {
     const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
       seat.frame.rotation,
     );
@@ -321,15 +301,17 @@ export namespace HumanObject {
             Vector3.length(seated(a.frame.translation)) -
             Vector3.length(seated(b.frame.translation)),
         );
-    const out: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
+    const out: ISeatFootrests = { at: {}, ids: {} };
 
     // The nearest tread on each side comes first in the sorted list.
     for (const tread of below(["pedal", "stirrup"])) {
-      const side: "left" | "right" =
+      const side: AutoMovieHumanSide =
         seated(tread.frame.translation).x > 0 ? "left" : "right";
-      out[side] ??= placed(tread.frame.translation);
+      if (out.ids[side] !== undefined) continue;
+      out.at[side] = placed(tread.frame.translation);
+      out.ids[side] = tread.id;
     }
-    if (Object.keys(out).length !== 0) return out;
+    if (Object.keys(out.at).length !== 0) return out;
     const bar: IAutoMovieAffordance | undefined = below(["bar"])[0];
     if (bar === undefined || bar.length === undefined) return out;
     const reach: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -343,30 +325,50 @@ export namespace HumanObject {
       (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
         seated(b).x - seated(a).x,
     );
-    return { left: placed(ends[0]!), right: placed(ends[1]!) };
+    return {
+      at: { left: placed(ends[0]!), right: placed(ends[1]!) },
+      ids: { left: bar.id, right: bar.id },
+    };
   }
 }
 
+/** Where each footrest is placed and which affordance carries it. */
+interface ISeatFootrests {
+  /** The footrest points from the seat reader's world frame. */
+  at: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
+
+  /** The model affordance serving each footrest. */
+  ids: Partial<Record<AutoMovieHumanSide, string>>;
+}
+
+/** The alternatives of `TiltedResult`'s site. */
+type TiltedResult = "pitch" | "roll";
+
 /**
- * A seat's pitch and roll in the world, as a posture's, when the seat is not level.
+ * A seat's pitch and roll in the world, as a posture's, when the seat is not
+ * level.
  *
  * @param rotation The seat's world rotation.
  * @returns The tilt, empty for a level seat.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is returned.
- * @evidence contracts/development/implementation.md#principled-implementation The posture angles of the seat's rotation (`resolveHumanPosture.angles`), kept when either exceeds a millionth of a degree.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One read.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record.
  */
 function tilted(
   rotation: IAutoMovieQuaternion,
-): Pick<IAutoMovieMotionHumanSeated.ISeat, "pitch" | "roll"> {
-  const angles: ReturnType<typeof resolveHumanPosture.angles> =
-    resolveHumanPosture.angles(rotation);
+): Pick<IAutoMovieMotionHumanSeated.ISeat, TiltedResult> {
+  const angles: ReturnType<typeof humanPostureHeading.angles> =
+    humanPostureHeading.angles(rotation);
   return Math.abs(angles.pitch) < 1e-6 && Math.abs(angles.roll) < 1e-6
     ? {}
     : { pitch: angles.pitch, roll: angles.roll };
+}
+
+/** Read the posed affordances, colliders and span endpoints in model space. */
+function posedModel(
+  model: IAutoMovieMotionHumanObject.IModel,
+): IAutoMovieMotionHumanProp.IPosed {
+  const shapes: IAutoMoviePhysicalShape[] | undefined = model.shapes?.();
+  return {
+    affordances: model.affordances ?? [],
+    ...(shapes === undefined ? {} : { shapes }),
+    ...(model.span === undefined ? {} : { span: model.span.bind(model) }),
+  };
 }

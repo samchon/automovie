@@ -9,7 +9,6 @@ import type { Matrix4 } from "three";
 export function isAutoMovieAffineMatrix(matrix: Matrix4): boolean {
   const elements: number[] = matrix.elements;
   return (
-    elements.every(Number.isFinite) &&
     elements[3] === 0 &&
     elements[7] === 0 &&
     elements[11] === 0 &&

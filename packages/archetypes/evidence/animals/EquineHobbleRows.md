@@ -1,19 +1,3 @@
-# src/animals/EquineHobbleRows.ts#EquineHobbleRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the order, the pitch, what the fores keep and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A stance row in the rows' own plan form.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `owns` and `plan`, dispatched by `EquineStanceExtras`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The pitch, lift and load share are named authored values.
-
 # src/animals/EquineHobbleRows.ts#EquineHobbleRows.owns
 
 ## @evidence contracts/development/common.md#meaningful-documentation

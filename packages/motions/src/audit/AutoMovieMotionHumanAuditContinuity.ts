@@ -12,60 +12,55 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * Whether every joint centre of a displayed motion travels a continuous,
  * humanly fast path: no jump, no out-and-back spike and no impossible speed.
  *
- * A body is continuous in time, so the distance a joint centre covers
- * shrinks with the interval it is read over, while a branch flip of an
- * inverse-kinematics fit, a swapped reference or a mis-phased blend moves it
- * by the same distance however short the interval. Three readings follow, all
- * on the displayed bones over the whole motion:
+ * A body is continuous in time, so the distance a joint centre covers shrinks
+ * with the interval it is read over, while a branch flip of an
+ * inverse-kinematics fit, a swapped reference or a mis-phased blend moves it by
+ * the same distance however short the interval. Three readings follow, all on
+ * the displayed bones over the whole motion:
  *
- * - `jump`: the displacement that is still there when the interval around it
- *   is `1 / (rate * 4^LEVELS)` long ({@link resolve}). At 24 Hz that is 41
+ * - `jump`: the displacement that is still there when the interval around it is
+ *   `1 / (rate * 4^LEVELS)` long ({@link resolve}). At 24 Hz that is 41
  *   microseconds, in which a joint at 100 m/s covers 4 mm. A frame interval is
  *   resolved when some joint's displacement over it departs by more than the
- *   limit from the one the quadratic through the two displacements on each
- *   side predicts (from the mean of its two neighbours' within two intervals
- *   of an end): a smooth path departs from it by its fourth derivative, a
- *   step by the step. Inside, a quartered interval is quartered again only
- *   for a joint whose four displacements depart from a constant-jerk path
- *   (their third difference, the residual of the same quadratic predictor)
- *   by at least the limit, and, below the first quartering, by more
- *   than a sixteenth of that joint's departure over the enclosing interval:
- *   a Richardson test (Richardson 1911, Phil Trans R Soc A 210:307: an
- *   order-p error falls by the refinement ratio to the p-th power, and the
- *   ratio fails where the path is not smooth), since a smooth path's
- *   departure falls 256-fold a quartering and a step's not at all, so a fast smooth turn (a somersault,
- *   a swing) is not chased. The parts entered are those where such a joint
- *   departs from the line through its other three displacements by at least
- *   the limit and half the largest such departure; a step departs there
- *   by its whole size.
- * - `reversal`: a joint that goes out and straight back within two
- *   intervals of `1 / REVERSAL` seconds, read as the shorter of the two
- *   displacements times the cosine of their opposition. A fit that flips for
- *   one frame and returns shows here even where each displacement alone is a
- *   plausible speed. The window is a time, not the caller's grid: on a
- *   coarser grid a stroke that oscillates by design (a rub, a wave) would go
- *   out and back within two intervals, so a turn found on the coarse grid is
- *   read again on intervals of that length across its two.
- * - `speed`: the fastest any joint centre travels relative to the hips over
- *   a grid interval, metres per second, the bound a caller sets from the
- *   action (a hand raised to the face does not reach a punch's speed). The
- *   hips carry the body's bulk motion, so a body carried, falling or riding
- *   as a whole reads only its own limbs' speed; a pop of the whole body is
- *   the `jump`'s to read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the premise, each reading, its unit and what the resolution reaches.
- * @evidence contracts/development/implementation.md#principled-implementation The definition of continuity applied directly: over equal sub-intervals a smooth path's departure from a constant-jerk path vanishes 256-fold per quartering while a step keeps its size, so a Richardson comparison of a joint's departure with its enclosing interval's tells a step from a fast smooth path; a step in one part leaves at least its size in the third difference and its whole size at its own part against the line through the other three.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the grid for the three readings, one recursive quartering per departing interval.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb; the speed subtracts only the hips' own displacement, which the jump still reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and goes deeper only for a joint that may step there, so a fast smooth path costs one quartering's three poses and a step about three a part entered at each level, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per grid instant and only where the grid's own reading exceeds the worst found.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ *   limit from the one the quadratic through the two displacements on each side
+ *   predicts (from the mean of its two neighbours' within two intervals of an
+ *   end): a smooth path departs from it by its fourth derivative, a step by the
+ *   step. Inside, a quartered interval is quartered again only for a joint
+ *   whose four displacements depart from a constant-jerk path (their third
+ *   difference, the residual of the same quadratic predictor) by at least the
+ *   limit, and, below the first quartering, by more than a sixteenth of that
+ *   joint's departure over the enclosing interval: a Richardson test
+ *   (Richardson 1911, Phil Trans R Soc A 210:307: an order-p error falls by the
+ *   refinement ratio to the p-th power, and the ratio fails where the path is
+ *   not smooth), since a smooth path's departure falls 256-fold a quartering
+ *   and a step's not at all, so a fast smooth turn (a somersault, a swing) is
+ *   not chased. The parts entered are those where such a joint departs from the
+ *   line through its other three displacements by at least the limit and half
+ *   the largest such departure; a step departs there by its whole size.
+ * - `reversal`: a joint that goes out and straight back within two intervals of
+ *   `1 / REVERSAL` seconds, read as the shorter of the two displacements times
+ *   the cosine of their opposition. A fit that flips for one frame and returns
+ *   shows here even where each displacement alone is a plausible speed. The
+ *   window is a time, not the caller's grid: on a coarser grid a stroke that
+ *   oscillates by design (a rub, a wave) would go out and back within two
+ *   intervals, so a turn found on the coarse grid is read again on intervals of
+ *   that length across its two.
+ * - `speed`: the fastest any joint centre travels relative to the hips over a
+ *   grid interval, metres per second, the bound a caller sets from the action
+ *   (a hand raised to the face does not reach a punch's speed). The hips carry
+ *   the body's bulk motion, so a body carried, falling or riding as a whole
+ *   reads only its own limbs' speed; a pop of the whole body is the `jump`'s to
+ *   read.
  */
 export namespace AutoMovieMotionHumanAuditContinuity {
   /** How many times a departing interval is quartered at most. */
   export const LEVELS: number = 5;
 
-  /** The samples a second a reversal is read at, whatever the grid: a reversal is an out-and-back within two intervals of `1 / REVERSAL` seconds, a frame of film. */
+  /**
+   * The samples a second a reversal is read at, whatever the grid: a reversal
+   * is an out-and-back within two intervals of `1 / REVERSAL` seconds, a frame
+   * of film.
+   */
   export const REVERSAL: number = 24;
 
   /**
@@ -75,7 +70,10 @@ export namespace AutoMovieMotionHumanAuditContinuity {
    * @param subject The person.
    * @param rate Grid samples per second.
    * @param limit The smallest jump resolved, metres.
-   * @param floor The reversal below which a turn on a coarse grid is taken as the grid reads it, metres: a caller that bounds the reversal passes its bound, since a reading under it decides nothing; 0 when absent, every turn read on the reversal's own intervals.
+   * @param floor The reversal below which a turn on a coarse grid is taken as
+   *   the grid reads it, metres: a caller that bounds the reversal passes its
+   *   bound, since a reading under it decides nothing; 0 when absent, every
+   *   turn read on the reversal's own intervals.
    * @returns The three readings.
    */
   export function measure(
@@ -253,28 +251,29 @@ export namespace AutoMovieMotionHumanAuditContinuity {
   }
 
   /**
-   * The discontinuity inside an interval: the largest displacement of any
-   * joint centre that is still there when the interval around it has been
-   * quartered `LEVELS` times.
+   * The discontinuity inside an interval: the largest displacement of any joint
+   * centre that is still there when the interval around it has been quartered
+   * `LEVELS` times.
    *
    * The interval is cut into four equal parts. Over a smooth path a joint's
-   * four displacements lie on a constant-jerk path up to its fourth
-   * derivative times the part's length to the fourth, which falls 256-fold a
-   * quartering; a step leaves at least its size in their third difference. A
-   * joint is followed while that departure reaches `limit` and, below
-   * the first quartering, has not fallen to a sixteenth of its departure over
-   * the enclosing interval (the Richardson test that tells a step from a fast
+   * four displacements lie on a constant-jerk path up to its fourth derivative
+   * times the part's length to the fourth, which falls 256-fold a quartering; a
+   * step leaves at least its size in their third difference. A joint is
+   * followed while that departure reaches `limit` and, below the first
+   * quartering, has not fallen to a sixteenth of its departure over the
+   * enclosing interval (the Richardson test that tells a step from a fast
    * smooth path). Every part where a followed joint departs from the line
-   * through its other three displacements by at least `limit`, and by
-   * at least half the largest such departure of the four, is quartered again;
-   * an interval where no joint is followed holds no jump of that size.
+   * through its other three displacements by at least `limit`, and by at least
+   * half the largest such departure of the four, is quartered again; an
+   * interval where no joint is followed holds no jump of that size.
    *
    * @param motion The motion.
    * @param subject The person.
    * @param from Film seconds.
    * @param to Film seconds, after `from`.
    * @param limit The smallest jump resolved, metres.
-   * @returns The displacement, the start of the final interval and the joint; zero at `none` when the path is continuous at this limit.
+   * @returns The displacement, the start of the final interval and the joint;
+   *   zero at `none` when the path is continuous at this limit.
    */
   export function resolve(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -299,7 +298,10 @@ export namespace AutoMovieMotionHumanAuditContinuity {
 /** Every bone's joint centre at an instant. */
 type IPoints = Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
 
-/** Each joint's departure from a constant-jerk path over one quartered interval, metres: the joints that may hold a step there. */
+/**
+ * Each joint's departure from a constant-jerk path over one quartered interval,
+ * metres: the joints that may hold a step there.
+ */
 type IStepping = Map<AutoMovieHumanoidBone, number>;
 
 /**
@@ -401,9 +403,12 @@ const quarter = (
       departures[k] = Math.max(
         departures[k]!,
         Math.hypot(
-          dx[k]! - (w[0]! * dx[0]! + w[1]! * dx[1]! + w[2]! * dx[2]! + w[3]! * dx[3]!),
-          dy[k]! - (w[0]! * dy[0]! + w[1]! * dy[1]! + w[2]! * dy[2]! + w[3]! * dy[3]!),
-          dz[k]! - (w[0]! * dz[0]! + w[1]! * dz[1]! + w[2]! * dz[2]! + w[3]! * dz[3]!),
+          dx[k]! -
+            (w[0]! * dx[0]! + w[1]! * dx[1]! + w[2]! * dx[2]! + w[3]! * dx[3]!),
+          dy[k]! -
+            (w[0]! * dy[0]! + w[1]! * dy[1]! + w[2]! * dy[2]! + w[3]! * dy[3]!),
+          dz[k]! -
+            (w[0]! * dz[0]! + w[1]! * dz[1]! + w[2]! * dz[2]! + w[3]! * dz[3]!),
         ),
       );
     }

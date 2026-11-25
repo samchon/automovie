@@ -6,9 +6,7 @@ import type {
   IAutoMovieRecoveryTensorReport,
 } from "../../index";
 
-/**
- * Combined source-free contour, tensor and analytic reconstruction output.
- */
+/** Combined source-free contour, tensor and analytic reconstruction output. */
 
 export interface IAutoMovieRecoveryReconstruction {
   /** Generated model containing each retained operator's parts. */

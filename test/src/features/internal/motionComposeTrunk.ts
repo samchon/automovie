@@ -26,16 +26,16 @@ import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
- * The trunk phrases of `AutoMovieMotionHumanTrunk` read on each of the
- * selected rigs. The counterbalance uses the same clock and stance.
+ * The trunk phrases of `AutoMovieMotionHumanTrunk` read on each of the selected
+ * rigs. The counterbalance uses the same clock and stance.
  *
- * Every expectation is read on the displayed bones the resolver gives for
- * the written posture. A foot's plant is the ball of the foot, the toes'
- * joint: the stance's leg goal holds its contact there (`stand.legs`), and
- * the heel may rise about it when the shank leans past the ankle's range
- * (`HumanFoot.heelOff`), so the toes bone is read and not the ankle. The
- * clock has `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s; a phrase
- * rises from `start` to `ready` and falls from `relax` to `end`.
+ * Every expectation is read on the displayed bones the resolver gives for the
+ * written posture. A foot's plant is the ball of the foot, the toes' joint: the
+ * stance's leg goal holds its contact there (`stand.legs`), and the heel may
+ * rise about it when the shank leans past the ankle's range
+ * (`HumanFoot.heelOff`), so the toes bone is read and not the ankle. The clock
+ * has `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s; a phrase rises
+ * from `start` to `ready` and falls from `relax` to `end`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, which point a plant is and the clock; each function states its scenarios and bounds.
  * @evidence contracts/development/implementation.md#principled-implementation Reads the resolver's bones and the balance owner's measures for written postures.
@@ -49,20 +49,21 @@ export namespace motionComposeTrunk {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
   /**
-   * A turn of the trunk on the pelvis and a posture sunk into its knees, on
-   * one body. A turn of `d` degrees shows as the chest's forward axis `d`
-   * degrees to the left of the pelvis's, the lumbar spine having taken
-   * `1 - CHEST` of it. A sunk posture shows the hips bone lower by the depth
-   * and back by the distance asked, the chest's long axis inclined forward
-   * by the inclination, and both feet on their plants.
+   * A turn of the trunk on the pelvis and a posture sunk into its knees, on one
+   * body. A turn of `d` degrees shows as the chest's forward axis `d` degrees
+   * to the left of the pelvis's, the lumbar spine having taken `1 - CHEST` of
+   * it. A sunk posture shows the hips bone lower by the depth and back by the
+   * distance asked, the chest's long axis inclined forward by the inclination,
+   * and both feet on their plants.
    *
    * Scenarios:
-   * 1. `turn` by 30 and by -20 degrees claims the trunk, turns the chest by
-   *    the degrees (within 1) and the spine by its share at the full
-   *    instants, leaves the pelvis, and is gone at both ends.
+   *
+   * 1. `turn` by 30 and by -20 degrees claims the trunk, turns the chest by the
+   *    degrees (within 1) and the spine by its share at the full instants,
+   *    leaves the pelvis, and is gone at both ends.
    * 2. `sunk` has independent small/deep drops, trunk inclination and hip
-   *    retraction, and a case combining their limits. At 0 and 90 degrees
-   *    the case puts the hips there within a micrometre, inclines the chest by the
+   *    retraction, and a case combining their limits. At 0 and 90 degrees the
+   *    case puts the hips there within a micrometre, inclines the chest by the
    *    inclination (within 0.5 degrees), and keeps both feet on their plants
    *    within 1 mm.
    *
@@ -175,25 +176,26 @@ export namespace motionComposeTrunk {
   }
 
   /**
-   * The trunk's crouch on one body: the hips sink and the trunk inclines
-   * over them, the body stands again, and the feet and the balance hold all
-   * the way. At full depth, the opted-in balance uses the smallest root shift
-   * that holds the mass centre over the actual bearing hull. The zero-share
-   * and intermediate poses keep the same geometric and support checks.
+   * The trunk's crouch on one body: the hips sink and the trunk inclines over
+   * them, the body stands again, and the feet and the balance hold all the way.
+   * At full depth, the opted-in balance uses the smallest root shift that holds
+   * the mass centre over the actual bearing hull. The zero-share and
+   * intermediate poses keep the same geometric and support checks.
    *
    * Scenarios:
+   *
    * 1. `crouch` refuses a negative or non-numeric depth or pitch.
-   * 2. For depths of 0, 0.15 and 0.3 hip heights and pitches of 0 and 30
-   *    degrees it claims the root, the trunk and both legs from its first to
-   *    its last instant, leaves the standing body at both ends, is at its
-   *    depth and its pitch between `ready` and `relax`, and sinks only part
-   *    of the way at the middle of its rise.
-   * 3. At every sampled second both feet keep their plants within 1 mm and
-   *    the body keeps its balance.
-   * 4. Given the standing posture written by joint angles alone, with no
-   *    leg goal (as an exercise of keyed angles leaves it), a crouch of 0.3
-   *    hip heights and 30 degrees keeps both feet on their plants within
-   *    1 mm at every sampled second: the crouch plants the legs itself.
+   * 2. For depths of 0, 0.15 and 0.3 hip heights and pitches of 0 and 30 degrees
+   *    it claims the root, the trunk and both legs from its first to its last
+   *    instant, leaves the standing body at both ends, is at its depth and its
+   *    pitch between `ready` and `relax`, and sinks only part of the way at the
+   *    middle of its rise.
+   * 3. At every sampled second both feet keep their plants within 1 mm and the
+   *    body keeps its balance.
+   * 4. Given the standing posture written by joint angles alone, with no leg goal
+   *    (as an exercise of keyed angles leaves it), a crouch of 0.3 hip heights
+   *    and 30 degrees keeps both feet on their plants within 1 mm at every
+   *    sampled second: the crouch plants the legs itself.
    *
    * @param name The body.
    */
@@ -382,7 +384,10 @@ export namespace motionComposeTrunk {
     };
   }
 
-  /** Compare the actual shift with a closer feasible candidate along its prescribed axis. */
+  /**
+   * Compare the actual shift with a closer feasible candidate along its
+   * prescribed axis.
+   */
   export function minimumSupportShift(
     all: motionComplaints.IGatherer,
     cell: string,

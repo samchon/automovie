@@ -22,7 +22,11 @@ import { validateSoftRestCoincidence as coincident } from "./validateSoftRestCoi
 import { validateSoftVector as vector } from "./validateSoftVector";
 
 /**
- * Validate typed soft-body fields, structural rest edges, reference joins and the authored travel heuristic.
+ * Validate typed soft-body fields, structural rest edges, reference joins and
+ * the authored travel heuristic.
+ *
+ * A travel ratio that overflows still exceeds the travel limit. Its violation
+ * has no measured overshoot.
  */
 export const validateSoftBodyDomain: (
   props: IAutoMovieValidateSoftBodyDomain.IProps,
@@ -33,8 +37,6 @@ export const validateSoftBodyDomain: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  if (domain.id.trim().length === 0)
-    out.push("type", `${root}.id`, "soft body id must be non-empty", domain.id);
   if (domain.version !== 1)
     out.push(
       "type",
@@ -66,7 +68,7 @@ export const validateSoftBodyDomain: (
   // past the exactly representable integers is the largest lattice anyone can
   // declare, and requiring exactness here let precisely those through the cap
   // that exists to stop them.
-  if (Number.isFinite(count) && count > SOFT_MAX_PARTICLES)
+  if (count > SOFT_MAX_PARTICLES)
     out.push(
       "range",
       `${root}.lattice`,
@@ -74,7 +76,7 @@ export const validateSoftBodyDomain: (
       count,
       count - SOFT_MAX_PARTICLES,
     );
-  if (Number.isSafeInteger(count) && count < 2)
+  if (count < 2)
     out.push(
       "range",
       `${root}.lattice`,
@@ -193,7 +195,7 @@ export const validateSoftBodyDomain: (
       `${root}.solver.fixedStepSeconds`,
       `a position-based step may not travel further than the shortest constraint: dt·referenceSpeed/shortestRestLength <= 1, but the travel number is ${travel}`,
       domain.solver.fixedStepSeconds,
-      Number.isFinite(travel) ? travel - 1 : undefined,
+      travel === Infinity ? undefined : travel - 1,
     );
 
   validateSoftAnchors(out, root, domain, count);
@@ -251,13 +253,6 @@ export const validateSoftBodyDomain: (
               collider.max[axis],
             );
       } else {
-        if (collider.actor.trim().length === 0)
-          out.push(
-            "type",
-            `${path}.actor`,
-            "body-capsule actor identity must be non-empty",
-            collider.actor,
-          );
         if (collider.capsule.from === collider.capsule.to)
           out.push(
             "range",

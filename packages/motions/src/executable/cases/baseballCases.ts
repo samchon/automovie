@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBaseball,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -18,29 +19,21 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the baseball positions (#3248) from quiet standing.
+ * Capture cases of the baseball positions from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's planted-foot bound)
  * and no range-of-motion overshoot, and each planted foot within 5 mm of the
  * floor. Beyond that, mid-hold:
  *
- * - `baseball-catcherCrouch`: the glove palm at least half an arm ahead of
- *   the chest;
+ * - `baseball-catcherCrouch`: the glove palm at least half an arm ahead of the
+ *   chest;
  * - `baseball-groundBall`: the glove palm within 10 cm of the floor;
- * - `baseball-battingStance`: the two fists within a hand's length of each
- *   other at the right shoulder's height, within 10 cm, and the feet at
- *   least three half shoulder widths apart.
+ * - `baseball-battingStance`: the two fists within a hand's length of each other
+ *   at the right shoulder's height, within 10 cm, and the feet at least three
+ *   half shoulder widths apart.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per position, one verdict block per position.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function baseballCases(
   bodies: readonly string[] = ["m-average"],
@@ -61,6 +54,8 @@ export function baseballCases(
     ] as IAutoMovieMotionHumanBaseball.Kind[]) {
       const name: string = `baseball-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "baseball",
@@ -83,8 +78,8 @@ export function baseballCases(
       const relax: number = TouchVerdicts.event(performance, "a", "relax");
       const mid: number = (ready + relax) / 2;
       const bones = performance.bones("a", mid);
-      const at = (bone: string): IAutoMovieVector3 =>
-        bones.get(bone as never)!.worldPosition;
+      const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        bones.get(bone)!.worldPosition;
       const palm = { surface: "palm", shape: "flat" } as const;
       const off = everydayVerdicts.grounded(performance, "a", body);
       const verdicts: IMotionCaptureCase.IVerdict[] = [

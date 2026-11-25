@@ -16,11 +16,11 @@ Open the scene comment with its screenplay citation, action and relevant staging
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 
-## Realization comments
+### Beat annotations
 
-Can a reader trace each value the scene passes, and each default it relies on, to what it realizes, and every element of each cited beat to its values?
+<!-- @source The beat elements in motion/staging.md and the screenplay records in story/layers/notation.md. -->
 
-Comment each such value with its source and how it realizes it, so a reader can check it against that source without deriving it again. A scene's comment gives the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) and, for skilled practice, the study section. Every element of each cited beat reaches at least one commented value.
+Trace each cited [beat element](../../motion/staging.md#reading-the-scene) to at least one [commented value](../../development/modules.md#documenting-source). Include the beat anchor and, for skilled practice, the study section.
 
 ```ts
 const rush = jun.run({
@@ -44,9 +44,7 @@ sync(rush.start, maraBackStep.start);
 
 Does the scene compose only accepted module capabilities using installed operators and the screenplay's decisions?
 
-Place absolute time only at screenplay anchors. Compose the [production entity's capabilities](entities.md#settings-realization), interactions and consequences with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections.
-
-Cast and crowds perform through the vocabulary. [Retarget](../../motion/retargeting.md) a supplied or user-chosen clip to its performer. Fix package [refusals](../../motion/compose/refusals.md) at the named axis.
+Place absolute time only at screenplay anchors and follow the [composition rules](../../development/modules.md#how-the-parts-work-together). [Retarget](../../motion/retargeting.md) supplied clips to their performers. Fix [refusals](../../motion/compose/refusals.md) at the named axis.
 
 Verify the module in an interval that exhibits the scene's body, load, support and partner conditions. Use a [separate case](../../motion/catalog-cases.md) when those conditions need an independent check. Recheck affected capabilities after a repair or change of conditions.
 

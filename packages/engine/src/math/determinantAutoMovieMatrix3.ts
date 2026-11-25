@@ -1,3 +1,5 @@
+import { overflowsBinary64 } from "./overflowsBinary64";
+
 const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
   [0, 4, 8, 1],
   [1, 5, 6, 1],
@@ -8,20 +10,17 @@ const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
 ];
 
 /**
- * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback.
- * A conservative forward-error filter accepts a separated binary64 value.
+ * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback. A
+ * conservative forward-error filter accepts a separated binary64 value.
  * Uncertain cancellation instead sums the six products of the input doubles as
  * exact signed binary integers and exponents. Its returned magnitude is rounded
- * to a representable double; zero is returned only for an exactly zero sum.
- * An unrepresentable nonzero magnitude refuses rather than becoming zero.
- * This proves the sign of the supplied doubles, not a physical measurement.
+ * to a representable double; zero is returned only for an exactly zero sum. An
+ * unrepresentable nonzero magnitude refuses rather than becoming zero. This
+ * proves the sign of the supplied doubles, not a physical measurement.
  */
 export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
-  let finite: boolean = matrix.length === 9;
-  for (let index: number = 0; index < 9 && finite; index++)
-    finite = Number.isFinite(matrix[index]);
-  if (!finite)
-    throw new Error("A complete finite row-major 3 by 3 matrix is required");
+  if (matrix.length !== 9)
+    throw new Error("A complete row-major 3 by 3 matrix is required");
   let value: number = 0,
     permanent: number = 0;
   const minimumNormal: number = 2 ** -1022;
@@ -40,16 +39,12 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
       a !== 0 &&
       b !== 0 &&
       c !== 0 &&
-      (!Number.isFinite(pair) ||
-        Math.abs(pair) < minimumNormal ||
-        !Number.isFinite(product) ||
-        Math.abs(product) < minimumNormal)
+      (Math.abs(pair) < minimumNormal || Math.abs(product) < minimumNormal)
     )
       filterSafe = false;
   }
   if (
     filterSafe &&
-    Number.isFinite(permanent) &&
     permanent >= minimumNormal &&
     Math.abs(value) > 64 * Number.EPSILON * permanent
   )
@@ -69,24 +64,19 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
       exponent: exponent ? exponent - 1075 : -1074,
     };
   };
-  const decomposed: ({ integer: bigint; exponent: number } | undefined)[] =
-    new Array(9);
   const exact: { integer: bigint; exponent: number }[] = [];
   for (const indices of PRODUCTS) {
     // A zero factor makes this exact product zero, even if another product
-    // overflows or underflows. Each nonzero input is decomposed at most once.
+    // overflows or underflows.
     if (
       matrix[indices[0]] === 0 ||
       matrix[indices[1]] === 0 ||
       matrix[indices[2]] === 0
     )
       continue;
-    const a: { integer: bigint; exponent: number } = (decomposed[indices[0]] ??=
-      parts(matrix[indices[0]]));
-    const b: { integer: bigint; exponent: number } = (decomposed[indices[1]] ??=
-      parts(matrix[indices[1]]));
-    const c: { integer: bigint; exponent: number } = (decomposed[indices[2]] ??=
-      parts(matrix[indices[2]]));
+    const a: { integer: bigint; exponent: number } = parts(matrix[indices[0]]);
+    const b: { integer: bigint; exponent: number } = parts(matrix[indices[1]]);
+    const c: { integer: bigint; exponent: number } = parts(matrix[indices[2]]);
     exact.push({
       integer: BigInt(indices[3]) * a.integer * b.integer * c.integer,
       exponent: a.exponent + b.exponent + c.exponent,
@@ -112,7 +102,7 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     (power < -1022
       ? leading * 2 ** -1022 * 2 ** (power + 1022)
       : leading * 2 ** power);
-  if (!Number.isFinite(converted) || converted === 0)
+  if (converted === 0 || overflowsBinary64(converted))
     throw new Error(
       "The nonzero determinant magnitude is outside binary64 range",
     );

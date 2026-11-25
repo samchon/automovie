@@ -16,26 +16,30 @@ const SAUCER: string =
   "Rosenthal Sonetto espresso saucer 12 cm: 1.4 cm high, 106 g (https://www.rosenthal.de/en-gb/espresso-saucer-12-cm/10600-405234-14716.html)";
 
 /**
- * A plate food is served on and eaten from: a round plate, from a side plate to a dinner plate, an oblong serving platter, or a cup's saucer.
+ * A plate food is served on and eaten from: a round plate, from a side plate to
+ * a dinner plate, an oblong serving platter, or a cup's saucer.
  *
- * The plate lies flat on the origin, a slab of the drawn size and height; a platter's long side runs along `X`. Its well and rim are not drawn, so its face is level at its full height. `top` is that face, where food sits and another plate stacks, a `stack-top` whose extent is the plate's outline; `leftRim` and `rightRim` are the plate's edge at `+X` and `-X`, pinched across its height between a thumb on the face and the fingers beneath; `underside` is its base facing down, the whole plate's size, where two hands carry it from below.
+ * The plate lies flat on the origin, a slab of the drawn size and height; a
+ * platter's long side runs along `X`. Its well and rim are not drawn, so its
+ * face is level at its full height. `top` is that face, where food sits and
+ * another plate stacks, a `stack-top` whose extent is the plate's outline;
+ * `leftRim` and `rightRim` are the plate's edge at `+X` and `-X`, pinched
+ * across its height between a thumb on the face and the fingers beneath;
+ * `underside` is its base facing down, the whole plate's size, where two hands
+ * carry it from below.
  *
- * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param params The kind, the kind's model where it has read models, and any
+ *   dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The plate.
- * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the plate lies, that its well is not drawn, and its four contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One slab of the read diameter or length and width and the read height, round as a disc or oblong as a box; every contact is on that slab's own faces and edges, and the stacking outline is a regular polygon on the plate's circle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, four contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No foot, well or rim lip is drawn, since no page read sizes them; the pinch is therefore the plate's whole height.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part and an outline of a fixed number of points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a
+ *   fixed dimension outside its band.
  */
 export function createTableware(
   params: createTableware.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTableware.Affordance, createTableware.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTableware.Dimension> =
     new AutoMovieArchetypeDrawSession<createTableware.Dimension>(
@@ -142,16 +146,12 @@ export function createTableware(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createTableware}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the round plate, the platter and the saucer, a round one drawn by its diameter and the platter by its length and width, each read model whole, and one cited band per dimension for the saucer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face food and other plates rest on, the edge a hand pinches and the underside two hands carry from (#3501); a bowl is `createVessel`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every plate has the same four contacts, so serving, clearing and stacking are written once; each model is one read plate whole, never a size between two, its mass its page's packed weight.
- */
+/** Companion types, constants and bands of {@link createTableware}. */
 export namespace createTableware {
-  /** The kinds: a round plate, from a side plate to a dinner plate, an oblong serving platter and a cup's saucer. */
+  /**
+   * The kinds: a round plate, from a side plate to a dinner plate, an oblong
+   * serving platter and a cup's saucer.
+   */
   export type Kind = "plate" | "platter" | "saucer";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -163,8 +163,10 @@ export namespace createTableware {
   /**
    * The affordance ids:
    *
-   * - `top`: the face, a `stack-top` the plate's size, where food sits and another plate stacks.
-   * - `leftRim`, `rightRim`: the edge at `+X` and `-X`, pinched from above, `+X` along the edge.
+   * - `top`: the face, a `stack-top` the plate's size, where food sits and
+   *   another plate stacks.
+   * - `leftRim`, `rightRim`: the edge at `+X` and `-X`, pinched from above, `+X`
+   *   along the edge.
    * - `underside`: the base, facing down, where two hands carry the plate.
    */
   export type Affordance = "top" | "leftRim" | "rightRim" | "underside";
@@ -190,7 +192,10 @@ export namespace createTableware {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which plate. */
     kind: Kind;
@@ -205,7 +210,12 @@ export namespace createTableware {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The models read: IKEA 365+'s side plate and plate, and its 27 by 15 cm serving plate (the 36 by 20 cm one is not built, since its page gives no height); Rosenthal's Joyn and Thomas's Sunny Day 27 cm plates; Thomas's Loft 34 cm and Rosenthal's Heritage Midas 33 cm platters. */
+  /**
+   * The models read: IKEA 365+'s side plate and plate, and its 27 by 15 cm
+   * serving plate (the 36 by 20 cm one is not built, since its page gives no
+   * height); Rosenthal's Joyn and Thomas's Sunny Day 27 cm plates; Thomas's
+   * Loft 34 cm and Rosenthal's Heritage Midas 33 cm platters.
+   */
   export type Model =
     | "sidePlate"
     | "dinnerPlate"
@@ -216,11 +226,26 @@ export namespace createTableware {
     | "midas33";
 
   /**
-   * Each kind's models whole, the default first. A round plate, diameter and height: the side plate 20 x 2 cm and the plate 27 x 3 cm (https://www.ikea.com/gb/en/p/ikea-365-side-plate-white-90621364/, https://www.ikea.com/gb/en/p/ikea-365-plate-white-70258949). A platter, length, width and height: 27 x 15 x 3 cm (https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364).
+   * Each kind's models whole, the default first. A round plate, diameter and
+   * height: the side plate 20 x 2 cm and the plate 27 x 3 cm
+   * (https://www.ikea.com/gb/en/p/ikea-365-side-plate-white-90621364/,
+   * https://www.ikea.com/gb/en/p/ikea-365-plate-white-70258949). A platter,
+   * length, width and height: 27 x 15 x 3 cm
+   * (https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364).
    *
-   * Their masses are provisional: the pages' packed weights, 0.41, 0.77 and 0.52 kg, which the plate alone is lighter than by an amount no page gives.
+   * Their masses are provisional: the pages' packed weights, 0.41, 0.77 and
+   * 0.52 kg, which the plate alone is lighter than by an amount no page gives.
    *
-   * The makers' plates and platters, with each article's own weight: Rosenthal Joyn Plate 27 cm flat, 27.00 cm across, 2.50 cm high, 710 g (https://www.rosenthal.de/en-gb/plate-27-cm-flat/44020-640202-10867.html); Thomas Sunny Day Plate 27 cm, 27.00 cm, 2.80 cm, 590 g (https://thomas-porzellan.de/de-at/speiseteller-27-cm/10850-800001-10227.html); Thomas Loft Platter 34 cm, 33.80 by 24.00 cm, 3.10 cm high, 965 g (https://thomas-porzellan.de/fr-fr/plat-34-cm/11900-800001-12734.html); Rosenthal Heritage Midas Platter 33 cm, 33.20 by 21.20 cm, 3.80 cm high, 780 g (https://www.rosenthal.de/en-gb/platter-33-cm/10480-408684-12733.html).
+   * The makers' plates and platters, with each article's own weight: Rosenthal
+   * Joyn Plate 27 cm flat, 27.00 cm across, 2.50 cm high, 710 g
+   * (https://www.rosenthal.de/en-gb/plate-27-cm-flat/44020-640202-10867.html);
+   * Thomas Sunny Day Plate 27 cm, 27.00 cm, 2.80 cm, 590 g
+   * (https://thomas-porzellan.de/de-at/speiseteller-27-cm/10850-800001-10227.html);
+   * Thomas Loft Platter 34 cm, 33.80 by 24.00 cm, 3.10 cm high, 965 g
+   * (https://thomas-porzellan.de/fr-fr/plat-34-cm/11900-800001-12734.html);
+   * Rosenthal Heritage Midas Platter 33 cm, 33.20 by 21.20 cm, 3.80 cm high,
+   * 780 g
+   * (https://www.rosenthal.de/en-gb/platter-33-cm/10480-408684-12733.html).
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>

@@ -7,6 +7,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -16,8 +17,9 @@ import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { assertPhysicalFiniteMotion } from "./assertPhysicalFiniteMotion";
-import { physicalHullErode } from "./physicalHullErode";
+import { physicalHullFaces } from "./physicalHullFaces";
+import { physicalHullFacesErode } from "./physicalHullFacesErode";
+import { physicalShapeHull } from "./physicalShapeHull";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
@@ -64,7 +66,6 @@ export function bindPhysicalWorld(
     descendants: new Map(),
     posture: new Map(),
     supportCoordinates: new Map(),
-    selection: new Map(),
   };
   const bodies: AutoMovieXpbdBody[] = [];
   const colliders: AutoMovieXpbdCollider[] = [];
@@ -125,12 +126,7 @@ export function bindPhysicalWorld(
               0,
               input.rate,
             );
-          assertPhysicalFiniteMotion(
-            segment,
-            target,
-            sampled.velocity,
-            sampled.angularVelocity,
-          );
+
           rigid.setLinvel(
             Vector3.add(
               sampled.velocity,
@@ -155,11 +151,16 @@ export function bindPhysicalWorld(
             (candidate: (typeof body.profile.materials)[number]): boolean =>
               candidate.id === shape.material,
           )!;
+        // A hull shape carries its hull from here on, built once.
+        const solid: IAutoMoviePhysicalShape =
+          shape.kind === "hull" && shape.hull === undefined
+            ? { ...shape, hull: physicalHullFaces(shape.points) }
+            : shape;
         const collider: AutoMovieXpbdCollider = restored
           ? colliders[ci++]!
           : world.createCollider(
               rigid,
-              shape,
+              solid,
               material.friction,
               material.restitution,
               material.compliance > 0,
@@ -193,12 +194,17 @@ export function bindPhysicalWorld(
             };
           else if (shape.kind === "sphere" || shape.kind === "capsule")
             coreShape = { ...shape, radius: shape.radius - depth };
-          else if (shape.kind === "hull")
+          else if (shape.kind === "hull") {
+            const eroded: IAutoMovieVector3[] = physicalHullFacesErode(
+              physicalShapeHull(shape),
+              depth,
+            );
             coreShape = {
               ...shape,
-              points: physicalHullErode(shape.points, depth),
+              points: eroded,
+              hull: physicalHullFaces(eroded),
             };
-          else {
+          } else {
             shape satisfies never;
             throw new Error("Unknown physical shape kind");
           }

@@ -5,23 +5,53 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+
+/** The alternatives of `Tilt2`'s site. */
+type Tilt2 = "yaw" | "pitch" | "roll";
 
 /** A posture's whole-body tilt angles. */
-type Tilt = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
+type Tilt = Pick<IAutoMovieMotionHumanPosture, Tilt2>;
+/** The alternatives of `TURNSEntryItem`'s site. */
+type TURNSEntryItem = "supine" | "lateralLeft" | "prone" | "lateralRight";
 
 /**
- * A lying body's turn about its own long axis. A lying body is the supine
- * one, `Ry(yaw) Rx(-90)` (the head toward the heading's back, the chest
- * up), turned by `turn` degrees about its long axis, the root's `+Y`:
- * `Ry(yaw) Rx(-90) Ry(turn)`. At 0 it lies on its back, at 90 on its left
- * side (the chest toward where its left side faced), at 180 or -180 face
- * down and at -90 on its right side; a log roll keeps adding turns.
+ * The heading and turn a lying posture shows.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the parametrisation, the turn's sign and what each value is.
- * @evidence contracts/development/design.md#principled-representation One rotation about the body's own long axis, composed in quaternions and read back through the posture's heading inverse.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The turn read from a posture, the tilt of a turn and the turn of a named position.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No Euler chart is interpolated: every tilt is a composed rotation.
+ * @param posture The lying posture's tilt.
+ * @returns Its supine heading and its turn in (-180, 180].
+ */
+export function lyingTurn(posture: Tilt): lyingTurn.ITurn {
+  const rotation: IAutoMovieQuaternion = humanPostureHeading(posture);
+  const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const chest: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
+  const yaw: number = (Math.atan2(-head.x, -head.z) * 180) / Math.PI;
+  const left: IAutoMovieVector3 = {
+    x: Math.cos((yaw * Math.PI) / 180),
+    y: 0,
+    z: -Math.sin((yaw * Math.PI) / 180),
+  };
+  return {
+    yaw,
+    turn: (Math.atan2(Vector3.dot(chest, left), chest.y) * 180) / Math.PI,
+  };
+}
+
+/**
+ * A lying body's turn about its own long axis. A lying body is the supine one,
+ * `Ry(yaw) Rx(-90)` (the head toward the heading's back, the chest up), turned
+ * by `turn` degrees about its long axis, the root's `+Y`: `Ry(yaw) Rx(-90)
+ * Ry(turn)`. At 0 it lies on its back, at 90 on its left side (the chest toward
+ * where its left side faced), at 180 or -180 face down and at -90 on its right
+ * side; a log roll keeps adding turns.
  */
 export namespace lyingTurn {
   /** A lying heading and turn. */
@@ -29,12 +59,15 @@ export namespace lyingTurn {
     /** The supine heading, degrees: the head toward its back. */
     yaw: number;
 
-    /** The turn about the long axis, degrees: 0 supine, 90 on the left side, 180 prone, -90 on the right side. */
+    /**
+     * The turn about the long axis, degrees: 0 supine, 90 on the left side, 180
+     * prone, -90 on the right side.
+     */
     turn: number;
   }
 
   /** The named lying positions' turns, degrees. */
-  export const TURNS: Readonly<Record<"supine" | "lateralLeft" | "prone" | "lateralRight", number>> = {
+  export const TURNS: Readonly<Record<TURNSEntryItem, number>> = {
     supine: 0,
     lateralLeft: 90,
     prone: 180,
@@ -42,51 +75,13 @@ export namespace lyingTurn {
   };
 
   /**
-   * The heading and turn a lying posture shows.
-   *
-   * @param posture The lying posture's tilt.
-   * @returns Its supine heading and its turn in (-180, 180].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result's range.
-   * @evidence contracts/development/implementation.md#principled-implementation The long axis gives the heading; the chest's normal against up and the supine left gives the turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two axes read, two atan2.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function of(posture: Tilt): ITurn {
-    const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
-    const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });
-    const chest: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
-    const yaw: number = (Math.atan2(-head.x, -head.z) * 180) / Math.PI;
-    const left: IAutoMovieVector3 = {
-      x: Math.cos((yaw * Math.PI) / 180),
-      y: 0,
-      z: -Math.sin((yaw * Math.PI) / 180),
-    };
-    return {
-      yaw,
-      turn: (Math.atan2(Vector3.dot(chest, left), chest.y) * 180) / Math.PI,
-    };
-  }
-
-  /**
    * The tilt of a heading and turn.
    *
    * @param turn The heading and the turn.
    * @returns The posture's yaw, pitch and roll.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation `Ry(yaw) Rx(-90) Ry(turn)` composed, then read through the heading inverse.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three rotations and one inverse.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function tilt(turn: ITurn): Tilt {
-    return resolveHumanPosture.angles(
+    return humanPostureHeading.angles(
       Quaternion.multiply(
         Quaternion.multiply(
           Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn.yaw),

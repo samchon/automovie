@@ -1,21 +1,3 @@
-# src/math/Transform.ts#Transform
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the record holds, its units, the unit scale's meaning and that every call returns a new record.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The interface's transform record built from its three parts, the scale defaulting to the identity of scaling.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two members: the identity transform and the transform of given parts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No shared constant record: each frame owns its components, as `Quaternion.identity` does.
-
 # src/math/Transform.ts#Transform.identity
 
 ## @evidence contracts/development/common.md#meaningful-documentation

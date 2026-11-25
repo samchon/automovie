@@ -1,12 +1,17 @@
 import type { IAutoMovieCubicOval64 } from "@automovie/interface";
 
-/** Four-quarter affine cubic-oval sizing in consistent caller units. The quarter-circle handle ratio is 4/3*tan(pi/8); independent anatomical admissibility remains with consumers.
+/**
+ * Four-quarter affine cubic-oval sizing in consistent caller units. The
+ * quarter-circle handle ratio is 4/3*tan(pi/8); independent anatomical
+ * admissibility remains with consumers.
  */
 export namespace AutoMovieCubicOval64 {
   /** Symmetric quarter-circle cubic handle/radius ratio. */
   export const rounding: number = (4 / 3) * Math.tan(Math.PI / 8);
 
-  /** Approximate the perimeter of the affine cubic oval with eight-point Gauss-Legendre quadrature. Nonfinite or negative diameters reject.
+  /**
+   * Approximate the perimeter of the affine cubic oval with eight-point
+   * Gauss-Legendre quadrature. Nonfinite or negative diameters reject.
    */
   export function perimeter(diameterU: number, diameterV: number): number {
     const nodes: readonly number[] = [
@@ -19,11 +24,7 @@ export namespace AutoMovieCubicOval64 {
       0.362683783378362, 0.362683783378362, 0.3137066458778873,
       0.2223810344533745, 0.1012285362903763,
     ];
-    if (
-      ![diameterU, diameterV].every(
-        (v: number): boolean => Number.isFinite(v) && v >= 0,
-      )
-    )
+    if (![diameterU, diameterV].every((v: number): boolean => v >= 0))
       throw new Error("Nonnegative finite section diameters required");
     const a: number = diameterU / 2,
       b: number = diameterV / 2,
@@ -41,20 +42,15 @@ export namespace AutoMovieCubicOval64 {
     );
   }
 
-  /** Resolve the other diameter with 64 bisections while preserving the supplied fixed diameter; no aspect bound is imposed here.
+  /**
+   * Resolve the other diameter with 64 bisections while preserving the supplied
+   * fixed diameter; no aspect bound is imposed here.
    */
   export function otherDiameter(
     circumference: number,
     fixedDiameter: number,
   ): number {
-    if (
-      !(
-        Number.isFinite(circumference) &&
-        Number.isFinite(fixedDiameter) &&
-        fixedDiameter > 0 &&
-        circumference > 2 * fixedDiameter
-      )
-    )
+    if (!(fixedDiameter > 0 && circumference > 2 * fixedDiameter))
       throw new Error(
         "Incompatible cubic oval circumference and fixed diameter",
       );
@@ -69,21 +65,18 @@ export namespace AutoMovieCubicOval64 {
     return result;
   }
 
-  /** Approximate the four-quarter cubic perimeter by composite Simpson quadrature with the retained sqrt(2) handle formula. Positive finite millimetre diameters and an even interval count of at least two are required; default count is 256 per quarter.
+  /**
+   * Approximate the four-quarter cubic perimeter by composite Simpson
+   * quadrature with the retained sqrt(2) handle formula. Positive finite
+   * millimetre diameters and an even interval count of at least two are
+   * required; default count is 256 per quarter.
    */
   export function perimeterBySimpson(
     breadth: number,
     depth: number,
     intervals: number = 256,
   ): number {
-    if (
-      ![breadth, depth].every(Number.isFinite) ||
-      breadth <= 0 ||
-      depth <= 0 ||
-      !Number.isInteger(intervals) ||
-      intervals < 2 ||
-      intervals % 2 !== 0
-    )
+    if (breadth <= 0 || depth <= 0 || intervals < 2 || intervals % 2 !== 0)
       throw new Error(
         "Positive cubic ellipse dimensions and even quadrature count required",
       );
@@ -102,17 +95,17 @@ export namespace AutoMovieCubicOval64 {
     return (4 * sum) / (3 * intervals);
   }
 
-  /** Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Girth and returned diameters are positive finite millimetre values; breadthOverDepth is a positive finite dimensionless ratio. An unrepresentable positive result throws RangeError.
+  /**
+   * Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the
+   * same Simpson perimeter. Girth and returned diameters are positive finite
+   * millimetre values; breadthOverDepth is a positive finite dimensionless
+   * ratio. An unrepresentable positive result throws RangeError.
    */
   export function axesBySimpson(
     girthMm: number,
     breadthOverDepth: number = 1,
   ): IAutoMovieCubicOval64.IAxesBySimpsonResult {
-    if (
-      ![girthMm, breadthOverDepth].every(Number.isFinite) ||
-      girthMm <= 0 ||
-      breadthOverDepth <= 0
-    )
+    if (girthMm <= 0 || breadthOverDepth <= 0)
       throw new Error("Positive girth and independent breadth/depth required");
     // Homogeneity lets the quadrature use a largest diameter of one, so a
     // representable aspect ratio cannot overflow its derivative accumulation.
@@ -121,28 +114,24 @@ export namespace AutoMovieCubicOval64 {
     const scale: number = girthMm / perimeterBySimpson(breadth, depth);
     const breadthMm: number = breadth * scale;
     const depthMm: number = depth * scale;
-    if (
-      ![breadthMm, depthMm].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
-      )
-    )
+    if (![breadthMm, depthMm].every((value: number): boolean => value > 0))
       throw new RangeError(
         "Cubic oval diameters must be representable positive finite lengths",
       );
     return { breadthMm, depthMm };
   }
 
-  /** Resolve the second diameter from circumference and a fixed first diameter using Simpson quadrature. Inputs are finite millimetre lengths with circumference greater than twice the positive fixed diameter; at most 64 bisections stop when the bracket cannot refine in binary64.
+  /**
+   * Resolve the second diameter from circumference and a fixed first diameter
+   * using Simpson quadrature. Inputs are finite millimetre lengths with
+   * circumference greater than twice the positive fixed diameter; at most 64
+   * bisections stop when the bracket cannot refine in binary64.
    */
   export function otherDiameterBySimpson(
     girthMm: number,
     breadthMm: number,
   ): number {
-    if (
-      ![girthMm, breadthMm].every(Number.isFinite) ||
-      breadthMm <= 0 ||
-      girthMm <= 2 * breadthMm
-    )
+    if (breadthMm <= 0 || girthMm <= 2 * breadthMm)
       throw new Error("Girth must exceed the collapsed section perimeter");
     let low: number = 0;
     let high: number = girthMm / 2;

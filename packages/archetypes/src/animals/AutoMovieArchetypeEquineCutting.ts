@@ -6,12 +6,13 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import type { createQuadruped } from "./createQuadruped";
 
 /**
- * A cutting horse's course from the cow it works: the horse mirrors the cow's movement along the herd's line after a declared reaction time, holding a declared distance off the cow on the herd's side, so it stays between the cow and the herd.
+ * A cutting horse's course from the cow it works: the horse mirrors the cow's
+ * movement along the herd's line after a declared reaction time, holding a
+ * declared distance off the cow on the herd's side, so it stays between the cow
+ * and the herd.
  */
 export namespace AutoMovieArchetypeEquineCutting {
-  /**
-   * The cutting work's declared values.
-   */
+  /** The cutting work's declared values. */
   export interface ICut {
     /** How long after the cow the horse answers it, seconds. */
     reaction: number;
@@ -29,7 +30,9 @@ export namespace AutoMovieArchetypeEquineCutting {
    * @param cow The cow's timed marks, in order.
    * @param cut The declared reaction, offset and herd line.
    * @returns The horse's timed marks, for `AutoMovieArchetypeCourse.timed`.
-   * @throws {AutoMovieArchetypeRefusal} For a malformed cut, a cow on the herd's side of the line, a mirrored speed beyond the fastest gait, or two reversals closer than the reaction time.
+   * @throws {AutoMovieArchetypeRefusal} For a malformed cut, a cow on the
+   *   herd's side of the line, a mirrored speed beyond the fastest gait, or two
+   *   reversals closer than the reaction time.
    */
   export function plan(
     species: createQuadruped.ISpecies,
@@ -37,10 +40,7 @@ export namespace AutoMovieArchetypeEquineCutting {
     cow: readonly AutoMovieArchetypeCourse.ISample[],
     cut: ICut,
   ): AutoMovieArchetypeCourse.ISample[] {
-    if (
-      !(cut.reaction > 0 && cut.offset > 0 && Number.isFinite(cut.herd)) ||
-      cow.length < 2
-    )
+    if (!(cut.reaction > 0 && cut.offset > 0) || cow.length < 2)
       refuse(
         "cut",
         cut,

@@ -1,21 +1,3 @@
-# src/perform/HumanPropFlightFrame.ts#HumanPropFlightFrame
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Samples a flight or realized contact on the film clock.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Converts the physical projectile centre to the displayed origin and keeps a resting prop relative to the carrier it struck.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Shares frame and contact projection between playback and catch admission.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reads the placed engine flight and contact outcome through their owners.
-
 # src/perform/HumanPropFlightFrame.ts#HumanPropFlightFrame.sample
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -6,7 +6,7 @@ States operation order, current goals, world/degree inputs, endpoint owner and n
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Applies resolveHumanPosture.lower's original planted-leg reach cleanup first, then seated.rested's unchanged achieved-thigh/armrest construction on that exact lowered posture.
+Applies lowerHumanPosture's original planted-leg reach cleanup first, then seated.rested's unchanged achieved-thigh/armrest construction on that exact lowered posture.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

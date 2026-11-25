@@ -31,7 +31,10 @@ export interface IAutoMovieArticulatedRig<Bone extends string = string> {
     /** Orthogonal local rotation axes and proximal/distal composition order. */
     axes: IAutoMovieJointAxes;
 
-    /** Explicit per-axis degree boxes, or null when limits have not been measured. */
+    /**
+     * Explicit per-axis degree boxes, or null when limits have not been
+     * measured.
+     */
     limits: Record<
       "flexion" | "abduction" | "twist",
       IAutoMovieAngleRange | null

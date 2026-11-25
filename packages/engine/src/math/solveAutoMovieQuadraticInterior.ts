@@ -18,11 +18,12 @@ import { solveAutoMovieQuadraticStep } from "./solveAutoMovieQuadraticStep";
  * or external numerical service. The supplied workspace holds its iterate and
  * results copy out before the synchronous borrow ends.
  *
- * Full termination retains 1e-9 primal/dual feasibility and absolute-or-relative
- * gap. Certificate, reduced-accuracy, iteration and progress criteria retain
- * Clarabel 0.11.1 meanings; reduced accuracy is status 4, never status 1.
- * Finite arithmetic can refuse ill-conditioned inputs. Caller-specific physical
- * acceptance and subsequent transformations remain independent obligations.
+ * Full termination retains 1e-9 primal/dual feasibility and
+ * absolute-or-relative gap. Certificate, reduced-accuracy, iteration and
+ * progress criteria retain Clarabel 0.11.1 meanings; reduced accuracy is status
+ * 4, never status 1. Finite arithmetic can refuse ill-conditioned inputs.
+ * Caller-specific physical acceptance and subsequent transformations remain
+ * independent obligations.
  */
 export function solveAutoMovieQuadraticInterior(
   data: IAutoMovieQuadraticConicProgram,
@@ -207,7 +208,10 @@ export function solveAutoMovieQuadraticInterior(
   };
 }
 
-/** Preserve product error through the iterate addition before storing binary64 state. */
+/**
+ * Preserve product error through the iterate addition before storing binary64
+ * state.
+ */
 function advance(
   values: Float64Array,
   direction: Float64Array,

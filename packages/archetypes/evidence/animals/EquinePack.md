@@ -1,19 +1,3 @@
-# src/animals/EquinePack.ts#EquinePack
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is laid, where each part lies, how it is sized and the source of each place.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The pads as straight segments round the barrel, the straps as round bars, the loads as surfaces on the pads' sides.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `lay`, the read saddle, the mule it fits, the breeching's clearance and the hand's band; `createHorse` calls it for `tack` `pack`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The places come from the equid's own rig and the sizes from the read saddle by one stated similarity; every value no source gives is a named estimate.
-
 # src/animals/EquinePack.ts#EquinePack.saddle
 
 ## @evidence contracts/development/common.md#meaningful-documentation

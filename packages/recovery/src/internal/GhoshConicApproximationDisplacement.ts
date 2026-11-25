@@ -4,12 +4,12 @@ import type { IAutoMovieGhoshConicApproximationDisplacement } from "@automovie/i
  * Intersect a Euclidean unit normal with a compactified bitangent conic family.
  * The barycentric point and normal use the endpoint tangent triangle; normal
  * coordinates have inverse-millimetre units. For rho=w/(1+w), the implicit
- * conic is (1-rho)^2*l1^2-4*rho^2*l0*l2=0. At rho=1 this is the union of the
+ * conic is (1-rho)^2_l1^2-4_rho^2_l0_l2=0. At rho=1 this is the union of the
  * triangle's two tangent edges, used only as a boundary search limit.
  *
  * A finite normal displacement is returned only for a unique intersection in
- * the positive tangent triangle. Two distinct valid roots remain unsupported;
- * a double algebraic root is one geometric intersection. No shape is emitted.
+ * the positive tangent triangle. Two distinct valid roots remain unsupported; a
+ * double algebraic root is one geometric intersection. No shape is emitted.
  */
 export function GhoshConicApproximationDisplacement(
   coordinate: Parameters<IAutoMovieGhoshConicApproximationDisplacement.Operation>[0],
@@ -24,7 +24,7 @@ export function GhoshConicApproximationDisplacement(
     Math.abs(n[1]!),
     Math.abs(n[2]!),
   );
-  if (normalScale === 0 || !Number.isFinite(normalScale)) return undefined;
+  if (normalScale === 0) return undefined;
 
   // Scale d=L*t so all quadratic coefficients are dimensionless. This keeps
   // coefficient admission unchanged when the caller changes physical units.
@@ -60,9 +60,11 @@ export function GhoshConicApproximationDisplacement(
       roots = stable === 0 ? [-b / (2 * a)] : [stable / a, c / stable];
     }
   }
+  // A vanishing leading coefficient leaves no root to divide out.
   const valid: number[] = roots.filter(
     (t: number): boolean =>
-      Number.isFinite(t) &&
+      t !== Infinity &&
+      t !== -Infinity &&
       l.every((value: number, index: number): boolean => {
         const displacement: number =
           t * (index === 0 ? m0 : index === 1 ? m1 : m2);

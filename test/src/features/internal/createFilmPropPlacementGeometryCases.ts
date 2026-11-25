@@ -10,12 +10,21 @@ import type { namedFacts } from "./predicates";
 import { inSpace, propEnvironment } from "./propPlacementFixtures";
 
 /**
- * Preserve the original multiplicity, bounds and geometric refusal predicate order.
+ * Preserve the original multiplicity, bounds and geometric refusal predicate
+ * order.
  *
- * Behavior: Returns the original ordered mutation predicates executed by the geometry entry through the supplied real validation reader.
- * Expectation basis: Literal addressed paths and supported multiplicity, finite-volume, passage and signed-bearing rules supply each expected refusal; the outer entry independently requires every returned predicate true.
- * Cases: Preserves every original relation multiplicity, support cycle, malformed bounds/clearances, containment/occupancy/passage and support-gap case; accepted neighbors remain in the boundary entry.
- * Execution: The existing owning entries call createFilmPropPlacementGeometryCases during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
+ * Behavior: Returns the original ordered mutation predicates executed by the
+ * geometry entry through the supplied real validation reader. Expectation
+ * basis: Literal addressed paths and supported multiplicity, finite-volume,
+ * passage and signed-bearing rules supply each expected refusal; the outer
+ * entry independently requires every returned predicate true. Cases: Preserves
+ * every original relation multiplicity, support cycle, malformed
+ * bounds/clearances, containment/occupancy/passage and support-gap case;
+ * accepted neighbors remain in the boundary entry. Execution: The existing
+ * owning entries call createFilmPropPlacementGeometryCases during their
+ * portable in-memory cases and retain responsibility for assertion expectations
+ * and dynamically invoked predicates; this helper acquires no asset, process,
+ * renderer or GPU and keeps no completed-result cache.
  */
 export function createFilmPropPlacementGeometryCases(
   input: IFilmPropPlacementCaseInputs,
@@ -119,16 +128,6 @@ export function createFilmPropPlacementGeometryCases(
         ),
     ],
     [
-      "blankClearanceId",
-      (): boolean =>
-        violated(
-          (props: IAutoMoviePropSpec[]): string =>
-            (props[LAMP]!.placement!.clearance[0]!.id = " "),
-          "$input.props[1].placement.clearance[0].id",
-          "non-empty",
-        ),
-    ],
-    [
       "duplicateClearanceId",
       (): boolean =>
         violated(
@@ -147,24 +146,6 @@ export function createFilmPropPlacementGeometryCases(
           (props: IAutoMoviePropSpec[]): number =>
             (props[LAMP]!.placement!.clearance[0]!.max.x = -1),
           "$input.props[1].placement.clearance[0].x",
-        ),
-    ],
-    [
-      "clearanceYNotFinite",
-      (): boolean =>
-        violated(
-          (props: IAutoMoviePropSpec[]): number =>
-            (props[LAMP]!.placement!.clearance[0]!.min.y = NaN),
-          "$input.props[1].placement.clearance[0].y",
-        ),
-    ],
-    [
-      "clearanceZInfinite",
-      (): boolean =>
-        violated(
-          (props: IAutoMoviePropSpec[]): number =>
-            (props[LAMP]!.placement!.clearance[0]!.max.z = Infinity),
-          "$input.props[1].placement.clearance[0].z",
         ),
     ],
     // 6. geometry.

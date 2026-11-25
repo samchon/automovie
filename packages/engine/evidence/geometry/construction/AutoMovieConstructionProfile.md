@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionProfile.ts#AutoMovieConstructionProfile
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States metre-to-mm conversion, normalized piece coordinates, independent Point0, failure ownership and the limits of chart/section admission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The create operation prepares original curve owners and atlas readers under IAutoMoviePreparedConstructionProfile.IPrepared, preserving the declared physical and normalized clocks.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-This namespace owns runtime preparation; interface owns the prepared record shared with profile grids and body assembly.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The public surface uses the canonical source and prepared contracts; it introduces neither a fitted substitute curve nor a duplicate runtime-owned type.
-
 # src/geometry/construction/AutoMovieConstructionProfile.ts#AutoMovieConstructionProfile.create
 
 ## @evidence contracts/development/common.md#meaningful-documentation

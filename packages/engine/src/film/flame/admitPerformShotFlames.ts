@@ -12,7 +12,7 @@ import { appendFlamesArtifact } from "../../validation/appendFlamesArtifact";
  * the shot's practical light bindings, and return detached copies.
  *
  * {@link appendFlamesArtifact} checks each cue with the models and bindings the
- * props hold: a nonblank id unique in the shot, a staged node whose model is
+ * props hold: an id unique in the shot, a staged node whose model is
  * registered, an emitter that is a fixed affordance of that model, a
  * nonnegative safe-integer seed and a positive finite size. An open fire also
  * needs a positive Heskestad height and a diameter of at least 0.04 m. An `on`

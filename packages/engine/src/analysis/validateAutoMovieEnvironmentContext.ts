@@ -10,10 +10,8 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { directionLength } from "../validation/directionLength";
 import { validateSolidPlanes } from "./validateSolidPlanes";
-
-/** Directions this short or shorter carry no direction at all. */
-const AXIS_EPSILON: number = 1e-12;
 
 /**
  * Validate the read-only world a building is analysed against.
@@ -30,14 +28,18 @@ const AXIS_EPSILON: number = 1e-12;
  * make two differently-authored contexts produce the same artifact and hide an
  * authoring mistake that a reader needs to see.
  *
- * Under the typed context-container premise, violations are returned with paths rooted at `$input`; resident instant and occluder slots are visited by index and absent records are refused at their slots. Other nested container shapes remain a caller premise.
+ * Under the typed context-container premise, violations are returned with paths
+ * rooted at `$input`; resident instant and occluder slots are visited by index
+ * and absent records are refused at their slots. Other nested container shapes
+ * remain a caller premise.
  *
- * Directions (north, ground up, each sun) must be finite and longer
- * than `1e-12` but need not be unit length; units must be `"meter"`, instant
- * times strictly increasing, illuminances finite and at or above zero, and an
- * outdoor relative humidity null or within `[0, 1]`. Occluder planes follow
+ * Directions (north, ground up, each sun) must be finite and longer than
+ * `1e-12` but need not be unit length; units must be `"meter"`, instant times
+ * strictly increasing, illuminances finite and at or above zero, and an outdoor
+ * relative humidity null or within `[0, 1]`. Occluder planes follow
  * `validateSolidPlanes`. The horizon rule is skipped while the sun or the
- * ground up has an unusable measured length. A nonfinite measured norm is a range violation; horizon arithmetic is skipped for that invalid direction.
+ * ground up has an unusable measured length. A nonfinite measured norm is a
+ * range violation; horizon arithmetic is skipped for that invalid direction.
  */
 export const validateAutoMovieEnvironmentContext: (
   props: IAutoMovieValidateEnvironmentContext.IProps,
@@ -49,7 +51,6 @@ export const validateAutoMovieEnvironmentContext: (
   const root: string = "$input";
   const reserved: Set<string> = new Set<string>(props.reserved ?? []);
 
-  out.nonEmpty(`${root}.id`, context.id, "environment context id");
   if (context.version !== 1)
     out.push(
       "type",
@@ -66,16 +67,10 @@ export const validateAutoMovieEnvironmentContext: (
     );
   out.direction(`${root}.north`, context.north, "site north");
   out.direction(`${root}.ground.up`, context.ground.up, "reference ground up");
-  if (!Number.isFinite(context.ground.elevation))
-    out.push(
-      "range",
-      `${root}.ground.elevation`,
-      `reference ground elevation must be finite, but was ${context.ground.elevation}`,
-      context.ground.elevation,
-    );
-  const up: IAutoMovieVector3 | null = usable(context.ground.up)
-    ? Vector3.normalize(context.ground.up)
-    : null;
+  const up: IAutoMovieVector3 | null =
+    directionLength(context.ground.up) === null
+      ? null
+      : Vector3.normalize(context.ground.up);
 
   const owned: (id: string, path: string, label: string) => void = (
     id: string,
@@ -107,7 +102,6 @@ export const validateAutoMovieEnvironmentContext: (
       );
       continue;
     }
-    out.nonEmpty(`${path}.id`, instant.id, "instant id");
     out.nonEmpty(`${path}.label`, instant.label, "instant label");
     if (instantIds.has(instant.id))
       out.push(
@@ -118,45 +112,26 @@ export const validateAutoMovieEnvironmentContext: (
       );
     instantIds.add(instant.id);
     owned(instant.id, `${path}.id`, "instant id");
-    if (!Number.isFinite(instant.time))
+    if (previous !== null && instant.time <= previous)
       out.push(
         "range",
         `${path}.time`,
-        `instant time must be finite, but was ${instant.time}`,
+        `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
         instant.time,
       );
-    else {
-      if (previous !== null && instant.time <= previous)
-        out.push(
-          "range",
-          `${path}.time`,
-          `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
-          instant.time,
-        );
-      previous = instant.time;
-    }
+    previous = instant.time;
     out.direction(`${path}.sun`, instant.sun, "sun direction");
     for (const [key, label] of [
       ["directNormalIlluminance", "direct normal illuminance"],
       ["diffuseHorizontalIlluminance", "diffuse horizontal illuminance"],
     ] as const)
-      if (!Number.isFinite(instant[key]) || instant[key] < 0)
+      if (instant[key] < 0)
         out.push(
           "range",
           `${path}.${key}`,
           `${label} must be a finite number at or above zero, but was ${instant[key]}`,
           instant[key],
         );
-    if (
-      instant.outdoorAirTemperature !== null &&
-      !Number.isFinite(instant.outdoorAirTemperature)
-    )
-      out.push(
-        "range",
-        `${path}.outdoorAirTemperature`,
-        `outdoor air temperature must be null or finite, but was ${instant.outdoorAirTemperature}`,
-        instant.outdoorAirTemperature,
-      );
     if (instant.outdoorRelativeHumidity !== null)
       out.range(
         `${path}.outdoorRelativeHumidity`,
@@ -167,9 +142,8 @@ export const validateAutoMovieEnvironmentContext: (
       );
     if (
       up !== null &&
-      usable(instant.sun) &&
-      Number.isFinite(instant.directNormalIlluminance) &&
       instant.directNormalIlluminance > 0 &&
+      directionLength(instant.sun) !== null &&
       Vector3.dot(Vector3.normalize(instant.sun), up) <= 0
     )
       out.push(
@@ -194,7 +168,6 @@ export const validateAutoMovieEnvironmentContext: (
       );
       continue;
     }
-    out.nonEmpty(`${path}.id`, occluder.id, "occluder id");
     out.nonEmpty(`${path}.kind`, occluder.kind, "occluder kind");
     if (occluderIds.has(occluder.id))
       out.push(
@@ -209,12 +182,4 @@ export const validateAutoMovieEnvironmentContext: (
   }
 
   return out.toValidation();
-};
-
-/** Gate horizon arithmetic on a finite norm above 1e-12; the collector independently reports every unusable direction. Retains no vector or verdict. */
-const usable: (value: IAutoMovieVector3) => boolean = (
-  value: IAutoMovieVector3,
-): boolean => {
-  const length: number = Vector3.length(value);
-  return Number.isFinite(length) && length > AXIS_EPSILON;
 };

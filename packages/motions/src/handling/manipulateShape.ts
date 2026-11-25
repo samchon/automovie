@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanDigit,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
@@ -11,10 +11,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanHand } from "../posture/HumanHand";
 import { typeText } from "../everyday/typeText";
+import { HumanHand } from "../posture/HumanHand";
 
-/** Resting digit angles and the individual tips requiring clearance from the surface. */
+/**
+ * Resting digit angles and the individual tips requiring clearance from the
+ * surface.
+ */
 interface IShape {
   joints: IAutoMovieMotionHumanPosture["joints"];
   avoid: NonNullable<IAutoMovieMotionHumanPosture["digits"]>;
@@ -23,10 +26,9 @@ interface IShape {
 /**
  * The hand's shape while one digit presses in a keyed contact sequence
  * (`manipulate`): that digit straight, as the flat hand holds it, for its
- * inverse kinematics to take down to its key. Other digits retain their
- * relaxed shape when it clears the key plane by the hover height. Each
- * remaining digit takes a clearing shape or lifts its own tip from the
- * achieved wrist frame.
+ * inverse kinematics to take down to its key. Other digits retain their relaxed
+ * shape when it clears the key plane by the hover height. Each remaining digit
+ * takes a clearing shape or lifts its own tip from the achieved wrist frame.
  *
  * @param body The rig supplying each shaped tip.
  * @param wrist The achieved wrist point, in world metres.
@@ -35,15 +37,8 @@ interface IShape {
  * @param normal The surface's unit outward normal.
  * @param side The hand.
  * @param digit The pressing digit, as `manipulate.Finger` names it.
- * @returns The digit angles and only the additional goals required for clearance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two parts of the shape, why each, and who reads it.
- * @evidence contracts/development/implementation.md#principled-implementation The hand's own documented shapes (`HumanHand.shape`): the fist's curl for the idle digits and the flat hand's straight digit for the pressing one.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two shapes merged, the pressing digit's segments last.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is written here: both come from the hand's shapes.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most three candidate shapes per inactive digit.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+ * @returns The digit angles and only the additional goals required for
+ *   clearance.
  */
 export function manipulateShape(
   body: IAutoMovieMotionHumanBody,
@@ -54,7 +49,10 @@ export function manipulateShape(
   site: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): IShape {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(rotation), normal);
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(rotation),
+    normal,
+  );
   const clearance: number = Vector3.dot(Vector3.subtract(wrist, site), normal);
   const joints: IAutoMovieMotionHumanPosture["joints"] = {};
   const avoid: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
@@ -65,7 +63,12 @@ export function manipulateShape(
     if (finger !== digit) {
       let best: number = -Infinity;
       for (const shape of FORMS) {
-        const height: number = clearance + Vector3.dot(HumanHand.offset(body, side, surface, shape).point, local);
+        const height: number =
+          clearance +
+          Vector3.dot(
+            HumanHand.offset(body, side, surface, shape).point,
+            local,
+          );
         if (height > best) {
           selected = shape;
           best = height;
@@ -73,7 +76,12 @@ export function manipulateShape(
         if (height >= typeText.HOVER) break;
       }
       if (best < typeText.HOVER) {
-        const point: IAutoMovieVector3 = HumanHand.offset(body, side, surface, selected).point;
+        const point: IAutoMovieVector3 = HumanHand.offset(
+          body,
+          side,
+          surface,
+          selected,
+        ).point;
         avoid[prefix as AutoMovieHumanDigit] = {
           on: `${side}Hand`,
           surface: "tip",
@@ -81,14 +89,30 @@ export function manipulateShape(
         };
       }
     }
-    for (const [bone, angles] of Object.entries(HumanHand.shape(side, selected)))
-      if (bone.startsWith(prefix)) joints[bone as AutoMovieHumanoidBone] = angles;
+    for (const [bone, angles] of Object.entries(
+      HumanHand.shape(side, selected),
+    ))
+      if (bone.startsWith(prefix))
+        joints[bone as AutoMovieHumanoidBone] = angles;
   }
   return { joints, avoid };
 }
 
 /** Anatomical digits on a manipulating hand. */
-const DIGITS: readonly IAutoMovieMotionHumanManipulate.Finger[] = ["thumb", "index", "middle", "ring", "little"];
+const DIGITS: readonly IAutoMovieMotionHumanManipulate.Finger[] = [
+  "thumb",
+  "index",
+  "middle",
+  "ring",
+  "little",
+];
 
-/** Prefer the relaxed shape when it clears, then compare the extended and flexed forms. */
-const FORMS: readonly IAutoMovieMotionHumanHand.Shape[] = ["relaxed", "flat", "fist"];
+/**
+ * Prefer the relaxed shape when it clears, then compare the extended and flexed
+ * forms.
+ */
+const FORMS: readonly IAutoMovieMotionHumanHand.Shape[] = [
+  "relaxed",
+  "flat",
+  "fist",
+];

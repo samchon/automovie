@@ -6,7 +6,10 @@
  * reading was chosen and why it beat the recorded alternatives; the observation
  * itself is left exactly as it was read.
  *
- * A citation may name an unsettled or withheld candidate. Explicit Engine validateDesignEvidence checks subject/rationale text, cited documents/candidates and duplicate triples; declaring the citation does not invoke that validator.
+ * A citation may name an unsettled or withheld candidate. Explicit Engine
+ * validateDesignEvidence checks subject/rationale text, cited
+ * documents/candidates and duplicate triples; declaring the citation does not
+ * invoke that validator.
  */
 export interface IAutoMovieDesignEvidence {
   /**

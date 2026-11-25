@@ -6,13 +6,19 @@ import { createSword } from "./createSword";
 const WULFLUND: string =
   "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
 
-/** How much longer and wider than its blade a scabbard or a sheath is made, metres: Wulflund's 1.5 and 2 cm. */
+/**
+ * How much longer and wider than its blade a scabbard or a sheath is made,
+ * metres: Wulflund's 1.5 and 2 cm.
+ */
 const FIT: Readonly<{ length: number; width: number }> = {
   length: 0.015,
   width: 0.02,
 };
 
-/** A scabbard's or a sheath's length and width made to one of `createSword`'s read swords, whole. */
+/**
+ * A scabbard's or a sheath's length and width made to one of `createSword`'s
+ * read swords, whole.
+ */
 const madeTo = (
   name: string,
   sword: Readonly<Partial<Record<createSword.Dimension, number>>>,
@@ -29,7 +35,11 @@ const madeTo = (
   ),
 });
 
-/** A scabbard's or a sheath's length and width made to a blade of one of `createSword`'s kinds, its bands moved out by the fit, provisional where the blade's are. */
+/**
+ * A scabbard's or a sheath's length and width made to a blade of one of
+ * `createSword`'s kinds, its bands moved out by the fit, provisional where the
+ * blade's are.
+ */
 const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
   const blade: Readonly<
     Partial<Record<createSword.Dimension, IAutoMovieArchetypeBand>>
@@ -52,7 +62,11 @@ const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
   };
 };
 
-/** The blades of `createHolster` by kind, the default first, each made with Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved out, provisional where the blade's are. */
+/**
+ * The blades of `createHolster` by kind, the default first, each made with
+ * Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved
+ * out, provisional where the blade's are.
+ */
 export const HOLSTER_BLADES: Readonly<{
   scabbard: Readonly<Record<createHolster.ScabbardBlade, createHolster.Fitted>>;
   sheath: Readonly<Record<createHolster.SheathBlade, createHolster.Fitted>>;

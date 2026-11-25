@@ -1,21 +1,3 @@
-# src/physics/solveXpbdArticulationContacts.ts#solveXpbdArticulationContacts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source, the rows, the test impulses, both solves and the regularization.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace over one tree's factor and the step's contacts; impulses in newton seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One entry and its record, called by solveXpbdArticulation for each motor-driven tree; the row types shared with the rows' owner and both solves.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Bounds and coefficients are the contacts'; nothing is tuned here.
-
 # src/physics/solveXpbdArticulationContacts.ts#solveXpbdArticulationContacts.solve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

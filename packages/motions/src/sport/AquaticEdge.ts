@@ -10,15 +10,51 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { AquaticPosture } from "./AquaticPosture";
 
 /**
+ * The performance's named pool edge at the action's start.
+ *
+ * @throws {HumanRefusal} When no support is named, or it declares no edge.
+ */
+export function AquaticEdge(
+  context: AquaticPosture.Context,
+): AquaticEdge.IEdge {
+  const id: string | undefined = context.params.support;
+  if (id === undefined)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "support",
+      value: null,
+      reason: "an exit is made over a named edge",
+      fix: "give the pool edge's subject id in support",
+    });
+  const edge: IAutoMovieMotionHumanPropReader = context.prop(id);
+  const frame: IAutoMovieRigidTransform = edge.frame(context.start);
+  const contact: IAutoMovieAffordance | undefined = (
+    edge.prop.affordances ?? []
+  ).find((a: IAutoMovieAffordance): boolean => a.id === "edge");
+  if (contact === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "support",
+      value: id,
+      reason: "the support declares no edge",
+      fix: "use a pool edge with an `edge` contact",
+    });
+  return {
+    id,
+    lip: Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, contact.frame.translation),
+    ),
+    out: Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 }),
+    across: Quaternion.rotateVector(frame.rotation, { x: 1, y: 0, z: 0 }),
+  };
+}
+
+/**
  * A pool edge as the exits read it: the lip, where the deck meets the wall
  * face, and the edge's own directions, out over the water and along the wall.
- * The named support must declare an `edge` contact; the edge prop's frame
- * puts the water toward its `+Z` (`createPoolEdge`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, the frame convention and the refusals.
- * @evidence contracts/development/design.md#principled-representation The lip and two unit directions in the world, from the prop's own frame and contact.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the unaided and the assisted exit.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The deck height and edge come from the named prop's contact, never from parameters.
+ * The named support must declare an `edge` contact; the edge prop's frame puts
+ * the water toward its `+Z` (`createPoolEdge`).
  */
 export namespace AquaticEdge {
   /** A pool edge in the world. */
@@ -37,45 +73,9 @@ export namespace AquaticEdge {
   }
 
   /**
-   * The performance's named pool edge at the action's start.
-   *
-   * @throws {HumanRefusal} When no support is named, or it declares no edge.
+   * A world point `out` metres out from the lip over the water (negative: back
+   * on the deck), `side` along it and `up` above it.
    */
-  export function of(context: AquaticPosture.Context): IEdge {
-    const id: string | undefined = context.params.support;
-    if (id === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "support",
-        value: null,
-        reason: "an exit is made over a named edge",
-        fix: "give the pool edge's subject id in support",
-      });
-    const edge: IAutoMovieMotionHumanPropReader = context.prop(id);
-    const frame: IAutoMovieRigidTransform = edge.frame(context.start);
-    const contact: IAutoMovieAffordance | undefined = (
-      edge.prop.affordances ?? []
-    ).find((a: IAutoMovieAffordance): boolean => a.id === "edge");
-    if (contact === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "support",
-        value: id,
-        reason: "the support declares no edge",
-        fix: "use a pool edge with an `edge` contact",
-      });
-    return {
-      id,
-      lip: Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, contact.frame.translation),
-      ),
-      out: Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 }),
-      across: Quaternion.rotateVector(frame.rotation, { x: 1, y: 0, z: 0 }),
-    };
-  }
-
-  /** A world point `out` metres out from the lip over the water (negative: back on the deck), `side` along it and `up` above it. */
   export function at(
     edge: IEdge,
     out: number,

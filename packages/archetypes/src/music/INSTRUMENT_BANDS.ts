@@ -45,9 +45,7 @@ const SONOR: string =
 const BUGLE: string =
   "G bugles 14 1/2 to 15 in long with bells of 107 to 126 mm, about 680 g, as search results give museum records (emuseum.nmmusd.org) and retailers' listings; not read";
 
-/**
- * The band of each free dimension of {@link createInstrument}, by kind.
- */
+/** The band of each free dimension of {@link createInstrument}, by kind. */
 export const INSTRUMENT_BANDS: Readonly<
   Record<
     createInstrument.Kind,

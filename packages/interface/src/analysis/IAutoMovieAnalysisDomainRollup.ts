@@ -4,11 +4,11 @@ import type { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
  * One domain's tally inside an analysis report.
  *
  * Every submitted run is counted once in {@link runs} and then exactly once
- * more, as {@link stale} when it read another revision or else as
- * {@link solved}, {@link unsupported} or {@link notRun}, so `runs` equals the
- * sum of those four. Metric counts come only from current solved runs, and
- * measured metrics that are neither `meets` nor `misses` are untargeted and
- * have no field of their own.
+ * more, as {@link stale} when it read another revision or else as {@link solved},
+ * {@link unsupported} or {@link notRun}, so `runs` equals the sum of those four.
+ * Metric counts come only from current solved runs, and measured metrics that
+ * are neither `meets` nor `misses` are untargeted and have no field of their
+ * own.
  */
 export interface IAutoMovieAnalysisDomainRollup {
   /** Domain this row answers for. */

@@ -1,21 +1,3 @@
-# src/human/lofting/IAutoMovieHumanPolarSection.ts#IAutoMovieHumanPolarSection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the AutoMovieHumanPolarSection exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A type-only namespace groups ISection, MeasurePolygon, RadiusPolygon, RadiusOrigin. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these declarations used by Human's AutoMovieHumanPolarSection; Human retains the computation and source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace only qualifies the ISection, MeasurePolygon, RadiusPolygon, RadiusOrigin contracts and adds no alternate implementation, optional mode or runtime state.
-
 # src/human/lofting/IAutoMovieHumanPolarSection.ts#IAutoMovieHumanPolarSection.ISection
 
 ## @evidence contracts/development/common.md#meaningful-documentation

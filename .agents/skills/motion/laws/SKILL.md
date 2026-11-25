@@ -12,8 +12,8 @@ An action law deterministically maps a body and its inputs to motion. These reso
 | [Effector goals](authoring.md) | Interaction as effector goals on targets |
 | [Law design](declaration.md) | What every action declares: its plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | Parameters, skill and seed, and draws that replay |
-| [Time, transitions and layers](transitions.md) | Pose as a function of time, declared cuts and layers |
+| [Time, transitions and layers](transitions.md) | Prepared knots and branch points, the pure pose function, declared cuts and layers |
 | [Contacts](contacts.md) | Support frames, feet, held objects and contact between performers |
 | [Verification](verification.md) | Bounded checks, body sweeps and frame review |
 
-Read Effector goals before designing a law. Time, transitions and layers covers inertialization, redirection and layers that run over any action.
+Read Effector goals and Pose by time before designing a law. Time, transitions and layers covers inertialization, redirection and layers that run over any action.

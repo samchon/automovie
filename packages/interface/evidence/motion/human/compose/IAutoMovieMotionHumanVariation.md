@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanVariation.ts#IAutoMovieMotionHumanVariation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-up: Along the region's bone toward the head, metres. out: Toward the body's left, metres. radius: The region's radius, metres: every point within it is nearer to this region than to any other.
-
-## @evidence contracts/development/design.md#principled-representation
-
-up: Along the region's bone toward the head, metres. out: Toward the body's left, metres. radius: The region's radius, metres: every point within it is nearer to this region than to any other.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: audit/HumanVariation.ts (HumanVariation.over, return); compose/AutoMovieMotionHumanVariation.ts (AutoMovieMotionHumanVariation.of, return); compose/AutoMovieMotionHumanVariation.ts (AutoMovieMotionHumanVariation.strike, source); compose/AutoMovieMotionHumanVariation.ts (AutoMovieMotionHumanVariation.direction, source); compose/AutoMovieMotionHumanVariation.ts (AutoMovieMotionHumanVariation.duration, source); compose/AutoMovieMotionHumanVariation.ts (AutoMovieMotionHumanVariation.pause, source).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanActionContext.ISeries identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanVariation.ts#IAutoMovieMotionHumanVariation.ISource
 
 ## @evidence contracts/development/common.md#meaningful-documentation

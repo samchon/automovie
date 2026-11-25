@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -22,36 +23,34 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { CollapseFold } from "./CollapseFold";
 import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
+import { collapseClock } from "./collapseClock";
 import { knockdown } from "./knockdown";
 
 /**
- * A staged collapse in a chosen direction and tone, for a faint or a fatal
- * hit (`IAutoMovieMotionHumanCollapse`). `backward` is the knockdown itself;
- * the other directions drop onto the knees by `knockdown.SEATED`, about the
- * free-fall time of the pelvis slowed by the buckling legs, and lay the
- * trunk on the floor by `knockdown.DOWN`, while an optional sag softens the
- * knees first. The pelvis drops where it stood, the heading turns so the
- * body falls away from the blow, and the root height rests each pose's
- * lowest collider on the floor (`knockdown.rest`), so no pose penetrates it.
- * The fold's angles are `CollapseFold`'s.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the directions, the timing source, the heading, the floor rest and the fold's owner.
- * @evidence contracts/development/design.md#principled-representation A registered reaction law with closed direction and tone unions; a staged fall judges balance over its fall.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its timing constants, the knockdown it delegates `backward` to and the fold owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The backward fall is the unchanged knockdown, never a second copy.
+ * A staged collapse in a chosen direction and tone, for a faint or a fatal hit
+ * (`IAutoMovieMotionHumanCollapse`). `backward` is the knockdown itself; the
+ * other directions drop onto the knees by `knockdown.SEATED`, about the
+ * free-fall time of the pelvis slowed by the buckling legs, and lay the trunk
+ * on the floor by `knockdown.DOWN`, while an optional sag softens the knees
+ * first. The pelvis drops where it stood, the heading turns so the body falls
+ * away from the blow, and the root height rests each pose's lowest collider on
+ * the floor (`knockdown.rest`), so no pose penetrates it. The fold's angles are
+ * `CollapseFold`'s.
  */
 export namespace collapse {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "collapse";
 
-  /** A collapse is a staged fall, so its balance is judged over the fall (`IAutoMovieMotionHumanActionLaw.physical`). */
+  /**
+   * A collapse is a staged fall, so its balance is judged over the fall
+   * (`IAutoMovieMotionHumanActionLaw.physical`).
+   */
   export const physical: boolean = true;
 
   /** Cancel table: none; a collapsed performer stays down. */
@@ -68,14 +67,6 @@ export namespace collapse {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} On `sag` or `seconds` when negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk drop and lay profiles over `CollapseFold`'s closed-form angles, the heading from the blow's side and the root height from the knockdown's floor rest at each posture.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegate `backward`, admit the times, read the heading once, then evaluate each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative time is refused; the floor height is solved per pose on the body's own colliders, never stated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One prepared floor reader; constant fold work and one floor solve per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the knockdown's floor rest, clock and interrupt rows.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock, the heading and the floor reader.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCollapse.IParams>,
@@ -94,40 +85,15 @@ export namespace collapse {
             : { hold: context.params.hold }),
         },
       });
-    const sag: number = context.params.sag ?? 0;
-    const lie: number = context.params.hold ?? 1;
-    for (const [axis, value] of [
-      ["sag", sag],
-      ["hold", lie],
-    ] as const)
-      if (!(value >= 0) || !Number.isFinite(value))
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis,
-          value,
-          feasible: {
-            kind: "range",
-            unit: "s",
-            minimum: 0,
-            maximum: Number.MAX_VALUE,
-          },
-          reason: "a collapse's times are non-negative seconds",
-          fix: `give a non-negative ${axis}`,
-        });
+    const clock: IAutoMovieMotionClock = collapseClock(context.params);
 
     const body: IAutoMovieMotionHumanBody = context.body;
     const tone: IAutoMovieMotionHumanCollapse.Tone =
       context.params.tone ?? "limp";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const kneel: number = sag + knockdown.SEATED;
-    const down: number =
-      sag + (direction === "inPlace" ? FOLDED : knockdown.DOWN);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(down + lie, [
-      { name: "sag", seconds: sag },
-      { name: "knees", seconds: kneel },
-      { name: "stroke", seconds: kneel },
-      { name: "down", seconds: down },
-    ]);
+    const kneel: number = clock.at("knees");
+    const down: number = clock.at("down");
+
     const duration: number = clock.duration;
     const sagging: (seconds: number) => number = AutoMovieMotionClock.prepare(
       clock,
@@ -162,7 +128,7 @@ export namespace collapse {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       away,
     );
-    const side: "left" | "right" =
+    const side: AutoMovieHumanSide =
       context.params.side ?? (local.x >= 0 ? "left" : "right");
     const turn: number =
       direction === "forward"
@@ -172,11 +138,11 @@ export namespace collapse {
       direction === "forward"
         ? KnockdownFloor.fitProneKnee(
             body,
-            CollapseFold.of(direction, tone, side, 1, 1, 1),
+            CollapseFold(direction, tone, side, 1, 1, 1),
           )
         : undefined;
     const fold = (seconds: number): CollapseFold.IFold =>
-      CollapseFold.of(
+      CollapseFold(
         direction,
         tone,
         side,
@@ -298,17 +264,14 @@ export namespace collapse {
     };
   }
 
-  /** How long an in-place collapse takes to fold into its heap after the knees land, seconds, as the knockdown's roll-down measures it. */
-  const FOLDED: number = knockdown.DOWN;
-
   /**
-   * The floor contacts a collapse declares: the knees from their landing,
-   * a protective body's hands before its trunk, and the trunk's lie.
+   * The floor contacts a collapse declares: the knees from their landing, a
+   * protective body's hands before its trunk, and the trunk's lie.
    */
   function contacts(
     direction: IAutoMovieMotionHumanCollapse.Direction,
     tone: IAutoMovieMotionHumanCollapse.Tone,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     kneel: number,
     down: number,
     duration: number,

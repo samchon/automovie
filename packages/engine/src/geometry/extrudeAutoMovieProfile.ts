@@ -6,7 +6,6 @@ import {
 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
-import { finitePoint } from "./finitePoint";
 import { meshOf } from "./meshOf";
 import { positive } from "./positive";
 
@@ -14,10 +13,10 @@ import { positive } from "./positive";
  * Extrude a convex XY profile along local Z into a closed triangle mesh
  * spanning `-depth / 2` to `+depth / 2`.
  *
- * The profile must be strictly convex: every point must be a hull corner, so
- * a concave, collinear, repeated or interior point is refused, as are fewer
- * than three non-collinear points, a non-finite point and a nonpositive depth.
- * The corners are re-ordered counter-clockwise from the hull's lowest-X corner.
+ * The profile must be strictly convex: every point must be a hull corner, so a
+ * concave, collinear, repeated or interior point is refused, as are fewer than
+ * three non-collinear points, a non-finite point and a nonpositive depth. The
+ * corners are re-ordered counter-clockwise from the hull's lowest-X corner.
  * Coordinates are metres; the input profile is only read.
  *
  * The result carries area-weighted vertex normals from `meshOf` and no texture
@@ -58,9 +57,6 @@ export const extrudeAutoMovieProfile = (
 const profileHull = (
   profile: readonly IAutoMovieProfilePoint[],
 ): IAutoMovieProfilePoint[] => {
-  profile.forEach((point: IAutoMovieProfilePoint, index: number): void =>
-    finitePoint(point, `profile[${index}]`),
-  );
   const hull: IAutoMovieProfilePoint[] = convexHull2D(
     profile.map(
       (point: IAutoMovieProfilePoint): IAutoMovieVector3 => ({

@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -12,25 +13,26 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The record of `IFrameGrip`'s site. */
+type IFrameGrip = { side: AutoMovieHumanSide; bone?: AutoMovieHumanoidBone };
+
 /**
- * Where a held prop is: the frame a hand holds it in, and a prop held in
- * both of a performer's hands as one rigid thing between them, each hand's
- * grip socket keeping its place on the prop, so neither hand alone turns it.
+ * Where a held prop is: the frame a hand holds it in, and a prop held in both
+ * of a performer's hands as one rigid thing between them, each hand's grip
+ * socket keeping its place on the prop, so neither hand alone turns it.
  *
  * Each grip has held the prop at a fixed offset since it closed, which puts
- * each hand's grip socket at a fixed point of the prop. The prop's frame is
- * the rigid one that lays the line between those two points on the line
- * between the two sockets, its middle on their middle, and its turn about
- * that line halfway between the turns the two hands give it: two points fix a
- * rigid body but for that one turn, which the two fists share.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is fitted and why the turn about the line is shared.
- * @evidence contracts/development/design.md#principled-representation A rigid frame from two held points and two hand turns.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hand's holding frame and the two-hand fit, used by the prop reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named; the points are the grips' own offsets.
+ * each hand's grip socket at a fixed point of the prop. The prop's frame is the
+ * rigid one that lays the line between those two points on the line between the
+ * two sockets, its middle on their middle, and its turn about that line halfway
+ * between the turns the two hands give it: two points fix a rigid body but for
+ * that one turn, which the two fists share.
  */
 export namespace HumanPropHold {
-  /** One hand on the prop: its grip socket's frame and the prop's frame in it, the offset its grip keeps. */
+  /**
+   * One hand on the prop: its grip socket's frame and the prop's frame in it,
+   * the offset its grip keeps.
+   */
   export interface IHand {
     /** The hand's grip socket, world. */
     hand: IAutoMovieRigidTransform;
@@ -45,22 +47,18 @@ export namespace HumanPropHold {
    * @param a The hand that carries it.
    * @param b The other hand.
    * @returns The prop's world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hand's grip socket in the prop's frame from its offset; the hands' two implied turns blended halfway; the least turn laying the prop's line between the sockets on the world's, a half turn about the axis across the line that keeps the blended up where the line points opposite (the swing of a swing-twist split, whose axis is free only then); the middles matched.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two points, one blend, one alignment, one translation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two sockets at one point, or a prop line already along theirs, leave the blend alone, never dividing by nothing; a line pointing opposite is turned, never left reversed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fit(a: IHand, b: IHand): IAutoMovieRigidTransform {
-    const turn: (h: IHand) => IAutoMovieQuaternion = (h: IHand): IAutoMovieQuaternion =>
+    const turn: (h: IHand) => IAutoMovieQuaternion = (
+      h: IHand,
+    ): IAutoMovieQuaternion =>
       Quaternion.normalize(
         Quaternion.multiply(h.hand.rotation, h.offset.rotation),
       );
     // Where each socket is on the prop: the hand's origin in the prop's frame.
-    const local: (h: IHand) => IAutoMovieVector3 = (h: IHand): IAutoMovieVector3 =>
+    const local: (h: IHand) => IAutoMovieVector3 = (
+      h: IHand,
+    ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         Quaternion.inverse(h.offset.rotation),
         Vector3.scale(h.offset.position, -1),
@@ -82,7 +80,9 @@ export namespace HumanPropHold {
     const sine: number = Vector3.length(axis);
     const cosine: number = Vector3.dot(along, between);
     const rotation: IAutoMovieQuaternion =
-      Vector3.length(along) < 1e-9 || Vector3.length(between) < 1e-9 || (sine < 1e-9 && cosine > 0)
+      Vector3.length(along) < 1e-9 ||
+      Vector3.length(between) < 1e-9 ||
+      (sine < 1e-9 && cosine > 0)
         ? blended
         : Quaternion.normalize(
             Quaternion.multiply(
@@ -109,19 +109,26 @@ export namespace HumanPropHold {
   }
 
   /**
-   * The axis a prop whose line points opposite the sockets' turns half a
-   * turn about: across the line, along the prop's up as the hands turn it
-   * (its `+Y`, or its `+X` where the up lies on the line), so the half turn
-   * keeps that up and the roll the two hands share.
+   * The axis a prop whose line points opposite the sockets' turns half a turn
+   * about: across the line, along the prop's up as the hands turn it (its `+Y`,
+   * or its `+X` where the up lies on the line), so the half turn keeps that up
+   * and the roll the two hands share.
    */
-  function across(blended: IAutoMovieQuaternion, along: IAutoMovieVector3): IAutoMovieVector3 {
+  function across(
+    blended: IAutoMovieQuaternion,
+    along: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     const unit: IAutoMovieVector3 = Vector3.normalize(along);
-    const off: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 => {
+    const off: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+      local: IAutoMovieVector3,
+    ): IAutoMovieVector3 => {
       const v: IAutoMovieVector3 = Quaternion.rotateVector(blended, local);
       return Vector3.subtract(v, Vector3.scale(unit, Vector3.dot(v, unit)));
     };
     const up: IAutoMovieVector3 = off({ x: 0, y: 1, z: 0 });
-    return Vector3.normalize(Vector3.length(up) < 1e-9 ? off({ x: 1, y: 0, z: 0 }) : up);
+    return Vector3.normalize(
+      Vector3.length(up) < 1e-9 ? off({ x: 1, y: 0, z: 0 }) : up,
+    );
   }
 
   /**
@@ -132,19 +139,11 @@ export namespace HumanPropHold {
    * @param bones The bones.
    * @param grip The holding hand, and the bone of a worn span.
    * @returns The frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two frames and the inputs.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip socket placed on its bone by the body's own surfaces, with the hand bone's rotation, the frame a held prop rides.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    grip: { side: "left" | "right"; bone?: AutoMovieHumanoidBone },
+    grip: IFrameGrip,
   ): IAutoMovieRigidTransform {
     if (grip.bone !== undefined) {
       const bone: IAutoMovieResolvedBone = bones.get(grip.bone)!;

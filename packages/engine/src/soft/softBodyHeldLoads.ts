@@ -7,20 +7,22 @@ import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
 /**
- * The force each held particle (an anchor, of zero inverse mass) bears from
- * the compliant constraints that tie it to the rest of the lattice, at the
- * end of a step: the pull a hand holding a cord's end feels.
+ * The force each held particle (an anchor, of zero inverse mass) bears from the
+ * compliant constraints that tie it to the rest of the lattice, at the end of a
+ * step: the pull a hand holding a cord's end feels.
  *
  * In XPBD a constraint's force is its gradient times its multiplier over the
  * step squared (Macklin, Müller and Chentanez 2016, MIG 2016, equation 9's
- * relation f = grad C^T lambda / dt^2). For an edge from particle i to k
- * with unit direction n from k to i, the force on k is -lambda n / dt^2; a
- * stretched edge has a negative multiplier, so the force points from the
- * held particle into the body that hangs from it. The direction is read at
- * the step's final positions, where the last sweep left the edge.
+ * relation f = grad C^T lambda / dt^2). For an edge from particle i to k with
+ * unit direction n from k to i, the force on k is -lambda n / dt^2; a stretched
+ * edge has a negative multiplier, so the force points from the held particle
+ * into the body that hangs from it. The direction is read at the step's final
+ * positions, where the last sweep left the edge.
  *
- * @param props The lattice, the step's positions, the inverse masses, the rest lengths, the multipliers and the step.
- * @returns The force on every held particle that a constraint pulls, newtons, world frame, by particle.
+ * @param props The lattice, the step's positions, the inverse masses, the rest
+ *   lengths, the multipliers and the step.
+ * @returns The force on every held particle that a constraint pulls, newtons,
+ *   world frame, by particle.
  */
 export const softBodyHeldLoads: (
   props: IAutoMovieSoftBodyHeldLoads.IProps,

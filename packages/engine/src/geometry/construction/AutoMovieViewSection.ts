@@ -13,7 +13,10 @@ import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
 import { AutoMovieViewSectionRange } from "./AutoMovieViewSectionRange";
 
-/** Internal measured source; inspection observations are attached only to public results. */
+/**
+ * Internal measured source; inspection observations are attached only to public
+ * results.
+ */
 type Measured = Pick<
   IAutoMovieViewSection.ISection,
   "box" | "shoulders" | "guides" | "conics" | "girth"
@@ -22,17 +25,26 @@ type Measured = Pick<
 /**
  * One source section from four exact support extents and conic shoulders.
  *
- * Each rational quarter touches its two support lines with zero radial slope. Its shoulder r has weight w=r/(1-r), with r=sqrt(2)-1 giving an ellipse. Adjacent quarters keep their existing shared curvature, the smaller own endpoint curvature. Incompatible ends use the convex rational G2 construction in AutoMovieViewConic, with a same-ray error bound of 1e-7 times the short extent and support vanishing with curvature contrast.
+ * Each rational quarter touches its two support lines with zero radial slope.
+ * Its shoulder r has weight w=r/(1-r), with r=sqrt(2)-1 giving an ellipse.
+ * Adjacent quarters keep their existing shared curvature, the smaller own
+ * endpoint curvature. Incompatible ends use the convex rational G2 construction
+ * in AutoMovieViewConic, with a same-ray error bound of 1e-7 times the short
+ * extent and support vanishing with curvature contrast.
  *
- * The conic is read directly. The knot list is a quadrature/inspection partition, not a polar Hermite replacement. Girth measures the same rational pieces with bounded native quadrature and geometric end enclosures; finite measurement belongs to reach admission and every solved result must meet its measured residual. Four exact guides and shoulder points retain their input ownership. Final periodic phase fitting and station interpolation remain separate from this source section.
+ * The conic is read directly. The knot list is a quadrature/inspection
+ * partition, not a polar Hermite replacement. Girth measures the same rational
+ * pieces with bounded native quadrature and geometric end enclosures; finite
+ * measurement belongs to reach admission and every solved result must meet its
+ * measured residual. Four exact guides and shoulder points retain their input
+ * ownership. Final periodic phase fitting and station interpolation remain
+ * separate from this source section.
  */
 export namespace AutoMovieViewSection {
   /** The conic shoulder of the ellipse, `sqrt(2) - 1`. */
   export const ELLIPSE: number = Math.SQRT2 - 1;
 
-  /**
-   * Shared positive guide curvatures, inverse millimetres.
-   */
+  /** Shared positive guide curvatures, inverse millimetres. */
   export function curvatures(
     box: IAutoMovieViewSection.IBox,
     shoulders: IAutoMovieQuarters<number>,
@@ -44,9 +56,7 @@ export namespace AutoMovieViewSection {
     );
   }
 
-  /**
-   * Prepare the source section and its derived diagonal/girth observations.
-   */
+  /** Prepare the source section and its derived diagonal/girth observations. */
   export function of(
     box: IAutoMovieViewSection.IBox,
     shoulders: IAutoMovieQuarters<number>,
@@ -65,7 +75,8 @@ export namespace AutoMovieViewSection {
   }
 
   /**
-   * Prepare only the source and its observation partition; leave measures at zero.
+   * Prepare only the source and its observation partition; leave measures at
+   * zero.
    */
   export function bare(
     box: IAutoMovieViewSection.IBox,
@@ -74,7 +85,10 @@ export namespace AutoMovieViewSection {
     return observations(AutoMovieViewSectionConic.prepare(box, shoulders));
   }
 
-  /** Public records retain every original observation, including failed-source numbers. */
+  /**
+   * Public records retain every original observation, including failed-source
+   * numbers.
+   */
   function observations(value: Measured): IAutoMovieViewSection.ISection {
     return {
       box: value.box,
@@ -88,7 +102,10 @@ export namespace AutoMovieViewSection {
     };
   }
 
-  /** Decorate only a selected public section, retaining its already measured girth. */
+  /**
+   * Decorate only a selected public section, retaining its already measured
+   * girth.
+   */
   function completed(value: Measured): IAutoMovieViewSection.ISection {
     const section: IAutoMovieViewSection.ISection = observations(value);
     const e: IAutoMovieQuarters<number> = value.box.extents;
@@ -102,9 +119,7 @@ export namespace AutoMovieViewSection {
     return section;
   }
 
-  /**
-   * The original rational conic guide at native parameter t.
-   */
+  /** The original rational conic guide at native parameter t. */
   export function conic(
     a: number,
     b: number,
@@ -115,9 +130,7 @@ export namespace AutoMovieViewSection {
     return AutoMovieConicArc.guide(a, b, r, t, start);
   }
 
-  /**
-   * Actual source radius and its two angular derivatives at any periodic angle.
-   */
+  /** Actual source radius and its two angular derivatives at any periodic angle. */
   export function radius(
     section: IAutoMovieViewSection.ISection,
     phi: number,
@@ -138,9 +151,7 @@ export namespace AutoMovieViewSection {
     return AutoMovieViewSectionConic.length(section, axisScale);
   }
 
-  /**
-   * Two actual native target-refinement observations of the same mapped source.
-   */
+  /** Two actual native target-refinement observations of the same mapped source. */
   export function measure(
     section: IAutoMovieViewSection.ISection,
     axisScale: readonly [number, number] = [1, 1],
@@ -154,18 +165,14 @@ export namespace AutoMovieViewSection {
     return { lengthMm: fine, differenceMm: Math.abs(fine - coarse) };
   }
 
-  /**
-   * The original source's finite, convexity and support diagnostic.
-   */
+  /** The original source's finite, convexity and support diagnostic. */
   export function fault(
     section: IAutoMovieViewSection.ISection,
   ): string | null {
     return AutoMovieViewSectionConic.fault(section);
   }
 
-  /**
-   * Finite admitted common-shoulder reach with original quarter departures.
-   */
+  /** Finite admitted common-shoulder reach with original quarter departures. */
   export function range(
     box: IAutoMovieViewSection.IBox,
     departures: IAutoMovieQuarters<number> = [0, 0, 0, 0],
@@ -174,7 +181,8 @@ export namespace AutoMovieViewSection {
   }
 
   /**
-   * Actual source section of a requested finite girth, or its explicit reach diagnostic.
+   * Actual source section of a requested finite girth, or its explicit reach
+   * diagnostic.
    */
   export function solve(
     producer: string,
@@ -279,7 +287,10 @@ export namespace AutoMovieViewSection {
   }
 }
 
-/** Accepted measured girth residual, in source length units (kernel millimetres). */
+/**
+ * Accepted measured girth residual, in source length units (kernel
+ * millimetres).
+ */
 const GIRTH_TOLERANCE: number = AutoMovieViewSectionRange.TOLERANCE;
 
 /** Bounded Illinois residual evaluations. */

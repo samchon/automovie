@@ -10,27 +10,24 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * Arm primitives: a hand surface carried to a target, kept on it and taken
  * back.
  *
- * A target is a frame evaluated at each second on the posture the action has
- * so far (a region of the performer's own trunk, a partner's hand, a prop, a
- * point of the world), so the same row fits every body and follows whatever
- * the target rides on. The hand is an effector goal solved by the arm's
- * inverse kinematics: the goal carries the surface as its contact, so where
- * the arm cannot turn the hand as asked the resolver re-aims the wrist until
- * the surface stays on its point and the rotation gives way
+ * A target is a frame evaluated at each second on the posture the action has so
+ * far (a region of the performer's own trunk, a partner's hand, a prop, a point
+ * of the world), so the same row fits every body and follows whatever the
+ * target rides on. The hand is an effector goal solved by the arm's inverse
+ * kinematics: the goal carries the surface as its contact, so where the arm
+ * cannot turn the hand as asked the resolver re-aims the wrist until the
+ * surface stays on its point and the rotation gives way
  * (`IAutoMovieHumanLimbGoal.contact`).
  *
- * Between its origin and its target the surface moves on a straight path,
- * or one that bows to the arm's own side when the movement states a
- * curvature, and the hand turns by spherical interpolation, both by one
- * weight, and the
- * fingers go from the relaxed cascade to the target's shape by the same
- * weight (Jeannerod 1984: the hand is shaped during its transport). The
- * origin is held in the performer's own floor frame, so it follows the body.
+ * Between its origin and its target the surface moves on a straight path, or
+ * one that bows to the arm's own side when the movement states a curvature, and
+ * the hand turns by spherical interpolation, both by one weight, and the
+ * fingers go from the relaxed cascade to the target's shape by the same weight
+ * (Jeannerod 1984: the hand is shaped during its transport). The origin is held
+ * in the performer's own floor frame, so it follows the body.
  */
 export namespace IAutoMovieMotionHumanArmTarget {
-  /**
-   * Where a hand surface goes and how the hand is held there, world frame.
-   */
+  /** Where a hand surface goes and how the hand is held there, world frame. */
   export interface ITarget {
     /** The surface brought to the point. */
     surface: IAutoMovieMotionHumanHand.Surface;
@@ -47,16 +44,23 @@ export namespace IAutoMovieMotionHumanArmTarget {
     /** The elbow's bend hint, world metres. */
     bend: IAutoMovieVector3;
 
-    /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
+    /**
+     * Extra flexion of every finger joint over the shape, degrees; 0 when
+     * absent.
+     */
     curl?: number;
 
-    /** The surface's offset from the wrist under the shape, hand-local metres, when the row's issuer read it once for every row of one body, side, surface and shape (`AutoMovieMotionHumanArmTarget.prepareTarget`); read from the hand when absent. A row that changes its surface or shape drops it. */
+    /**
+     * The surface's offset from the wrist under the shape, hand-local metres,
+     * when the row's issuer read it once for every row of one body, side,
+     * surface and shape (`AutoMovieMotionHumanArmTarget.prepareTarget`); read
+     * from the hand when absent. A row that changes its surface or shape drops
+     * it.
+     */
     offset?: IAutoMovieVector3;
   }
 
-  /**
-   * A target with the arm that takes it.
-   */
+  /** A target with the arm that takes it. */
   export interface ISided extends IAutoMovieMotionHumanArmTarget.ITarget {
     /** The arm. */
     side: AutoMovieHumanSide;
@@ -67,8 +71,12 @@ export namespace IAutoMovieMotionHumanArmTarget {
    *
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start.
-   * @param resolution Optional same-body FK metadata borrowed only during this target invocation.
-   * @param projection Optional genuine same-body ROM projector borrowed only during this invocation.
+   * @param resolution Optional same-body FK metadata borrowed only during this
+   *   target invocation.
+   * @param projection Optional genuine same-body ROM projector borrowed only
+   *   during this invocation.
+   * @param evaluation The explicit context of the evaluation the target is read
+   *   in, the arm primitive's own; never retained.
    * @returns The target.
    */
   export type Frame = (
@@ -76,6 +84,7 @@ export namespace IAutoMovieMotionHumanArmTarget {
     seconds: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    evaluation?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[4],
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
 
   /**
@@ -90,9 +99,7 @@ export namespace IAutoMovieMotionHumanArmTarget {
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
-   * One arm's movement.
-   */
+  /** One arm's movement. */
   export interface IMove {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -121,9 +128,9 @@ export namespace IAutoMovieMotionHumanArmTarget {
     weight(seconds: number): number;
 
     /**
-     * How far the path between the origin and the target bows out to the
-     * arm's own side at its middle, a share of the path's length; 0 when
-     * absent, a straight path.
+     * How far the path between the origin and the target bows out to the arm's
+     * own side at its middle, a share of the path's length; 0 when absent, a
+     * straight path.
      */
     curvature?: number;
   }

@@ -3,20 +3,16 @@ import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel"
 
 /**
  * Joint primitives: clinical angles written on the joints of a channel
- * directly, for the parts no effector goal places (the head's nod, the
- * shoulder girdle's shrug, the spine's slump).
+ * directly, for the parts no effector goal places (the head's nod, the shoulder
+ * girdle's shrug, the spine's slump).
  */
 export namespace IAutoMovieMotionHumanJoints {
-  /**
-   * Clinical `[flexion, abduction, twist]` degrees by bone.
-   */
+  /** Clinical `[flexion, abduction, twist]` degrees by bone. */
   export type Angles = Partial<
     Record<AutoMovieHumanoidBone, readonly [number, number, number]>
   >;
 
-  /**
-   * Angles added over a window.
-   */
+  /** Angles added over a window. */
   export interface IAdd {
     /** The channels whose joints are written. */
     channels: readonly AutoMovieMotionHumanChannel[];

@@ -5,16 +5,17 @@ import type {
 
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
- * Own sparse LDL-transpose factors of [diag(P), A'; A, -diag(H)]. H is zero
- * for equality rows and s/z for inequalities. Symbolic elimination and ordering
- * are reused within this solve; only diagonal values change between iterations.
+ * Own sparse LDL-transpose factors of [diag(P), A'; A, -diag(H)]. H is zero for
+ * equality rows and s/z for inequalities. Symbolic elimination and ordering are
+ * reused within this solve; only diagonal values change between iterations.
  * Davis's left-looking elimination-tree LDL algorithm computes actual fill.
  * Signed static/dynamic pivot stabilization affects factors only; every solve
- * refines against the original, unregularized KKT matrix.
- * Twofold product sums retain cancellation in elimination, substitution and
- * original-system residuals; rounded residuals cannot certify their own error.
+ * refines against the original, unregularized KKT matrix. Twofold product sums
+ * retain cancellation in elimination, substitution and original-system
+ * residuals; rounded residuals cannot certify their own error.
  *
  * The regularization/refinement constants retain Clarabel 0.11.1 defaults.
  * Finite refinement is not a convergence proof: the interior-point owner must
@@ -196,7 +197,8 @@ export function createAutoMovieQuadraticFactor(
         }
         let pivot: number = pivotSum[0]! + pivotSum[1]!;
         if (pivot * sign < 1e-13) pivot = sign * 2e-7;
-        if (!Number.isFinite(pivot) || pivot === 0) return false;
+        // Accumulated products of finite entries can overflow the pivot.
+        if (pivot === 0 || overflowsBinary64(pivot)) return false;
         pivots[column] = pivot;
       }
       valid = true;
@@ -212,8 +214,10 @@ export function createAutoMovieQuadraticFactor(
         normb = Math.max(normb, Math.abs(permuted[at]!));
       }
       substitute(solution, permuted);
+      // Substitution through finite factors can overflow binary64.
+      if (solution.some(overflowsBinary64)) return undefined;
       let norm: number = residual(permuted, solution);
-      if (!Number.isFinite(norm)) return undefined;
+      if (overflowsBinary64(norm)) return undefined;
       for (
         let pass: number = 0;
         pass < 10 && norm > 1e-12 + 1e-13 * normb;
@@ -222,8 +226,9 @@ export function createAutoMovieQuadraticFactor(
         substitute(correction, error);
         for (let at: number = 0; at < size; at++)
           trial[at] = solution[at]! + correction[at]!;
+        if (trial.some(overflowsBinary64)) return undefined;
         const next: number = residual(permuted, trial);
-        if (!Number.isFinite(next)) return undefined;
+        if (overflowsBinary64(next)) return undefined;
         if (next < norm) solution.set(trial);
         const ratio: number = norm / next;
         norm = next;
@@ -231,7 +236,6 @@ export function createAutoMovieQuadraticFactor(
       }
       const result: Float64Array = new Float64Array(size);
       for (let at: number = 0; at < size; at++) {
-        if (!Number.isFinite(solution[at])) return undefined;
         result[order[at]!] = solution[at]!;
       }
       return result;

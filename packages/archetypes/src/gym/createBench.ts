@@ -15,31 +15,24 @@ const IPF: string =
   "International Powerlifting Federation, Technical Rules, the bench: not less than 1.22 m long, 29 to 32 cm wide, 42 to 45 cm from the floor to the top of its pad";
 
 /**
- * A flat weight bench: a padded top on four legs, lain on for a press or
- * sat on.
+ * A flat weight bench: a padded top on four legs, lain on for a press or sat
+ * on.
  *
- * It stands on the floor with the middle of its footprint at the origin,
- * its length along `Z`. `surface` is the top, lain on along its length;
- * `seat` is the same top at its `+Z` end, sat on facing `+Z`; `edge` is the
- * middle of the top's `+X` long side, which the upper back leans on across
- * the bench (a hip thrust) with the body out along `+X`.
+ * It stands on the floor with the middle of its footprint at the origin, its
+ * length along `Z`. `surface` is the top, lain on along its length; `seat` is
+ * the same top at its `+Z` end, sat on facing `+Z`; `edge` is the middle of the
+ * top's `+X` long side, which the upper back leans on across the bench (a hip
+ * thrust) with the body out along `+X`.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bench.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which way it runs and the three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A pad of the rule's length, width and top height on four legs set in from its corners.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one box, four rods, three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pad's thickness and the legs' inset are estimates; no uprights or bar rests, which are the rack's.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five shapes.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBench(
   params: createBench.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBench.Affordance, createBench.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBench.Dimension> =
     new AutoMovieArchetypeDrawSession<createBench.Dimension>(
@@ -123,14 +116,7 @@ export function createBench(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createBench}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union and one cited band per dimension; what no rule fixes is a named estimate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top's size and height a lying or sitting body reads, and the three contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
- */
+/** Companion types and bands of {@link createBench}. */
 export namespace createBench {
   /** The kinds of bench. */
   export type Kind = "flat";
@@ -144,10 +130,16 @@ export namespace createBench {
   /** A leg's radius, metres. An estimate, not read at a source. */
   export const LEG: number = 0.025;
 
-  /** How far the legs stand in from the pad's ends, metres. An estimate, not read at a source. */
+  /**
+   * How far the legs stand in from the pad's ends, metres. An estimate, not
+   * read at a source.
+   */
   export const INSET: number = 0.15;
 
-  /** The depth of the top's end a sitter takes, metres. An estimate, not read at a source. */
+  /**
+   * The depth of the top's end a sitter takes, metres. An estimate, not read at
+   * a source.
+   */
   export const SEAT: number = 0.4;
 
   /**

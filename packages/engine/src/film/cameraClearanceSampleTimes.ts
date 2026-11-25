@@ -9,11 +9,27 @@ import {
 import { sampleTimes } from "../motion/sampleTimes";
 
 /**
- * Build the clearance sample clock of one shot: a function from a take's camera motion to the strictly increasing shot-local seconds at which that take must be inspected.
+ * Build the clearance sample clock of one shot: a function from a take's camera
+ * motion to the strictly increasing shot-local seconds at which that take must
+ * be inspected.
  *
- * The clock is the endpoint-inclusive fixed clock of `sampleRate` over `duration`, refined by every key time of every actor motion, object clip and the take's camera clip that falls strictly inside the shot, repeated per cycle for a looping sequence. Each interval stays within one key segment. Under admitted motion inputs, linear, step and named non-overshooting easing keep translation and scale within their endpoint ranges; quaternion rotation follows an arc instead of that chord and needs the evaluator's separate rotation bound. This clock refuses `cubicBezier` actor easing, `cubicspline` clip tracks and an open loop seam on a channel the bound reads. It does not certify the evaluator's normalized-lerp or changing-scale limits.
+ * The clock is the endpoint-inclusive fixed clock of `sampleRate` over
+ * `duration`, refined by every key time of every actor motion, object clip and
+ * the take's camera clip that falls strictly inside the shot, repeated per
+ * cycle for a looping sequence. Each interval stays within one key segment.
+ * Under admitted motion inputs, linear, step and named non-overshooting easing
+ * keep translation and scale within their endpoint ranges; quaternion rotation
+ * follows an arc instead of that chord and needs the evaluator's separate
+ * rotation bound. This clock refuses `cubicBezier` actor easing, `cubicspline`
+ * clip tracks and an open loop seam on a channel the bound reads. It does not
+ * certify the evaluator's normalized-lerp or changing-scale limits.
  *
- * The actor/object part is computed once and each take adds its camera boundaries. Unboundable motion/clip interpolation or seams throw Error at the corresponding call; a loop cycle count must also be a non-negative safe integer so incrementing its enumeration index can progress. This representability gate is not a workload budget, and representable populations can still exhaust host resources.
+ * The actor/object part is computed once and each take adds its camera
+ * boundaries. Unboundable motion/clip interpolation or seams throw Error at the
+ * corresponding call; a loop cycle count must also be a non-negative safe
+ * integer so incrementing its enumeration index can progress. This
+ * representability gate is not a workload budget, and representable populations
+ * can still exhaust host resources.
  */
 export function cameraClearanceSampleTimes(
   props: IAutoMovieCameraClearanceSampleTimes.IProps,
@@ -35,6 +51,11 @@ export function cameraClearanceSampleTimes(
   }
   for (const clip of props.objectMotions)
     assertClipBoundable(clip, false, "its node translation and scale channels");
+  if (!(props.sampleRate > 0 && props.sampleRate < Infinity))
+    throw new Error("$input.sampleRate must be finite and greater than zero");
+  if (!(props.duration >= 0 && props.duration < Infinity))
+    throw new Error("$input.duration must be finite and non-negative");
+
   const shared: Set<number> = new Set(
     sampleTimes(props.duration, props.sampleRate),
   );
@@ -61,9 +82,7 @@ export function cameraClearanceSampleTimes(
   };
 }
 
-/**
- * One motion sequence whose key boundaries refine the fixed clock.
- */
+/** One motion sequence whose key boundaries refine the fixed clock. */
 interface ISequence {
   /** Sequence length in seconds; one loop cycle when it loops. */
   duration: number;
@@ -113,22 +132,21 @@ function addSequenceBoundaries(
   shotDuration: number,
   sequence: ISequence,
 ): void {
-  if (!(Number.isFinite(sequence.duration) && sequence.duration > 0))
+  if (!(sequence.duration > 0))
     throw new Error(
       "camera clearance cannot sample a motion sequence without a finite positive duration",
     );
   const cycles: number = sequence.loop
     ? Math.ceil(shotDuration / sequence.duration)
     : 1;
-  if (!Number.isSafeInteger(cycles) || cycles < 0)
+  if (cycles < 0)
     throw new Error(
       "camera clearance cannot enumerate a motion sequence whose cycle count is not a non-negative safe integer",
     );
   for (let cycle: number = 0; cycle < cycles; cycle++)
     for (const time of sequence.times) {
       const absolute: number = cycle * sequence.duration + time;
-      if (Number.isFinite(absolute) && absolute > 0 && absolute < shotDuration)
-        result.add(absolute);
+      if (absolute > 0 && absolute < shotDuration) result.add(absolute);
     }
 }
 
@@ -182,7 +200,7 @@ function clipLoopIsClosed(
     )
       return true;
     const width: number = track.values.length / track.times.length;
-    if (!(Number.isSafeInteger(width) && width > 0)) return false;
+    if (!(width > 0)) return false;
     const first: number[] = track.values.slice(0, width);
     const last: number[] = track.values.slice(track.values.length - width);
     if (track.channel.path !== "rotation") return sameComponents(first, last);

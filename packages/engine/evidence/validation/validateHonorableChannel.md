@@ -6,7 +6,7 @@ Require node channels with translation/rotation/scale/weights paths, matching tr
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-NODE_CHANNEL_PATHS owns the accepted node property menu; light pointer tracks use a separate shot field gate.
+The node channel kind is the accepted transform target; light pointer tracks use a separate shot field gate.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -22,7 +22,7 @@ Fixed kind/set checks take expected constant work apart from diagnostic serializ
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The shared node path vocabulary aligns sampling and application without caching graph existence.
+The declared node path union aligns sampling and application without caching graph existence.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

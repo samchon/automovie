@@ -1,10 +1,6 @@
-/**
- * Data and callback contracts shared by the ConicHermite operations.
- */
+/** Data and callback contracts shared by the ConicHermite operations. */
 export namespace IAutoMovieConicHermite {
-  /**
-   * One short rational cubic in deficit/height coordinates.
-   */
+  /** One short rational cubic in deficit/height coordinates. */
   export interface IPatch<T = number> {
     /** First support extent, in the source length unit. */
     extent: T;
@@ -27,7 +23,10 @@ export namespace IAutoMovieConicHermite {
     /** Four controls [x deficit / deficit, y / height]. */
     points: readonly (readonly [T, T])[];
 
-    /** Four positive rational weights; create normalizes the outer weights to one. */
+    /**
+     * Four positive rational weights; create normalizes the outer weights to
+     * one.
+     */
     weights: readonly T[];
   }
 }

@@ -1,21 +1,3 @@
-# src/math/Vector3.ts#Vector3
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the record shape, fresh-value and explicit write-target ownership, and why the engine keeps its own math instead of `three.js`.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Three scalar components describe a vector or point in the caller's frame and unit; addition, subtraction, products, norm, distance and interpolation preserve those ordinary Euclidean meanings without another coordinate representation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Shared vector operations serve geometry, FK and physical computation. distance serves actual residuals/lengths without an unused displacement; addScaled serves actual ray-march points without an unused scaled offset; crossDifferenceInto writes raw hull candidate perpendiculars into private scratch without two edges and a cross record.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/math/Vector3.ts#Vector3.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

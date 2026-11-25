@@ -3,8 +3,8 @@
  * coordinates, the form the perspective frustum tests and the projection read.
  *
  * {@link deliveryCropNdc} produces it from an `IAutoMovieDeliveryCrop`. NDC runs
- * from −1 at the left and bottom gate edges to +1 at the right and top ones,
- * so the top-left pixel-edge origin of the crop flips vertically here.
+ * from −1 at the left and bottom gate edges to +1 at the right and top ones, so
+ * the top-left pixel-edge origin of the crop flips vertically here.
  */
 export interface IAutoMovieDeliveryCropNdc {
   /** Left crop edge in NDC, from −1 at the uncropped gate's left edge. */

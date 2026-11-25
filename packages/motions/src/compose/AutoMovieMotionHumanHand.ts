@@ -14,10 +14,10 @@ import { HumanHand } from "../posture/HumanHand";
  * on the hand's own channel, whatever its arm does (a fist clenched at the
  * side, a point held while the arm swings, fingers spread in surprise).
  *
- * A hand at weight 0 is the hand as the posture it is shaped over holds it
- * (the relaxed cascade where that posture holds no finger), and at weight 1
- * the asked shape; between, every segment's flexion is the weighted mean of
- * the two.
+ * A hand at weight 0 is the hand as the posture it is shaped over holds it (the
+ * relaxed cascade where that posture holds no finger), and at weight 1 the
+ * asked shape; between, every segment's flexion is the weighted mean of the
+ * two.
  */
 export namespace AutoMovieMotionHumanHand {
   /**
@@ -35,11 +35,23 @@ export namespace AutoMovieMotionHumanHand {
     curl: number,
     weight: number,
   ): IAutoMovieMotionHumanPosture["joints"] {
-    const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, shape);
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      shape,
+    );
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
     const out: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(asked) as AutoMovieHumanoidBone[])
-      out[bone] = interpolated(asked[bone]![0], relaxed[bone]![0], !bone.includes("Thumb"), curl, weight);
+      out[bone] = interpolated(
+        asked[bone]![0],
+        relaxed[bone]![0],
+        !bone.includes("Thumb"),
+        curl,
+        weight,
+      );
     return out;
   }
 
@@ -48,14 +60,18 @@ export namespace AutoMovieMotionHumanHand {
    *
    * @param side The hand whose named fifteen-joint shapes are read.
    * @param shape The unchanged working shape at weight one.
-   * @returns Fresh clinical finger triples for each actual curl in degrees and weight in [0,1]; weight admission remains with the caller.
+   * @returns Fresh clinical finger triples for each actual curl in degrees and
+   *   weight in [0,1]; weight admission remains with the caller.
    */
   export function prepareFingers(
     side: AutoMovieHumanSide,
     shape: IAutoMovieMotionHumanHand.Shape,
   ): (curl: number, weight: number) => IAutoMovieMotionHumanPosture["joints"] {
     const fixed: readonly IFinger[] = entries(side, shape);
-    return (curl: number, weight: number): IAutoMovieMotionHumanPosture["joints"] => shaped(fixed, curl, weight);
+    return (
+      curl: number,
+      weight: number,
+    ): IAutoMovieMotionHumanPosture["joints"] => shaped(fixed, curl, weight);
   }
 
   /**
@@ -63,38 +79,57 @@ export namespace AutoMovieMotionHumanHand {
    *
    * @param side The fixed moving hand.
    * @param shape The fixed named working shape.
-   * @returns A writer of fifteen fresh triples into its caller-owned joint record at the actual curl degrees and weight; unrelated keys remain untouched and weight admission stays with the caller.
+   * @returns A writer of fifteen fresh triples into its caller-owned joint
+   *   record at the actual curl degrees and weight; unrelated keys remain
+   *   untouched and weight admission stays with the caller.
    */
-  export function prepareFingerWriter(side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape):
-    (joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number) => void {
+  export function prepareFingerWriter(
+    side: AutoMovieHumanSide,
+    shape: IAutoMovieMotionHumanHand.Shape,
+  ): (
+    joints: IAutoMovieMotionHumanPosture["joints"],
+    curl: number,
+    weight: number,
+  ) => void {
     const fixed: readonly IFinger[] = entries(side, shape);
-    return (joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number): void => {
+    return (
+      joints: IAutoMovieMotionHumanPosture["joints"],
+      curl: number,
+      weight: number,
+    ): void => {
       written(fixed, joints, curl, weight);
     };
   }
-
   /**
    * A hand shaped by a weight.
    *
    * @param props The hand, the shape, the window and the weight.
    * @returns The primitive, on the hand's channel.
    */
-  export function shape(props: IAutoMovieMotionHumanHand.IShape): IAutoMovieMotionHumanPrimitive {
-    // Compiled at the first write, so a shape the hand owner refuses is
-    // refused there, and again when the props name another shape: the props
-    // are read on every write, as the weight is.
-    let fixed: { shape: IAutoMovieMotionHumanHand.Shape; write: ReturnType<typeof prepareFingerWriter> } | undefined;
+  export function shape(
+    props: IAutoMovieMotionHumanHand.IShape,
+  ): IAutoMovieMotionHumanPrimitive {
+    // Compiled here, so a shape the hand owner refuses is refused when the
+    // primitive is made.
+    const write: ReturnType<typeof prepareFingerWriter> = prepareFingerWriter(
+      props.side,
+      props.shape,
+    );
     return {
       channels: [`${props.side}Hand`],
       reads: [`${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
-        const out: IAutoMovieMotionHumanPosture = { ...posture, joints: { ...posture.joints } };
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const out: IAutoMovieMotionHumanPosture = {
+          ...posture,
+          joints: { ...posture.joints },
+        };
         const weight: number = Math.min(1, Math.max(0, props.weight(seconds)));
-        if (fixed === undefined || fixed.shape !== props.shape)
-          fixed = { shape: props.shape, write: prepareFingerWriter(props.side, props.shape) };
-        fixed.write(out.joints, props.curl ?? 0, weight);
+        write(out.joints, props.curl ?? 0, weight);
         return out;
       },
     };
@@ -110,7 +145,8 @@ export namespace AutoMovieMotionHumanHand {
    * @param rise The instants the shape starts forming and is formed at.
    * @param fall The instants the shape starts releasing and is released at.
    * @param asked The shape.
-   * @param curl Extra flexion of the fingers over the shape, degrees; 0 by default.
+   * @param curl Extra flexion of the fingers over the shape, degrees; 0 by
+   *   default.
    * @returns The primitive.
    */
   export function form(
@@ -141,18 +177,37 @@ interface IFinger {
 }
 
 /** Compile only unchanged named-shape scalars; every output remains independent. */
-function entries(side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape): readonly IFinger[] {
-  const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, shape);
-  const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+function entries(
+  side: AutoMovieHumanSide,
+  shape: IAutoMovieMotionHumanHand.Shape,
+): readonly IFinger[] {
+  const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+    side,
+    shape,
+  );
+  const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+    side,
+    "relaxed",
+  );
   return (Object.keys(asked) as AutoMovieHumanoidBone[]).map(
     (bone: AutoMovieHumanoidBone): IFinger => ({
-      bone, asked: asked[bone]![0], relaxed: relaxed[bone]![0], curls: !bone.includes("Thumb"),
+      bone,
+      asked: asked[bone]![0],
+      relaxed: relaxed[bone]![0],
+      curls: !bone.includes("Thumb"),
     }),
   );
 }
 
-/** The original curl-then-subtract interpolation shared by cold and prepared reads. */
-function shaped(fixed: readonly IFinger[], curl: number, weight: number): IAutoMovieMotionHumanPosture["joints"] {
+/**
+ * The original curl-then-subtract interpolation shared by cold and prepared
+ * reads.
+ */
+function shaped(
+  fixed: readonly IFinger[],
+  curl: number,
+  weight: number,
+): IAutoMovieMotionHumanPosture["joints"] {
   const out: IAutoMovieMotionHumanPosture["joints"] = {};
   written(fixed, out, curl, weight);
   return out;
@@ -160,16 +215,27 @@ function shaped(fixed: readonly IFinger[], curl: number, weight: number): IAutoM
 
 /**
  * Populate one owned output record with fresh triples: each segment from the
- * flexion the record already holds for it, the posture the hand is shaped
- * over (a palm the entry laid flat on a thigh, a grip an earlier action
- * closed), to the asked shape; from the relaxed cascade where the record
- * holds none. A hand shaped from a fixed cascade instead dropped the fingers
- * a seated body had laid flat on its thigh into the thigh at the action's
- * first and last instants.
+ * flexion the record already holds for it, the posture the hand is shaped over
+ * (a palm the entry laid flat on a thigh, a grip an earlier action closed), to
+ * the asked shape; from the relaxed cascade where the record holds none. A hand
+ * shaped from a fixed cascade instead dropped the fingers a seated body had
+ * laid flat on its thigh into the thigh at the action's first and last
+ * instants.
  */
-function written(fixed: readonly IFinger[], joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number): void {
+function written(
+  fixed: readonly IFinger[],
+  joints: IAutoMovieMotionHumanPosture["joints"],
+  curl: number,
+  weight: number,
+): void {
   for (const entry of fixed)
-    joints[entry.bone] = interpolated(entry.asked, joints[entry.bone]?.[0] ?? entry.relaxed, entry.curls, curl, weight);
+    joints[entry.bone] = interpolated(
+      entry.asked,
+      joints[entry.bone]?.[0] ?? entry.relaxed,
+      entry.curls,
+      curl,
+      weight,
+    );
 }
 
 /** Preserve the original curl addition, subtraction and multiplication grouping. */

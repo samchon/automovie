@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanBody,
+  IAutoMovieBodyMeasure,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -9,20 +9,15 @@ import { HumanRefusal } from "../law/HumanRefusal";
 /**
  * Where the kneeling hip joint comes to rest over the knee: behind the front
  * ankle by what the thigh's length leaves after the height difference, the
- * reverse lunge, or straight over a named floor point the knee comes down
- * on, the kneeling leg stepping there while the front foot stays planted.
+ * reverse lunge, or straight over a named floor point the knee comes down on,
+ * the kneeling leg stepping there while the front foot stays planted.
  *
  * @param input The hip, the front foot and the optional knee point.
  * @returns The kneeling hip joint, world metres.
- * @throws {HumanRefusal} When the front foot would be out of the front leg's reach from a hip over the named point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both placements, the frame and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The reverse lunge keeps the front shank upright; a named knee point puts the thigh upright over it and needs only the front leg's reach.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The reverse lunge, else the named point and its one reach check.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A front foot out of reach refuses with its distance instead of overstretching the leg.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs, read once per kneel.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {HumanRefusal} When the hip over the named point would stand less
+ *   than the reverse lunge's distance behind the front ankle, folding the front
+ *   knee ahead of its foot, or the front foot would be out of the front leg's
+ *   reach.
  */
 export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   const {
@@ -48,6 +43,16 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
     };
   const placed: IAutoMovieVector3 = { x: at.x, y: height, z: at.z };
   const leg: number = body.measure.thigh + body.measure.shank;
+  const along: number = Vector3.dot(Vector3.subtract(front, placed), forward);
+  if (along < behind)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "at",
+      value: along,
+      feasible: { kind: "range", minimum: behind, maximum: leg, unit: "m" },
+      reason: `kneeling there leaves the hip ${along.toFixed(3)} m behind the front ankle, short of the reverse lunge's ${behind.toFixed(3)} m, so the front knee folds ahead of its foot by up to a thigh into whatever stands in front`,
+      fix: "name a knee point at least the reverse lunge's distance behind the other foot, or leave at out",
+    });
   const reach: number = Vector3.distance(Vector3.add(placed, across), front);
   if (reach > leg)
     throw new HumanRefusal({
@@ -61,19 +66,12 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   return placed;
 }
 
-/**
- * Inputs of {@link kneelPlace}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit.
- * @evidence contracts/development/design.md#principled-representation World points and directions in metres, read from the standing keys.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs the two placements read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's or the key solver's.
- */
+/** Inputs of {@link kneelPlace}. */
 export namespace kneelPlace {
   /** What the placement reads. */
   export interface IInput {
     /** The performer. */
-    body: IAutoMovieMotionHumanBody;
+    body: { measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> };
 
     /** The kneeling leg's standing hip joint, world metres. */
     hip: IAutoMovieVector3;
@@ -93,7 +91,10 @@ export namespace kneelPlace {
     /** The front hip joint less the kneeling one, world metres. */
     across: IAutoMovieVector3;
 
-    /** The floor point the knee comes down on, world metres; the reverse lunge's when absent. */
+    /**
+     * The floor point the knee comes down on, world metres; the reverse lunge's
+     * when absent.
+     */
     at?: IAutoMovieVector3;
   }
 }

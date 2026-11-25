@@ -1,8 +1,6 @@
 import type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
 
-/**
- * Represent a shared clip shape rule failure for sampler and artifact readers.
- */
+/** Represent a shared clip shape rule failure for sampler and artifact readers. */
 export interface IAutoMovieClipShapeFault {
   /** Violation kind the artifact gate reports this fault as. */
   kind: IAutoMovieConstraintViolation["kind"];
@@ -22,8 +20,8 @@ export interface IAutoMovieClipShapeFault {
   message: string;
 
   /**
-   * Offending diagnostic data. Dense shape faults use a length or stride,
-   * while other faults can retain an authored value or empty array.
+   * Offending diagnostic data. Dense shape faults use a length or stride, while
+   * other faults can retain an authored value or empty array.
    */
   value: unknown;
 }

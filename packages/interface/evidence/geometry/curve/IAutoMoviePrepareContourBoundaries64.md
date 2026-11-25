@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMoviePrepareContourBoundaries64.ts#IAutoMoviePrepareContourBoundaries64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Section indices address adjacent cuts while group object identity associates qualification with the same mutable incidence record.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Input plans and output qualification share only the meaningful group type parameter; no unused ring parameter widens this surface.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Unsupported groups and arithmetic failures remain local reasons; finite retained geometry is not promoted to certified source fidelity.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines index semantics, shared mutation, refinement ordering, diagnostic history and optional timing.
-
 # src/geometry/curve/IAutoMoviePrepareContourBoundaries64.ts#IAutoMoviePrepareContourBoundaries64.IPlans
 
 ## @evidence contracts/development/common.md#meaningful-documentation

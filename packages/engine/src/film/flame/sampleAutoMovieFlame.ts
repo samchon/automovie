@@ -76,8 +76,6 @@ export function sampleAutoMovieFlame(
   cue: Pick<IAutoMovieFlameCue, "id" | "seed" | "size">,
   seconds: number,
 ): { mesh: IAutoMovieMesh; area: number } {
-  if (!Number.isFinite(seconds))
-    throw new RangeError(`Flame "${cue.id}" cannot be sampled at ${seconds} s`);
   const noise: (x: number, y: number, z: number) => number =
     createAutoMovieGradientNoise3(
       deriveAutoMovieSeed(String(cue.seed), "flame"),

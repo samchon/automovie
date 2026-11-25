@@ -4,9 +4,9 @@ import type {
   IAutoMovieComposition,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,21 +19,50 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
+/** The alternatives of `BandUnit`'s site. */
+type BandUnit = "mm" | "deg" | "s";
+
+/** The record of `IStabilityWorst`'s site. */
+type IStabilityWorst = { value: number; at: number };
+
+/** The record of `IStabilityResult`'s site. */
+type IStabilityResult = { value: number; at: number };
+
+/** The alternatives of `AngleAxis`'s site. */
+type AngleAxis = 0 | 1 | 2;
+
+/** The record of `IPerformPerformersItem`'s site. */
+type IPerformPerformersItem = {
+  subject: string;
+  body: IAutoMovieMotionHumanBody;
+  at?: IAutoMovieVector3;
+  yaw?: number;
+};
+
 /**
- * The shared steps of the step 2 to 5 family capture cases: a polygon man
- * of the population, one performance of a chain from quiet standing at the
- * origin heading +Z, the drawn figure, the film second of a named event, the
- * drawn instants, and the measures their verdicts read off the displayed
- * bones (a joint's clinical angle, the lowest collider of some bones, the
- * worst margin of stability over a span, a band check).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each helper builds or measures and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Every measure reads displayed poses or bones of the real performance, never a law's goals.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Small helpers over `HumanPerformance` and `everydayVerdicts`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing event throws instead of reading as zero.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the frames sampled.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * The shared steps of the step 2 to 5 family capture cases: a polygon man of
+ * the population, one performance of a chain from quiet standing at the origin
+ * heading +Z, the drawn figure, the film second of a named event, the drawn
+ * instants, and the measures their verdicts read off the displayed bones (a
+ * joint's clinical angle, the lowest collider of some bones, the worst margin
+ * of stability over a span, a band check).
  */
 export namespace FamilyCaseKit {
   /** A population body prepared for a case. */
@@ -68,19 +97,14 @@ export namespace FamilyCaseKit {
    *
    * @param seed The chain seed.
    * @param performers Each subject's body, floor point and heading.
-   * @param composition What they do.
+   * @param composition What they do: a composition, or a chain's node.
    * @param props The props, none when absent.
    * @returns The performance.
    */
   export function perform(
     seed: string,
-    performers: readonly {
-      subject: string;
-      body: IAutoMovieMotionHumanBody;
-      at?: IAutoMovieVector3;
-      yaw?: number;
-    }[],
-    composition: IAutoMovieComposition | IAutoMovieMotionHumanChain,
+    performers: readonly IPerformPerformersItem[],
+    composition: IAutoMovieComposition,
     props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IAutoMovieMotionHumanPerformance {
     return new HumanPerformance({
@@ -93,7 +117,7 @@ export namespace FamilyCaseKit {
         proficiency: { level: "trained" as const },
       })),
       props: [...props],
-      composition: "node" in composition ? composition.node : composition,
+      composition,
     });
   }
 
@@ -106,8 +130,8 @@ export namespace FamilyCaseKit {
    * @returns The figure.
    */
   export function figure(
-    performance: IAutoMovieMotionHumanPerformance,
-    man: humanPolygonMan.IPolygonMan,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
+    man: Pick<humanPolygonMan.IPolygonMan, "body">,
     id: string = "a",
   ): IMotionCaptureCase.IPerformer {
     return {
@@ -127,7 +151,7 @@ export namespace FamilyCaseKit {
    * @throws {Error} When no action of the subject has the event.
    */
   export function event(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: IEventPerformance,
     name: string,
     subject: string = "a",
   ): number {
@@ -148,7 +172,7 @@ export namespace FamilyCaseKit {
    * @returns The instants.
    */
   export function times(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "duration">,
     step: number,
     named: [number, string][],
   ): IMotionCaptureCase.ITime[] {
@@ -176,11 +200,11 @@ export namespace FamilyCaseKit {
    * @returns Degrees; 0 for a joint the pose leaves neutral.
    */
   export function angle(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
     seconds: number,
     bone: string,
-    axis: 0 | 1 | 2 = 0,
+    axis: AngleAxis = 0,
   ): number {
     const joint: IAutoMovieJointPose | undefined = performance
       .pose(subject, seconds)
@@ -220,8 +244,31 @@ export namespace FamilyCaseKit {
   }
 
   /**
-   * The lowest point of the colliders of the bones a test selects, at a
-   * film second.
+   * A performance, or when its laws refuse it, its refused case pushed in its
+   * place so the remaining cases still run.
+   *
+   * @param out The cases so far; a refusal is appended.
+   * @param name The case's name.
+   * @param run Builds the performance.
+   * @returns The performance, or null when it was refused.
+   */
+  export function attempt<Performance>(
+    out: IMotionCaptureCase[],
+    name: string,
+    run: () => Performance,
+  ): Performance | null {
+    // Process boundary: a case that throws is reported as that case's
+    // refusal, and the remaining cases still run.
+    try {
+      return run();
+    } catch (error) {
+      out.push(refused(name, error));
+      return null;
+    }
+  }
+  /**
+   * The lowest point of the colliders of the bones a test selects, at a film
+   * second.
    *
    * @param performance The performance.
    * @param body The body.
@@ -259,8 +306,8 @@ export namespace FamilyCaseKit {
     body: IAutoMovieMotionHumanBody,
     from: number,
     to: number,
-  ): { value: number; at: number } {
-    let worst: { value: number; at: number } = { value: Infinity, at: from };
+  ): IStabilityResult {
+    let worst: IStabilityWorst = { value: Infinity, at: from };
     for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
       const at: number = Math.min(
         performance.duration - 1 / 120,
@@ -292,7 +339,7 @@ export namespace FamilyCaseKit {
     value: number,
     lo: number,
     hi: number,
-    unit: "mm" | "deg" | "s",
+    unit: BandUnit,
   ): IMotionCaptureCase.IVerdict {
     const show = (v: number): string =>
       unit === "mm"
@@ -308,22 +355,22 @@ export namespace FamilyCaseKit {
   }
 
   /**
-   * The greatest distance of a bone's joint from a point over a span, on the
-   * 24 Hz grid.
+   * The greatest distance of a bone's joint from a point over a span, on the 24
+   * Hz grid.
    *
    * @param performance The performance.
    * @param subject The subject.
    * @param bone The bone.
-   * @param point The world point, or a function of film seconds.
+   * @param point The world point at a film second.
    * @param from Film seconds.
    * @param to Film seconds.
    * @returns Metres.
    */
   export function drift(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "bones">,
     subject: string,
     bone: AutoMovieHumanoidBone,
-    point: IAutoMovieVector3 | ((seconds: number) => IAutoMovieVector3),
+    point: (seconds: number) => IAutoMovieVector3,
     from: number,
     to: number,
   ): number {
@@ -332,8 +379,7 @@ export namespace FamilyCaseKit {
       const at: IAutoMovieVector3 = performance
         .bones(subject, t)
         .get(bone)!.worldPosition;
-      const goal: IAutoMovieVector3 =
-        typeof point === "function" ? point(t) : point;
+      const goal: IAutoMovieVector3 = point(t);
       worst = Math.max(worst, Vector3.length(Vector3.subtract(at, goal)));
     }
     return worst;

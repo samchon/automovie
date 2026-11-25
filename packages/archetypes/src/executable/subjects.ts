@@ -1,6 +1,7 @@
 import type { IAutoMovieMark, IAutoMovieTransform } from "@automovie/interface";
 import {
   type AutoMovieDrawSubjects,
+  AutoMovieThreeKind,
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
   type IAutoMovieModelObject,
@@ -12,10 +13,16 @@ import { AutoMovieArchetypeMarks } from "../core";
 import { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeQuadrupedMarks } from "./archetypeQuadrupedMarks";
 
-/** Width and height of every picture drawn, pixels: square, because an archetype is read from all sides. */
+/**
+ * Width and height of every picture drawn, pixels: square, because an archetype
+ * is read from all sides.
+ */
 const RASTER: number = 960;
 
-/** Side in metres of one cell of the floor grid, a scale to judge heights against. */
+/**
+ * Side in metres of one cell of the floor grid, a scale to judge heights
+ * against.
+ */
 const GRID_CELL: number = 0.25;
 
 /** Gap in metres between neighbouring members along X and along Z. */
@@ -25,17 +32,30 @@ const GAP: number = 0.4;
 const FPS: number = 30;
 
 /**
- * The archetypes as the subjects a draw-only page offers, for `automovie capture --module src/executable/subjects.ts` and the inspector: every subject of `archetypeCaptureCatalog`, by its name.
+ * The archetypes as the subjects a draw-only page offers, for `automovie
+ * capture --module src/executable/subjects.ts` and the inspector: every subject
+ * of `archetypeCaptureCatalog`, by its name.
  *
- * Each subject holds one or several archetypes, each built by `render`'s `buildModel` with its parts named by their ids under an object named after the member inside the group `set`, several set along a diagonal so that a front and a side view each show every member apart, on a light background under an ambient light and one key light, over a floor grid named `ground` with lines every 0.25 m. Its affordances are marks of the kinds `affordance/<kind>` from `AutoMovieArchetypeMarks`, so `--marks affordance/*` draws every contact frame and extent over the model. A still archetype lasts one frame; a ridden one lasts its ride, and seeking rebuilds the model at that second under its root's placement. The delivery camera stands three-quarters to the front; the instrument's named views, fitted to what is drawn, are how it is read. The props are not read.
+ * Each subject holds one or several archetypes, each built by `render`'s
+ * `buildModel` with its parts named by their ids under an object named after
+ * the member inside the group `set`, several set along a diagonal so that a
+ * front and a side view each show every member apart, on a light background
+ * under an ambient light and one key light, over a floor grid named `ground`
+ * with lines every 0.25 m. Its affordances are marks of the kinds
+ * `affordance/<kind>` from `AutoMovieArchetypeMarks`, so `--marks affordance/*`
+ * draws every contact frame and extent over the model. A still archetype lasts
+ * one frame; a ridden one lasts its ride, and seeking rebuilds the model at
+ * that second under its root's placement. The delivery camera stands
+ * three-quarters to the front; the instrument's named views, fitted to what is
+ * drawn, are how it is read. The props are not read.
  *
- * Quadrupeds with a neutral reference also expose native `rig/*` marks:
- * bar axes and joints, independently carried parent attachments, lowest
- * primitive-height rulers and sole supports. Rest consumers additionally
- * supply their same-sample terminal goals and goal-error segments.
- * `surface=false` draws these marks alone; `xray=true` explicitly shows them
- * through surfaces. These are model-space observations anchored to the same
- * current member object that drawing uses, including its ride/layout transform.
+ * Quadrupeds with a neutral reference also expose native `rig/*` marks: bar
+ * axes and joints, independently carried parent attachments, lowest
+ * primitive-height rulers and sole supports. Rest consumers additionally supply
+ * their same-sample terminal goals and goal-error segments. `surface=false`
+ * draws these marks alone; `xray=true` explicitly shows them through surfaces.
+ * These are model-space observations anchored to the same current member object
+ * that drawing uses, including its ride/layout transform.
  *
  * ```powershell
  * pnpm capture --subject seats --views "three-quarter@focus=set/seat-office;right@ortho@focus=set/seat-office" --marks "affordance/*"
@@ -232,7 +252,7 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
     dispose: (): void => {
       for (const built of current) release(built);
       grid.geometry.dispose();
-      (grid.material as THREE.Material).dispose();
+      for (const material of [grid.material].flat()) material.dispose();
     },
   };
 }
@@ -241,8 +261,9 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
 function release(built: IAutoMovieModelObject): void {
   built.object.removeFromParent();
   built.object.traverse((object: THREE.Object3D): void => {
-    if (!(object instanceof THREE.Mesh)) return;
-    (object.geometry as THREE.BufferGeometry).dispose();
-    (object.material as THREE.Material).dispose();
+    // three's literal class flag tells a mesh, whose resources are its own.
+    if (!AutoMovieThreeKind.isMesh(object)) return;
+    object.geometry.dispose();
+    for (const material of [object.material].flat()) material.dispose();
   });
 }

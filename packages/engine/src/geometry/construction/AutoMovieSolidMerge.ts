@@ -10,17 +10,21 @@ import { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
  * into the trunk past the axilla, a leg into the pelvis, a finger into the
  * palm, the neck into the head); the host is built as if the part did not
  * exist. The merge finds their intersection curve
- * (`AutoMovieSolidIntersection`), trims the part back to a rail on its
- * outside part and the host back to a rail outside the part
- * (`AutoMovieSolidRail`), and spans the two rails by the quintic blend
- * that copies both surfaces' 2-jets (`AutoMovieSolidBlend`), so the
- * merged skin is G2 across both rails. What the two solids leave is the
- * union: a branch (one loop becoming two) and an overhang need no special
- * case, because neither surface is a graph over the other.
+ * (`AutoMovieSolidIntersection`), trims the part back to a rail on its outside
+ * part and the host back to a rail outside the part (`AutoMovieSolidRail`), and
+ * spans the two rails by the quintic blend that copies both surfaces' 2-jets
+ * (`AutoMovieSolidBlend`), so the merged skin is G2 across both rails. What the
+ * two solids leave is the union: a branch (one loop becoming two) and an
+ * overhang need no special case, because neither surface is a graph over the
+ * other.
  *
- * Width laws belong to the authoring construction and are read in the curve's declared parameter. This wrapper supplies no consumer-specific relief or local assembly alternative.
+ * Width laws belong to the authoring construction and are read in the curve's
+ * declared parameter. This wrapper supplies no consumer-specific relief or
+ * local assembly alternative.
  *
- * Nearby joins require compatible kept regions and rails. The shared join/body operators report premises they cannot keep; this wrapper does not resolve overlapping blends by a separate patch.
+ * Nearby joins require compatible kept regions and rails. The shared join/body
+ * operators report premises they cannot keep; this wrapper does not resolve
+ * overlapping blends by a separate patch.
  */
 export namespace AutoMovieSolidMerge {
   /**
@@ -28,7 +32,8 @@ export namespace AutoMovieSolidMerge {
    *
    * @param input The part (periodic phase), the host, the seed from the
    *   contact's landmarks, the trace's limits and the width laws.
-   * @returns The shared result with an outside-kept part, or a null join and diagnostics for its detected contact/rail/blend failure.
+   * @returns The shared result with an outside-kept part, or a null join and
+   *   diagnostics for its detected contact/rail/blend failure.
    */
   export function create(
     input: IAutoMovieSolidJoin.IInput,

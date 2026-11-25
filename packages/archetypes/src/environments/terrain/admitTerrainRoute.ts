@@ -23,10 +23,12 @@ type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
 /**
  * Check a named route against the accepted support surface.
  *
- * @param path Resolved world-metre waypoints, fixed heights and optional slope limit.
+ * @param path Resolved world-metre waypoints, fixed heights and optional slope
+ *   limit.
  * @param footprint Closed rectangular parcel with its excluded hole rings.
  * @param rule World height authority retained for staging and rendering.
- * @throws If the prescribed width misses support, a waypoint misses its fixed height or the slope is infeasible.
+ * @throws If the prescribed width misses support, a waypoint misses its fixed
+ *   height or the slope is infeasible.
  */
 export function admitTerrainRoute(
   path: IPath,
@@ -71,10 +73,7 @@ export function admitTerrainRoute(
       );
     if (path.maxSlope !== undefined) {
       const grade: number = routeGrade(segment, rule);
-      if (
-        !Number.isFinite(grade) ||
-        grade - path.maxSlope > 32 * Number.EPSILON * Math.max(1, grade)
-      )
+      if (grade - path.maxSlope > 32 * Number.EPSILON * Math.max(1, grade))
         throw new Error(
           `Terrain path "${path.id}" segment ${index} grades to ${grade}, above its limit ${path.maxSlope}.`,
         );
@@ -158,7 +157,10 @@ function distanceToRim(
   return distance;
 }
 
-/** Bound centerline slope by evaluating the derivative of each crossed cell's quadratic. */
+/**
+ * Bound centerline slope by evaluating the derivative of each crossed cell's
+ * quadratic.
+ */
 function routeGrade(
   segment: IPath["segments"][number],
   rule: IAutoMovieHeightRule,

@@ -1,7 +1,8 @@
 import type { IAutoMoviePhysicalHandoff } from "@automovie/interface";
 
 /**
- * Inspect run-owned transitions without allocating a key array on each native tick.
+ * Inspect run-owned transitions without allocating a key array on each native
+ * tick.
  */
 export function hasPhysicalHandoff(
   transitions: Readonly<Record<string, IAutoMoviePhysicalHandoff>> | undefined,

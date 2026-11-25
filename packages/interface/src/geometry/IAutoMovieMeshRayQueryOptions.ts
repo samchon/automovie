@@ -10,8 +10,8 @@
  */
 export interface IAutoMovieMeshRayQueryOptions {
   /**
-   * Original triangle ordinals this query ignores. Omitted means every
-   * triangle is a target; an empty set means the same.
+   * Original triangle ordinals this query ignores. Omitted means every triangle
+   * is a target; an empty set means the same.
    */
   excludedTriangles?: ReadonlySet<number>;
 }

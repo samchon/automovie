@@ -19,12 +19,18 @@ import { AutoMovieViewJointedCourse } from "./AutoMovieViewJointedCourse";
 const { add, cross, dot, scale, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
-/** A vector scaled to length 1; a zero vector stays zero, which no regular axis meets. */
+/**
+ * A vector scaled to length 1; a zero vector stays zero, which no regular axis
+ * meets.
+ */
 function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return AutoMovieAxisDirection.unit(a);
 }
 
-/** Unit projection in an admitted tangent's normal plane, with shared scale-safe numeric ownership. */
+/**
+ * Unit projection in an admitted tangent's normal plane, with shared scale-safe
+ * numeric ownership.
+ */
 function projectUnitDirection(
   a: AutoMovieVector3Tuple,
   tangent: AutoMovieVector3Tuple,
@@ -42,8 +48,8 @@ function projectUnitDirection(
  * frame in station or an explicitly selected pole coordinate.
  *
  * A section lies square to the part's axis: its origin on the axis, its chart
- * axes `u` and `v` orthonormal in the plane, and the axis direction their
- * frame normal `v x u` (up for a horizontal layer, as
+ * axes `u` and `v` orthonormal in the plane, and the axis direction their frame
+ * normal `v x u` (up for a horizontal layer, as
  * `IAutoMovieLoftChain.ILayer.lift` reads it). Where an axis supplies
  * {@link IAxis.jet}, the operator reads the plane's first and second station
  * derivatives, so the chain's quintic station rule reproduces a straight run
@@ -92,8 +98,8 @@ export namespace AutoMovieViewAxis {
   }
 
   /**
-   * The level plane at each world height, the station: the framed twin of
-   * an unframed chain's layer (`AutoMovieLoftFrame.horizontal`).
+   * The level plane at each world height, the station: the framed twin of an
+   * unframed chain's layer (`AutoMovieLoftFrame.horizontal`).
    *
    * @returns The axis.
    */
@@ -166,23 +172,28 @@ export namespace AutoMovieViewAxis {
 
   /**
    * A jointed axis: straight along each segment between consecutive centres,
-   * and at each interior centre a turn from one segment's direction to the
-   * next about their common normal, the turned angle the quintic smoothstep
-   * `10 x^3 - 15 x^4 + 6 x^5` of the share `x` of the turn's arclength
-   * `2 h`, so the tangent and the frames are C2.
+   * and at each interior centre a turn from one segment's direction to the next
+   * about their common normal, the turned angle the quintic smoothstep `10 x^3
    *
-   * The station is the arclength of the course from the first centre. The
-   * turn is symmetric about its corner's bisector, so it leaves the two
-   * segments' lines at the set-back `d` from the centre: its displacement
-   * `D = integral of t` over the turn is `d (t_in + t_out)`. The chart axis
-   * `u` starts as `up` square to the first segment and turns with every
-   * joint's rotation (minimal rotation for a planar turn), `v = u x t`.
-   * Subnormal or unrepresentable raw projections are recomputed after max-component
-   * direction scaling; ordinary projected norms retain their existing arithmetic.
+   * - 15 x^4 + 6 x^5`of the share`x`of the turn's arclength`2 h`, so the tangent
+   *   and the frames are C2.
+   *
+   * The station is the arclength of the course from the first centre. The turn
+   * is symmetric about its corner's bisector, so it leaves the two segments'
+   * lines at the set-back `d` from the centre: its displacement `D = integral
+   * of t` over the turn is `d (t_in + t_out)`. The chart axis `u` starts as
+   * `up` square to the first segment and turns with every joint's rotation
+   * (minimal rotation for a planar turn), `v = u x t`. Subnormal or
+   * unrepresentable raw projections are recomputed after max-component
+   * direction scaling; ordinary projected norms retain their existing
+   * arithmetic.
    *
    * @param centres The first end, the joints and the last end, mm.
-   * @param halves Each interior centre's finite nonnegative half arclength, mm; positive for a nonzero turn, ignored for an exactly straight joint.
-   * @param up The chart's first axis at the first segment, with finite norm and a normal projection longer than 1e-9 of its norm; this existing numerical conditioning policy is stricter than exact nonparallelism.
+   * @param halves Each interior centre's finite nonnegative half arclength, mm;
+   *   positive for a nonzero turn, ignored for an exactly straight joint.
+   * @param up The chart's first axis at the first segment, with finite norm and
+   *   a normal projection longer than 1e-9 of its norm; this existing numerical
+   *   conditioning policy is stricter than exact nonparallelism.
    * @returns The axis, or the broken admission rule.
    */
   export function jointed(
@@ -195,12 +206,9 @@ export namespace AutoMovieViewAxis {
     if (typeof c === "string") return c;
     const { directions, turns }: IAutoMovieViewJointedCourse.ICourse = c;
     const upNorm: number = Math.hypot(...up);
-    if (!up.every(Number.isFinite) || !Number.isFinite(upNorm) || !(upNorm > 0))
-      return "up is not a finite nonzero direction";
+    if (!(upNorm > 0)) return "up is not a finite nonzero direction";
     const projected: IAutoMovieAxisDirection.IProjection =
       AutoMovieAxisDirection.project(up, directions[0]!, upNorm);
-    if (!Number.isFinite(projected.normalNorm))
-      return "up normal projection is not finitely representable";
     if (!(projected.normalNorm > 1e-9 * projected.targetNorm))
       return `up relative normal projection ${projected.normalNorm / projected.targetNorm} must exceed 1e-9 for direction conditioning`;
     const first: AutoMovieVector3Tuple = AutoMovieAxisDirection.unit(
@@ -217,7 +225,10 @@ export namespace AutoMovieViewAxis {
   }
 
   /**
-   * Each segment's straight run on a jointed axis, so a caller places a site given as a share of a bone at its station: the station of the point at distance `x` along segment `i` is `start + (x - from)` for `x` in `[from, to]`.
+   * Each segment's straight run on a jointed axis, so a caller places a site
+   * given as a share of a bone at its station: the station of the point at
+   * distance `x` along segment `i` is `start + (x - from)` for `x` in `[from,
+   * to]`.
    *
    * @param centres The first end, the joints and the last end, mm.
    * @param halves Each interior centre's turn half length, mm.
@@ -252,8 +263,8 @@ export namespace AutoMovieViewAxis {
    * knot by minimal rotation.
    *
    * @param knots At least two, by strictly increasing station.
-   * @param u The chart's `x` axis at the first knot; its part along the
-   *   tangent there is removed.
+   * @param u The chart's `x` axis at the first knot; its part along the tangent
+   *   there is removed.
    * @param step Largest station step of the double reflection, mm, positive.
    * @returns The axis; stations past the end knots continue the spline's
    *   straight end tangents.

@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the posture is, why the fit starts there with its source and how it is built. KNEE is the dimensionless provisional shank share used by the actual sagittal knee hint, with metre scale supplied by this body's shank.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A stance's stated posture computed from the chain's shape, never typed.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The knee hint, one-shot builder and fixed-frame preparation serve the inchworm's repeated actual stance preferences; no action parameter or alternative solver is exposed.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every place is the chain's and the body's; the arms and legs are the shared limb goals.
-
-# src/floor/crawlInchwormPose.ts#crawlInchwormPose.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the inputs, their frame and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

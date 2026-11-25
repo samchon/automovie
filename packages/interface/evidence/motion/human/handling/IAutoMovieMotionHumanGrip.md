@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanGrip.ts#IAutoMovieMotionHumanGrip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-joints: Closed finger-joint rotations in clinical degrees. gaps: Final signed digit-to-collider gaps in metres, positive while separated; only digits participating in this grip are present.
-
-## @evidence contracts/development/design.md#principled-representation
-
-joints: Closed finger-joint rotations in clinical degrees. gaps: Final signed digit-to-collider gaps in metres, positive while separated; only digits participating in this grip are present.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: handling/HumanClasp.ts (HumanClasp.colliders.digits, digit); handling/HumanGrip.ts (HumanGrip.bones, digit); handling/HumanGrip.ts (HumanGrip.chain, digit); handling/HumanGrip.ts (HumanGrip.close.result, d); handling/HumanGrip.ts (HumanGrip.fingers.digits, d); handling/HumanGrip.ts (HumanGrip.aperture.tip, digit).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/handling/IAutoMovieMotionHumanGrip.ts#IAutoMovieMotionHumanGrip.Digit
 
 ## @evidence contracts/development/common.md#meaningful-documentation

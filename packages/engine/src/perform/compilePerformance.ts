@@ -31,7 +31,9 @@ const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>([
 ]);
 
 /**
- * Boundary-pin width in seconds, greater than the 1e-9 envelope comparison tolerance. Composite interpolation can still ramp over this one-microsecond interval; the constant proves no visual threshold.
+ * Boundary-pin width in seconds, greater than the 1e-9 envelope comparison
+ * tolerance. Composite interpolation can still ramp over this one-microsecond
+ * interval; the constant proves no visual threshold.
  */
 const BOUNDARY_EPSILON: number = 1e-6 as const;
 
@@ -133,11 +135,18 @@ const maskMotionToRegion: (
 };
 
 /**
- * Sample each region clip at the union of its keyframe and boundary times, then blend set axes with equal weights. Disjoint axes form a union; overlapping axes take an arithmetic mean. A face clip supplies expression.
+ * Sample each region clip at the union of its keyframe and boundary times, then
+ * blend set axes with equal weights. Disjoint axes form a union; overlapping
+ * axes take an arithmetic mean. A face clip supplies expression.
  *
- * Before its first frame a clip contributes nothing; after its last frame it keeps only its root, preserving a walk destination while releasing joint and expression claims.
+ * Before its first frame a clip contributes nothing; after its last frame it
+ * keeps only its root, preserving a walk destination while releasing joint and
+ * expression claims.
  *
- * Boundary samples narrow preceding/following interpolation ramps to at most BOUNDARY_EPSILON. Expressions interpolate against neutral when one endpoint is absent, using segment easing like pose. These samples shorten transitions rather than making discontinuous envelopes.
+ * Boundary samples narrow preceding/following interpolation ramps to at most
+ * BOUNDARY_EPSILON. Expressions interpolate against neutral when one endpoint
+ * is absent, using segment easing like pose. These samples shorten transitions
+ * rather than making discontinuous envelopes.
  */
 const layerClips: (
   id: string,
@@ -228,9 +237,8 @@ const layerClips: (
       (clip: IAutoMovieMotion): IAutoMovieGaitCycle | null =>
         clip.gaitCycle ?? null,
     )
-    .filter(
-      (cycle: IAutoMovieGaitCycle | null): cycle is IAutoMovieGaitCycle =>
-        cycle !== null,
+    .flatMap((cycle: IAutoMovieGaitCycle | null): IAutoMovieGaitCycle[] =>
+      cycle === null ? [] : [cycle],
     );
 
   return {
@@ -244,9 +252,14 @@ const layerClips: (
 };
 
 /**
- * Hold rest before a late-starting composite, preventing clamp sampling from extending its first pose across the lead-in. Step easing holds rest up to the optional short linear boundary segment.
+ * Hold rest before a late-starting composite, preventing clamp sampling from
+ * extending its first pose across the lead-in. Step easing holds rest up to the
+ * optional short linear boundary segment.
  *
- * A second rest frame keeps both ends of the long lead-in at null expression. The final linear segment can begin pose and neutral-to-expression interpolation up to one BOUNDARY_EPSILON before authored start; exact onset is not guaranteed.
+ * A second rest frame keeps both ends of the long lead-in at null expression.
+ * The final linear segment can begin pose and neutral-to-expression
+ * interpolation up to one BOUNDARY_EPSILON before authored start; exact onset
+ * is not guaranteed.
  */
 const padRestLeadIn: (motion: IAutoMovieMotion) => IAutoMovieMotion = (
   motion: IAutoMovieMotion,
@@ -279,7 +292,10 @@ const padRestLeadIn: (motion: IAutoMovieMotion) => IAutoMovieMotion = (
 };
 
 /**
- * Compile admitted actions through an injected synthesizer into exact actor-keyed timelines and deterministic region-loss reports. Null synthesis is skipped; repeat expands one returned cycle, same-region nonoverlapping actions arrange into lanes, and concurrent lanes layer sampled poses.
+ * Compile admitted actions through an injected synthesizer into exact
+ * actor-keyed timelines and deterministic region-loss reports. Null synthesis
+ * is skipped; repeat expands one returned cycle, same-region nonoverlapping
+ * actions arrange into lanes, and concurrent lanes layer sampled poses.
  */
 export const compilePerformance: (
   actions: IAutoMovieActionCall[],

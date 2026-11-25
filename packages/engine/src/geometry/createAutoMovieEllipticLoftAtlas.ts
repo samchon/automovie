@@ -7,32 +7,27 @@ import type {
 
 /**
  * Form a shared bicubic atlas from cubic centre and ellipse-radius profiles.
- * Each quarter uses the tangent-matching circular cubic with
- * k = 4 (sqrt(2) - 1) / 3. Its radial deviation from the unit circle is below
- * 0.000273: differentiating x(t)^2 + z(t)^2 locates the interior extrema.
- * Applying the diagonal ellipse scale bounds the section's Hausdorff deviation
- * by that constant times its largest half-axis. This is a separate geometric
- * approximation from the atlas-to-triangle tolerance and any observation error.
- * Clockwise angular U and increasing physical Y make U cross V outward.
- * Adjacent spans share coefficient identity at equal endpoints; each patch keeps
- * its own analytic normal fan so a C0-only axial join retains both limits.
- * C1 remains the caller's constraint rather than an inferred property.
+ * Each quarter uses the tangent-matching circular cubic with k = 4 (sqrt(2) -
+ *
+ * 1. / 3. Its radial deviation from the unit circle is below 0.000273:
+ *    differentiating x(t)^2 + z(t)^2 locates the interior extrema. Applying the
+ *    diagonal ellipse scale bounds the section's Hausdorff deviation by that
+ *    constant times its largest half-axis. This is a separate geometric
+ *    approximation from the atlas-to-triangle tolerance and any observation
+ *    error. Clockwise angular U and increasing physical Y make U cross V
+ *    outward. Adjacent spans share coefficient identity at equal endpoints;
+ *    each patch keeps its own analytic normal fan so a C0-only axial join
+ *    retains both limits. C1 remains the caller's constraint rather than an
+ *    inferred property.
  */
 export function createAutoMovieEllipticLoftAtlas(
   input: IAutoMovieCreateEllipticLoftAtlas.IInput,
 ): IAutoMovieCreateEllipticLoftAtlas.IResult {
   if (
-    !input ||
-    !input.loft ||
-    !Array.isArray(input.loft.spans) ||
     !input.loft.spans.length ||
-    typeof input.topologyDomain !== "string" ||
     !input.topologyDomain.trim() ||
-    !Number.isFinite(input.tolerance) ||
     input.tolerance <= 0 ||
-    !Number.isSafeInteger(input.maxCells) ||
     input.maxCells <= 0 ||
-    !Number.isSafeInteger(input.maxVertices) ||
     input.maxVertices <= 0
   )
     throw new Error(
@@ -51,27 +46,18 @@ export function createAutoMovieEllipticLoftAtlas(
     const previous: IAutoMovieEllipticLoft["spans"][number] | undefined =
       input.loft.spans[index - 1];
     if (
-      !span ||
-      !Array.isArray(span.interval) ||
-      span.interval.length !== 2 ||
-      !Number.isFinite(span.interval[0]) ||
-      !Number.isFinite(span.interval[1]) ||
       !(span.interval[0] < span.interval[1]) ||
-      !Number.isFinite(span.interval[1] - span.interval[0]) ||
       (previous !== undefined && previous.interval[1] !== span.interval[0])
     )
       throw new Error(
         "Elliptic loft intervals must be finite, increasing and exactly adjacent",
       );
     for (const field of fields) {
-      if (!Array.isArray(span[field]) || span[field].length !== 4)
+      if (span[field].length !== 4)
         throw new Error("Every elliptic profile needs four Bernstein controls");
       for (let control: number = 0; control < 4; control++) {
         const value: number = span[field][control];
-        if (
-          !Number.isFinite(value) ||
-          ((field === "radiusX" || field === "radiusZ") && value <= 0)
-        )
+        if ((field === "radiusX" || field === "radiusZ") && value <= 0)
           throw new Error(
             "Elliptic radii need positive finite controls and centres need finite controls",
           );
@@ -110,10 +96,6 @@ export function createAutoMovieEllipticLoftAtlas(
         const y: number =
           span.interval[0] + (span.interval[1] - span.interval[0]) * (row / 3);
         const z: number = span.centreZ[row] + span.radiusZ[row] * angular[1];
-        if (![x, y, z].every(Number.isFinite))
-          throw new Error(
-            "Elliptic tensor coefficient arithmetic exceeded finite coordinates",
-          );
         controls.push({ x, y, z });
       }
     for (let quarter: number = 0; quarter < 4; quarter++) {

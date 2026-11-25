@@ -12,7 +12,10 @@ export interface IAutoMovieHumanHandDigit {
   /** Centre of its root at the web, where its line starts. */
   centre: AutoMovieVector3Tuple;
 
-  /** Natural splines of the line's three coordinates over the length along it, mm of the form. */
+  /**
+   * Natural splines of the line's three coordinates over the length along it,
+   * mm of the form.
+   */
   line: IAutoMovieNaturalCubicSpline[];
 
   /** `[length, half width]` knots across the digit, mm of the form. */
@@ -27,7 +30,10 @@ export interface IAutoMovieHumanHandDigit {
   /** Station of its first own section, past its webs' crests. */
   first: number;
 
-  /** What its first section must clear: its arcs of the parent's ring and its webs' crests. */
+  /**
+   * What its first section must clear: its arcs of the parent's ring and its
+   * webs' crests.
+   */
   clear: IAutoMovieHumanHandClear[];
 
   /** Station where the rounded tip starts. */

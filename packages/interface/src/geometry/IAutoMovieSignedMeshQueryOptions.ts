@@ -2,8 +2,8 @@
  * Topology admission for a compiled oriented-distance query.
  *
  * An open sheet retains oriented interior features while reporting rim-feature
- * side as unknown. Both modes refuse an edge used by three or more triangles,
- * a paired edge whose two uses run the same direction, and a vertex whose
+ * side as unknown. Both modes refuse an edge used by three or more triangles, a
+ * paired edge whose two uses run the same direction, and a vertex whose
  * incident faces form disconnected fans; neither mode infers outward
  * orientation or absence of self-crossing.
  */

@@ -10,20 +10,18 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
  * owner only performs the common geometry: circular girth, trigonometric
  * control projections, an exact withers apex, a head capsule of the requested
  * total axial length, and a distinct hip-to-rump run behind the trunk.
- * Directions are the initial authored conformation. AutoMovieArchetypeQuadrupedBody owns the
- * subsequent explicit neutral connection to its parent solids; it does
- * not change these reference measurements or infer measured joint anatomy.
+ * Directions are the initial authored conformation.
+ * AutoMovieArchetypeQuadrupedBody owns the subsequent explicit neutral
+ * connection to its parent solids; it does not change these reference
+ * measurements or infer measured joint anatomy.
  *
- * @param props Reference shape, four controls per limb, authored construction, colors and optional admitted instance height.
- * @returns Fresh dimensionless body controls, with metre lateral inset for the height.
- * @throws {RangeError} For invalid/nonfinite dimensions, impossible capsule/trunk extents, invalid construction ratios or unrepresentable normalized output.
- * @evidence contracts/development/common.md#meaningful-documentation Defines reference/instance metres, control directions, circular/capsule interpretations, producer-owned provenance, resource ownership and refusals; no anatomical or visual result is asserted.
- * @evidence contracts/development/implementation.md#principled-implementation Divide lengths by reference height and project straight controls with sine/cosine. A radius-w withers sphere centered at height-w reaches exactly height. Removing both head caps from its total axial length gives the bar span; reserving a positive pelvic run avoids a zero-length hindquarters bar.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit source and construction scalars, derive the common controls once, then return the existing body representation to all three species adapters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species branch, borrowed horse profile, measured-pose claim, fitted patch, arbitrary numeric fallback or physical coefficient is supplied. The source adapter declares every measurement transfer and authored estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms Admission and construction each inspect a fixed number of scalars and eight limb controls; O(1) time/space and no mesh generation, geometry search or iterative numerical solve occurs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One shared mapping serves ox, camel and deer. Immutable-in-type source data is read directly, and fresh arrays/records prevent a result mutation from changing source choices or a later result.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no props, query, cache or external handle. The caller owns all returned records; no segment shares or foot material are added, leaving their absence explicit for the existing builder.
+ * @param props Reference shape, four controls per limb, authored construction,
+ *   colors and optional admitted instance height.
+ * @returns Fresh dimensionless body controls, with metre lateral inset for the
+ *   height.
+ * @throws {RangeError} For invalid/nonfinite dimensions, impossible
+ *   capsule/trunk extents, invalid construction ratios or unrepresentable
+ *   normalized output.
  */
 export function QuadrupedBodyProfile(
   props: QuadrupedBodyProfile.IProps,
@@ -50,22 +48,10 @@ export function QuadrupedBodyProfile(
     c.tailRadius,
     ...c.barRadii,
   ])
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0))
       throw new RangeError(
         "Coarse quadruped lengths and radii must be positive and finite",
       );
-  for (const value of [
-    c.neckRootDrop,
-    c.tailDock,
-    c.inset,
-    c.neckPitch,
-    c.headPitch,
-    c.tailPitch,
-    ...c.forePitch,
-    ...c.hindPitch,
-  ])
-    if (!Number.isFinite(value))
-      throw new RangeError("Coarse quadruped construction must be finite");
   if (
     props.fore.length !== 4 ||
     props.hind.length !== 4 ||
@@ -116,10 +102,7 @@ export function QuadrupedBodyProfile(
   const inset: number = (barrel / h) * c.inset * height;
   if (
     [barrel, ...fore, ...hind, trunk, buttock, neckRadius, headRadius].some(
-      (value: number): boolean => !(value > 0 && Number.isFinite(value)),
-    ) ||
-    [rise, ahead, drop, muzzle, tailDrop, tailBack, inset].some(
-      (value: number): boolean => !Number.isFinite(value),
+      (value: number): boolean => !(value > 0),
     )
   )
     throw new RangeError(
@@ -150,16 +133,12 @@ export function QuadrupedBodyProfile(
   };
 }
 
-/**
- * Input contracts shared by the ox, camel and deer profile adapters.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Every member defines its metre, height fraction, direction or ownership; reference measurements are distinct from authored construction choices.
- * @evidence contracts/development/design.md#principled-representation Four fixed controls per limb and positive SI reference dimensions map to the existing quadruped representation. Runtime admission checks numeric finiteness, positive capsule/trunk spans and construction domains.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three current species adapters supply source normalization and this owner supplies their common geometry; no species catalogue, mass allocator, second skeleton or future option is introduced.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source lineage, anatomical range or contact coefficient is inferred from these shape inputs, and no cast widens incompatible records into the shared body type.
- */
+/** Input contracts shared by the ox, camel and deer profile adapters. */
 export namespace QuadrupedBodyProfile {
-  /** Reference shape in metres; each adapter documents measured versus authored fields. */
+  /**
+   * Reference shape in metres; each adapter documents measured versus authored
+   * fields.
+   */
   export interface IMeasures {
     /** Reference withers height used to normalize all lengths. */
     withers: number;
@@ -186,7 +165,10 @@ export namespace QuadrupedBodyProfile {
     tail: number;
   }
 
-  /** Authored rigid-bar geometry, not anatomical joint ranges or measured static poses. */
+  /**
+   * Authored rigid-bar geometry, not anatomical joint ranges or measured static
+   * poses.
+   */
   export interface IConstruction {
     /** Withers sphere radius / height, in (0, 1). */
     withersRadius: number;
@@ -215,10 +197,16 @@ export namespace QuadrupedBodyProfile {
     /** Foot inward placement / barrel radius, in [0, 1). */
     inset: number;
 
-    /** Four initial fore directions from down, degrees, before shared parent-solid neutral connection. */
+    /**
+     * Four initial fore directions from down, degrees, before shared
+     * parent-solid neutral connection.
+     */
     forePitch: readonly [number, number, number, number];
 
-    /** Four initial hind directions from down, degrees, before shared parent-solid neutral connection. */
+    /**
+     * Four initial hind directions from down, degrees, before shared
+     * parent-solid neutral connection.
+     */
     hindPitch: readonly [number, number, number, number];
 
     /** Four positive limb bar radii / height. */

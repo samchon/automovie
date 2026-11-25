@@ -1,21 +1,3 @@
-# src/typography/IAutoMovieLayoutText.ts#IAutoMovieLayoutText
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the box frame shared by every member: metres, origin at the bottom-left corner, `+x` right, `+y` up, and why it matches the font's own `+y` up outline.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the layout input and result in one box-local metre frame, so placement is a translation and a scale of font units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Engine's layout and glyph builders consume it; render reads the result through the text geometry it builds.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No pixel, face-fraction or surface frame is mixed in; render converts its face fraction to this box.
-
 # src/typography/IAutoMovieLayoutText.ts#IAutoMovieLayoutText.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admits raw TRS object shapes before numeric reads, checks finite vector components and positive scale, and delegates quaternion unit length to ViolationCollector.unitQuaternion's hypot norm and shared 1e-6 tolerance; the scale rule excludes collapsed or reflected transforms.
+Checks finite vector components and positive scale, and delegates quaternion unit length to ViolationCollector.unitQuaternion's hypot norm and shared 1e-6 tolerance; the scale rule excludes collapsed or reflected transforms.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One unknown-input transform gate serves engine model, pose, affordance and architecture validation as well as production artifact ingress; object/vector admission and quaternion policy reuse existing validation owners instead of a second artifact-specific scalar implementation.
+One transform gate serves engine model, pose, affordance and architecture validation as well as production artifact ingress; vector admission and quaternion policy reuse existing validation owners instead of a second artifact-specific scalar implementation.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Reports every independent malformed TRS field without repairing, normalizing or replacing it; no caller, model or axis gets a special tolerance, and quaternion norm is evaluated only after finite numeric components are admitted.
+Reports every independent out-of-domain TRS field without repairing, normalizing or replacing it; no caller, model or axis gets a special tolerance, and quaternion norm is evaluated only after finite numeric components are admitted.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

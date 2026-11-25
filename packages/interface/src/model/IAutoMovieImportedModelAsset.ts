@@ -1,6 +1,4 @@
-/**
- * One canonical project-relative member of an imported model digest closure.
- */
+/** One canonical project-relative member of an imported model digest closure. */
 export interface IAutoMovieImportedModelAsset {
   /** Canonical project-relative path. */
   path: string;

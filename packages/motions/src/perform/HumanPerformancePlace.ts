@@ -1,78 +1,63 @@
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
-  AutoMovieMotionHumanChannel,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPerformanceTrial,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPlacedAction,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionPropLaunch,
   IAutoMovieMotionTarget,
-  IAutoMovieRigidTransform,
-  IAutoMovieScheduleCue,
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 import { prepareJumpPosture } from "../actions/prepareJumpPosture";
-import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanForce } from "./HumanForce";
 import { HumanPerformanceAhead } from "./HumanPerformanceAhead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
-import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
-import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
+import { HumanPerformancePlaceAction } from "./HumanPerformancePlaceAction";
+import { HumanPerformancePlaceCarrier } from "./HumanPerformancePlaceCarrier";
+import { HumanPerformancePlaceCue } from "./HumanPerformancePlaceCue";
+import { HumanPerformancePlacePerformer } from "./HumanPerformancePlacePerformer";
+import { HumanPerformancePlaceProp } from "./HumanPerformancePlaceProp";
+import { HumanPerformancePlaceTiming } from "./HumanPerformancePlaceTiming";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
-import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
-import { HumanSegmentShown } from "./HumanSegmentShown";
 
 /**
- * One intent placed in the performance: its law found, its entry state
- * read, its context built, its plan made, its cut checked against the
- * interrupt tables, and its action added to its performer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps of placing an intent.
- * @evidence contracts/development/design.md#principled-representation An intent becomes a placed action through its law's plan, made from the state the performer is in when it starts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the schedule resolver calls per intent (#3399).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A cut outside a declared window, an unknown action or an overlay of a whole-body action is refused.
+ * One intent placed in the performance: its law found, its entry state read,
+ * its context built, its plan made, its cut checked against the interrupt
+ * tables, and its action added to its performer.
  */
 export namespace HumanPerformancePlace {
   /**
-   * The schedule's timing law: plan the intent from the state its person is
-   * in. A trial plans and returns the timing without placing anything, and
-   * its planning is kept for the placement of the same intent at the same
-   * start with nothing placed in between (`IAutoMovieMotionHumanPerformanceTrial`).
+   * The schedule's timing law: plan the intent from the state its person is in.
+   * A trial plans and returns the timing without placing anything, and its
+   * planning is kept for the placement of the same intent at the same start
+   * with nothing placed in between (`IAutoMovieMotionHumanPerformanceTrial`).
    * Participant registry/body/entry metadata is fixed for this action context,
    * so its private per-subject reader templates share closures until context
    * release. Every performer lookup still checks existence and returns a fresh
-   * wrapper; every reader still observes actual seconds/plans/stops/invalidation.
-   * At most the context's requested known participants are retained, with no
-   * pose, frame, time-result history or operation FK/projector stored there.
+   * wrapper; every reader still observes actual
+   * seconds/plans/stops/invalidation. At most the context's requested known
+   * participants are retained, with no pose, frame, time-result history or
+   * operation FK/projector stored there.
    */
   export function place(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -209,22 +194,11 @@ export namespace HumanPerformancePlace {
         : undefined;
     if (!trial) self.trial = undefined;
 
-    // Nothing is placed while the entry state is read, as while a plan is
-    // made, so its reads share the placed people's displayed poses by second
-    // (`HumanSegment.planning`): a pose its samples, anchors or a held prop's
-    // hand read again is read once, as an animation graph evaluates a pose
-    // once per update and lets every reader share it (Unreal Engine
-    // `FAnimNode_SaveCachedPose`).
     // An overlay entering where the act before it in its chain ends reads
     // that act's end, which hands its channels on (`HumanSegmentOverlay.handing`).
     const read: () => ReturnType<typeof HumanSegment.entry> = (): ReturnType<
       typeof HumanSegment.entry
-    > =>
-      HumanSegment.planning(
-        self.people.values(),
-        (): ReturnType<typeof HumanSegment.entry> =>
-          HumanSegment.entry(person, previous, start, blend),
-      );
+    > => HumanSegment.entry(person, previous, start, blend);
     const entry: ReturnType<typeof HumanSegment.entry> =
       kept === undefined
         ? over
@@ -241,19 +215,17 @@ export namespace HumanPerformancePlace {
     const laid: number = person.overlays.length;
 
     // The performer's own bones are those of the entry pose, fixed for the
-    // action: admitted once, at the first read, and every read takes fresh
-    // bones of that one reading (`poseBones.read`), as a kept displayed pose
-    // gives its readers (`HumanSegmentShown.bones`).
-    let entered: ReturnType<typeof poseBones.read> | undefined;
+    // action: admitted once, as the action is placed, and every read takes fresh
+    // bones of that one reading (`poseBones.read`).
+    const entered: ReturnType<typeof poseBones.read> = poseBones.read(
+      body,
+      entry.pose,
+    );
     const ownBones: (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ) => ReturnType<typeof poseBones> = (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    ): ReturnType<typeof poseBones> =>
-      (entered ??= poseBones.read(body, entry.pose)).map(requested);
-    let performers:
-      | Map<string, IAutoMovieMotionHumanPerformerReader>
-      | undefined;
+    ): ReturnType<typeof poseBones> => entered.map(requested);
     // Each partner of this action's own parallel group
     // (`IAutoMovieScheduleContext.meeting`) whose part still waits is read
     // no later than the end of their placed actions, recorded as this action
@@ -294,44 +266,7 @@ export namespace HumanPerformancePlace {
       instant: (at: AutoMovieMotionHumanScheduledInstant): number =>
         HumanPerformanceLayers.instant(self, at, entries),
       ...(over && previous !== undefined
-        ? {
-            carrier: {
-              name: previous.name,
-              posture: (
-                seconds: number,
-                channels?: readonly AutoMovieMotionHumanChannel[],
-                resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-                projection?: Parameters<
-                  IAutoMovieMotionHumanActionPlan["posture"]
-                >[3],
-              ): IAutoMovieMotionHumanPosture => {
-                // Query-scoped prefix sharing belongs to the composer.
-                // A retained carrier callback must read current stop/plan
-                // state and the exact caller's demand and metadata loans.
-                const at: number = Math.min(
-                  previous.plan.duration,
-                  Math.max(0, start + seconds - previous.start),
-                );
-                return previous.plan.posture(
-                  at,
-                  channels,
-                  resolution,
-                  projection,
-                );
-              },
-              // The prop the carrier plants on, the support the overlay rides.
-              ...((): {
-                support?: IAutoMovieMotionHumanContactWindow.Support;
-              } => {
-                const plant: IAutoMovieMotionHumanContactWindow | undefined =
-                  previous.plan.contacts.find(
-                    (c: IAutoMovieMotionHumanContactWindow): boolean =>
-                      c.kind === "plant" && c.support.kind !== "ground",
-                  );
-                return plant === undefined ? {} : { support: plant.support };
-              })(),
-            },
-          }
+        ? { carrier: HumanPerformancePlaceCarrier(previous, start) }
         : {}),
       aim: (target: IAutoMovieMotionTarget, seconds: number) =>
         HumanPerformanceAim.aim(
@@ -375,130 +310,23 @@ export namespace HumanPerformancePlace {
         ),
         index: instance,
       }),
-      cue: (track: string): readonly IAutoMovieScheduleCue[] => {
-        const cues: readonly IAutoMovieScheduleCue[] | undefined =
-          self.cues[track];
-        if (cues === undefined)
-          throw new HumanRefusal({
-            kind: "participant",
-            axis: named(track, "cue"),
-            value: track,
-            feasible: {
-              kind: "alternatives",
-              values: Object.keys(self.cues),
-            },
-            reason: `the performance has no cue track named ${track}`,
-            fix: "name one of the performance's cue tracks, or give the performance that track in its cues",
-          });
-        return cues;
-      },
+      cue: HumanPerformancePlaceCue(self, named),
       obstacles: (): readonly IAutoMovieMotionHumanObstacle[] => self.obstacles,
-      performer: (subject: string): IAutoMovieMotionHumanPerformerReader => {
-        if (!self.people.has(subject))
-          throw HumanPerformanceRead.missing(
-            "performer",
-            subject,
-            [...self.people.keys()],
-            named(subject, "performer"),
-          );
-        const cached: IAutoMovieMotionHumanPerformerReader | undefined =
-          performers?.get(subject);
-        if (cached !== undefined) return { ...cached };
-        const axis: () => string = (): string => named(subject, "performer");
-        const reader: IAutoMovieMotionHumanPerformerReader = {
-          body: HumanPerformanceRead.person(self, subject).performer.body,
-          // The performer's own body is read as it entered the action, as
-          // a `self` target is: its displayed bones at an instant of this
-          // action are the posture still being solved.
-          bones: (
-            seconds: number,
-            requested?: ReadonlySet<AutoMovieHumanoidBone>,
-          ): ReturnType<typeof poseBones> =>
-            subject === intent.subject
-              ? ownBones(requested)
-              : HumanPerformanceRead.bones(
-                  self,
-                  subject,
-                  seconds,
-                  requested,
-                  axis,
-                  meetings.get(subject),
-                ),
-          root: (seconds: number): IAutoMovieMotionHumanActionContext.IRoot =>
-            HumanPerformanceRead.root(
-              self,
-              subject,
-              seconds,
-              axis,
-              meetings.get(subject),
-            ),
-          posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-            HumanPerformanceRead.posture(
-              self,
-              subject,
-              seconds,
-              undefined,
-              axis,
-              meetings.get(subject),
-            ),
-        };
-        (performers ??= new Map()).set(subject, reader);
-        return { ...reader };
-      },
-      prop: (subject: string): IAutoMovieMotionHumanPropReader => {
-        const prop: IAutoMovieMotionHumanProp | undefined =
-          self.props.get(subject);
-        if (prop === undefined)
-          throw HumanPerformanceRead.missing(
-            "prop",
-            subject,
-            [...self.props.keys()],
-            named(subject, "prop"),
-          );
-        return {
-          prop,
-          // Over a carrier, a prop this performer carries is read on the
-          // pose this action is laid on, never through its own posture.
-          frame: (seconds: number): IAutoMovieRigidTransform =>
-            HumanPerformanceRead.prop(
-              self,
-              subject,
-              seconds,
-              over
-                ? {
-                    subject: intent.subject,
-                    bones: (
-                      requested?: ReadonlySet<AutoMovieHumanoidBone>,
-                    ): ReturnType<typeof poseBones> =>
-                      HumanSegmentShown.laid(
-                        person,
-                        laid,
-                        (): ReturnType<typeof poseBones> =>
-                          HumanSegmentShown.bones(person, seconds, requested),
-                      ),
-                  }
-                : undefined,
-            ),
-          launchAt: (seconds: number): IAutoMovieMotionPropLaunch | undefined =>
-            HumanPropFlight.active(self, subject, seconds)?.published,
-          flightApproach: (
-            seconds: number,
-            before: number,
-          ): IAutoMovieMotionHumanPropReader.IFlightApproach | undefined =>
-            HumanPropFlight.approach(self, subject, seconds, before),
-          mountAt: (
-            seconds: number,
-          ):
-            | Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point">
-            | undefined => HumanPerformanceHold.mount(self, subject, seconds),
-          holderAt: (
-            seconds: number,
-          ): IAutoMovieMotionHumanPropReader.IHolder | undefined =>
-            HumanPerformanceHold.holder(self, subject, seconds),
-          state: (seconds: number): Readonly<Record<string, number>> =>
-            HumanPerformanceObject.state(self, prop, seconds),
-        };
-      },
+      performer: HumanPerformancePlacePerformer(
+        self,
+        intent.subject,
+        ownBones,
+        meetings,
+        named,
+      ),
+      prop: HumanPerformancePlaceProp(
+        self,
+        intent.subject,
+        over,
+        person,
+        laid,
+        named,
+      ),
       meeting: HumanPerformanceMeeting.reader(
         self,
         intent.subject,
@@ -506,36 +334,7 @@ export namespace HumanPerformancePlace {
         entry,
         start,
       ),
-      action: (anchor: string): IAutoMovieMotionHumanPlacedAction => {
-        // An anchored action a later part of an open group holds is placed
-        // first (`IAutoMovieScheduleContext.demandAnchor`), as a read of a
-        // person is.
-        let placed = self.anchors.get(anchor);
-        if (placed === undefined && self.demandAnchor?.(anchor) === "placed")
-          placed = self.anchors.get(anchor);
-        if (placed === undefined)
-          throw new HumanRefusal({
-            kind: "participant",
-            axis: named(anchor, "anchor"),
-            value: anchor,
-            feasible: {
-              kind: "alternatives",
-              values: [...self.anchors.keys()],
-            },
-            reason: `the action anchored ${anchor} is not placed earlier in the composition`,
-            fix: `give the answered action the anchor ${anchor} and compose it before self one`,
-          });
-        return {
-          subject: placed.subject,
-          name: placed.name,
-          family: placed.law.family ?? placed.name,
-          params: placed.params,
-          plan: placed.plan,
-          start: placed.start,
-          entryTime: placed.entryTime,
-          end: placed.end,
-        };
-      },
+      action: HumanPerformancePlaceAction(self, named),
     };
     // What the performer's next action on a prop demands of a grip this one
     // chooses (`HumanPerformanceAhead`); an overlay leaves the body's grips
@@ -557,18 +356,13 @@ export namespace HumanPerformancePlace {
     // A plan too fast for the speed bound is replanned slower by its own
     // refusal's factor (`HumanPerformanceTempo`).
     let plan: IAutoMovieMotionHumanActionPlan =
-      kept?.plan ??
-      HumanSegment.planning(self.people.values(), () =>
-        HumanPerformanceTempo.plan(law, context),
-      );
+      kept?.plan ?? HumanPerformanceTempo.plan(law, context);
     const share: number =
       kept?.share ??
       (row === undefined ? 0 : HumanSegment.share(row.entry, plan));
     if (kept === undefined && share > 0) {
       context.start = start - share * plan.duration;
-      plan = HumanSegment.planning(self.people.values(), () =>
-        HumanPerformanceTempo.plan(law, context),
-      );
+      plan = HumanPerformanceTempo.plan(law, context);
     }
 
     // A trial withdraws the meetings its planning recorded; the placement
@@ -579,21 +373,11 @@ export namespace HumanPerformancePlace {
     // The timing the schedule reads: the part of the plan left after the
     // share it enters at, its contact and events on that part. A trial
     // reads the same timing the placed action gives.
-    const active: number = (1 - share) * plan.duration;
-    const timing: IAutoMovieIntentTiming = {
-      duration: active,
-      ...(plan.contact === undefined || plan.contact < share * plan.duration
-        ? {}
-        : { contact: plan.contact - share * plan.duration }),
-      events: plan.events
-        .filter((e: IAutoMovieMotionEvent): boolean => e.share >= share)
-        .map(
-          (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({
-            name: e.name,
-            share: active === 0 ? 0 : (e.share - share) / (1 - share),
-          }),
-        ),
-    };
+    const timing: IAutoMovieIntentTiming = HumanPerformancePlaceTiming(
+      plan,
+      share,
+    );
+    const active: number = timing.duration;
     if (trial) {
       self.trial = {
         intent,
@@ -663,10 +447,8 @@ export namespace HumanPerformancePlace {
               cut: start,
             },
     };
-    HumanBendRead.placed(segment);
     HumanPerformanceContacts.hold(person, segment, false);
     person.segments.push(segment);
-    HumanSegment.placed(self.people.values());
     if (intent.anchor !== undefined)
       self.anchors.set(
         intent.anchor,

@@ -1,21 +1,3 @@
-# src/drawing/IAutoMovieDrawingRange.ts#IAutoMovieDrawingRange
-
-## @evidence contracts/development/design.md#principled-representation
-
-IResult preserves input units and comparison extrema, including inverted empty/all-NaN identities; it asserts no finite-range invariant.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Drawing bounds, depth classification and schedule minima use this common fold result while retaining physical semantics at their callers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No special empty-input zero or finite-value clamp hides missing measurements.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IResult documents sentinel values, infinities, NaN handling and absent rounding.
-
 # src/drawing/IAutoMovieDrawingRange.ts#IAutoMovieDrawingRange.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

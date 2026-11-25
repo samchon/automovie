@@ -2,7 +2,8 @@ import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTo
 import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 
 /**
- * Open parameters of the weaponMelee lexicon family, keyed by each runtime export name.
+ * Open parameters of the weaponMelee lexicon family, keyed by each runtime
+ * export name.
  */
 export interface IAutoMovieMotionHumanLexiconWeaponMeleeParams {
   /** A club or a bat swung level at a person or a thing. */
@@ -17,13 +18,22 @@ export interface IAutoMovieMotionHumanLexiconWeaponMeleeParams {
   /** A knife slashed back across from the off side. */
   knifeBackslash: Omit<IAutoMovieMotionHumanSword.ICut, "from">;
 
-  /** A knife driven forward, the point first, with the least advance that reaches. */
+  /**
+   * A knife driven forward, the point first, with the least advance that
+   * reaches.
+   */
   knifeStab: IAutoMovieMotionHumanSword.IAttack;
 
-  /** A knife held point down (taken by its `reverseGrip`) and driven down from overhead. */
+  /**
+   * A knife held point down (taken by its `reverseGrip`) and driven down from
+   * overhead.
+   */
   stabOverhand: Omit<IAutoMovieMotionHumanSword.ICut, "from">;
 
-  /** A reload: the support hand's palm pressed once to the magazine well the composition names. */
+  /**
+   * A reload: the support hand's palm pressed once to the magazine well the
+   * composition names.
+   */
   reload: Omit<
     IAutoMovieMotionHumanTouch.IParams,
     "effector" | "kind" | "count" | "hand"

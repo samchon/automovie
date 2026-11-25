@@ -9,7 +9,9 @@ import {
 import { serviceSystemLoad } from "./serviceSystemLoad";
 import { serviceSystemReach } from "./serviceSystemReach";
 
-/** Append declared capacity and root-reach findings in system then node declaration order.
+/**
+ * Append declared capacity and root-reach findings in system then node
+ * declaration order.
  */
 export function appendServiceNetworkCapacity(
   network: IAutoMovieServiceNetwork,
@@ -24,7 +26,7 @@ export function appendServiceNetworkCapacity(
       // hydraulic or electrical one: nothing here diversifies, and
       // `serviceAnalysisSupport` says so by name.
       const load: number = serviceSystemLoad({ network, system });
-      if (Number.isFinite(system.capacity) && load > system.capacity)
+      if (load > system.capacity)
         out.push(
           "range",
           `${root}.systems[${index}].capacity`,

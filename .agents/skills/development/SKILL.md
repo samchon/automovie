@@ -23,7 +23,7 @@ Every maintained declaration answers the checklists its package selects, as [con
 
 Annotate variables, parameters and return types wherever TypeScript allows it.
 
-A source file has fewer than 500 lines and exports one symbol named after it, barrels excepted.
+A package source file exports one symbol named after it, barrels excepted. Split a file by responsibility when it holds separable parts, not by line count.
 
 Name canonical object contracts and unions `IAutoMovie*` and scalar, literal, tuple and utility aliases `AutoMovie*`. Name them by meaning. Keep type-only namespace members short. Check units, frames, invariants and ownership before reusing types. Use `const enum` for interface enums and verify their behavior in emit and at consumers.
 

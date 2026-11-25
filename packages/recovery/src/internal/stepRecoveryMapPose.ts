@@ -5,14 +5,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
- * Apply an independent left SO3 and additive translation resection step.
- */
+/** Apply an independent left SO3 and additive translation resection step. */
 export function stepRecoveryMapPose(
   pose: IAutoMovieRecoveryMapPose,
   step: readonly number[],
 ): IAutoMovieRecoveryMapPose {
-  if (step.length !== 6 || !step.every(Number.isFinite))
+  if (step.length !== 6)
     throw new Error("camera-map: finite six-coordinate update required");
   const angle: number = Math.hypot(step[0]!, step[1]!, step[2]!);
   const increment: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -35,7 +33,5 @@ export function stepRecoveryMapPose(
     pose.translation[1] + step[4]!,
     pose.translation[2] + step[5]!,
   ];
-  if (![...rotation, ...translation].every(Number.isFinite))
-    throw new Error("camera-map: nonrepresentable pose update");
   return { rotation, translation };
 }

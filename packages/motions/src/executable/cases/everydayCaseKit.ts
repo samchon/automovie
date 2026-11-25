@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,18 +15,33 @@ import { poseBones } from "../../posture/poseBones";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
 /**
  * The shared readers of the everyday capture cases (`everydayCases`): a
  * performance of polygon men, a performer's figure, a segment's event, the
  * angle between two directions and a body's rest frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the readers and their reader.
- * @evidence contracts/development/design.md#principled-representation Plain functions over the performance and the polygon man.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The five readers the everyday case files share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value is read from the performance or the body.
  */
 export namespace everydayCaseKit {
-  /** One body's case context: its id, its polygon man, its body and the case names' suffix. */
+  /**
+   * One body's case context: its id, its polygon man, its body and the case
+   * names' suffix.
+   */
   export interface IContext {
     /** The sweep body's id. */
     id: string;
@@ -55,7 +71,10 @@ export namespace everydayCaseKit {
   ): IAutoMovieMotionHumanPerformance =>
     perform([[c.man, { x: 0, y: 0, z: 0 }, 0]], chain, props);
 
-  /** A performance of polygon men at places and headings, the first `a` and the second `b`, among the scene's props. */
+  /**
+   * A performance of polygon men at places and headings, the first `a` and the
+   * second `b`, among the scene's props.
+   */
   export function perform(
     people: [humanPolygonMan.IPolygonMan, IAutoMovieVector3, number][],
     chain: IAutoMovieMotionHumanChain,
@@ -77,9 +96,9 @@ export namespace everydayCaseKit {
 
   /** A drawn performer. */
   export function figure(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
-    man: humanPolygonMan.IPolygonMan,
+    man: Pick<humanPolygonMan.IPolygonMan, "body">,
     color?: number,
   ): IMotionCaptureCase.IPerformer {
     return {
@@ -93,7 +112,7 @@ export namespace everydayCaseKit {
 
   /** The film second of an event of a person's n-th action. */
   export function event(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: IEventPerformance,
     subject: string,
     index: number,
     name: string,
@@ -120,7 +139,10 @@ export namespace everydayCaseKit {
     );
   }
 
-  /** A neutral aiming frame, for reading person targets; its own bones are the body at rest. */
+  /**
+   * A neutral aiming frame, for reading person targets; its own bones are the
+   * body at rest.
+   */
   export function frame(
     body: IAutoMovieMotionHumanBody,
   ): Parameters<IAutoMovieMotionHumanPerformance["aim"]>[2] {

@@ -2,7 +2,9 @@ import type { IAutoMovieSemanticMaskEntry } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
- * The nearest ancestor, including the object itself, that a palette claims. A descendant inherits its closest root's identity; an unclaimed chain returns undefined so the caller can count and paint reserved background.
+ * The nearest ancestor, including the object itself, that a palette claims. A
+ * descendant inherits its closest root's identity; an unclaimed chain returns
+ * undefined so the caller can count and paint reserved background.
  */
 export const nearest: (
   object: THREE.Object3D,

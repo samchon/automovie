@@ -15,13 +15,13 @@ import type { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
  *
  * Every lookup by id takes the first record carrying that id, so a duplicated
  * id grades against its first record and stays the artifact validators'
- * refusal. A node's world placement at a second
- * is its staged transform, each of translation, rotation and scale overridden
- * by the object-motion channel active then, with a rigged node's posed root
- * folded in at identity scale. A method that cannot place what it was asked
- * about throws an `Error` naming the missing node, rig, motion, landmark or
- * formation; the grade catches it and records the predicate or camera subject
- * as failing rather than guessing a position.
+ * refusal. A node's world placement at a second is its staged transform, each
+ * of translation, rotation and scale overridden by the object-motion channel
+ * active then, with a rigged node's posed root folded in at identity scale. A
+ * method that cannot place what it was asked about throws an `Error` naming the
+ * missing node, rig, motion, landmark or formation; the grade catches it and
+ * records the predicate or camera subject as failing rather than guessing a
+ * position.
  */
 export interface IAutoMovieShotContractSubjectReader {
   /**
@@ -37,8 +37,8 @@ export interface IAutoMovieShotContractSubjectReader {
   formation(id: string): IAutoMovieCompiledFormation | undefined;
 
   /**
-   * The shot's performance of this scene node, or `undefined` when the node
-   * is not performed in this shot.
+   * The shot's performance of this scene node, or `undefined` when the node is
+   * not performed in this shot.
    */
   performance(node: string): IAutoMovieShotPerformance | undefined;
 
@@ -49,8 +49,8 @@ export interface IAutoMovieShotContractSubjectReader {
   skeleton(node: IAutoMovieSceneNode): IAutoMovieSkeleton | null;
 
   /**
-   * The node's pose at a shot-local second. A performed node samples the
-   * motion its performance names at `time - startOffset`, clamped to zero; an
+   * The node's pose at a shot-local second. A performed node samples the motion
+   * its performance names at `time - startOffset`, clamped to zero; an
    * unperformed node samples its own motion at `time`. With no motion, the
    * node's held pose answers, or an empty pose of its rig when it holds none.
    *
@@ -63,8 +63,8 @@ export interface IAutoMovieShotContractSubjectReader {
    * second: a literal point, a world landmark, a node's placed translation, or
    * a formation's compiled centroid carried by its cue at that second.
    *
-   * Throws when the landmark, node or compiled formation it names is absent,
-   * or the node's pose cannot be sampled.
+   * Throws when the landmark, node or compiled formation it names is absent, or
+   * the node's pose cannot be sampled.
    */
   spatialAt(
     selector: IAutoMovieShotSpatialSelector,
@@ -73,9 +73,9 @@ export interface IAutoMovieShotContractSubjectReader {
 
   /**
    * The placement a required camera subject is boxed through: for a subject
-   * with a formation design, its sampled centroid with an identity rotation
-   * and scale, which the formation box never reads; otherwise the node's
-   * world placement.
+   * with a formation design, its sampled centroid with an identity rotation and
+   * scale, which the formation box never reads; otherwise the node's world
+   * placement.
    *
    * Throws when the subject cannot be placed.
    */
@@ -89,9 +89,9 @@ export interface IAutoMovieShotContractSubjectReader {
    * through `placement` by `nodeSubjectBox`; its model's rest geometry is the
    * source, its rig's joint span stands in without a model, and the stand-in
    * height without either. The floor and width of the drawn box are kept
-   * because the solve raised its aim and stood back by them. A formation is
-   * its whole transformed footprint from `formationSubjectBox` at `time`,
-   * widened by a member's radius and raised by a member's height.
+   * because the solve raised its aim and stood back by them. A formation is its
+   * whole transformed footprint from `formationSubjectBox` at `time`, widened
+   * by a member's radius and raised by a member's height.
    */
   subjectBox(
     subject: string,

@@ -6,6 +6,7 @@ import type {
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
+import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createBookcase } from "../../furniture/createBookcase";
 import { createDrawerUnit } from "../../furniture/createDrawerUnit";
 import { createSeat } from "../../furniture/createSeat";
@@ -40,11 +41,11 @@ export function createOfficeKit(
   return (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
-    const seed: string | undefined = context.seed;
-    const draw: (role: string) => string | undefined = (
+    const seed: number | undefined = context.seed;
+    const draw: (role: string) => number | undefined = (
       role: string,
-    ): string | undefined =>
-      seed === undefined ? undefined : `${seed}/${role}`;
+    ): number | undefined =>
+      seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
     const desk: IAutoMovieModel = createTable({ kind: "desk" }, draw("desk"));
     const chair: IAutoMovieModel = createSeat(
       { kind: "office" },

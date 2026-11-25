@@ -5,9 +5,7 @@ import {
 
 import { worldSurfaceContains } from "./worldSurfaceContains";
 
-/**
- * Select the first declared world surface containing an XZ point.
- */
+/** Select the first declared world surface containing an XZ point. */
 export const worldGroundSurface: (
   surfaces: readonly IAutoMovieWorldSurface[],
   point: IAutoMovieGroundQueryPoint,

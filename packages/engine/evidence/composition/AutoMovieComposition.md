@@ -1,21 +1,3 @@
-# src/composition/AutoMovieComposition.ts#AutoMovieComposition
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents reference sharing, the seconds clock and the boundary between tree construction and schedule resolution.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Returns the discriminated composition contracts owned by interface; sequence, parallel and anchor alignment remain distinct nodes, while temporal validity belongs to schedule resolution.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns only the four stateless construction helpers used by composition authors; the public node and part types are imported from interface.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Accepts the shared part union and preserves caller nodes without consumer-specific alternatives, hidden state or casts that widen that union.
-
 # src/composition/AutoMovieComposition.ts#AutoMovieComposition.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

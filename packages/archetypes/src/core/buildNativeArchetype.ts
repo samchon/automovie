@@ -1,20 +1,15 @@
-import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
 import { AutoMovieArchetype } from "./AutoMovieArchetype";
 
 /**
- * Build an archetype from the builder's own rest arrays.
+ * Build an archetype from the builder's own rest arrays: the builder's
+ * constructor seam, kept in its own module so the builder imports the model
+ * only as a type.
+ *
+ * @param props The rest geometry, contacts and properties the builder made.
+ * @returns The model over those arrays.
  */
 export function buildNativeArchetype<Id extends string, D extends string>(
   props: AutoMovieArchetype.IProps<Id, D>,
 ): AutoMovieArchetype<Id, D> {
-  let native: boolean = false;
-  const model: AutoMovieArchetype<Id, D> = ArchetypePartOwnership.observe(
-    props.parts,
-    (): AutoMovieArchetype<Id, D> => new AutoMovieArchetype<Id, D>(props),
-    (owned: boolean): void => {
-      native = owned;
-    },
-  );
-  if (native) ArchetypePartOwnership.remember(model);
-  return model;
+  return new AutoMovieArchetype<Id, D>(props);
 }

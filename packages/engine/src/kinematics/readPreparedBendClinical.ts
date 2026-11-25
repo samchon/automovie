@@ -1,14 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
-import { BendClinicalNodes } from "./BendClinicalNodes";
-import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
-import { normalizeJointAxes } from "./normalizeJointAxes";
 
 /** Current axes and limits already selected by the ordinary arm scorer. */
 interface IAutoMoviePreparedBendClinical {
@@ -28,168 +28,91 @@ interface IAutoMoviePreparedBendClinical {
 type AutoMovieClinicalWords = (number | string | null | undefined)[];
 
 /** Clinical directions and channels in their comparison order. */
-const AXES: readonly string[] = ["flexion", "abduction", "twist"];
+const AXES = ["flexion", "abduction", "twist"] as const;
 
 /**
  * Capture the current clinical words consumed by an ordinary elbow sweep.
  *
  * @param input Already selected bone names, axes and clinical ranges.
- * @returns Exact scalar words in their native order, or undefined if the known records cannot prove an own-data read.
+ * @returns Exact scalar words in their native order.
  */
 export function readPreparedBendClinical(
   input: IAutoMoviePreparedBendClinical,
-): readonly (number | string | null | undefined)[] | undefined {
+): readonly (number | string | null | undefined)[] {
   const { upperBone, lowerBone, handBone } = input;
   const words: AutoMovieClinicalWords = [upperBone, lowerBone, handBone];
-  if (
-    !normalizeJointAxes.owns(input.upperBasis) ||
-    !normalizeJointAxes.owns(input.lowerBasis) ||
-    !PoseResolutionSnapshot.ownsAxes(input.lowerAxes) ||
-    !PoseResolutionSnapshot.ownsAxes(input.handAxes) ||
-    !axes(input.upperBasis, words) ||
-    !axes(input.lowerBasis, words) ||
-    !axes(input.lowerAxes, words) ||
-    !axes(input.handAxes, words) ||
-    !range(input.upperRange, words) ||
-    !range(input.lowerRange, words) ||
-    !range(input.handRange, words)
-  )
-    return undefined;
-
+  for (const basis of [
+    input.upperBasis,
+    input.lowerBasis,
+    input.lowerAxes,
+    input.handAxes,
+  ])
+    axes(basis, words);
+  for (const constraint of [
+    input.upperRange,
+    input.lowerRange,
+    input.handRange,
+  ])
+    range(constraint, words);
   for (const bone of [upperBone, lowerBone, handBone]) {
-    const defaults: PropertyDescriptor | null = field(
-      HUMANOID_JOINT_AXES,
-      bone,
-    );
-    const rest: PropertyDescriptor | null = field(HUMANOID_REST_FRAME, bone);
-    if (defaults === null || rest === null || !frame(rest.value, words))
-      return undefined;
-
-    const basis: unknown = defaults.value;
+    frame(HUMANOID_REST_FRAME[bone], words);
+    const basis: IAutoMovieJointAxes | undefined = HUMANOID_JOINT_AXES[bone];
     words.push(basis === undefined ? undefined : "default axes");
-    if (
-      basis !== undefined &&
-      (!BendClinicalNodes.owns(basis) ||
-        !AXES.every((axis: string): boolean =>
-          BendClinicalNodes.owns(field(basis, axis)?.value),
-        ) ||
-        !axes(basis, words))
-    )
-      return undefined;
+    if (basis !== undefined) axes(basis, words);
   }
   return words;
 }
 
-/** Read an own data field or prove its absence on an ordinary known record. */
-function field(owner: object, key: string): PropertyDescriptor | null {
-  if (Object.getPrototypeOf(owner) !== Object.prototype) return null;
-  const own: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(
-    owner,
-    key,
-  );
-  if (own !== undefined) return "value" in own ? own : null;
-  return Object.getOwnPropertyDescriptor(Object.prototype, key) === undefined
-    ? { value: undefined }
-    : null;
-}
-
-/** Append finite components of an already owned record in the given order. */
-function numbers(
-  value: unknown,
-  keys: readonly string[],
-  words: AutoMovieClinicalWords,
-): boolean {
-  if (typeof value !== "object" || value === null) return false;
-  for (const key of keys) {
-    const scalar: unknown = field(value, key)?.value;
-    if (typeof scalar !== "number" || !Number.isFinite(scalar)) return false;
-    words.push(scalar);
-  }
-  return true;
-}
-
-/** Read the three owned direction vectors and optional basis conventions. */
-function axes(value: object, words: AutoMovieClinicalWords): boolean {
+/** Append the three direction vectors and optional basis conventions. */
+function axes(value: IAutoMovieJointAxes, words: AutoMovieClinicalWords): void {
   for (const axis of AXES)
-    if (!numbers(field(value, axis)?.value, ["x", "y", "z"], words))
-      return false;
-  for (const key of ["twistPlacement", "rotationOrder"]) {
-    const record: PropertyDescriptor | null = field(value, key);
-    if (
-      record === null ||
-      (record.value !== undefined && typeof record.value !== "string")
-    )
-      return false;
-    words.push(record.value);
-  }
-  return true;
+    words.push(value[axis].x, value[axis].y, value[axis].z);
+  words.push(value.twistPlacement, value.rotationOrder);
 }
 
-/** Read current constraints and their optional swing/twist gate. */
-function range(value: unknown, words: AutoMovieClinicalWords): boolean {
+/** Append a current constraint and its optional swing/twist gate. */
+function range(
+  value: IAutoMovieJointConstraint | null,
+  words: AutoMovieClinicalWords,
+): void {
   if (value === null) {
     words.push(null);
-    return true;
+    return;
   }
-  if (!BendClinicalNodes.owns(value)) return false;
   words.push("constraint");
-  for (const key of AXES)
-    if (!interval(field(value, key)?.value, words)) return false;
-  const swing: PropertyDescriptor | null = field(value, "swingDeg");
-  const turn: PropertyDescriptor | null = field(value, "swingTwist");
-  if (swing === null || turn === null || !optional(swing.value, words))
-    return false;
-  if (turn.value === undefined) {
+  for (const key of AXES) interval(value[key], words);
+  words.push(value.swingDeg);
+  const gate: IAutoMovieJointConstraint["swingTwist"] = value.swingTwist;
+  if (gate === undefined || gate === null) {
     words.push(undefined);
-    return true;
+    return;
   }
-  const gate: unknown = turn.value;
-  if (
-    !BendClinicalNodes.owns(gate) ||
-    !interval(field(gate, "twist")?.value, words)
-  )
-    return false;
-  const reach: PropertyDescriptor | null = field(gate, "reach");
-  return reach !== null && optional(reach.value, words);
+  interval(gate.twist, words);
+  words.push(gate.reach);
 }
 
-/** Read an optional finite bound without coercion. */
-function optional(value: unknown, words: AutoMovieClinicalWords): boolean {
-  if (
-    value !== undefined &&
-    (typeof value !== "number" || !Number.isFinite(value))
-  )
-    return false;
-  words.push(value);
-  return true;
+/** Append a nullable interval of the current chart. */
+function interval(
+  value: IAutoMovieAngleRange | null,
+  words: AutoMovieClinicalWords,
+): void {
+  if (value === null) words.push(null);
+  else words.push(value.min, value.max);
 }
 
-/** Read a nullable interval of the current chart. */
-function interval(value: unknown, words: AutoMovieClinicalWords): boolean {
-  if (value === null) {
-    words.push(null);
-    return true;
-  }
-  return BendClinicalNodes.owns(value) && numbers(value, ["min", "max"], words);
-}
-
-/** Read each current clinical affine map, preserving absent axes. */
-function frame(value: unknown, words: AutoMovieClinicalWords): boolean {
+/** Append each current clinical affine map, preserving absent axes. */
+function frame(
+  value: IAutoMovieRestFrame | undefined,
+  words: AutoMovieClinicalWords,
+): void {
   if (value === undefined) {
     words.push(undefined);
-    return true;
+    return;
   }
-  if (!BendClinicalNodes.owns(value)) return false;
   words.push("rest frame");
   for (const axis of AXES) {
-    const descriptor: PropertyDescriptor | null = field(value, axis);
-    if (descriptor === null) return false;
-    if (descriptor.value === undefined) words.push(undefined);
-    else if (
-      !BendClinicalNodes.owns(descriptor.value) ||
-      !numbers(descriptor.value, ["sign", "neutral"], words)
-    )
-      return false;
+    const map: IAutoMovieAxisFrame | undefined = value[axis];
+    if (map === undefined) words.push(undefined);
+    else words.push(map.sign, map.neutral);
   }
-  return true;
 }

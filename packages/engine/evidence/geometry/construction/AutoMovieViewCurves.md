@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewCurves.ts#AutoMovieViewCurves
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes source frames and scalar jets from the final loft and from unavailable world jets.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The four original view edges, evaluated independently of section/fullness admission and of final coefficient interpolation: companion namespace of 5 members (`ICurve`, `IResult`, `IReading`, `create`, `at`); units and frames named in its text: frame, world, frames. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewCurves` in packages/engine/src/geometry/construction/AutoMovieViewCurves.ts; its surface is the 5 members listed and the text shows 18 other files naming it, mostly packages/human (11), test (6), packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieViewCurves.ts#AutoMovieViewCurves.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

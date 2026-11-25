@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -18,25 +19,18 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareSupportContactForm } from "./prepareSupportContactForm";
 import { supportContactOnFloor } from "./supportContactOnFloor";
 
+/** The alternatives of `IdPlaced`'s site. */
+type IdPlaced = number | string;
+
 /**
- * A support planner's contact (`support`) as the whole-body fit takes it
- * and as the course between keys pivots about it: the bone and point that
- * bear, the place held, the normal laid flat and the bones that bear on the
- * floor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read for each part.
- * @evidence contracts/development/design.md#principled-representation A contact becomes a fit target and a bearing pattern, and a part the bone its contact rides.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The form, its preparation, contact identity and schedule helpers, the swing target and the point readers, read by the support law and its keys, windows and intervals.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The normals are the quiet stance's and the palm socket's own; no angle is typed.
+ * A support planner's contact (`support`) as the whole-body fit takes it and as
+ * the course between keys pivots about it: the bone and point that bear, the
+ * place held, the normal laid flat and the bones that bear on the floor.
  */
 export namespace supportContact {
   /**
-   * A contact as the fit takes it: its target and the part that bears on the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it gives the fit.
-   * @evidence contracts/development/design.md#principled-representation The fit's target plus, for a floor contact, the bones that bear.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by supportKey.solved.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is the fit's own type.
+   * A contact as the fit takes it: its target and the part that bears on the
+   * floor.
    */
   export interface IForm {
     /** The fit's target. */
@@ -46,36 +40,35 @@ export namespace supportContact {
     bearing?: RegExp;
   }
 
-  /** Body-fixed contact geometry shared within one operation; prepareSupportContactForm owns its lifetime and mapping. */
+  /**
+   * Body-fixed contact geometry shared within one operation;
+   * prepareSupportContactForm owns its lifetime and mapping.
+   */
   export const prepareForm: typeof prepareSupportContactForm =
     prepareSupportContactForm;
 
-  /** The form's existing floor-height predicate, without constructing unused target geometry. */
+  /**
+   * The form's existing floor-height predicate, without constructing unused
+   * target geometry.
+   */
   export const onFloorTarget: typeof supportContactOnFloor =
     supportContactOnFloor;
 
   /**
-   * The target of a part stepping from one contact to another, at the top
-   * of its swing: over the middle of the step, lifted by a stepping limb's
-   * rise (`crawl.LIFT`) above the higher end, its surface facing as it will
-   * bear. Where only one end has a place the swing rises over it; where
-   * neither has, the part swings free.
+   * The target of a part stepping from one contact to another, at the top of
+   * its swing: over the middle of the step, lifted by a stepping limb's rise
+   * (`crawl.LIFT`) above the higher end, its surface facing as it will bear.
+   * Where only one end has a place the swing rises over it; where neither has,
+   * the part swings free.
    *
    * @param form The plan's contact forms (`prepareForm`) for its body.
    * @param to The contact it steps to.
    * @param from Where it leaves, world metres; no place when null.
    * @param onto Where it sets down, world metres; no place when null.
-   * @param via A caller-owned world waypoint that clears the obstacle, when given.
+   * @param via A caller-owned world waypoint that clears the obstacle, when
+   *   given.
    * @param rise How high the swing clears the higher end, metres.
    * @returns The fit's target, or null for a step with no place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the top's place, the one-ended and placeless cases and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The step's midpoint raised the rise above its higher end, formed as a bearing contact so its surface faces as it will bear.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ends, one top, one form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A step with no place swings free rather than toward an invented point.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the caller's prepared forms.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the caller's form preparation, so a foot's quiet-stance normal is measured once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh target and retains nothing.
    */
   export function swing(
     form: ReturnType<typeof prepareSupportContactForm>,
@@ -98,21 +91,13 @@ export namespace supportContact {
   }
 
   /**
-   * The contact window's part a support part bears through: a knee through
-   * its shin, the lower leg's window; the trunk's window named by the back
-   * for every lying position, the front's too, as the lying law names it
+   * The contact window's part a support part bears through: a knee through its
+   * shin, the lower leg's window; the trunk's window named by the back for
+   * every lying position, the front's too, as the lying law names it
    * (`lieDown`); any other part its own.
    *
    * @param part The support part.
    * @returns The contact window's part name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each part's window.
-   * @evidence contracts/development/implementation.md#principled-implementation A knee bears through the lower leg and the trunk's front through the lying window the back names.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every other part keeps its own name.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function window(part: IAutoMovieMotionHumanSupport.Part): string {
     return part.endsWith("Knee")
@@ -123,20 +108,12 @@ export namespace supportContact {
   }
 
   /**
-   * The limb a part belongs to, which steps as one: a foot and its knee are
-   * one leg, a hand its arm; a part of the trunk is its own, since the
-   * trunk rolls from one to another and never steps.
+   * The limb a part belongs to, which steps as one: a foot and its knee are one
+   * leg, a hand its arm; a part of the trunk is its own, since the trunk rolls
+   * from one to another and never steps.
    *
    * @param part The support part.
    * @returns The limb's name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each part's limb and why the trunk's parts stand alone.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot and a knee are one leg and a hand is its arm, read from the part's side and kind.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every trunk part keeps its own name.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function limb(part: IAutoMovieMotionHumanSupport.Part): string {
     return part.endsWith("Foot") || part.endsWith("Knee")
@@ -152,14 +129,6 @@ export namespace supportContact {
    * @param a A contact.
    * @param b Another.
    * @returns Whether their identities match.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what makes two contacts one.
-   * @evidence contracts/development/implementation.md#principled-implementation Compares the two identities `id` gives.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No field is ignored.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two identity strings.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `id`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function same(
     a: IAutoMovieMotionHumanSupport.IContact,
@@ -167,38 +136,24 @@ export namespace supportContact {
   ): boolean {
     return id(a) === id(b);
   }
+  /** A contact, with the stance it was set down in once it is placed. */
+  type IdC = IAutoMovieMotionHumanSupport.IContact &
+    Partial<Pick<IPlaced, "placed">>;
 
   /**
-   * A contact's identity: its part, how it touches, its target, its inset
-   * and the stance it was set down in (`placements`), empty for a contact
-   * not yet placed.
+   * A contact's identity: its part, how it touches, its target, its inset and
+   * the stance it was set down in (`placements`), empty for a contact not yet
+   * placed.
    *
    * @param c The contact.
    * @returns The identity string.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fields the identity carries.
-   * @evidence contracts/development/implementation.md#principled-implementation Joins the fields that tell two contacts apart, the target by its JSON form.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One template string.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the placement only where the contact carries one, without widening its type.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the target's JSON size.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function id(
-    c: IAutoMovieMotionHumanSupport.IContact | IPlaced,
-  ): string {
-    const placed: number | string = "placed" in c ? c.placed : "";
+  export function id(c: IdC): string {
+    const placed: IdPlaced = c.placed ?? "";
     return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${placed}`;
   }
 
-  /**
-   * A contact with the index of the stance it was last set down in.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the added member.
-   * @evidence contracts/development/design.md#principled-representation A schedule's contact plus the stance index that tells a re-placed contact apart.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One member, read by `id` and `placements`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the interface's contact type rather than copying it.
-   */
+  /** A contact with the index of the stance it was last set down in. */
   export interface IPlaced extends IAutoMovieMotionHumanSupport.IContact {
     /** The stance it was set down in. */
     placed: number;
@@ -212,14 +167,6 @@ export namespace supportContact {
    *
    * @param stances The authored stances.
    * @returns The stances with placed contacts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when a contact carries its placement over and when it is set down anew.
-   * @evidence contracts/development/implementation.md#principled-implementation Each contact matched against the stance before by part, kind, inset and target.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the stances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A `step` contact is always set down anew.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(C^2) per adjacent pair of stances with C contacts each.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One read per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh stances and retains nothing.
    */
   export function placements(
     stances: readonly IAutoMovieMotionHumanSupport.IStance[],
@@ -256,25 +203,17 @@ export namespace supportContact {
   }
 
   /**
-   * Where a contact on the action's surface (`on`) lies: on its own side of
-   * the surface's point (a hand out by the shoulder's half width, a foot or
-   * a knee by the hip's, the trunk at its middle) and in from the edge
-   * along the heading by its inset (`HumanSupport.IContact.inset`), a share
-   * of the forearm and hand's length.
+   * Where a contact on the action's surface (`on`) lies: on its own side of the
+   * surface's point (a hand out by the shoulder's half width, a foot or a knee
+   * by the hip's, the trunk at its middle) and in from the edge along the
+   * heading by its inset (`HumanSupport.IContact.inset`), a share of the
+   * forearm and hand's length.
    *
    * @param body The body.
    * @param c The contact.
    * @param edge The surface's point, world metres.
    * @param yaw The heading the body enters with, degrees.
    * @returns The place, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the lateral and inward rule, the frame and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation A point in the surface's heading frame: out by the body's shoulder or hip half width on its side, in by the inset's share of forearm and hand.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One side sign, one half width, one frame point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's measure.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point and retains nothing.
    */
   export function onSurface(
     body: IAutoMovieMotionHumanBody,
@@ -300,16 +239,8 @@ export namespace supportContact {
   }
 
   /**
-   * Where support parts bear in one posture, dropped to the floor: the
-   * places contacts without one keep, in the parts' order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture/body, ordered part datums and world-metre floor projection.
-   * @evidence contracts/development/implementation.md#principled-implementation Maps each part to the bone its contact rides (toes, hand, lower leg, hips), reads that bone's resolved origin, then keeps its x/z with y zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private batch owns the bone observation, followed by one ordered floor projection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sole offset, declared target, guessed height or fitted-pose reuse replaces the bone-origin datum.
-   * @evidence contracts/development/implementation.md#efficient-algorithms N parts share one canonical observational solve and one FK of their named bones/ancestry instead of N solves; empty input performs no solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All parts observe the same unchanged input in one synchronous invocation; canonical ordered admission and unsupported-context full fallback remain in the resolver.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary bone names, current map and workspace end with the call; N fresh world-metre floor points return with no retained current pose or history.
+   * Where support parts bear in one posture, dropped to the floor: the places
+   * contacts without one keep, in the parts' order.
    */
   export function onFloors(
     body: IAutoMovieMotionHumanBody,
@@ -329,14 +260,6 @@ export namespace supportContact {
    * Read contact points on one unchanged candidate posture in their given
    * order. Its actual canonical observation and FK are shared within this
    * synchronous call; each local contact offset keeps the form's owner.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States unchanged candidate/body, ordered world-metre outputs, shared synchronous observation and canonical contact offsets; optional FK/ROM inputs are current-query loans only.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds each original contact form and transforms its exact local offset through the actual resolved target bone, with the resolver's existing observational-demand guards.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms determine one demanded-bone set, one canonical solve/FK supplies those frames, then one ordered transform pass emits the points.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All target offsets, authored admission, relevant limb/digit fits and unsupported-context full fallbacks remain canonical; no declared target substitutes for an achieved bone point.
-   * @evidence contracts/development/implementation.md#efficient-algorithms N contacts share one candidate pose/FK instead of N repeated solves; point-only forms demand no unused quiet-foot-normal solve, only target frames and ancestry are requested, and an empty request performs no solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All contacts observe exactly this same unchanged candidate/body in one synchronous operation. Optional parent FK/ROM sources share only exact prerequisites; every current joint/fit remains canonical, and the current map, metadata reader and prepared form do not escape.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources N target records, one bounded name set and current bone map end with this call or throw; only N fresh world points return and no workspace, posed result or history is retained.
    */
   export function points(
     body: IAutoMovieMotionHumanBody,
@@ -354,16 +277,10 @@ export namespace supportContact {
    * actual current posture; no achieved point or pose is prepared here.
    *
    * @param body The unchanged body/surfaces/rig.
-   * @param contacts Fixed ordered contact/target pairs, including null floor places.
-   * @returns A fresh-point reader borrowing optional exact FK and genuine ROM metadata only for its current synchronous call.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines immutable body/contact/target geometry, ordered world-metre outputs, fresh current observations and nonescaping optional FK/ROM sources.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing point-only form owner supplies each exact local datum. A canonical actual posture solve and demanded FK transform those datums by their current bones under the original guarded observational policy.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed forms, ordered targets and a genuine named-frame reader prepare once; each current query performs the same canonical solve/FK and ordered rigid transforms as points.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No declared target replaces its achieved point; relevant limb/digit fits, every authored joint and unsupported-context full fallback remain native. Point-only preparation retains the existing omission of unused quiet-foot normals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) contact/name preparation serves Q observations without rebuilding their forms/name set or FK demand. Each observation still resolves its complete current authored inputs and transforms N actual contact datums; an empty list needs no solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/surface/contact/target geometry proves fixed forms and demands. Every current posture/achieved point remains evaluated; schedule-dependent consumers discard this producer at settle before using final target geometry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed-contact operation owns N target datums and a bounded genuine name reader until release or settlement. Each call's borrowed/owned workspace, current pose and map end on return or throw; no posed result, current point or query history is stored.
+   * @param contacts Fixed ordered contact/target pairs, including null floor
+   *   places.
+   * @returns A fresh-point reader borrowing optional exact FK and genuine ROM
+   *   metadata only for its current synchronous call.
    */
   export function preparePoints(
     body: IAutoMovieMotionHumanBody,
@@ -436,7 +353,10 @@ export namespace supportContact {
     at: IAutoMovieVector3 | null;
   }
 
-  /** Observe one candidate's part-origin frames without a goal or offset substitution. */
+  /**
+   * Observe one candidate's part-origin frames without a goal or offset
+   * substitution.
+   */
   function pinnedMany(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -445,7 +365,7 @@ export namespace supportContact {
     if (parts.length === 0) return [];
     const names: AutoMovieHumanoidBone[] = parts.map(
       (part: IAutoMovieMotionHumanSupport.Part): AutoMovieHumanoidBone => {
-        const side: "left" | "right" = part.startsWith("left")
+        const side: AutoMovieHumanSide = part.startsWith("left")
           ? "left"
           : "right";
         return part.endsWith("Foot")

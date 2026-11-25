@@ -2,9 +2,7 @@ import type * as THREE from "three";
 
 import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetViewerStats.js";
 
-/**
- * Viewer-owned chunked object for a compiled general instance set.
- */
+/** Viewer-owned chunked object for a compiled general instance set. */
 export interface IAutoMovieInstanceSetViewerObject {
   /** Add this group to the current scene. */
   object: THREE.Group;
@@ -19,8 +17,6 @@ export interface IAutoMovieInstanceSetViewerObject {
    */
   dispose(): void;
 
-  /**
-   * Recompute chunk visibility for the current camera.
-   */
+  /** Recompute chunk visibility for the current camera. */
   update(camera: THREE.PerspectiveCamera, viewportHeight: number): void;
 }

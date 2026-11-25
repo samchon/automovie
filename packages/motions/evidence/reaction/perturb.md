@@ -1,21 +1,3 @@
-# src/reaction/perturb.ts#perturb
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which forces are read and over which span, each outcome's motion with its source, the refusal and the first pass's limits.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record: name, cancel table, acceptance, parameters and a plan; the outcome is a closed union with `auto`.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The outcome the author may fix and the plan; the balance mechanics are the engine's and the step and the fall are `stagger`'s and `knockdown`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No threshold of its own decides the outcome: the engine's capture bounds do.
-
 # src/reaction/perturb.ts#perturb.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -24,7 +6,7 @@ States the input, the plan and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push `stagger` cannot catch is a fall); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
+The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push the stagger's admission, `staggerRecovery`, does not catch is a fall; any other refusal of the stagger surfaces); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

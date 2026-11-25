@@ -5,7 +5,9 @@ import {
 } from "@automovie/interface";
 
 /**
- * Resolve an exact film-global frame or frame-grid second to its latest owning canonical segment and source-shot frame; missing timeline, off-grid time and gaps throw.
+ * Resolve an exact film-global frame or frame-grid second to its latest owning
+ * canonical segment and source-shot frame; missing timeline, off-grid time and
+ * gaps throw.
  */
 export function measureAutoMovieGeometryFilmTime(
   props: IAutoMovieGeometryMeasurementInput,
@@ -27,8 +29,6 @@ export function measureAutoMovieGeometryFilmTime(
   const globalFrame: number = Math.round(raw);
 
   if (
-    Number.isFinite(raw) === false ||
-    Number.isSafeInteger(globalFrame) === false ||
     globalFrame < 0 ||
     globalFrame >= timeline.totalFrames ||
     Math.abs(raw - globalFrame) >

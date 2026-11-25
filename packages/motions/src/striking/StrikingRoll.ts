@@ -21,28 +21,53 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingStrain } from "./StrikingStrain";
 
+/** The record of `IHandCandidate`'s site. */
+type IHandCandidate = { values: number[] };
+
+/** The record of `IHandB`'s site. */
+type IHandB = { rank: number };
+
+/** The record of `IHandA`'s site. */
+type IHandA = { rank: number };
+
+/** The record of `IHandCandidatesItem`'s site. */
+type IHandCandidatesItem = { values: number[]; rank: number };
+
+/**
+ * The body at the decisive instant, or its reader per candidate frame: the
+ * union the interface declares (`IAutoMovieMotionHumanStrikingRoll.IChoice`).
+ */
+type HandPosture = IAutoMovieMotionHumanStrikingRoll.IChoice["posture"];
+
 /**
  * Whether the arm can hold a held tool in a pose, and the turn of the tool
  * about its own line where the action leaves it free.
  *
- * The hand holds the tool as it took it, so a pose of the tool asks the
- * hand for one rotation, and the arm gives it only inside the ranges of the
- * shoulder, the forearm's twist and the wrist. What the arm gives is found
- * the only way that counts the ranges: the arm is fitted to the pose on the
- * body as it stands at the decisive instant, and the tool is read back from
- * the fitted hand. A pose the fitted hand misses is never played: it is
- * refused when the plan is built.
+ * The hand holds the tool as it took it, so a pose of the tool asks the hand
+ * for one rotation, and the arm gives it only inside the ranges of the
+ * shoulder, the forearm's twist and the wrist. What the arm gives is found the
+ * only way that counts the ranges: the arm is fitted to the pose on the body as
+ * it stands at the decisive instant, and the tool is read back from the fitted
+ * hand. A pose the fitted hand misses is never played: it is refused when the
+ * plan is built.
  *
- * A thrust states where the point goes and about which way the blade runs,
- * a levelled muzzle where the bore points, and neither states which way the
- * edge or the sights face; `hand` chooses that turn, and a lean of the line
- * inside a cone, by the same fit.
+ * A thrust states where the point goes and about which way the blade runs, a
+ * levelled muzzle where the bore points, and neither states which way the edge
+ * or the sights face; `hand` chooses that turn, and a lean of the line inside a
+ * cone, by the same fit.
  */
 export namespace StrikingRoll {
-  /** How far the fitted hand may leave a tool's point of its decisive pose before the pose is refused, metres: under the campaign's 15 mm contact bound, so a planned pose that passes also passes on screen. */
+  /**
+   * How far the fitted hand may leave a tool's point of its decisive pose
+   * before the pose is refused, metres: under the campaign's 15 mm contact
+   * bound, so a planned pose that passes also passes on screen.
+   */
   export const MISS: number = 0.01;
 
-  /** How many of the candidate frames, the nearest by the arm's two-segment reach, are fitted before one is chosen. */
+  /**
+   * How many of the candidate frames, the nearest by the arm's two-segment
+   * reach, are fitted before one is chosen.
+   */
   export const TRIED: number = 16;
 
   /**
@@ -52,10 +77,14 @@ export namespace StrikingRoll {
    * @param context The action's context.
    * @param tool The tool.
    * @param frame The hand frame asked.
-   * @param back The point of the tool the pose keeps, metres behind its working point.
+   * @param back The point of the tool the pose keeps, metres behind its working
+   *   point.
    * @param posture The body as it stands at the decisive instant.
-   * @param resolution Optional exact FK workspace borrowed from this synchronous tool-pose search.
-   * @returns The greater of the kept point's and the working point's displacement, metres; a pose that keeps the working point itself reads the line at the tool's own length in place of the kept point.
+   * @param resolution Optional exact FK workspace borrowed from this
+   *   synchronous tool-pose search.
+   * @returns The greater of the kept point's and the working point's
+   *   displacement, metres; a pose that keeps the working point itself reads
+   *   the line at the tool's own length in place of the kept point.
    */
   export function miss(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -68,7 +97,13 @@ export namespace StrikingRoll {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       resolution ?? prepareHumanPoseResolution();
     const bend: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const goal: IAutoMovieHumanLimbGoal = StrikingHeld.goal(context, tool, frame, back, bend);
+    const goal: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
+      context,
+      tool,
+      frame,
+      back,
+      bend,
+    );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
       ...posture.limbs,
       [`${tool.side}Arm`]: {
@@ -78,9 +113,18 @@ export namespace StrikingRoll {
       },
     };
     const fittedPose: ReturnType<typeof resolveHumanPosture.seeded> =
-      resolveHumanPosture.seeded(context.body, { ...posture, limbs }, undefined, {}, read);
+      resolveHumanPosture.seeded(
+        context.body,
+        { ...posture, limbs },
+        undefined,
+        {},
+        read,
+      );
     const bones: ReturnType<typeof poseBones> = poseBones(
-      context.body, fittedPose.pose, read(), HANDS[tool.side],
+      context.body,
+      fittedPose.pose,
+      read(),
+      HANDS[tool.side],
     );
     const fitted: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
       point: HumanHand.frame(context.body, bones, tool.side, "grip").point,
@@ -90,16 +134,17 @@ export namespace StrikingRoll {
   }
 
   /**
-   * The hand frame that puts a point of the tool on a world point with the
-   * tool about along an axis, turned about its line and leaned inside a cone
-   * the way the arm holds it best.
+   * The hand frame that puts a point of the tool on a world point with the tool
+   * about along an axis, turned about its line and leaned inside a cone the way
+   * the arm holds it best.
    *
    * @param context The action's context.
    * @param tool The tool.
    * @param back How far behind the working point the placed point lies, metres.
    * @param at Where that point goes, world metres.
    * @param axis The world direction the tool is asked to run.
-   * @param cone How far the tool's line may leave that axis, degrees; 0 keeps it.
+   * @param cone How far the tool's line may leave that axis, degrees; 0 keeps
+   *   it.
    * @param posture The body as it stands at the decisive instant.
    * @returns The hand's grip frame.
    */
@@ -110,48 +155,85 @@ export namespace StrikingRoll {
     at: IAutoMovieVector3,
     axis: IAutoMovieVector3,
     cone: number,
-    posture:
-      | IAutoMovieMotionHumanPosture
-      | ((frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame) => IAutoMovieMotionHumanPosture),
+    posture: HandPosture,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
-    const from: IAutoMovieVector3 | undefined = typeof posture === "function" ? undefined : shoulder(context, tool.side, posture);
-    const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(along, Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 }));
-    const frame: IAutoMovieMotionHumanStrikingRoll.IChoice["frame"] = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    const from: IAutoMovieVector3 | undefined =
+      typeof posture === "function"
+        ? undefined
+        : shoulder(context, tool.side, posture);
+    const aside: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(
+        along,
+        Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
+      ),
+    );
+    const frame: IAutoMovieMotionHumanStrikingRoll.IChoice["frame"] = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [tilt, around, turn] = values as readonly [number, number, number];
-      const run: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.fromAxisAngle(along, around), Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along));
-      return StrikingHeld.hand(tool, back, at, run, Quaternion.rotateVector(Quaternion.fromAxisAngle(run, turn), Vector3.cross(run, aside)));
+      const run: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.fromAxisAngle(along, around),
+        Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
+      );
+      return StrikingHeld.hand(
+        tool,
+        back,
+        at,
+        run,
+        Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(run, turn),
+          Vector3.cross(run, aside),
+        ),
+      );
     };
-    const rank: (values: readonly number[]) => number = (values: readonly number[]): number => {
+    const rank: (values: readonly number[]) => number = (
+      values: readonly number[],
+    ): number => {
       const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
       try {
-        const actual: IAutoMovieVector3 = from ?? shoulder(context, tool.side, typeof posture === "function" ? posture(posed) : posture);
-        const measure: ReturnType<typeof StrikingStrain> = StrikingStrain(context.body, tool.side);
+        const actual: IAutoMovieVector3 =
+          from ??
+          shoulder(
+            context,
+            tool.side,
+            typeof posture === "function" ? posture(posed) : posture,
+          );
+        const measure: ReturnType<typeof StrikingStrain> = StrikingStrain(
+          context.body,
+          tool.side,
+        );
         return measure(posed, actual);
       } catch (error) {
         if (error instanceof HumanRefusal) return Infinity;
         throw error;
       }
     };
-    const candidates: { values: number[]; rank: number }[] = [];
+    const candidates: IHandCandidatesItem[] = [];
     for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
       for (let around: number = 0; around < 360; around += 45) {
         for (let turn: number = 0; turn < 360; turn += 30) {
           const values: number[] = [tilt, around, turn];
-          candidates.push({ values, rank: rank(values) + (0.1 * tilt * Math.PI) / 180 });
+          candidates.push({
+            values,
+            rank: rank(values) + (0.1 * tilt * Math.PI) / 180,
+          });
         }
         if (tilt === 0) break;
       }
-    candidates.sort((a: { rank: number }, b: { rank: number }): number => a.rank - b.rank);
+    candidates.sort((a: IHandA, b: IHandB): number => a.rank - b.rank);
     return chosen(context, tool, {
       frame,
-      tried: candidates.slice(0, TRIED).map((candidate: { values: number[] }): number[] => candidate.values),
+      tried: candidates
+        .slice(0, TRIED)
+        .map((candidate: IHandCandidate): number[] => candidate.values),
       freedoms: [
         { kind: "bounded", step: cone > 0 ? 5 : 0, least: 0, greatest: cone },
         { kind: "wrapped", step: 22.5, period: 360 },
         { kind: "wrapped", step: 15, period: 360 },
       ],
-      back, posture,
+      back,
+      posture,
     });
   }
 
@@ -159,8 +241,8 @@ export namespace StrikingRoll {
    * How far a tool pose is from one the arm holds with a straight wrist,
    * metres: a straight wrist puts the elbow one forearm back from the wrist
    * along the hand, and the arm holds the pose when that elbow lies one upper
-   * arm from the shoulder, so the residual of that distance ranks poses
-   * before any is fitted.
+   * arm from the shoulder, so the residual of that distance ranks poses before
+   * any is fitted.
    *
    * @param context The action's context.
    * @param tool The tool.
@@ -181,17 +263,18 @@ export namespace StrikingRoll {
   /**
    * The tool pose the arm holds, chosen from the freedoms a law leaves it.
    *
-   * A law states a pose by values (a roll about the tool's line, a lean of
-   * the line inside a cone, an offset of the placed point inside a region)
-   * and the frame those values give; the shared chooser
-   * (`HumanFreedomChoice.chosen`) tries them in the law's order and refines
-   * the least missed, each judged at the decisive instant by `miss`.
-   * `reachable` then judges the result, so a pose no freedom lets the arm
-   * hold is still refused.
+   * A law states a pose by values (a roll about the tool's line, a lean of the
+   * line inside a cone, an offset of the placed point inside a region) and the
+   * frame those values give; the shared chooser (`HumanFreedomChoice.chosen`)
+   * tries them in the law's order and refines the least missed, each judged at
+   * the decisive instant by `miss`. `reachable` then judges the result, so a
+   * pose no freedom lets the arm hold is still refused.
    *
    * @param context The action's context.
    * @param tool The tool.
-   * @param props The pose's frame by its values, the tried values in order of preference, each freedom, the point of the tool the pose keeps and the body at the decisive instant.
+   * @param props The pose's frame by its values, the tried values in order of
+   *   preference, each freedom, the point of the tool the pose keeps and the
+   *   body at the decisive instant.
    * @returns The chosen hand frame.
    * @throws {Error} When no values are tried.
    */
@@ -200,26 +283,26 @@ export namespace StrikingRoll {
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     props: IAutoMovieMotionHumanStrikingRoll.IChoice,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
-    const { frame, tried, freedoms, back, posture }: IAutoMovieMotionHumanStrikingRoll.IChoice = props;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const {
+      frame,
+      tried,
+      freedoms,
+      back,
+      posture,
+    }: IAutoMovieMotionHumanStrikingRoll.IChoice = props;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     return frame(
       HumanFreedomChoice.chosen({
         tried,
         freedoms,
         judge: (values: readonly number[]): number[] => {
-          const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
+          const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+            frame(values);
           try {
-            const current: IAutoMovieMotionHumanPosture = typeof posture === "function" ? posture(posed) : posture;
-            return [
-              miss(
-                context,
-                tool,
-                posed,
-                back,
-                current,
-                resolution,
-              ),
-            ];
+            const current: IAutoMovieMotionHumanPosture =
+              typeof posture === "function" ? posture(posed) : posture;
+            return [miss(context, tool, posed, back, current, resolution)];
           } catch (error) {
             if (error instanceof HumanRefusal) return [Infinity];
             throw error;
@@ -229,14 +312,16 @@ export namespace StrikingRoll {
     );
   }
   /**
-   * Of a law's candidate tool poses, in its order of preference, the first
-   * the arm holds exactly, else the one the fitted hand misses least: what a
-   * law that leaves a pose's freedom to the arm chooses by.
+   * Of a law's candidate tool poses, in its order of preference, the first the
+   * arm holds exactly, else the one the fitted hand misses least: what a law
+   * that leaves a pose's freedom to the arm chooses by.
    *
    * @param context The action's context.
    * @param tool The tool.
-   * @param candidates The poses, each built only when it is tried, preferred first.
-   * @param back The point of the tool the pose keeps, metres behind its working point.
+   * @param candidates The poses, each built only when it is tried, preferred
+   *   first.
+   * @param back The point of the tool the pose keeps, metres behind its working
+   *   point.
    * @param posture The body as it stands at the decisive instant.
    * @returns The chosen hand frame.
    * @throws {Error} When there is no candidate.
@@ -248,13 +333,21 @@ export namespace StrikingRoll {
     back: number,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     let chosen: IAutoMovieMotionHumanStrikingHeld.IHandFrame | undefined;
     let least: number = Infinity;
     for (const candidate of candidates) {
       if (least <= HumanFreedomChoice.EXACT) break;
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = candidate();
-      const missed: number = miss(context, tool, frame, back, posture, resolution);
+      const missed: number = miss(
+        context,
+        tool,
+        frame,
+        back,
+        posture,
+        resolution,
+      );
       if (missed < least - HumanFreedomChoice.EXACT) {
         least = missed;
         chosen = frame;
@@ -265,16 +358,20 @@ export namespace StrikingRoll {
   }
 
   /**
-   * Refuse a tool pose the arm cannot hold: its wrist beyond the straight
-   * arm, or a pose the fitted hand leaves the tool off.
+   * Refuse a tool pose the arm cannot hold: its wrist beyond the straight arm,
+   * or a pose the fitted hand leaves the tool off.
    *
    * @param context The action's context.
    * @param tool The tool.
    * @param frame The hand frame asked.
-   * @param back The point of the tool the pose keeps, metres behind its working point.
+   * @param back The point of the tool the pose keeps, metres behind its working
+   *   point.
    * @param posture The body as it stands at the decisive instant.
    * @param fix What the author can change about the reach.
-   * @throws {HumanRefusal} On `target` when the wrist is farther from the shoulder than the upper arm and the forearm together; on `grasp` when the arm fitted to the pose leaves the tool more than `MISS` from where the pose asks it.
+   * @throws {HumanRefusal} On `target` when the wrist is farther from the
+   *   shoulder than the upper arm and the forearm together; on `grasp` when the
+   *   arm fitted to the pose leaves the tool more than `MISS` from where the
+   *   pose asks it.
    */
   export function reachable(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -291,8 +388,12 @@ export namespace StrikingRoll {
         HumanHand.offset(context.body, tool.side, "grip").point,
       ),
     );
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const distance: number = Vector3.distance(wrist, shoulder(context, tool.side, posture, resolution));
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const distance: number = Vector3.distance(
+      wrist,
+      shoulder(context, tool.side, posture, resolution),
+    );
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
     if (distance > limit)
@@ -304,7 +405,14 @@ export namespace StrikingRoll {
         reason: `the ${tool.side} wrist would be ${distance.toFixed(3)} m from its shoulder, beyond the arm's ${limit.toFixed(3)} m`,
         fix,
       });
-    const missed: number = miss(context, tool, frame, back, posture, resolution);
+    const missed: number = miss(
+      context,
+      tool,
+      frame,
+      back,
+      posture,
+      resolution,
+    );
     if (missed > MISS)
       throw new HumanRefusal({
         kind: "reach",
@@ -328,18 +436,27 @@ export namespace StrikingRoll {
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(context.body, posture, undefined, resolution, SHOULDERS[side]).get(`${side}UpperArm`)!
-      .worldPosition;
+    HumanTrunk.resolve(
+      context.body,
+      posture,
+      undefined,
+      resolution,
+      SHOULDERS[side],
+    ).get(`${side}UpperArm`)!.worldPosition;
 }
 
 /** The two actual output branches consumed by tool-pose judging. */
-const HANDS: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>> = {
+const HANDS: Readonly<
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
+> = {
   left: new Set<AutoMovieHumanoidBone>(["leftHand"]),
   right: new Set<AutoMovieHumanoidBone>(["rightHand"]),
 };
 
 /** Ranking needs only the holding shoulder and its FK ancestry. */
-const SHOULDERS: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>> = {
+const SHOULDERS: Readonly<
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
+> = {
   left: new Set<AutoMovieHumanoidBone>(["leftUpperArm"]),
   right: new Set<AutoMovieHumanoidBone>(["rightUpperArm"]),
 };

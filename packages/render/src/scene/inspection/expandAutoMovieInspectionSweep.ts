@@ -7,32 +7,46 @@ import type {
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
 /**
- * Expand a sweep pattern into its units, each with the selection that draws it alone and the selection that draws it with the neighbours it touches, so the whole, each unit alone and each unit with its neighbours are planned in one run.
+ * Expand a sweep pattern into its units, each with the selection that draws it
+ * alone and the selection that draws it with the neighbours it touches, so the
+ * whole, each unit alone and each unit with its neighbours are planned in one
+ * run.
  *
- * `objects` are drawn objects by path with their world-space boxes in metres, one entry per path. A unit is a path the pattern matches whose parent paths it does not match, so a pattern that takes a subtree yields the subtree's top as one unit; the unit holds every object at or beneath its path, and its box is the union of theirs. A neighbour is an object outside the unit whose box intersects the unit's box grown by `margin` metres on every side, touching included. Units come in the order their first object appears, and neighbours in the objects' order.
+ * `objects` are drawn objects by path with their world-space boxes in metres,
+ * one entry per path. A unit is a path the pattern matches whose parent paths
+ * it does not match, so a pattern that takes a subtree yields the subtree's top
+ * as one unit; the unit holds every object at or beneath its path, and its box
+ * is the union of theirs. A neighbour is an object outside the unit whose box
+ * intersects the unit's box grown by `margin` metres on every side, touching
+ * included. Units come in the order their first object appears, and neighbours
+ * in the objects' order.
  *
- * `alone` is the unit's path, and `neighbours` the paths of its neighbours; drawing the unit with its neighbours selects both. A unit with no neighbour within the margin has an empty `neighbours`, so its neighbour cell equals its alone cell and a planner need not draw it twice.
+ * `alone` is the unit's path, and `neighbours` the paths of its neighbours;
+ * drawing the unit with its neighbours selects both. A unit with no neighbour
+ * within the margin has an empty `neighbours`, so its neighbour cell equals its
+ * alone cell and a planner need not draw it twice.
  *
- * It throws for a margin that is negative or not finite, a box whose corners are not finite or not ordered, and a pattern that matches no object.
+ * It throws for a margin that is negative or not finite, a box whose corners
+ * are not finite or not ordered, and a pattern that matches no object.
  *
  * ```ts
- * expandAutoMovieInspectionSweep({ objects, pattern: "hero/*", margin: 0.02 });
+ * expandAutoMovieInspectionSweep({
+ *   objects,
+ *   pattern: "hero/*",
+ *   margin: 0.02,
+ * });
  * ```
  */
 export function expandAutoMovieInspectionSweep(
   props: IAutoMovieInspectionSweepProps,
 ): IAutoMovieInspectionSweepUnit[] {
-  if (!(Number.isFinite(props.margin) && props.margin >= 0))
+  if (!(props.margin >= 0))
     throw new Error(
       `Sweep margin ${props.margin} is not a finite distance of zero or more`,
     );
   for (const object of props.objects)
     for (const axis of AXES)
-      if (
-        !Number.isFinite(object.min[axis]) ||
-        !Number.isFinite(object.max[axis]) ||
-        object.min[axis] > object.max[axis]
-      )
+      if (object.min[axis] > object.max[axis])
         throw new Error(
           `Sweep object "${object.path}" has no finite ordered box along ${axis}`,
         );

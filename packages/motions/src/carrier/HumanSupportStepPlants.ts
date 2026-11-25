@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -15,31 +16,25 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The footprints of a support step (`HumanSupportStep`): which support each
- * of the walk's plants bears on, read from the supports' declared surfaces
- * where the foot lands, and how far a footprint is slid to keep off an
- * edge or lifted onto a moving surface it arrives on.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is assigned, from what, and the two adjustments.
- * @evidence contracts/development/design.md#principled-representation World metres and step seconds, each plant keyed by the walk's own window.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanSupportStep` asks of its footprints, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A surface's edges are its declared extent; the bearing tolerance is named.
+ * The footprints of a support step (`HumanSupportStep`): which support each of
+ * the walk's plants bears on, read from the supports' declared surfaces where
+ * the foot lands, and how far a footprint is slid to keep off an edge or lifted
+ * onto a moving surface it arrives on.
  */
 export namespace HumanSupportStepPlants {
-  /** How far above or below a surface a footprint may lie and still bear on it, metres: a tread's or a comb plate's own thickness (provisional). */
+  /**
+   * How far above or below a surface a footprint may lie and still bear on it,
+   * metres: a tread's or a comb plate's own thickness (provisional).
+   */
   export const BEARING: number = 0.1;
 
-  /** The cosine between a footprint's length and an edge's normal past which the footprint crosses the edge more head-on than side-on: 45 degrees. */
+  /**
+   * The cosine between a footprint's length and an edge's normal past which the
+   * footprint crosses the edge more head-on than side-on: 45 degrees.
+   */
   export const HEAD_ON: number = Math.SQRT1_2;
 
-  /**
-   * One plant of a foot on the planned walk and the support it bears on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and frame.
-   * @evidence contracts/development/design.md#principled-representation The walk's window, the support side, the touchdown second and two world adjustments.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanSupportStep` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The window is the walk's own, so a plant cannot disagree with the contact it declares.
-   */
+  /** One plant of a foot on the planned walk and the support it bears on. */
   export interface IPlant {
     /** The planned window. */
     window: IAutoMovieMotionHumanContactWindow;
@@ -50,21 +45,17 @@ export namespace HumanSupportStepPlants {
     /** Its touchdown, seconds of the step. */
     down: number;
 
-    /** How far it is slid along a surface to keep off an edge, and lifted onto a moving surface it arrives on, world metres. */
+    /**
+     * How far it is slid along a surface to keep off an edge, and lifted onto a
+     * moving surface it arrives on, world metres.
+     */
     shift: IAutoMovieVector3;
 
     /** The height of the fixed landing it bears on, world metres. */
     floor: number;
   }
 
-  /**
-   * One declared surface of a support in the world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and axes.
-   * @evidence contracts/development/design.md#principled-representation A world frame and two extents, as the affordance declares them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read in this namespace and by `HumanSupportStep`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An undeclared extent is unbounded, never guessed.
-   */
+  /** One declared surface of a support in the world. */
   export interface ISurface {
     /** Its centre. */
     origin: IAutoMovieVector3;
@@ -79,7 +70,10 @@ export namespace HumanSupportStepPlants {
     depth: number;
   }
 
-  /** A point moved by a support's motion between two seconds of the step; the ground keeps it. */
+  /**
+   * A point moved by a support's motion between two seconds of the step; the
+   * ground keeps it.
+   */
   export type Moved = (
     prop: string | undefined,
     begin: number,
@@ -87,14 +81,7 @@ export namespace HumanSupportStepPlants {
     point: IAutoMovieVector3,
   ) => IAutoMovieVector3;
 
-  /**
-   * What the assignment reads of the step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The step's context, its support motion and two heights.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `HumanSupportStep` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights are the step's own, read once.
-   */
+  /** What the assignment reads of the step. */
   export interface IStep {
     /** The step's context. */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISupportStepParams>;
@@ -105,8 +92,25 @@ export namespace HumanSupportStepPlants {
     /** The height the walk is planned at, world metres. */
     level: number;
 
-    /** How far the entry's soles sit from the declared surface they stand on, metres. */
+    /**
+     * How far the entry's soles sit from the declared surface they stand on,
+     * metres.
+     */
     settled: number;
+  }
+
+  /** What a support's surfaces are read from: the step's start and props. */
+  export interface ISurfacesContext {
+    /** The step's start, film seconds. */
+    start: number;
+
+    /** A support's affordances and its frame at a film second. */
+    prop(subject: string): {
+      prop: Pick<IAutoMovieMotionHumanProp, "affordances">;
+      frame(
+        seconds: number,
+      ): Pick<IAutoMovieRigidTransform, "position" | "rotation">;
+    };
   }
 
   /**
@@ -118,13 +122,12 @@ export namespace HumanSupportStepPlants {
    * @returns The surfaces.
    */
   export function surfaces(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISupportStepParams>,
+    context: ISurfacesContext,
     prop: string,
     at: number,
   ): ISurface[] {
-    const frame: IAutoMovieRigidTransform = context
-      .prop(prop)
-      .frame(context.start + at);
+    const frame: Pick<IAutoMovieRigidTransform, "position" | "rotation"> =
+      context.prop(prop).frame(context.start + at);
     return (context.prop(prop).prop.affordances ?? [])
       .filter((item: IAutoMovieAffordance): boolean => item.kind === "surface")
       .map(
@@ -174,27 +177,20 @@ export namespace HumanSupportStepPlants {
   }
 
   /**
-   * Each foot's plants in time order and the support each bears on: the
-   * entry's on the support left, each new one on the support whose surface
-   * holds the middle of the foot where it lands. A new footprint is slid
-   * along the surface, the least it takes, to lie wholly on the moving
-   * support that bears it, or wholly off the one beside it, so no foot
-   * straddles an edge; one crossing the edge head-on slides along its own
-   * length, so it keeps its lane beside the other foot.
+   * Each foot's plants in time order and the support each bears on: the entry's
+   * on the support left, each new one on the support whose surface holds the
+   * middle of the foot where it lands. A new footprint is slid along the
+   * surface, the least it takes, to lie wholly on the moving support that bears
+   * it, or wholly off the one beside it, so no foot straddles an edge; one
+   * crossing the edge head-on slides along its own length, so it keeps its lane
+   * beside the other foot.
    *
    * @param step The step.
    * @param walked The walk planned on the support left.
    * @param land The last touchdown, seconds of the step.
-   * @param leave The first touchdown on the support arrived on, seconds of the step.
+   * @param leave The first touchdown on the support arrived on, seconds of the
+   *   step.
    * @returns Each foot's plants.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the support rule, the slide and the lift.
-   * @evidence contracts/development/implementation.md#principled-implementation Which support bears a foot is read from the supports' declared surfaces where it lands; a slide is the least that clears the edge.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the walk's plant windows, then one sort per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No support speed is assumed: each support's displayed frame places its footprints.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the walk's few plants, each reading a few surfaces.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk's windows and leg goals.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the plants it returns.
    */
   export function assign(
     step: IStep,

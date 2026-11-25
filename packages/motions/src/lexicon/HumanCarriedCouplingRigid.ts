@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, fitRigidMeshTransform } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
@@ -12,20 +13,17 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
- * A carried key pose registered about its resting contact: the borne
- * resting region put exactly on the bearer's and the turn about that point
- * fitted to the row's hold places. The stance fit (`HumanCarriedCouplingFit`)
- * changes the bearer's stance and the borne legs and registers each trial
- * here.
+ * A carried key pose registered about its resting contact: the borne resting
+ * region put exactly on the bearer's and the turn about that point fitted to
+ * the row's hold places. The stance fit (`HumanCarriedCouplingFit`) changes the
+ * bearer's stance and the borne legs and registers each trial here.
  */
 export namespace HumanCarriedCouplingRigid {
-  /**
-   * A registration and the borne key pose's bones it was read on.
-   */
+  /** A registration and the borne key pose's bones it was read on. */
   export interface IRead {
     /** The rigid placement about the resting contact. */
     fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit;
@@ -35,8 +33,8 @@ export namespace HumanCarriedCouplingRigid {
   }
 
   /**
-   * Place the borne key posture's resting region on the bearer's and fit
-   * its turn to the row's hold places.
+   * Place the borne key posture's resting region on the bearer's and fit its
+   * turn to the row's hold places.
    *
    * @param bearer The bearer's body.
    * @param theirs Its bones in the fitted stance at the origin.
@@ -44,8 +42,10 @@ export namespace HumanCarriedCouplingRigid {
    * @param row The carry's row.
    * @param held The borne region held by each hand, left then right.
    * @param legs The borne legs' three angles, degrees.
-   * @param stance The bearer's inclination in degrees and fractional squat depth.
-   * @param swivel Rotation in degrees about the support normal through the fixed resting point.
+   * @param stance The bearer's inclination in degrees and fractional squat
+   *   depth.
+   * @param swivel Rotation in degrees about the support normal through the
+   *   fixed resting point.
    * @returns The placement and the borne key pose's bones it was read on.
    */
   export function read(
@@ -83,7 +83,7 @@ export namespace HumanCarriedCouplingRigid {
     const from: IAutoMovieVector3[] = [];
     const to: IAutoMovieVector3[] = [];
     (["left", "right"] as const).forEach(
-      (side: "left" | "right", index: number): void => {
+      (side: AutoMovieHumanSide, index: number): void => {
         const hold: IAutoMovieMotionHumanCarried.IHold | null =
           row.holds[index] ?? null;
         const region0: AutoMovieHumanoidRegion | null = held[index] ?? null;
@@ -108,7 +108,7 @@ export namespace HumanCarriedCouplingRigid {
 
     // One direction cannot decide the full orientation.
     if (from.length < 2) {
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
+      const heading: IAutoMovieQuaternion = humanPostureHeading(keyed);
       for (const axis of [
         { x: arm, y: 0, z: 0 },
         { x: 0, y: 0, z: arm },

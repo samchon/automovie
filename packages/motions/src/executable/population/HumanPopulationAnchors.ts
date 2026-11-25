@@ -38,8 +38,8 @@ export namespace HumanPopulationAnchors {
   /**
    * A course the survey does not measure by its definition, carried by the
    * surveyed measure nearest it: the course is that measure times the ratio the
-   * sex's reference people show between their course and the measure the
-   * survey expects of them given their own surveyed inputs.
+   * sex's reference people show between their course and the measure the survey
+   * expects of them given their own surveyed inputs.
    */
   export interface IAnchor {
     /** The surveyed measure that carries the course. */
@@ -52,7 +52,10 @@ export namespace HumanPopulationAnchors {
     read: (p: P) => number;
   }
 
-  /** Body measures whose definition the survey measures: the field and its measure. */
+  /**
+   * Body measures whose definition the survey measures: the field and its
+   * measure.
+   */
   export const DIRECT: readonly Direct[] = [
     ["stature", "stature"],
     ["chestCircumference", "chest"],
@@ -82,9 +85,11 @@ export namespace HumanPopulationAnchors {
     "forearmCircumference",
     "inseam",
   ];
+  /** The alternatives of `ANCHORSEntry`'s site. */
+  type ANCHORSEntry = Anchored | Part;
 
   /** Each anchored course and its carrier. */
-  export const ANCHORS: Record<Anchored | Part, IAnchor> = {
+  export const ANCHORS: Record<ANCHORSEntry, IAnchor> = {
     // Neck to waist over the natural waist back length (cervicale to waist).
     backNeckToWaist: {
       proxy: "waistBackLength",

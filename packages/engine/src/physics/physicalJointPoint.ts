@@ -9,7 +9,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Locate the actual joint anchor even when a primitive's bone origin is its solid centre.
+ * Locate the actual joint anchor even when a primitive's bone origin is its
+ * solid centre.
  */
 export function physicalJointPoint(
   profile: IAutoMoviePhysicalProfile,

@@ -1,6 +1,9 @@
 import type { IAutoMovieMotionHumanWardrobe } from "@automovie/interface";
 
-/** The wardrobe law's modes and the parameters each takes (`IAutoMovieMotionHumanWardrobe`). */
+/**
+ * The wardrobe law's modes and the parameters each takes
+ * (`IAutoMovieMotionHumanWardrobe`).
+ */
 export namespace wardrobeModes {
   /** The modes that thread or clear one sleeve or move the zip with one hand. */
   export type Sided = IAutoMovieMotionHumanWardrobe.Sided;

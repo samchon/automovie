@@ -22,14 +22,26 @@ export interface IAutoMovieHumanTrunkFeature {
    */
   height: (u: number, v: number) => number;
 
-  /** The footprint's extents in the frame's plane: `u` from the first to the second, `v` likewise, mm. */
+  /**
+   * The footprint's extents in the frame's plane: `u` from the first to the
+   * second, `v` likewise, mm.
+   */
   reach: {
-    /** Lower and upper lateral footprint coordinates in the feature's frame, millimetres. */
+    /**
+     * Lower and upper lateral footprint coordinates in the feature's frame,
+     * millimetres.
+     */
     u: [number, number];
-    /** Lower and upper vertical footprint coordinates in the feature's frame, millimetres. */
+    /**
+     * Lower and upper vertical footprint coordinates in the feature's frame,
+     * millimetres.
+     */
     v: [number, number];
   };
 
-  /** The footprint's centre of height: the place the height reaches its extreme, `[u, v]`, mm. */
+  /**
+   * The footprint's centre of height: the place the height reaches its extreme,
+   * `[u, v]`, mm.
+   */
   apex: [number, number];
 }

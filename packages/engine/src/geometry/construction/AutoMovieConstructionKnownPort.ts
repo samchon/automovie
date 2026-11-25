@@ -13,21 +13,22 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 type Vector = [number, number, number];
 
 /**
- * Actual-field C2 band using a quintic partition of unity, without contact recovery.
+ * Actual-field C2 band using a quintic partition of unity, without contact
+ * recovery.
  *
- * With P and Q the two complete pulled-back original fields, B=(1-h)P+hQ
- * and h=10v^3-15v^4+6v^5. At each rail h and its first two derivatives select
- * the corresponding whole field total2. Interior derivatives use both fields
- * and all chart/product-rule terms, so boundary jets are never extrapolated.
- * The emitted kernel chart is (transverse, original clock), so its second
+ * With P and Q the two complete pulled-back original fields, B=(1-h)P+hQ and
+ * h=10v^3-15v^4+6v^5. At each rail h and its first two derivatives select the
+ * corresponding whole field total2. Interior derivatives use both fields and
+ * all chart/product-rule terms, so boundary jets are never extrapolated. The
+ * emitted kernel chart is (transverse, original clock), so its second
  * coordinate carries the actual period. Swapping total2 and the outward sign
  * preserves the authored tangential-cross-transverse orientation.
  *
  * This returns a surface reader, not a final skin or a global topology proof.
  * Each actual jet query refuses nonfinite or rank-zero output; whole-domain
  * fold/self-intersection and sewn-rail atlas publication remain separate
- * realization obligations. Supplied neighboring fields/maps must be C2 on
- * the rectangle, including their explicit actual validity domains.
+ * realization obligations. Supplied neighboring fields/maps must be C2 on the
+ * rectangle, including their explicit actual validity domains.
  */
 export function AutoMovieConstructionKnownPort(
   source: IAutoMovieConstructionKnownPortSource,
@@ -39,8 +40,7 @@ export function AutoMovieConstructionKnownPort(
     !interval(definition.domain) ||
     !definition.name ||
     (definition.orientation !== 1 && definition.orientation !== -1) ||
-    (definition.period !== undefined &&
-      !(Number.isFinite(definition.period) && definition.period > 0))
+    (definition.period !== undefined && !(definition.period > 0))
   )
     fail(
       "A known port needs finite increasing clock bounds, identity and outward sign.",
@@ -69,19 +69,15 @@ export function AutoMovieConstructionKnownPort(
     )
       fail("A known port map does not own the complete band rectangle.");
 
-  /** Preserve actual open limits; a period is metadata, not permission to change clocks. */
+  /**
+   * Preserve actual open limits; a period is metadata, not permission to change
+   * clocks.
+   */
   const admit: (u: number, v: number) => void = (
     u: number,
     v: number,
   ): void => {
-    if (
-      !Number.isFinite(u) ||
-      !Number.isFinite(v) ||
-      u < definition.domain[0] ||
-      u > definition.domain[1] ||
-      v < 0 ||
-      v > 1
-    )
+    if (u < definition.domain[0] || u > definition.domain[1] || v < 0 || v > 1)
       fail("A known port query is outside its actual band domain.");
   };
   return {
@@ -135,7 +131,10 @@ export function AutoMovieConstructionKnownPort(
   };
 }
 
-/** Existing kernel consumers make the second coordinate periodic; all mixed orders stay exact. */
+/**
+ * Existing kernel consumers make the second coordinate periodic; all mixed
+ * orders stay exact.
+ */
 function transpose(
   value: IAutoMovieSolidSurface.IJet,
 ): IAutoMovieSolidSurface.IJet {
@@ -149,7 +148,10 @@ function transpose(
   };
 }
 
-/** Resolve explicit original owners and material/binding references without inferred aliases. */
+/**
+ * Resolve explicit original owners and material/binding references without
+ * inferred aliases.
+ */
 function side(
   source: IAutoMovieConstructionKnownPortSource,
   input: IAutoMovieConstructionKnownPort.ISide,
@@ -172,7 +174,10 @@ function side(
   return { field: field!, map: map! };
 }
 
-/** Read one actual chart and preserve original field Point0 separately from its total2. */
+/**
+ * Read one actual chart and preserve original field Point0 separately from its
+ * total2.
+ */
 function point(
   side: IAutoMovieConstructionKnownPortSide,
   u: number,
@@ -187,7 +192,10 @@ function point(
   return [...value];
 }
 
-/** Full second-order chain rule of the actual neighboring function with its own C2 map. */
+/**
+ * Full second-order chain rule of the actual neighboring function with its own
+ * C2 map.
+ */
 function pullback(
   side: IAutoMovieConstructionKnownPortSide,
   u: number,
@@ -199,11 +207,7 @@ function pullback(
   );
   if (map === null) fail("A known port has unavailable actual chart total2.");
   for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
-    if (
-      !Array.isArray(map![key]) ||
-      map![key].length !== 2 ||
-      !map![key].every(Number.isFinite)
-    )
+    if (map![key].length !== 2)
       fail("A known port has incomplete or nonfinite actual chart total2.");
   chartPoint(side.field, map!.p);
   const field: IAutoMovieSolidSurface.IJet = side.field.jet(
@@ -254,16 +258,17 @@ function chartPoint(
   point: readonly number[],
 ): void {
   if (
-    !Array.isArray(point) ||
     point.length !== 2 ||
-    !point.every(Number.isFinite) ||
     (field.domain !== undefined &&
       (point[0]! < field.domain[0] || point[0]! > field.domain[1]))
   )
     fail("A known port map leaves its actual neighboring field domain.");
 }
 
-/** No query with nonfinite total2 or a collapsed tangent plane is a regular band point. */
+/**
+ * No query with nonfinite total2 or a collapsed tangent plane is a regular band
+ * point.
+ */
 function regular(
   jet: IAutoMovieSolidSurface.IJet,
 ): IAutoMovieSolidSurface.IJet {
@@ -275,22 +280,24 @@ function regular(
     jet.u[0] * jet.v[1] - jet.u[1] * jet.v[0],
   ];
   const size: number = Math.hypot(...normal);
-  if (!(Number.isFinite(size) && size > 0))
+  if (!(size > 0))
     fail("The actual known-port query has no finite regular tangent plane.");
   return jet;
 }
 
-/** Require every actual world component; no missing field is interpreted as zero. */
+/**
+ * Require every actual world component; no missing field is interpreted as
+ * zero.
+ */
 function vector(value: readonly number[]): void {
-  if (
-    !Array.isArray(value) ||
-    value.length !== 3 ||
-    !value.every(Number.isFinite)
-  )
+  if (value.length !== 3)
     fail("A known port requires complete finite actual world vectors.");
 }
 
-/** Exact polynomial endpoint-flat weight and its two normalized transverse derivatives. */
+/**
+ * Exact polynomial endpoint-flat weight and its two normalized transverse
+ * derivatives.
+ */
 function weights(v: number): readonly [number, number, number] {
   return [
     v * v * v * (10 - 15 * v + 6 * v * v),
@@ -299,14 +306,20 @@ function weights(v: number): readonly [number, number, number] {
   ];
 }
 
-/** Convex point blend uses the actual fields, without extrapolated boundary jets. */
+/**
+ * Convex point blend uses the actual fields, without extrapolated boundary
+ * jets.
+ */
 function combine(a: Vector, b: Vector, h: number): Vector {
   return [0, 1, 2].map(
     (k: number): number => (1 - h) * a[k]! + h * b[k]!,
   ) as Vector;
 }
 
-/** Product-rule differences carry the weight derivatives in physical world units. */
+/**
+ * Product-rule differences carry the weight derivatives in physical world
+ * units.
+ */
 function difference(a: Vector, b: Vector, factor: number): Vector {
   return [0, 1, 2].map(
     (k: number): number => factor * (b[k]! - a[k]!),
@@ -320,11 +333,7 @@ function add(a: Vector, b: Vector): Vector {
 
 /** A finite positive interval must also have a representable span. */
 function interval(domain: readonly [number, number]): boolean {
-  return (
-    domain.every(Number.isFinite) &&
-    domain[1] > domain[0] &&
-    Number.isFinite(domain[1] - domain[0])
-  );
+  return domain[1] > domain[0];
 }
 
 /** Keep numeric admission separate from original callback exception identity. */

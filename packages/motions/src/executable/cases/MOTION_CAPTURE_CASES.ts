@@ -37,15 +37,10 @@ import { toolCases } from "./toolCases";
 import { variationCases } from "./variationCases";
 
 /**
- * Every capture case by name: each factory builds one or more cases, so a
- * sweep or a proficiency fan expands into several outputs from one name. A
- * factory may read the harness's name filter and skip building the cases it
- * rejects; the harness filters again, so ignoring it is correct too.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a factory returns.
- * @evidence contracts/development/design.md#principled-representation A closed table of named pure factories.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the capture harness only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No case data lives here, only the registry.
+ * Every capture case by name: each factory builds one or more cases, so a sweep
+ * or a proficiency fan expands into several outputs from one name. A factory
+ * may read the harness's name filter and skip building the cases it rejects;
+ * the harness filters again, so ignoring it is correct too.
  */
 export const MOTION_CAPTURE_CASES: Readonly<
   Record<

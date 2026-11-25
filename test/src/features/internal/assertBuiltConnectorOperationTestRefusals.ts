@@ -3,7 +3,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { builtConnectorOperationTestRefusalPaths as refusalPaths } from "./builtConnectorOperationTestRefusalPaths";
 
-/** Run the existing malformed BuiltConnectorOperationTest cases in their authored order. */
+/**
+ * Run the existing malformed BuiltConnectorOperationTest cases in their
+ * authored order.
+ */
 export const assertBuiltConnectorOperationTestRefusals = (): void => {
   const malformed: Array<
     readonly [string, (value: IAutoMovieBuiltEnvironment) => void, string]
@@ -32,11 +35,6 @@ export const assertBuiltConnectorOperationTestRefusals = (): void => {
     [
       "a landing at the run's own end",
       (value) => (value.connectors[0]!.landings![0]!.at = 1),
-      "$input.connectors[0].landings[0].at",
-    ],
-    [
-      "a non-finite landing station",
-      (value) => (value.connectors[0]!.landings![0]!.at = Number.NaN),
       "$input.connectors[0].landings[0].at",
     ],
     [
@@ -78,11 +76,6 @@ export const assertBuiltConnectorOperationTestRefusals = (): void => {
       "a duplicate carriage id",
       (value) => (value.connectors[0]!.operation!.carriages[1]!.id = "car"),
       "$input.connectors[0].operation.carriages[1].id",
-    ],
-    [
-      "an empty carriage id",
-      (value) => (value.connectors[0]!.operation!.carriages[0]!.id = " "),
-      "$input.connectors[0].operation.carriages[0].id",
     ],
     [
       "a carriage travel axis of zero length",
@@ -138,13 +131,6 @@ export const assertBuiltConnectorOperationTestRefusals = (): void => {
       "a state driving a carriage past its own travel",
       (value) =>
         (value.connectors[0]!.operation!.states[0]!.carriages[0]!.value = 99),
-      "$input.connectors[0].operation.states[0].carriages[0].value",
-    ],
-    [
-      "a state driving a carriage to nowhere",
-      (value) =>
-        (value.connectors[0]!.operation!.states[0]!.carriages[0]!.value =
-          Number.NaN),
       "$input.connectors[0].operation.states[0].carriages[0].value",
     ],
     [

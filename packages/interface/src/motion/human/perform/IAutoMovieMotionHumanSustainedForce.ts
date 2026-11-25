@@ -2,7 +2,8 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanForceSite } from "./AutoMovieHumanForceSite";
 
 /**
- * A world force in newtons acting on a performer over a film-time interval in seconds. The force may be constant or a deterministic callback of film time.
+ * A world force in newtons acting on a performer over a film-time interval in
+ * seconds. The force may be constant or a deterministic callback of film time.
  */
 export interface IAutoMovieMotionHumanSustainedForce {
   /** The discriminator. */

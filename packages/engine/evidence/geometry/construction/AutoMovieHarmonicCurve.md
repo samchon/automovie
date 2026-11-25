@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieHarmonicCurve.ts#AutoMovieHarmonicCurve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the coefficient layout, the harmonic order and the derivatives returned.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Closed planar curve written as a truncated Fourier series per coordinate: companion namespace of 3 members (`width`, `evaluate`, `project`); units and frames named in its text: radians, radian. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieHarmonicCurve` in packages/engine/src/geometry/construction/AutoMovieHarmonicCurve.ts; its surface is the 3 members listed and the text shows 4 other files naming it, mostly packages/engine (4), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieHarmonicCurve.ts#AutoMovieHarmonicCurve.width
 
 ## @evidence contracts/development/implementation.md#principled-implementation

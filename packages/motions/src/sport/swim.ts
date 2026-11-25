@@ -28,42 +28,47 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanSkill } from "../skill/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
 
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The record of `ICOORDINATION`'s site. */
+type ICOORDINATION = { novice: number; elite: number };
+
 /**
- * Swimming on a declared water plane (#3254, M25): treading water and the
- * front crawl. There is no fluid: the root floats at the plane, a height the
- * author declares, and the limbs cycle by joint angles with their goals
- * released, as a swing arm does (`AutoMovieMotionHumanArm.swing`).
+ * Swimming on a declared water plane: treading water and the front crawl. There
+ * is no fluid: the root floats at the plane, a height the author declares, and
+ * the limbs cycle by joint angles with their goals released, as a swing arm
+ * does (`AutoMovieMotionHumanArm.swing`).
  *
- * - Treading water: upright with the mouth 5 cm above the plane
- *   (provisional), the hands sculling out and in at waist depth and the legs
- *   kicking alternately (a flutter standing in for the eggbeater, whose foot
- *   speed sets the height, Sanders 1999), one cycle a second (provisional).
- * - Front crawl: prone with the hips a chest's half depth under the plane, or
- *   as much higher as the breath needs, gliding ahead at 1 m/s (provisional).
- *   The body rolls 45 degrees (provisional) about its long axis toward each
- *   arm as it recovers, a whole-body rotation about the hips
- *   (`HumanPosture.rotation`, #3423) so the pelvis keeps the stroke's own
- *   joints. The shoulder turns one way round: its abduction
- *   runs from 180 degrees overhead to 0 at the hip and back, in front of the
- *   trunk for the pull (45 degrees of flexion at its middle, the elbow bent
- *   40) and behind it for the recovery (20 degrees of extension, the elbow
- *   bent 90 and the forearm turned 45 degrees toward the head, so the hand
- *   hangs under the elbow clear of the plane; all provisional). Each arm
- *   pulls from overhead to the
- *   hip over 60 % of the cycle and recovers over the water, elbow high, in
- *   the rest (provisional shares). The arms are apart by the propulsive share
- *   less the index of coordination, which runs from a novice's catch-up to an
- *   elite's near-opposition with the `sequencing` skill (Chollet et al. 2000
- *   as #3254 reads them; `PROPULSIVE`, `COORDINATION`). Six kicks per cycle (provisional) and a breath
- *   to the right once a cycle, the head turned 70 degrees (provisional) on
- *   the rolled trunk as the right arm recovers, which brings the mouth 2 cm
- *   (provisional) over the plane: there is no bow wave whose trough a real
- *   swimmer breathes in, so the body floats as high as its own mouth needs.
- *   One cycle lasts 1.4 s (provisional).
+ * - Treading water: upright with the mouth 5 cm above the plane (provisional),
+ *   the hands sculling out and in at waist depth and the legs kicking
+ *   alternately (a flutter standing in for the eggbeater, whose foot speed sets
+ *   the height, Sanders 1999), one cycle a second (provisional).
+ * - Front crawl: prone with the hips a chest's half depth under the plane, or as
+ *   much higher as the breath needs, gliding ahead at 1 m/s (provisional). The
+ *   body rolls 45 degrees (provisional) about its long axis toward each arm as
+ *   it recovers, a whole-body rotation about the hips (`HumanPosture.rotation`)
+ *   so the pelvis keeps the stroke's own joints. The shoulder turns one way
+ *   round: its abduction runs from 180 degrees overhead to 0 at the hip and
+ *   back, in front of the trunk for the pull (45 degrees of flexion at its
+ *   middle, the elbow bent 40) and behind it for the recovery (20 degrees of
+ *   extension, the elbow bent 90 and the forearm turned 45 degrees toward the
+ *   head, so the hand hangs under the elbow clear of the plane; all
+ *   provisional). Each arm pulls from overhead to the hip over 60 % of the
+ *   cycle and recovers over the water, elbow high, in the rest (provisional
+ *   shares). The arms are apart by the propulsive share less the index of
+ *   coordination, which runs from a novice's catch-up to an elite's
+ *   near-opposition with the `sequencing` skill (Chollet et al. 2000 as the
+ *   research reads them; `PROPULSIVE`, `COORDINATION`). Six kicks per cycle
+ *   (provisional) and a breath to the right once a cycle, the head turned 70
+ *   degrees (provisional) on the rolled trunk as the right arm recovers, which
+ *   brings the mouth 2 cm (provisional) over the plane: there is no bow wave
+ *   whose trough a real swimmer breathes in, so the body floats as high as its
+ *   own mouth needs. One cycle lasts 1.4 s (provisional).
  *
  * Events: `entryRight{i}`, `entryLeft{i}` and `breath{i}` per cycle for the
  * crawl, `cycle{i}` for treading.
@@ -72,11 +77,6 @@ import { SwimStroke } from "./SwimStroke";
  * (`SwimStroke`), planned by their own table on the same plane.
  *
  * Not drafted: the eggbeater proper, entering and leaving the water.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the plane, each stroke's phases, shares, timing, sources and provisional values, the events and what is not drafted.
- * @evidence contracts/development/design.md#principled-representation A law record of a floating root and joint-angle limb cycles over one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The plane is the author's; depths are the body's.
  */
 export namespace swim {
   /** The action's name. */
@@ -96,19 +96,18 @@ export namespace swim {
 
   /**
    * The crawl's propulsive share of a cycle, the pull and push that end each
-   * arm's pull: 0.465, Chollet, Chalies and Chatard 2000's share at 100 m
-   * pace, as #3254 reads it in their abstract.
+   * arm's pull: 0.465, Chollet, Chalies and Chatard 2000's share at 100 m pace,
+   * as the research reads it in their abstract.
    */
   export const PROPULSIVE: number = 0.465;
 
   /**
-   * The crawl's index of coordination, the lag from one arm's propulsion's
-   * end to the other's start as a share of the cycle, negated: a novice's
-   * catch-up and an elite's near-opposition (-6.07 % and -1.76 % by level,
-   * Chollet et al. 2000 as #3254 reads them), read on the `sequencing` skill
-   * axis.
+   * The crawl's index of coordination, the lag from one arm's propulsion's end
+   * to the other's start as a share of the cycle, negated: a novice's catch-up
+   * and an elite's near-opposition (-6.07 % and -1.76 % by level, Chollet et
+   * al. 2000 as the research reads them), read on the `sequencing` skill axis.
    */
-  export const COORDINATION: { novice: number; elite: number } = {
+  export const COORDINATION: ICOORDINATION = {
     novice: -0.0607,
     elite: -0.0176,
   };
@@ -123,19 +122,46 @@ export namespace swim {
   export const CLEAR: number = 0.02;
 
   /**
+   * A tread's or a crawl's stroke cues: a tread cycles every `period`; a crawl
+   * enters the right arm each `period`, the left arm `lag` of a period later,
+   * and breathes midway through the recovery after the `PULL`.
+   *
+   * @param prone Whether the stroke is the prone crawl.
+   * @param cycles The whole cycles.
+   * @param period The cycle's seconds.
+   * @param lag The left arm's lag, a share of the period.
+   * @returns The clock, relaxed at its end.
+   */
+  export function strokes(
+    prone: boolean,
+    cycles: number,
+    period: number,
+    lag: number,
+  ): IAutoMovieMotionClock {
+    const instants: IAutoMovieMotionClockInstant[] = [];
+    for (let i: number = 0; i < cycles; i++)
+      if (prone)
+        instants.push(
+          { name: `entryRight${i + 1}`, seconds: i * period },
+          { name: `entryLeft${i + 1}`, seconds: (i + lag) * period },
+          {
+            name: `breath${i + 1}`,
+            seconds: (i + PULL + (1 - PULL) / 2) * period,
+          },
+        );
+      else instants.push({ name: `cycle${i + 1}`, seconds: i * period });
+    const duration: number = cycles * period;
+    return AutoMovieMotionClock(duration, [
+      ...instants,
+      { name: "relax", seconds: duration },
+    ]);
+  }
+  /**
    * Plan a swim.
    *
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the cycle count is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The root floats at the plane by the body's own mouth or chest depth; each limb's angles are periodic functions of the cycle's phase.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, root row, then the stroke's limb rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Provisional shares and times are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per second; only the selected stroke's mouth/depth FK and prone orientation preparation run. Treading omits crawl-only sequencing, hip-rest and world-forward preparation. Fixed kick bases, leg/arm phase offsets and the prone axis-angle reader leave actual time queries, while every active limb retains its actual phase/trigonometry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The local still base fixes the entry heading before any limb writer; its fixed prone orientation supplies the same root offset and whole-body roll axis at every queried second. Arm swing, head share and joint add remain shared owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and a few numbers.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwim.IParams>,
@@ -143,10 +169,11 @@ export namespace swim {
     const p: IAutoMovieMotionHumanSwim.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const cycles: number = p.count ?? 3;
-    HumanBound.whole("count", cycles);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const cycles: number = HumanBound.whole("count", p.count ?? 3);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const water: number = p.water ?? entry.root.y + m.chestHeight;
 
@@ -164,7 +191,7 @@ export namespace swim {
     const period: number = (prone ? CYCLE : 1) * modifiers.tempo;
     // The left arm's entry follows the right's by the share the index of
     // coordination leaves: its propulsion starts that index's lag after the
-    // right's ends (#3378).
+    // right's ends.
     const lag: number = prone
       ? PROPULSIVE -
         HumanSkill.quantity(
@@ -174,23 +201,8 @@ export namespace swim {
           COORDINATION.elite,
         )
       : 0;
-    const instants: IAutoMovieMotionClockInstant[] = [];
-    for (let i: number = 0; i < cycles; i++)
-      if (p.kind === "frontCrawl") {
-        instants.push(
-          { name: `entryRight${i + 1}`, seconds: i * period },
-          { name: `entryLeft${i + 1}`, seconds: (i + lag) * period },
-          {
-            name: `breath${i + 1}`,
-            seconds: (i + PULL + (1 - PULL) / 2) * period,
-          },
-        );
-      } else instants.push({ name: `cycle${i + 1}`, seconds: i * period });
-    const duration: number = cycles * period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
-      ...instants,
-      { name: "relax", seconds: duration },
-    ]);
+    const clock: IAutoMovieMotionClock = strokes(prone, cycles, period, lag);
+    const duration: number = clock.duration;
     const phase: (s: number, offset?: number) => number = (
       s: number,
       offset: number = 0,
@@ -214,7 +226,7 @@ export namespace swim {
 
     // The root floats: upright with the mouth above the plane, or prone with the hips under it.
     const proneHeading: IAutoMovieQuaternion | undefined = prone
-      ? resolveHumanPosture.heading({
+      ? humanPostureHeading({
           ...entry,
           pitch: entry.pitch + 90,
         })
@@ -229,7 +241,7 @@ export namespace swim {
           )
         : undefined;
     // The body's roll about its long axis, a whole-body rotation about the
-    // hips (#3423): toward the right at the right arm's mid recovery.
+    // hips: toward the right at the right arm's mid recovery.
     const roll: (s: number) => number = (s: number): number =>
       -ROLL *
       Math.sin(2 * Math.PI * (phase(s) - (PULL + (1 - PULL) / 2) + 0.25));
@@ -320,7 +332,7 @@ export namespace swim {
     const kneeFlexion: number = prone ? 15 : 60;
     const ankleFlexion: number = prone ? -40 : 0;
     for (const side of ["left", "right"] as const) {
-      const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+      const limb: PlanLimb = `${side}Leg`;
       const offset: number = side === "left" ? 0 : 1 / kicks;
       primitives.push({
         channels: [limb],

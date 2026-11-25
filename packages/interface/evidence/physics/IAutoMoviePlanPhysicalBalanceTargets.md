@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePlanPhysicalBalanceTargets.ts#IAutoMoviePlanPhysicalBalanceTargets
-
-## @evidence contracts/development/design.md#principled-representation
-
-Rebase the selected seed to the measured root for stance fitting while independent authored intent determines the reach-derived lowering request.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-planPhysicalBalanceTargets fits against the actual root while physicalSupportRootDrop computes the separate lowering request.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The stance pass uses zero root-drop budget so a virtual lowered root cannot impersonate the actual base; unreachable goals retain residuals.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates actual floating-base placement, coherent motor targets and independent root-lowering intent.
-
 # src/physics/IAutoMoviePlanPhysicalBalanceTargets.ts#IAutoMoviePlanPhysicalBalanceTargets.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

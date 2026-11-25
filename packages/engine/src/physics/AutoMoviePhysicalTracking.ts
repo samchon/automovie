@@ -15,9 +15,7 @@ import { Vector3 } from "../math/Vector3";
  * is N m, never a pose offset; equal opposite torques act on the joint bodies.
  */
 export namespace AutoMoviePhysicalTracking {
-  /**
-   * Calculate a torque without retaining a controller state or changing inputs.
-   */
+  /** Calculate a torque without retaining a controller state or changing inputs. */
   export function torque(
     current: IAutoMovieQuaternion,
     target: IAutoMovieQuaternion,
@@ -27,13 +25,7 @@ export namespace AutoMoviePhysicalTracking {
     dt: number,
     strength: number,
   ): IAutoMoviePhysicalTracking.IResult {
-    if (
-      !(dt > 0) ||
-      !Number.isFinite(dt) ||
-      strength < 0 ||
-      strength > 1 ||
-      !Number.isFinite(strength)
-    )
+    if (dt <= 0 || strength < 0 || strength > 1)
       throw new Error("Invalid physical tracking timestep or strength");
     const delta: IAutoMovieQuaternion = Quaternion.multiply(
       target,
@@ -59,8 +51,7 @@ export namespace AutoMoviePhysicalTracking {
       const k: number = axis.stiffness * strength;
       const d: number = axis.damping * strength;
       const effective: number = inertia[axis.axis];
-      if (!(effective > 0) || !Number.isFinite(effective))
-        throw new Error("Invalid effective angular inertia");
+      if (effective <= 0) throw new Error("Invalid effective angular inertia");
       const raw: number =
         (k * error[axis.axis] - (d + k * dt) * velocity[axis.axis]) /
         (1 + (d * dt + k * dt * dt) / effective);
@@ -71,7 +62,8 @@ export namespace AutoMoviePhysicalTracking {
     return result;
   }
   /**
-   * Root positional PD; gravity compensation is explicit in the caller's acceleration.
+   * Root positional PD; gravity compensation is explicit in the caller's
+   * acceleration.
    */
   export function force(
     error: IAutoMovieVector3,

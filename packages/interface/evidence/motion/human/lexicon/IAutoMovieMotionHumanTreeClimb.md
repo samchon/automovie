@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanTreeClimb.ts#IAutoMovieMotionHumanTreeClimb
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three moves, what each reads and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A discriminated union on kind; each names the tree and a branch by its index from the lowest.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One registered vocabulary entry; planTreeClimb in motions is the only consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every hold, seat and load comes from the tree's affordances.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanTreeClimb.ts#IAutoMovieMotionHumanTreeClimb.IClimb
 
 ## @evidence contracts/development/common.md#meaningful-documentation

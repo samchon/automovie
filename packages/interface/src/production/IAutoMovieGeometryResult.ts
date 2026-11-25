@@ -1,5 +1,6 @@
 /**
- * Compact result of measuring the current compiled geometry through a production query.
+ * Compact result of measuring the current compiled geometry through a
+ * production query.
  */
 export type IAutoMovieGeometryResult =
   | {
@@ -13,7 +14,10 @@ export type IAutoMovieGeometryResult =
       /** Ground sample. */
       kind: "ground";
 
-      /** Surface height in world meters; zero when no surface contains the point. */
+      /**
+       * Surface height in world meters; zero when no surface contains the
+       * point.
+       */
       height: number;
 
       /** Matching surface id, or null. */
@@ -26,6 +30,9 @@ export type IAutoMovieGeometryResult =
       /** Generic current-compile measurement. */
       kind: "measurement";
 
-      /** Query-specific named metrics; each metric's units and meaning belong to that query. */
+      /**
+       * Query-specific named metrics; each metric's units and meaning belong to
+       * that query.
+       */
       values: Record<string, number | string | boolean>;
     };

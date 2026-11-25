@@ -7,12 +7,20 @@ import type {
 } from "../../index";
 
 /**
- * Qualify completed automatic observations and assemble owned camera evidence. Every independent final gate runs when its required observations exist. A completed observation artifact may refuse its camera; only a candidate passing all gates exposes a relative transform. No shape reconstruction is performed.
+ * Qualify completed automatic observations and assemble owned camera evidence.
+ * Every independent final gate runs when its required observations exist. A
+ * completed observation artifact may refuse its camera; only a candidate
+ * passing all gates exposes a relative transform. No shape reconstruction is
+ * performed.
  */
 
 export namespace IAutoMovieRecoveryCameraEstimateCreationOperation {
   /**
-   * Qualify completed automatic observations and assemble owned camera evidence. Every independent final gate runs when its required observations exist. A completed observation artifact may refuse its camera; only a candidate passing all gates exposes a relative transform. No shape reconstruction is performed.
+   * Qualify completed automatic observations and assemble owned camera
+   * evidence. Every independent final gate runs when its required observations
+   * exist. A completed observation artifact may refuse its camera; only a
+   * candidate passing all gates exposes a relative transform. No shape
+   * reconstruction is performed.
    */
 
   export type Operation = (

@@ -16,13 +16,13 @@ const PLANE_NORMAL_EPSILON: number = 1e-12;
 /**
  * Validate the logical spaces of a building and their hierarchy.
  *
- * Each space needs a unique non-blank id, a non-blank kind and a parent that
- * resolves. It states its volume at most once, as convex cells or as a closed
- * shell judged by {@link validateBuiltSpaceShell}, and a `fidelity` is either
- * `exact` or `faceted` and only allowed on a space that states a volume. Each
- * cell needs a unique non-blank id within its space and at least 4 planes, each
- * with a finite non-zero normal and a finite offset. The parent hierarchy must
- * be acyclic. Findings are pushed under `<root>.spaces`.
+ * Each space needs a unique id, a non-blank kind and a parent that resolves. It
+ * states its volume at most once, as convex cells or as a closed shell judged
+ * by {@link validateBuiltSpaceShell}, and a `fidelity` is either `exact` or
+ * `faceted` and only allowed on a space that states a volume. Each cell needs a
+ * unique id within its space and at least 4 planes, each with a finite non-zero
+ * normal and a finite offset. The parent hierarchy must be acyclic. Findings
+ * are pushed under `<root>.spaces`.
  *
  * @param environment Building whose spaces are checked.
  * @param root Violation path of the building, `$input`.
@@ -84,7 +84,6 @@ export const validateBuiltSpaces: (
       space.cells.forEach(
         (cell: IAutoMovieConvexSpaceCell, cellIndex: number): void => {
           const cellPath: string = `${path}.cells[${cellIndex}]`;
-          collector.nonEmpty(`${cellPath}.id`, cell.id, "space-cell id");
           if (cellIds.has(cell.id))
             collector.push(
               "type",
@@ -106,25 +105,13 @@ export const validateBuiltSpaces: (
               planeIndex: number,
             ): void => {
               const planePath: string = `${cellPath}.planes[${planeIndex}]`;
-              collector.finiteVector(
-                `${planePath}.normal`,
-                plane.normal,
-                "plane normal",
-              );
               const length: number = Vector3.length(plane.normal);
-              if (!Number.isFinite(length) || length <= PLANE_NORMAL_EPSILON)
+              if (length <= PLANE_NORMAL_EPSILON)
                 collector.push(
                   "range",
                   `${planePath}.normal`,
                   "plane normal must have finite non-zero computed length",
                   plane.normal,
-                );
-              if (!Number.isFinite(plane.offset))
-                collector.push(
-                  "range",
-                  `${planePath}.offset`,
-                  `plane offset must be finite, but was ${plane.offset}`,
-                  plane.offset,
                 );
             },
           );

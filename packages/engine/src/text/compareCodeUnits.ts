@@ -1,6 +1,4 @@
-/**
- * Compare strings by locale-independent UTF-16 code-unit order.
- */
+/** Compare strings by locale-independent UTF-16 code-unit order. */
 export const compareCodeUnits: (a: string, b: string) => number = (
   a: string,
   b: string,

@@ -1,11 +1,16 @@
 import * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { getSubsurfaceTexture } from "./getSubsurfaceTexture.js";
 import { subsurfaceFragment } from "./subsurfaceFragment.js";
 
 /**
- * Register the existing direct-diffuse subsurface shader approximation on a new physical material, borrowing one shared lookup texture. Radius channels are admitted nonnegative finite distances in metres by Engine validation; this helper does not independently validate them or prove measured tissue response.
+ * Register the existing direct-diffuse subsurface shader approximation on a new
+ * physical material, borrowing one shared lookup texture. Radius channels are
+ * admitted nonnegative finite distances in metres by Engine validation; this
+ * helper does not independently validate them or prove measured tissue
+ * response.
  */
 export function applySubsurfaceShading(
   material: THREE.MeshPhysicalMaterial,
@@ -21,7 +26,7 @@ export function applySubsurfaceShading(
   material.userData.subsurfaceRadius = { ...radius };
   addMaterialShaderPatch(material, {
     key: "automovie-subsurface",
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       shader.uniforms.subsurfaceRadius = radiusUniform;
       shader.uniforms.subsurfaceTable = tableUniform;
       shader.fragmentShader = subsurfaceFragment(shader.fragmentShader);

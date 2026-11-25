@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
@@ -20,9 +21,68 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
+/** The alternatives of `LaunchContext`'s site. */
+type LaunchContext = "entry" | "prop" | "performer" | "start";
+
+/** The alternatives of `PlanContext`'s site. */
+type PlanContext = "entry" | "prop" | "performer" | "start";
+
+/** The alternatives of `OnContext`'s site. */
+type OnContext = "prop" | "start";
+
+/** The alternatives of `EntryContext`'s site. */
+type EntryContext = "entry" | "prop" | "performer" | "start";
+
+/** Goals that can be carried through a prop's world motion. */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];
+
+/** Read the turn's heading in degrees around world up. */
+function yawOf(turn: IAutoMovieQuaternion): number {
+  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
+  return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
+}
+
 /**
- * The one owner of goals in a moving support's frame (#3491): a posture planned
- * in the world at an action's start, expressed in the support's frame there and
+ * The carry from a start to a second of a support whose frame a function gives.
+ *
+ * @param frame The support's world frame at a film second.
+ * @param start The film second the posture was planned at.
+ * @param seconds The film second carried to.
+ * @returns The carry.
+ */
+export function HumanSupportCarry(
+  frame: (seconds: number) => IAutoMovieRigidTransform,
+  start: number,
+  seconds: number,
+): IAutoMovieMotionHumanSupportCarry.ICarry {
+  const first: IAutoMovieRigidTransform = frame(start);
+  const now: IAutoMovieRigidTransform = frame(seconds);
+  const turn: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(now.rotation, Quaternion.inverse(first.rotation)),
+  );
+  return {
+    point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.add(
+        now.position,
+        Quaternion.rotateVector(turn, Vector3.subtract(p, first.position)),
+      ),
+    turn,
+    yaw: yawOf(turn),
+  };
+}
+
+/**
+ * The one owner of goals in a moving support's frame: a posture planned in the
+ * world at an action's start, expressed in the support's frame there and
  * carried back to the world at every second by the support's rigid motion since
  * then. A stance on a cart's bed, a bow held on its target from a cantering
  * horse and a carbine presented from a moving car all plan once at their start
@@ -35,43 +95,8 @@ import { HumanSupportFrame } from "./HumanSupportFrame";
  * goal attached to a bone (`HumanPosture.IGoal.on`) rides its bone already and
  * is left alone. On the ground the carry is the identity, so nothing changes
  * there.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is carried, by which transform, what is left alone and why the plan stays pure.
- * @evidence contracts/development/design.md#principled-representation A rigid transform of SE(3) between the support's frame at the start and at a second, applied to a posture's world quantities.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The carry by a frame function, a posture carried, an entry read on its support, and a plan carried with the channels it claims and the aim it keeps (`HumanSupportAim`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's frame is read through its one reader (`HumanSupportFrame`) or the prop's own frame; nothing is extrapolated.
  */
 export namespace HumanSupportCarry {
-  /**
-   * The carry from a start to a second of a support whose frame a function
-   * gives.
-   *
-   * @param frame The support's world frame at a film second.
-   * @param start The film second the posture was planned at.
-   * @param seconds The film second carried to.
-   * @returns The carry.
-   */
-  export function of(
-    frame: (seconds: number) => IAutoMovieRigidTransform,
-    start: number,
-    seconds: number,
-  ): IAutoMovieMotionHumanSupportCarry.ICarry {
-    const first: IAutoMovieRigidTransform = frame(start);
-    const now: IAutoMovieRigidTransform = frame(seconds);
-    const turn: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(now.rotation, Quaternion.inverse(first.rotation)),
-    );
-    return {
-      point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
-          now.position,
-          Quaternion.rotateVector(turn, Vector3.subtract(p, first.position)),
-        ),
-      turn,
-      yaw: yawOf(turn),
-    };
-  }
-
   /**
    * Blend the rigid carries that share a staging frame at entry. End weights
    * preserve the exact source or destination carry. Intermediate weights
@@ -82,13 +107,6 @@ export namespace HumanSupportCarry {
    * @param anchor An entry-world point near the goals being carried, metres.
    * @param weight The destination weight from zero to one.
    * @returns A rigid carry of points, turns and headings.
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the shared entry frame, destination weight and exact endpoints.
-   * @evidence contracts/development/implementation.md#principled-implementation Represents each rigid carry by a carried anchor and rotation. The engine interpolates the anchor linearly and the rotation on its shorter arc.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes one blended carry for every world-space posture channel. The caller owns the load-transfer schedule and each plant's carrier.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves unit rotation at intermediate weights and returns the exact input carry at either endpoint.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Blends two anchors and two rotations in constant space and time with one rotation per point.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares engine interpolation and the support heading calculation used for a single carry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An intermediate carry keeps only the entry anchor, blended anchor and turn for as long as its caller holds it.
    */
   export function blend(
     from: IAutoMovieMotionHumanSupportCarry.ICarry,
@@ -119,16 +137,6 @@ export namespace HumanSupportCarry {
     };
   }
 
-  /** Read the turn's heading in degrees around world up. */
-  function yawOf(turn: IAutoMovieQuaternion): number {
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-      x: 0,
-      y: 0,
-      z: 1,
-    });
-    return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
-  }
-
   /**
    * A posture carried: its root, its heading and every limb goal not attached
    * to a bone moved by the carry; joint angles are the body's own and stay.
@@ -144,10 +152,9 @@ export namespace HumanSupportCarry {
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-    for (const [limb, goal] of Object.entries(posture.limbs) as [
-      keyof IAutoMovieMotionHumanPosture["limbs"],
-      IAutoMovieHumanLimbGoal,
-    ][])
+    for (const limb of LIMBS) {
+      const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
+      if (goal === undefined) continue;
       limbs[limb] =
         goal.on !== undefined
           ? goal
@@ -163,6 +170,7 @@ export namespace HumanSupportCarry {
                     ),
                   }),
             };
+    }
     return {
       ...posture,
       root: carry.point(posture.root),
@@ -186,10 +194,7 @@ export namespace HumanSupportCarry {
    * @returns The entry relative to the prop's motion.
    */
   export function entry(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, EntryContext>,
     prop: string,
   ): IAutoMovieMotionHumanEntryState {
     const support: IAutoMovieMotionHumanSupportFrame.IFrame =
@@ -234,7 +239,7 @@ export namespace HumanSupportCarry {
    *   not certify a stationary window in world coordinates.
    */
   export function on(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OnContext>,
     plan: IAutoMovieMotionHumanActionPlan,
     prop: string,
   ): IAutoMovieMotionHumanActionPlan {
@@ -258,7 +263,7 @@ export namespace HumanSupportCarry {
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture =>
         posture(
-          of(frame, context.start, context.start + seconds),
+          HumanSupportCarry(frame, context.start, context.start + seconds),
           plan.posture(seconds, channels, resolution, projection),
         ),
     };
@@ -285,16 +290,13 @@ export namespace HumanSupportCarry {
    *   their bound (`HumanSupportAim.check`).
    */
   export function plan(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, PlanContext>,
     plan: IAutoMovieMotionHumanActionPlan,
     channels: NonNullable<IAutoMovieMotionHumanActionPlan["channels"]>,
     aim?: IAutoMovieMotionHumanSupportAim.IAim,
   ): IAutoMovieMotionHumanActionPlan {
     // On the ground there is nothing to carry: the plan is kept as made.
-    if (HumanSupportFrame.of(context).kind === "ground")
+    if (HumanSupportFrame(context).kind === "ground")
       return { ...plan, channels };
     const frame = (seconds: number): IAutoMovieRigidTransform => {
       const at: IAutoMovieMotionHumanSupportFrame.IFrame = HumanSupportFrame.at(
@@ -306,7 +308,7 @@ export namespace HumanSupportCarry {
     const carryAt = (
       seconds: number,
     ): IAutoMovieMotionHumanSupportCarry.ICarry =>
-      of(frame, context.start, context.start + seconds);
+      HumanSupportCarry(frame, context.start, context.start + seconds);
     // The root and the heading are the carrier's, which its own plan has
     // already carried; only the goals this plan made at its start ride on.
     const made = (
@@ -364,14 +366,11 @@ export namespace HumanSupportCarry {
    * turn, the support's own velocity there (which the act already added) kept.
    */
   function launch(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, LaunchContext>,
     frame: (seconds: number) => IAutoMovieRigidTransform,
     l: IAutoMovieMotionPropLaunch,
   ): IAutoMovieMotionPropLaunch {
-    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(
+    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = HumanSupportCarry(
       frame,
       context.start,
       context.start + l.seconds,

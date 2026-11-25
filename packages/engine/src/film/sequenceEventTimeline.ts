@@ -16,25 +16,41 @@ import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 const TIME_EPSILON: number = 1e-9;
 
 /**
- * Place every shot interaction event onto the sequence output clock, once per play.
+ * Place every shot interaction event onto the sequence output clock, once per
+ * play.
  *
- * An entry emits the events inside its trimmed source range `[from, to)`, each at `start + (time - offset) / rate`; events outside every trim are omitted. The source end uses the exact symbolic trim boundary when present. An event at that boundary uses the played output end. The range is half-open so an event exactly on a contiguous trim seam is emitted once, by the entry that starts there. It closes at `to` in two cases: when the trim ends at the shot's own end, so a shot-final event is never lost, and when no other entry of the same shot both starts at that shot-local instant and starts at this entry's global end, so cutting away exactly on a hit keeps the hit. A replay of the same source span elsewhere on the output clock, such as a flashback, does not take the seam event from the cut, because only a globally contiguous entry shows the same on-screen instant.
+ * An entry emits the events inside its trimmed source range `[from, to)`, each
+ * at `start + (time - offset) / rate`; events outside every trim are omitted.
+ * The source end uses the exact symbolic trim boundary when present. An event
+ * at that boundary uses the played output end. The range is half-open so an
+ * event exactly on a contiguous trim seam is emitted once, by the entry that
+ * starts there. It closes at `to` in two cases: when the trim ends at the
+ * shot's own end, so a shot-final event is never lost, and when no other entry
+ * of the same shot both starts at that shot-local instant and starts at this
+ * entry's global end, so cutting away exactly on a hit keeps the hit. A replay
+ * of the same source span elsewhere on the output clock, such as a flashback,
+ * does not take the seam event from the cut, because only a globally contiguous
+ * entry shows the same on-screen instant.
  *
- * Each entry that shows an instant emits that instant's events at its own global time, so an event replayed by a flashback lands once per play. The events are ordered by global time, then entry index, then event id by UTF-16 code units. Each keeps its shot-local `time` and adds `shotTime`, `entry`, `shot` and `globalTime`. Throws what {@link sequenceTimeline} throws.
+ * Each entry that shows an instant emits that instant's events at its own
+ * global time, so an event replayed by a flashback lands once per play. The
+ * events are ordered by global time, then entry index, then event id by UTF-16
+ * code units. Each keeps its shot-local `time` and adds `shotTime`, `entry`,
+ * `shot` and `globalTime`. Throws what {@link sequenceTimeline} throws.
  *
  * @param sequence The cut, already accepted by `cutSequence`.
  * @param shots Every shot the cut references.
  * @returns Every emitted play of every event, in output order.
  *
- * Symbolic trims and retimed plays use exact event membership. On an adjacent
- * same-shot hard cut involving either, both plays use exact adjoining edges.
- * When the edges meet, the incoming source start owns the seam. Numeric
- * duration reconstruction can disagree with that start by binary64 roundoff.
- * Outside a shared seam the numeric source end is the binary64 sum of the
- * start and duration. Select an end event explicitly to keep an independently
- * authored time. If the numeric sum rounds back to the start, an event at
- * that instant is still an opening event. Other numeric edges retain the
- * existing tolerance.
+ *   Symbolic trims and retimed plays use exact event membership. On an adjacent
+ *   same-shot hard cut involving either, both plays use exact adjoining edges.
+ *   When the edges meet, the incoming source start owns the seam. Numeric
+ *   duration reconstruction can disagree with that start by binary64 roundoff.
+ *   Outside a shared seam the numeric source end is the binary64 sum of the
+ *   start and duration. Select an end event explicitly to keep an independently
+ *   authored time. If the numeric sum rounds back to the start, an event at
+ *   that instant is still an opening event. Other numeric edges retain the
+ *   existing tolerance.
  */
 export function sequenceEventTimeline(
   sequence: IAutoMovieSequence,

@@ -47,12 +47,6 @@ export function configurePhysicalJointMotor(input: {
   for (const [index, axis] of command.axes.entries()) {
     const declared: IAutoMoviePhysicalJoint["axes"][number] =
       input.joint.axes[index]!;
-    if (
-      ![axis.speed, axis.damping, declared.maximumTorque].every(Number.isFinite)
-    )
-      throw new Error(
-        `Derived joint motor is not finite: ${input.joint.id}/${axis.axis}`,
-      );
     // A driven motor keeps both directions' bounds, so a solve that turns
     // its impulse against the PD's own demand, as the support cascade may,
     // still meets that direction's own strength; an undriven one has none.

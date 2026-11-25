@@ -1,6 +1,6 @@
 # Hair cards
 
-Cards can be generated from a semantic scalp. Roots need stable surface attachment. Guide curves supply length, direction, sag and curl, and opacity textures represent bundles of fibres. [Scheuermann's hair rendering](../sources/scheuermann-2004-hair.md) · [Unreal's card generator](../sources/unreal-hair-card-generator.md)
+Cards can be generated from a semantic scalp. Roots need stable surface attachment. Guide curves supply length, direction, sag and curl, and opacity textures represent bundles of fibres. [Scheuermann's hair rendering](../sources/scheuermann-2004-hair.md)
 
 Specify root-to-tip width, curl radius, pitch and scalp clearance as physical lengths. Segment spacing approximates those curves. Short attached hair can follow head weights. Long hair reaching the shoulders needs body contact and its own deformation.
 

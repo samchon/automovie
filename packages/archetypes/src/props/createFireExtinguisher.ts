@@ -9,11 +9,11 @@ import {
 
 /**
  * A 5 lb ABC dry-chemical extinguisher, Buckeye's spec sheet as a search
- * summary quotes it (https://www.webstaurantstore.com/documents/specsheets/4725abc.pdf,
- * read 2026-11-22): 16 3/8 in (0.416 m) tall, a 4 1/4 in (0.108 m)
- * cylinder, 7 1/4 in (0.184 m) wide and 9 1/2 lb (4.3 kg) shipped. The
- * valve's proportions, the lever's travel and the pin's pull are
- * provisional construction estimates.
+ * summary quotes it
+ * (https://www.webstaurantstore.com/documents/specsheets/4725abc.pdf, read
+ * 2026-11-22): 16 3/8 in (0.416 m) tall, a 4 1/4 in (0.108 m) cylinder, 7 1/4
+ * in (0.184 m) wide and 9 1/2 lb (4.3 kg) shipped. The valve's proportions, the
+ * lever's travel and the pin's pull are provisional construction estimates.
  */
 const SIZE: Readonly<createFireExtinguisher.ISize> = {
   height: 0.416,
@@ -28,24 +28,16 @@ const SIZE: Readonly<createFireExtinguisher.ISize> = {
  * A stored-pressure fire extinguisher standing on its base.
  *
  * The cylinder stands along `+Y` from the base's centre at the origin. Its
- * valve sits on top: `handle` is the carrying handle under the valve, the
- * hand closing on it from below; `lever` is the operating lever above it,
- * a hinge the holding hand's fingers squeeze down by `lever` degrees to
- * discharge; `pin` is the safety pin through the valve, a slider pulled
- * out along `+X` by `pin` metres before the lever can move; `ring` is the
- * pin's ring, riding it, where the free hand pulls. `nozzle` is the horn's
- * outlet ahead of the valve, its `+Y` the discharge direction, along `+Z`.
+ * valve sits on top: `handle` is the carrying handle under the valve, the hand
+ * closing on it from below; `lever` is the operating lever above it, a hinge
+ * the holding hand's fingers squeeze down by `lever` degrees to discharge;
+ * `pin` is the safety pin through the valve, a slider pulled out along `+X` by
+ * `pin` metres before the lever can move; `ring` is the pin's ring, riding it,
+ * where the free hand pulls. `nozzle` is the horn's outlet ahead of the valve,
+ * its `+Y` the discharge direction, along `+Z`.
  *
  * @param params The optional scene id.
  * @returns The extinguisher and its contacts, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the read size, the frame and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation A cylinder, a valve, a handle, a lever on a hinge, a pin on a slider and a horn.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the parts, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The valve's proportions, lever travel and pin pull are named estimates; height, diameter, width and mass are read.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts and six contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createFireExtinguisher(
   params: createFireExtinguisher.IParams = {},
@@ -181,16 +173,12 @@ export function createFireExtinguisher(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createFireExtinguisher}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation Metres, degrees and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle, lever, pin, ring and nozzle the PASS drill reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is the read model's; no dimension is authorable.
- */
+/** The inputs, contacts and size of {@link createFireExtinguisher}. */
 export namespace createFireExtinguisher {
-  /** The carrying handle, the lever and its tip, the pin and its ring, and the nozzle. */
+  /**
+   * The carrying handle, the lever and its tip, the pin and its ring, and the
+   * nozzle.
+   */
   export type Affordance =
     | "handle"
     | "lever"

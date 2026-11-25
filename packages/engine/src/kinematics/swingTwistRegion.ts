@@ -1,11 +1,11 @@
 import type {
   IAutoMovieAngleRange,
-  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
   IAutoMovieSwingTwistBasis,
+  IAutoMovieSwingTwistRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,82 +26,50 @@ import { swingTwistReachBound } from "./swingTwistReachBound";
  *
  * The region is the star of the directions the intervals reach with no twist
  * (and the constraint's `swingDeg`), widened for a proximal twist by the reach
- * of every twist in its interval, and raised so it turns no faster than
- * `SLOPE` with the azimuth. `swingTwistRange` reads its radius and brings a
- * rotation back into it.
+ * of every twist in its interval, and raised so it turns no faster than `SLOPE`
+ * with the azimuth. `swingTwistRange` reads its radius and brings a rotation
+ * back into it.
  */
 export namespace swingTwistRegion {
   /**
-   * The radius table of a constraint on a joint's frame.
+   * Build the region of a constraint on a joint's frame.
    *
    * @param constraint The constraint.
    * @param joint The joint's axes and rest frame.
-   * @returns The radius on each of `swingTwistBasis.RAYS` great circles, degrees; built on first use and kept.
+   * @returns The region.
    */
-  export function table(
+  export function prepare(
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
-  ): Float64Array {
-    let byAxes:
-      | WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
-      | undefined = TABLES.get(constraint);
-    if (byAxes === undefined) {
-      byAxes = new WeakMap();
-      TABLES.set(constraint, byAxes);
-    }
-    let byFrame: Map<object, Float64Array> | undefined = byAxes.get(joint.axes);
-    if (byFrame === undefined) {
-      byFrame = new Map();
-      byAxes.set(joint.axes, byFrame);
-    }
-    const frame: object = joint.frame ?? NO_FRAME;
-    let kept: Float64Array | undefined = byFrame.get(frame);
-    if (kept === undefined) {
-      kept = build(constraint, joint);
-      byFrame.set(frame, kept);
-      GREATEST.set(kept, Math.max(...kept));
-    }
-    return kept;
-  }
-
-  /**
-   * The region's greatest radius: the farthest the limb may point from rest
-   * on any great circle, the bound every great circle's radius is at most.
-   *
-   * @param constraint The constraint.
-   * @param joint The joint's axes and rest frame.
-   * @returns The greatest radius of `table`'s, degrees, read when the table was built.
-   */
-  export function greatest(
-    constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
-  ): number {
-    return GREATEST.get(table(constraint, joint))!;
+  ): IAutoMovieSwingTwistRegion {
+    const table: Float64Array = build(constraint, joint);
+    return { constraint, table, greatest: Math.max(...table) };
   }
 }
 
-/** Each kept table's greatest radius, degrees, set when the table is built. */
-const GREATEST: WeakMap<Float64Array, number> = new WeakMap();
-
-/** The radius tables, by the identity of the constraint, the axes and the rest frame: the tables of a rig are kept as long as its records are. */
-const TABLES: WeakMap<
-  IAutoMovieJointConstraint,
-  WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
-> = new WeakMap();
-
-/** The key of a joint read with no rest frame. */
-const NO_FRAME: object = Object.freeze({});
-
-/** The fastest the region's radius may change with the azimuth, degrees per degree (provisional: three, so a projection's step is at most about three times the azimuth's step). */
+/**
+ * The fastest the region's radius may change with the azimuth, degrees per
+ * degree (provisional: three, so a projection's step is at most about three
+ * times the azimuth's step).
+ */
 const SLOPE: number = 3;
 
 /** The step of the scan for the farthest reached swing on a ray, degrees. */
 const SCAN: number = 0.5;
 
-/** The bisections that refine it: twenty halve half a degree to under a millionth. */
+/**
+ * The bisections that refine it: twenty halve half a degree to under a
+ * millionth.
+ */
 const HALVINGS: number = 20;
 
-/** How far before a grid step, degrees, the closed form's interval of reached swings must begin for the step's cell to count as inside from the step on: far above the interval's own margins (a sine widened by 1e-9 moves an end by up to 0.003 degrees beside a quarter turn), far under the grid's half degree. */
+/**
+ * How far before a grid step, degrees, the closed form's interval of reached
+ * swings must begin for the step's cell to count as inside from the step on:
+ * far above the interval's own margins (a sine widened by 1e-9 moves an end by
+ * up to 0.003 degrees beside a quarter turn), far under the grid's half
+ * degree.
+ */
 const COVERED: number = 0.01;
 
 /** The region's radius on each ray: reached, widened and raised. */
@@ -126,8 +94,11 @@ function reach(
   clinical: IAutoMovieJointConstraint,
   joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
-  const rayBasis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
-  const flexionFirst: boolean = joint.axes.rotationOrder === "flexion-abduction-twist";
+  const rayBasis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+    joint.axes,
+  );
+  const flexionFirst: boolean =
+    joint.axes.rotationOrder === "flexion-abduction-twist";
 
   // The reach equations use flexion as the inner factor. Exchange the two
   // swing axes and their clinical ranges for F·A, keeping the ray basis.
@@ -150,9 +121,19 @@ function reach(
   // same steps from there on, the same bracket, the same table. An arm's
   // antipode is reached on every great circle, in an interval far narrower
   // than a step, and the scan passed it by a hundred steps on half of them.
-  const bound: ((cosine: number, sine: number, span?: swingTwistReachBound.ISpan) => number) | null =
-    swingTwistReachBound.prepare(constraint, frame, basis, across);
-  const span: swingTwistReachBound.ISpan = { grid: SCAN, cell: 0, low: NaN, high: NaN };
+  const bound:
+    | ((
+        cosine: number,
+        sine: number,
+        span?: swingTwistReachBound.ISpan,
+      ) => number)
+    | null = swingTwistReachBound.prepare(constraint, frame, basis, across);
+  const span: swingTwistReachBound.ISpan = {
+    grid: SCAN,
+    cell: 0,
+    low: NaN,
+    high: NaN,
+  };
 
   // Where the swing cone removes no direction the intervals reach, the
   // reached swings on a ray are the closed form's own intervals, so the one
@@ -162,7 +143,8 @@ function reach(
   // The flexion's turn about the basis's flexion axis, on that one axis for
   // every test of the build: the axis's direction and length prepared once,
   // each angle's quaternion the one Quaternion.fromAxisAngle gives.
-  const flexed: (degrees: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle(basis.f);
+  const flexed: (degrees: number) => IAutoMovieQuaternion =
+    Quaternion.prepareAxisAngle(basis.f);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
     const direction: (swing: number) => IAutoMovieVector3 =
@@ -173,7 +155,12 @@ function reach(
     const farthest: number =
       bound === null ? 180 : bound(Math.cos(angle), Math.sin(angle), span);
     if (free) {
-      const placed: number | null = latticed(inside, span.cell, span.low, span.high);
+      const placed: number | null = latticed(
+        inside,
+        span.cell,
+        span.low,
+        span.high,
+      );
       if (placed !== null) {
         table[ray] = placed;
         continue;
@@ -207,19 +194,18 @@ function reach(
  * The scan's own answer on a ray, placed from the closed form instead of
  * searched for, or null when the closed form does not place it.
  *
- * The scan stops at the farthest grid step inside and bisects the cell above
- * it `HALVINGS` times, so its answer is that step plus a whole number of
- * `SCAN / 2 ** HALVINGS`: the farthest point of that lattice that is inside
- * with the next one outside, wherever the cell is inside up to one swing and
- * outside past it. The closed form gives that (`swingTwistReachBound.ISpan`):
- * `cell` is the farthest grid step an interval of reached swings holds, that
- * interval covers the cell from the step when it begins at least `COVERED`
- * before it, nothing is reached past the interval's end `ended` inside the
- * cell, and the cell's top is a grid step no interval holds. The lattice
- * point is sought from the one at or under `ended` downward, by steps that
- * double and a bisection of the lattice between the last point outside and
- * the first inside. Every answer is read off the scan's own test, so it is
- * the scan's.
+ * The scan stops at the farthest grid step inside and bisects the cell above it
+ * `HALVINGS` times, so its answer is that step plus a whole number of `SCAN / 2
+ * ** HALVINGS`: the farthest point of that lattice that is inside with the next
+ * one outside, wherever the cell is inside up to one swing and outside past it.
+ * The closed form gives that (`swingTwistReachBound.ISpan`): `cell` is the
+ * farthest grid step an interval of reached swings holds, that interval covers
+ * the cell from the step when it begins at least `COVERED` before it, nothing
+ * is reached past the interval's end `ended` inside the cell, and the cell's
+ * top is a grid step no interval holds. The lattice point is sought from the
+ * one at or under `ended` downward, by steps that double and a bisection of the
+ * lattice between the last point outside and the first inside. Every answer is
+ * read off the scan's own test, so it is the scan's.
  */
 function latticed(
   inside: (swing: number) => boolean,
@@ -228,12 +214,16 @@ function latticed(
   ended: number,
 ): number | null {
   const cells: number = 2 ** HALVINGS;
-  if (!(cell > 0) || !(covered + COVERED <= cell) || !(ended >= cell)) return null;
+  if (!(cell > 0) || !(covered + COVERED <= cell) || !(ended >= cell))
+    return null;
   if (!inside(cell)) return null;
 
   // The lattice point known outside: the first past the interval's end, or
   // the cell's top, which the scan takes as outside without reading it.
-  let high: number = Math.min(cells, Math.floor((ended - cell) / (SCAN / cells)) + 1);
+  let high: number = Math.min(
+    cells,
+    Math.floor((ended - cell) / (SCAN / cells)) + 1,
+  );
   let low: number = 0;
   for (let back: number = 1; high - back > low; back *= 2) {
     if (inside(cell + (high - back) * (SCAN / cells))) {
@@ -252,9 +242,9 @@ function latticed(
 
 /**
  * Whether the swing cone removes no direction the flexion and abduction
- * intervals reach: the greatest combined swing over the box,
- * `2 acos(cos(f / 2) cos(a / 2))` at the least product of the two half-angle
- * cosines, is within the cone, or the constraint states none.
+ * intervals reach: the greatest combined swing over the box, `2 acos(cos(f / 2)
+ * cos(a / 2))` at the least product of the two half-angle cosines, is within
+ * the cone, or the constraint states none.
  */
 function coneFree(constraint: IAutoMovieJointConstraint): boolean {
   if (typeof constraint.swingDeg !== "number") return true;
@@ -262,8 +252,14 @@ function coneFree(constraint: IAutoMovieJointConstraint): boolean {
   const abduction: IAutoMovieAngleRange | null = constraint.abduction;
   if (flexion === null || abduction === null) return false;
   const cosines = (range: IAutoMovieAngleRange): [number, number] => {
-    let least: number = Math.min(Math.cos(range.min / 2 / swingTwistBasis.DEG), Math.cos(range.max / 2 / swingTwistBasis.DEG));
-    let most: number = Math.max(Math.cos(range.min / 2 / swingTwistBasis.DEG), Math.cos(range.max / 2 / swingTwistBasis.DEG));
+    let least: number = Math.min(
+      Math.cos(range.min / 2 / swingTwistBasis.DEG),
+      Math.cos(range.max / 2 / swingTwistBasis.DEG),
+    );
+    let most: number = Math.max(
+      Math.cos(range.min / 2 / swingTwistBasis.DEG),
+      Math.cos(range.max / 2 / swingTwistBasis.DEG),
+    );
 
     // A half angle passing a whole number of half turns reaches 1 or -1: an
     // even turn gives 1 and an odd one -1. Only the first two turns the
@@ -279,7 +275,12 @@ function coneFree(constraint: IAutoMovieJointConstraint): boolean {
   };
   const [fLow, fHigh]: [number, number] = cosines(flexion);
   const [aLow, aHigh]: [number, number] = cosines(abduction);
-  const product: number = Math.min(fLow * aLow, fLow * aHigh, fHigh * aLow, fHigh * aHigh);
+  const product: number = Math.min(
+    fLow * aLow,
+    fLow * aHigh,
+    fHigh * aLow,
+    fHigh * aHigh,
+  );
   return (
     (Math.acos(swingTwistBasis.clamp(product, -1, 1)) * 360) / Math.PI <=
     constraint.swingDeg
@@ -288,8 +289,8 @@ function coneFree(constraint: IAutoMovieJointConstraint): boolean {
 
 /**
  * A proximal twist turns about the rest axis outside the flexion and the
- * abduction, so it carries every reached direction around the rest direction
- * by its own angle: on a hip flexed forward it swings the thigh sideways. The
+ * abduction, so it carries every reached direction around the rest direction by
+ * its own angle: on a hip flexed forward it swings the thigh sideways. The
  * directions its interval reaches are then those of no twist turned by any
  * twist in it, which shifts each ray's reach along the azimuth.
  */
@@ -311,14 +312,13 @@ function widen(
   ];
   const low: number = Math.min(...ends);
   const high: number = Math.max(...ends);
-  if (!(Number.isFinite(low) && Number.isFinite(high)))
-    throw new Error(`A proximal twist interval must be finite, got [${low}, ${high}]`);
 
   // A twist interval of a whole turn carries every reached direction all the
   // way around the rest axis, so every ray reaches the farthest of all; its
   // shifts would visit every ray anyway, one degree at a time over a width
   // that may be any finite size.
-  if (high - low >= 360) return new Float64Array(swingTwistBasis.RAYS).fill(Math.max(...table));
+  if (high - low >= 360)
+    return new Float64Array(swingTwistBasis.RAYS).fill(Math.max(...table));
   const width: number = 360 / swingTwistBasis.RAYS;
   const turned: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
@@ -344,17 +344,17 @@ function widen(
 }
 
 /**
- * Where the region's edge runs along a ray the farthest reach jumps between
- * two rays, and a projection along the rays would jump with it. So the radius
- * is raised to the least function at or above it that turns no faster than
- * `SLOPE` degrees of radius per degree of azimuth: the region gains a sliver
- * beside such an edge and loses nothing.
+ * Where the region's edge runs along a ray the farthest reach jumps between two
+ * rays, and a projection along the rays would jump with it. So the radius is
+ * raised to the least function at or above it that turns no faster than `SLOPE`
+ * degrees of radius per degree of azimuth: the region gains a sliver beside
+ * such an edge and loses nothing.
  *
- * A ray `apart` rays away lends `table[other] - SLOPE * apart * width`,
- * which is not positive once `SLOPE * apart * width` reaches the table's
- * greatest radius, and the raised radius is never below zero: only the rays
- * nearer than that are read, each by the same expression, so every value is
- * the one all rays would give.
+ * A ray `apart` rays away lends `table[other] - SLOPE * apart * width`, which
+ * is not positive once `SLOPE * apart * width` reaches the table's greatest
+ * radius, and the raised radius is never below zero: only the rays nearer than
+ * that are read, each by the same expression, so every value is the one all
+ * rays would give.
  */
 function raise(table: Float64Array): Float64Array {
   const rays: number = swingTwistBasis.RAYS;
@@ -381,11 +381,10 @@ function raise(table: Float64Array): Float64Array {
 /**
  * Whether the flexion and abduction intervals, with no twist and within the
  * swing cone, reach a direction in either reading. The caller maps its inner
- * and outer factors to flexion and abduction respectively. The mapped
- * flexion turns `u` within the plane normal to the flexion axis, and the
- * abduction then turns it about its own axis, which keeps the part along that
- * axis, so that part gives the flexion twice and the abduction follows for
- * each.
+ * and outer factors to flexion and abduction respectively. The mapped flexion
+ * turns `u` within the plane normal to the flexion axis, and the abduction then
+ * turns it about its own axis, which keeps the part along that axis, so that
+ * part gives the flexion twice and the abduction follows for each.
  */
 function reached(
   constraint: IAutoMovieJointConstraint,
@@ -402,14 +401,20 @@ function reached(
     Math.asin(
       swingTwistBasis.clamp(Vector3.dot(direction, basis.a) / across, -1, 1),
     ) * swingTwistBasis.DEG;
-  let projected: IAutoMovieVector3 | undefined;
+  const projected: IAutoMovieVector3 = flat(direction, basis.a);
   for (const f of [first, 180 - first]) {
     // A branch outside the flexion interval is unreachable for every abduction.
-    const clinical: number = nearestAngleAlias(toClinicalAngle(f, frame?.flexion)!, flexion);
+    const clinical: number = nearestAngleAlias(
+      toClinicalAngle(f, frame?.flexion)!,
+      flexion,
+    );
     if (!(clinical >= flexion.min && clinical <= flexion.max)) continue;
-    const swung: IAutoMovieVector3 = Quaternion.rotateVector(flexed(f), basis.u);
+    const swung: IAutoMovieVector3 = Quaternion.rotateVector(
+      flexed(f),
+      basis.u,
+    );
     const from: IAutoMovieVector3 = flat(swung, basis.a);
-    const to: IAutoMovieVector3 = (projected ??= flat(direction, basis.a));
+    const to: IAutoMovieVector3 = projected;
     if (Vector3.length(from) < 1e-9 || Vector3.length(to) < 1e-9) {
       // On the abduction axis any abduction keeps the direction.
       for (const a of [
@@ -456,7 +461,8 @@ function admits(
   return (
     a >= abduction.min &&
     a <= abduction.max &&
-    (free || typeof constraint.swingDeg !== "number" ||
+    (free ||
+      typeof constraint.swingDeg !== "number" ||
       swingConeAngle(f, a) <= constraint.swingDeg)
   );
 }

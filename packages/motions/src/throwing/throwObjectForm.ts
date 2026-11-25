@@ -3,21 +3,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The alternatives of `EntryEntryItem`'s site. */
+type EntryEntryItem = "chamber" | "release" | "finish";
+
 /**
- * The throw's form: every coefficient of its launch, its clock, its trunk
- * and its hand's places by style, each with its source or marked provisional
- * where no study read gives the value. Read by `throwObject`.
+ * The throw's form: every coefficient of its launch, its clock, its trunk and
+ * its hand's places by style, each with its source or marked provisional where
+ * no study read gives the value. Read by `throwObject`.
  *
- * Rugby uses the side-to-side reactive releases assessed by Pavely et al.
- * (PMID 19897167). Gridiron delivery uses the shoulder loading and torso
- * reversal phases in PMID 40719675 (PMCID PMC12317801). The grounded snap
- * is released between the centre's legs toward the quarterback. Sport
- * coefficients are provisional staging values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and its reader; each member states its unit, source or provisional status.
- * @evidence contracts/development/design.md#principled-representation One closed style union and one table per coefficient keyed by it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The style and the seven tables the throw's plan reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a share of the body's arm, so no length is stated in metres.
+ * Rugby uses the side-to-side reactive releases assessed by Pavely et al. (PMID
+ * 19897167). Gridiron delivery uses the shoulder loading and torso reversal
+ * phases in PMID 40719675 (PMCID PMC12317801). The grounded snap is released
+ * between the centre's legs toward the quarterback. Sport coefficients are
+ * provisional staging values.
  */
 export namespace throwObjectForm {
   /** Release angle above the horizontal by style, degrees (provisional). */
@@ -35,7 +33,10 @@ export namespace throwObjectForm {
     gridironSnap: 22,
   };
 
-  /** Seconds before and after the release through which the hand holds the launch velocity (provisional). */
+  /**
+   * Seconds before and after the release through which the hand holds the
+   * launch velocity (provisional).
+   */
   export const CARRY: number = 0.01;
 
   /** Windup seconds by style (provisional). */
@@ -53,7 +54,10 @@ export namespace throwObjectForm {
     gridironSnap: 0.24,
   };
 
-  /** The trunk's turn toward the throwing side in the windup, degrees (provisional). */
+  /**
+   * The trunk's turn toward the throwing side in the windup, degrees
+   * (provisional).
+   */
   export const TURN: Readonly<
     Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
   > = {
@@ -71,8 +75,8 @@ export namespace throwObjectForm {
   /**
    * The trunk's forward inclination at release by style, degrees: about 30
    * degrees in the overarm throw (Fleisig, Barrentine, Zheng, Escamilla and
-   * Andrews 1999, J Biomech 32:1371). No study read gives the underarm
-   * throw's or the toss's, so they stay upright (provisional).
+   * Andrews 1999, J Biomech 32:1371). No study read gives the underarm throw's
+   * or the toss's, so they stay upright (provisional).
    */
   export const TILT: Readonly<
     Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
@@ -102,17 +106,17 @@ export namespace throwObjectForm {
   };
 
   /**
-   * The hand's grip places around the throwing shoulder, in arm lengths of
-   * the performer's floor frame: `x` toward the throwing side, `y` up, `z`
-   * forward (provisional). The chamber and the finish are read from the
-   * standing shoulder; the release from the shoulder of the trunk's release
-   * pose, and for a style with an `ELBOW` only its direction is read, its
-   * distance being the arm's at that flexion.
+   * The hand's grip places around the throwing shoulder, in arm lengths of the
+   * performer's floor frame: `x` toward the throwing side, `y` up, `z` forward
+   * (provisional). The chamber and the finish are read from the standing
+   * shoulder; the release from the shoulder of the trunk's release pose, and
+   * for a style with an `ELBOW` only its direction is read, its distance being
+   * the arm's at that flexion.
    */
   export const PLACES: Readonly<
     Record<
       IAutoMovieMotionHumanThrowObjectForm.Style,
-      Record<"chamber" | "release" | "finish", IAutoMovieVector3>
+      Record<EntryEntryItem, IAutoMovieVector3>
     >
   > = {
     overarm: {

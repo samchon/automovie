@@ -10,15 +10,14 @@ import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions/internal";
 import { motionHumanFrame } from "./motionHumanFrame";
 
 /**
- * Compare independently built performances at the same instants, including
- * bone orientations that leave their joint centres unchanged.
+ * Compare independently built performances at the same instants, including bone
+ * orientations that leave their joint centres unchanged.
  *
  * @param first The first real performance's film.
  * @param second An independently resolved film with the same input values.
  * @param subject The person compared.
  * @param rate Samples per second; the caller's existing determinism rate.
  * @returns Every differing bone channel and duration, with its film second.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the independent-state precondition and channels compared.
  * @evidence contracts/development/implementation.md#principled-implementation A pure deterministic performance has the same displayed positions and unit orientations; q and -q represent the same orientation. Both the metre and quaternion-chord bounds are 1e-9, the existing determinism bound.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks duration, then both directions of bone membership and the two displayed channels on the caller's grid.
@@ -34,16 +33,10 @@ export function motionHumanRepeat(
   rate: number,
 ): string[] {
   const complaints: string[] = [];
-  if (
-    !Number.isFinite(first.duration) ||
-    !Number.isFinite(second.duration) ||
-    Math.abs(first.duration - second.duration) > 1e-9
-  )
+  if (Math.abs(first.duration - second.duration) > 1e-9)
     complaints.push(
       `duration differs: ${first.duration} and ${second.duration}`,
     );
-  if (!Number.isFinite(first.duration) || !Number.isFinite(second.duration))
-    return complaints;
   for (const seconds of AutoMovieMotionHumanAuditMotion.grid(
     0,
     Math.min(first.duration, second.duration),

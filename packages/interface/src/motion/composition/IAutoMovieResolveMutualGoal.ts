@@ -1,12 +1,8 @@
 import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
 
-/**
- * Data and callback contracts shared by the ResolveMutualGoal operations.
- */
+/** Data and callback contracts shared by the ResolveMutualGoal operations. */
 export namespace IAutoMovieResolveMutualGoal {
-  /**
-   * One person's acting arm.
-   */
+  /** One person's acting arm. */
   export interface ISide {
     /** The acting shoulder joint, world metres. */
     shoulder: IAutoMovieVector3;
@@ -14,13 +10,14 @@ export namespace IAutoMovieResolveMutualGoal {
     /** Comfortable shoulder-to-contact distance, metres; positive. */
     reach: number;
 
-    /** Full shoulder-to-contact reach with the elbow straight, metres; at least `reach`. */
+    /**
+     * Full shoulder-to-contact reach with the elbow straight, metres; at least
+     * `reach`.
+     */
     limit: number;
   }
 
-  /**
-   * The meeting.
-   */
+  /** The meeting. */
   export interface IGoal {
     /** Where the hands meet, world metres. */
     point: IAutoMovieVector3;
@@ -51,24 +48,24 @@ export namespace IAutoMovieResolveMutualGoal {
    * exchange height rises with stature (Sutiphotinun et al. 2020, reviewed by
    * Kopnarski 2023). The rule for unequal partners is provisional, as no study
    * of the clasp point of partners of unequal stature or arm length was
-   * located; it replaces a horizontal division with a mean height that left
-   * the taller partner's arm straight at the end of its reach.
+   * located; it replaces a horizontal division with a mean height that left the
+   * taller partner's arm straight at the end of its reach.
    *
    * Shoulders farther apart than the two comfortable reaches leave no such
    * point, so both arms extend by one common factor of their comfortable
    * reaches and the hands meet on the line between the shoulders; shoulders
    * nearer than the difference of the reaches shorten both the same way. An
-   * action that has its own preferred contact height (`height`, as an object
-   * is handed over at chest height) passes it: the point then lies at that
-   * height where both arms are the same fraction of their comfortable reaches
-   * (by bisection along the horizontal line between the shoulders, on which
-   * one distance grows as the other shrinks), and the height is moved to the
+   * action that has its own preferred contact height (`height`, as an object is
+   * handed over at chest height) passes it: the point then lies at that height
+   * where both arms are the same fraction of their comfortable reaches (by
+   * bisection along the horizontal line between the shoulders, on which one
+   * distance grows as the other shrinks), and the height is moved to the
    * nearest one inside the band both straight arms reach there.
    *
    * A meeting is refused, not stretched, when it lies beyond a straight arm:
-   * the error gives both limits and the widest horizontal shoulder gap the
-   * pair can close, so the author moves the people instead of receiving an arm
-   * torn off its shoulder.
+   * the error gives both limits and the widest horizontal shoulder gap the pair
+   * can close, so the author moves the people instead of receiving an arm torn
+   * off its shoulder.
    */
   export type IInput = {
     /** One person. */ a: IAutoMovieResolveMutualGoal.ISide;

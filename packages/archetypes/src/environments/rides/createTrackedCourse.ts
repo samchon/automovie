@@ -30,7 +30,8 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  *
  * @param input Local waypoints, closure and optional bank and lateral input.
  * @returns Approximate arc stations and their shared rigid frame sampler.
- * @throws On malformed points or orientation, degenerate travel or distances the sampled frame cannot represent.
+ * @throws On malformed points or orientation, degenerate travel or distances
+ *   the sampled frame cannot represent.
  */
 export function createTrackedCourse(
   input: IAutoMovieTrackCourse.IInput,
@@ -41,15 +42,11 @@ export function createTrackedCourse(
   );
   if (points.length < (closed ? 3 : 2))
     throw new Error("Track needs at least two open or three closed waypoints");
-  points.forEach((point: IAutoMovieVector3, index: number): void => {
-    if (![point.x, point.y, point.z].every(Number.isFinite))
-      throw new Error(`Track waypoint ${index} must be finite`);
-  });
   const banks: number[] =
     input.banks === undefined
       ? points.map((): number => 0)
       : Array.from(input.banks);
-  if (banks.length !== points.length || !banks.every(Number.isFinite))
+  if (banks.length !== points.length)
     throw new Error("Track banks must contain one finite angle per waypoint");
   if (closed) {
     points.push({ ...points[0]! });
@@ -60,7 +57,7 @@ export function createTrackedCourse(
   for (let i: number = 1; i < points.length; ++i) {
     const distance: number = Vector3.distance(points[i - 1]!, points[i]!);
     const total: number = chords[i - 1]! + distance;
-    if (!Number.isFinite(total) || total <= chords[i - 1]!)
+    if (total <= chords[i - 1]!)
       throw new Error(`Track chord at waypoint ${i} must increase finitely`);
     if (Math.abs(banks[i]! - banks[i - 1]!) > 180)
       throw new Error(`Track bank change at waypoint ${i} exceeds a half turn`);
@@ -115,7 +112,7 @@ export function createTrackedCourse(
       const point: IAutoMovieVector3 = path.point(u);
       const total: number =
         stations[stations.length - 1]! + Vector3.distance(previous, point);
-      if (!Number.isFinite(total) || total <= stations[stations.length - 1]!)
+      if (total <= stations[stations.length - 1]!)
         throw new Error(
           `Track spline interval at waypoint ${i} must increase finitely`,
         );
@@ -132,7 +129,7 @@ export function createTrackedCourse(
     length,
     closed,
     frame: (distance: number): IAutoMovieTransform => {
-      if (!Number.isFinite(distance) || distance < 0 || distance > length)
+      if (distance < 0 || distance > length)
         throw new Error(
           "Track frame distance must be finite and within the course",
         );

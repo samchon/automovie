@@ -16,16 +16,22 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
   IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { writtenHumanSeeds } from "../posture/writtenHumanSeeds";
 import { HumanMountPush } from "./HumanMountPush";
+
+/** The alternatives of `AtAngleAxis`'s site. */
+type AtAngleAxis = 0 | 1 | 2;
 
 /**
  * A leg swung over a seat in joint space: the leg's fitted joints where it
@@ -44,31 +50,12 @@ import { HumanMountPush } from "./HumanMountPush";
  * a foot that is to pass behind), and seams the leg there. Up to the lift-off
  * the world course is shown and the landing key is the law's own landing pose,
  * so the foot still lifts off and lands as the law sets it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the keys are, why a world course fails and what the joint curve keeps.
- * @evidence contracts/development/design.md#principled-representation Clinical joint angles of one leg's bones, degrees, the posture's own joint record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The keys and the curve, read by `HumanMountOn` and `HumanMountOff`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every key is a fit of the law's own posture; no seat or body is named.
  */
 export namespace HumanSwungLeg {
-  /**
-   * One leg's joints by bone, clinical degrees `[flexion, abduction, twist]`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the record and its unit.
-   * @evidence contracts/development/design.md#principled-representation The posture's own joint record, so a key drops into a posture unchanged.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The keys' and the curve's record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture's type rather than restating it.
-   */
+  /** One leg's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
   export type Joints = IAutoMovieMotionHumanPosture["joints"];
 
-  /**
-   * A leg's swing on its action's clock: the seconds it leaves and lands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both ends and their timebase.
-   * @evidence contracts/development/design.md#principled-representation Two action seconds, the leave before the landing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `plan` asks of each leg.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A leg that does not swing has no swing (null), not an empty one.
-   */
+  /** A leg's swing on its action's clock: the seconds it leaves and lands. */
   export type Swing = readonly [number, number];
 
   /**
@@ -84,20 +71,25 @@ export namespace HumanSwungLeg {
    * @param plan The plan, its legs on their world goals.
    * @param swingOf Each leg's swing, or null for a leg that does not swing.
    * @returns The plan with the swinging legs keyed where they must be.
-   * @evidence contracts/development/common.md#meaningful-documentation States what is replaced, inside which window and what is found once.
-   * @evidence contracts/development/implementation.md#principled-implementation The keys are fits of the plan's own posture at the window's ends, so the posture just outside the window equals the keyed one at them; inside it the joint curve stands in for a world goal the leg cannot reach.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrapper over the plan's posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside a window the plan's posture is returned as it was.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One scan of a swing per leg and plan (`window`); constant work a read after.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The window and its keys are kept per leg for the plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains at most two key sets, released with the plan.
    */
   export function plan(
     body: IAutoMovieMotionHumanBody,
     plan: IAutoMovieMotionHumanActionPlan,
     swingOf: (side: AutoMovieHumanSide) => Swing | null,
   ): IAutoMovieMotionHumanActionPlan {
-    const kept: Map<AutoMovieHumanSide, IKeys | null> = new Map();
+    const keys = (side: AutoMovieHumanSide): IKeys | null => {
+      const swing: Swing | null = swingOf(side);
+      if (
+        swing === null ||
+        !(Math.max(0, swing[0]) < Math.min(plan.duration, swing[1]))
+      )
+        return null;
+      return window(body, side, plan.posture, swing);
+    };
+    const prepared: Record<AutoMovieHumanSide, IKeys | null> = {
+      left: keys("left"),
+      right: keys("right"),
+    };
     return {
       ...plan,
       posture: (
@@ -114,19 +106,7 @@ export namespace HumanSwungLeg {
           projection,
         );
         for (const side of ["left", "right"] as const) {
-          const swing: Swing | null = swingOf(side);
-          if (swing === null || !(t > swing[0] && t < swing[1])) continue;
-          if (!kept.has(side))
-            kept.set(
-              side,
-              window(
-                body,
-                side,
-                (at: number): IAutoMovieMotionHumanPosture => plan.posture(at),
-                swing,
-              ),
-            );
-          const found: IKeys | null = kept.get(side)!;
+          const found: IKeys | null = prepared[side];
           if (found === null || !(t > found.start && t < found.end)) continue;
           const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
             ...out.limbs,
@@ -152,14 +132,7 @@ export namespace HumanSwungLeg {
     };
   }
 
-  /**
-   * A swung leg's keys over a swing whose world course leaves the range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the window and each key.
-   * @evidence contracts/development/design.md#principled-representation The leg's joints at the window's two ends and its middle, with the window in action seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Made by `window`, read by `at` and `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Each key holds the same bones, those the fit returned for the leg.
-   */
+  /** A swung leg's keys over a swing whose world course leaves the range. */
   export interface IKeys {
     /** The second the window opens, action seconds. */
     start: number;
@@ -175,6 +148,43 @@ export namespace HumanSwungLeg {
 
     /** The joints where the window closes. */
     to: Joints;
+  }
+
+  /**
+   * Prepare the three joint keys of a swing chosen by the law. Its release and
+   * landing keep the support course's fitted poses. Only the airborne middle
+   * fits the world goal independently, where there is no support to continue.
+   *
+   * @param body The performer.
+   * @param side The swinging leg.
+   * @param span The exact release and landing, action seconds.
+   * @param supported The law's prepared world goals at the two contacts.
+   * @param middle The law's airborne midpoint goal on the same clock.
+   * @returns The keys of the swing read by `at`.
+   */
+  export function anchored(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    [start, end]: Swing,
+    supported: (seconds: number) => IAutoMovieMotionHumanPosture,
+    middle: IAutoMovieMotionHumanPosture,
+  ): IKeys {
+    const limb: AutoMovieHumanLimb = `${side}Leg`;
+    const fitted = (posture: IAutoMovieMotionHumanPosture): Joints =>
+      angles(
+        side,
+        resolveHumanPosture(body, {
+          ...posture,
+          limbs: { [limb]: posture.limbs[limb] },
+        }),
+      );
+    return {
+      start,
+      end,
+      from: fitted(supported(start)),
+      apex: fitted(middle),
+      to: fitted(supported(end)),
+    };
   }
 
   /**
@@ -196,13 +206,6 @@ export namespace HumanSwungLeg {
    * @param asked The law's posture at a second, its leg on its world goal.
    * @param swing The seconds the leg leaves and lands.
    * @returns The keys, or null where no frame is pinned.
-   * @evidence contracts/development/common.md#meaningful-documentation States the scan, the pin test, the window and the keys.
-   * @evidence contracts/development/implementation.md#principled-implementation The fits are the shared resolver's, continued frame to frame as the display's leg chain is (Tolani, Goswami and Badler 2000, section 3.2.4), so the ends are the poses shown outside the window; a fit held at a bound is the resolver's projection of a goal past it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan, one test, three keys.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `EDGE` is a named reading tolerance; nothing is tuned to a case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One continued fit and one forward-kinematics pass a frame of the swing, made once per leg and plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller keeps the keys for its plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function window(
     body: IAutoMovieMotionHumanBody,
@@ -211,17 +214,36 @@ export namespace HumanSwungLeg {
     swing: Swing,
   ): IKeys | null {
     const limb: AutoMovieHumanLimb = `${side}Leg`;
-    let seed: IAutoMovieSwivelSeed | null | undefined;
+    let seeds: Fitted = undefined;
     // The lowest of each fitted frame's sole sockets, world metres.
     const lows: number[] = [];
     const fitted = (seconds: number): Joints => {
+      // Every limb continues the frame before's fit of it; on the first frame
+      // the other limbs are placed at the swivels their written joints give
+      // (`writtenHumanSeeds`) and the swung leg is fitted cold, so no frame
+      // sweeps another limb's goal afresh.
+      const posture: IAutoMovieMotionHumanPosture = asked(seconds);
       const near: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> =
-        seed === undefined || seed === null
-          ? {}
-          : { [limb]: { ...seed, tolerance: hingedArmSwivel.RESOLUTION } };
+        {};
+      if (seeds === undefined) {
+        const written: Partial<
+          Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>
+        > = writtenHumanSeeds(body, posture);
+        for (const [other, seed] of Object.entries(written) as [
+          AutoMovieHumanLimb,
+          IAutoMovieSwivelNear,
+        ][])
+          if (other !== limb) near[other] = seed;
+      } else
+        for (const [other, seed] of Object.entries(seeds) as [
+          AutoMovieHumanLimb,
+          IAutoMovieSwivelSeed | null | undefined,
+        ][])
+          if (seed !== undefined && seed !== null)
+            near[other] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-        resolveHumanPosture.seeded(body, asked(seconds), undefined, near);
-      seed = solved.seeds[limb];
+        resolveHumanPosture.seeded(body, posture, undefined, near);
+      seeds = solved.seeds;
       lows.push(
         Math.min(
           ...HumanFoot.sockets(body, poseBones(body, solved.pose), side).map(
@@ -230,15 +252,7 @@ export namespace HumanSwungLeg {
           ),
         ),
       );
-      const out: Joints = {};
-      for (const joint of solved.pose.joints)
-        if (BONES[side].includes(joint.bone))
-          out[joint.bone] = [
-            joint.flexion ?? 0,
-            joint.abduction ?? 0,
-            joint.twist ?? 0,
-          ];
-      return out;
+      return angles(side, solved.pose);
     };
     const times: number[] = [];
     for (let t: number = swing[0]; t < swing[1]; t += STEP) times.push(t);
@@ -287,9 +301,13 @@ export namespace HumanSwungLeg {
     const landed: IAutoMovieHumanLimbGoal | undefined = asked(end).limbs[limb];
     const planted: boolean =
       landed?.planted === true || landed?.contact !== undefined;
-    seed = undefined;
+    // The middle and the landing fit the swung leg on its own, the other
+    // limbs continuing their fits.
+    const unswung = (): Fitted =>
+      seeds === undefined ? undefined : { ...seeds, [limb]: undefined };
+    seeds = unswung();
     const apex: Joints = fitted((start + end) / 2);
-    seed = undefined;
+    seeds = unswung();
     return {
       start,
       end,
@@ -301,22 +319,17 @@ export namespace HumanSwungLeg {
 
   /**
    * The leg's joints a share of the way through its window: each angle on the
-   * quadratic through the three keys, `from + (to - from) s + 4 s (1 - s) (apex
+   * quadratic through the three keys, `from + (to - from) s + 4 s (1 - s)
+   * (apex
+   *
    * - (from + to) / 2)`, held within its range of motion, and a foot that bears
-   * nothing held within the unloaded ankle's dorsal range
-   * (`HumanMountPush.DORSAL`) unless an end key itself bends it further.
+   *   nothing held within the unloaded ankle's dorsal range
+   *   (`HumanMountPush.DORSAL`) unless an end key itself bends it further.
    *
    * @param body The body, whose joint ranges are read.
    * @param keys The keys.
    * @param share 0 where the window opens to 1 where it closes.
    * @returns The joints.
-   * @evidence contracts/development/common.md#meaningful-documentation States the curve, the bounds and the share.
-   * @evidence contracts/development/implementation.md#principled-implementation The quadratic meets each key exactly (s = 0, 1/2, 1), as `HumanMount.between`'s course passes its middle; the range clamp is continuous, so the curve stays continuous where it touches a bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression per angle, one clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bounds are the range table's and the unloaded ankle's; the foot's bound yields to an end key that is loaded, so no end jumps.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bone.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
     body: IAutoMovieMotionHumanBody,
@@ -333,7 +346,7 @@ export namespace HumanSwungLeg {
         keys.apex[bone];
       if (from === undefined || to === undefined || apex === undefined)
         continue;
-      const angle = (axis: 0 | 1 | 2): number => {
+      const angle = (axis: AtAngleAxis): number => {
         const value: number =
           from[axis] +
           (to[axis] - from[axis]) * s +
@@ -344,13 +357,26 @@ export namespace HumanSwungLeg {
           axis,
         );
         const high: number =
-          axis === 0 && FEET.has(bone)
+          axis === 0 && HumanBoneGroups.FEET.has(bone)
             ? Math.min(bound, Math.max(HumanMountPush.DORSAL, from[0], to[0]))
             : bound;
         return Math.min(high, Math.max(low, value));
       };
       out[bone] = [angle(0), angle(1), angle(2)];
     }
+    return out;
+  }
+
+  /** Read the leg's fitted joints in the clinical angle order of the keys. */
+  function angles(side: AutoMovieHumanSide, pose: IAutoMoviePose): Joints {
+    const out: Joints = {};
+    for (const joint of pose.joints)
+      if (BONES[side].includes(joint.bone))
+        out[joint.bone] = [
+          joint.flexion ?? 0,
+          joint.abduction ?? 0,
+          joint.twist ?? 0,
+        ];
     return out;
   }
 
@@ -404,10 +430,6 @@ export namespace HumanSwungLeg {
       "rightLowerLeg",
     ]);
 
-  /** The feet, whose flexion the unloaded ankle bounds. */
-  const FEET: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]);
-
   /** The clinical axes in a joint record's order. */
   const AXES: readonly ["flexion", "abduction", "twist"] = [
     "flexion",
@@ -415,3 +437,11 @@ export namespace HumanSwungLeg {
     "twist",
   ];
 }
+
+/**
+ * The fits a swing's frame continues: each limb's seed at the frame fitted
+ * before it; none before the first.
+ */
+type Fitted =
+  | IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]
+  | undefined;

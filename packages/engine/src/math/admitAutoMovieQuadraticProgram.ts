@@ -6,13 +6,28 @@ import type {
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_INFINITY";
 
 /**
- * Check explicit diagonal-program admission rules without building its sparse matrix.
+ * Check explicit diagonal-program admission rules without building its sparse
+ * matrix.
  *
- * The bounded displacement and underwear-surface working-set callers admit the whole program before restricting it; assembly and original-coordinate refinement share this admission. Inactive malformed rows cannot evade the check. This does not solve the program or prove its feasibility, convergence, conditioning or post-transform geometry.
+ * The bounded displacement and underwear-surface working-set callers admit the
+ * whole program before restricting it; assembly and original-coordinate
+ * refinement share this admission. Inactive malformed rows cannot evade the
+ * check. This does not solve the program or prove its feasibility, convergence,
+ * conditioning or post-transform geometry.
  *
- * The program needs one through 2^31-1 variables, at most 2^31-1 rows, complete diagonal/linear/optional initial vectors, a nonnegative diagonal and equally sized row weights/indices. Indices must be unique in-range integers and nullable inclusive bounds must be ordered. Each supplied coefficient or nonnull endpoint is finite with magnitude strictly below the numerical 1e30 infinity sentinel; exact zero coefficients remain unchanged.
+ * The program needs one through 2^31-1 variables, at most 2^31-1 rows, complete
+ * diagonal/linear/optional initial vectors, a nonnegative diagonal and equally
+ * sized row weights/indices. Indices must be unique in-range integers and
+ * nullable inclusive bounds must be ordered. Each supplied coefficient or
+ * nonnull endpoint is finite with magnitude strictly below the numerical 1e30
+ * infinity sentinel; exact zero coefficients remain unchanged.
  *
- * Array containers and row shape are typed caller premises. Indexed reads refuse resident holes, and explicit rule failures throw before matrix assembly without changing inputs. Int32 dimensions do not prove aggregate CSC-entry, factor-fill or TypeScript workspace capacity: the duplicate marker or later numerical storage can still fail to allocate, and host allocation or malformed-container errors need not have a named rule message.
+ * Array containers and row shape are typed caller premises. Indexed reads
+ * refuse resident holes, and explicit rule failures throw before matrix
+ * assembly without changing inputs. Int32 dimensions do not prove aggregate
+ * CSC-entry, factor-fill or TypeScript workspace capacity: the duplicate marker
+ * or later numerical storage can still fail to allocate, and host allocation or
+ * malformed-container errors need not have a named rule message.
  *
  * @param input Program to check; it is only read.
  */
@@ -43,12 +58,7 @@ export function admitAutoMovieQuadraticProgram(
     admitVector(row.weights, row.indices.length);
     for (let j: number = 0; j < row.indices.length; j++) {
       const id: number = row.indices[j]!;
-      if (
-        !Number.isInteger(id) ||
-        id < 0 ||
-        id >= variables ||
-        lastRow[id] === i
-      )
+      if (id < 0 || id >= variables || lastRow[id] === i)
         throw new Error("Quadratic row needs unique in-range integer indices.");
       lastRow[id] = i;
     }
@@ -68,12 +78,12 @@ function admitVector(values: readonly number[], length: number): void {
   for (let at: number = 0; at < values.length; at++) admitScalar(values[at]!);
 }
 
-/** Return the original finite scalar only when its magnitude is strictly below the numerical infinity sentinel. */
+/**
+ * Return the original finite scalar only when its magnitude is strictly below
+ * the numerical infinity sentinel.
+ */
 function admitScalar(value: number): number {
-  if (
-    !Number.isFinite(value) ||
-    Math.abs(value) >= AUTOMOVIE_QUADRATIC_INFINITY
-  )
+  if (Math.abs(value) >= AUTOMOVIE_QUADRATIC_INFINITY)
     throw new Error(
       "Quadratic coefficients must be finite and smaller than 1e30.",
     );

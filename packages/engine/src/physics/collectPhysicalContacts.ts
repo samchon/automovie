@@ -11,24 +11,23 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import { recordPhysicalContact } from "./recordPhysicalContact";
 
 /**
- * Record the rigid contacts the world's last step solved, one receipt
- * sample per touching collider pair, in the world's canonical pair order
- * (`AutoMovieXpbdWorld.manifolds`: creation order of the first collider,
- * then of the second).
+ * Record the rigid contacts the world's last step solved, one receipt sample
+ * per touching collider pair, in the world's canonical pair order
+ * (`AutoMovieXpbdWorld.manifolds`: creation order of the first collider, then
+ * of the second).
  *
- * A manifold's impulse is the sum of the normal impulses the step applied
- * at its patch points, newton seconds over the substep; its separation is
- * the least end-of-step separation of those points, metres; its point is
- * the first patch point's witness midpoint; its normal points from the
- * first collider toward the second. A manifold that received no positive
- * impulse, or whose points all ended separated, records nothing. Sensor
- * overlaps are not manifolds; the compliant law reads them. Pairs of one
- * scene body's own colliders and colliders the binding does not identify
- * are skipped. A body in exaggerated mode then receives the extra share
- * `(gain - 1)` of the impulse its side took, at the same point, so its
- * response is the declared multiple of the solved one; a share whose
- * Float64 product overflows throws instead of giving the body an infinite
- * velocity.
+ * A manifold's impulse is the sum of the normal impulses the step applied at
+ * its patch points, newton seconds over the substep; its separation is the
+ * least end-of-step separation of those points, metres; its point is the first
+ * patch point's witness midpoint; its normal points from the first collider
+ * toward the second. A manifold that received no positive impulse, or whose
+ * points all ended separated, records nothing. Sensor overlaps are not
+ * manifolds; the compliant law reads them. Pairs of one scene body's own
+ * colliders and colliders the binding does not identify are skipped. A body in
+ * exaggerated mode then receives the extra share `(gain - 1)` of the impulse
+ * its side took, at the same point, so its response is the declared multiple of
+ * the solved one; a share whose Float64 product overflows throws instead of
+ * giving the body an infinite velocity.
  *
  * @param world The world, after a step.
  * @param input The admitted simulation input; its bodies' modes and rate.
@@ -89,8 +88,6 @@ export function collectPhysicalContacts(
       )?.mode;
       if (policy?.kind !== "exaggerated") continue;
       const extra: number = sign * impulse * (policy.impulse - 1);
-      if (!Number.isFinite(extra))
-        throw new Error("Nonfinite exaggerated contact impulse");
       bound.bodies
         .get(`${side.body}/${side.bone}`)!
         .applyImpulseAtPoint(Vector3.scale(normal, extra), point);

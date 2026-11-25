@@ -8,40 +8,42 @@ type ICorner = Pick<IAutoMovieSurfaceCoordinate, "s" | "t">;
  * band's own coordinates: `s` round the band from 0 to 1, `t` from the start
  * ring at 0 to the end ring at 1.
  *
- * The band has `rows` even rows. Its middle row, row `floor(rows / 2)` from
- * the start, reduces the finer count `F` to the coarser `K` by the standard
- * 2-to-1 quad reduction of subdivision modelling: a block takes four fine
- * columns into two coarse columns through six quads, with three interior
- * vertices half-way across the row, the outer two of valence three and the
- * middle one regular; every other column passes straight through as one
- * quad. With `b = (F - K) / 2` blocks and `K - 2b` straight columns, the
- * fine ring stays regular and the band's extraordinary vertices are its
- * `2b` interior poles of valence three and the coarse ring vertices at the
- * blocks' corners, which gain the poles' diagonals: valence five beside a
- * straight column, six between two blocks. A band with both rings regular
- * would need interior valence-five poles to balance the valence-three ones,
- * since the band's interior `4 - valence` and its rings' `3 - band degree`
- * sum to zero; this strip trades that for one row. The rows before the
- * middle row have the start count and the rows after it the end count, so
- * the band can be as tall as its neighbours' rows require.
+ * The band has `rows` even rows. Its middle row, row `floor(rows / 2)` from the
+ * start, reduces the finer count `F` to the coarser `K` by the standard 2-to-1
+ * quad reduction of subdivision modelling: a block takes four fine columns into
+ * two coarse columns through six quads, with three interior vertices half-way
+ * across the row, the outer two of valence three and the middle one regular;
+ * every other column passes straight through as one quad. With `b = (F - K) /
+ * 2` blocks and `K - 2b` straight columns, the fine ring stays regular and the
+ * band's extraordinary vertices are its `2b` interior poles of valence three
+ * and the coarse ring vertices at the blocks' corners, which gain the poles'
+ * diagonals: valence five beside a straight column, six between two blocks. A
+ * band with both rings regular would need interior valence-five poles to
+ * balance the valence-three ones, since the band's interior `4 - valence` and
+ * its rings' `3 - band degree` sum to zero; this strip trades that for one row.
+ * The rows before the middle row have the start count and the rows after it the
+ * end count, so the band can be as tall as its neighbours' rows require.
  *
- * Blocks and straight columns alternate as evenly as rounding allows: of the
- * `b + K - 2b` items round the row, block `i` takes the item holding
- * `(i + 1/2) n / b`, rounded toward the row's middle, so a band reversed in
- * `s` places its blocks at mirrored items, except where an odd number of
- * blocks meets an even number of items. Each ring's points are evenly
- * spaced, `k / F` and `j / K`, so both weld onto evenly divided neighbours;
- * a block's interior vertices lie half-way between its second, third and
- * fourth fine points and the midpoint of its first coarse column, its middle
- * coarse point and the midpoint of its second coarse column. A 2-to-1 band
- * has no straight columns and so no shear; any other ratio shears its
- * straight columns, the price of even rings. Equal counts give a plain grid.
+ * Blocks and straight columns alternate as evenly as rounding allows: of the `b
+ *
+ * - K - 2b`items round the row, block`i`takes the item holding`(i + 1/2) n / b`,
+ *   rounded toward the row's middle, so a band reversed in `s`places its blocks
+ *   at mirrored items, except where an odd number of blocks meets an even
+ *   number of items. Each ring's points are evenly spaced,`k / F`and`j / K`, so
+ *   both weld onto evenly divided neighbours; a block's interior vertices lie
+ *   half-way between its second, third and fourth fine points and the midpoint
+ *   of its first coarse column, its middle coarse point and the midpoint of its
+ *   second coarse column. A 2-to-1 band has no straight columns and so no
+ *   shear; any other ratio shears its straight columns, the price of even
+ *   rings. Equal counts give a plain grid.
  *
  * @param start Columns at `t` 0, a positive integer.
  * @param end Columns at `t` 1, a positive integer.
  * @param rows Rows across the band, a positive integer.
- * @returns Quads as four corners in patch coordinates, counterclockwise with `s` right and `t` up.
- * @throws Error when a count is not a positive integer, the column counts differ by an odd number, or the finer is more than twice the coarser.
+ * @returns Quads as four corners in patch coordinates, counterclockwise with
+ *   `s` right and `t` up.
+ * @throws Error when a count is not a positive integer, the column counts
+ *   differ by an odd number, or the finer is more than twice the coarser.
  */
 export const layoutAutoMovieSurfaceTransition: (
   start: number,
@@ -67,7 +69,7 @@ export const layoutAutoMovieSurfaceTransition: (
   ]
 > => {
   for (const n of [start, end, rows])
-    if (!Number.isSafeInteger(n) || n < 1)
+    if (n < 1)
       throw new Error(`transition counts must be positive integers, not ${n}`);
   const fine: number = Math.max(start, end);
   const coarse: number = Math.min(start, end);

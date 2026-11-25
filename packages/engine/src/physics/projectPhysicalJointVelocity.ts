@@ -15,22 +15,22 @@ import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
  *
  * The box is read in the coordinates the solver limits the joint in. A joint
  * declaring a sequential chart (`order`) is limited on its chart's angles
- * (`projectPhysicalJointRotation`, `measurePhysicalJointLimits`), so its box
- * is read there, each free axis's rate the rate of its chart angle, as the
+ * (`projectPhysicalJointRotation`, `measurePhysicalJointLimits`), so its box is
+ * read there, each free axis's rate the rate of its chart angle, as the
  * articulation drives it along the chart's axes (`solveXpbdArticulation`). A
  * compound rotation's independent twist coordinates differ from its chart
  * angles, and a box read in them sees ends the solver does not enforce: a
- * rotation inside its chart box read a fixed angle e past an end would ask
- * e / h of the motor every substep h, a speed growing as h shrinks that no
- * position correction removes, since the solver's velocities follow from its
- * corrected poses alone (Mueller, Macklin, Chentanez, Jeschke and Kim 2020,
- * "Detailed Rigid Body Simulation with Extended Position Based Dynamics",
- * section 3.3, v = dx / h). Otherwise, for theta = 2 atan2(qi, qw), the exact
- * differential includes the other quaternion components; projecting only the
- * named angular-velocity component fails at compound rotations, and eight
- * cyclic half-space passes bound work and preserve already admissible
- * requests. This constrains motor intent, not actual velocities or poses;
- * native constraints and the declared motor torque caps still govern motion.
+ * rotation inside its chart box read a fixed angle e past an end would ask e /
+ * h of the motor every substep h, a speed growing as h shrinks that no position
+ * correction removes, since the solver's velocities follow from its corrected
+ * poses alone (Mueller, Macklin, Chentanez, Jeschke and Kim 2020, "Detailed
+ * Rigid Body Simulation with Extended Position Based Dynamics", section 3.3, v
+ * = dx / h). Otherwise, for theta = 2 atan2(qi, qw), the exact differential
+ * includes the other quaternion components; projecting only the named
+ * angular-velocity component fails at compound rotations, and eight cyclic
+ * half-space passes bound work and preserve already admissible requests. This
+ * constrains motor intent, not actual velocities or poses; native constraints
+ * and the declared motor torque caps still govern motion.
  *
  * @param current The joint's relative rotation.
  * @param axes Its free axes and their ranges.
@@ -46,8 +46,7 @@ export function projectPhysicalJointVelocity(
   dt: number,
   order?: readonly IAutoMoviePhysicalJointAxis["axis"][],
 ): IAutoMovieVector3 {
-  if (!(dt > 0) || !Number.isFinite(dt))
-    throw new Error("Invalid physical joint velocity timestep");
+  if (dt <= 0) throw new Error("Invalid physical joint velocity timestep");
   const velocity: IAutoMovieVector3 = { ...requested };
   if (order !== undefined) {
     const angles: number[] = AutoMoviePhysicalJointChart.nearest(

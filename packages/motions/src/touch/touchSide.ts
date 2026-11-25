@@ -22,184 +22,153 @@ import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";
 
 /**
- * Which hand a touch uses when its author names none.
+ * How far a strain can move while every angle it reads moves within
+ * `ROM_TOLERANCE`, the resolution to which the elbow search and the fits
+ * resolve a joint's angle, so two strains closer than the sum of theirs are one
+ * strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an angle's
+ * distance from the hanging arm's and `H` its axis's half range
+ * (`AutoMovieMotionHumanBend.solve`): a change `e` in `d` moves a term by at
+ * most `2 |d| e / H^2 + e^2 / H^2`, and the whole strain `S`, by Cauchy-Schwarz
+ * over the terms with the least half range `h`, by at most `2 sqrt(n S) e / h +
+ * n (e / h)^2`. The terms are the shoulder's three axes, the forearm's twist
+ * and the wrist's flexion, their ranges read from the rig (`getConstraint`) as
+ * the elbow search reads them.
  *
- * Both hands are candidates. A touch with a held prop takes the hand that
- * holds it at the entry (`IHumanEntryState.holds`), the only hand that can
- * lay the prop's point on the region. Otherwise each hand is laid on its
- * region on the entry posture as the plan lays it (`touchHold.lay`,
- * `AutoMovieMotionHumanTouchLaid.rest`), and the hand whose arm holds that
- * goal with an allowed elbow place and the least joint strain
- * (`AutoMovieMotionHumanBend.strain`, the measure the arm's elbow search
- * ranks by) is taken: a goal no elbow place allows, or beyond the arm, reads
- * as infinite strain, so feasibility decides first. With `other`, the two
- * hands' pairings are compared by their summed strain. A region on one of
- * the performer's own arms is never touched by that arm's own hand. Two
- * strains within the strain's own resolution (`resolution`, `ROM_TOLERANCE`
- * carried through the strain's terms) are one, and keep the right hand, the
- * law's default before this choice; a mirrored body's two strains differ
- * only by rounding.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the candidates, the holder's rule, the strain measure, the pairing, the own-arm rule and the tie.
- * @evidence contracts/development/design.md#principled-representation A choice between the two closed hand sides, ranked by the elbow search's own strain measure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One selector, read by the touch law; the strain's resolution stays private.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row, region, partner or body is named; the tie keeps the law's default.
+ * @param body The body.
+ * @param side The arm.
+ * @param strain The strain, unitless.
+ * @returns The bound, unitless; `Infinity` for an infinite strain.
  */
-export namespace touchSide {
-  /**
-   * The touching hand.
-   *
-   * @param context The action's context.
-   * @param effector The part of the hand that touches.
-   * @returns The hand that takes `target`; `params.side` when the author names it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the candidates, the held prop's rule, the measure, how feasibility ranks first, the pairing with `other`, the own-arm rule and the tie.
-   * @evidence contracts/development/implementation.md#principled-implementation Target plus optimiser: the hand is the arm whose goal is reachable with the least joint strain, read by the elbow search's own measure, so no new score or constant enters; a hand cannot lie on its own arm, and a held prop's point is laid only by its holder.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The author's side, holder and original ordered hand/target goals feed their separate actual solve/strain sweeps, each admitting the borrowed entry's current raw trunk fields.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No row, region or partner is special-cased; a hand with a held goal is taken over one without before any strain is compared, and the tie keeps the law's previous default.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original two hand costs, or four with other, retain both distinct solve and strain sweeps/refinements and their current chain/trunk preparation. No measured speedup is claimed for this selection path.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Region, laid goal and bend owners remain shared, but a native entry can retain raw prior-plan posture fields/getters. Object identity cannot certify immutable root/heading, so every original solve and strain reads/admit its current source independently without a prepared-trunk or elbow-result snapshot.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only each actual goal and its independent temporary chain/sweep data live through this synchronous selector. They end on return or failure; the returned hand name retains no trunk context, reader, pose, rank or query history.
-   */
-  export function of(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
-    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-  ): AutoMovieHumanSide {
-    const p: IAutoMovieMotionHumanTouch.IParams = context.params;
-    if (p.hand !== undefined) return p.hand;
-    if (p.prop !== undefined)
-      return context.entry.holds.left === p.prop &&
-        context.entry.holds.right !== p.prop
-        ? "left"
-        : "right";
-    const body: IAutoMovieMotionHumanBody = context.body;
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const bones: ReturnType<typeof poseBones> = poseBones(
-      body,
-      context.entry.pose,
-    );
-    const other = (side: AutoMovieHumanSide): AutoMovieHumanSide =>
-      side === "right" ? "left" : "right";
+function resolution(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  strain: number,
+): number {
+  if (strain === Infinity) return Infinity;
+  const range = (
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointConstraint | null =>
+    getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
+  const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
+  const halves: number[] = [
+    shoulder?.flexion,
+    shoulder?.abduction,
+    shoulder?.twist,
+    range(`${side}LowerArm`)?.twist,
+    range(`${side}Hand`)?.flexion,
+  ]
+    .filter(
+      (r: IAutoMovieAngleRange | null | undefined): r is IAutoMovieAngleRange =>
+        r !== null && r !== undefined && r.max > r.min,
+    )
+    .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);
+  if (halves.length === 0) return 0;
+  const e: number = ROM_TOLERANCE / Math.min(...halves);
+  const n: number = halves.length;
+  return 2 * Math.sqrt(n * strain) * e + n * e * e;
+}
 
-    // The strain of one hand laid on one region, as the plan lays it.
-    const strain = (
-      side: AutoMovieHumanSide,
-      target: IAutoMovieMotionTarget,
-    ): number => {
-      if (target.kind === "self") {
-        const bone: string = body.surfaces.regions[target.region].bone;
-        if (
-          bone === `${side}UpperArm` ||
-          bone === `${side}LowerArm` ||
-          bone === `${side}Hand`
-        )
-          return Infinity;
-      }
-      const placed: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
-        context,
-        bones,
-        side,
-        p.target,
-        p.site,
-      );
-      const laid: touchHold.ILaid = touchHold.lay(
-        context,
-        bones,
-        effector,
-        placed,
-      )(side, target);
-      const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
-        body,
-        entry,
-        side,
-        effector,
-        placed(target, false)(entry, 0),
-        laid.tangent,
-        AutoMovieMotionHumanBend.hang(body, entry, side),
-        "arm",
-      );
-      const solve: IAutoMovieMotionHumanBend.ISolve = {
-        body,
-        posture: entry,
-        side,
-        point: goal.point,
-        ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
-      };
-      return AutoMovieMotionHumanBend.strain(
-        solve,
-        AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
-      );
-    };
-    const cost = (side: AutoMovieHumanSide): number =>
-      strain(side, p.target) +
-      (p.other === undefined ? 0 : strain(other(side), p.other));
-    const left: number = cost("left");
-    const right: number = cost("right");
-    // Feasibility first: a hand whose goal no elbow place allows loses to
-    // one whose goal is held, whatever the other's strain. Its resolution is
-    // infinite, so the tie below would keep it.
-    if (Number.isFinite(left) !== Number.isFinite(right))
-      return Number.isFinite(left) ? "left" : "right";
-    return right - left >
-      resolution(body, "left", left) + resolution(body, "right", right)
+/**
+ * The touching hand.
+ *
+ * @param context The action's context.
+ * @param effector The part of the hand that touches.
+ * @returns The hand that takes `target`; `params.side` when the author names
+ *   it.
+ */
+export function touchSide(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+  effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+): AutoMovieHumanSide {
+  const p: IAutoMovieMotionHumanTouch.IParams = context.params;
+  if (p.hand !== undefined) return p.hand;
+  if (p.prop !== undefined)
+    return context.entry.holds.left === p.prop &&
+      context.entry.holds.right !== p.prop
       ? "left"
       : "right";
-  }
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    context.entry.pose,
+  );
+  const other = (side: AutoMovieHumanSide): AutoMovieHumanSide =>
+    side === "right" ? "left" : "right";
 
-  /**
-   * How far a strain can move while every angle it reads moves within
-   * `ROM_TOLERANCE`, the resolution to which the elbow search and the fits
-   * resolve a joint's angle, so two strains closer than the sum of theirs
-   * are one strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an
-   * angle's distance from the hanging arm's and `H` its axis's half range
-   * (`AutoMovieMotionHumanBend.solve`): a change `e` in `d` moves a term by
-   * at most `2 |d| e / H^2 + e^2 / H^2`, and the whole strain `S`, by
-   * Cauchy-Schwarz over the terms with the least half range `h`, by at most
-   * `2 sqrt(n S) e / h + n (e / h)^2`. The terms are the shoulder's three
-   * axes, the forearm's twist and the wrist's flexion, their ranges read from
-   * the rig (`getConstraint`) as the elbow search reads them.
-   *
-   * @param body The body.
-   * @param side The arm.
-   * @param strain The strain, unitless.
-   * @returns The bound, unitless; `Infinity` for an infinite strain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound, its derivation and the terms and ranges it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation First-order error propagation of the angle resolution through the strain's squared terms, bounded over the terms by Cauchy-Schwarz with the least half range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The five half ranges, then one closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An axis without a range adds no term; an infinite strain has an infinite bound.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ranges are the engine's `getConstraint` on the body's rig, as the elbow search reads them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  function resolution(
-    body: IAutoMovieMotionHumanBody,
+  // Whether a hand would lay on its own arm: a region of the arm it ends.
+  const own = (
     side: AutoMovieHumanSide,
-    strain: number,
-  ): number {
-    if (!Number.isFinite(strain)) return Infinity;
-    const range = (
-      bone: AutoMovieHumanoidBone,
-    ): IAutoMovieJointConstraint | null =>
-      getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
-    const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
-    const halves: number[] = [
-      shoulder?.flexion,
-      shoulder?.abduction,
-      shoulder?.twist,
-      range(`${side}LowerArm`)?.twist,
-      range(`${side}Hand`)?.flexion,
-    ]
-      .filter(
-        (
-          r: IAutoMovieAngleRange | null | undefined,
-        ): r is IAutoMovieAngleRange =>
-          r !== null && r !== undefined && r.max > r.min,
-      )
-      .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);
-    if (halves.length === 0) return 0;
-    const e: number = ROM_TOLERANCE / Math.min(...halves);
-    const n: number = halves.length;
-    return 2 * Math.sqrt(n * strain) * e + n * e * e;
-  }
+    target: IAutoMovieMotionTarget | undefined,
+  ): boolean => {
+    if (target === undefined || target.kind !== "self") return false;
+    const bone: string = body.surfaces.regions[target.region].bone;
+    return (
+      bone === `${side}UpperArm` ||
+      bone === `${side}LowerArm` ||
+      bone === `${side}Hand`
+    );
+  };
+  // A hand that would touch its own arm is never chosen, whatever the other
+  // hand's strain: an arm cannot lay its hand on itself.
+  const barred = (side: AutoMovieHumanSide): boolean =>
+    own(side, p.target) || own(other(side), p.other);
+  if (barred("left") !== barred("right"))
+    return barred("right") ? "left" : "right";
+
+  // The strain of one hand laid on one region, as the plan lays it.
+  const strain = (
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget,
+  ): number => {
+    if (own(side, target)) return Infinity;
+    const placed: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
+      context,
+      bones,
+      side,
+      p.target,
+      p.site,
+    );
+    const laid: touchHold.ILaid = touchHold.lay(
+      context,
+      bones,
+      effector,
+      placed,
+    )(side, target);
+    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
+      body,
+      entry,
+      side,
+      effector,
+      placed(target, false)(entry, 0),
+      laid.tangent,
+      AutoMovieMotionHumanBend.hang(body, entry, side),
+      "arm",
+    );
+    const solve: IAutoMovieMotionHumanBend.ISolve = {
+      body,
+      posture: entry,
+      side,
+      point: goal.point,
+      ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
+    };
+    return AutoMovieMotionHumanBend.strain(
+      solve,
+      AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
+    );
+  };
+  const cost = (side: AutoMovieHumanSide): number =>
+    strain(side, p.target) +
+    (p.other === undefined ? 0 : strain(other(side), p.other));
+  const left: number = cost("left");
+  const right: number = cost("right");
+  // Feasibility first: a hand whose goal no elbow place allows loses to
+  // one whose goal is held, whatever the other's strain. Its resolution is
+  // infinite, so the tie below would keep it.
+  if ((left === Infinity) !== (right === Infinity))
+    return right === Infinity ? "left" : "right";
+  return right - left >
+    resolution(body, "left", left) + resolution(body, "right", right)
+    ? "left"
+    : "right";
 }

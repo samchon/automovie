@@ -10,7 +10,7 @@ A closed union keyed by `kind` separates a colour fill from a fitted image; ever
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`render` dispatches on `kind` to build one mesh per layer; the engine gate checks the box and each member's fields. Text and camera-feed members join this union in their own issues.
+The render package dispatches on `kind` to build one mesh per layer; the engine gate checks the box and each member's fields. Text and camera-feed members join this union in their own issues.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

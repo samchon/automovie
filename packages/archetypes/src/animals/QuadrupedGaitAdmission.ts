@@ -2,7 +2,9 @@ import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 
 /**
- * Admission of a gait table's optional extensions: landmark swing heights and collected gaits. Kept apart from `AutoMovieArchetypeQuadrupedLocomotion.admit` for that file's size.
+ * Admission of a gait table's optional extensions: landmark swing heights and
+ * collected gaits. Kept apart from
+ * `AutoMovieArchetypeQuadrupedLocomotion.admit` for that file's size.
  */
 export namespace QuadrupedGaitAdmission {
   /**
@@ -10,8 +12,10 @@ export namespace QuadrupedGaitAdmission {
    *
    * @param elevation The gait's elevation, if any.
    * @param axis The gait's refusal axis.
-   * @returns The copied elevation field to spread into the gait, empty when absent.
-   * @throws {AutoMovieArchetypeRefusal} For a missing record or a coordinate outside zero to one.
+   * @returns The copied elevation field to spread into the gait, empty when
+   *   absent.
+   * @throws {AutoMovieArchetypeRefusal} For a missing record or a coordinate
+   *   outside zero to one.
    */
   export function elevation(
     elevation: AutoMovieArchetypeQuadrupedGait.IElevation | undefined,
@@ -19,11 +23,7 @@ export namespace QuadrupedGaitAdmission {
   ): Pick<AutoMovieArchetypeQuadrupedGait.IGait, "elevation"> {
     if (elevation === undefined) return {};
     for (const end of ["fore", "hind"] as const)
-      if (
-        elevation === null ||
-        typeof elevation !== "object" ||
-        !(elevation[end] >= 0 && elevation[end] <= 1)
-      )
+      if (elevation === null || !(elevation[end] >= 0 && elevation[end] <= 1))
         refuse(
           `${axis}.elevation.${end}`,
           elevation,
@@ -33,13 +33,15 @@ export namespace QuadrupedGaitAdmission {
   }
 
   /**
-   * Admit a table's collected-gait map: each key an explicit-only gait, each value an automatically ordered gait it is collected out of.
+   * Admit a table's collected-gait map: each key an explicit-only gait, each
+   * value an automatically ordered gait it is collected out of.
    *
    * @param collected The table's map, if any.
    * @param order The admitted automatic gaits.
    * @param explicit The admitted explicit-only gaits.
    * @returns The copied field to spread into the table, empty when absent.
-   * @throws {AutoMovieArchetypeRefusal} For a key that is not explicit-only or a value that is not ordered.
+   * @throws {AutoMovieArchetypeRefusal} For a key that is not explicit-only or
+   *   a value that is not ordered.
    */
   export function collected(
     collected: AutoMovieArchetypeQuadrupedGait.ITable["collected"],
@@ -47,7 +49,7 @@ export namespace QuadrupedGaitAdmission {
     explicit: readonly AutoMovieArchetypeQuadrupedGait.Gait[],
   ): Pick<AutoMovieArchetypeQuadrupedGait.ITable, "collected"> {
     if (collected === undefined) return {};
-    if (collected === null || typeof collected !== "object")
+    if (collected === null)
       refuse(
         "table.collected",
         collected,
@@ -60,8 +62,13 @@ export namespace QuadrupedGaitAdmission {
       >
     > = {};
     for (const [kind, parent] of Object.entries(collected)) {
+      const gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined =
+        explicit.find(
+          (known: AutoMovieArchetypeQuadrupedGait.Gait): boolean =>
+            known === kind,
+        );
       if (
-        !explicit.includes(kind as AutoMovieArchetypeQuadrupedGait.Gait) ||
+        gait === undefined ||
         parent === undefined ||
         !order.includes(parent)
       )
@@ -70,7 +77,7 @@ export namespace QuadrupedGaitAdmission {
           parent,
           "collect an explicit gait out of an ordered gait",
         );
-      copy[kind as AutoMovieArchetypeQuadrupedGait.Gait] = parent;
+      copy[gait] = parent;
     }
     return { collected: copy };
   }

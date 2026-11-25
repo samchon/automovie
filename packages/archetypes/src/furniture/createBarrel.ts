@@ -36,26 +36,26 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
 /**
  * A barrel moved by hand: a 55 gallon steel drum or a 50 L beer keg.
  *
- * The barrel stands upright on the floor at the origin, its axis along `+Y`. Two hands take it at its top rim on `+X` and `-X`, where a drum's chime and a keg's top skirt are gripped to tip, lift or walk it; its top is a face another load rests on.
+ * The barrel stands upright on the floor at the origin, its axis along `+Y`.
+ * Two hands take it at its top rim on `+X` and `-X`, where a drum's chime and a
+ * keg's top skirt are gripped to tip, lift or walk it; its top is a face
+ * another load rests on.
  *
- * Both barrels rest on their steel chimes: steel on concrete (`AutoMovieArchetypeFriction`).
+ * Both barrels rest on their steel chimes: steel on concrete
+ * (`AutoMovieArchetypeFriction`).
  *
  * @param params The kind, a drum's model and any dimension the author fixes.
- * @param seed The seed that draws a drum's model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param seed The seed that draws a drum's model when it is not given and every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The barrel, empty.
- * @throws {AutoMovieArchetypeRefusal} For a model the drum maker does not list or one named for a keg, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the barrel stands and where it is held.
- * @evidence contracts/development/implementation.md#principled-implementation One cylinder of the drawn diameter and height; the hands' places are the top rim's two ends of the `X` diameter, and the top's outline a polygon inscribed in the rim.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a drum's model, draw the dimensions with its height and mass over them, then one part and its three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rolling hoops, bungs, spear or handholes: the rim stands for the gripped chime or skirt.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model the drum maker does not list
+ *   or one named for a keg, a fixed dimension outside its band, or one only
+ *   another kind has.
  */
 export function createBarrel(
   params: createBarrel.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBarrel.Affordance, createBarrel.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBarrel.Dimension> =
     new AutoMovieArchetypeDrawSession<createBarrel.Dimension>(
@@ -130,14 +130,7 @@ export function createBarrel(
   return builder.build(d.mass!, { rests: "steel" });
 }
 
-/**
- * Companion types and bands of {@link createBarrel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The span between the two hands, the height they take the barrel at and its mass (#3468 N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass is the empty barrel's; a band read only in search results is provisional.
- */
+/** Companion types and bands of {@link createBarrel}. */
 export namespace createBarrel {
   /** The kinds of barrel. */
   export type Kind = "steelDrum" | "keg";
@@ -148,7 +141,8 @@ export namespace createBarrel {
   /**
    * The affordance ids:
    *
-   * - `left`, `right`: where the two hands take the barrel, on its top rim at `+X` and `-X`, `+Y` pointing out.
+   * - `left`, `right`: where the two hands take the barrel, on its top rim at
+   *   `+X` and `-X`, `+Y` pointing out.
    * - `top`: the top, on which another load rests.
    */
   export type Affordance = "left" | "right" | "top";
@@ -171,10 +165,17 @@ export namespace createBarrel {
     mass: "kg",
   };
 
-  /** The steel drums read: Pipeline Packaging's DWG20459 tight head and DWG20443 open head. */
+  /**
+   * The steel drums read: Pipeline Packaging's DWG20459 tight head and DWG20443
+   * open head.
+   */
   export type Drum = "DWG20459" | "DWG20443";
 
-  /** Each kind's models with their read height and mass, the default first: Pipeline Packaging's DWG20459, 34.75 in high and 38.4 lb, and DWG20443, 35 1/4 in high and 43 lb; a keg has one read model. */
+  /**
+   * Each kind's models with their read height and mass, the default first:
+   * Pipeline Packaging's DWG20459, 34.75 in high and 38.4 lb, and DWG20443, 35
+   * 1/4 in high and 43 lb; a keg has one read model.
+   */
   export const DRUMS: Readonly<
     Partial<
       Record<
@@ -195,12 +196,18 @@ export namespace createBarrel {
     },
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which barrel. */
     kind: Kind;
 
-    /** A steel drum's model; drawn from the seed when absent. A keg has one read model. */
+    /**
+     * A steel drum's model; drawn from the seed when absent. A keg has one read
+     * model.
+     */
     model?: Drum;
 
     /** The model's id, unique in a scene; `barrel` when absent. */

@@ -10,19 +10,16 @@ import type {
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
 
-/**
- * Admit saved contour events and build the local physical section document.
- */
+/** Admit saved contour events and build the local physical section document. */
 export function prepareAutoMovieContourDocument64(
   input: IAutoMovieContourLoft64,
 ): IAutoMoviePrepareContourDocument64Document {
-  if (!Number.isFinite(input.chordToleranceMm) || input.chordToleranceMm <= 0)
+  if (input.chordToleranceMm <= 0)
     throw new Error("Positive physical curve chord tolerance required");
   if (
     input.sections.some(
       (section: IAutoMovieContourLoft64.ISection, i: number): boolean =>
-        !Number.isFinite(section.coordinateMm) ||
-        (i > 0 && section.coordinateMm <= input.sections[i - 1]!.coordinateMm),
+        i > 0 && section.coordinateMm <= input.sections[i - 1]!.coordinateMm,
     )
   )
     throw new Error("Finite increasing section coordinates required");

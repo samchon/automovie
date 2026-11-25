@@ -30,6 +30,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanTrunkLean } from "./HumanTrunkLean";
+import { throwPotteryRise } from "./throwPotteryRise";
 
 /** A palm and the wall face it lies on. */
 interface IPair {
@@ -46,33 +47,31 @@ const PAIRS: readonly IPair[] = [
   { side: "left", face: "inside" },
 ];
 
-/** The head's speed when none is given, revolutions per minute: a provisional throwing speed. */
+/**
+ * The head's speed when none is given, revolutions per minute: a provisional
+ * throwing speed.
+ */
 const RPM: number = 120;
 
 /**
  * Draw up a clay wall on a turning wheel with both hands. Register as
  * `throwPottery`.
  *
- * The right palm lies on the wall's `outside` face and the left on its
- * `inside` face, each placed by the wrist that puts the palm's surface on
- * the face (`placeHumanHandSurface`'s rule) with the hand's entry attitude.
- * The faces ride the wheel's `raise` slider, which the pull drives from its
- * travel at the start up by `rise` over `seconds`, so both palms rise with
- * the wall and its height grows monotonically; the trunk leans forward over
- * the wheel, by the least hip hinge (`HumanTrunkLean`) that brings every palm place within the
- * arms, coming in and going out with the hands; the head's crank turns at
- * `rpm` throughout. The clay is round about the head's axis, so each palm
- * stays on the same surface in the turning head's frame. The hands reach
- * the wall over the transport movement time and leave over another.
- * Events: `strokeStart` and `strokeEnd` bound the pull.
+ * The right palm lies on the wall's `outside` face and the left on its `inside`
+ * face, each placed by the wrist that puts the palm's surface on the face
+ * (`placeHumanHandSurface`'s rule) with the hand's entry attitude. The faces
+ * ride the wheel's `raise` slider, which the pull drives from its travel at the
+ * start up by `rise` over `seconds`, so both palms rise with the wall and its
+ * height grows monotonically; the trunk leans forward over the wheel, by the
+ * least hip hinge (`HumanTrunkLean`) that brings every palm place within the
+ * arms, coming in and going out with the hands; the head's crank turns at `rpm`
+ * throughout. The clay is round about the head's axis, so each palm stays on
+ * the same surface in the turning head's frame. The hands reach the wall over
+ * the transport movement time and leave over another. Events: `strokeStart` and
+ * `strokeEnd` bound the pull.
  *
- * Refusals: a wheel without its head, rise or wall faces; a rise outside
- * the wheel's; a non-positive duration; a face beyond either arm.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two contacts, the drives, why the contact holds in the turning frame, the timing and the refusals.
- * @evidence contracts/development/design.md#principled-representation A law record over the wheel's declared articulations and faces.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The clay's flow is the wheel's rigid rise; no free path is authored.
+ * Refusals: a wheel without its head, rise or wall faces; a rise outside the
+ * wheel's; a non-positive duration; a face beyond either arm.
  */
 export const throwPottery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanThrowPottery.IParams> =
   {
@@ -88,7 +87,7 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanThrowPottery.IParams = context.params;
-  if (!(Number.isFinite(p.duration) && p.duration > 0))
+  if (!(p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",
@@ -125,21 +124,7 @@ function plan(
   const raise: IAutoMovieAffordance = site("raise");
   const travel: number = raise.travel ?? 0;
   const start: number = wheel.state?.(context.start)?.["raise"] ?? 0;
-  const rise: number = p.rise ?? travel - start;
-  if (!(rise > 0 && start + rise <= travel + 1e-9))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "rise",
-      value: rise,
-      feasible: {
-        kind: "range",
-        minimum: 0,
-        maximum: travel - start,
-        unit: "m",
-      },
-      reason: "the wall rises within the wheel's travel",
-      fix: "give a rise up to what remains of the wheel's",
-    });
+  const rise: number = throwPotteryRise(p.rise, travel, start);
   const frame: IAutoMovieRigidTransform = wheel.frame(context.start);
   const face: (id: string, lift: number) => IAutoMovieVector3 = (
     id: string,

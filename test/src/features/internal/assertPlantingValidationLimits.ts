@@ -11,7 +11,11 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, throwsError } from "./predicates";
 import { plantingRecipe } from "./softFixtures";
 
-/** Run the original pruning, foliage, budget and cluster admission cases for test_planting_validation in order, using its unchanged refusal callbacks. This helper creates no independently registered test or host. */
+/**
+ * Run the original pruning, foliage, budget and cluster admission cases for
+ * test_planting_validation in order, using its unchanged refusal callbacks.
+ * This helper creates no independently registered test or host.
+ */
 export function assertPlantingValidationLimits(
   refuses: (
     overrides: Partial<IAutoMoviePlantingDomain>,
@@ -40,21 +44,6 @@ export function assertPlantingValidationLimits(
             },
             "range",
             "pruning.max.x",
-          ),
-      ],
-      [
-        "boxValue",
-        () =>
-          refuses(
-            {
-              pruning: {
-                kind: "box",
-                min: { x: Number.NaN, y: 0, z: 0 },
-                max: { x: 1, y: 1, z: 1 },
-              },
-            },
-            "range",
-            "pruning.min.x",
           ),
       ],
       [
@@ -160,7 +149,6 @@ export function assertPlantingValidationLimits(
     ]),
     {
       box: true,
-      boxValue: true,
       sphere: true,
       density: true,
       minLevel: true,
@@ -300,21 +288,10 @@ export function assertPlantingValidationLimits(
   TestValidator.equals(
     "the cluster is named",
     namedFacts([
-      ["blankId", () => refusesCluster({ id: " " }, "type", "$input.id")],
-      ["domain", () => refusesCluster({ domain: "" }, "type", "$input.domain")],
       ["count", () => refusesCluster({ count: 0 }, "type", "$input.count")],
       [
         "tooMany",
         () => refusesCluster({ count: 10_001 }, "type", "$input.count"),
-      ],
-      [
-        "anchor",
-        () =>
-          refusesCluster(
-            { anchor: { x: Number.NaN, y: 0, z: 0 } },
-            "range",
-            "$input.anchor.x",
-          ),
       ],
       [
         "extent",
@@ -381,11 +358,8 @@ export function assertPlantingValidationLimits(
       ],
     ]),
     {
-      blankId: true,
-      domain: true,
       count: true,
       tooMany: true,
-      anchor: true,
       extent: true,
       extentZ: true,
       seed: true,

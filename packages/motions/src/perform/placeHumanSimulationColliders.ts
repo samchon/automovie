@@ -1,4 +1,8 @@
-import { Quaternion, physicalShapeBounds } from "@automovie/engine";
+import {
+  Quaternion,
+  physicalHullFaces,
+  physicalShapeBounds,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformanceState,
@@ -16,22 +20,21 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
- * The scene's solids a simulated window can strike, as kinematic bodies of
- * the window's world: every prop with colliders and every obstacle whose
- * bounds over the window come within the bodies' reach, so a body that
- * falls onto a table or against a wall rests on it instead of passing
- * through.
+ * The scene's solids a simulated window can strike, as kinematic bodies of the
+ * window's world: every prop with colliders and every obstacle whose bounds
+ * over the window come within the bodies' reach, so a body that falls onto a
+ * table or against a wall rests on it instead of passing through.
  *
  * A prop moves as the performance places it at each step
- * (`HumanPerformance.prop`); a prop a simulated performer grips or wears
- * during the window rides that performer's hand or bone and is left out,
- * since a kinematic body cannot follow a solved hand. An obstacle is the
- * prism over its footprint from its bottom to its top, placed by its motion
- * when it moves (`HumanObstacleMotion`). The scene declares no contact
- * material for a prop or an obstacle, so each takes the simulated bodies'
- * own (`material`), and a contact pair then combines that one value. A
- * kinematic body's mass never enters the solve, so each carries a unit mass
- * and inertia only for profile admission.
+ * (`HumanPerformance.prop`); a prop a simulated performer grips or wears during
+ * the window rides that performer's hand or bone and is left out, since a
+ * kinematic body cannot follow a solved hand. An obstacle is the prism over its
+ * footprint from its bottom to its top, placed by its motion when it moves
+ * (`HumanObstacleMotion`). The scene declares no contact material for a prop or
+ * an obstacle, so each takes the simulated bodies' own (`material`), and a
+ * contact pair then combines that one value. A kinematic body's mass never
+ * enters the solve, so each carries a unit mass and inertia only for profile
+ * admission.
  *
  * @param state The resolved performance.
  * @param subjects The simulated performers.
@@ -39,15 +42,8 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @param reach The bodies' swept world box over the window, metres.
  * @param material The simulated bodies' contact material.
  * @returns The kinematic bodies and the box widened to contain them.
- * @throws {HumanRefusal} When an obstacle with openings comes within reach: one convex solid cannot keep its openings open.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which solids enter, how each moves, which are left out and why, the material and the mass.
- * @evidence contracts/development/implementation.md#principled-implementation Static and moving solids enter the rigid world as kinematic bodies, the standard treatment of animated scene geometry in a rigid-body solver (the solver's kinematic bodies, moved to a set pose each substep); a prism is the convex hull of its footprint's corners at both heights.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the props and one over the obstacles, each building one body; the reach test is shared.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An obstacle the window cannot model is refused rather than dropped; a gripped prop is left out by its grip record, not by name.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(N * (S + 1) * K) for N candidate solids with K colliders over S steps, once per bake.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the performance at the window's steps.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh bodies and box; retains nothing.
+ * @throws {HumanRefusal} When an obstacle with openings comes within reach: one
+ *   convex solid cannot keep its openings open.
  */
 export function placeHumanSimulationColliders(
   state: IAutoMovieMotionHumanPerformanceState,
@@ -82,6 +78,18 @@ export function placeHumanSimulationColliders(
       (_: unknown, step: number): IAutoMovieRigidTransform =>
         frame(obstacle, seconds(step)),
     );
+    const prismPoints: IAutoMovieVector3[] = [
+      obstacle.bottom,
+      obstacle.top,
+    ].flatMap((y: number): IAutoMovieVector3[] =>
+      obstacle.footprint.map(
+        (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
+          x: corner.x,
+          y,
+          z: corner.z,
+        }),
+      ),
+    );
     const prism: IAutoMoviePhysicalShape[] = [
       {
         id: "solid",
@@ -91,16 +99,8 @@ export function placeHumanSimulationColliders(
           rotation: Quaternion.identity(),
         },
         kind: "hull",
-        points: [obstacle.bottom, obstacle.top].flatMap(
-          (y: number): IAutoMovieVector3[] =>
-            obstacle.footprint.map(
-              (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
-                x: corner.x,
-                y,
-                z: corner.z,
-              }),
-            ),
-        ),
+        points: prismPoints,
+        hull: physicalHullFaces(prismPoints),
       },
     ];
     if (!within(frames, prism, reach)) continue;
@@ -121,7 +121,10 @@ export function placeHumanSimulationColliders(
 
 /** Companion types of {@link placeHumanSimulationColliders}. */
 export namespace placeHumanSimulationColliders {
-  /** A window's grid: its first film second, interval count and intervals per second. */
+  /**
+   * A window's grid: its first film second, interval count and intervals per
+   * second.
+   */
   export interface IClock {
     /** First film second, step zero. */
     from: number;
@@ -152,7 +155,10 @@ export namespace placeHumanSimulationColliders {
   }
 }
 
-/** Whether a simulated performer grips or wears the prop at some instant of the window. */
+/**
+ * Whether a simulated performer grips or wears the prop at some instant of the
+ * window.
+ */
 function carried(
   state: IAutoMovieMotionHumanPerformanceState,
   prop: IAutoMovieMotionHumanProp,
@@ -167,7 +173,10 @@ function carried(
   );
 }
 
-/** An obstacle's frame at a film second: its motion's place and heading, or the world frame when it stands still. */
+/**
+ * An obstacle's frame at a film second: its motion's place and heading, or the
+ * world frame when it stands still.
+ */
 function frame(
   obstacle: IAutoMovieMotionHumanObstacle,
   seconds: number,

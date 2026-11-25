@@ -1,7 +1,11 @@
 /**
  * Colour of scalp hair, brows or lashes, as a closed choice.
  *
- * Natural hair colour follows the amounts of eumelanin (brown to black) and pheomelanin (red to yellow) in the cortex, and grey and white follow their loss with age. The choice is a colour category, not a measured pigment concentration. Hair, brows and lashes each take their own choice, because dyed hair and natural brows differ.
+ * Natural hair colour follows the amounts of eumelanin (brown to black) and
+ * pheomelanin (red to yellow) in the cortex, and grey and white follow their
+ * loss with age. The choice is a colour category, not a measured pigment
+ * concentration. Hair, brows and lashes each take their own choice, because
+ * dyed hair and natural brows differ.
  */
 export type AutoMovieHumanHairColor =
   /** Very much eumelanin. */

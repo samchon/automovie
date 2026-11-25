@@ -18,15 +18,28 @@ import { projectToNdc } from "./projectToNdc";
 type Sign = -1 | 0 | 1;
 
 /**
- * Appends every film-grammar finding of one cut to `diagnostics`, filed on the incoming shot, in this order: axis crossing, eyeline, jump cut, displacement re-establishing, screen direction, then entrant re-establishing.
+ * Appends every film-grammar finding of one cut to `diagnostics`, filed on the
+ * incoming shot, in this order: axis crossing, eyeline, jump cut, displacement
+ * re-establishing, screen direction, then entrant re-establishing.
  *
- * The axis finding needs both shots to state the same action axis, neither to cross it visibly, and the camera to stand on opposite sides at the two boundaries. The eyeline finding needs the incoming primary subject's gaze to reverse or continue the outgoing one, and reads the wrong screen relation. The jump-cut, displacement and screen-direction findings need both shots to share their primary subject: a same measured size with a camera-bearing change below the angle threshold, a subject displacement beyond the distance threshold into a shot that is not wide, or a reversed horizontal screen motion. The entrant finding names the first subject in id order that the outgoing shot did not observe, when the incoming shot is measured and not wide and no displacement finding was filed.
+ * The axis finding needs both shots to state the same action axis, neither to
+ * cross it visibly, and the camera to stand on opposite sides at the two
+ * boundaries. The eyeline finding needs the incoming primary subject's gaze to
+ * reverse or continue the outgoing one, and reads the wrong screen relation.
+ * The jump-cut, displacement and screen-direction findings need both shots to
+ * share their primary subject: a same measured size with a camera-bearing
+ * change below the angle threshold, a subject displacement beyond the distance
+ * threshold into a shot that is not wide, or a reversed horizontal screen
+ * motion. The entrant finding names the first subject in id order that the
+ * outgoing shot did not observe, when the incoming shot is measured and not
+ * wide and no displacement finding was filed.
  *
  * @param diagnostics Finding list of the read, appended to in filing order.
  * @param previous Normalized outgoing shot of the cut.
  * @param incoming Normalized incoming shot of the cut.
  * @param sizeOf Measured size of a shot at a boundary; the read memoizes it.
- * @param thresholds Smallest non-jump bearing change in degrees and largest displacement in metres that needs no wide shot.
+ * @param thresholds Smallest non-jump bearing change in degrees and largest
+ *   displacement in metres that needs no wide shot.
  */
 export function inspectGrammarCut(
   diagnostics: IAutoMovieGrammarDiagnostic[],
@@ -155,7 +168,8 @@ function inspectAxis(
 }
 
 /**
- * Files an eyeline finding when a reverse or a continuation of the outgoing primary subject's gaze reads the wrong way on screen.
+ * Files an eyeline finding when a reverse or a continuation of the outgoing
+ * primary subject's gaze reads the wrong way on screen.
  */
 function inspectEyeline(
   diagnostics: IAutoMovieGrammarDiagnostic[],
@@ -272,9 +286,7 @@ function crossesActionAxisOnScreen(
   return start !== 0 && end !== 0 && start !== end;
 }
 
-/**
- * Signed screen offset of a target from a subject, per axis.
- */
+/** Signed screen offset of a target from a subject, per axis. */
 interface IScreenRelation {
   /** Positive when the target is screen-right of the subject. */
   horizontal: Sign;
@@ -283,7 +295,10 @@ interface IScreenRelation {
   vertical: Sign;
 }
 
-/** Target offset from the subject; neutral when either depth is at or below GRAMMAR_EPSILON. */
+/**
+ * Target offset from the subject; neutral when either depth is at or below
+ * GRAMMAR_EPSILON.
+ */
 function relativeScreenDirection(
   camera: IAutoMovieGrammarCameraObservation,
   subject: IAutoMovieVector3,
@@ -334,7 +349,8 @@ function screenMotionDirection(
 }
 
 /**
- * Degrees between camera bearings across a cut; 180 when their length product is at or below GRAMMAR_EPSILON.
+ * Degrees between camera bearings across a cut; 180 when their length product
+ * is at or below GRAMMAR_EPSILON.
  */
 function cameraBearingAngleDegrees(
   previousSubject: IAutoMovieVector3,

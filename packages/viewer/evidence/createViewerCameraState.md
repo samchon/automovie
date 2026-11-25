@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Captures native detached auto-updating lens/TRS/view state and admits unknown input on a temporary camera clone, requiring finite dimensions, nondegenerate transforms and exact native projection parity before copy; custom/manual/parented cameras refuse, while non-unit quaternions are not normalized and only resulting finite invertibility is tested.
+Captures native detached auto-updating lens/TRS/view state and restores a typed IViewerCameraStateSnapshot on a temporary camera clone, reading its declared fields without a runtime type check and requiring finite values and dimensions, nondegenerate transforms and exact native projection parity before copy; custom/manual/parented cameras refuse, while non-unit quaternions are not normalized and only resulting finite invertibility is tested.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

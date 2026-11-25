@@ -1,7 +1,25 @@
 import type * as THREE from "three";
 
 /**
- * Read the actual selected offscreen color attachment's native transfer. The caller has bound its destination, so explicit internal formats and SDK storage choices are observed rather than inferred from Texture.colorSpace. Byte-product emission supports linear or sRGB storage; an absent or unknown color attachment refuses before a source callback can replace the display. The selected face and mip must form a complete framebuffer: a native color encoding alone cannot prove that the selected image storage exists. The float quad requires unsigned-normalized RGBA channels of at least eight bits, or homogeneous RGBA16F/RGBA32F storage. Integer and signed components, missing channels and lower precision cannot certify the byte identities. Eight unsigned-normalized bits encode all 256 source values. RGBA16F's binary16 rounding changes a normalized byte value by less than 0.063 byte; RGBA32F is finer, so nearest-byte capture retains those same values. This query neither binds nor allocates a target and changes no native state. The installed renderer declaration also admits a WebGL1 context. Require the actual public WebGL2 attachment-query capability before reading its encoding constants; no guessed numeric enum or widened type substitutes.
+ * Read the actual selected offscreen color attachment's native transfer. The
+ * caller has bound its destination, so explicit internal formats and SDK
+ * storage choices are observed rather than inferred from Texture.colorSpace.
+ * Byte-product emission supports linear or sRGB storage; an absent or unknown
+ * color attachment refuses before a source callback can replace the display.
+ * The selected face and mip must form a complete framebuffer: a native color
+ * encoding alone cannot prove that the selected image storage exists. The float
+ * quad requires unsigned-normalized RGBA channels of at least eight bits, or
+ * homogeneous RGBA16F/RGBA32F storage. Integer and signed components, missing
+ * channels and lower precision cannot certify the byte identities. Eight
+ * unsigned-normalized bits encode all 256 source values. RGBA16F's binary16
+ * rounding changes a normalized byte value by less than 0.063 byte; RGBA32F is
+ * finer, so nearest-byte capture retains those same values. This query neither
+ * binds nor allocates a target and changes no native state. The installed
+ * renderer declaration also admits a WebGL1 context, so the WebGL2 member of
+ * that declared union is selected before its attachment-query constants are
+ * read; no guessed numeric enum or widened type substitutes. That selection is
+ * a capability probe of the host's runtime WebGL context, not a type check of
+ * AutoMovie data, so it reads the context's own member with `in`.
  */
 export const readAutoMovieDisplayDestinationEncoding: (
   renderer: Pick<THREE.WebGLRenderer, "getContext">,
@@ -18,49 +36,25 @@ export const readAutoMovieDisplayDestinationEncoding: (
     throw new Error(
       "The selected display destination framebuffer is incomplete.",
     );
-  const componentParameter: unknown = Reflect.get(
-    gl,
-    "FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE",
-  );
-  const normalizedType: unknown = Reflect.get(gl, "UNSIGNED_NORMALIZED");
-  const sizeParameters: unknown[] = [
-    "FRAMEBUFFER_ATTACHMENT_RED_SIZE",
-    "FRAMEBUFFER_ATTACHMENT_GREEN_SIZE",
-    "FRAMEBUFFER_ATTACHMENT_BLUE_SIZE",
-    "FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE",
-  ].map((name: string): unknown => Reflect.get(gl, name));
-  if (
-    typeof componentParameter !== "number" ||
-    typeof normalizedType !== "number" ||
-    !sizeParameters.every(
-      (value: unknown): value is number => typeof value === "number",
-    )
-  )
-    throw new Error(
-      "Display destination requires public native component and RGBA precision queries.",
-    );
-  const component: unknown = gl.getFramebufferAttachmentParameter(
+  const sizeParameters: number[] = [
+    gl.FRAMEBUFFER_ATTACHMENT_RED_SIZE,
+    gl.FRAMEBUFFER_ATTACHMENT_GREEN_SIZE,
+    gl.FRAMEBUFFER_ATTACHMENT_BLUE_SIZE,
+    gl.FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
+  ];
+  const component: number = gl.getFramebufferAttachmentParameter(
     gl.FRAMEBUFFER,
     gl.COLOR_ATTACHMENT0,
-    componentParameter,
+    gl.FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE,
   );
-  const sizes: unknown[] = sizeParameters.map((parameter: number): unknown =>
+  const sizes: number[] = sizeParameters.map((parameter: number): number =>
     gl.getFramebufferAttachmentParameter(
       gl.FRAMEBUFFER,
       gl.COLOR_ATTACHMENT0,
       parameter,
     ),
   );
-  if (
-    !sizes.every(
-      (size: unknown): size is number =>
-        typeof size === "number" && Number.isInteger(size),
-    )
-  )
-    throw new Error(
-      "The selected display destination has no native RGBA precision profile.",
-    );
-  if (component === normalizedType) {
+  if (component === gl.UNSIGNED_NORMALIZED) {
     if (sizes.some((size: number): boolean => size < 8))
       throw new Error(
         "Display destination requires at least eight unsigned-normalized bits in every RGBA channel.",
@@ -77,7 +71,7 @@ export const readAutoMovieDisplayDestinationEncoding: (
     throw new Error(
       "Display destination components are incompatible with the float byte-product quad.",
     );
-  const encoding: unknown = gl.getFramebufferAttachmentParameter(
+  const encoding: number = gl.getFramebufferAttachmentParameter(
     gl.FRAMEBUFFER,
     gl.COLOR_ATTACHMENT0,
     gl.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,

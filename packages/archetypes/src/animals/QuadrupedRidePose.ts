@@ -1,13 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieModelPart,
-  IAutoMovieQuaternion,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import type { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
+import type { IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame, type AutoMovieArchetypeSpan } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuadrupedJoints";
@@ -19,95 +12,48 @@ import { QuadrupedPelvis } from "./QuadrupedPelvis";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRideTerminal } from "./QuadrupedRideTerminal";
+import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import { chooseQuadrupedBodyRoot } from "./chooseQuadrupedBodyRoot";
 import type { createQuadruped } from "./createQuadruped";
+import { QuadrupedRidePoseTypes } from "./QuadrupedRidePoseTypes";
+import type { QuadrupedRidePoseGoals } from "./QuadrupedRidePoseGoals";
 
-/** The hind limbs, whose hips ride the pelvis. */
-const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
-  "leftHind",
-  "rightHind",
-];
+const { HINDS } = QuadrupedRidePoseTypes;
+type Target = QuadrupedRidePoseTypes.Target;
+type ICarried = QuadrupedRidePoseTypes.ICarried;
+type ISettled = QuadrupedRidePoseTypes.ISettled;
 
-/** One sample's unchanged endpoint, relative fold and fixed neutral attachment. */
-interface Target {
-  /** Chain and terminal-axis binding used for this sample. */
-  solver: AutoMovieArchetypeQuadrupedLimb.IOriented;
-  /** Terminal endpoint, already including its sole clearance. */
-  endpoint: IAutoMovieVector3;
-  /** Declared relative carpus/hock fold, degrees. */
-  fold: number;
-  /** Proximal joint before the common body-root displacement. */
-  attachment: IAutoMovieVector3;
-  /** A fore limb's shoulder blade. */
-  blade?: QuadrupedScapula.Bone;
-  /** The root constraint this target yields, read again once the root is chosen. */
-  constraint: AutoMovieArchetypeQuadrupedRootRange.IConstraint;
-}
-
-/**
- * Fixed-attachment locomotion lowered through the animal's shared rig.
- */
+/** Fixed-attachment locomotion lowered through the animal's shared rig. */
 export namespace QuadrupedRidePose {
-  /**
-   * A terminal footprint and positive surface clearance above its local floor.
-   */
-  export interface IGoal {
-    /** Terminal endpoint's lateral coordinate in model space, metres. Defaults to its attachment's sagittal plane. */
-    x?: number;
-    /** Terminal endpoint's forward coordinate in model space, metres. */
-    z: number;
-    /** Model-space rotation of the terminal's neutral axis. Defaults to its neutral model-space direction. */
-    orientation?: IAutoMovieQuaternion;
-    /** Optional local landing plane. Defaults to the nominal model floor. */
-    surface?: AutoMovieArchetypeQuadrupedFooting.ISurface;
-    /** Exact terminal solid clearance normal to its support surface, nonnegative metres. */
-    lift: number;
-    /** Relative carpus/hock fold beyond the neutral angle, degrees. */
-    fold: number;
-    /** The share of a stance's load the hoof bears, 0 to 1 (`AutoMovieArchetypeQuadrupedRootRange.IConstraint.load`); one, planted, when absent. */
-    load?: number;
-  }
-
-  /**
-   * One prepared model, reused by independent time samples.
-   */
-  export interface IPrepared<Id extends string, Dimension extends string> {
-    /**
-     * Emit all four exact chains under one physically feasible body root.
-     */
-    sample: (
-      goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
-      nod: number,
-      preferredRoot: number,
-      witness?: ArchetypeRideWitness.Witness,
-    ) => AutoMovieArchetype<Id, Dimension>;
-  }
+  /** The moved type {@link QuadrupedRidePoseGoals.IGoal}. */
+  export type IGoal = QuadrupedRidePoseGoals.IGoal;
+  /** The moved type {@link QuadrupedRidePoseGoals.IPrepared}. */
+  export type IPrepared<
+    Id extends string,
+    Dimension extends string,
+  > = QuadrupedRidePoseGoals.IPrepared<Id, Dimension>;
 
   /**
    * Prepare lengths, terminal solids, carrier policy and shared FK once.
    *
    * @param animal The neutral model, never changed by preparation or sampling.
    * @param species Declared carriage selectors of this ride's producer.
-   * @param source Admitted independent joints and attachments read from that same model.
+   * @param source Admitted independent joints and attachments read from that
+   *   same model.
    * @returns A sampler retaining no caller-owned goal or returned-frame state.
-   * @throws {RangeError} For unsupported terminal solids, malformed neutral chains/carriers or physically incompatible current goals.
+   * @throws {RangeError} For unsupported terminal solids, malformed neutral
+   *   chains/carriers or physically incompatible current goals.
    */
   export function prepare<Id extends string, Dimension extends string>(
     animal: AutoMovieArchetype<Id, Dimension>,
     species: createQuadruped.ISpecies,
     source: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>,
-    nativeCourse: boolean,
   ): IPrepared<Id, Dimension> {
     const bindings: ReturnType<typeof QuadrupedCarriage.of> =
       QuadrupedCarriage.of(animal, species);
     const pose: PrepareQuadrupedPose.IPrepared<Id, Dimension> =
-      PrepareQuadrupedPose.ride(
-        animal,
-        bindings.parts,
-        bindings.contacts,
-        nativeCourse,
-      );
+      PrepareQuadrupedPose.ride(animal, bindings.parts, bindings.contacts);
     const neutral: QuadrupedPosePlan.IState = pose.read();
     const parts: Map<string, IAutoMovieModelPart> = new Map(
       animal.parts.map(
@@ -156,19 +102,49 @@ export namespace QuadrupedRidePose {
         ],
       ),
     );
-    /** Identity of the private chain workspaces and admitted rig in this prepared source. */
-    const geometryOwner: object = {};
-    return { sample };
 
-    /** Achieve four unchanged foot poses with one explicit whole-body trajectory. */
-    function sample(
+    // The contacts a body bone carries, which the root, the pelvis and the
+    // axial goals place alone: not one a limb or a shoulder blade carries,
+    // whose chain only the full sample solves, nor the grip a held line turns.
+    const blades: ReadonlySet<string> = new Set(
+      Object.values(QuadrupedScapula.BONES),
+    );
+    const held: ReadonlySet<string> = new Set(
+      animal.spans.flatMap((span: AutoMovieArchetypeSpan.ISpan): string[] =>
+        [span.from, span.to].flatMap(
+          (end: AutoMovieArchetypeSpan.End): string[] =>
+            end.affordance !== undefined && end.overhang !== undefined
+              ? [end.affordance]
+              : [],
+        ),
+      ),
+    );
+    const carried: ReadonlyMap<string, ICarried> = new Map(
+      animal.affordances.flatMap(
+        (contact: IAutoMovieAffordance): [string, ICarried][] => {
+          const bone: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
+            bindings.contacts[contact.id];
+          return bone === undefined ||
+            limbBones.has(bone) ||
+            blades.has(bone) ||
+            held.has(contact.id)
+            ? []
+            : [[contact.id, { bone, frame: contact.frame }]];
+        },
+      ),
+    );
+    return { sample, frame };
+
+    /**
+     * The root range four goals admit under one nod, before any chain is
+     * solved: the axial goals, the previewed frames, each limb's target and its
+     * root constraint relaxed against the body's floor, and how the pelvis and
+     * an axial bar turn.
+     */
+    function settle(
       goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
       nod: number,
-      preferredRoot: number,
-      witness?: ArchetypeRideWitness.Witness,
-    ): AutoMovieArchetype<Id, Dimension> {
-      if (!Number.isFinite(nod))
-        throw new RangeError("The quadruped head nod must be finite degrees");
+    ): ISettled {
       const axial: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
         new Map([
           [
@@ -224,163 +200,21 @@ export namespace QuadrupedRidePose {
         target.constraint = settled.constraints[limb];
         target.fold = target.constraint.fold ?? target.fold;
       }
-      const range: AutoMovieArchetypeQuadrupedRootRange.IRange = settled.range;
-      /** Solve the shared-root limbs and prove their canonical FK. */
-      const geometry = (): ReturnType<typeof pose.position> => {
-        const height: number = chooseQuadrupedBodyRoot(
-          range,
-          preferredRoot,
-          coordinateScale,
-        );
-        const root: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
-          x: 0,
-          y: height,
-          z: 0,
-        });
-        const solved: Map<
-          AutoMovieArchetypeQuadrupedBody.Limb,
-          readonly IAutoMovieVector3[]
-        > = new Map();
-        const turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
-          new Map(axial);
-        // Both hips ride one pelvis, turned as far as the hind needing it most requires.
-        const pelvis: number = QuadrupedPelvis.turn(
-          HINDS.map(
-            (
-              limb: AutoMovieArchetypeQuadrupedBody.Limb,
-            ): QuadrupedPelvis.IHip => {
-              const constraint: AutoMovieArchetypeQuadrupedRootRange.IConstraint =
-                targets.get(limb)!.constraint;
-              return {
-                joint: constraint.pelvis!,
-                goal: constraint.goal,
-                reach: constraint.reach,
-              };
-            },
-          ),
-          height,
-          256 * Number.EPSILON * coordinateScale,
-        );
-        if (pelvis !== 0)
-          turned.set(QuadrupedPelvis.BONE, bar(QuadrupedPelvis.BONE, pelvis));
-        for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
-          const target: Target = targets.get(limb)!;
-          const hip: QuadrupedScapula.IJoint | undefined =
-            target.constraint.pelvis;
-          const attachment: IAutoMovieVector3 =
-            hip === undefined
-              ? shoulder(target, height, turned)
-              : QuadrupedScapula.glenoid(hip, pelvis);
-          const joint: IAutoMovieVector3 = {
-            ...attachment,
-            y: attachment.y + height,
-          };
-          solved.set(
-            limb,
-            target.solver.solve(joint, short(target, joint), target.fold),
-          );
-        }
-        return pose.position(solved, root, turned);
+      return {
+        axial,
+        preview,
+        targets,
+        floor,
+        coordinateScale,
+        range: settled.range,
+        bar,
+        pelvis,
       };
 
       /**
-       * A swinging hoof's endpoint where its leg reaches at the chosen root: its goal where the leg reaches it, otherwise raised under the joint (its forward place kept, or drawn in as far as the leg's reach requires) until the leg just reaches, as a swinging foot adapts to the body the planted ones carry. A loaded hoof keeps its goal: its leg's reach capped the root.
+       * An axial bar's goal turned by an angle about model X from its previewed
+       * direction.
        */
-      function short(target: Target, joint: IAutoMovieVector3): IAutoMovieVector3 {
-        if ((target.constraint.load ?? 1) >= 1) return target.endpoint;
-        const goal: IAutoMovieVector3 = target.constraint.goal;
-        const reach: number =
-          target.constraint.reach.maximum -
-          512 * Number.EPSILON * Math.max(1, coordinateScale);
-        const dx: number = goal.x - joint.x;
-        const dy: number = goal.y - joint.y;
-        const dz: number = goal.z - joint.z;
-        if (Math.hypot(dx, dy, dz) <= reach) return target.endpoint;
-        const across: number = Math.max(0, reach * reach - dx * dx);
-        const forward: number =
-          dz * dz <= across ? dz : Math.sign(dz) * Math.sqrt(across);
-        const down: number = -Math.sqrt(Math.max(0, across - forward * forward));
-        return {
-          x: target.endpoint.x,
-          y: target.endpoint.y + (down - dy),
-          z: target.endpoint.z + (forward - dz),
-        };
-      }
-      const prepared: ReturnType<typeof geometry> =
-        witness === undefined
-          ? geometry()
-          : witness.geometry(
-              geometryOwner,
-              [
-                nod,
-                preferredRoot,
-                floor,
-                coordinateScale,
-                ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
-                  (limb: AutoMovieArchetypeQuadrupedBody.Limb): number[] => [
-                    goals[limb].orientation === undefined &&
-                    goals[limb].x === undefined
-                      ? 0
-                      : 1,
-                    targets.get(limb)!.endpoint.x,
-                    goals[limb].z,
-                    goals[limb].surface === undefined
-                      ? goals[limb].lift
-                      : targets.get(limb)!.endpoint.y,
-                    goals[limb].fold,
-                    goals[limb].load ?? 1,
-                    goals[limb].orientation?.x ?? 0,
-                    goals[limb].orientation?.y ?? 0,
-                    goals[limb].orientation?.z ?? 0,
-                    goals[limb].orientation?.w ?? 1,
-                  ],
-                ),
-              ],
-              geometry,
-            );
-      // Current metadata, model/carrier emission and the final solid floor
-      // check always execute, even when the admitted numerical geometry matches.
-      const result: AutoMovieArchetype<Id, Dimension> = prepared.emit(
-        witness?.ode,
-      );
-
-      // Terminal support alone cannot admit an elbow or folded lower bar
-      // below the same floor. Verify those solids after exact FK.
-      const roundoff: number = 256 * Number.EPSILON * coordinateScale;
-      for (const part of result.parts)
-        if (goals.leftFore.surface === undefined && limbBones.has(part.id)) {
-          const lowest: number = QuadrupedRestFloor(part);
-          if (!Number.isFinite(lowest) || lowest < -roundoff)
-            throw new RangeError(
-              `Quadruped ${part.id} penetrates its local floor by ${-lowest} m`,
-            );
-        }
-      return result;
-
-      /** A fore limb's shoulder joint at the chosen root: its blade turns only as far as reach needs, and the turn joins the axial goals. */
-      function shoulder(
-        target: Target,
-        height: number,
-        turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
-      ): IAutoMovieVector3 {
-        const joint: QuadrupedScapula.IJoint | undefined =
-          target.constraint.scapula;
-        const blade: QuadrupedScapula.Bone | undefined = target.blade;
-        if (joint === undefined || blade === undefined)
-          return target.attachment;
-        const angle: number = QuadrupedScapula.least(
-          joint,
-          target.constraint.goal,
-          target.constraint.reach,
-          height,
-          256 * Number.EPSILON * coordinateScale,
-        );
-        if (angle === 0) return target.attachment;
-        turned.set(blade, bar(blade, angle));
-        return QuadrupedScapula.glenoid(joint, angle);
-      }
-
-      /** An axial bar's goal turned by an angle about model X from its previewed direction. */
       function bar(
         bone: QuadrupedPosePlan.Axial,
         angle: number,
@@ -399,17 +233,35 @@ export namespace QuadrupedRidePose {
         };
       }
 
+      /**
+       * The pelvis's turn at a root height: as far as the hind needing it most
+       * requires.
+       */
+      function pelvis(height: number): number {
+        return QuadrupedPelvis.turn(
+          HINDS.map(
+            (
+              limb: AutoMovieArchetypeQuadrupedBody.Limb,
+            ): QuadrupedPelvis.IHip => {
+              const constraint: AutoMovieArchetypeQuadrupedRootRange.IConstraint =
+                targets.get(limb)!.constraint;
+              return {
+                joint: constraint.pelvis!,
+                goal: constraint.goal,
+                reach: constraint.reach,
+              };
+            },
+          ),
+          height,
+          256 * Number.EPSILON * coordinateScale,
+        );
+      }
       /** Convert one solid's lift to an exact endpoint/ankle constraint. */
       function constraint(
         limb: AutoMovieArchetypeQuadrupedBody.Limb,
       ): AutoMovieArchetypeQuadrupedRootRange.IConstraint {
         const goal: IGoal | undefined = goals?.[limb];
-        if (
-          goal === undefined ||
-          goal === null ||
-          ![goal.x ?? 0, goal.z, goal.lift, goal.fold].every(Number.isFinite) ||
-          goal.lift < 0
-        )
+        if (goal === undefined || goal === null || goal.lift < 0)
           throw new RangeError(
             `The ${limb} footprint goal must be finite with nonnegative lift`,
           );
@@ -429,7 +281,7 @@ export namespace QuadrupedRidePose {
         let endpoint: IAutoMovieVector3 = { x, y: offset, z: goal.z };
         if (surface !== undefined) {
           const { normal, point } = surface;
-          if (!(normal.y > 0 && Number.isFinite(point.y)))
+          if (!(normal.y > 0))
             throw new RangeError(`The ${limb} support plane faces down`);
           const run: number =
             normal.x * (x - point.x) + normal.z * (goal.z - point.z);
@@ -473,6 +325,183 @@ export namespace QuadrupedRidePose {
         });
         return result;
       }
+    }
+
+    /**
+     * Achieve four unchanged foot poses with one explicit whole-body
+     * trajectory.
+     */
+    function sample(
+      goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
+      nod: number,
+      preferredRoot: number,
+    ): AutoMovieArchetype<Id, Dimension> {
+      const {
+        axial,
+        targets,
+        coordinateScale,
+        range,
+        bar,
+        pelvis: turn,
+      }: ISettled = settle(goals, nod);
+      /** Solve the shared-root limbs and prove their canonical FK. */
+      const geometry = (): ReturnType<typeof pose.position> => {
+        const height: number = chooseQuadrupedBodyRoot(
+          range,
+          preferredRoot,
+          coordinateScale,
+        );
+        const root: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
+          x: 0,
+          y: height,
+          z: 0,
+        });
+        const solved: Map<
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          readonly IAutoMovieVector3[]
+        > = new Map();
+        const turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
+          new Map(axial);
+        // Both hips ride one pelvis, turned as far as the hind needing it most requires.
+        const pelvis: number = turn(height);
+        if (pelvis !== 0)
+          turned.set(QuadrupedPelvis.BONE, bar(QuadrupedPelvis.BONE, pelvis));
+        for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+          const target: Target = targets.get(limb)!;
+          const hip: QuadrupedScapula.IJoint | undefined =
+            target.constraint.pelvis;
+          const attachment: IAutoMovieVector3 =
+            hip === undefined
+              ? shoulder(target, height, turned)
+              : QuadrupedScapula.glenoid(hip, pelvis);
+          const joint: IAutoMovieVector3 = {
+            ...attachment,
+            y: attachment.y + height,
+          };
+          solved.set(
+            limb,
+            target.solver.solve(joint, short(target, joint), target.fold),
+          );
+        }
+        return pose.position(solved, root, turned);
+      };
+
+      /**
+       * A swinging hoof's endpoint where its leg reaches at the chosen root:
+       * its goal where the leg reaches it, otherwise raised under the joint
+       * (its forward place kept, or drawn in as far as the leg's reach
+       * requires) until the leg just reaches, as a swinging foot adapts to the
+       * body the planted ones carry. A loaded hoof keeps its goal: its leg's
+       * reach capped the root.
+       */
+      function short(
+        target: Target,
+        joint: IAutoMovieVector3,
+      ): IAutoMovieVector3 {
+        if ((target.constraint.load ?? 1) >= 1) return target.endpoint;
+        const goal: IAutoMovieVector3 = target.constraint.goal;
+        const reach: number =
+          target.constraint.reach.maximum -
+          512 * Number.EPSILON * Math.max(1, coordinateScale);
+        const dx: number = goal.x - joint.x;
+        const dy: number = goal.y - joint.y;
+        const dz: number = goal.z - joint.z;
+        if (Math.hypot(dx, dy, dz) <= reach) return target.endpoint;
+        const across: number = Math.max(0, reach * reach - dx * dx);
+        const forward: number =
+          dz * dz <= across ? dz : Math.sign(dz) * Math.sqrt(across);
+        const down: number = -Math.sqrt(
+          Math.max(0, across - forward * forward),
+        );
+        return {
+          x: target.endpoint.x,
+          y: target.endpoint.y + (down - dy),
+          z: target.endpoint.z + (forward - dz),
+        };
+      }
+      const prepared: ReturnType<typeof geometry> = geometry();
+      // Current metadata, model/carrier emission and the final solid floor
+      // check always execute, even when the admitted numerical geometry matches.
+      const result: AutoMovieArchetype<Id, Dimension> = prepared.emit();
+
+      // Terminal support alone cannot admit an elbow or folded lower bar
+      // below the same floor. Verify those solids after exact FK.
+      const roundoff: number = 256 * Number.EPSILON * coordinateScale;
+      for (const part of result.parts)
+        if (goals.leftFore.surface === undefined && limbBones.has(part.id)) {
+          const lowest: number = QuadrupedRestFloor(part);
+          if (lowest < -roundoff)
+            throw new RangeError(
+              `Quadruped ${part.id} penetrates its local floor by ${-lowest} m`,
+            );
+        }
+      return result;
+
+      /**
+       * A fore limb's shoulder joint at the chosen root: its blade turns only
+       * as far as reach needs, and the turn joins the axial goals.
+       */
+      function shoulder(
+        target: Target,
+        height: number,
+        turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
+      ): IAutoMovieVector3 {
+        const joint: QuadrupedScapula.IJoint | undefined =
+          target.constraint.scapula;
+        const blade: QuadrupedScapula.Bone | undefined = target.blade;
+        if (joint === undefined || blade === undefined)
+          return target.attachment;
+        const angle: number = QuadrupedScapula.least(
+          joint,
+          target.constraint.goal,
+          target.constraint.reach,
+          height,
+          256 * Number.EPSILON * coordinateScale,
+        );
+        if (angle === 0) return target.attachment;
+        turned.set(blade, bar(blade, angle));
+        return QuadrupedScapula.glenoid(joint, angle);
+      }
+    }
+
+    /**
+     * One contact's frame at the root and axial pose `sample` reaches, read
+     * from its carrier's chain alone: the root and the turns the four goals
+     * settle, the body's frames lowered from them, and the contact carried by
+     * its bone's motion from neutral, as the full emission carries it.
+     */
+    function frame(
+      goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
+      nod: number,
+      preferredRoot: number,
+      id: string,
+    ): IAutoMovieTransform | undefined {
+      const contact: ICarried | undefined = carried.get(id);
+      if (contact === undefined) return undefined;
+      const settled: ISettled = settle(goals, nod);
+      const height: number = chooseQuadrupedBodyRoot(
+        settled.range,
+        preferredRoot,
+        settled.coordinateScale,
+      );
+      const turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
+        new Map(settled.axial);
+      const pelvis: number = settled.pelvis(height);
+      if (pelvis !== 0)
+        turned.set(
+          QuadrupedPelvis.BONE,
+          settled.bar(QuadrupedPelvis.BONE, pelvis),
+        );
+      const frames: QuadrupedPosePlan.IState = pose.read(
+        AutoMovieArchetypeFrame.upright({ x: 0, y: height, z: 0 }),
+        turned,
+      );
+      return QuadrupedRigDelta.move(
+        contact.frame,
+        contact.bone,
+        QuadrupedRigDelta.between(neutral.frames, frames.frames),
+        id,
+      );
     }
   }
 }

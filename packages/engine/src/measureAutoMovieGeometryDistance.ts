@@ -10,7 +10,8 @@ import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryAct
 import { Vector3 } from "./math/Vector3";
 
 /**
- * Measure Euclidean distance in world metres between point, landmark or actor/bone selectors; invalid time or unresolved selectors throw.
+ * Measure Euclidean distance in world metres between point, landmark or
+ * actor/bone selectors; invalid time or unresolved selectors throw.
  */
 export function measureAutoMovieGeometryDistance(
   props: IAutoMovieGeometryMeasurementInput,
@@ -19,10 +20,7 @@ export function measureAutoMovieGeometryDistance(
   const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
 
-  if (
-    request.time !== undefined &&
-    (Number.isFinite(request.time) === false || request.time < 0)
-  )
+  if (request.time !== undefined && request.time < 0)
     throw new Error(
       `Distance sample time ${request.time} is invalid. Choose a finite non-negative shot time.`,
     );

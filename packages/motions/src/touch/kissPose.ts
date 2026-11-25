@@ -8,17 +8,49 @@ import type {
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { kissBody } from "./kissBody";
 
+/** The alternatives of `KissPoseHeldBone2`'s site. */
+type KissPoseHeldBone2 = "neck" | "head";
+
+/** The alternatives of `KissPoseHeldBone`'s site. */
+type KissPoseHeldBone = "neck" | "head";
+
+/** The alternatives of `KissPoseS`'s site. */
+type KissPoseS =
+  | "pitch"
+  | "roll"
+  | "flexion"
+  | "raise"
+  | "sink"
+  | "twist"
+  | "shift"
+  | "advance"
+  | "bearing";
+
+/** The alternatives of `KissPoseSResult`'s site. */
+type KissPoseSResult =
+  | "pitch"
+  | "roll"
+  | "flexion"
+  | "raise"
+  | "sink"
+  | "twist"
+  | "shift"
+  | "advance"
+  | "bearing";
+
 /**
  * Build each kiss-search candidate: the kiss's body at its full share
- * (`kissBody`, the model the displayed kiss writes), with the neck's
- * flexion and the head's turn added.
+ * (`kissBody`, the model the displayed kiss writes), with the neck's flexion
+ * and the head's turn added.
  *
  * @param body The unchanged canonical body for this synchronous search.
  * @param entry The entry posture the kiss is written over.
  * @param stance The standing placements every candidate rises from.
  * @param twist The fixed head twist, degrees.
- * @param seated Whether a seat bears the body, so it neither rises nor is lowered onto the feet.
- * @returns A fresh complete candidate posture for a pitch, roll, flexion and raise.
+ * @param seated Whether a seat bears the body, so it neither rises nor is
+ *   lowered onto the feet.
+ * @returns A fresh complete candidate posture for a pitch, roll, flexion and
+ *   raise.
  */
 export function kissPose(
   body: IAutoMovieMotionHumanBody,
@@ -27,20 +59,17 @@ export function kissPose(
   twist: number,
   seated: boolean,
 ): (
-  s: Pick<
-    IAutoMovieMotionHumanKiss.ISolved,
-    "pitch" | "roll" | "flexion" | "raise" | "sink" | "twist" | "shift" | "advance" | "bearing"
-  >,
+  s: Pick<IAutoMovieMotionHumanKiss.ISolved, KissPoseSResult>,
 ) => IAutoMovieMotionHumanPosture {
   const initialTurn: ReturnType<typeof AutoMovieMotionHumanHead.share> =
     AutoMovieMotionHumanHead.share(2, twist);
   return (
-    s: Pick<
-      IAutoMovieMotionHumanKiss.ISolved,
-      "pitch" | "roll" | "flexion" | "raise" | "sink" | "twist" | "shift" | "advance" | "bearing"
-    >,
+    s: Pick<IAutoMovieMotionHumanKiss.ISolved, KissPoseS>,
   ): IAutoMovieMotionHumanPosture => {
-    const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> = s.twist === undefined ? initialTurn : AutoMovieMotionHumanHead.share(2, s.twist);
+    const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> =
+      s.twist === undefined
+        ? initialTurn
+        : AutoMovieMotionHumanHead.share(2, s.twist);
     const leaned: IAutoMovieMotionHumanPosture = kissBody(
       body,
       entry,
@@ -51,8 +80,10 @@ export function kissPose(
     );
     const head: ReturnType<typeof AutoMovieMotionHumanHead.share> =
       AutoMovieMotionHumanHead.share(0, s.flexion);
-    const held: (bone: "neck" | "head") => readonly [number, number, number] = (
-      bone: "neck" | "head",
+    const held: (
+      bone: KissPoseHeldBone,
+    ) => readonly [number, number, number] = (
+      bone: KissPoseHeldBone2,
     ): readonly [number, number, number] => leaned.joints[bone] ?? [0, 0, 0];
     return {
       ...leaned,

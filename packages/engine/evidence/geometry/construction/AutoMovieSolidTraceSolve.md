@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidTraceSolve.ts#AutoMovieSolidTraceSolve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the equations, face switches, dyadic proposal policy and separate numerical/work failure boundaries.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The meeting points of an intersection trace (`AutoMovieSolidIntersection`): Newton's method on the four equations `A(s, phi) = B(y, theta)` and the parameter law, on one host face or across an atlas's faces where the host point leaves one, each point's first and second rates in `t` by the implicit function theorem, and the continuation step from one point to the next with its halving: companion namespace of 9 members (`STEPS`, `HALVINGS`, `SWITCHES`, `solve`, `solveOn`, `jacobian`, ...); units and frames named in its text: newton, local, second, world, radians. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidTraceSolve` in packages/engine/src/geometry/construction/AutoMovieSolidTraceSolve.ts; its surface is the 9 members listed and the text shows 5 other files naming it, mostly packages/engine (3), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidTraceSolve.ts#AutoMovieSolidTraceSolve.solve
 
 ## @evidence contracts/development/implementation.md#principled-implementation

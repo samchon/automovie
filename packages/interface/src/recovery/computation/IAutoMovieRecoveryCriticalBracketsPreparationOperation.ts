@@ -3,14 +3,10 @@ import type {
   IAutoMovieRecoveryMeshSections,
 } from "../../index";
 
-/**
- * Prepare critical physical brackets and retain explicit unresolvable gaps.
- */
+/** Prepare critical physical brackets and retain explicit unresolvable gaps. */
 
 export namespace IAutoMovieRecoveryCriticalBracketsPreparationOperation {
-  /**
-   * Prepare critical physical brackets and retain explicit unresolvable gaps.
-   */
+  /** Prepare critical physical brackets and retain explicit unresolvable gaps. */
 
   export type Operation = (
     criticals: ReturnType<IAutoMovieMeshCriticalPoints.Operation>,
@@ -20,12 +16,18 @@ export namespace IAutoMovieRecoveryCriticalBracketsPreparationOperation {
     diagnostics: string[],
     topologyGaps: IAutoMovieRecoveryMeshSections["topologyGaps"],
   ) => {
-    /** Original critical vertex ordinals for which no admitted physical bracket was found. */
+    /**
+     * Original critical vertex ordinals for which no admitted physical bracket
+     * was found.
+     */
     unsupportedVertices: Set<number>;
 
     /** Critical events with admitted lower and upper physical scalar stations. */
     bracketed: {
-      /** Observed source critical vertex with its original scalar and link classifications. */
+      /**
+       * Observed source critical vertex with its original scalar and link
+       * classifications.
+       */
       event: ReturnType<IAutoMovieMeshCriticalPoints.Operation>[number];
 
       /** Lower admitted bracketing scalar coordinate, in millimetres. */

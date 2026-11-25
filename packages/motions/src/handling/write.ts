@@ -1,4 +1,4 @@
-import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -24,6 +24,7 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
@@ -33,9 +34,13 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { heldDigits } from "./heldDigits";
+import { writeAdmission } from "./writeAdmission";
 import { writeWith } from "./writeWith";
 
-/** A world vertex of the path and its distance along that path from the first vertex, metres. */
+/**
+ * A world vertex of the path and its distance along that path from the first
+ * vertex, metres.
+ */
 interface IVertex {
   /** Point of the path in the world. */
   point: IAutoMovieVector3;
@@ -47,27 +52,19 @@ interface IVertex {
 /**
  * Move the working point of a held tool along an authored planar stroke.
  *
- * Register the law and perform `registered("write", params)` after taking
- * the tool in the orientation used to write. The surface belongs to a fixed
- * rigid prop. A prop that supplies a frame reader declares its rigidity with
- * `hasArticulations: false`. The arm approaches and leaves the
- * stroke with the entry wrist attitude as its goal. The target gives each
- * edge time proportional to its length and zero speed at each vertex, using
- * Flash and Hogan's planar minimum-jerk law (1985,
+ * Register the law and perform `registered("write", params)` after taking the
+ * tool in the orientation used to write. The surface belongs to a fixed rigid
+ * prop. A prop that supplies a frame reader declares its rigidity with
+ * `hasArticulations: false`. The arm approaches and leaves the stroke with the
+ * entry wrist attitude as its goal, turned about the line from the wrist to the
+ * tip (which keeps the tip on the stroke) to the turn nearest it that the
+ * forearm and the wrist meet on an arc of swivels at the stroke's first point
+ * (`AutoMovieMotionHumanArmReach.attitude`). The target gives each edge time
+ * proportional to its length and zero speed at each vertex, using Flash and
+ * Hogan's planar minimum-jerk law (1985,
  * doi:10.1523/JNEUROSCI.05-07-01688.1985). The arm plans against that target.
- * This stages the motion of the working point. Mark making and pressure
- * depend on the scene's medium.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States registration, both fixed frames, the stroke phases, edge timing, corner rule and scope.
- * @evidence contracts/development/design.md#principled-representation A law over a held tool, a fixed planar frame and an authored time-parametrized polyline. The wrist positions follow from the held tip's measured offset.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One registerable law using the canonical write parameters and existing hold, clock and trajectory APIs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No specific tool, glyph, in-hand regrasp or paper geometry is required. The author supplies the stroke.
- * @evidence contracts/development/implementation.md#principled-implementation The rigid transform fixes the tip relative to the wrist. Each target is on the surface plane, along a minimum-jerk leg of the authored stroke.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the input, place the surface and tool frames, then compose one planned arm over the entered base.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tip and surface come from the props' affordances. The contact radius is the radius the tip declares, a point when it declares none.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation in the stroke's vertices. The shared arm planner reads target sites by binary edge lookup and solves one trajectory.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The posture reads the planned arm trajectory through the carried-arm primitive. The world surface path is formed once for that plan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the path and trajectory samples. It starts no process and acquires no external handle.
+ * This stages the motion of the working point. Mark making and pressure depend
+ * on the scene's medium.
  */
 export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> =
   {
@@ -78,22 +75,15 @@ export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> =
     plan: planWrite,
   };
 
-/** Plan once against the surface and the existing grip, then sample the arm trajectory. */
+/**
+ * Plan once against the surface and the existing grip, then sample the arm
+ * trajectory.
+ */
 function planWrite(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWrite>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanWrite = context.params;
-  if (
-    !Array.isArray(p.stroke) ||
-    p.stroke.length < 2 ||
-    p.stroke.some(
-      (vertex: readonly [number, number]): boolean =>
-        !Array.isArray(vertex) ||
-        vertex.length !== 2 ||
-        !Number.isFinite(vertex[0]) ||
-        !Number.isFinite(vertex[1]),
-    )
-  )
+  if (p.stroke.length < 2)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "stroke",
@@ -101,7 +91,7 @@ function planWrite(
       reason: "a writing stroke needs at least two finite planar vertices",
       fix: "give [X, Z] vertices in metres on the surface",
     });
-  if (!(Number.isFinite(p.duration) && p.duration > 0))
+  if (!(p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",
@@ -111,26 +101,16 @@ function planWrite(
     });
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.tool ? "left" : "right");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.tool,
   );
   const tool: IAutoMovieMotionHumanPropReader = context.prop(p.tool);
   const support: IAutoMovieMotionHumanPropReader = context.prop(p.on);
-  if (
-    p.on === p.tool ||
-    tool.prop.fixed === true ||
-    tool.prop.motion !== undefined ||
-    !writeWith.stationary(context, p.on, side)
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "on",
-      value: p.on,
-      reason: "writing needs a carried tool and a separate stationary surface",
-      fix: "give a fixed support without articulation and a grip-driven tool",
-    });
+  writeAdmission.surface(p.tool, p.on, tool.prop, () =>
+    writeWith.stationary(context, p.on, side),
+  );
   const surface: IAutoMovieAffordance | undefined =
     support.prop.affordances?.find(
       (affordance: IAutoMovieAffordance): boolean =>
@@ -185,10 +165,7 @@ function planWrite(
         ? 0
         : previous.length +
           Vector3.length(Vector3.subtract(point, previous.point));
-    if (
-      !Number.isFinite(length) ||
-      (previous !== undefined && !(length > previous.length))
-    )
+    if (previous !== undefined && !(length > previous.length))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "stroke",
@@ -219,18 +196,7 @@ function planWrite(
   const site: IAutoMovieAffordance = held.affordances.find(
     (affordance: IAutoMovieAffordance): boolean => affordance.id === p.tip,
   )!;
-  if (
-    tool.prop.point !== undefined ||
-    (tool.prop.articulate !== undefined &&
-      (site.rides !== undefined || AffordanceArticulation.KINDS.has(site.kind)))
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "tip",
-      value: p.tip,
-      reason: "writing needs a working point fixed to the held tool frame",
-      fix: "use a fixed working point on the tool",
-    });
+  writeAdmission.tip(tool.prop, site);
   const entered: IAutoMovieVector3 = Vector3.add(
     toolFrame.position,
     Quaternion.rotateVector(toolFrame.rotation, site.frame.translation),
@@ -280,10 +246,28 @@ function planWrite(
           },
           vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
         );
-  const holding: IAutoMovieQuaternion =
+  const asked: IAutoMovieQuaternion =
     turns === undefined
       ? rotation
       : Quaternion.normalize(Quaternion.multiply(turns.stroke, rotation));
+  // A turn of the hand about the line from the wrist to the tip keeps the tip
+  // where the stroke puts it, so that turn is the hand's to choose: the one
+  // nearest the asked attitude that the forearm's twist and the wrist meet on
+  // an arc of swivels at the stroke's first point is taken at plan time
+  // (`AutoMovieMotionHumanArmReach.attitude`; Tolani, Goswami and Badler 2000,
+  // section 3.2.4), not the pick-up's attitude carried into a stroke its arm
+  // meets only at an arc's edge.
+  const reach: IAutoMovieVector3 = Quaternion.rotateVector(asked, contact);
+  const holding: IAutoMovieQuaternion = AutoMovieMotionHumanArmReach.attitude({
+    body: context.body,
+    posture: context.entry.posture,
+    side,
+    bend,
+    requested: asked,
+    axis: reach,
+    wrist: (): IAutoMovieVector3 => Vector3.subtract(first.point, reach),
+    name: "tool",
+  }).rotation;
   const lever: IAutoMovieVector3 = Quaternion.rotateVector(holding, contact);
   writeWith.reach(
     context,

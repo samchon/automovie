@@ -1,6 +1,4 @@
-/**
- * Explicit intended collision primitive retained in external-model provenance.
- */
+/** Explicit intended collision primitive retained in external-model provenance. */
 export type IAutoMovieGeneratedCollisionProxy =
   | {
       /** Capsule used by deterministic collision and mass queries. */

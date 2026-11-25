@@ -15,39 +15,51 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 
+/** The alternatives of `RootPosture`'s site. */
+type RootPosture = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `GridPosture`'s site. */
+type GridPosture = "root" | "yaw" | "pitch" | "roll";
+
 /**
- * An arm carried to a place of the air: the hand surface laid on a point
- * with a facing, the arm's reach, hold and return planned as one
- * trajectory over the span the law states (`AutoMovieMotionHumanArm.carried`)
- * and the fingers shaped by the weight; without a span, the deprecated
- * joint-space carry by the weight. The exercise, stretching, dance and
- * sport laws place their arms this way, at named grid places of the body
+ * An arm carried to a place of the air: the hand surface laid on a point with a
+ * facing, the arm's reach, hold and return planned as one trajectory over the
+ * span the law states (`AutoMovieMotionHumanArm.carried`) and the fingers
+ * shaped by the weight; without a span, the deprecated joint-space carry by the
+ * weight. The exercise, stretching, dance and sport laws place their arms this
+ * way, at named grid places of the body
  * (`AutoMovieMotionHumanTargetGrid.place`) moved by their own curves.
  */
 export namespace AutoMovieMotionHumanPlaced {
   /**
-   * The arm and the fingers laid at a place.
-   * The canonical body and configured surface/shape/bend remain unchanged
-   * for the primitive's lifetime; the actual place, facing, forward and
-   * current posture are read independently at every requested second.
+   * The arm and the fingers laid at a place. The canonical body and configured
+   * surface/shape/bend remain unchanged for the primitive's lifetime; the
+   * actual place, facing, forward and current posture are read independently at
+   * every requested second.
    *
    * @param props The arm.
    * @returns The arm's and the hand's primitives.
    */
-  export function arm(props: IAutoMovieMotionHumanPlaced.IArm): IAutoMovieMotionHumanPrimitive[] {
+  export function arm(
+    props: IAutoMovieMotionHumanPlaced.IArm,
+  ): IAutoMovieMotionHumanPrimitive[] {
     const surface: IAutoMovieMotionHumanHand.Surface = props.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = props.shape ?? "flat";
-    const target: ReturnType<typeof HumanHandTarget.prepareGoal> = HumanHandTarget.prepareGoal(
-      props.body, props.side, { surface, shape, ...(props.bend === undefined ? {} : { bend: props.bend }) },
-    );
+    const target: ReturnType<typeof HumanHandTarget.prepareGoal> =
+      HumanHandTarget.prepareGoal(props.body, props.side, {
+        surface,
+        shape,
+        ...(props.bend === undefined ? {} : { bend: props.bend }),
+      });
     return [
       AutoMovieMotionHumanArm.carried({
         body: props.body,
@@ -64,8 +76,13 @@ export namespace AutoMovieMotionHumanPlaced {
           resolution?: IFK,
           projection?: IROM,
         ): IAutoMovieHumanLimbGoal => {
-          const at: ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> = props.place(posture, seconds, resolution, projection);
-          return target(posture, { point: at.point, normal: Vector3.scale(at.facing, -1) }, at.forward);
+          const at: ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> =
+            props.place(posture, seconds, resolution, projection);
+          return target(
+            posture,
+            { point: at.point, normal: Vector3.scale(at.facing, -1) },
+            at.forward,
+          );
         },
       }),
       AutoMovieMotionHumanHand.shape({
@@ -79,9 +96,9 @@ export namespace AutoMovieMotionHumanPlaced {
   }
 
   /**
-   * A named grid place of the air around a posture, world metres: the
-   * heights are the standing body's above the floor, and the distance and
-   * the lateral are read from the floor point the pelvis stands over.
+   * A named grid place of the air around a posture, world metres: the heights
+   * are the standing body's above the floor, and the distance and the lateral
+   * are read from the floor point the pelvis stands over.
    *
    * @param body The body.
    * @param posture The posture the place is read around, as written so far.
@@ -92,7 +109,7 @@ export namespace AutoMovieMotionHumanPlaced {
    */
   export function grid(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll">,
+    posture: Pick<IAutoMovieMotionHumanPosture, GridPosture>,
     side: AutoMovieHumanSide,
     grid: IAutoMovieMotionHumanTargetGrid.IGrid,
     nudge?: IAutoMovieMotionHumanTargetGrid.INudge,
@@ -100,10 +117,10 @@ export namespace AutoMovieMotionHumanPlaced {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const hips: IAutoMovieVector3 = Vector3.add(
       posture.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), rest),
+      Quaternion.rotateVector(humanPostureHeading(posture), rest),
     );
     const standing: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
+      humanPostureHeading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
       rest,
     );
     return AutoMovieMotionHumanTarget.fallback(
@@ -122,8 +139,10 @@ export namespace AutoMovieMotionHumanPlaced {
    *
    * @param body The body.
    * @param posture The posture, as written so far.
-   * @param bone A bone of the trunk, the head or a shoulder girdle, or an upper arm, whose joint the girdle carries.
-   * @param resolution Optional same-person FK source borrowed for this raw observation only.
+   * @param bone A bone of the trunk, the head or a shoulder girdle, or an upper
+   *   arm, whose joint the girdle carries.
+   * @param resolution Optional same-person FK source borrowed for this raw
+   *   observation only.
    * @returns The joint's point.
    */
   export function joint(
@@ -132,21 +151,27 @@ export namespace AutoMovieMotionHumanPlaced {
     bone: AutoMovieHumanoidBone,
     resolution?: IFK,
   ): IAutoMovieVector3 {
-    return HumanTrunk.resolve(body, posture, undefined, resolution,
-      new Set<AutoMovieHumanoidBone>([bone])).get(bone)!.worldPosition;
+    return HumanTrunk.resolve(
+      body,
+      posture,
+      undefined,
+      resolution,
+      new Set<AutoMovieHumanoidBone>([bone]),
+    ).get(bone)!.worldPosition;
   }
 
   /**
-   * A point carried with the chest from one posture to another: where a
-   * point that stood at `point` beside the chest of `standing` lies once the
-   * chest has moved to where `posture` holds it. Arms held overhead through
-   * a side bend ride the chest this way.
+   * A point carried with the chest from one posture to another: where a point
+   * that stood at `point` beside the chest of `standing` lies once the chest
+   * has moved to where `posture` holds it. Arms held overhead through a side
+   * bend ride the chest this way.
    *
    * @param body The body.
    * @param standing The posture the point was stated on.
    * @param posture The posture, as written so far.
    * @param point The point on `standing`, world metres.
-   * @param resolution Optional same-person FK loan borrowed only by the current chest observation; the source standing read remains cold.
+   * @param resolution Optional same-person FK loan borrowed only by the current
+   *   chest observation; the source standing read remains cold.
    * @returns The point on `posture`, world metres.
    */
   export function carried(
@@ -164,23 +189,48 @@ export namespace AutoMovieMotionHumanPlaced {
    *
    * @param body The unchanged body whose trunk carries the points.
    * @param standing The unchanged posture where each source point was authored.
-   * @returns A current-posture reader; each call reads its chest once and returns a point transform from the original world frame to the current world frame.
+   * @returns A current-posture reader; each call reads its chest once and
+   *   returns a point transform from the original world frame to the current
+   *   world frame.
    */
   export function carryFrom(
     body: IAutoMovieMotionHumanBody,
     standing: IAutoMovieMotionHumanPosture,
-  ): (posture: IAutoMovieMotionHumanPosture, resolution?: IFK) => (point: IAutoMovieVector3) => IAutoMovieVector3 {
-    const from: IAutoMovieResolvedBone =
-      HumanTrunk.resolve(body, standing, undefined, undefined, CHEST).get("chest")!;
-    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(from.worldRotation);
-    return (posture: IAutoMovieMotionHumanPosture, resolution?: IFK): (point: IAutoMovieVector3) => IAutoMovieVector3 => {
-      const to: IAutoMovieResolvedBone =
-        HumanTrunk.resolve(body, posture, undefined, resolution, CHEST).get("chest")!;
-      const rotation: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(to.worldRotation, inverse);
-      return (point: IAutoMovieVector3): IAutoMovieVector3 => Vector3.add(
-        to.worldPosition,
-        Quaternion.rotateVector(rotation, Vector3.subtract(point, from.worldPosition)),
-      );
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: IFK,
+  ) => (point: IAutoMovieVector3) => IAutoMovieVector3 {
+    const from: IAutoMovieResolvedBone = HumanTrunk.resolve(
+      body,
+      standing,
+      undefined,
+      undefined,
+      HumanBoneGroups.CHEST,
+    ).get("chest")!;
+    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(
+      from.worldRotation,
+    );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: IFK,
+    ): ((point: IAutoMovieVector3) => IAutoMovieVector3) => {
+      const to: IAutoMovieResolvedBone = HumanTrunk.resolve(
+        body,
+        posture,
+        undefined,
+        resolution,
+        HumanBoneGroups.CHEST,
+      ).get("chest")!;
+      const rotation: ReturnType<typeof Quaternion.multiply> =
+        Quaternion.multiply(to.worldRotation, inverse);
+      return (point: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(
+          to.worldPosition,
+          Quaternion.rotateVector(
+            rotation,
+            Vector3.subtract(point, from.worldPosition),
+          ),
+        );
     };
   }
 
@@ -189,7 +239,8 @@ export namespace AutoMovieMotionHumanPlaced {
    *
    * @param body The body.
    * @param posture The posture, as written so far.
-   * @param resolution Optional current-person FK source borrowed for this raw authored-trunk observation.
+   * @param resolution Optional current-person FK source borrowed for this raw
+   *   authored-trunk observation.
    * @returns The point.
    */
   export function shoulders(
@@ -197,8 +248,13 @@ export namespace AutoMovieMotionHumanPlaced {
     posture: IAutoMovieMotionHumanPosture,
     resolution?: IFK,
   ): IAutoMovieVector3 {
-    const bones: ReturnType<typeof HumanTrunk.resolve> =
-      HumanTrunk.resolve(body, posture, undefined, resolution, SHOULDERS);
+    const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+      body,
+      posture,
+      undefined,
+      resolution,
+      HumanBoneGroups.SHOULDERS,
+    );
     return Vector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
@@ -211,7 +267,8 @@ export namespace AutoMovieMotionHumanPlaced {
    *
    * @param body The body.
    * @param side The hand.
-   * @param place The point, the direction the surface faces and where the fingers point.
+   * @param place The point, the direction the surface faces and where the
+   *   fingers point.
    * @param surface The hand surface; the palm when absent.
    * @param shape The hand's shape; flat when absent.
    * @returns The wrist's point, world metres.
@@ -241,28 +298,32 @@ export namespace AutoMovieMotionHumanPlaced {
    * posture's turn.
    *
    * @param posture The heading, the pitch and the roll.
-   * @param rest The point in the resting body's frame, as `IHumanBody.rest` gives a joint.
+   * @param rest The point in the resting body's frame, as `IHumanBody.rest`
+   *   gives a joint.
    * @param point Where it must stand, world metres.
    * @returns The root.
    */
   export function root(
-    posture: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
+    posture: Pick<IAutoMovieMotionHumanPosture, RootPosture>,
     rest: IAutoMovieVector3,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return Vector3.subtract(
       point,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), rest),
+      Quaternion.rotateVector(humanPostureHeading(posture), rest),
     );
   }
 
   /**
-   * The resting midpoint of the two shoulder joints, in the resting body's frame.
+   * The resting midpoint of the two shoulder joints, in the resting body's
+   * frame.
    *
    * @param body The body.
    * @returns The point `root` takes as a pivot.
    */
-  export function girdle(body: Pick<IAutoMovieMotionHumanBody, "rest">): IAutoMovieVector3 {
+  export function girdle(
+    body: Pick<IAutoMovieMotionHumanBody, "rest">,
+  ): IAutoMovieVector3 {
     return Vector3.lerp(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
@@ -271,14 +332,20 @@ export namespace AutoMovieMotionHumanPlaced {
   }
 
   /**
-   * The trunk's forward pitch at which the shoulders stand a given height
-   * above the hips.
+   * The trunk's forward pitch at which the shoulders stand a given height above
+   * the hips.
    *
    * @param body The body.
-   * @param rise The shoulders' height above the hips, metres; negative when the hips stand higher.
-   * @returns Degrees: 0 near the standing trunk, 90 near the level one, more with the hips above the shoulders. A rise past the trunk's length gives the pitch of the nearest end.
+   * @param rise The shoulders' height above the hips, metres; negative when the
+   *   hips stand higher.
+   * @returns Degrees: 0 near the standing trunk, 90 near the level one, more
+   *   with the hips above the shoulders. A rise past the trunk's length gives
+   *   the pitch of the nearest end.
    */
-  export function pitch(body: Pick<IAutoMovieMotionHumanBody, "rest">, rise: number): number {
+  export function pitch(
+    body: Pick<IAutoMovieMotionHumanBody, "rest">,
+    rise: number,
+  ): number {
     const d: IAutoMovieVector3 = Vector3.subtract(
       girdle(body),
       body.rest.get("hips")!,
@@ -293,14 +360,11 @@ export namespace AutoMovieMotionHumanPlaced {
   }
 }
 
-/** Frame demanded by a point carried with the chest. */
-const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);
-
-/** Joints whose midpoint places a two-hand target. */
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
-
 /** Genuine current-person exact FK source borrowed only by actual observations. */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/** Genuine current-person ROM metadata forwarded without changing raw authored-trunk policy. */
+/**
+ * Genuine current-person ROM metadata forwarded without changing raw
+ * authored-trunk policy.
+ */
 type IROM = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];

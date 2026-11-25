@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanSurface.ts#IAutoMovieMotionHumanSurface
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the activities and who owns each support's motion.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separates performer travel parameters from an existing rigid prop reference.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameter records of HumanSurface.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses seconds, metres per second and degrees without input defaults that depend on a render frame rate.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanSurface.ts#IAutoMovieMotionHumanSurface.IGlideSample
 
 ## @evidence contracts/development/common.md#meaningful-documentation

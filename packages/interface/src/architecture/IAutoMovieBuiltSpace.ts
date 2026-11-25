@@ -15,8 +15,8 @@ export interface IAutoMovieBuiltSpace {
   id: string;
 
   /**
-   * Non-blank open label such as `building`, `storey`, `room`, `attic`,
-   * `void`, `roof-deck`, `facade-access`, or `bridge-deck`.
+   * Non-blank open label such as `building`, `storey`, `room`, `attic`, `void`,
+   * `roof-deck`, `facade-access`, or `bridge-deck`.
    */
   kind: string;
 
@@ -27,22 +27,29 @@ export interface IAutoMovieBuiltSpace {
   parent: string | null;
 
   /**
-   * World-space convex cells whose union locates the region. An empty list with no shell is a semantic container; a non-convex region may be split into cells. Individually convex cells do not imply their combined union is convex.
+   * World-space convex cells whose union locates the region. An empty list with
+   * no shell is a semantic container; a non-convex region may be split into
+   * cells. Individually convex cells do not imply their combined union is
+   * convex.
    *
-   * A finite convex decomposition can represent a bounded polyhedral region in exact geometry, including concavity and voids. The stored plane values and binary64 query tolerances delimit the actual answer; downstream cell-volume totals can also count overlaps more than once. Curved boundaries require a faceted declaration, while a shell can state a void without a manual cell decomposition.
+   * A finite convex decomposition can represent a bounded polyhedral region in
+   * exact geometry, including concavity and voids. The stored plane values and
+   * binary64 query tolerances delimit the actual answer; downstream cell-volume
+   * totals can also count overlaps more than once. Curved boundaries require a
+   * faceted declaration, while a shell can state a void without a manual cell
+   * decomposition.
    */
   cells: IAutoMovieConvexSpaceCell[];
 
   /**
-   * The region as its own closed triangle boundary, when half-space cells
-   * would state it awkwardly.
+   * The region as its own closed triangle boundary, when half-space cells would
+   * state it awkwardly.
    *
-   * A storey pierced by an atrium is one shell rather than a hand
-   * decomposition into cells, which IFC likewise allows through a faceted
-   * B-rep with voids. A shell is authoritative for containment wherever it is
-   * stated, it is mutually exclusive with {@link cells}, and it is flat-faced:
-   * a dome authored here is the facets it is written as, which
-   * {@link fidelity} declares.
+   * A storey pierced by an atrium is one shell rather than a hand decomposition
+   * into cells, which IFC likewise allows through a faceted B-rep with voids. A
+   * shell is authoritative for containment wherever it is stated, it is
+   * mutually exclusive with {@link cells}, and it is flat-faced: a dome authored
+   * here is the facets it is written as, which {@link fidelity} declares.
    */
   shell?: IAutoMovieSpaceShell;
 

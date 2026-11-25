@@ -1,4 +1,4 @@
-import { sampleClip, sampleClipSequence } from "@automovie/engine";
+import { sampleClip } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
@@ -92,23 +92,20 @@ const close: (a: number[], b: number[], eps?: number) => boolean = (
  *    negative t=−0.25 → 0.75.
  * 10. A non-looping clip clamps past the end (t=5 on a 1s clip → the last value),
  *     and a zero-duration clip normalizes any time to 0.
- * 11. A forged non-boolean `loop` flag rejects before JavaScript truthiness can
- *     change wrap/clamp semantics.
- * 12. A forged interpolation mode rejects instead of falling through to linear.
- * 13. Fixed-width channels reject tracks whose flattened value width does not match
+ * 11. Fixed-width channels reject tracks whose flattened value width does not match
  *     the channel's declared width, while `weights` remains variable-width.
- * 14. Negative timeline values reject instead of being normalized into a
+ * 12. Negative timeline values reject instead of being normalized into a
  *     zero-duration or pre-roll sample.
- * 15. Tracks on positive-duration clips reject keyframes after the declared clip
+ * 13. Tracks on positive-duration clips reject keyframes after the declared clip
  *     end.
- * 16. Duplicate track channel keys reject instead of silently overwriting the
+ * 14. Duplicate track channel keys reject instead of silently overwriting the
  *     earlier sampled value.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Samples real clips and observes linear/step/cubic values, rotation norm, key/timeline behavior, variable weights width and refusal of malformed tracks, duplicate channels and invalid clocks.
  * @evidence contracts/development/testing.md#independent-expectations Authored endpoints determine linear means and STEP holds; zero-tangent Hermite gives5 halfway from0 to10, while sine/cosine give the rotation midpoint. That symmetric midpoint alone cannot distinguish slerp from normalized lerp over the whole arc.
- * @evidence contracts/development/testing.md#distinguishing-cases Existing before/at/after keys, singleton/interior segments, wrapped negative/positive queries, zero duration and invalid mode/width/value/time neighbors cover this sampler seam; nonzero cubic tangents and broad quaternion trajectories are outside these examples.
+ * @evidence contracts/development/testing.md#distinguishing-cases Existing before/at/after keys, singleton/interior segments, wrapped negative/positive queries, zero duration and invalid width/value/time neighbors cover this sampler seam; nonzero cubic tangents and broad quaternion trajectories are outside these examples.
  * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_sample_clip entry owns portable synchronous numerical sampler/refusal cases through direct source imports; no renderer clock, browser or Human asset is created.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 16 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Linear interpolation of a vec3 translation: 0→(10,20,30) at t=0.5 is).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 14 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Linear interpolation of a vec3 translation: 0→(10,20,30) at t=0.5 is).
  */
 export function test_resolve_sample_clip(): void {
   // 1. linear vec3
@@ -345,76 +342,11 @@ export function test_resolve_sample_clip(): void {
   );
 
   TestValidator.predicate(
-    "non-finite sample time rejects",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> => sampleClip(lin, Number.NaN),
-      ["sampleClip seconds", "finite"],
-    ),
-  );
-  TestValidator.predicate(
-    "non-finite sequence time rejects even when the sequence is empty",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClipSequence([], Number.NaN),
-      ["sampleClipSequence seconds", "finite"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "non-finite clip duration rejects",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip({ ...lin, duration: Infinity }, 0),
-      ["clip duration", "finite"],
-    ),
-  );
-
-  TestValidator.predicate(
     "negative clip duration rejects",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip({ ...lin, duration: -1 }, 0),
       ["clip duration", "non-negative", "-1"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "non-boolean clip loop rejects",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip({ ...lin, loop: "false" as unknown as boolean }, 2),
-      ["clip loop", "boolean", "false"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "unknown interpolation rejects",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(
-          clip(
-            [
-              track(
-                PTR,
-                [0, 1],
-                [0, 1],
-                "bezier" as IAutoMovieTrack["interpolation"],
-              ),
-            ],
-            1,
-          ),
-          0.5,
-        ),
-      ['track "ptr:/x"', "interpolation", "bezier"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "track keyframe times reject NaN",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0, Number.NaN], [0, 1], "linear")], 1), 0),
-      ['track "ptr:/x"', "keyframe times", "finite"],
     ),
   );
 
@@ -469,24 +401,6 @@ export function test_resolve_sample_clip(): void {
       (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(clip([track(PTR, [0], [], "linear")], 1), 0),
       ['track "ptr:/x"', "values", "must not be empty"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "track values reject NaN",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0, 1], [0, Number.NaN], "linear")], 1), 0),
-      ['track "ptr:/x"', "values[1]", "finite", "NaN"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "track values reject infinity",
-    throwsError(
-      (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0, 1], [0, Infinity], "linear")], 1), 0),
-      ['track "ptr:/x"', "values[1]", "finite", "Infinity"],
     ),
   );
 

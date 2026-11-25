@@ -6,13 +6,9 @@ import type {
 
 import { AutoMovieRecoveryConicApproximation as Conic } from "./AutoMovieRecoveryConicApproximation";
 
-/**
- * Planar coefficient-reduction experiment, independent of source meshes.
- */
+/** Planar coefficient-reduction experiment, independent of source meshes. */
 export namespace AutoMovieRecoveryCompactApproximation {
-  /**
-   * Evaluate only saved coefficients at the piece's own normalized parameter.
-   */
+  /** Evaluate only saved coefficients at the piece's own normalized parameter. */
   export function evaluate(
     piece: IAutoMovieRegisteredPlanarCurvePiece,
     u: number,

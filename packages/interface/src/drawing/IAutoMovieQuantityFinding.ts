@@ -6,7 +6,10 @@ import type { IAutoMovieQuantityContributor } from "./IAutoMovieQuantityContribu
 /**
  * Everything the design says about one measured subject.
  *
- * The total covers all owners that contributed to the numeric tally, including owners omitted from the bounded named prefix. The contributor bound limits returned owner records, not gap text, prior measurement work or missing geometry; gaps can identify records that never contributed a value.
+ * The total covers all owners that contributed to the numeric tally, including
+ * owners omitted from the bounded named prefix. The contributor bound limits
+ * returned owner records, not gap text, prior measurement work or missing
+ * geometry; gaps can identify records that never contributed a value.
  *
  * The basis is decided per subject: `space-volume` is always `approximate`,
  * because a volume stated as overlapping cells is summed rather than unioned,

@@ -1,9 +1,12 @@
 import type { IAutoMoviePlaybackEntry } from "@automovie/interface";
 
 /**
- * Locate the last prepared playback entry starting at or before the output second, or strictly before with `includeStart` false.
+ * Locate the last prepared playback entry starting at or before the output
+ * second, or strictly before with `includeStart` false.
  *
- * A nonempty admitted layout has nondecreasing starts. Equal starts select the latest entry, as the forward playback cursor does. Before the first start, returns the first entry.
+ * A nonempty admitted layout has nondecreasing starts. Equal starts select the
+ * latest entry, as the forward playback cursor does. Before the first start,
+ * returns the first entry.
  */
 export function playbackEntryAt(
   entries: readonly IAutoMoviePlaybackEntry[],

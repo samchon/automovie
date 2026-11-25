@@ -12,19 +12,19 @@ import { mixSeed } from "./math/mixSeed";
  *
  * Spawn identity depends only on compiled bytes and particle index. Call
  * scheduling, wall time, worker count and GPU randomness cannot change it.
- * Inputs must be admitted compiled recipes and finite sampling coordinates.
- * The requested time owns membership in the cue's half-open interval. Within
- * the cue, the state uses the absolute fixed step with a 1e-9 quotient
- * allowance, or the first cue instant if the absolute step precedes it. A
- * rounded step that reaches the cue's exclusive end uses the requested time.
- * Far LOD retains indexes divisible by four and the output caps live particles.
+ * Inputs must be admitted compiled recipes and finite sampling coordinates. The
+ * requested time owns membership in the cue's half-open interval. Within the
+ * cue, the state uses the absolute fixed step with a 1e-9 quotient allowance,
+ * or the first cue instant if the absolute step precedes it. A rounded step
+ * that reaches the cue's exclusive end uses the requested time. Far LOD retains
+ * indexes divisible by four and the output caps live particles.
  *
  * For a localized plume, a wide outline develops as surrounding air mixes into
  * the flow. Crapper (1977), Forced plume characteristics, describes linear
  * growth of mean plume radius with distance from the source
  * (https://doi.org/10.3402/tellusa.v29i5.11380). At constant rise speed, age is
- * proportional to travel distance. The optional linear billboard growth
- * depicts that widening without calculating air or droplet motion.
+ * proportional to travel distance. The optional linear billboard growth depicts
+ * that widening without calculating air or droplet motion.
  */
 export const sampleCompiledEffect: (
   effect: IAutoMovieCompiledEffect,

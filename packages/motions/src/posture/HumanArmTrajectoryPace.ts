@@ -11,20 +11,20 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
 /**
- * The timing readings of an arm trajectory's solve (`HumanArmTrajectory`):
- * the frame grid a span is read on where no course gives its own, a laid
- * course's arms as coordinates on a context's waypoints, and the factor a
- * trajectory's span must grow by to keep every speed-bounded probe within
- * the law's own pace (`M.IContext.speed`).
+ * The timing readings of an arm trajectory's solve (`HumanArmTrajectory`): the
+ * frame grid a span is read on where no course gives its own, a laid course's
+ * arms as coordinates on a context's waypoints, and the factor a trajectory's
+ * span must grow by to keep every speed-bounded probe within the law's own pace
+ * (`M.IContext.speed`).
  */
 export namespace HumanArmTrajectoryPace {
   /** The frame grid's step, seconds, where no course gives its own grid. */
   export const STEP: number = 1 / 30;
 
   /**
-   * Close a retimed span on the next admission-frame duration. The new
-   * phase grid can land nearer the path's true peak than the old grid did.
-   * Give it one frame of time to resample without changing the speed limit.
+   * Close a retimed span on the next admission-frame duration. The new phase
+   * grid can land nearer the path's true peak than the old grid did. Give it
+   * one frame of time to resample without changing the speed limit.
    *
    * @param required The span demanded by the falling step ratio, seconds.
    * @returns The next strictly greater frame duration, seconds.
@@ -34,13 +34,14 @@ export namespace HumanArmTrajectoryPace {
   }
 
   /**
-   * The factor a trajectory's span must grow by for every speed-bounded
-   * probe to move within the law's own pace: the largest ratio, over each
-   * interval and probe, of the probe's speed to the pace there.
+   * The factor a trajectory's span must grow by for every speed-bounded probe
+   * to move within the law's own pace: the largest ratio, over each interval
+   * and probe, of the probe's speed to the pace there.
    *
    * @param c The context the coordinates are read on.
    * @param x Each arm's coordinates at each waypoint.
-   * @param placed The matching previous frame-grid evaluation, when already available.
+   * @param placed The matching previous frame-grid evaluation, when already
+   *   available.
    * @returns The factor, at least 1.
    */
   export function slower(
@@ -51,7 +52,8 @@ export namespace HumanArmTrajectoryPace {
     let most: number = 1;
     x.forEach((arm: readonly (readonly number[])[], a: number): void => {
       const place = (k: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-        placed?.[a]?.[k] ?? G.placed(c.setups[a]!, c.frames[a]![k]!, arm[k]!, false);
+        placed?.[a]?.[k] ??
+        G.placed(c.setups[a]!, c.frames[a]![k]!, arm[k]!, false);
       if (c.n < 2) return;
       let now: IAutoMovieMotionHumanArmGeometry.IPlaced = place(0);
       for (let k: number = 0; k + 1 < c.n; ++k) {
@@ -68,10 +70,8 @@ export namespace HumanArmTrajectoryPace {
             now.probes[p]![0],
             next.probes[p]![0],
           );
-          most = Math.max(
-            most,
-            Vector3.length(d) / limit,
-          );
+          const travel: number = Vector3.length(d);
+          if (travel > 0) most = Math.max(most, travel / limit);
         }
         now = next;
       }

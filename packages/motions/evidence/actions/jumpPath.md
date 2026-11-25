@@ -1,21 +1,3 @@
-# src/actions/jumpPath.ts#jumpPath
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three paths and who draws on them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Pure functions of their ends, shared by the jump's push-off, flight and landing.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three functions, each read by the jump.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The Hermite rule is the engine's.
-
 # src/actions/jumpPath.ts#jumpPath.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanBaseball.ts#IAutoMovieMotionHumanBaseball
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hold: Seconds held; 1 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#principled-representation
-
-hold: Seconds held; 1 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.baseball, params); sport/baseball.ts (baseball.plan, context); sport/baseball.ts (baseball.plan); executable/cases/baseballCases.ts (baseballCases).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/sport/IAutoMovieMotionHumanBaseball.ts#IAutoMovieMotionHumanBaseball.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

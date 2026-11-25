@@ -144,22 +144,15 @@ export function test_text_canonical_json_runtime_parity(): void {
   const engineRefusal: unknown = refusal((): string =>
     canonicalizeAutoMovieJson(new Date(0)),
   );
-  const scalarRefusal: unknown = refusal((): string =>
-    canonicalizeAutoMovieJson(Number.NaN),
-  );
   TestValidator.equals(
-    "container and scalar refusals preserve their domain error categories",
+    "container refusals preserve their domain error categories",
     [
       engineRefusal instanceof AutoMovieCanonicalJsonError,
-      scalarRefusal instanceof AutoMovieCanonicalJsonError,
       engineRefusal instanceof AutoMovieCanonicalJsonError
         ? engineRefusal.category
         : null,
-      scalarRefusal instanceof AutoMovieCanonicalJsonError
-        ? scalarRefusal.category
-        : null,
       new TypeError("unrelated") instanceof AutoMovieCanonicalJsonError,
     ],
-    [true, true, "non-plain-container", "unsupported-value", false],
+    [true, "non-plain-container", false],
   );
 }

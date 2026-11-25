@@ -40,46 +40,62 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGrip } from "./HumanGrip";
 import { heldSupportGrip } from "./heldSupportGrip";
-import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
+
+/** The record of `IPlanHumanHeldSupportSelected`'s site. */
+type IPlanHumanHeldSupportSelected = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  reference: IAutoMovieHumanLimbReference;
+  miss: number;
+  station: number;
+  reserve: number;
+  digits: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The alternatives of `PlanHumanHeldSupportLimb`'s site. */
+type PlanHumanHeldSupportLimb = "leftArm" | "rightArm";
+
+/** The record of `IPlanHumanHeldSupportProps`'s site. */
+type IPlanHumanHeldSupportProps = {
+  context: IAutoMovieMotionHumanActionContext;
+  lead: IAutoMovieMotionHumanActionPlan;
+  span: IAutoMovieMotionHumanArmPlanned.ISpan;
+};
+
+/** The alternatives of `PlanHumanHeldSupportProps`'s site. */
+type PlanHumanHeldSupportProps = "context" | "key" | "goal" | "weight";
 
 /**
  * Plan the support grip while the primary arm holds a tool at its use.
  *
- * The lead arm is already solved and its displayed wrist carries the tool.
- * The support fits the authored handle on that real pose, closes the digits
- * on the tool and ranks the clear poses by their contact clearance. Its
- * selected grip rides the tool while the support approaches and returns
- * on its own span, with the lead arm included in the support's arm clearance.
+ * The lead arm is already solved and its displayed wrist carries the tool. The
+ * support fits the authored handle on that real pose, closes the digits on the
+ * tool and ranks the clear poses by their contact clearance. Its selected grip
+ * rides the tool while the support approaches and returns on its own span, with
+ * the lead arm included in the support's arm clearance.
  *
- * @param props The held tool, support handle, action clock, solved lead and the support interval.
- * @returns The support arm and fingers, with the actual contact window on the arm.
- * @throws {HumanRefusal} When the tool is not held, the handle is absent, or its support cannot be fitted or moved there within the physical bounds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the staged arm inputs, exact held frame, contact selection and returned write windows.
- * @evidence contracts/development/implementation.md#principled-implementation Fits each candidate about the declared handle on the actual lead posture. Finger closure, exact opposing hand material and the existing whole-arm audit admit each grasp. The least remaining material margin ranks admitted grasps, and the selected one stays relative to the camera through its staged support plan.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the lead, admit the grip, then prepare one support arm trajectory and its finger blend.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The actual lead is a clearance obstacle throughout. Its grip and prop ownership are kept, the grasp and colliders belong to the prop and body, and no body, prop kind or fixed film second enters the search.
- * @evidence contracts/development/implementation.md#efficient-algorithms One bounded turn-by-tilt set uses the existing posture and grip closure owners. Only candidates improving a valid reserve pay the full-body audit. One support trajectory is prepared from the actual lead.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the rigid held frame, rig's FK, physical grasp closure and arm planner. The final composer consumes the already prepared support and lead trajectories.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The candidate search holds one best pose. Only the selected relative grip, finger blend, contacts and ordinary arm plan survive into the primitive.
+ * @param props The held tool, support handle, action clock, solved lead and the
+ *   support interval.
+ * @returns The support arm and fingers, with the actual contact window on the
+ *   arm.
+ * @throws {HumanRefusal} When the tool is not held, the handle is absent, or
+ *   its support cannot be fitted or moved there within the physical bounds.
  */
 export function planHumanHeldSupport(
   props: Omit<
     IAutoMovieMotionHumanHeldUse.ISecondProps,
-    "context" | "key" | "goal" | "weight"
-  > & {
-    context: IAutoMovieMotionHumanActionContext;
-    lead: IAutoMovieMotionHumanActionPlan;
-    span: IAutoMovieMotionHumanArmPlanned.ISpan;
-  },
+    PlanHumanHeldSupportProps
+  > &
+    IPlanHumanHeldSupportProps,
 ): IAutoMovieMotionHumanPrimitive[] {
   const { context, clock, lead, span } = props;
   const body: IAutoMovieMotionHumanBody = context.body;
@@ -90,7 +106,7 @@ export function planHumanHeldSupport(
     body,
     requested,
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     props.side,
     props.prop,
@@ -172,7 +188,7 @@ export function planHumanHeldSupport(
     tilt: number,
   ): IAutoMovieMotionHumanHand.IWrist =>
     placed(HumanGrasp.around(used, turn), tilt);
-  const limb: "leftArm" | "rightArm" = `${other}Arm`;
+  const limb: PlanHumanHeldSupportLimb = `${other}Arm`;
   const supportBone: AutoMovieHumanoidBone = `${other}Hand`;
   const supportArm: ReadonlySet<string> = new Set([
     supportBone,
@@ -188,16 +204,7 @@ export function planHumanHeldSupport(
     hand: IAutoMovieMotionHumanHand.IWrist,
   ): IAutoMovieVector3 =>
     Vector3.add(hand.point, Quaternion.rotateVector(hand.rotation, palm.point));
-  let selected:
-    | {
-        wrist: IAutoMovieMotionHumanHand.IWrist;
-        reference: IAutoMovieHumanLimbReference;
-        miss: number;
-        station: number;
-        reserve: number;
-        digits: IAutoMovieMotionHumanPosture["joints"];
-      }
-    | undefined;
+  let selected: IPlanHumanHeldSupportSelected | undefined;
   for (const { grip, station, tilt, turns } of heldSupportGrip.stations(
     used,
     length,
@@ -308,7 +315,7 @@ export function planHumanHeldSupport(
         continue;
       selected = {
         wrist: reached,
-        reference: resolveHumanPosture.reference(pose, limb),
+        reference: HumanLimbFit.reference(pose, limb),
         miss,
         station,
         reserve,
@@ -348,15 +355,12 @@ export function planHumanHeldSupport(
     { origin: at.root, yaw: at.yaw },
     bend,
   );
-  const gesture: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-    clock.duration,
-    [
-      { name: "supportStart", seconds: span.start },
-      { name: "supportReady", seconds: span.ready },
-      { name: "supportRelax", seconds: span.relax },
-      { name: "supportEnd", seconds: span.end },
-    ],
-  );
+  const gesture: IAutoMovieMotionClock = AutoMovieMotionClock(clock.duration, [
+    { name: "supportStart", seconds: span.start },
+    { name: "supportReady", seconds: span.ready },
+    { name: "supportRelax", seconds: span.relax },
+    { name: "supportEnd", seconds: span.end },
+  ]);
   const weight = (seconds: number): number =>
     gesture.envelope(
       ["supportStart", "supportReady"],

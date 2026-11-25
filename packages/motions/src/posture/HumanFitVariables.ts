@@ -1,11 +1,27 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieMotionHumanJacobian,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanQuadraticProgram,
 } from "@automovie/interface";
+
+/** The record of `IWrittenHeading`'s site. */
+type IWrittenHeading = { yaw: number; pitch: number; roll: number };
+
+/** The record of `IWrittenRoot`'s site. */
+type IWrittenRoot = { x: number; y: number; z: number };
+
+/** The alternatives of `BODY2`'s site. */
+type BODY2 = 0 | 1 | 2;
+
+/** The alternatives of `ANGLESItemResult`'s site. */
+type ANGLESItemResult = 0 | 1 | 2;
+
+/** The alternatives of `ANGLESItem`'s site. */
+type ANGLESItem = 0 | 1 | 2;
 
 /**
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
@@ -15,12 +31,18 @@ import type {
  *
  * A place is solved in centimetres and an angle in degrees, so the convex
  * step's curvature is near the identity; a centimetre of the root's place
- * weighs as much as a degree of a joint, and a degree of its heading twice
- * as much.
+ * weighs as much as a degree of a joint, and a degree of its heading twice as
+ * much.
  */
 export namespace HumanFitVariables {
-  /** The joint angles of the whole body a fit moves: the trunk, the neck, the head and the four limbs, each a bone and its axis (flexion, abduction, twist). The trunk is the spine and the chest: the polygon man's rig carries spine, chest and neck and no `upperChest`, which the range table lists for rigs that have one, so it is not a variable here. */
-  const ANGLES: readonly (readonly [AutoMovieHumanoidBone, 0 | 1 | 2])[] = [
+  /**
+   * The joint angles of the whole body a fit moves: the trunk, the neck, the
+   * head and the four limbs, each a bone and its axis (flexion, abduction,
+   * twist). The trunk is the spine and the chest: the polygon man's rig carries
+   * spine, chest and neck and no `upperChest`, which the range table lists for
+   * rigs that have one, so it is not a variable here.
+   */
+  const ANGLES: readonly (readonly [AutoMovieHumanoidBone, ANGLESItem])[] = [
     ["spine", 0],
     ["spine", 1],
     ["spine", 2],
@@ -31,8 +53,8 @@ export namespace HumanFitVariables {
     ["head", 0],
     ...(["left", "right"] as const).flatMap(
       (
-        side: "left" | "right",
-      ): (readonly [AutoMovieHumanoidBone, 0 | 1 | 2])[] => [
+        side: AutoMovieHumanSide,
+      ): (readonly [AutoMovieHumanoidBone, ANGLESItemResult])[] => [
         [`${side}UpperLeg`, 0],
         [`${side}UpperLeg`, 1],
         [`${side}UpperLeg`, 2],
@@ -50,7 +72,11 @@ export namespace HumanFitVariables {
     ),
   ];
 
-  /** The whole body's variables, the set a fit moves when none is given: the root's place, its pitch and roll (the heading the law faces kept), then the angles. */
+  /**
+   * The whole body's variables, the set a fit moves when none is given: the
+   * root's place, its pitch and roll (the heading the law faces kept), then the
+   * angles.
+   */
   export const BODY: readonly IAutoMovieMotionHumanJacobian.IVariable[] = [
     { kind: "place", axis: "x" },
     { kind: "place", axis: "y" },
@@ -60,7 +86,7 @@ export namespace HumanFitVariables {
     ...ANGLES.map(
       ([bone, axis]: readonly [
         AutoMovieHumanoidBone,
-        0 | 1 | 2,
+        BODY2,
       ]): IAutoMovieMotionHumanJacobian.IVariable => ({
         kind: "angle",
         bone,
@@ -69,19 +95,34 @@ export namespace HumanFitVariables {
     ),
   ];
 
-  /** How far one step may move a variable, metres or degrees: the linearisation's widest trust region. */
+  /**
+   * How far one step may move a variable, metres or degrees: the
+   * linearisation's widest trust region.
+   */
   const STEP: readonly [number, number] = [0.08, 12];
 
-  /** A variable's resolution, metres or degrees: a change under it is no change of the posture a film shows. */
+  /**
+   * A variable's resolution, metres or degrees: a change under it is no change
+   * of the posture a film shows.
+   */
   const RESOLUTION: readonly [number, number] = [0.002, 0.25];
 
-  /** The unit a variable is solved in, in its own: a place in centimetres, an angle in degrees. */
+  /**
+   * The unit a variable is solved in, in its own: a place in centimetres, an
+   * angle in degrees.
+   */
   const UNIT: readonly [number, number] = [0.01, 1];
 
-  /** A place's weight per square metre, a heading's per square degree and a joint's per square degree. */
+  /**
+   * A place's weight per square metre, a heading's per square degree and a
+   * joint's per square degree.
+   */
   const WEIGHT: readonly [number, number, number] = [1e4, 2, 1];
 
-  /** The existing absent-joint clinical zero, borrowed only while constructing a fresh owned tuple. */
+  /**
+   * The existing absent-joint clinical zero, borrowed only while constructing a
+   * fresh owned tuple.
+   */
   const ZERO_JOINT: readonly [number, number, number] = [0, 0, 0];
 
   /**
@@ -119,8 +160,8 @@ export namespace HumanFitVariables {
     posture: IAutoMovieMotionHumanPosture,
     x: Float64Array,
   ): IAutoMovieMotionHumanPosture {
-    const root: { x: number; y: number; z: number } = { ...posture.root };
-    const heading: { yaw: number; pitch: number; roll: number } = {
+    const root: IWrittenRoot = { ...posture.root };
+    const heading: IWrittenHeading = {
       yaw: posture.yaw,
       pitch: posture.pitch,
       roll: posture.roll,
@@ -253,7 +294,10 @@ export namespace HumanFitVariables {
         : WEIGHT[2];
   }
 
-  /** A variable's range: unbounded for the root, the table's for a joint, null for an axis the table locks. */
+  /**
+   * A variable's range: unbounded for the root, the table's for a joint, null
+   * for an axis the table locks.
+   */
   function range(
     v: IAutoMovieMotionHumanJacobian.IVariable,
   ): Readonly<IAutoMovieAngleRange> | null {
@@ -271,7 +315,10 @@ export namespace HumanFitVariables {
     return span ?? null;
   }
 
-  /** One private read-only interval for root variables; joint intervals remain the current table's own records. */
+  /**
+   * One private read-only interval for root variables; joint intervals remain
+   * the current table's own records.
+   */
   const UNBOUNDED: Readonly<IAutoMovieAngleRange> = {
     min: -Infinity,
     max: Infinity,

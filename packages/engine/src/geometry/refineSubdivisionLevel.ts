@@ -13,9 +13,9 @@ import { refineSubdivisionUvs } from "./refineSubdivisionUvs";
  * Refine a subdivision level once into an all-quad level.
  *
  * Parent corner `c`, at vertex `v` of face `f`, becomes child face `c` with
- * corners `v`, the point of its out-edge, the point of `f`, and the point of its
- * in-edge, which keeps the parent winding. The two halves of a parent edge take
- * its decayed sharpness and the edges inside a parent face are smooth.
+ * corners `v`, the point of its out-edge, the point of `f`, and the point of
+ * its in-edge, which keeps the parent winding. The two halves of a parent edge
+ * take its decayed sharpness and the edges inside a parent face are smooth.
  *
  * Corner parameters halve: a child corner takes its parent corner's value, the
  * midpoint towards the neighbouring corner, or the face centroid. The cage's

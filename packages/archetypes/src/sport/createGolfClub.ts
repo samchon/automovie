@@ -14,24 +14,22 @@ import {
 /**
  * A golf club: a driver, an iron or a putter.
  *
- * It stands on its head's sole at the origin, the shaft straight up along `+Y` to the grip's end, the head's toe toward `+X` and its face toward `+Z`. `grip` is the grip both hands close on; `face` the striking face, its `+Y` out of it; `head` the head's centre, its `+Y` running out of the club down the shaft's line: a swing carries `head` through the ball as its working point (`tip`) with `face` leading as its edge (`edge`).
+ * It stands on its head's sole at the origin, the shaft straight up along `+Y`
+ * to the grip's end, the head's toe toward `+X` and its face toward `+Z`.
+ * `grip` is the grip both hands close on; `face` the striking face, its `+Y`
+ * out of it; `head` the head's centre, its `+Y` running out of the club down
+ * the shaft's line: a swing carries `head` through the ball as its working
+ * point (`tip`) with `face` leading as its edge (`edge`).
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The club.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the club stands, its three contacts and what reads them.
- * @evidence contracts/development/implementation.md#principled-implementation A head box of the drawn heel-to-toe width and face-to-back depth on the floor, a shaft rod up from its heel and a grip rod of the drawn diameter at the top, the club's length from the sole to the grip's end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, head, shaft and grip, then the three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The head is a box set square on the shaft, with no loft or lie angle; its height and the shaft's and grip's lengths are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createGolfClub(
   params: createGolfClub.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createGolfClub.Affordance, createGolfClub.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createGolfClub.Dimension> =
     new AutoMovieArchetypeDrawSession<createGolfClub.Dimension>(
@@ -121,14 +119,7 @@ export function createGolfClub(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createGolfClub}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the three clubs a round is played with and one band per dimension per kind; the Equipment Rules bound the length and the head, the makers' sizes fill the rest.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip the hands take, the face and the head a swing reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the R&A rule or a maker's figure as read; a figure no source read gives is provisional and says so; the head's height, the shaft's diameter and the grip's length are named estimates inside the rule's limits.
- */
+/** Companion types, constants and bands of {@link createGolfClub}. */
 export namespace createGolfClub {
   /** The kinds: a driver, a mid iron (a 7-iron) and a putter. */
   export type Kind = "driver" | "iron" | "putter";
@@ -136,7 +127,10 @@ export namespace createGolfClub {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["driver", "iron", "putter"];
 
-  /** The head's height from the sole to the crown, metres, by kind: estimates under the rules' 2.8 in for a wood. */
+  /**
+   * The head's height from the sole to the crown, metres, by kind: estimates
+   * under the rules' 2.8 in for a wood.
+   */
   export const HEAD_HEIGHT: Readonly<Record<Kind, number>> = {
     driver: 0.06,
     iron: 0.05,
@@ -185,7 +179,10 @@ export namespace createGolfClub {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which club. */
     kind: Kind;

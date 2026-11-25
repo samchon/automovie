@@ -4,7 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Read a proximal-to-distal actuator path from an admitted tree. The fixed root has no incoming actuator and is omitted.
+ * Read a proximal-to-distal actuator path from an admitted tree. The fixed root
+ * has no incoming actuator and is omitted.
  */
 export function physicalJointChain(
   profile: IAutoMoviePhysicalProfile,

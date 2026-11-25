@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanCourse.ts#AutoMovieMotionHumanCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the balance condition, its source, the equation it becomes, the integration and what is solved at each knot.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One pure function from a posture builder and a target to a course in metres along the heading.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns the dynamic balance course of stepping laws; the mass model and the margin stay with the engine and `HumanBalance`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No gain or lag is typed: the time constant is the pendulum's and the hips' place is found on the solved posture.
-
 # src/compose/AutoMovieMotionHumanCourse.ts#AutoMovieMotionHumanCourse.solve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

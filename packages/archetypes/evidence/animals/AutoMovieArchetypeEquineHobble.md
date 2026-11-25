@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineHobble.ts#AutoMovieArchetypeEquineHobble
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States where each cuff is, along which axis, and what the strap measures.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride of the hobble on the equid's clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The cuffs follow the equid's own posed cannons.
-
 # src/animals/AutoMovieArchetypeEquineHobble.ts#AutoMovieArchetypeEquineHobble.ride
 
 ## @evidence contracts/development/common.md#meaningful-documentation

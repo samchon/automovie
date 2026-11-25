@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanHeldUse.ts#IAutoMovieMotionHumanHeldUse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-context: Borrowed action body, entry and subject/prop resolvers for the assisting hand. clock: Action-relative clock shared with the primary hand's use. goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-context: Borrowed action body, entry and subject/prop resolvers for the assisting hand. clock: Action-relative clock shared with the primary hand's use. goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: handling/HumanHeldUse.ts (HumanHeldUse.kept, kept); handling/HumanHeldUse.ts (HumanHeldUse.key, grasp); handling/HumanHeldUse.ts (HumanHeldUse.second, props).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanGraspUse.IUse, IAutoMovieMotionHumanActionContext, IAutoMovieMotionClock, AutoMovieHumanSide, IAutoMovieMotionHumanGrasp.IKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/handling/IAutoMovieMotionHumanHeldUse.ts#IAutoMovieMotionHumanHeldUse.IGrasp
 
 ## @evidence contracts/development/common.md#meaningful-documentation

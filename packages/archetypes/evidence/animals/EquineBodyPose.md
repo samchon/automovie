@@ -1,21 +1,3 @@
-# src/animals/EquineBodyPose.ts#EquineBodyPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the rigid trunk, the placed and folded limb rules, the solve and emission owners, the refusals and the centre-of-mass proxy with its limitation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A trunk motion and four limb states in metres and degrees in the base model's space; the placed/folded union separates the two limb rules.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One solver shared by every standing behaviour of `AutoMovieArchetypeEquineStance`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No stretched bar, moved attachment or clamped endpoint: an unreachable limb refuses.
-
 # src/animals/EquineBodyPose.ts#EquineBodyPose.IPlaced
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * One inspection-owned viewpoint required by a subject review.
- */
+/** One inspection-owned viewpoint required by a subject review. */
 export interface IAutoMovieSubjectReviewViewpoint {
   /** Stable identity unique inside the plan. */
   id: string;

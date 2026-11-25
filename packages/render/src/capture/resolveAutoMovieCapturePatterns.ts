@@ -8,13 +8,30 @@ import type {
 import { matchAutoMovieInspectionPath } from "../scene/inspection/matchAutoMovieInspectionPath.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 
+/** The focus pattern a named view carries, as a one-entry list or none. */
+function focusPatterns(view: IAutoMovieInspectionView): ["focus", string][] {
+  if (view.type === "named" && view.focus?.type === "pattern")
+    return [["focus", view.focus.pattern]];
+  return [];
+}
+
 /**
- * Resolve every pattern a cell's request and view carry against the paths a drawn scene holds: the `parts`, `hide`, `label` and `color` patterns in that order and as written, then the view's focus pattern.
+ * Resolve every pattern a cell's request and view carry against the paths a
+ * drawn scene holds: the `parts`, `hide`, `label` and `color` patterns in that
+ * order and as written, then the view's focus pattern.
  *
- * `paths` are the scene's object paths and the paths of the marks it draws, in the scene's order; a repeated path counts once. Each pattern is matched by the inspection core's own rule, so it resolves exactly as the inspection applied it, and lists only its topmost matched paths, a path whose ancestor it also matched being counted but not listed.
+ * `paths` are the scene's object paths and the paths of the marks it draws, in
+ * the scene's order; a repeated path counts once. Each pattern is matched by
+ * the inspection core's own rule, so it resolves exactly as the inspection
+ * applied it, and lists only its topmost matched paths, a path whose ancestor
+ * it also matched being counted but not listed.
  *
  * ```ts
- * resolveAutoMovieCapturePatterns({ paths: ["hero", "hero/arm", "lamp"], request, view: "front@focus=hero" });
+ * resolveAutoMovieCapturePatterns({
+ *   paths: ["hero", "hero/arm", "lamp"],
+ *   request,
+ *   view: "front@focus=hero",
+ * });
  * // [{ role: "focus", pattern: "hero", paths: ["hero"], count: 2 }, ...]
  * ```
  */
@@ -44,9 +61,7 @@ export function resolveAutoMovieCapturePatterns(
         entry.pattern,
       ],
     ),
-    ...(view.type === "named" && view.focus?.type === "pattern"
-      ? [["focus", view.focus.pattern] as ["focus", string]]
-      : []),
+    ...focusPatterns(view),
   ];
   return patterns.map(
     ([role, pattern]: [

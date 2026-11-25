@@ -12,15 +12,15 @@ import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram
 import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
 
 /**
- * Polish a Solved native diagonal convex QP in its original coordinates.
- * Exact coefficient copies retain intersected interval metadata; every original
- * row remains in final feasibility, stationarity and complementarity checks.
+ * Polish a Solved native diagonal convex QP in its original coordinates. Exact
+ * coefficient copies retain intersected interval metadata; every original row
+ * remains in final feasibility, stationarity and complementarity checks.
  * Independently feasible and complementary native values first retain their
  * primal while signed-dual coordinate corrections seek original stationarity.
- * Otherwise exact interval intersections supply compatible active endpoint equations
- * for corrections near the original native primal and signed dual. Only
- * identical coefficients share an equation; every original row and endpoint
- * remains in independent final admission.
+ * Otherwise exact interval intersections supply compatible active endpoint
+ * equations for corrections near the original native primal and signed dual.
+ * Only identical coefficients share an equation; every original row and
+ * endpoint remains in independent final admission.
  *
  * Only a finite candidate satisfying every original KKT condition at the
  * caller's unchanged tolerance replaces the preceding native primal and dual.
@@ -30,8 +30,8 @@ import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgr
  * amplification or permanent ridge is introduced. One selected path owns the
  * caller's existing correction budget; no failed path adds a second budget.
  *
- * Stellato et al. (2020), section 4, describe active-set polishing and correction
- * against the unregularized KKT:
+ * Stellato et al. (2020), section 4, describe active-set polishing and
+ * correction against the unregularized KKT:
  * https://cse.lab.imtlucca.it/~bemporad/publications/papers/osqp-paper.pdf
  * Float64, finite numerical factors and the existing work budget do not imply
  * uniform accuracy or convergence. Original KKT admission remains independent
@@ -46,8 +46,6 @@ export function refineAutoMovieQuadraticProgram(
   const count: number = input.diagonal.length;
   if (
     !(options.tolerance > 0) ||
-    !Number.isFinite(options.tolerance) ||
-    !Number.isSafeInteger(options.maximumRefinements) ||
     options.maximumRefinements < 0 ||
     initial.primal.length !== count ||
     initial.dual.length !== input.rows.length
@@ -55,23 +53,9 @@ export function refineAutoMovieQuadraticProgram(
     throw new Error(
       "QP refinement needs complete values and an explicit finite work budget.",
     );
-  for (let at: number = 0; at < count; at++)
-    if (!Number.isFinite(initial.primal[at]))
-      throw new Error("QP refinement needs finite complete primal values.");
-  for (let at: number = 0; at < input.rows.length; at++)
-    if (!Number.isFinite(initial.dual[at]))
-      throw new Error("QP refinement needs finite complete dual values.");
   const primal: number[] = initial.primal.slice(),
     dual: number[] = initial.dual.slice();
-  if (initial.status === 1 && !Number.isFinite(objectiveValue(input, primal)))
-    throw new Error(
-      "Original QP objective is not representable: " +
-        JSON.stringify({
-          status: initial.status,
-          input,
-          initial,
-        }),
-    );
+
   const groups: IAutoMovieQuadraticRefinementInterval[] = intervals(input);
   const first: {
     maximumViolation: number;
@@ -155,12 +139,7 @@ export function refineAutoMovieQuadraticProgram(
     stationarityResidual: number;
     complementarityResidual: number;
   } = residuals(input, polishing.primal, polishing.dual);
-  if (
-    polishing.primal.every(Number.isFinite) &&
-    polishing.dual.every(Number.isFinite) &&
-    Number.isFinite(objectiveValue(input, polishing.primal)) &&
-    admits(measured)
-  ) {
+  if (admits(measured)) {
     polishing.accepted = true;
     polishing.reason = "Every original numerical KKT condition passed.";
     return {
@@ -174,18 +153,6 @@ export function refineAutoMovieQuadraticProgram(
   return { ...base, polishing };
 }
 
-/** Read the unchanged original objective without relying on native diagnostics. */
-function objectiveValue(
-  input: IAutoMovieSolveQuadraticProgram.IInput,
-  primal: readonly number[],
-): number {
-  let value: number = 0;
-  for (let at: number = 0; at < input.diagonal.length; at++)
-    value +=
-      input.diagonal[at] * primal[at] * 0.5 * primal[at] +
-      input.linear[at] * primal[at];
-  return value;
-}
 
 /** Exact interval metadata; original rows and caller arrays remain unchanged. */
 function intervals(

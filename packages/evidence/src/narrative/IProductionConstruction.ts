@@ -1,8 +1,6 @@
 import type { ProductionStage } from "./ProductionStage";
 
-/**
- * Selects each layer's construction stage and its native parent references.
- */
+/** Selects each layer's construction stage and its native parent references. */
 export interface IProductionConstruction {
   /**
    * Sets the long-route settings outline document's own construction stage.
@@ -43,8 +41,8 @@ export interface IProductionConstruction {
    * Sets the screenplay construction stage.
    *
    * Requires approved scripts and treatments construction in long productions.
-   * Short productions require approved brief construction, and compact
-   * short productions approved settings construction.
+   * Short productions require approved brief construction, and compact short
+   * productions approved settings construction.
    */
   screenplay: ProductionStage;
 }

@@ -40,7 +40,8 @@ const NOISE: IAutoMovieTerrainRecipe.Relief = {
  * 3. A pad at height 0 reads exactly 0 at its centroid through `surfaceHeightAt`.
  * 4. A 2 m path between 0.5 m square pads at 0 m and 1 m, 20 m apart, passes
  *    `maxSlope: 0.1` and is refused at `maxSlope: 0.02`, naming segment 0 and
- *    slope 1/18.
+ *    slope 1/18. The baked centreline and each mesh diagonal stay within the
+ *    authored slope and mesh tolerance.
  * 5. Over 64 points along X, the mean |h(x + 40) - h(x)| exceeds 0.3 m for noise
  *    and stays below 1e-9 m for rolling relief of wavelength 40.
  * 6. A 400 m by 400 m parcel of wavelength 8 and 6 octaves is refused before
@@ -57,10 +58,10 @@ const NOISE: IAutoMovieTerrainRecipe.Relief = {
  */
 export function test_location_terrain_noise(): void {
   const build: (
-    seed: string,
+    seed: number,
     recipe?: Partial<IAutoMovieTerrainRecipe>,
   ) => IAutoMovieEnvironment = (
-    seed: string,
+    seed: number,
     recipe: Partial<IAutoMovieTerrainRecipe> = {},
   ): IAutoMovieEnvironment =>
     createEnvironment({
@@ -78,7 +79,7 @@ export function test_location_terrain_noise(): void {
   ) => IAutoMovieHeightRule = (
     environment: IAutoMovieEnvironment,
   ): IAutoMovieHeightRule => environment.stage.space!.surfaces[0]!.height!;
-  const environment: IAutoMovieEnvironment = build("first");
+  const environment: IAutoMovieEnvironment = build(1);
   const rule: IAutoMovieHeightRule = groundOf(environment);
   const samples: readonly number[] =
     rule.kind === "heightfield" ? rule.samples : [];
@@ -104,7 +105,7 @@ export function test_location_terrain_noise(): void {
   const graded: (maxSlope: number) => IAutoMovieEnvironment = (
     maxSlope: number,
   ): IAutoMovieEnvironment =>
-    build("first", {
+    build(1, {
       pads: {
         low: { outline: square(15, 20), height: 0 },
         high: { outline: square(35, 20), height: 1 },
@@ -122,6 +123,44 @@ export function test_location_terrain_noise(): void {
       },
     });
   const padded: IAutoMovieEnvironment = graded(0.1);
+  const paddedRule: IAutoMovieHeightRule = groundOf(padded);
+
+  /** The centreline is affine between each pair of consecutive X lattice cuts. */
+  const paddedSlopeAgrees: () => boolean = (): boolean => {
+    if (paddedRule.kind !== "heightfield") return false;
+    const { originX, spacingX, columns }: typeof paddedRule = paddedRule;
+    for (let column: number = 0; column + 1 < columns; ++column) {
+      const start: number = Math.max(15, originX + column * spacingX);
+      const end: number = Math.min(35, originX + (column + 1) * spacingX);
+      if (
+        start < end &&
+        Math.abs(height(paddedRule, end, 20) - height(paddedRule, start, 20)) >
+          0.1 * (end - start)
+      )
+        return false;
+    }
+    return true;
+  };
+
+  /** The difference from the triangle fan peaks at the diagonal midpoint. */
+  const paddedMeshAgrees: () => boolean = (): boolean => {
+    if (paddedRule.kind !== "heightfield") return false;
+    const { originX, originZ, spacingX, spacingZ, columns, rows, samples }:
+      typeof paddedRule = paddedRule;
+    for (let row: number = 0; row + 1 < rows; ++row)
+      for (let column: number = 0; column + 1 < columns; ++column) {
+        const corner: number = row * columns + column;
+        const diagonal: number =
+          (samples[corner]! + samples[corner + columns + 1]!) / 2;
+        const ground: number = height(
+          paddedRule,
+          originX + (column + 0.5) * spacingX,
+          originZ + (row + 0.5) * spacingZ,
+        );
+        if (Math.abs(diagonal - ground) > 0.01) return false;
+      }
+    return true;
+  };
 
   // 5. Height differences one first-octave wavelength apart along X.
   const shift: (r: IAutoMovieHeightRule) => number = (
@@ -135,7 +174,7 @@ export function test_location_terrain_noise(): void {
     return total / 64;
   };
   const rolling: IAutoMovieHeightRule = groundOf(
-    build("first", {
+    build(1, {
       relief: { kind: "rolling", amplitude: 3, wavelength: 40 },
     }),
   );
@@ -178,8 +217,8 @@ export function test_location_terrain_noise(): void {
         "bakes",
         (): boolean =>
           rule.kind === "heightfield" &&
-          JSON.stringify(rule) === JSON.stringify(groundOf(build("first"))) &&
-          JSON.stringify(rule) !== JSON.stringify(groundOf(build("second"))),
+          JSON.stringify(rule) === JSON.stringify(groundOf(build(1))) &&
+          JSON.stringify(rule) !== JSON.stringify(groundOf(build(2))),
       ],
       [
         "bounded",
@@ -189,16 +228,18 @@ export function test_location_terrain_noise(): void {
             (sample: number): boolean => sample >= 2 - 3 && sample <= 2 + 3,
           ),
       ],
-      ["padExact", (): boolean => height(groundOf(padded), 15, 20) === 2],
+      ["padExact", (): boolean => height(paddedRule, 15, 20) === 2],
       [
         "pathSlope",
         (): boolean =>
           padded.runtime.world.routes.length === 1 &&
+          paddedSlopeAgrees() &&
           throwsError(
             () => graded(0.02),
             ["paths/trail", "segment 0", `requires slope ${1 / 18}`],
           ),
       ],
+      ["gradedMeshAgrees", paddedMeshAgrees],
       ["noiseDoesNotRepeat", (): boolean => shift(rule) > 0.3],
       ["rollingRepeats", (): boolean => shift(rolling) < 1e-9],
       [
@@ -206,7 +247,7 @@ export function test_location_terrain_noise(): void {
         (): boolean =>
           throwsError(
             () =>
-              build("first", {
+              build(1, {
                 size: [400, 400],
                 relief: {
                   kind: "noise",
@@ -225,6 +266,7 @@ export function test_location_terrain_noise(): void {
       bounded: true,
       padExact: true,
       pathSlope: true,
+      gradedMeshAgrees: true,
       noiseDoesNotRepeat: true,
       rollingRepeats: true,
       sampleBudget: true,

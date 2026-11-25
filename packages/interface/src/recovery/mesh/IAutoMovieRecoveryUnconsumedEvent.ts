@@ -1,7 +1,6 @@
 import type { IAutoMovieContourLoft64 } from "../../index";
 
-/** Source topology event that has no consumable incident closed curve.
- */
+/** Source topology event that has no consumable incident closed curve. */
 export interface IAutoMovieRecoveryUnconsumedEvent {
   /** Original physical event declaration and incident curve identities. */
   event: IAutoMovieContourLoft64.IEvent;

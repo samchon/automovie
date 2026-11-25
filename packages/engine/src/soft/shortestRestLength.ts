@@ -2,7 +2,9 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 
 import { softBodyParticleDistance } from "./softBodyParticleDistance";
 
-/** Find the shortest horizontal or vertical lattice rest edge; return Infinity for no structural edge or a mismatched coordinate-array length.
+/**
+ * Find the shortest horizontal or vertical lattice rest edge; return Infinity
+ * for no structural edge or a mismatched coordinate-array length.
  */
 export const shortestRestLength: (
   domain: IAutoMovieSoftBodyDomain,

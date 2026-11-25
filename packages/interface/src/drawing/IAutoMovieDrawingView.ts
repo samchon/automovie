@@ -7,9 +7,19 @@ import type { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
 /**
  * How one drawing is taken from one design.
  *
- * A view supplies cut/projection placement, scale, filters, dimensions, authored notes and a pen to a drawing derivation. Geometry comes from the built-environment snapshot, but tessellation, clipping, rounding and unimplemented derivations limit agreement with rendered geometry. The drawing is output; {@link IAutoMovieDesignReference} is separately authored evidence, and neither is automatically read back into building source.
+ * A view supplies cut/projection placement, scale, filters, dimensions,
+ * authored notes and a pen to a drawing derivation. Geometry comes from the
+ * built-environment snapshot, but tessellation, clipping, rounding and
+ * unimplemented derivations limit agreement with rendered geometry. The drawing
+ * is output; {@link IAutoMovieDesignReference} is separately authored evidence,
+ * and neither is automatically read back into building source.
  *
- * `deriveAutoMovieDrawing` validates the design first and throws for an invalid one. Its frame gate then requires finite origin/direction/up components, direction and up lengths above 1e-9, an up-cross-normal length above 1e-9, positive finite scale and finite nonnegative depth/overhead when non-null. Duplicate dimension or annotation ids also throw; canonical output encoding can refuse non-finite derived values or invalid Unicode text.
+ * `deriveAutoMovieDrawing` validates the design first and throws for an invalid
+ * one. Its frame gate then requires finite origin/direction/up components,
+ * direction and up lengths above 1e-9, an up-cross-normal length above 1e-9,
+ * positive finite scale and finite nonnegative depth/overhead when non-null.
+ * Duplicate dimension or annotation ids also throw; canonical output encoding
+ * can refuse non-finite derived values or invalid Unicode text.
  */
 export interface IAutoMovieDrawingView {
   /** Stable view identity within the production; the drawing repeats it. */
@@ -22,15 +32,19 @@ export interface IAutoMovieDrawingView {
    * Open discipline label, such as `architectural`, `finish`, `ceiling`,
    * `furniture`, `lighting` or `mechanical`.
    *
-   * The label is copied onto the drawing and selects nothing; a discipline
-   * view selects its content through {@link elementKinds} and {@link spaces}.
+   * The label is copied onto the drawing and selects nothing; a discipline view
+   * selects its content through {@link elementKinds} and {@link spaces}.
    */
   discipline: string;
 
   /**
    * World point the cut plane passes through, and the page origin, in metres.
    *
-   * The normal component places the cut and in-plane components move the page origin. For the usual vertical plan direction only world height changes the plane; an admitted oblique plan direction also makes horizontal origin components affect its cut. Projection labels do not override the supplied direction.
+   * The normal component places the cut and in-plane components move the page
+   * origin. For the usual vertical plan direction only world height changes the
+   * plane; an admitted oblique plan direction also makes horizontal origin
+   * components affect its cut. Projection labels do not override the supplied
+   * direction.
    */
   origin: IAutoMovieVector3;
 
@@ -39,8 +53,8 @@ export interface IAutoMovieDrawingView {
    * non-zero, with any length.
    *
    * A plan looks along `-Y`, a reflected ceiling plan along `+Y`, and an
-   * elevation or section along a horizontal direction. An oblique direction
-   * is accepted and drafted with the same orthographic projection.
+   * elevation or section along a horizontal direction. An oblique direction is
+   * accepted and drafted with the same orthographic projection.
    */
   direction: IAutoMovieVector3;
 
@@ -86,11 +100,11 @@ export interface IAutoMovieDrawingView {
    * Logical spaces this view is restricted to, descendants included; empty
    * includes every space.
    *
-   * Lines, regions and opening marks outside every included space are left
-   * out, and an element bound to no space is left out of a filtered view. A
-   * boundary that draws its own face is kept when any space it separates is
-   * included, and an opening is kept when its host boundary touches one, so a
-   * party wall and its door appear on both rooms' sheets.
+   * Lines, regions and opening marks outside every included space are left out,
+   * and an element bound to no space is left out of a filtered view. A boundary
+   * that draws its own face is kept when any space it separates is included,
+   * and an opening is kept when its host boundary touches one, so a party wall
+   * and its door appear on both rooms' sheets.
    *
    * An id the design does not declare selects nothing and is reported once as
    * the `view-space-filter` gap.

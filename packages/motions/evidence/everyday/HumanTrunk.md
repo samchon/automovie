@@ -1,21 +1,3 @@
-# src/everyday/HumanTrunk.ts#HumanTrunk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which bones and carried regions are valid, why limb goals are skipped, and each helper's world-metre or degree convention and caller premises.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups canonical trunk FK, lumbopelvic inclination and trunk-surface readings over the existing body and posture types; points use world metres, angles use degrees and normals are unit directions. Positive limb lengths, valid trunk regions and nonzero ray directions remain caller premises.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Authored FK, inclination/limit helpers and actual region/ray readers serve posture composition, bending, gaze and self-touch; explicit synchronous preparation shares only their fixed frame geometry. Engine FK, surface placement and HumanColliders keep the numerical owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses the shared body, posture, bone and region types without a second rig or surface representation; the region union also permits limb regions, so this namespace's documented trunk-only region restriction is not enforced by its parameter type.
-
 # src/everyday/HumanTrunk.ts#HumanTrunk.resolve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

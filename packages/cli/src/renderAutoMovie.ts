@@ -4,6 +4,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
+import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
 import { renderAutoMovieVideo } from "./renderAutoMovieVideo";
@@ -39,10 +40,10 @@ export async function renderAutoMovie(props: {
   env: Readonly<Record<string, string | undefined>>;
 }): Promise<number> {
   const { root } = props;
-  const render: typeof Render = loadAutoMovieProductionModule(
+  const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,
     "@automovie/render",
-  ) as typeof Render;
+  );
   const options: ReturnType<typeof readAutoMovieRenderOptions> =
     readAutoMovieRenderOptions(
       render.readAutoMovieCaptureArguments(props.args),
@@ -71,7 +72,8 @@ export async function renderAutoMovie(props: {
         );
   const ffmpeg: string = resolveAutoMovieFfmpeg({
     env: props.env,
-    load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
+    load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
+      loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
   });
 
   const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({

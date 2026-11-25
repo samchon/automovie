@@ -29,7 +29,7 @@ import type { IAutoMovieSurfaceGraphicTrack } from "./IAutoMovieSurfaceGraphicTr
  * a camera's field of view is refused rather than stored and ignored.
  */
 export interface IAutoMovieShot {
-  /** Stable, non-blank id. */
+  /** Stable id. */
   id: string;
 
   /** Human or LLM readable name, or `null` when unnamed. */

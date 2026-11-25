@@ -12,11 +12,16 @@ import { Matrix4 } from "../../math/Matrix4";
 import { assertAutoMovieCurveBoundary64 } from "./assertAutoMovieCurveBoundary64";
 
 /**
- * Resolve a parent-first proper rigid hierarchy before constructing controls, then authenticate named boundary sharing within this exact context. Points use millimetres; rotations preserve the units of directions and derivative vectors. Composition accumulates binary64 roundoff, so a transpose inverse is subject to the admitted-basis tolerance and accumulated error.
+ * Resolve a parent-first proper rigid hierarchy before constructing controls,
+ * then authenticate named boundary sharing within this exact context. Points
+ * use millimetres; rotations preserve the units of directions and derivative
+ * vectors. Composition accumulates binary64 roundoff, so a transpose inverse is
+ * subject to the admitted-basis tolerance and accumulated error.
  */
 export class AutoMovieCurveParentContext {
   /**
-   * JSON serialization of resolved frames and edges in insertion order; equal strings do not authenticate another context's copied operator.
+   * JSON serialization of resolved frames and edges in insertion order; equal
+   * strings do not authenticate another context's copied operator.
    */
   public readonly revision: string;
 
@@ -38,7 +43,9 @@ export class AutoMovieCurveParentContext {
   > = new Map();
 
   /**
-   * Admit and resolve the supplied parent-first frames and clone the directed edge declarations. Construction throws before a usable context exists if a transform or graph endpoint is invalid.
+   * Admit and resolve the supplied parent-first frames and clone the directed
+   * edge declarations. Construction throws before a usable context exists if a
+   * transform or graph endpoint is invalid.
    */
   public constructor(
     localFrames: readonly IAutoMovieCurveHierarchyFrame64[],
@@ -46,23 +53,11 @@ export class AutoMovieCurveParentContext {
   ) {
     for (const frame of localFrames) {
       if (
-        typeof frame.bone !== "string" ||
         !frame.bone ||
         this.frames.has(frame.bone) ||
         (frame.parent !== null && !this.frames.has(frame.parent))
       )
         throw new Error("Parents must precede unique bones");
-      if (
-        frame.rotation.length !== 3 ||
-        frame.rotation.some(
-          (r: Readonly<AutoMovieVector3Tuple>): boolean => r.length !== 3,
-        ) ||
-        frame.translationMm.length !== 3 ||
-        ![...frame.rotation.flat(), ...frame.translationMm].every(
-          Number.isFinite,
-        )
-      )
-        throw new Error("Finite rigid frames required");
       for (let i: number = 0; i < 3; i++)
         for (let j: number = 0; j < 3; j++) {
           const dot: number = frame.rotation[i]!.reduce(
@@ -102,20 +97,23 @@ export class AutoMovieCurveParentContext {
         parent === undefined
           ? local
           : Matrix4.multiply(this.matrices.get(parent.bone)!, local);
-      const rotation: AutoMovieMatrix3Tuple.ReadonlyRows = [0, 1, 2].map(
-        (i: number): Readonly<AutoMovieVector3Tuple> => [
-          world[i]!,
-          world[4 + i]!,
-          world[8 + i]!,
-        ],
-      ) as unknown as AutoMovieMatrix3Tuple.ReadonlyRows;
+      const row: (i: number) => Readonly<AutoMovieVector3Tuple> = (
+        i: number,
+      ): Readonly<AutoMovieVector3Tuple> => [
+        world[i]!,
+        world[4 + i]!,
+        world[8 + i]!,
+      ];
+      const rotation: AutoMovieMatrix3Tuple.ReadonlyRows = [
+        row(0),
+        row(1),
+        row(2),
+      ];
       const translation: Readonly<AutoMovieVector3Tuple> = [
         world[12]!,
         world[13]!,
         world[14]!,
       ];
-      if (![...rotation.flat(), ...translation].every(Number.isFinite))
-        throw new Error("Unresolved parent transform");
       this.frames.set(frame.bone, {
         bone: frame.bone,
         parent: frame.parent,
@@ -131,7 +129,7 @@ export class AutoMovieCurveParentContext {
         !this.frames.has(edge.consumerBone)
       )
         throw new Error("Unique edges need actual owner and consumer bones");
-      this.edges.set(edge.id, Object.freeze(structuredClone(edge)));
+      this.edges.set(edge.id, structuredClone(edge));
     }
     this.revision = JSON.stringify({
       frames: [...this.frames.values()],
@@ -140,7 +138,8 @@ export class AutoMovieCurveParentContext {
   }
 
   /**
-   * Rotate a finite local vector into world coordinates without translation, preserving its physical units.
+   * Rotate a finite local vector into world coordinates without translation,
+   * preserving its physical units.
    */
   public direction(
     bone: string,
@@ -148,37 +147,26 @@ export class AutoMovieCurveParentContext {
   ): Readonly<AutoMovieVector3Tuple> {
     const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
       this.frames.get(bone);
-    if (
-      frame === undefined ||
-      vector.length !== 3 ||
-      !vector.every(Number.isFinite)
-    )
-      throw new Error("Unknown bone or invalid direction");
-    const result: Readonly<AutoMovieVector3Tuple> = frame.rotation.map(
-      (row: Readonly<AutoMovieVector3Tuple>): number =>
-        row.reduce(
-          (s: number, x: number, k: number): number => s + x * vector[k]!,
-          0,
-        ),
-    ) as unknown as Readonly<AutoMovieVector3Tuple>;
-    if (!result.every(Number.isFinite))
-      throw new Error("Unresolved direction transform");
-    return result;
+    if (frame === undefined) throw new Error("Unknown bone");
+    const dot: (row: Readonly<AutoMovieVector3Tuple>) => number = (
+      row: Readonly<AutoMovieVector3Tuple>,
+    ): number => row[0] * vector[0] + row[1] * vector[1] + row[2] * vector[2];
+    return [
+      dot(frame.rotation[0]),
+      dot(frame.rotation[1]),
+      dot(frame.rotation[2]),
+    ];
   }
 
   /**
-   * Transform a finite local millimetre point to world millimetres using the resolved affine matrix.
+   * Transform a finite local millimetre point to world millimetres using the
+   * resolved affine matrix.
    */
   public point(
     bone: string,
     point: Readonly<AutoMovieVector3Tuple>,
   ): Readonly<AutoMovieVector3Tuple> {
-    if (
-      !this.frames.has(bone) ||
-      point.length !== 3 ||
-      !point.every(Number.isFinite)
-    )
-      throw new Error("Unknown bone or invalid point");
+    if (!this.frames.has(bone)) throw new Error("Unknown bone");
     const pointWorld: IAutoMovieVector3 = Matrix4.transformPoint(
       this.matrices.get(bone)!,
       {
@@ -187,18 +175,12 @@ export class AutoMovieCurveParentContext {
         z: point[2],
       },
     );
-    const result: Readonly<AutoMovieVector3Tuple> = [
-      pointWorld.x,
-      pointWorld.y,
-      pointWorld.z,
-    ];
-    if (!result.every(Number.isFinite))
-      throw new Error("Unresolved point transform");
-    return result;
+    return [pointWorld.x, pointWorld.y, pointWorld.z];
   }
 
   /**
-   * Rotate a finite world vector back to a node chart with the transpose of its resolved proper rotation.
+   * Rotate a finite world vector back to a node chart with the transpose of its
+   * resolved proper rotation.
    */
   public inverseDirection(
     bone: string,
@@ -206,30 +188,18 @@ export class AutoMovieCurveParentContext {
   ): Readonly<AutoMovieVector3Tuple> {
     const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
       this.frames.get(bone);
-    if (
-      frame === undefined ||
-      vector.length !== 3 ||
-      !vector.every(Number.isFinite)
-    )
-      throw new Error("Unknown bone or invalid direction");
-    const result: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-      (k: number): number =>
-        frame.rotation.reduce(
-          (
-            s: number,
-            row: Readonly<AutoMovieVector3Tuple>,
-            i: number,
-          ): number => s + row[k]! * vector[i]!,
-          0,
-        ),
-    ) as unknown as Readonly<AutoMovieVector3Tuple>;
-    if (!result.every(Number.isFinite))
-      throw new Error("Unresolved inverse direction");
-    return result;
+    if (frame === undefined) throw new Error("Unknown bone");
+    const r: AutoMovieMatrix3Tuple.ReadonlyRows = frame.rotation;
+    return [
+      r[0][0] * vector[0] + r[1][0] * vector[1] + r[2][0] * vector[2],
+      r[0][1] * vector[0] + r[1][1] * vector[1] + r[2][1] * vector[2],
+      r[0][2] * vector[0] + r[1][2] * vector[1] + r[2][2] * vector[2],
+    ];
   }
 
   /**
-   * Pull a world millimetre point into the node chart by subtracting world translation and applying the inverse direction transform.
+   * Pull a world millimetre point into the node chart by subtracting world
+   * translation and applying the inverse direction transform.
    */
   public inversePoint(
     bone: string,
@@ -238,16 +208,16 @@ export class AutoMovieCurveParentContext {
     const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
       this.frames.get(bone);
     if (frame === undefined) throw new Error("Unknown bone");
-    return this.inverseDirection(
-      bone,
-      point.map(
-        (x: number, k: number): number => x - frame.translationMm[k]!,
-      ) as unknown as Readonly<AutoMovieVector3Tuple>,
-    );
+    return this.inverseDirection(bone, [
+      point[0] - frame.translationMm[0],
+      point[1] - frame.translationMm[1],
+      point[2] - frame.translationMm[2],
+    ]);
   }
 
   /**
-   * Return an independent copy of a resolved world frame, with the original node and parent keys preserved.
+   * Return an independent copy of a resolved world frame, with the original
+   * node and parent keys preserved.
    */
   public frame(bone: string): IAutoMovieCurveHierarchyFrame64 {
     const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
@@ -257,7 +227,8 @@ export class AutoMovieCurveParentContext {
   }
 
   /**
-   * Admit an owner boundary once, clone and deep-freeze its complete field, then retain the genuine token for later binding. Deep freezing expects the supported acyclic plain coefficient record; arbitrary cyclic extra properties are outside this input contract.
+   * Admit an owner boundary once, clone and freeze its complete field, then
+   * retain the genuine token for later binding.
    */
   public publish(
     region: string,
@@ -277,24 +248,18 @@ export class AutoMovieCurveParentContext {
     )
       throw new Error("Wrong or repeated anatomical boundary owner");
     const value: IAutoMovieCurveBoundary64 = structuredClone(boundary);
-    const freeze: (item: unknown) => void = (item: unknown): void => {
-      if (item !== null && typeof item === "object") {
-        for (const child of Object.values(item)) freeze(child);
-        Object.freeze(item);
-      }
-    };
-    freeze(value);
-    const operator: IAutoMovieCurveBoundaryPublication64 = Object.freeze({
+    const operator: IAutoMovieCurveBoundaryPublication64 = {
       edge,
       contextRevision: this.revision,
       value,
-    });
+    };
     this.published.set(boundary.id, operator);
     return operator;
   }
 
   /**
-   * Authenticate the declared consumer against this context's genuine publication and return the same immutable boundary object.
+   * Authenticate the declared consumer against this context's genuine
+   * publication and return the same immutable boundary object.
    */
   public bind(
     region: string,

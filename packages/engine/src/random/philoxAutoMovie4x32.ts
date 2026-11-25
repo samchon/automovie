@@ -2,10 +2,10 @@
  * The Philox4x32-10 counter-based block function (Salmon, Moraes, Dror and
  * Shaw, "Parallel random numbers: as easy as 1, 2, 3", SC 2011; the Random123
  * reference). A 128-bit counter and a 64-bit key map to 128 statistically
- * independent bits by ten rounds of two 32 x 32 -> 64 multiplications with
- * the published multipliers 0xD2511F53 and 0xCD9E8D57 and the Weyl key bumps
- * 0x9E3779B9 and 0xBB67AE85. It is a bijection of the counter for each key,
- * so distinct counters never repeat a block, and it is pure: the block of a
+ * independent bits by ten rounds of two 32 x 32 -> 64 multiplications with the
+ * published multipliers 0xD2511F53 and 0xCD9E8D57 and the Weyl key bumps
+ * 0x9E3779B9 and 0xBB67AE85. It is a bijection of the counter for each key, so
+ * distinct counters never repeat a block, and it is pure: the block of a
  * counter depends on the counter and the key alone, never on call order.
  *
  * @param counter Four unsigned 32-bit counter words, least significant first.
@@ -36,7 +36,10 @@ export function philoxAutoMovie4x32(
   return [c0, c1, c2, c3];
 }
 
-/** The high and low 32-bit words of an exact 32 x 32 -> 64 unsigned product, by 16-bit limbs so no partial sum exceeds 2^53. */
+/**
+ * The high and low 32-bit words of an exact 32 x 32 -> 64 unsigned product, by
+ * 16-bit limbs so no partial sum exceeds 2^53.
+ */
 function multiply(a: number, b: number): [number, number] {
   const al: number = a & 0xffff;
   const ah: number = a >>> 16;

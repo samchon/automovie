@@ -1,21 +1,3 @@
-# src/motion/composition/IAutoMovieResolveOutcome.ts#IAutoMovieResolveOutcome
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Rules carry production-owned outcome literals and synchronous predicates over borrowed intents; first matching rule wins and the fallback covers no match. The resolver neither validates the production vocabulary nor retains the predicates.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieResolveOutcome contracts used by packages/engine/src/composition/resolveAutoMovieOutcome.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Rules carry production-owned outcome literals and synchronous predicates over borrowed intents; first matching rule wins and the fallback covers no match. The resolver neither validates the production vocabulary nor retains the predicates. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieResolveOutcome contract belongs to interface; packages/engine/src/composition/resolveAutoMovieOutcome.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/composition/IAutoMovieResolveOutcome.ts#IAutoMovieResolveOutcome.IRule
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admit an array and densely enumerate shallow record ids/paths, including absent slots, before validateUniqueBy checks string duplicates.
+Enumerate record ids/paths before validateUniqueBy checks duplicates.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Array shape, object shape and uniqueness delegate to canonical owners.
+Uniqueness delegates to its canonical owner.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Malformed/non-string ids and absent slots are not element-admitted here; dense row construction prevents a hole from throwing inside uniqueness, while owning element gates report the malformed object.
+Ids are compared exactly as declared; no id is repaired.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

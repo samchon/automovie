@@ -8,7 +8,8 @@ import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
 /**
- * Run shared welded topology checks with caller-selected closedness policy and return canonical validation.
+ * Run shared welded topology checks with caller-selected closedness policy and
+ * return canonical validation.
  */
 export const validateMeshTopology: (
   props: IAutoMovieMeshTopologyValidationProps,

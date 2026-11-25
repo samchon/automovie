@@ -14,26 +14,23 @@ import {
 const PICTURE: string = "a piece of wall for the picture, not read at a source";
 
 /**
- * A piece of wall: a full-height wall to lean on, or a low wall to sit on, vault or mantle.
+ * A piece of wall: a full-height wall to lean on, or a low wall to sit on,
+ * vault or mantle.
  *
- * The wall stands in the `XY` plane on the floor, centred on the origin, its front face toward `+Z`. `face` is that front face, leaned or pushed on; `top` is the front edge of its top, a ledge a body climbs or hangs from; a low wall's top is also a `seat` facing `+Z`.
+ * The wall stands in the `XY` plane on the floor, centred on the origin, its
+ * front face toward `+Z`. `face` is that front face, leaned or pushed on; `top`
+ * is the front edge of its top, a ledge a body climbs or hangs from; a low
+ * wall's top is also a `seat` facing `+Z`.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The wall.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the wall's plane and what each contact is for.
- * @evidence contracts/development/implementation.md#principled-implementation One box; the face, the top edge and the seat follow the `surface`, `ledge` and `seat` conventions on it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, its contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No coping, skirting or texture.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createWall(
   params: createWall.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWall.Affordance, createWall.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createWall.Dimension> =
     new AutoMovieArchetypeDrawSession<createWall.Dimension>(
@@ -103,16 +100,12 @@ export function createWall(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createWall}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a lean, a sit, a vault or a mantle reads (#3371, #3363).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only a low wall declares a seat.
- */
+/** Companion types and bands of {@link createWall}. */
 export namespace createWall {
-  /** The kinds of wall: `full` rises to a ceiling, `low` ends between seat height and guard height. */
+  /**
+   * The kinds of wall: `full` rises to a ceiling, `low` ends between seat
+   * height and guard height.
+   */
   export type Kind = "full" | "low";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -147,7 +140,10 @@ export namespace createWall {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which wall. */
     kind: Kind;

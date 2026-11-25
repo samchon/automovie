@@ -14,22 +14,22 @@ import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  * source-stage output with `production: null`, a raster in `frameFormat`, and a
  * `skeleton` lookup because no builder-owned models exist yet.
  * `AutoMovieProductionBuilder` passes the materialized source with the full
- * production, whose models carry every rig. Every field is read only; the
- * grade never mutates the contract or the artifacts.
+ * production, whose models carry every rig. Every field is read only; the grade
+ * never mutates the contract or the artifacts.
  */
 export interface IAutoMovieRealizeShotContractProps {
   /**
-   * The contract whose opening and closing states, events, camera
-   * requirements and participants are graded. Its `id` names the failure
-   * target `shot:<id>`.
+   * The contract whose opening and closing states, events, camera requirements
+   * and participants are graded. Its `id` names the failure target
+   * `shot:<id>`.
    */
   contract: IAutoMovieShotContract;
 
   /**
    * Full production design for builder-materialized output, or `null` for the
-   * direct source-stage pass, before builder-owned formation heroes exist.
-   * With `null`, promoted hero nodes are not required, and the raster comes
-   * from {@link frameFormat}.
+   * direct source-stage pass, before builder-owned formation heroes exist. With
+   * `null`, promoted hero nodes are not required, and the raster comes from
+   * {@link frameFormat}.
    */
   production: IAutoMovieProductionDesign | null;
 
@@ -51,9 +51,9 @@ export interface IAutoMovieRealizeShotContractProps {
   world: IAutoMovieWorldDesign | null;
 
   /**
-   * Formation designs by id. A camera subject named here is placed and boxed
-   * as a formation rather than as a scene node, and each formation participant
-   * is held to its design's count and model group.
+   * Formation designs by id. A camera subject named here is placed and boxed as
+   * a formation rather than as a scene node, and each formation participant is
+   * held to its design's count and model group.
    */
   formations: ReadonlyMap<string, IAutoMovieFormationDesign>;
 

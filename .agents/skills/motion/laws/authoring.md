@@ -18,7 +18,7 @@ A goal on a body attaches to the bone under its target, so a layered sway carrie
 
 ## The path in time
 
-Use measured phase timing and endpoint velocities. A minimum-jerk curve models an unconstrained point-to-point reach with settled endpoints (Flash and Hogan 1985). An action that makes contact at speed needs its own boundary velocities and segment timing (Putnam 1993).
+Take knot times, velocities and accelerations from measured phases, and join the knots under [pose by time](transitions.md#preparation). An action that makes contact at speed needs its own boundary velocities and segment timing (Putnam 1993).
 
 When the root travels during a stroke, express the effector path in the moving shoulder or hip frame.
 

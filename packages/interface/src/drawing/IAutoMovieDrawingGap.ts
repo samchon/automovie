@@ -3,8 +3,8 @@ import type { AutoMovieDrawingGapStatus } from "./AutoMovieDrawingGapStatus";
 /**
  * One derivation that produced nothing, and the exact reason.
  *
- * A drawing that omitted what it could not compute would read as a drawing of
- * a building with no such thing in it, so the absence is named instead. The
+ * A drawing that omitted what it could not compute would read as a drawing of a
+ * building with no such thing in it, so the absence is named instead. The
  * record mirrors the render report's analysis gap, with a kebab-case subject in
  * place of a typed metric.
  *

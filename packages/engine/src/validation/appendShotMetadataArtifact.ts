@@ -10,7 +10,8 @@ import { appendShotCoverageArtifact } from "./appendShotCoverageArtifact";
 import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
 
 /**
- * Inspect present shot events, editorial markers, camera intent, coverage and clearance evidence.
+ * Inspect present shot events, editorial markers, camera intent, coverage and
+ * clearance evidence.
  */
 export const appendShotMetadataArtifact: (
   shot: IAutoMovieAppendShotMetadataArtifact.IShot,
@@ -28,8 +29,7 @@ export const appendShotMetadataArtifact: (
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const duration: number =
-    typeof shot.duration === "number" ? shot.duration : Infinity;
+  const duration: number = shot.duration;
   if (shot.events !== undefined)
     appendShotEventsArtifact(
       shot.events,

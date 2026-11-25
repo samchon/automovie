@@ -15,26 +15,21 @@ const NORMS: string =
   "World Gymnastics Apparatus Norms, WAG 3 §2.1 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
 
 /**
- * A competition balance beam with a narrow flat bearing surface, shaped
- * sides and two floor stands. The beam runs along Z with its base at
- * floor level and its top socket at the centre of the bearing surface.
+ * A competition balance beam with a narrow flat bearing surface, shaped sides
+ * and two floor stands. The beam runs along Z with its base at floor level and
+ * its top socket at the centre of the bearing surface.
  *
  * @param params Fixed dimensions within the admitted model bands and its id.
- * @param seed Draws any unspecified size inside its band; absent selects the midpoint.
- * @returns A beam whose collision hull and bearing surface share the same corners.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the floor and beam frames, the shape and the admitted dimensions.
- * @evidence contracts/development/implementation.md#principled-implementation The six section corners extrude into one convex volume. Its top edge and length define the same rectangular support that the feet and palms read.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, extrude the section, add the two supports and publish the top.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The collision hull follows the competition section's changing width. The sides and support feet are coarse. Mass uses the maker's shipping weight as a provisional upper reference.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most twelve beam corners, one hull and four support primitives.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each invocation builds its independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Construction retains no state.
+ * @param seed Draws any unspecified size inside its band; absent selects the
+ *   midpoint.
+ * @returns A beam whose collision hull and bearing surface share the same
+ *   corners.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  */
 export function createBalanceBeam(
   params: createBalanceBeam.IParams = {},
-  seed?: string | number,
+  seed?: number,
 ): AutoMovieArchetype<
   createBalanceBeam.Affordance,
   createBalanceBeam.Dimension
@@ -116,19 +111,15 @@ export function createBalanceBeam(
   return builder.build(values.mass);
 }
 
-/**
- * Companion dimensions and support for the competition balance beam.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the top and the competition section's measured dimensions.
- * @evidence contracts/development/design.md#principled-representation Model bands and the surface id use the archetype contract.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Dimensions distinguish the top from the widest part of the same section.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No separate posing geometry or asset variant is used to define the support.
- */
+/** Companion dimensions and support for the competition balance beam. */
 export namespace createBalanceBeam {
   /** The flat top where hands and feet contact the beam. */
   export type Affordance = "surface";
 
-  /** Length along Z, top height, top width, section width and depth, and total mass. */
+  /**
+   * Length along Z, top height, top width, section width and depth, and total
+   * mass.
+   */
   export type Dimension =
     | "length"
     | "height"

@@ -5,9 +5,7 @@ import type {
 
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
-/**
- * Preserve the contour stage's original millimetre and metre area predicates.
- */
+/** Preserve the contour stage's original millimetre and metre area predicates. */
 export function measureAutoMovieContourFace64(
   p: AutoMovieVector3Tuple,
   q: AutoMovieVector3Tuple,

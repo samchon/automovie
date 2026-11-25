@@ -23,28 +23,23 @@ interface ISites {
 
 /** Tolerance for intersecting the rigid coplanar affordance axes, metres. */
 const COINCIDENCE: number = 1e-6;
+/** The record of `IResolveGuitarStringContactParamsItem`'s site. */
+type IResolveGuitarStringContactParamsItem = { fret: string; string: string };
 
 /**
- * Resolve the crossing of one pitched string with a fret and the place to
- * sound it over the body. The sounding segment runs from the fret toward the
- * string endpoint beyond the projected soundboard centre. Also measure the
- * transverse half-spacing used to clear the other strings in a single-note stroke.
+ * Resolve the crossing of one pitched string with a fret and the place to sound
+ * it over the body. The sounding segment runs from the fret toward the string
+ * endpoint beyond the projected soundboard centre. Also measure the transverse
+ * half-spacing used to clear the other strings in a single-note stroke.
  *
  * @param params The rigid bar ids of the fret and string.
  * @param affordances The staged guitar's model-space affordances.
  * @returns Contact geometry in the guitar frame, in metres.
- * @throws {HumanRefusal} When these bars or the sounding segment are incompatible.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the three sites, the model frame and the distance unit.
- * @evidence contracts/development/implementation.md#principled-implementation Intersects the finite bar axes and requires a distinct projected soundboard centre inside the string. Their relative order sets the sweep orientation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the bars and soundboard, then find the fret crossing, pluck site and nearest lateral neighbour.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects remote, parallel or non-intersecting fret and string bars, with no fallback contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms Scans the rigid affordance list a bounded number of times.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both stopped notes and chords use the same intersection and projection.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only contact vectors leave the function.
+ * @throws {HumanRefusal} When these bars or the sounding segment are
+ *   incompatible.
  */
 export function resolveGuitarStringContact(
-  params: Readonly<{ fret: string; string: string }>,
+  params: Readonly<IResolveGuitarStringContactParamsItem>,
   affordances: readonly IAutoMovieAffordance[],
 ): ISites {
   const fret: IAutoMovieAffordance = site(affordances, params.fret, "bar");
@@ -132,7 +127,7 @@ export function resolveGuitarStringContact(
         Vector3.dot(direction, along);
     spacing = Math.min(spacing, Math.abs(lateral));
   }
-  if (!(Number.isFinite(spacing) && spacing > COINCIDENCE))
+  if (!(spacing > COINCIDENCE && spacing < Infinity))
     throw new HumanRefusal({
       kind: "affordance",
       axis: "string",
@@ -143,12 +138,14 @@ export function resolveGuitarStringContact(
     });
   return { stop, pluck, normal, sweep: Vector3.scale(sweep, spacing / 2) };
 }
+/** The alternatives of `SiteKind`'s site. */
+type SiteKind = "bar" | "surface";
 
 /** A named rigid guitar affordance of the kind the law uses. */
 function site(
   affordances: readonly IAutoMovieAffordance[],
   id: string,
-  kind: "bar" | "surface",
+  kind: SiteKind,
 ): IAutoMovieAffordance {
   const found: IAutoMovieAffordance | undefined = affordances.find(
     (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === kind,
@@ -156,7 +153,7 @@ function site(
   if (
     found === undefined ||
     found.rides !== undefined ||
-    (kind === "bar" && !(Number.isFinite(found.length) && found.length! > 0))
+    (kind === "bar" && !(found.length! > 0))
   )
     throw new HumanRefusal({
       kind: "affordance",

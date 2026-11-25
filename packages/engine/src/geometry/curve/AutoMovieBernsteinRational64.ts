@@ -10,13 +10,19 @@ import { AutoMovieBernsteinSubdivision64 as D } from "./AutoMovieBernsteinSubdiv
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
 /**
- * Rational Bernstein quotients N/Q, including the four existing quotient operations preserved by the AutoMovieBernstein64 compatibility facade. Aligned numerator/denominator partitioning, quotient derivatives and positive scalar transitions retain the original coefficient arithmetic.
+ * Rational Bernstein quotients N/Q, including the four existing quotient
+ * operations preserved by the AutoMovieBernstein64 compatibility facade.
+ * Aligned numerator/denominator partitioning, quotient derivatives and positive
+ * scalar transitions retain the original coefficient arithmetic.
  *
- * Quotients require a positive evaluated denominator and reject otherwise; no epsilon denominator or polynomial quotient fit replaces the homogeneous representation.
+ * Quotients require a positive evaluated denominator and reject otherwise; no
+ * epsilon denominator or polynomial quotient fit replaces the homogeneous
+ * representation.
  */
 export namespace AutoMovieBernsteinRational64 {
   /**
-   * Partition numerator and denominator together so the rational quotient is unchanged.
+   * Partition numerator and denominator together so the rational quotient is
+   * unchanged.
    */
   export function thirdsR(
     r: IAutoMovieRationalBernsteinVector64,
@@ -33,9 +39,7 @@ export namespace AutoMovieBernsteinRational64 {
       }),
     );
   }
-  /**
-   * Evaluate N/Q or its quotient derivative; a nonpositive denominator rejects.
-   */
+  /** Evaluate N/Q or its quotient derivative; a nonpositive denominator rejects. */
   export function evaluateR(
     r: IAutoMovieRationalBernsteinVector64,
     t: number,
@@ -55,7 +59,8 @@ export namespace AutoMovieBernsteinRational64 {
       : V.scale(n, 1 / q);
   }
   /**
-   * Evaluate a scalar quotient or its derivative; a nonpositive denominator rejects.
+   * Evaluate a scalar quotient or its derivative; a nonpositive denominator
+   * rejects.
    */
   export function evaluateS(
     r: IAutoMovieRationalBernsteinScalar64,
@@ -72,7 +77,8 @@ export namespace AutoMovieBernsteinRational64 {
       : n / q;
   }
   /**
-   * Construct a control-positive rational transition with the supplied endpoint values and slopes.
+   * Construct a control-positive rational transition with the supplied endpoint
+   * values and slopes.
    */
   export function positiveScalar(
     a: number,

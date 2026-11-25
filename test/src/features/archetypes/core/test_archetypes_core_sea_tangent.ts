@@ -1,0 +1,45 @@
+import { AutoMovieArchetypeSea } from "@automovie/archetypes";
+import { Quaternion } from "@automovie/engine";
+import type { IAutoMovieTransform } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { vclose } from "../../internal/vclose";
+
+/** Covers projection, tilt composition and conversion back to world axes. */
+const TANGENT_ROUNDING: number = 128 * Number.EPSILON;
+
+/** A heaved deck's up axis is the plane normal at its world position. */
+export function test_archetypes_core_sea_tangent(): void {
+  const sea: AutoMovieArchetypeSea.ISea = {
+    heading: 0,
+    components: [],
+    crest: 4,
+    steepest: Math.sqrt(5) / 4,
+    elevation: (x, z, seconds): number => x / 2 - z / 4 + seconds,
+    slope: () => ({ x: 1 / 2, z: -1 / 4 }),
+  };
+  const level: IAutoMovieTransform = {
+    translation: { x: 2, y: 7, z: 4 },
+    rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
+    scale: { x: 1, y: 1, z: 1 },
+  };
+  const floated = AutoMovieArchetypeSea.floated(sea, level, 3);
+  TestValidator.equals(
+    "elevation adds only to the deck's Y",
+    floated.translation,
+    {
+      x: 2,
+      y: 10,
+      z: 4,
+    },
+  );
+  const length: number = Math.sqrt(21);
+  TestValidator.predicate(
+    "the yawed deck lies on the same tangent plane",
+    vclose(
+      Quaternion.rotateVector(floated.rotation, { x: 0, y: 1, z: 0 }),
+      { x: -2 / length, y: 4 / length, z: 1 / length },
+      TANGENT_ROUNDING,
+    ),
+  );
+}

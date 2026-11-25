@@ -11,7 +11,10 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The handheld microphone read: the one whose length, head, tail and mass were all read, so it is built whole. */
+/**
+ * The handheld microphone read: the one whose length, head, tail and mass were
+ * all read, so it is built whole.
+ */
 const HANDHELD: string =
   "Sennheiser e 835, 180.5 mm long, 49.2 mm head and 25.08 mm tail, 330 g (https://www.sennheiser.com/globalassets/digizuite/41678-en-sp_1209_v1.0_e_835_e_835-s_product_specification_en.pdf)";
 
@@ -20,28 +23,31 @@ const AURAY: string =
   "Auray MS-5230F tripod boom stand: 36 to 36.2 in (91.4 to 91.9 cm) to 63 in (160 cm) high, a 31 to 31.5 in (80 cm) boom, legs spread 26 in (65 cm), 2 kg (https://www.bhphotovideo.com/c/product/755877-REG/auray_ms_5230f_tripod_microphone_stand.html)";
 
 /**
- * A microphone: a handheld vocal microphone, or a tripod boom stand that holds one.
+ * A microphone: a handheld vocal microphone, or a tripod boom stand that holds
+ * one.
  *
- * A handheld microphone lies along `+X`, its tail at the origin and its grille's tip toward `+X`: `grip` is its handle, held round, and `head` the grille's tip, the working point whose `+Y` runs along the microphone toward the mouth it is sung into.
+ * A handheld microphone lies along `+X`, its tail at the origin and its
+ * grille's tip toward `+X`: `grip` is its handle, held round, and `head` the
+ * grille's tip, the working point whose `+Y` runs along the microphone toward
+ * the mouth it is sung into.
  *
- * A boom stand stands on its tripod at the origin, its boom reaching out along `+Z` toward whoever sings at it: `height` is the upright's top, a slider whose travel raises the upper tube, the boom and the clip from the stand's lowest height to its highest; no source read says where the stand is gripped, so it declares no grip; `clip` the socket at the boom's tip where a microphone's adapter seats, riding `height`.
+ * A boom stand stands on its tripod at the origin, its boom reaching out along
+ * `+Z` toward whoever sings at it: `height` is the upright's top, a slider
+ * whose travel raises the upper tube, the boom and the clip from the stand's
+ * lowest height to its highest; no source read says where the stand is gripped,
+ * so it declares no grip; `clip` the socket at the boom's tip where a
+ * microphone's adapter seats, riding `height`.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The microphone or stand.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind lies or stands and every contact, with the slider's direction.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod of the tail's diameter and a grille ball of the head's, spanning the length, all one microphone's; three legs to the cited spread, a lower and an upper tube at the stand's lowest height, a level boom of the cited length and a clip at its end, the upper tube, boom and clip bound to the height slider whose travel is the cited range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind with its parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A handle's taper and a boom's tilt are not drawn; the tubes' diameters, the legs' hub height, the tubes' overlap and the clip's size are named construction estimates (`createMicrophone.ESTIMATES`), none placing a contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eight parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or one only the other kind has.
  */
 export function createMicrophone(
   params: createMicrophone.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createMicrophone.Affordance, createMicrophone.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMicrophone.Dimension> =
     new AutoMovieArchetypeDrawSession<createMicrophone.Dimension>(
@@ -163,14 +169,7 @@ export function createMicrophone(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createMicrophone}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind; the stand's height range is an articulation's travel, not a dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the head a singer's hand and mouth meet, and the clip and height a stand is loaded and set by (#3468 F8).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stand's tube sizes, hub and clip are named estimates; the boom does not tilt; the handheld is the Sennheiser e 835 alone, since no other microphone's tail was read to build one whole.
- */
+/** Companion types, constants and bands of {@link createMicrophone}. */
 export namespace createMicrophone {
   /** The kinds. */
   export type Kind = "handheld" | "boomStand";
@@ -179,7 +178,10 @@ export namespace createMicrophone {
   export const KINDS: readonly Kind[] = ["handheld", "boomStand"];
 
   /**
-   * The sizes no source read gives, metres, each an estimate: `lower`, `upper`, `leg`, the stand's tubes' diameters; `hub`, the legs' hub height; `overlap`, how far the upper tube runs inside the lower at its lowest; `clip`, the clip's height.
+   * The sizes no source read gives, metres, each an estimate: `lower`, `upper`,
+   * `leg`, the stand's tubes' diameters; `hub`, the legs' hub height;
+   * `overlap`, how far the upper tube runs inside the lower at its lowest;
+   * `clip`, the clip's height.
    */
   export const ESTIMATES: Readonly<{
     lower: number;
@@ -200,16 +202,19 @@ export namespace createMicrophone {
   /**
    * The affordance ids:
    *
-   * - handheld: `grip` (handle), `head` (socket, the working point along the microphone);
-   * - boomStand: `height` (slider), `clip` (socket riding `height`).
+   * - Handheld: `grip` (handle), `head` (socket, the working point along the
+   *   microphone);
+   * - BoomStand: `height` (slider), `clip` (socket riding `height`).
    */
   export type Affordance = "grip" | "head" | "height" | "clip";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `length`, `head`, `tail`: a handheld microphone's length, grille diameter and handle diameter.
-   * - `minHeight`, `maxHeight`: a stand's upright at its lowest and highest; `boom`: its boom; `spread`: its legs' spread.
+   * - `length`, `head`, `tail`: a handheld microphone's length, grille diameter
+   *   and handle diameter.
+   * - `minHeight`, `maxHeight`: a stand's upright at its lowest and highest;
+   *   `boom`: its boom; `spread`: its legs' spread.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -236,7 +241,10 @@ export namespace createMicrophone {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which one. */
     kind: Kind;

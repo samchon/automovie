@@ -4,8 +4,8 @@ import type { IAutoMovieDesignAnalysisOutcome } from "./IAutoMovieDesignAnalysis
  * One attempted reading of one frame.
  *
  * Every attempt is recorded, including the ones that produced nothing. An
- * `observed` outcome may name only candidates built from marks on
- * {@link frame}, and no candidate may be claimed by two analyses.
+ * `observed` outcome may name only candidates built from marks on {@link frame},
+ * and no candidate may be claimed by two analyses.
  */
 export interface IAutoMovieDesignAnalysis {
   /** Stable analysis identity, unique within the document. */
@@ -14,10 +14,7 @@ export interface IAutoMovieDesignAnalysis {
   /** Frame this analysis read; must name a frame of the same document. */
   frame: string;
 
-  /**
-   * Non-blank open label of the reading attempted, such as
-   * `wall-centerline`.
-   */
+  /** Non-blank open label of the reading attempted, such as `wall-centerline`. */
   subject: string;
 
   /**

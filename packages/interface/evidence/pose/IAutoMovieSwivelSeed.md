@@ -6,7 +6,7 @@ The swivel parameterisation of Tolani, Goswami and Badler 2000: a branch and a s
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Two members and an optional distal twist, what a fit chose and a seeded fit continues.
+Two members, an optional distal twist, the feasible interval and admitted arc with their vanishing, what a fit chose and a seeded fit continues.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -14,4 +14,4 @@ The pose itself stays the fit's; the seed carries only what continues it.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the numbers name, their units, who reads them and why the twist is continued.
+States what the numbers name, their units, who reads them, why the twist is continued and how the admitted arc is followed or vanishes.

@@ -19,26 +19,48 @@ type Builder = AutoMovieArchetypeBuilder<
 type Drawn = Readonly<Partial<Record<createHandgun.Dimension, number>>>;
 
 /**
- * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun standing as `createHandgun` stands it: on the base of its grip at the origin, its muzzle toward `+Z` and its backstrap at `z = 0`, its lock or loading gate on the right, `-X`.
+ * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun
+ * standing as `createHandgun` stands it: on the base of its grip at the origin,
+ * its muzzle toward `+Z` and its backstrap at `z = 0`, its lock or loading gate
+ * on the right, `-X`.
  *
- * A revolver's `hammer` is cocked back on its pivot at the frame's rear, and its `cylinder` turns one chamber per full cock by following the hammer (`follows`); the `gate` swings out on the right to load, and each chamber is a socket on the cylinder's rear face that rides the cylinder. A flintlock pistol is a stock and a barrel with the musket's lock (`AutoMovieArchetypeFirearm.layFlintlock`). Every place no source gives is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-revolver.md, records-firearms-flintlock.md).
+ * A revolver's `hammer` is cocked back on its pivot at the frame's rear, and
+ * its `cylinder` turns one chamber per full cock by following the hammer
+ * (`follows`); the `gate` swings out on the right to load, and each chamber is
+ * a socket on the cylinder's rear face that rides the cylinder. A flintlock
+ * pistol is a stock and a barrel with the musket's lock
+ * (`AutoMovieArchetypeFirearm.layFlintlock`). Every place no source gives is a
+ * named estimate in `ESTIMATES`; the searches are recorded in the sources
+ * record (records-firearms-revolver.md, records-firearms-flintlock.md).
  */
 export namespace HandgunActions {
   /**
    * The places no source read gives, each an estimate:
    *
    * - `bore`: the barrel's line below the handgun's top, metres.
-   * - `spur`: the hammer spur's distance from its pivot, metres, which turns Colt's read travel at the spur into the hammer's angle.
-   * - `chamber`: the chambers' centres off the cylinder's axis, metres; `cylinder`: the cylinder's length, metres.
-   * - `gate`: the loading gate's swing, degrees; Colt's manual says only that it swings out to the right.
-   * - `stock`: a flintlock pistol's fore-stock's depth below the barrel's line, metres, and `fore`: the share of the barrel it runs under from the breech.
-   * - `grip`: the grip's width, metres, and `density`: the grip's and the stock's density against the steel's, a ratio.
-   * - `frame`: a revolver frame's height, `barrel`: the barrel's radius, `hammer`: the hammer's radius and `tip`: its spur behind the backstrap, metres.
+   * - `spur`: the hammer spur's distance from its pivot, metres, which turns
+   *   Colt's read travel at the spur into the hammer's angle.
+   * - `chamber`: the chambers' centres off the cylinder's axis, metres;
+   *   `cylinder`: the cylinder's length, metres.
+   * - `gate`: the loading gate's swing, degrees; Colt's manual says only that it
+   *   swings out to the right.
+   * - `stock`: a flintlock pistol's fore-stock's depth below the barrel's line,
+   *   metres, and `fore`: the share of the barrel it runs under from the
+   *   breech.
+   * - `grip`: the grip's width, metres, and `density`: the grip's and the stock's
+   *   density against the steel's, a ratio.
+   * - `frame`: a revolver frame's height, `barrel`: the barrel's radius,
+   *   `hammer`: the hammer's radius and `tip`: its spur behind the backstrap,
+   *   metres.
    * - `door`: the loading gate's thickness, height and length, metres.
-   * - `trigger`: the trigger's width, height and depth and its face below the grip's top, metres.
+   * - `trigger`: the trigger's width, height and depth and its face below the
+   *   grip's top, metres.
    * - `sight`: the sights above the barrel's line, metres.
    *
-   * Searched: Colt's and Ruger's manuals and spec sheets, Gun Tests, Smith & Wesson's pages, Museums Victoria and Royal Museums Greenwich (records-firearms-revolver.md, records-firearms-flintlock.md); none gives these.
+   * Searched: Colt's and Ruger's manuals and spec sheets, Gun Tests, Smith &
+   * Wesson's pages, Museums Victoria and Royal Museums Greenwich
+   * (records-firearms-revolver.md, records-firearms-flintlock.md); none gives
+   * these.
    */
   export const ESTIMATES: Readonly<{
     bore: number;
@@ -81,13 +103,23 @@ export namespace HandgunActions {
     sight: 0.0075,
   };
 
-  /** A Single Action Army's hammer travel at its spur, metres: half cock "about three quarters inch from Safety position", the safety "about a quarter inch" back, and full cock "FULLY back (about an inch and three quarters)", Colt's Single Action Army instruction manual (1993), Sections 3 and 4 (https://vdoc.pub/documents/colt-single-action-army-6ej6kgerjtg0). */
+  /**
+   * A Single Action Army's hammer travel at its spur, metres: half cock "about
+   * three quarters inch from Safety position", the safety "about a quarter
+   * inch" back, and full cock "FULLY back (about an inch and three quarters)",
+   * Colt's Single Action Army instruction manual (1993), Sections 3 and 4
+   * (https://vdoc.pub/documents/colt-single-action-army-6ej6kgerjtg0).
+   */
   export const HAMMER: Readonly<{ half: number; full: number }> = {
     half: (0.25 + 0.75) * AutoMovieArchetypeUnits.INCH,
     full: 1.75 * AutoMovieArchetypeUnits.INCH,
   };
 
-  /** A revolver's chambers: "Check each of six chambers", Colt's manual, Section 4; Ruger's Vaquero 5104 holds 6 (https://ruger.com/products/vaqueroStainless/specSheets/5104.html). */
+  /**
+   * A revolver's chambers: "Check each of six chambers", Colt's manual, Section
+   * 4; Ruger's Vaquero 5104 holds 6
+   * (https://ruger.com/products/vaqueroStainless/specSheets/5104.html).
+   */
   export const CHAMBERS: number = 6;
 
   /**
@@ -101,7 +133,8 @@ export namespace HandgunActions {
   }
 
   /**
-   * A revolver's sight radius where its maker gives none: from the rear sight's groove over the cylinder's rear to the front sight at the muzzle.
+   * A revolver's sight radius where its maker gives none: from the rear sight's
+   * groove over the cylinder's rear to the front sight at the muzzle.
    *
    * @param d The revolver's dimensions, its length and barrel drawn or read.
    * @returns The sight radius, metres.
@@ -111,7 +144,8 @@ export namespace HandgunActions {
   }
 
   /**
-   * Lay a revolver: a frame and grip, the barrel, the cylinder with its chambers, the hammer and the loading gate, and the contacts.
+   * Lay a revolver: a frame and grip, the barrel, the cylinder with its
+   * chambers, the hammer and the loading gate, and the contacts.
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.
@@ -200,10 +234,18 @@ export namespace HandgunActions {
       travel: e.gate,
       parts: ["gate"],
     });
+    const chamberIds: readonly createHandgun.Affordance[] = [
+      "chamber1",
+      "chamber2",
+      "chamber3",
+      "chamber4",
+      "chamber5",
+      "chamber6",
+    ];
     for (let k: number = 0; k < CHAMBERS; k++) {
       const angle: number = (2 * Math.PI * k) / CHAMBERS;
       builder.affordance({
-        id: `chamber${k + 1}` as createHandgun.Affordance,
+        id: chamberIds[k]!,
         kind: "socket",
         frame: AutoMovieArchetypeFrame.facing(
           v(
@@ -221,7 +263,8 @@ export namespace HandgunActions {
   }
 
   /**
-   * Lay a flintlock pistol: a stock with its grip, the barrel and the musket's lock at its breech, and the contacts.
+   * Lay a flintlock pistol: a stock with its grip, the barrel and the musket's
+   * lock at its breech, and the contacts.
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.
@@ -264,7 +307,8 @@ export namespace HandgunActions {
   }
 
   /**
-   * The trigger's part, its face at the read reach from the backstrap and `ESTIMATES.trigger.drop` below the grip's top.
+   * The trigger's part, its face at the read reach from the backstrap and
+   * `ESTIMATES.trigger.drop` below the grip's top.
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.
@@ -281,7 +325,9 @@ export namespace HandgunActions {
   }
 
   /**
-   * The contacts the firearm laws read: the `grip` from behind, the `trigger`'s face at its reach, the `sight` at the breech and the `frontSight` its radius ahead, both on the barrel's line, and the `muzzle`.
+   * The contacts the firearm laws read: the `grip` from behind, the `trigger`'s
+   * face at its reach, the `sight` at the breech and the `frontSight` its
+   * radius ahead, both on the barrel's line, and the `muzzle`.
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.

@@ -26,13 +26,6 @@ export function applyHumanPolygonPose(
       placements.has(placement.bone) ||
       p.length !== 3 ||
       q.length !== 4 ||
-      !Number.isFinite(p[0]) ||
-      !Number.isFinite(p[1]) ||
-      !Number.isFinite(p[2]) ||
-      !Number.isFinite(q[0]) ||
-      !Number.isFinite(q[1]) ||
-      !Number.isFinite(q[2]) ||
-      !Number.isFinite(q[3]) ||
       Math.abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1) > 1e-6
     )
       throw new Error(

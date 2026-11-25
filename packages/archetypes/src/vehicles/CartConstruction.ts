@@ -10,7 +10,8 @@ import { createCart } from "./createCart";
 /**
  * Assemble a land carrier from the historical catalogue.
  *
- * The per-form callback records the supports and geometry after the legacy draw session resolves measured dimensions.
+ * The per-form callback records the supports and geometry after the legacy draw
+ * session resolves measured dimensions.
  *
  * @param kind The fixed operating form.
  * @param build The form's measured geometry and contact builder.
@@ -18,20 +19,13 @@ import { createCart } from "./createCart";
  * @param params The carrier's authored options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the draw and geometry ownership of the land forms.
- * @evidence contracts/development/implementation.md#principled-implementation Keeps model, castor, shaft and free dimension draws in their historical order before building the selected geometry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit the recorded dimensions if requested, build the form, then compute its properties.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The catalogue and contact builder serve the canonical and legacy authoring inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function CartConstruction(
   kind: createCart.Kind,
   params: Omit<createCart.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   build: CartConstruction.Build,
   fit?: typeof CartFit.harness,
 ): AutoMovieArchetype<createCart.Affordance, createCart.Dimension> {
@@ -85,14 +79,7 @@ export function CartConstruction(
   return builder.build(d.mass!, createCart.RESTS[kind]);
 }
 
-/**
- * Shared builder signature for canonical land carrier producers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two values a geometry owner reads.
- * @evidence contracts/development/design.md#principled-representation Reuses native dimensions and a typed archetype builder.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A form only receives its builder and resolved dimensions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps units and contacts in the land carrier catalogue.
- */
+/** Shared builder signature for canonical land carrier producers. */
 export namespace CartConstruction {
   /** Adds one carrier form's model-space geometry and contacts. */
   export type Build = (

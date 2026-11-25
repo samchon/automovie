@@ -11,7 +11,10 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering. Each source cue must match its unique materialized stream's envelope and event binding. Event times must be finite and inside the cue's half-open shot interval.
+ * Validate cue ids, intervals, intensities, compiled stream correspondence,
+ * event inclusion and same-zone ordering. Each source cue must match its unique
+ * materialized stream's envelope and event binding. Event times must be finite
+ * and inside the cue's half-open shot interval.
  */
 export const validateAutoMovieEffects: (
   contract: IAutoMovieShotContract,
@@ -64,8 +67,7 @@ export const validateAutoMovieEffects: (
       compareCodeUnits(left.id, right.id),
   )) {
     const field: string = `effectCue:${cue.id || "(blank)"}`;
-    if (cue.id.trim().length === 0 || ids.has(cue.id))
-      fail(field, "must have one non-blank id unique inside the shot");
+    if (ids.has(cue.id)) fail(field, "must have one id unique inside the shot");
     ids.add(cue.id);
     const compiled: IAutoMovieCompiledEffect | undefined = streams.get(cue.id);
     if (compiled === undefined || compiled.zone !== cue.zone)
@@ -86,8 +88,6 @@ export const validateAutoMovieEffects: (
         "must have the same interval, intensity envelope and event as its compiled stream",
       );
     if (
-      Number.isFinite(cue.start) === false ||
-      Number.isFinite(cue.end) === false ||
       cue.start < 0 ||
       cue.end <= cue.start ||
       cue.end > contract.durationSeconds
@@ -98,10 +98,7 @@ export const validateAutoMovieEffects: (
       );
     if (
       [cue.intensity.from, cue.intensity.to].some(
-        (intensity: number): boolean =>
-          Number.isFinite(intensity) === false ||
-          intensity < 0 ||
-          intensity > 1,
+        (intensity: number): boolean => intensity < 0 || intensity > 1,
       )
     )
       fail(`${field}.intensity`, "must stay inside the bounded 0..1 envelope");
@@ -113,7 +110,6 @@ export const validateAutoMovieEffects: (
       if (
         event === undefined ||
         sample === undefined ||
-        Number.isFinite(sample) === false ||
         sample < cue.start ||
         sample >= cue.end
       )

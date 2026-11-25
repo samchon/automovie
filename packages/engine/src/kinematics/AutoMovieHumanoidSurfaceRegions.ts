@@ -6,44 +6,62 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The costal margin's lowest point as a share of stature: the tenth rib
- * height of ANSUR II (Gordon et al. 2014, NATICK/TR-15/007; means of the
- * public records, 1,986 women and 4,082 men: tenth rib 1056.3 and 1120.7 mm,
- * stature 1628.5 and 1756.2 mm), the greater of the women's and the men's
- * shares, so the station stands at or just above the margin on either body.
- * Declared before the table, whose initialiser reads it.
+ * The costal margin's lowest point as a share of stature: the tenth rib height
+ * of ANSUR II (Gordon et al. 2014, NATICK/TR-15/007; means of the public
+ * records, 1,986 women and 4,082 men: tenth rib 1056.3 and 1120.7 mm, stature
+ * 1628.5 and 1756.2 mm), the greater of the women's and the men's shares, so
+ * the station stands at or just above the margin on either body. Declared
+ * before the table, whose initialiser reads it.
  */
 const COSTAL_MARGIN: number = Math.max(1056.3 / 1628.5, 1120.7 / 1756.2);
 
 /**
  * The definitions of the anatomical regions a humanoid's surfaces resolve
  * (`resolveAutoMovieHumanoidSurfaces`): each region's station on a bone's
- * segment and its outward direction in the rest frame, the ray that finds
- * its point on the colliders.
+ * segment and its outward direction in the rest frame, the ray that finds its
+ * point on the colliders.
  */
 export namespace AutoMovieHumanoidSurfaceRegions {
-  /**
-   * The interface contract (`IAutoMovieHumanoidSurfaceRegions.ILevel`).
-   */
+  /** The interface contract (`IAutoMovieHumanoidSurfaceRegions.ILevel`). */
   export type ILevel = IAutoMovieHumanoidSurfaceRegions.ILevel;
 
-  /** Every region's definition, both sides from one table: +X is the body's left. */
+  /**
+   * Every region's definition, both sides from one table: +X is the body's
+   * left.
+   */
   export const TABLE: Readonly<
-    Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>>
+    Partial<
+      Record<
+        AutoMovieHumanoidRegion,
+        IAutoMovieHumanoidSurfaceRegions.IDefinition
+      >
+    >
   > = (() => {
     const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({
       x,
       y,
       z,
     });
-    const head: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "head", toward: "centre", share: 0 };
-    const neck: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "neck", toward: "head", share: 0.5 };
-    const chest = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
+    const head: IAutoMovieHumanoidSurfaceRegions.IStation = {
+      bone: "head",
+      toward: "centre",
+      share: 0,
+    };
+    const neck: IAutoMovieHumanoidSurfaceRegions.IStation = {
+      bone: "neck",
+      toward: "head",
+      share: 0.5,
+    };
+    const chest = (
+      share: number,
+    ): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "chest",
       toward: "neck",
       share,
     });
-    const spine = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
+    const spine = (
+      share: number,
+    ): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "spine",
       toward: "chest",
       share,
@@ -53,8 +71,17 @@ export namespace AutoMovieHumanoidSurfaceRegions {
     // which a body kick, a hook to the liver or a punch to the kidney lands
     // on or just above. The rig's spine runs from the omphalion to the
     // xiphion, so the margin lies on it, at the tenth rib's height.
-    const costal: ILevel = { bone: "spine", toward: "chest", level: COSTAL_MARGIN };
-    const table: Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>> = {
+    const costal: ILevel = {
+      bone: "spine",
+      toward: "chest",
+      level: COSTAL_MARGIN,
+    };
+    const table: Partial<
+      Record<
+        AutoMovieHumanoidRegion,
+        IAutoMovieHumanoidSurfaceRegions.IDefinition
+      >
+    > = {
       crown: { station: head, direction: v(0, 1, 0) },
       forehead: { station: head, direction: v(0, 0.45, 1) },
       face: { station: head, direction: v(0, 0, 1) },
@@ -93,7 +120,10 @@ export namespace AutoMovieHumanoidSurfaceRegions {
     ] as const) {
       const s = (name: string): AutoMovieHumanoidBone =>
         `${Side.toLowerCase()}${name}` as AutoMovieHumanoidBone;
-      const set = (name: string, def: IAutoMovieHumanoidSurfaceRegions.IDefinition): void => {
+      const set = (
+        name: string,
+        def: IAutoMovieHumanoidSurfaceRegions.IDefinition,
+      ): void => {
         table[`${name}${Side}` as AutoMovieHumanoidRegion] = def;
       };
       set("jaw", { station: head, direction: v(0.7 * x, -0.55, 0.45) });

@@ -1,6 +1,4 @@
-/**
- * Sparse vector and affine coefficient of a simplex quadratic objective.
- */
+/** Sparse vector and affine coefficient of a simplex quadratic objective. */
 export interface IAutoMovieSimplexAtom {
   /** Strictly increasing safe-integer coordinates within the declared width. */
   indices: readonly number[];

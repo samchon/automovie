@@ -14,22 +14,21 @@ import { Quaternion } from "../math/Quaternion";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 
 /**
- * A pose and its rate of change at one instant, read from the pure function
- * of time that produces it.
+ * A pose and its rate of change at one instant, read from the pure function of
+ * time that produces it.
  *
- * Read from both sides, the rate is the symmetric difference
- * `(f(t + h) - f(t - h)) / 2h` of every clinical angle and of the root
- * translation, and the root's angular velocity is the rotation vector of
- * `q(t + h) q(t - h)^-1` over `2h`. A motion that only exists on one side of
- * the instant (the action a cut ends, the action a cut begins) is read from
- * that side alone, by the three-point difference
- * `s (-3 f(t) + 4 f(t + s h) - f(t + 2 s h)) / 2h` with `s` the side's sign,
- * the rotation vectors taken from `q(t)`: a symmetric difference would
- * average the motion's rate with whatever its function returns across the
+ * Read from both sides, the rate is the symmetric difference `(f(t + h) - f(t -
+ * h)) / 2h` of every clinical angle and of the root translation, and the root's
+ * angular velocity is the rotation vector of `q(t + h) q(t - h)^-1` over `2h`.
+ * A motion that only exists on one side of the instant (the action a cut ends,
+ * the action a cut begins) is read from that side alone, by the three-point
+ * difference `s (-3 f(t) + 4 f(t + s h) - f(t + 2 s h)) / 2h` with `s` the
+ * side's sign, the rotation vectors taken from `q(t)`: a symmetric difference
+ * would average the motion's rate with whatever its function returns across the
  * instant. Differencing the source function, never emitted frames, keeps the
- * estimate free of the frame grid: either difference is second order, its
- * error `O(h^2)` times the third derivative. An angle absent from a sample
- * counts as zero, its clinical neutral.
+ * estimate free of the frame grid: either difference is second order, its error
+ * `O(h^2)` times the third derivative. An angle absent from a sample counts as
+ * zero, its clinical neutral.
  *
  * Each joint's angular velocity (`spins`) is read the way the root's is, from
  * the rotation vectors of its articulation at the same samples
@@ -37,33 +36,27 @@ import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
  * gimbal the angle rates of a smooth rotation are unbounded, while its angular
  * velocity is not.
  *
- * A pose whose limbs are fitted to targets carries each fit's resolution
- * into the difference, divided by `h`. With `continued`, the rate is read from
- * the instant's own fits continued to its neighbours (each seeded with the
+ * A pose whose limbs are fitted to targets carries each fit's resolution into
+ * the difference, divided by `h`. With `continued`, the rate is read from the
+ * instant's own fits continued to its neighbours (each seeded with the
  * instant's choice and refined to {@link samplePoseVelocity.tolerance},
  * `IAutoMovieSwivelNear`), the instant's sample included, while the pose
  * returned is still `sample`'s: the difference then sees the motion, not the
- * fits' resolution, and a fit whose best basin changes inside the step is
- * read on the branch the instant is on.
+ * fits' resolution, and a fit whose best basin changes inside the step is read
+ * on the branch the instant is on.
  *
  * @param sample The pose as a pure function of seconds.
  * @param seconds The instant.
  * @param step The difference interval `h`, seconds; 1 ms by default.
- * @param side Which side of the instant the motion is read from: both by default.
+ * @param side Which side of the instant the motion is read from: both by
+ *   default.
  * @param rig The rig the joints' angles are read through for `spins`; the
  *   default basis with rest-relative angles when omitted.
  * @param continued The pose as a pure function of seconds with every fit
  *   continued from the instant's, the rate's samples; `sample` when omitted.
- * @param prepared Optional same-rig codec or lazy getter, demanded only after the actual samples and joint-rate indexing.
+ * @param prepared Optional same-rig codec or lazy getter, demanded only after
+ *   the actual samples and joint-rate indexing.
  * @returns The pose at the instant and its velocity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both estimators, their sample/order/error premises, absent-angle meaning and units, plus the optional same-rig codec's post-samples demand stage.
- * @evidence contracts/development/implementation.md#principled-implementation Second-order central and one-sided differences on the source function; angular velocity by the quaternion log map.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three samples, then one weighted difference per channel.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive step throws; a one-sided motion is never sampled across its instant.
- * @evidence contracts/development/implementation.md#efficient-algorithms All original sample callbacks and O(J) indexing/conversions/differences remain; a supplied codec avoids another O(B) setup and module helpers avoid per-bone spin/per-call mapper closures. Every forward rotation still executes; runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit unchanged-rig codec may serve related source/target velocity and offset capture, but no sampled pose, angle rate or articulation result is cached. Fresh pose indexing shares one owner with inertialization.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned state owns its existing pose/rate maps and vectors, with no callback, codec or lazy getter added. A borrowed codec/source remains parent-owned; local samples/indexes end with this call and no global rig cache is consulted.
  */
 export function samplePoseVelocity(
   sample: (seconds: number) => IAutoMoviePose,
@@ -72,7 +65,9 @@ export function samplePoseVelocity(
   side: AutoMovieMotionSampleSide = "both",
   rig?: IAutoMoviePoseRig,
   continued?: (seconds: number) => IAutoMoviePose,
-  prepared?: IAutoMoviePoseJointCodec.ICodec | (() => IAutoMoviePoseJointCodec.ICodec),
+  prepared?:
+    | IAutoMoviePoseJointCodec.ICodec
+    | (() => IAutoMoviePoseJointCodec.ICodec),
 ): IAutoMoviePoseState {
   if (!(step > 0)) throw new Error("A velocity step is positive");
   const pose: IAutoMoviePose = sample(seconds);
@@ -95,8 +90,7 @@ export function samplePoseVelocity(
     x: number,
     y: number,
     z: number,
-  ): number =>
-    (near * x + far * y + here * z) / (2 * step);
+  ): number => (near * x + far * y + here * z) / (2 * step);
 
   const aa: Map<AutoMovieHumanoidBone, [number, number, number]> =
     poseJointCodec.index(a);
@@ -183,7 +177,10 @@ export function samplePoseVelocity(
   };
 }
 
-/** Read a current articulation/root's rotation vector from the same inverse origin. */
+/**
+ * Read a current articulation/root's rotation vector from the same inverse
+ * origin.
+ */
 function spinFrom(
   rotation: IAutoMovieQuaternion,
   from: IAutoMovieQuaternion,
@@ -191,14 +188,7 @@ function spinFrom(
   return samplePoseVelocity.rotationVector(Quaternion.multiply(rotation, from));
 }
 
-/**
- * Companion types and helpers of {@link samplePoseVelocity}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit and frame.
- * @evidence contracts/development/design.md#principled-representation Clinical degrees per second per bone and the root's linear and angular velocity in the pose's parent frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What inertialization and the motion audits read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface pose.
- */
+/** Companion types and helpers of {@link samplePoseVelocity}. */
 export namespace samplePoseVelocity {
   /**
    * The swivel tolerance, degrees, a continued fit is refined to for the
@@ -207,18 +197,18 @@ export namespace samplePoseVelocity {
    *
    * A continued fit lies within its tolerance `τ` of its bracket's best
    * (`IAutoMovieSwivelNear`), and a swivel turns its chain's root about one
-   * axis, so the joint's turn is off by at most `τ`. The three-point
-   * difference weighs its samples `(3, 4, 1) / 2h`, so one read's rate is off
-   * by at most `4 τ / h`, and the offset an inertialization decays is the
-   * difference of two reads, the source's and the target's, off by at most
-   * `8 τ / h`. An offset velocity error `δv` moves the decayed offset by at
-   * most `256 / 3125 δv duration`, the peak of its quintic's signed lobe
-   * (`inertializeOffset`, linear in the velocity over a fixed duration). That
-   * is held to `ROM_TOLERANCE`, the resolution a solver need resolve a
-   * joint's angle to, so `τ = ROM_TOLERANCE h 3125 / (8 256 duration)`:
-   * 3.8e-5 degrees for a 1 ms step and a 0.4 s decay, where a fit's own
-   * resolution (`hingedArmSwivel.RESOLUTION`, 0.0062 degrees) bounds the
-   * displacement at 1.6 degrees.
+   * axis, so the joint's turn is off by at most `τ`. The three-point difference
+   * weighs its samples `(3, 4, 1) / 2h`, so one read's rate is off by at most
+   * `4 τ / h`, and the offset an inertialization decays is the difference of
+   * two reads, the source's and the target's, off by at most `8 τ / h`. An
+   * offset velocity error `δv` moves the decayed offset by at most `256 / 3125
+   * δv duration`, the peak of its quintic's signed lobe (`inertializeOffset`,
+   * linear in the velocity over a fixed duration). That is held to
+   * `ROM_TOLERANCE`, the resolution a solver need resolve a joint's angle to,
+   * so `τ = ROM_TOLERANCE h 3125 / (8 256 duration)`: 3.8e-5 degrees for a 1 ms
+   * step and a 0.4 s decay, where a fit's own resolution
+   * (`hingedArmSwivel.RESOLUTION`, 0.0062 degrees) bounds the displacement at
+   * 1.6 degrees.
    *
    * @param step The difference interval `h`, seconds; positive.
    * @param duration The decay the read feeds, seconds; positive.

@@ -10,7 +10,7 @@ Emission is a closed union keyed by `kind`, so a luminance exists only for a sel
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`render` reads emission, background and layers to build the meshes and materials; the engine gate checks them. Geometry and timing belong to the track and the affordance.
+The render package reads emission, background and layers to build the meshes and materials; the engine gate checks them. Geometry and timing belong to the track and the affordance.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

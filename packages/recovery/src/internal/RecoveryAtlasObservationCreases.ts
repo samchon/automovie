@@ -6,7 +6,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Observe original component crease edges with the existing oriented source normals.
+ * Observe original component crease edges with the existing oriented source
+ * normals.
  */
 export function RecoveryAtlasObservationCreases(
   context: Parameters<IAutoMovieRecoveryAtlasObservationCreases.Operation>[0],
@@ -63,10 +64,8 @@ export function RecoveryAtlasObservationCreases(
                 0,
               )) /
             denominator;
-        if (
-          !(denominator > 0 && Number.isFinite(denominator)) ||
-          !Number.isFinite(cosine)
-        ) {
+        // An overflowing length product leaves the cosine unresolved.
+        if (!(denominator > 0) || denominator === Infinity) {
           mark("source-crease-test-arithmetic-is-unresolved");
           continue;
         }

@@ -11,15 +11,19 @@ type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;
  * fixed total momentum. A threshold alone does not supply that energy.
  *
  * The comparison uses the exact dyadic values of its binary64 inputs,
+ *
  * ||p||² <= 2 M E. Integer significands and exponent alignment avoid both
- * overflow and a tolerance that could admit the next float below a boundary.
- * On refusal, positive finite binary64 bit patterns are monotonically
- * ordered, so bisection finds the least representable energy that is enough.
+ *
+ * Overflow and a tolerance that could admit the next float below a boundary. On
+ * refusal, positive finite binary64 bit patterns are monotonically ordered, so
+ * bisection finds the least representable energy that is enough.
  *
  * @param energy The incident energy, finite and nonnegative, joules.
  * @param mass The departing fragments' total finite positive mass, kilograms.
- * @param momentum Their finite-component total momentum, kilogram metres per second.
- * @returns A sufficient result, or the least supported energy on refusal; null means no finite binary64 energy suffices.
+ * @param momentum Their finite-component total momentum, kilogram metres per
+ *   second.
+ * @returns A sufficient result, or the least supported energy on refusal; null
+ *   means no finite binary64 energy suffices.
  * @throws {Error} When a caller supplies invalid physical numeric inputs.
  */
 export function ArchetypeFractureEnergy(
@@ -27,17 +31,7 @@ export function ArchetypeFractureEnergy(
   mass: number,
   momentum: IAutoMovieVector3,
 ): { sufficient: true } | { sufficient: false; minimum: number | null } {
-  if (
-    !(
-      Number.isFinite(energy) &&
-      energy >= 0 &&
-      Number.isFinite(mass) &&
-      mass > 0 &&
-      Number.isFinite(momentum.x) &&
-      Number.isFinite(momentum.y) &&
-      Number.isFinite(momentum.z)
-    )
-  )
+  if (!(energy >= 0 && mass > 0))
     throw new Error(
       "Fracture energy needs finite nonnegative energy, positive mass and finite momentum",
     );

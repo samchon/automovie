@@ -9,30 +9,22 @@ import {
 } from "../core";
 
 /**
- * One flag of a flag football belt at the IFAF Flag Football Rules'
- * dimensions: a strip 15 to 16 inches long from its socket (the middle,
- * 15.5 in), 1.8 to 2.0 inches wide (1.9 in) and 0.02 to 0.10 inches thick
- * (0.06 in), hanging down along -Y from its socket at the origin. A player
- * wears one at each hip; a defender's hand that grips it pulls it off.
+ * One flag of a flag football belt at the IFAF Flag Football Rules' dimensions:
+ * a strip 15 to 16 inches long from its socket (the middle, 15.5 in), 1.8 to
+ * 2.0 inches wide (1.9 in) and 0.02 to 0.10 inches thick (0.06 in), hanging
+ * down along -Y from its socket at the origin. A player wears one at each hip;
+ * a defender's hand that grips it pulls it off.
  *
- * `socket` is where it clips to the belt, worn on the hips; `tip` its free
- * end, `grip` the middle a pulling hand closes on.
+ * `socket` is where it clips to the belt, worn on the hips; `tip` its free end,
+ * `grip` the middle a pulling hand closes on.
  *
  * @param params The model's id.
  * @param seed The seed; the flag has no drawn dimension.
  * @returns The flag.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the rule's dimensions and the affordances.
- * @evidence contracts/development/implementation.md#principled-implementation The length, width and thickness are the middles of the IFAF Flag Football Rules' bands.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One strip, then the three affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The strip is rigid; its cloth does not flutter.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createFootballFlag(
   params: createFootballFlag.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createFootballFlag.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("footballFlag", {}, seed, {});
@@ -68,16 +60,12 @@ export function createFootballFlag(
   return builder.build(0.02);
 }
 
-/**
- * Companion types and constants of {@link createFootballFlag}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation The dimensions are the rule's, in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Where the flag is worn, held and ends.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The affordance names are a closed union.
- */
+/** Companion types and constants of {@link createFootballFlag}. */
 export namespace createFootballFlag {
-  /** `socket`, where it clips to the belt; `grip`, its middle; `tip`, its free end. */
+  /**
+   * `socket`, where it clips to the belt; `grip`, its middle; `tip`, its free
+   * end.
+   */
   export type Affordance = "socket" | "grip" | "tip";
 
   /** The parameters. */

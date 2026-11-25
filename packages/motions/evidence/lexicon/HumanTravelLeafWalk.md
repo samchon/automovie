@@ -1,21 +1,3 @@
-# src/lexicon/HumanTravelLeafWalk.ts#HumanTravelLeafWalk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the relation kept, why the walk faces the hinge, how it is timed and the source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A walk plan over the stances the handle asks, its facing a point and an angle.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The planner's input and the planner the door law calls.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No door is named: the handle's path and normal are the prop's own.
-
 # src/lexicon/HumanTravelLeafWalk.ts#HumanTravelLeafWalk.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

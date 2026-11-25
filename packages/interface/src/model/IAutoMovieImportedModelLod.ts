@@ -2,9 +2,7 @@ import type { AutoMovieImportedModelLodLevel } from "./AutoMovieImportedModelLod
 import type { AutoMovieImportedModelProfile } from "./AutoMovieImportedModelProfile";
 import type { IAutoMovieImportedHumanoidBone } from "./IAutoMovieImportedHumanoidBone";
 
-/**
- * One manifest-owned imported detail level and its sealed execution facts.
- */
+/** One manifest-owned imported detail level and its sealed execution facts. */
 export interface IAutoMovieImportedModelLod {
   /** Closed detail identity. */
   level: AutoMovieImportedModelLodLevel;

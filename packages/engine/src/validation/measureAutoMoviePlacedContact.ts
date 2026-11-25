@@ -8,16 +8,13 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "./ViolationCollector";
-import { validateObjectArtifact } from "./validateObjectArtifact";
-import { validateRotationArtifact } from "./validateRotationArtifact";
-import { validateVectorArtifact } from "./validateVectorArtifact";
 
 /**
- * Measure a support or grip using already placed observations at one film instant.
- * Support gives signed normal gap and tangential slip in metres. Grip gives
- * position separation in metres and the shortest orientation separation in radians.
- * An absent sample leaves the check unsupported. Invalid observations or limits
- * produce findings without measurements.
+ * Measure a support or grip using already placed observations at one film
+ * instant. Support gives signed normal gap and tangential slip in metres. Grip
+ * gives position separation in metres and the shortest orientation separation
+ * in radians. An absent sample leaves the check unsupported. Invalid
+ * observations or limits produce findings without measurements.
  */
 export function measureAutoMoviePlacedContact(
   props: IAutoMoviePlacedContact.IProps,
@@ -30,8 +27,8 @@ export function measureAutoMoviePlacedContact(
 
 /**
  * Measure a support sample: express the observed point in the support's rigid
- * frame, then compare its local Y offset from the anchor with the gap limit
- * and its XZ offset with the slip limit, both in metres.
+ * frame, then compare its local Y offset from the anchor with the gap limit and
+ * its XZ offset with the slip limit, both in metres.
  */
 function measureSupport(
   props: Extract<IAutoMoviePlacedContact.IProps, { kind: "support" }>,
@@ -39,18 +36,6 @@ function measureSupport(
 ): IAutoMoviePlacedContact.IResult {
   const { path, maxGap, maxSlip } = props;
   const collector: ViolationCollector = new ViolationCollector();
-  validateVectorArtifact(
-    sample.point,
-    `${path}.point`,
-    "contact point",
-    collector.items,
-  );
-  validateVectorArtifact(
-    sample.anchor,
-    `${path}.anchor`,
-    "support anchor",
-    collector.items,
-  );
   validateFrame(sample.frame, `${path}.frame`, "support frame", collector);
   collector.range(`${path}.maxGap`, maxGap, 0, Infinity, "normal gap limit");
   collector.range(
@@ -85,8 +70,6 @@ function measureSupport(
     maxSlip,
     "tangential support slip in metres",
   );
-  if (!Number.isFinite(gap) || !Number.isFinite(slip))
-    return { status: "invalid", violations: collector.items };
   return {
     status: "checked",
     kind: "support",
@@ -148,8 +131,6 @@ function measureGrip(
     "grip separation in metres",
   );
   collector.range(`${path}.angle`, angle, 0, maxAngle, "grip angle in radians");
-  if (!Number.isFinite(distance) || !Number.isFinite(angle))
-    return { status: "invalid", violations: collector.items };
   return {
     status: "checked",
     kind: "grip",
@@ -160,8 +141,8 @@ function measureGrip(
 }
 
 /**
- * Admit a rigid frame's object shape, finite position and unit rotation,
- * appending each failure at its field path.
+ * Admit a rigid frame's finite position and unit rotation, appending each
+ * failure at its field path.
  */
 function validateFrame(
   frame: IAutoMovieRigidTransform,
@@ -169,24 +150,16 @@ function validateFrame(
   label: string,
   collector: ViolationCollector,
 ): void {
-  if (!validateObjectArtifact(frame, path, label, collector.items)) return;
-  validateVectorArtifact(
-    frame.position,
-    `${path}.position`,
-    `${label} position`,
-    collector.items,
-  );
-  validateRotationArtifact(
-    frame.rotation,
+  collector.unitQuaternion(
     `${path}.rotation`,
+    frame.rotation,
     `${label} rotation`,
-    collector,
   );
 }
 
 /**
- * A world point expressed in the frame at `origin` whose inverse orientation
- * is given.
+ * A world point expressed in the frame at `origin` whose inverse orientation is
+ * given.
  */
 function localPosition(
   point: IAutoMovieVector3,

@@ -15,8 +15,8 @@ export interface IAutoMovieProductionRenderTier {
   resolutionScale: number;
 
   /**
-   * Render every Nth timeline frame; an integer from 1 through 16, exactly 1
-   * at the final tier.
+   * Render every Nth timeline frame; an integer from 1 through 16, exactly 1 at
+   * the final tier.
    */
   frameStep: number;
 }

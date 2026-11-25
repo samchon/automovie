@@ -1,14 +1,20 @@
 /**
- * The throw's form: every coefficient of its launch, its clock, its trunk
- * and its hand's places by style, each with its source or marked provisional
- * where no study read gives the value. Read by `throwObject`.
+ * The throw's form: every coefficient of its launch, its clock, its trunk and
+ * its hand's places by style, each with its source or marked provisional where
+ * no study read gives the value. Read by `throwObject`.
  */
 export namespace IAutoMovieMotionHumanThrowObjectForm {
   /**
-   * Capture cases of the throw and catch family (#3232): performer `a` throws to performer `b` standing facing it, overarm over 6 m, underarm over 4 m and a toss over 2.5 m, aimed at the place ahead of `b` where its catch meets the path; `b` catches with two hands. How the object is thrown.
+   * Capture cases of the throw and catch family: performer `a` throws to
+   * performer `b` standing facing it, overarm over 6 m, underarm over 4 m and a
+   * toss over 2.5 m, aimed at the place ahead of `b` where its catch meets the
+   * path; `b` catches with two hands. How the object is thrown.
    */
   export type Style =
-    /** Release 20 degrees above the horizontal after a 0.5 s windup; a ball or stone thrown far (`throwObjectForm.ANGLE`, `throwObjectForm.WINDUP`). */
+    /**
+     * Release 20 degrees above the horizontal after a 0.5 s windup; a ball or
+     * stone thrown far (`throwObjectForm.ANGLE`, `throwObjectForm.WINDUP`).
+     */
     | "overarm"
     /** 40 degrees, 0.45 s; a lob or a precision throw from below. */
     | "underarm"

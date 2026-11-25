@@ -20,14 +20,21 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
- * Lateral recumbency with the limbs extended, as a mare lies during the expulsion of a foal (MSD Veterinary Manual, parturition in horses), and the rise from it.
+ * Lateral recumbency with the limbs extended, as a mare lies during the
+ * expulsion of a foal (MSD Veterinary Manual, parturition in horses), and the
+ * rise from it.
  *
- * The lying pose is the halted body itself turned a quarter about its long axis through its trunk's centre onto the given side, every joint kept as it stood so all four limbs lie extended, and set down so its lowest part rests on the floor. The horse goes down into it over the authored seconds by blending its halted pose into the lying one on a minimum-jerk share, held on the floor by its lowest part (`EquineBlend`), holds still, and rises back by the reverse blend. The lower limbs, which stand out a little from the barrel's side, bear with the flank.
+ * The lying pose is the halted body itself turned a quarter about its long axis
+ * through its trunk's centre onto the given side, every joint kept as it stood
+ * so all four limbs lie extended, and set down so its lowest part rests on the
+ * floor. The horse goes down into it over the authored seconds by blending its
+ * halted pose into the lying one on a minimum-jerk share, held on the floor by
+ * its lowest part (`EquineBlend`), holds still, and rises back by the reverse
+ * blend. The lower limbs, which stand out a little from the barrel's side, bear
+ * with the flank.
  */
 export namespace EquineRecumbency {
-  /**
-   * When and onto which side the horse lies.
-   */
+  /** When and onto which side the horse lies. */
   export interface ICue {
     /** Film second it starts going down, halted. */
     from: number;
@@ -49,18 +56,16 @@ export namespace EquineRecumbency {
    * @param ride Its ride, halted where it lies.
    * @param cue When and how.
    * @returns The ride with the recumbency over its halt.
-   * @throws {AutoMovieArchetypeRefusal} For a start before the halt or a transition or hold that is not finite and positive (the hold may be zero).
+   * @throws {AutoMovieArchetypeRefusal} For a start before the halt or a
+   *   transition or hold that is not finite and positive (the hold may be
+   *   zero).
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
     cue: ICue,
   ): AutoMovieArchetypeRide.IRide<Id, D> {
-    if (
-      !(cue.from >= ride.duration) ||
-      !(Number.isFinite(cue.down) && cue.down > 0) ||
-      !(Number.isFinite(cue.hold) && cue.hold >= 0)
-    )
+    if (!(cue.from >= ride.duration) || !(cue.down > 0) || !(cue.hold >= 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: animal.archetype,
@@ -99,17 +104,22 @@ export namespace EquineRecumbency {
         ),
       ),
     };
+    const posed: AutoMovieArchetype<Id, D> = halt.archetype;
+    const cells: AutoMovieArchetype["convexCells"] = posed.convexCells;
     const lowest: number = Math.min(
-      ...halt.archetype.parts
+      ...posed.parts
         .filter(
           (part: IAutoMovieModelPart): boolean =>
             part.transform !== undefined && part.transform !== null,
         )
         .map((part: IAutoMovieModelPart): number =>
-          QuadrupedRestFloor({
-            ...part,
-            transform: AutoMovieArchetypeFrame.compose(turned, part.transform!),
-          }),
+          QuadrupedRestFloor(
+            {
+              ...part,
+              transform: AutoMovieArchetypeFrame.compose(turned, part.transform!),
+            },
+            cells,
+          ),
         ),
     );
     const lying: IAutoMovieTransform = {

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidTraceLaw.ts#AutoMovieSolidTraceLaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each law, its derivatives and its parameter's meaning.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The parameter laws of an intersection trace (`AutoMovieSolidIntersection`): the fourth equation `g(P, phi, t) = 0` that fixes which point of the curve a parameter `t` names, with the derivatives the trace's Newton step and its second-order prediction read: companion namespace of 3 members (`ILaw`, `arc`, `of`); units and frames named in its text: world, second, newton, local, frame. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidTraceLaw` in packages/engine/src/geometry/construction/AutoMovieSolidTraceLaw.ts; its surface is the 3 members listed and the text shows 6 other files naming it, mostly packages/engine (4), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieSolidTraceLaw.ts#AutoMovieSolidTraceLaw.arc
 
 ## @evidence contracts/development/implementation.md#principled-implementation

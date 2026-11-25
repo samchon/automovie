@@ -515,13 +515,6 @@ export function test_architecture_built_environment_placement(): void {
         bearing("resting", support("element", "slab"), -1),
     ),
   );
-  TestValidator.predicate(
-    "non-finite tolerance is refused",
-    throwsError(
-      (): IAutoMovieBuiltSupportResult =>
-        bearing("resting", support("element", "slab"), Infinity),
-    ),
-  );
 
   const overlap: (
     left: string,

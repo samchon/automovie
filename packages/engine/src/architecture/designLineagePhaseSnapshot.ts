@@ -15,13 +15,28 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
 /**
  * Report every declared subject's role and presence once a phase completes.
  *
- * This exists so a phased scene, drawing, schedule, and render can read one answer instead of computing "what is standing" four times, because four computations are four chances to disagree and a demolition drawing that contradicts the demolition render is worse than neither existing.
+ * This exists so a phased scene, drawing, schedule, and render can read one
+ * answer instead of computing "what is standing" four times, because four
+ * computations are four chances to disagree and a demolition drawing that
+ * contradicts the demolition render is worse than neither existing.
  *
- * None of those four reads it. The callers are {@link designLineageProject} and {@link designLineageViewDigest} in this package and the test suite; no compiled scene, derived drawing, derived schedule, or draw list is filtered by it. The four cannot disagree because none of them asks, which is not the same property.
+ * None of those four reads it. The callers are {@link designLineageProject} and
+ * {@link designLineageViewDigest} in this package and the test suite; no
+ * compiled scene, derived drawing, derived schedule, or draw list is filtered
+ * by it. The four cannot disagree because none of them asks, which is not the
+ * same property.
  *
- * A null phase asks for the completed work: everything the plan ever removes is gone and everything else stands. That is also the only sensible answer for a lineage that records alternatives without recording a construction sequence.
+ * A null phase asks for the completed work: everything the plan ever removes is
+ * gone and everything else stands. That is also the only sensible answer for a
+ * lineage that records alternatives without recording a construction sequence.
  *
- * A subject's role comes from its whole lifecycle (`retained`, `demolished`, `new`, `temporary`) and its presence from the named phase: `present` once its introducing phase is reached, `removed` once its removing phase is reached, `pending` before either. A phase counts as reached when it is the named phase or one of its transitive prerequisites. One state is reported per lifecycle, sorted by subject id in code-unit order. An invalid lineage or an undeclared phase id throws an `Error`.
+ * A subject's role comes from its whole lifecycle (`retained`, `demolished`,
+ * `new`, `temporary`) and its presence from the named phase: `present` once its
+ * introducing phase is reached, `removed` once its removing phase is reached,
+ * `pending` before either. A phase counts as reached when it is the named phase
+ * or one of its transitive prerequisites. One state is reported per lifecycle,
+ * sorted by subject id in code-unit order. An invalid lineage or an undeclared
+ * phase id throws an `Error`.
  *
  * @param lineage Lineage whose lifecycles are read.
  * @param phase Construction phase id, or null for the completed work.
@@ -83,7 +98,8 @@ export const designLineagePhaseSnapshot: (
 };
 
 /**
- * The named phase and every phase that must complete before it, or a thrown `Error` when the lineage declares no such phase.
+ * The named phase and every phase that must complete before it, or a thrown
+ * `Error` when the lineage declares no such phase.
  */
 const reachedPhases: (
   lineage: IAutoMovieDesignLineage,

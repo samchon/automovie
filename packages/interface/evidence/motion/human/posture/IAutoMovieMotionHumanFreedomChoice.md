@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanFreedomChoice.ts#IAutoMovieMotionHumanFreedomChoice
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-judge: How far the fitted hand misses the pose the values give, metres, at each instant the pose is judged at, read lazily and in order. miss: The worst of the misses at every instant, metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-judge: How far the fitted hand misses the pose the values give, metres, at each instant the pose is judged at, read lazily and in order. miss: The worst of the misses at every instant, metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanFreedomChoice.ts (HumanFreedomChoice.chosen, return); posture/HumanFreedomChoice.ts (HumanFreedomChoice.chosen, problem); handling/pushSled.ts (pushSled.plan.take); posture/HumanFreedomChoice.ts (HumanFreedomChoice.chosen.within).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Bounded intervals and periodic coordinates use separate cases; the chooser keeps failed candidates visible instead of inventing an admissible coordinate.
-
 # src/motion/human/posture/IAutoMovieMotionHumanFreedomChoice.ts#IAutoMovieMotionHumanFreedomChoice.Freedom
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,4 +1,6 @@
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExercise,
   IAutoMovieMotionHumanPerformance,
@@ -17,34 +19,26 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the standing exercises (#3245), three repetitions each
- * from quiet standing.
+ * Capture cases of the standing exercises, three repetitions each from quiet
+ * standing.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot
  * (decision 11) and the exact count the issue asks for: the hips' (squat,
  * lunge), the raised ankle's (high knees) or the wrists' (jumping jack)
  * excursions counted on the 48 Hz grid. Beyond that:
  *
- * - `exercise-squat` (parallel): the thigh within 5 degrees of the declared
- *   angle from the horizontal at every `bottom`, and both feet within 5 mm
- *   of the floor while planted;
+ * - `exercise-squat` (parallel): the thigh within 5 degrees of the declared angle
+ *   from the horizontal at every `bottom`, and both feet within 5 mm of the
+ *   floor while planted;
  * - `exercise-lunge`: the trailing knee within 15 cm of the floor at every
- *   `bottom` (the back knee nearly touches the floor), and the lead ankle
- *   back within 5 mm of its stance at the end;
- * - `exercise-highKnees`: the raised thigh within 15 degrees of the
- *   horizontal at every `bottom`;
+ *   `bottom` (the back knee nearly touches the floor), and the lead ankle back
+ *   within 5 mm of its stance at the end;
+ * - `exercise-highKnees`: the raised thigh within 15 degrees of the horizontal at
+ *   every `bottom`;
  * - `exercise-jumpingJack`: both wrists above the crown at every `bottom`.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per exercise and body, one verdict block per exercise.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function exerciseCases(
   bodies: readonly string[] = ["m-average"],
@@ -65,6 +59,8 @@ export function exerciseCases(
     ] as IAutoMovieMotionHumanExercise.Kind[]) {
       const name: string = `exercise-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "exercise",
@@ -89,9 +85,9 @@ export function exerciseCases(
       const bottoms: number[] = [1, 2, 3].map((i: number): number =>
         TouchVerdicts.event(performance, "a", `bottom${i}`),
       );
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
-      const thigh = (t: number, side: "left" | "right"): number => {
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
+      const thigh = (t: number, side: AutoMovieHumanSide): number => {
         const hip: IAutoMovieVector3 = at(t, `${side}UpperLeg`);
         const knee: IAutoMovieVector3 = at(t, `${side}LowerLeg`);
         const d: number = Math.hypot(

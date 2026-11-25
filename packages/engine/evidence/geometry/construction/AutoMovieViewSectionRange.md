@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewSectionRange.ts#AutoMovieViewSectionRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States numerical reach rather than a continuous geometric or arclength certificate.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Finite normalized-shoulder reach uses measured trial records owned by the interface package. Source lengths remain in the box's physical unit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The companion namespace exposes the near-target selection, the complete numeric reach, one native measurement and the shared residual tolerance to the ViewSection owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewSectionRange.ts#AutoMovieViewSectionRange.nearby
 
 ## @evidence contracts/development/implementation.md#principled-implementation

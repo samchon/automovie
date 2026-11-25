@@ -1,7 +1,6 @@
 import type { IAutoMovieSpringState } from "@automovie/interface";
 
-/** A fresh, empty spring state.
- */
+/** A fresh, empty spring state. */
 export const createSpringState: () => IAutoMovieSpringState =
   (): IAutoMovieSpringState => ({
     prev: new Map(),

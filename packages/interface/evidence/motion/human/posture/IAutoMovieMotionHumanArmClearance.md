@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanArmClearance.ts#IAutoMovieMotionHumanArmClearance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-forearm: The forearm's needed room `overshoot` reads, degrees. segments: The arm's segments' depth the tangle audit reads, degrees.
-
-## @evidence contracts/development/design.md#principled-representation
-
-forearm: The forearm's needed room `overshoot` reads, degrees. segments: The arm's segments' depth the tangle audit reads, degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry.plain, return); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry.plan, return); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry.reading, of); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry, return); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry, of); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carried.arm, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in AutoMovieMotionHumanArmCarry.carry.plain.
-
 # src/motion/human/posture/IAutoMovieMotionHumanArmClearance.ts#IAutoMovieMotionHumanArmClearance.IArm
 
 ## @evidence contracts/development/common.md#meaningful-documentation

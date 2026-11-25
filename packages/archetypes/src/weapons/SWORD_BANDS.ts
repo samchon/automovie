@@ -21,7 +21,10 @@ const DAGGER: string =
 const KNIFE: string =
   "Ka-Bar fighting knife, 30.16 cm overall, 17.8 cm blade, 320 g (Wikipedia, https://en.wikipedia.org/wiki/Ka-Bar)";
 
-/** A value no source read gives: an estimate from the kind's typical make, always provisional. */
+/**
+ * A value no source read gives: an estimate from the kind's typical make,
+ * always provisional.
+ */
 const ESTIMATE: string = "typical of the kind, not read at a source";
 
 /** A band in metres that is an estimate. */
@@ -29,9 +32,14 @@ const guess = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
   AutoMovieArchetypeBand.metres(minimum, maximum, ESTIMATE, true);
 
 /**
- * The band of each free dimension of a blade that its kind's read model leaves, by kind, with the source it was read at; `createSword.BANDS` is this table.
+ * The band of each free dimension of a blade that its kind's read model leaves,
+ * by kind, with the source it was read at; `createSword.BANDS` is this table.
  *
- * A longsword and an arming sword are each one of their maker's swords whole (`SWORD_MODELS`), so they have no bands, and a sabre's mass is its pattern's. The others rest on secondary sources for length and mass, and their width, hilt length and point of balance are estimates: the missing measurement is a museum or maker record of that kind giving the point of balance.
+ * A longsword and an arming sword are each one of their maker's swords whole
+ * (`SWORD_MODELS`), so they have no bands, and a sabre's mass is its pattern's.
+ * The others rest on secondary sources for length and mass, and their width,
+ * hilt length and point of balance are estimates: the missing measurement is a
+ * museum or maker record of that kind giving the point of balance.
  */
 export const SWORD_BANDS: Readonly<
   Record<

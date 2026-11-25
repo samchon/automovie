@@ -3,24 +3,18 @@ import type { IAutoMovieMotionHumanHandToFaceRows } from "@automovie/interface";
 import { handToFaceSheet } from "./handToFaceSheet";
 
 /**
- * The hand-to-face tasks as rows of the touch generator: each task's region
- * on the performer's own head, the implied tool's tip as the effector, the
+ * The hand-to-face tasks as rows of the touch generator: each task's region on
+ * the performer's own head, the implied tool's tip as the effector, the
  * movement at the face and the head's share of the approach. Read by
  * `handToFace`, which states the sources.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a row holds and who reads the table.
- * @evidence contracts/development/design.md#principled-representation One record per task over the touch row's data, so a task is data and never a law of its own.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The task union, the row and the table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; tool tips are shares of the hand's length.
  */
 export namespace handToFaceRows {
   /**
-   * The tasks' rows. The drink's time at the mouth is the 1.71 s drinking
-   * phase of Alt Murphy et al. 2006 (J NeuroEng Rehabil 3:18, Table 2,
-   * healthy controls) and the reading head flexion is Lee et al. 2015's
-   * (`handToFaceSheet.HEAD`);
-   * the tool lengths, the other head angles, times at the face and stroke
-   * counts have no located measurement.
+   * The tasks' rows. The drink's time at the mouth is the 1.71 s drinking phase
+   * of Alt Murphy et al. 2006 (J NeuroEng Rehabil 3:18, Table 2, healthy
+   * controls) and the reading head flexion is Lee et al. 2015's
+   * (`handToFaceSheet.HEAD`); the tool lengths, the other head angles, times at
+   * the face and stroke counts have no located measurement.
    */
   export const ROWS: Readonly<
     Record<

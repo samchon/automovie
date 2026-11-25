@@ -11,7 +11,8 @@ import type { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * `autoMoviePatternTextureTransforms` reads it: `module` makes each piece's
  * centre sample the sheet at `(0.5, 0.5)`, while `face` places each piece's
  * centre on the sheet measured from `origin`, turned by the piece's grain and
- * divided by the tile size. A non-finite `face` origin is refused with a throw.
+ * divided by the tile size. A non-finite `face` origin is refused with a
+ * throw.
  */
 export type IAutoMoviePatternTextureSheet =
   | {

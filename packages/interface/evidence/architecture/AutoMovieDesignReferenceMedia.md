@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Five media strings mirror the engine's exact case-sensitive table. isAutoMovieDesignReferenceMedia checks string membership only; byte/container correctness, decoded extent and correspondence with the declared family remain host premises after production inspector retirement.
+Five media strings mirror the engine's exact case-sensitive table; the compiler owns membership, so no runtime check re-reads it. Byte/container correctness, decoded extent and correspondence with the declared family remain host premises after production inspector retirement.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

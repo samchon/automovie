@@ -12,8 +12,8 @@ import { seededValue } from "./math/seededValue";
  * what they hand it: where a promoted hero is spelled, and the terrain the
  * slot's position is placed on. A hero slot is named by its actor and an
  * anonymous slot by `formation:<id>:slot:<six-digit slot>`; every member
- * carries the base model and the designed heading; and its motion phase in
- * `[0, 1)` is seeded by the formation seed and the slot under the phase domain
+ * carries the base model and the designed heading; and its motion phase in `[0,
+ * 1)` is seeded by the formation seed and the slot under the phase domain
  * constant, whichever actor or position it is handed. The slot index is not
  * range-checked here; the caller's placement already refused it.
  */

@@ -4,7 +4,6 @@ import type {
   IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanPosture,
@@ -23,20 +22,23 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 
 /**
- * Prepare the steady shared carry in CORE4D (Liu et al. 2024, §3.4 and
- * appendix D.1, https://arxiv.org/abs/2406.19353). Two distinct hands keep
- * their own contacts during one authored rigid-object motion. The prop's
- * path drives both arms; stance, travel and the entry/exit poses are authored.
- * A model may explicitly declare rigid geometry even if its adapter exposes a pose reader.
+ * Prepare the steady shared carry in CORE4D (Liu et al. 2024, §3.4 and appendix
+ * D.1, https://arxiv.org/abs/2406.19353). Two distinct hands keep their own
+ * contacts during one authored rigid-object motion. The prop's path drives both
+ * arms; stance, travel and the entry/exit poses are authored. A model may
+ * explicitly declare rigid geometry even if its adapter exposes a pose reader.
  * Both grips cover the entire interval. Independent arm planning does not
  * certify clearance between performers or with the environment.
  *
  * @param input The prop, the carriers and their common film interval.
  * @returns The tracked prop and two prepared posture readers, in carrier order.
- * @throws {RangeError} For invalid times, conflicting prop ownership, missing or coincident sites, or a prop or hand starting outside its grip bounds.
- * @throws {HumanRefusal} If the existing arm planner cannot meet either carrier's grip.
+ * @throws {RangeError} For invalid times, conflicting prop ownership, missing
+ *   or coincident sites, or a prop or hand starting outside its grip bounds.
+ * @throws {HumanRefusal} If the existing arm planner cannot meet either
+ *   carrier's grip.
  */
 export function AutoMovieMotionHumanSharedCarry(
   input: IAutoMovieMotionHumanSharedCarry.IInput,
@@ -49,9 +51,7 @@ export function AutoMovieMotionHumanSharedCarry(
   }: IAutoMovieMotionHumanSharedCarry.IInput = input;
   const duration: number = to - from;
   if (
-    !Number.isFinite(from) ||
-    !Number.isFinite(to) ||
-    from < 0 ||
+    !(from >= 0) ||
     !(duration > 0 && duration <= MAX_DURATION)
   )
     throw new RangeError(
@@ -110,7 +110,10 @@ export function AutoMovieMotionHumanSharedCarry(
   };
 }
 
-/** Prepare a single arm on the shared path, then write its solved joints over the supplied base. */
+/**
+ * Prepare a single arm on the shared path, then write its solved joints over
+ * the supplied base.
+ */
 function prepareCarrier(
   carrier: IAutoMovieMotionHumanSharedCarry.ICarrier,
   point: IAutoMovieVector3,
@@ -211,7 +214,7 @@ function prepareCarrier(
       );
   }
 
-  const arm: IAutoMovieMotionHumanArmTrajectory.Trajectory =
+  const arm: IAutoMovieMotionHumanArmTrajectory.Played =
     AutoMovieMotionHumanArmPlanned.planned(
       body,
       bounds,
@@ -233,22 +236,20 @@ function prepareCarrier(
       throw new RangeError(
         `Shared carry posture is only available from ${from} to ${to} s.`,
       );
-    const base: IAutoMovieMotionHumanPosture = posture(seconds);
-    const on: IAutoMovieMotionHumanArmClearance.IArm = arm(seconds - from);
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
-    delete limbs[`${side}Arm`];
-    return {
-      ...base,
-      limbs,
-      joints: {
-        ...base.joints,
-        [`${side}UpperArm`]: on.upper,
-        [`${side}LowerArm`]: on.lower,
-        [`${side}Hand`]: on.hand,
-      },
-    };
+    // The planned arm, its hand's fingers as the plan plays them
+    // (`AutoMovieMotionHumanArmPlayed.written`).
+    const on: IAutoMovieMotionHumanArmTrajectory.IPlayed = arm(seconds - from);
+    return AutoMovieMotionHumanArmPlayed.written(
+      posture(seconds),
+      side,
+      on,
+      on.digits,
+    );
   };
 }
 
-/** Draft planning budget, in seconds, limiting each arm to five seconds of trajectory refinement. */
+/**
+ * Draft planning budget, in seconds, limiting each arm to five seconds of
+ * trajectory refinement.
+ */
 const MAX_DURATION: number = 5;

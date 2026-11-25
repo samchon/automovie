@@ -7,25 +7,25 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingSkill } from "./StrikingSkill";
 
 /**
- * Whether a defence is in time, late or fails against one strike, decided
- * from the two performers' timing before any geometry, and how a forced
- * outcome is realised with plausible human timing.
+ * Whether a defence is in time, late or fails against one strike, decided from
+ * the two performers' timing before any geometry, and how a forced outcome is
+ * realised with plausible human timing.
  *
- * The law (campaign #3201): the defender starts at `t_start = launch + RT -
- * lead x telegraph`, where `RT` is a simple reaction time from the defender's
+ * The law (the campaign): the defender starts at `t_start = launch + RT - lead
+ * x telegraph`, where `RT` is a simple reaction time from the defender's
  * ex-Gaussian, `lead` the anticipation the defender's skill buys and
- * `telegraph` in [0, 1] how much of the attack its preparation shows. With
- * the defence's own movement time `T_def` and the attacker's contact second
+ * `telegraph` in [0, 1] how much of the attack its preparation shows. With the
+ * defence's own movement time `T_def` and the attacker's contact second
  * `t_hit`, the margin is `m = t_hit - (t_start + T_def)`:
  *
  * - `m >= 0`: in time; the defending limb or head is in place at contact.
  * - `-T_def / 2 < m < 0`: late; the strike lands through the half-made guard.
- * - otherwise: fail; the strike lands as if undefended.
+ * - Otherwise: fail; the strike lands as if undefended.
  *
- * A roundhouse reaches its target in about one simple reaction time (280 to
- * 300 ms against a 290 ms elite mean), so a purely reactive defence cannot be
- * in time against a fast kick; anticipation is what makes it possible, which
- * is the evidence this law encodes.
+ * A roundhouse reaches its target in about one simple reaction time (280 to 300
+ * ms against a 290 ms elite mean), so a purely reactive defence cannot be in
+ * time against a fast kick; anticipation is what makes it possible, which is
+ * the evidence this law encodes.
  *
  * Forcing an outcome draws `m` from the forced band intersected with the
  * plausible band (every reaction time and lead inside its 1 to 99 % range),
@@ -35,11 +35,6 @@ import { StrikingSkill } from "./StrikingSkill";
  * suffices, the forced outcome is refused with the outcomes plausible timing
  * does reach, since the outcome is the author's input and must not change
  * silently. An implausible reaction time is never used.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the start law, the margin bands, the evidence behind anticipation and how a forced outcome is realised or refused.
- * @evidence contracts/development/design.md#principled-representation The outcome as a closed union of the three margin bands, the timing in film seconds, and a decision that carries the realised reaction, lead and stretch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The types and the classify, band and decide functions the defence law and its tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's random stream and the skill types.
  */
 export namespace DefenceOutcome {
   /**
@@ -48,14 +43,6 @@ export namespace DefenceOutcome {
    * @param margin `t_hit - (t_start + T_def)`, seconds.
    * @param movement `T_def`, seconds.
    * @returns The outcome.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and units.
-   * @evidence contracts/development/implementation.md#principled-implementation The campaign's margin bands: non-negative in time, above minus half the movement time late, otherwise fail.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two comparisons.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function classify(
     margin: number,
@@ -72,14 +59,6 @@ export namespace DefenceOutcome {
    * @param outcome The outcome.
    * @param movement `T_def`, seconds.
    * @returns `[low, high]`; open ends are infinite.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result's form and its open ends.
-   * @evidence contracts/development/implementation.md#principled-implementation The same bands as the classification, as intervals.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per outcome.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function band(
     outcome: IAutoMovieMotionHumanDefenceOutcome.Outcome,
@@ -97,16 +76,12 @@ export namespace DefenceOutcome {
    * @param random The defender's stream for this defence.
    * @param forced The outcome to force, when the author declares one.
    * @returns The decision.
-   * @throws {Error} When the contact is not after the launch, the movement time is not positive, the telegraph leaves [0, 1] or the stretch band excludes 1.
-   * @throws {HumanRefusal} A `parameter` refusal on `outcome` when no plausible timing inside the attack's stretch band meets the forced outcome, with the outcomes it does meet.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two modes and both kinds of refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Unforced: the skill's ex-Gaussian reaction and a uniform lead give the margin. Forced: the plausible margin band, linear in the attack's stretch, is met in closed form, a margin drawn strictly inside the intersection and split into an in-band reaction and lead.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the unforced draw, then the stretch, the margin and the split for a forced outcome.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid timing throws; an unmeetable forced outcome is refused with the reachable outcomes, never realised in another band or with an implausible reaction time; the 2 % inset keeps a draw off a band's exclusive edge.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs and the given stream.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {Error} When the contact is not after the launch, the movement time
+   *   is not positive, the telegraph leaves [0, 1] or the stretch band excludes
+   *   1.
+   * @throws {HumanRefusal} A `parameter` refusal on `outcome` when no plausible
+   *   timing inside the attack's stretch band meets the forced outcome, with
+   *   the outcomes it does meet.
    */
   export function decide(
     input: IAutoMovieMotionHumanDefenceOutcome.IInput,
@@ -190,23 +165,24 @@ export namespace DefenceOutcome {
       ];
       const reachable: IAutoMovieMotionHumanDefenceOutcome.Outcome[] = (
         ["inTime", "late", "fail"] as const
-      ).filter((outcome: IAutoMovieMotionHumanDefenceOutcome.Outcome): boolean => {
-        const [b0, b1] = band(outcome, input.movement);
-        return Math.max(b0, reach[0]) <= Math.min(b1, reach[1]);
-      });
+      ).filter(
+        (outcome: IAutoMovieMotionHumanDefenceOutcome.Outcome): boolean => {
+          const [b0, b1] = band(outcome, input.movement);
+          return Math.max(b0, reach[0]) <= Math.min(b1, reach[1]);
+        },
+      );
       throw new HumanRefusal({
         kind: "parameter",
         axis: "outcome",
         value: forced,
         feasible: { kind: "alternatives", values: reachable },
         reason: `a ${forced} defence needs a margin in [${wanted[0].toFixed(3)}, ${wanted[1].toFixed(3)}] s, but plausible timing gives [${q0.toFixed(3)}, ${q1.toFixed(3)}] s even at attack stretch ${factor.toFixed(3)}`,
-        fix: "force an outcome plausible timing reaches, let the attack's duration stretch further, or give the attack more telegraph",
+        fix: "force one of the outcomes listed, or change what sets the timing: the attack's technique (a round kick shows most of its preparation, a lead jab least) or the defender's proficiency",
       });
     }
 
     // A strictly-inside draw: the late band's ends are exclusive.
-    const margin: number =
-      low + (high - low) * (0.02 + 0.96 * random.float(0));
+    const margin: number = low + (high - low) * (0.02 + 0.96 * random.float(0));
 
     // Split the start into a reaction and a lead: the lead's share of its band
     // is drawn, the reaction follows, and if it leaves its band it is clamped

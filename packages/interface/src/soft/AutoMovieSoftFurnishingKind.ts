@@ -1,6 +1,4 @@
-/**
- * Semantic furnishing category on an architecture-to-soft-domain binding.
- */
+/** Semantic furnishing category on an architecture-to-soft-domain binding. */
 export type AutoMovieSoftFurnishingKind =
   | "curtain"
   | "blind"

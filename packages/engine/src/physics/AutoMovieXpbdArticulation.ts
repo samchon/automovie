@@ -8,24 +8,24 @@ import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 /**
  * One articulation's impulse response by the articulated-body algorithm
  * (Featherstone 2008, "Rigid Body Dynamics Algorithms", chapter 7), in
- * world-aligned spatial coordinates (angular, linear) about the tree's
- * origin.
+ * world-aligned spatial coordinates (angular, linear) about the tree's origin.
  *
- * `factor` runs the inward sweep's matrix part once: each edge's
- * `U = I^A S`, its joint-space term `D = S^T I^A S + diag(h c)` with every
- * free motor's backward-Euler damping, `D^-1 U^T`, and the articulated
- * inertias `I^A = I - U D^-1 U^T` gathered into each parent. `propagate`
- * then answers one right-hand side in one inward and one outward sweep:
- * the joint impulses `b` (the motors' `h c (s - qd)`, or a held motor's
- * cap) when `drive` is set, and an external spatial impulse on one body,
- * giving every body's velocity change and every axis's relative angular
- * velocity change. Because the factor does not depend on the right-hand
- * side, a test impulse costs only the two vector sweeps (Mirtich 1996,
- * "Impulse-based Dynamic Simulation of Rigid Body Systems", chapter 6).
+ * `factor` runs the inward sweep's matrix part once: each edge's `U = I^A S`,
+ * its joint-space term `D = S^T I^A S + diag(h c)` with every free motor's
+ * backward-Euler damping, `D^-1 U^T`, and the articulated inertias `I^A = I - U
+ * D^-1 U^T` gathered into each parent. `propagate` then answers one right-hand
+ * side in one inward and one outward sweep: the joint impulses `b` (the motors'
+ * `h c (s - qd)`, or a held motor's cap) when `drive` is set, and an external
+ * spatial impulse on one body, giving every body's velocity change and every
+ * axis's relative angular velocity change. Because the factor does not depend
+ * on the right-hand side, a test impulse costs only the two vector sweeps
+ * (Mirtich 1996, "Impulse-based Dynamic Simulation of Rigid Body Systems",
+ * chapter 6).
  */
 export namespace AutoMovieXpbdArticulation {
   /**
-   * One articulation: its bodies (the root first), its edges (each after its parent's) and its spatial origin.
+   * One articulation: its bodies (the root first), its edges (each after its
+   * parent's) and its spatial origin.
    */
   export interface ITree {
     /** The root body's centre, metres. */
@@ -41,9 +41,7 @@ export namespace AutoMovieXpbdArticulation {
     edges: IEdge[];
   }
 
-  /**
-   * One body of a tree.
-   */
+  /** One body of a tree. */
   export interface IState {
     /** The world's body. */
     body: AutoMovieXpbdBody;
@@ -52,9 +50,7 @@ export namespace AutoMovieXpbdArticulation {
     own: number[];
   }
 
-  /**
-   * One joint of a tree.
-   */
+  /** One joint of a tree. */
   export interface IEdge {
     /** The parent's index in the tree's states. */
     parent: number;
@@ -66,9 +62,7 @@ export namespace AutoMovieXpbdArticulation {
     axes: IAxis[];
   }
 
-  /**
-   * One free axis of an edge.
-   */
+  /** One free axis of an edge. */
   export interface IAxis {
     /** Spatial motion column: unit rotation about the anchor. */
     column: number[];
@@ -81,11 +75,17 @@ export namespace AutoMovieXpbdArticulation {
 
     /** The impulse once its cap holds the motor; absent while free. */
     fixed?: number;
+
+    /**
+     * Whether the axis is held at its limit: its relative rate after the pass
+     * is zero, a prescribed motion of the joint rather than a free axis of `S`
+     * (Featherstone 2008, section 7.3, prescribed joint motion). Distinct from
+     * `fixed`, which holds a motor's impulse at its cap.
+     */
+    locked?: boolean;
   }
 
-  /**
-   * The matrix part of the inward sweep.
-   */
+  /** The matrix part of the inward sweep. */
   export interface IFactor {
     /** Each edge's factor, in the tree's edge order. */
     edges: IEdgeFactor[];
@@ -94,12 +94,16 @@ export namespace AutoMovieXpbdArticulation {
     root?: Solve;
   }
 
-  /**
-   * One edge's factor.
-   */
+  /** One edge's factor. */
   export interface IEdgeFactor {
-    /** `U = I^A S` per axis. */
+    /** `U = I^A S` per free axis; zero for a locked one. */
     u: number[][];
+
+    /**
+     * `I^A s` per locked axis, the child's articulated momentum per unit of its
+     * prescribed rate; zero for a free one.
+     */
+    held: number[][];
 
     /** Rows of `D^-1 U^T` per axis. */
     gain: number[][];
@@ -110,18 +114,17 @@ export namespace AutoMovieXpbdArticulation {
     /** Each axis's implicit damping term `h c`; zero without a free motor. */
     damping: number[];
 
-    /** Each axis's joint impulse `b`: `h c (s - qd)` for a free motor, the cap for a held one, else zero. */
+    /**
+     * Each axis's joint impulse `b`: `h c (s - qd)` for a free motor, the cap
+     * for a held one, else zero.
+     */
     impulse: number[];
   }
 
-  /**
-   * A linear solve with one factored matrix.
-   */
+  /** A linear solve with one factored matrix. */
   export type Solve = (right: readonly number[]) => number[];
 
-  /**
-   * An external spatial impulse on one body of a tree.
-   */
+  /** An external spatial impulse on one body of a tree. */
   export interface IExternal {
     /** The body's index in the tree's states. */
     state: number;
@@ -131,8 +134,8 @@ export namespace AutoMovieXpbdArticulation {
   }
 
   /**
-   * A joint impulse on one free axis of one edge, acting between the
-   * edge's parent and child.
+   * A joint impulse on one free axis of one edge, acting between the edge's
+   * parent and child.
    */
   export interface IJointImpulse {
     /** The edge's index in the tree's edges. */
@@ -145,9 +148,7 @@ export namespace AutoMovieXpbdArticulation {
     impulse: number;
   }
 
-  /**
-   * The velocity changes of one propagation.
-   */
+  /** The velocity changes of one propagation. */
   export interface IResponse {
     /** Each body's spatial velocity change. */
     change: number[][];
@@ -171,30 +172,42 @@ export namespace AutoMovieXpbdArticulation {
     for (let index: number = tree.edges.length - 1; index >= 0; --index) {
       const edge: IEdge = tree.edges[index]!;
       const child: number[] = inertia[edge.child]!;
+      // A locked axis leaves `S`: its column carries no articulated inertia
+      // (`U` zero), its row of `D` is the identity, so `D^-1` returns its
+      // prescribed rate, and the child's momentum along it is `held`.
       const u: number[][] = edge.axes.map((axis: IAxis): number[] =>
-        multiply(child, axis.column),
+        axis.locked === true ? ZERO : multiply(child, axis.column),
+      );
+      const held: number[][] = edge.axes.map((axis: IAxis): number[] =>
+        axis.locked === true ? multiply(child, axis.column) : ZERO,
       );
       const damping: number[] = edge.axes.map((axis: IAxis): number =>
-        axis.motor !== undefined && axis.fixed === undefined
+        axis.motor !== undefined &&
+        axis.fixed === undefined &&
+        axis.locked !== true
           ? h * axis.motor.damping
           : 0,
       );
-      const impulse: number[] = edge.axes.map(
-        (axis: IAxis): number =>
-          axis.fixed ??
-          (axis.motor !== undefined
-            ? h * axis.motor.damping * (axis.motor.speed - axis.present)
-            : 0),
+      // A locked axis's prescribed rate change brings its rate to zero.
+      const impulse: number[] = edge.axes.map((axis: IAxis): number =>
+        axis.locked === true
+          ? -axis.present
+          : (axis.fixed ??
+            (axis.motor !== undefined
+              ? h * axis.motor.damping * (axis.motor.speed - axis.present)
+              : 0)),
       );
       const solve: Solve | null =
         edge.axes.length === 0
           ? (right: readonly number[]): number[] => [...right]
           : prepareLinearSystem(
               edge.axes.map((row: IAxis, k: number): number[] =>
-                u.map(
-                  (column: number[], l: number): number =>
-                    dot(row.column, column) + (k === l ? damping[k]! : 0),
-                ),
+                row.locked === true
+                  ? u.map((_: number[], l: number): number => (k === l ? 1 : 0))
+                  : u.map(
+                      (column: number[], l: number): number =>
+                        dot(row.column, column) + (k === l ? damping[k]! : 0),
+                    ),
               ),
             );
       if (solve === null) return null;
@@ -202,11 +215,10 @@ export namespace AutoMovieXpbdArticulation {
       const columns: number[][] = SIX.map((m: number): number[] =>
         solve(u.map((column: number[]): number => column[m]!)),
       );
-      const gain: number[][] = edge.axes.map(
-        (_: IAxis, k: number): number[] =>
-          columns.map((column: number[]): number => column[k]!),
+      const gain: number[][] = edge.axes.map((_: IAxis, k: number): number[] =>
+        columns.map((column: number[]): number => column[k]!),
       );
-      edges[index] = { u, gain, solve, damping, impulse };
+      edges[index] = { u, held, gain, solve, damping, impulse };
       inertia[edge.parent] = inertia[edge.parent]!.map(
         (value: number, cell: number): number => {
           const r: number = Math.floor(cell / 6);
@@ -251,15 +263,30 @@ export namespace AutoMovieXpbdArticulation {
     for (let index: number = tree.edges.length - 1; index >= 0; --index) {
       const edge: IEdge = tree.edges[index]!;
       const f: IEdgeFactor = factored.edges[index]!;
-      const child: number[] = bias[edge.child]!;
+      // A locked axis moves by its prescribed rate change (with the motors'
+      // impulses, else none): the child's articulated momentum gains `I^A s`
+      // times it before the free axes and the parent read it.
+      const prescribed: number[] = edge.axes.map(
+        (axis: IAxis, k: number): number =>
+          axis.locked === true && drive ? f.impulse[k]! : 0,
+      );
+      const child: number[] = bias[edge.child]!.map(
+        (value: number, r: number): number => {
+          let sum: number = value;
+          for (let k: number = 0; k < prescribed.length; ++k)
+            sum += f.held[k]![r]! * prescribed[k]!;
+          return sum;
+        },
+      );
       const d: number[] = f.solve(
-        edge.axes.map(
-          (axis: IAxis, k: number): number =>
-            (drive ? f.impulse[k]! : 0) +
-            (joint !== undefined && joint.edge === index && joint.axis === k
-              ? joint.impulse
-              : 0) -
-            dot(axis.column, child),
+        edge.axes.map((axis: IAxis, k: number): number =>
+          axis.locked === true
+            ? prescribed[k]!
+            : (drive ? f.impulse[k]! : 0) +
+              (joint !== undefined && joint.edge === index && joint.axis === k
+                ? joint.impulse
+                : 0) -
+              dot(axis.column, child),
         ),
       );
       drives[index] = d;
@@ -273,7 +300,9 @@ export namespace AutoMovieXpbdArticulation {
     }
     const change: number[][] = tree.states.map((): number[] => ZERO);
     if (factored.root !== undefined)
-      change[0] = factored.root(bias[0]!.map((value: number): number => -value));
+      change[0] = factored.root(
+        bias[0]!.map((value: number): number => -value),
+      );
     const rates: number[][] = new Array<number[]>(tree.edges.length);
     tree.edges.forEach((edge: IEdge, index: number): void => {
       const f: IEdgeFactor = factored.edges[index]!;
@@ -294,10 +323,10 @@ export namespace AutoMovieXpbdArticulation {
   }
 
   /**
-   * A body's spatial inertia about `origin` in world axes, row-major 6x6
-   * over (angular, linear): `[[I_c + m [c]x [c]x^T, m [c]x], [m [c]x^T, m E]]`
-   * with `c` its centre relative to `origin` (Featherstone 2008, eq. 2.63);
-   * zero for a kinematic body.
+   * A body's spatial inertia about `origin` in world axes, row-major 6x6 over
+   * (angular, linear): `[[I_c + m [c]x [c]x^T, m [c]x], [m [c]x^T, m E]]` with
+   * `c` its centre relative to `origin` (Featherstone 2008, eq. 2.63); zero for
+   * a kinematic body.
    *
    * @param body The body.
    * @param origin The tree's origin, metres.
@@ -331,8 +360,8 @@ export namespace AutoMovieXpbdArticulation {
   }
 
   /**
-   * The spatial impulse about the origin of a linear impulse at a point:
-   * `(r x f, f)`.
+   * The spatial impulse about the origin of a linear impulse at a point: `(r x
+   * f, f)`.
    *
    * @param point The point relative to the origin, metres.
    * @param force The linear impulse, newton seconds.
@@ -347,8 +376,8 @@ export namespace AutoMovieXpbdArticulation {
   }
 
   /**
-   * The velocity change of a point under a body's spatial velocity
-   * change: `dv_O + dw x r`.
+   * The velocity change of a point under a body's spatial velocity change:
+   * `dv_O + dw x r`.
    *
    * @param change The body's spatial velocity change.
    * @param point The point relative to the origin, metres.

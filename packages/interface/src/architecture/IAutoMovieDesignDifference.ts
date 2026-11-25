@@ -2,8 +2,8 @@
  * One aspect on which two alternatives differ.
  *
  * Lineage never reads the base revision's own value, so an alternative that
- * leaves the aspect alone is reported as null rather than as the base value.
- * At least one side is non-null, and the two sides are never equal.
+ * leaves the aspect alone is reported as null rather than as the base value. At
+ * least one side is non-null, and the two sides are never equal.
  */
 export interface IAutoMovieDesignDifference {
   /** The lineage subject id both alternatives are talking about. */

@@ -19,27 +19,22 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
 /**
  * Resolve an inert digital display token.
  *
- * The stored model record and original draw session preserve the silhouette's scene identity, size and material.
+ * The stored model record and original draw session preserve the silhouette's
+ * scene identity, size and material.
  *
  * @param kind The historical profile label.
- * @param build The shape builder for the chosen profile, with its resolved dimensions.
+ * @param build The shape builder for the chosen profile, with its resolved
+ *   dimensions.
  * @param params The model choice, admitted dimensions and scene identifier.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the source record and digital display callback.
- * @evidence contracts/development/implementation.md#principled-implementation Resolves model and admitted band values, and then asks the selected visual profile to emit its body and named contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Share the seeded record and model creation code across the owning profiles.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function StageTokenConstruction(
   kind: createProjectile.Kind,
   params: Omit<createProjectile.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   build: StageTokenConstruction.Build,
 ): AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createProjectile.Dimension> =
@@ -89,14 +84,7 @@ export function StageTokenConstruction(
   return build(builder, d, model.name);
 }
 
-/**
- * Resolved digital prop dimensions and optional named reference model.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the recorded dimensions and model used by the visual profile.
- * @evidence contracts/development/design.md#principled-representation The catalogue retains its closed reference ids and source dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The geometry callback sees one builder, its dimensions and the selected reference.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Unrelated profile declarations never replace the selected model.
- */
+/** Resolved digital prop dimensions and optional named reference model. */
 export namespace StageTokenConstruction {
   /** Builds one digital silhouette and its existing metadata. */
   export type Build = (

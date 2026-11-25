@@ -24,15 +24,18 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 /**
  * The bend-plane fit of `fitSeededChainToTarget`, before its effector is
  * oriented, with the seed of its hinged candidate when that candidate is the
- * answer: the hinged swivel candidate first when the mid joint is a hinge,
- * then the bend hint's plane, then the 32-plane sweep and its local
- * halvings, candidates ranked by their clamped residual's bucket
- * (`PLANT_RESIDUAL_EPSILON`), then their turn from the reference pose, then
- * the exact residual.
+ * answer: the hinged swivel candidate first when the mid joint is a hinge, then
+ * the bend hint's plane, then the 32-plane sweep and its local halvings,
+ * candidates ranked by their clamped residual's bucket
+ * (`PLANT_RESIDUAL_EPSILON`), then their turn from the reference pose, then the
+ * exact residual.
  *
- * @param props The current model-metre target with this workspace's unchanged source fields; its point stays unchanged through this synchronous search.
- * @param workspace The matching unchanged source request and its scoped invariant data.
- * @returns The fitted pose and its hinged seed; failed preparation or analytic admission keeps the source pose with no seed.
+ * @param props The current model-metre target with this workspace's unchanged
+ *   source fields; its point stays unchanged through this synchronous search.
+ * @param workspace The matching unchanged source request and its scoped
+ *   invariant data.
+ * @returns The fitted pose and its hinged seed; failed preparation or analytic
+ *   admission keeps the source pose with no seed.
  */
 export const fitChainBend: (
   props: IAutoMovieFitChainToTargetProps,
@@ -184,9 +187,9 @@ export const fitChainBend: (
     consider(hinged.candidate);
   }
 
-  // A bend hint picks the bend plane the way a pole vector does in game-engine
-  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
-  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
+  // A bend hint picks the bend plane as a pole vector does in two-bone IK, the
+  // swivel about the root-to-target axis (Tolani, Goswami and Badler 2000,
+  // Graphical Models 62(5):353): the mid joint is displaced toward the hint's
   // component across the root-to-target axis. Without a hint, the analytic
   // default bends toward world-down and the search below takes over.
   const pole: NonNullable<ReturnType<typeof solve>> = solve(
@@ -289,7 +292,10 @@ export const fitChainBend: (
 /** Existing squared-radian equality threshold for stopping an exact-pin search. */
 const PLANT_CONTINUITY_EPSILON: number = 1e-12;
 
-/** The original exact-pin stopping rule, evaluated from the current best after each candidate. */
+/**
+ * The original exact-pin stopping rule, evaluated from the current best after
+ * each candidate.
+ */
 function canFinish(
   props: IAutoMovieFitChainToTargetProps,
   best: IPlantCandidateScore,
@@ -306,18 +312,27 @@ interface IPlantCandidateScore {
   /** Actual target distance after rig-ROM clamping, model metres. */
   residual: number;
 
-  /** Lazy actual squared-radian turn; only an equal residual bucket can rank by it. */
+  /**
+   * Lazy actual squared-radian turn; only an equal residual bucket can rank by
+   * it.
+   */
   continuity(): number;
 }
 
-/** Best actual source or clamped joint pair, without copying unused intermediate pose arrays. */
+/**
+ * Best actual source or clamped joint pair, without copying unused intermediate
+ * pose arrays.
+ */
 type IPlantCandidate = IPlantCandidateScore &
   (
     | { kind: "source" }
     | { kind: "fitted"; upper: IAutoMovieJointPose; lower: IAutoMovieJointPose }
   );
 
-/** Only the final selected clamped pair needs the source's ordered unrelated-joint prefix. */
+/**
+ * Only the final selected clamped pair needs the source's ordered
+ * unrelated-joint prefix.
+ */
 function plantPose(
   props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
@@ -357,10 +372,10 @@ const comparePlantCandidate: (
 };
 
 /**
- * The bend-plane normal that displaces the mid joint toward a hint: the
- * hint's component across the root-to-target axis, crossed as the analytic
- * default crosses world-down (`axis x pole`). A hint on the axis gives no
- * plane, so the default is used.
+ * The bend-plane normal that displaces the mid joint toward a hint: the hint's
+ * component across the root-to-target axis, crossed as the analytic default
+ * crosses world-down (`axis x pole`). A hint on the axis gives no plane, so the
+ * default is used.
  *
  * @param root The chain root, model metres.
  * @param target The effector target, model metres.

@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanoidSurfaces,
@@ -22,27 +23,51 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 
+/** The alternatives of `DemandKind`'s site. */
+type DemandKind = "regions" | "contact";
+
+/** The alternatives of `SourcesEntryItem`'s site. */
+type SourcesEntryItem = "regions" | "contact";
+
+/** The alternatives of `ReadingKind`'s site. */
+type ReadingKind = "regions" | "contact";
+
+/** The alternatives of `EntryItemEntry`'s site. */
+type EntryItemEntry = "regions" | "contact";
+
+/** The alternatives of `ReadBonesKind`'s site. */
+type ReadBonesKind = "regions" | "contact";
+
+/** The record of `IPersonResult`'s site. */
+type IPersonResult = {
+  distance: number;
+  bone: AutoMovieHumanoidBone;
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  region?: AutoMovieHumanoidRegion;
+};
+
 /**
  * The hit record of a performance: every contact that strikes a person or a
- * thing, as the one shared record (`IAutoMovieInteractionEvent`) a reaction,
- * a force, a breakage or a review reads. Three producers write it:
+ * thing, as the one shared record (`IAutoMovieInteractionEvent`) a reaction, a
+ * force, a breakage or a review reads. Three producers write it:
  *
- * - melee stops: each weapon's resolved first contact with another person
+ * - Melee stops: each weapon's resolved first contact with another person
  *   (`HumanPerformanceContacts`), its velocity the central difference of the
  *   weapon's free path over the contact scan's step, its mass the striking
- *   limb's distal long segment's from the striker's profile (the forearm or
- *   the shank; provisional, since no source on effective striking mass has
- *   been read, and Walilko, Viano and Bir 2005 measured far more for an
- *   Olympic punch), its outcome `stick`, the limb stopping on the body;
- * - blasts: one hit per person within a blast's radius (`HumanBlast`), with
- *   an impulse along the line from the blast to the nearest point of their
+ *   limb's distal long segment's from the striker's profile (the forearm or the
+ *   shank; provisional, since no source on effective striking mass has been
+ *   read, and Walilko, Viano and Bir 2005 measured far more for an Olympic
+ *   punch), its outcome `stick`, the limb stopping on the body;
+ * - Blasts: one hit per person within a blast's radius (`HumanBlast`), with an
+ *   impulse along the line from the blast to the nearest point of their
  *   colliders and no mass;
- * - flights: each first and continuation contact (`HumanPropFlight`), with
- *   the prop's incoming velocity and mass, its outcome and outgoing velocity.
+ * - Flights: each first and continuation contact (`HumanPropFlight`), with the
+ *   prop's incoming velocity and mass, its outcome and outgoing velocity.
  *
- * A hit on a person names the bone it struck and the region nearest the
- * point; its normal is the struck surface's outward normal. Hits are in time
- * order, with ties sorted by event id.
+ * A hit on a person names the bone it struck and the region nearest the point;
+ * its normal is the struck surface's outward normal. Hits are in time order,
+ * with ties sorted by event id.
  */
 export namespace HumanPerformanceHits {
   /**
@@ -56,29 +81,37 @@ export namespace HumanPerformanceHits {
     self: IAutoMovieMotionHumanPerformanceState,
     subject?: string,
   ): readonly IAutoMovieInteractionEvent[] {
-    let all: readonly IAutoMovieInteractionEvent[] | undefined = self.resolving
-      ? undefined
-      : self.hits;
-    if (all === undefined) {
-      const read: IReadBones = reading(self);
-      all = [
-        ...melee(self, read),
-        ...blasts(self, read),
-        ...flights(self, read),
-      ].sort(
-        (
-          a: IAutoMovieInteractionEvent,
-          b: IAutoMovieInteractionEvent,
-        ): number =>
-          a.time - b.time || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
-      );
-      if (!self.resolving) self.hits = all;
-    }
+    // The hits the performance prepared, or, while the schedule is resolved,
+    // those the placed performance gives now.
+    const all: readonly IAutoMovieInteractionEvent[] =
+      self.hits ?? solve(self);
     return subject === undefined
       ? all
       : all.filter(
           (h: IAutoMovieInteractionEvent): boolean => h.target === subject,
         );
+  }
+
+  /**
+   * Every hit of the performance as it is placed now, in time order with ties
+   * by event id: what the performance prepares once every action, stop and
+   * flight is resolved (`IAutoMovieMotionHumanPerformanceState.hits`).
+   *
+   * @param self The placed performance.
+   * @returns The hits.
+   */
+  export function solve(
+    self: IAutoMovieMotionHumanPerformanceState,
+  ): IAutoMovieInteractionEvent[] {
+    const read: IReadBones = reading(self);
+    return [
+      ...melee(self, read),
+      ...blasts(self, read),
+      ...flights(self, read),
+    ].sort(
+      (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
+        a.time - b.time || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+    );
   }
 
   /** The melee stops. */
@@ -108,7 +141,7 @@ export namespace HumanPerformanceHits {
           self,
           strike.subject,
         ).performer.body;
-        const side: "left" | "right" = strike.weapon.limb.startsWith("left")
+        const side: AutoMovieHumanSide = strike.weapon.limb.startsWith("left")
           ? "left"
           : "right";
         const distal: IDistal = strike.weapon.limb.endsWith("Arm")
@@ -178,7 +211,10 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /** Each recorded impact, with the departure from the following leg if one exists. */
+  /**
+   * Each recorded impact, with the departure from the following leg if one
+   * exists.
+   */
   function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     read: IReadBones,
@@ -244,7 +280,10 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /** Where a segment meets a person at a second: the bone, the surface point, its normal and the nearest region. */
+  /**
+   * Where a segment meets a person at a second: the bone, the surface point,
+   * its normal and the nearest region.
+   */
   function person(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -252,13 +291,7 @@ export namespace HumanPerformanceHits {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     read: IReadBones,
-  ): {
-    distance: number;
-    bone: AutoMovieHumanoidBone;
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-    region?: AutoMovieHumanoidRegion;
-  } {
+  ): IPersonResult {
     const who: IAutoMovieMotionHumanSegment.IPerson =
       HumanPerformanceRead.person(self, subject);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read(
@@ -275,36 +308,36 @@ export namespace HumanPerformanceHits {
     return { ...near, ...(region === undefined ? {} : { region }) };
   }
 
-  /** Actual per-person observation, with outputs dictated by the current hit consumer. */
+  /**
+   * Actual per-person observation, with outputs dictated by the current hit
+   * consumer.
+   */
   type IReadBones = (
     who: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
-    kind: "regions" | "contact",
+    kind: ReadBonesKind,
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-  /** Static demand producers live only for this synchronous hit-record build, never their query results. */
+  /**
+   * Static demand producers live only for this synchronous hit-record build,
+   * never their query results.
+   */
   function reading(self: IAutoMovieMotionHumanPerformanceState): IReadBones {
-    let readers:
-      | Map<
-          IAutoMovieMotionHumanSegment.IPerson,
-          Partial<
-            Record<
-              "regions" | "contact",
-              ReturnType<typeof HumanPerformanceRead.prepareBones>
-            >
-          >
-        >
-      | undefined;
+    const readers: Map<
+      IAutoMovieMotionHumanSegment.IPerson,
+      Partial<
+        Record<EntryItemEntry, ReturnType<typeof HumanPerformanceRead.prepareBones>>
+      >
+    > = new Map();
     return (
       who: IAutoMovieMotionHumanSegment.IPerson,
       seconds: number,
-      kind: "regions" | "contact",
+      kind: ReadingKind,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      readers ??= new Map();
       let sources:
         | Partial<
             Record<
-              "regions" | "contact",
+              SourcesEntryItem,
               ReturnType<typeof HumanPerformanceRead.prepareBones>
             >
           >
@@ -328,10 +361,13 @@ export namespace HumanPerformanceHits {
     };
   }
 
-  /** The bones a reading of one kind resolves: the regions' owners, and for contact the colliders' too. */
+  /**
+   * The bones a reading of one kind resolves: the regions' owners, and for
+   * contact the colliders' too.
+   */
   function demand(
     body: IAutoMovieMotionHumanBody,
-    kind: "regions" | "contact",
+    kind: DemandKind,
   ): ReadonlySet<AutoMovieHumanoidBone> {
     const selected: Set<AutoMovieHumanoidBone> = new Set(
       kind === "contact" ? HumanColliders.bones(body) : undefined,
@@ -371,7 +407,10 @@ export namespace HumanPerformanceHits {
     | "leftLowerLeg"
     | "rightLowerLeg";
 
-  /** The profile's mass of a distal segment, its first record of the bone; none when the profile has none. */
+  /**
+   * The profile's mass of a distal segment, its first record of the bone; none
+   * when the profile has none.
+   */
   function distalMass(
     body: IAutoMovieMotionHumanBody,
     bone: IDistal,
@@ -383,12 +422,18 @@ export namespace HumanPerformanceHits {
     )?.mass;
   }
 
-  /** The body's regions with their bone-local frames, in the body's entry order, which strict first-minimum selection keeps. */
+  /**
+   * The body's regions with their bone-local frames, in the body's entry order,
+   * which strict first-minimum selection keeps.
+   */
   function regionFrames(body: IAutoMovieMotionHumanBody): IRegions {
     return Object.entries(body.surfaces.regions) as IRegions;
   }
 
-  /** The body's original entry order, used unchanged by strict first-minimum selection. */
+  /**
+   * The body's original entry order, used unchanged by strict first-minimum
+   * selection.
+   */
   type IRegions = readonly (readonly [
     AutoMovieHumanoidRegion,
     IAutoMovieHumanoidSurfaces.IFrame,

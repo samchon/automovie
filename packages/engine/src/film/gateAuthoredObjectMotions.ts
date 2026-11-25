@@ -1,11 +1,11 @@
 import {
   IAutoMovieCamera,
+  type IAutoMovieChannel,
   IAutoMovieClip,
   type IAutoMovieClipChannelGate,
   IAutoMovieConstraintViolation,
   IAutoMovieLight,
   IAutoMovieNode,
-  type IAutoMovieNodeChannel,
   type IAutoMovieObjectMotionGate,
   type IAutoMovieProfileApplication,
   IAutoMoviePropSpec,
@@ -20,7 +20,6 @@ import { placementNodePrefix } from "../resolve/placementNodePrefix";
 import { resolveFrame } from "../resolve/resolveFrame";
 import { sceneToNodes } from "../resolve/sceneToNodes";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
 import { pushViolation } from "../validation/pushViolation";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";
@@ -28,19 +27,45 @@ import { authoredRotationCriticalTimes } from "./authoredRotationCriticalTimes";
 import { forgeProp } from "./forgeProp";
 
 /**
- * Gate the object clips a shot's source authored, so a moving thing that is not a performer can reach a compiled shot.
+ * Gate the object clips a shot's source authored, so a moving thing that is not
+ * a performer can reach a compiled shot.
  *
- * {@link builtOpeningPanelPlacements} promises that a door which swings on screen is an `objectMotions` clip over the panel node ids it answers with, and {@link IAutoMoviePropArticulation} promises that a prop's hinge is a lowered joint a clip drives. Both are one thing, a node in the staged graph turned over the shot's own clock: a building's panel is a staged set piece (`<environment>/<element>`) and a prop's leaf is a lowered articulation joint (`<placement>/<joint>`), so one channel serves both.
+ * {@link builtOpeningPanelPlacements} promises that a door which swings on
+ * screen is an `objectMotions` clip over the panel node ids it answers with,
+ * and {@link IAutoMoviePropArticulation} promises that a prop's hinge is a
+ * lowered joint a clip drives. Both are one thing, a node in the staged graph
+ * turned over the shot's own clock: a building's panel is a staged set piece
+ * (`<environment>/<element>`) and a prop's leaf is a lowered articulation joint
+ * (`<placement>/<joint>`), so one channel serves both.
  *
- * Every clip first passes the transform-clip artifact rule with a channel gate that refuses, each with its own path and reason:
+ * Every clip first passes the transform-clip artifact rule with a channel gate
+ * that refuses, each with its own path and reason:
  *
- * - a node no shot staged, or a joint no staged prop declares, because a clip addressing nothing would be stored and rendered as silence;
- * - a node a performance already drives, because a transform clip written over a rig would fight the pose every frame;
- * - a channel a baked clip already drives, and an id a baked clip or an earlier authored clip already carries, because each channel and each clip id has one authority;
- * - a key outside `[0, duration]`, which no frame reads;
- * - `cubicspline` interpolation, because a spline's tangents can overshoot a travel bound between two keys that both satisfy it, and nothing downstream clamps an object clip.
+ * - A node no shot staged, or a joint no staged prop declares, because a clip
+ *   addressing nothing would be stored and rendered as silence;
+ * - A node a performance already drives, because a transform clip written over a
+ *   rig would fight the pose every frame;
+ * - A channel a baked clip already drives, and an id a baked clip or an earlier
+ *   authored clip already carries, because each channel and each clip id has
+ *   one authority;
+ * - A key outside `[0, duration]`, which no frame reads;
+ * - `cubicspline` interpolation, because a spline's tangents can overshoot a
+ *   travel bound between two keys that both satisfy it, and nothing downstream
+ *   clamps an object clip.
  *
- * A scene whose lowered graph carries one id twice is refused at the gate's path, since no frame can be resolved for it. Only a prop `forgeProp` accepts contributes joints; its own refusals belong to `forgeProp` and the placement gate. When all of that passes and a staged prop binds an articulation profile, the clips resolve through {@link resolveFrame} at time `0`, at every authored key, at analytical quaternion-component extrema and just inside key boundaries. Periodic direct curves share their first-cycle bound. Profiles bind at their placement prefix, and a channel the clips drive past its declared travel is reported once, naming the profile. A channel a clip does not drive is never blamed, even if its rest pose breaches. An empty clip list answers no violations. The critical clock bounds directly interpolated components; it does not derive additional extrema for nonlinear channel-space driver combinations.
+ * A scene whose lowered graph carries one id twice is refused at the gate's
+ * path, since no frame can be resolved for it. Only a prop `forgeProp` accepts
+ * contributes joints; its own refusals belong to `forgeProp` and the placement
+ * gate. When all of that passes and a staged prop binds an articulation
+ * profile, the clips resolve through {@link resolveFrame} at time `0`, at every
+ * authored key, at analytical quaternion-component extrema and just inside key
+ * boundaries. Periodic direct curves share their first-cycle bound. Profiles
+ * bind at their placement prefix, and a channel the clips drive past its
+ * declared travel is reported once, naming the profile. A channel a clip does
+ * not drive is never blamed, even if its rest pose breaches. An empty clip list
+ * answers no violations. The critical clock bounds directly interpolated
+ * components; it does not derive additional extrema for nonlinear channel-space
+ * driver combinations.
  *
  * @param gate The clips, the staged scene and what the shot already drives.
  * @returns The violations, empty when every clip is admitted.
@@ -104,13 +129,13 @@ export function gateAuthoredObjectMotions(
   );
 
   const channelGate: IAutoMovieClipChannelGate = (
-    channel: Record<string, unknown>,
+    channel: IAutoMovieChannel,
     channelPath: string,
     violations: IAutoMovieConstraintViolation[],
   ): void => {
     validateHonorableChannel(channel, channelPath, violations);
-    const node: unknown = channel.node;
-    if (channel.kind !== "node" || typeof node !== "string") return;
+    if (channel.kind !== "node") return;
+    const node: string = channel.node;
     if (!drivable.has(node)) {
       pushViolation(
         violations,
@@ -123,12 +148,7 @@ export function gateAuthoredObjectMotions(
       );
       return;
     }
-    // An unknown path was already refused by the honorable-channel rule and
-    // has no canonical key to compare.
-    const path: IAutoMovieNodeChannel["path"] =
-      channel.path as IAutoMovieNodeChannel["path"];
-    if (!NODE_CHANNEL_PATHS.has(path)) return;
-    const key: string = channelKey({ kind: "node", node, path });
+    const key: string = channelKey(channel);
     if (bakedChannels.has(key))
       pushViolation(
         violations,
@@ -171,7 +191,7 @@ export function gateAuthoredObjectMotions(
           track.interpolation,
         );
       track.times.forEach((time: number, timeIndex: number): void => {
-        if (Number.isFinite(time) && time >= 0 && time <= gate.duration) {
+        if (time >= 0 && time <= gate.duration) {
           times.add(time);
           return;
         }

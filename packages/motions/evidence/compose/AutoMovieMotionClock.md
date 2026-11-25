@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionClock.ts#AutoMovieMotionClock
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States clock ownership, shared instant origins and fixed start/end names; prepare and prepareEnvelope resolve a fixed window's instants once, and wave/prepareWave delegate count admission and waveform ownership to AutoMovieMotionWave.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An action's timing is a duration and named instants in seconds, the phase boundaries of gesture research; every window is a pair of names, so a row never repeats a number.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Clock constructors, timing transformations and fixed-window/wave readers serve current action primitives without naming any body part; the clock record, interval arithmetic and waveform each retain one owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Instants are plain records and names are checked when the clock is built; an unknown name throws instead of reading as zero.
-
 # src/compose/AutoMovieMotionClock.ts#AutoMovieMotionClock.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -76,7 +58,7 @@ Only the windows' seconds, constants of the clock, are shared.
 
 The reader retains the clock, four names and at most two intervals until release.
 
-# src/compose/AutoMovieMotionClock.ts#AutoMovieMotionClock.of
+# src/compose/AutoMovieMotionClock.ts#AutoMovieMotionClock
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

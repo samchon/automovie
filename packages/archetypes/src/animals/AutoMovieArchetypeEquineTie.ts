@@ -12,19 +12,38 @@ import {
 import { EquineLine } from "./EquineLine";
 
 /**
- * An equid tied by its lead to a ring or rail and untied again: the lead's held run is carried from where it hangs to the ring, wrapped round the ring's bar and made fast on top of it, stays there while the equid stands tied, and is unwrapped and carried back to hang from the halter.
+ * An equid tied by its lead to a ring or rail and untied again: the lead's held
+ * run is carried from where it hangs to the ring, wrapped round the ring's bar
+ * and made fast on top of it, stays there while the equid stands tied, and is
+ * unwrapped and carried back to hang from the halter.
  *
- * The held run moves on the handler's hand's path, so a handler whose hand holds the lead (`tendHorse`, task `lead`) carries, wraps and unwraps it: the carry is a minimum-jerk share from the lead's own hanging place, read live from the equid's sample, to the top of the bar; each wrap is one turn round the bar's axis at the ring's radius; untying runs the same path back, ending on the live hanging place, so the line is the equid's own lead before the tie and after the untie. No knot is tied finger by finger, as no knot law exists to compose one from: the wraps and the hand that closes on the lead through them stand for the hitch. The line is laid from the held run to the halter (`EquineLine`). While tied the lead's drawn length is the tether, the distance the head may go from the ring: a sample whose halter is farther from the knot than the tether is refused, so a tied head stays within the tether's reach.
+ * The held run moves on the handler's hand's path, so a handler whose hand
+ * holds the lead (`tendHorse`, task `lead`) carries, wraps and unwraps it: the
+ * carry is a minimum-jerk share from the lead's own hanging place, read live
+ * from the equid's sample, to the top of the bar; each wrap is one turn round
+ * the bar's axis at the ring's radius; untying runs the same path back, ending
+ * on the live hanging place, so the line is the equid's own lead before the tie
+ * and after the untie. No knot is tied finger by finger, as no knot law exists
+ * to compose one from: the wraps and the hand that closes on the lead through
+ * them stand for the hitch. The line is laid from the held run to the halter
+ * (`EquineLine`). While tied the lead's drawn length is the tether, the
+ * distance the head may go from the ring: a sample whose halter is farther from
+ * the knot than the tether is refused, so a tied head stays within the tether's
+ * reach.
  */
 export namespace AutoMovieArchetypeEquineTie {
   /**
-   * One tying or untying: when it starts, how long the carry takes and the wraps round the bar.
+   * One tying or untying: when it starts, how long the carry takes and the
+   * wraps round the bar.
    */
   export interface IPhase {
     /** Film second it starts. */
     from: number;
 
-    /** Seconds carrying the lead between its hanging place and the bar, positive. */
+    /**
+     * Seconds carrying the lead between its hanging place and the bar,
+     * positive.
+     */
     carry: number;
 
     /** Turns round the bar, a whole number from one. */
@@ -34,9 +53,7 @@ export namespace AutoMovieArchetypeEquineTie {
     wrap: number;
   }
 
-  /**
-   * A tie.
-   */
+  /** A tie. */
   export interface ITie {
     /** The ring's centre on its bar, world metres. */
     ring: IAutoMovieVector3;
@@ -47,7 +64,10 @@ export namespace AutoMovieArchetypeEquineTie {
     /** The radius the lead wraps the bar at, metres, positive. */
     radius: number;
 
-    /** The longest the lead runs from the knot to the halter while tied, metres, positive. */
+    /**
+     * The longest the lead runs from the knot to the halter while tied, metres,
+     * positive.
+     */
     tether: number;
 
     /** The tying. */
@@ -60,13 +80,15 @@ export namespace AutoMovieArchetypeEquineTie {
   /**
    * Tie an equid's lead to a ring and untie it.
    *
-   * @param ride The equid's ride, after any layer that moves the head's contacts.
+   * @param ride The equid's ride, after any layer that moves the head's
+   *   contacts.
    * @param lead The lead's held-run contact.
    * @param length The lead's whole length, metres.
    * @param tie The tie.
    * @returns The ride with the lead tied.
    * @throws {RangeError} For malformed phases or geometry.
-   * @throws {AutoMovieArchetypeRefusal} At a tied sample whose halter is beyond the tether, or as `EquineLine.layer` refuses.
+   * @throws {AutoMovieArchetypeRefusal} At a tied sample whose halter is beyond
+   *   the tether, or as `EquineLine.layer` refuses.
    */
   export function layer<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
@@ -80,13 +102,7 @@ export namespace AutoMovieArchetypeEquineTie {
       !(tie.radius > 0 && tie.tether > 0 && tie.tether <= length) ||
       phases.some(
         (phase: IPhase): boolean =>
-          !(
-            Number.isFinite(phase.from) &&
-            phase.carry > 0 &&
-            Number.isInteger(phase.wraps) &&
-            phase.wraps >= 1 &&
-            phase.wrap > 0
-          ),
+          !(phase.carry > 0 && phase.wraps >= 1 && phase.wrap > 0),
       ) ||
       (tie.untie !== undefined && !(tie.untie.from >= end(tie.tie)))
     )

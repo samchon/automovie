@@ -27,26 +27,20 @@ import { ReactionFeet } from "./ReactionFeet";
 import { wireFlightTouches } from "./wireFlightTouches";
 
 /**
- * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`).
- * The root moves along the polyline from the entry root through the
- * waypoints to the end by arc length on one minimum-jerk profile (Flash and
- * Hogan 1985), so it starts and ends at rest; the feet stay planted over
- * `LIFT`, a heel rising about its ball once its leg has straightened under
- * the rising body, and the shape blends in over
- * the first quarter of the flight and out over the last, from and back to
- * the quiet stance's joints: the column upright and the arms hanging
- * relaxed with their digits clear of the thighs (`stand.relaxed`), so a
- * flight lands in the stance the stand law holds. The heading turns
- * the body's front-back line onto the horizontal travel of the whole path
- * by the shorter turn (a travel behind is flown backward), once the wire has taken the
- * weight and the feet have left the floor, by the end of the first quarter:
- * planted feet hold the heading, which the hips cannot turn far. No gravity is checked: the
- * flight is staged on wires.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, the profile, the shape blend and the heading.
- * @evidence contracts/development/design.md#principled-representation A registered law whose root is a closed-form function of time along the authored polyline.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law and its shape table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The path is the author's; the law adds no gravity or fitted curve.
+ * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`). The
+ * root moves along the polyline from the entry root through the waypoints to
+ * the end by arc length on one minimum-jerk profile (Flash and Hogan 1985), so
+ * it starts and ends at rest; the feet stay planted over `LIFT`, a heel rising
+ * about its ball once its leg has straightened under the rising body, and the
+ * shape blends in over the first quarter of the flight and out over the last,
+ * from and back to the quiet stance's joints: the column upright and the arms
+ * hanging relaxed with their digits clear of the thighs (`stand.relaxed`), so a
+ * flight lands in the stance the stand law holds. The heading turns the body's
+ * front-back line onto the horizontal travel of the whole path by the shorter
+ * turn (a travel behind is flown backward), once the wire has taken the weight
+ * and the feet have left the floor, by the end of the first quarter: planted
+ * feet hold the heading, which the hips cannot turn far. No gravity is checked:
+ * the flight is staged on wires.
  */
 export namespace wireFlight {
   /** The action's name. */
@@ -55,26 +49,45 @@ export namespace wireFlight {
   /** Cancel table: none; a flight runs to its end. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
+  /** A flight's path: its points, their running lengths and its heading. */
+  export interface IPath {
+    /** The start, the waypoints and the end. */
+    points: IAutoMovieVector3[];
+
+    /** Each point's distance along the path, metres. */
+    lengths: number[];
+
+    /** The path's whole length, metres. */
+    total: number;
+
+    /** The start-to-end displacement, metres. */
+    travel: IAutoMovieVector3;
+
+    /**
+     * The heading along the level travel, the entry's when it rises straight,
+     * degrees.
+     */
+    heading: number;
+  }
+
   /**
-   * Plan a wire flight.
+   * Admit a wire flight's path from the entry through its waypoints to its end.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `seconds` when not positive and finite, and on `to` when the path has no length.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The arc length s(t) = L * minimumJerk(t / T) placed on the polyline's segments; the planted feet are held over `LIFT`, a heel rising about its ball once its leg is straight (`ReactionFeet.hold`); the shape blends from the quiet stance's joints by a minimum-jerk weight at each end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, build the polyline, then evaluate each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A flight with no length or time is refused, never stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the waypoints at plan time; a scan of the segments per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each plan owns its own polyline.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the polyline and its cumulative lengths.
+   * @param seconds The flight's seconds.
+   * @param entry The entry posture: its root and heading.
+   * @param via The waypoints.
+   * @param to The end.
+   * @returns The path.
+   * @throws {HumanRefusal} When the flight takes no time or the path has no
+   *   length.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const seconds: number = context.params.duration;
-    if (!(seconds > 0) || !Number.isFinite(seconds))
+  export function path(
+    seconds: number,
+    entry: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    via: readonly IAutoMovieVector3[],
+    to: IAutoMovieVector3,
+  ): IPath {
+    if (!(seconds > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "duration",
@@ -88,12 +101,7 @@ export namespace wireFlight {
         reason: "a flight takes a positive time",
         fix: "give a positive flight time",
       });
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const points: IAutoMovieVector3[] = [
-      entry.root,
-      ...(context.params.via ?? []),
-      context.params.to,
-    ];
+    const points: IAutoMovieVector3[] = [entry.root, ...via, to];
     const lengths: number[] = [0];
     for (let k: number = 1; k < points.length; ++k)
       lengths.push(
@@ -112,22 +120,44 @@ export namespace wireFlight {
         reason: "a flight path has a length",
         fix: "give an end or a waypoint away from where the body stands",
       });
-    const travel: IAutoMovieVector3 = Vector3.subtract(
+    const travel: IAutoMovieVector3 = Vector3.subtract(to, entry.root);
+    return {
+      points,
+      lengths,
+      total,
+      travel,
+      heading:
+        Math.hypot(travel.x, travel.z) > 1e-6
+          ? (Math.atan2(travel.x, travel.z) * 180) / Math.PI
+          : entry.yaw,
+    };
+  }
+  /**
+   * Plan a wire flight.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} On `seconds` when not positive and finite, and on
+   *   `to` when the path has no length.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const seconds: number = context.params.duration;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const { points, lengths, total, heading }: wireFlight.IPath = path(
+      seconds,
+      entry,
+      context.params.via ?? [],
       context.params.to,
-      entry.root,
     );
-    const heading: number =
-      Math.hypot(travel.x, travel.z) > 1e-6
-        ? (Math.atan2(travel.x, travel.z) * 180) / Math.PI
-        : entry.yaw;
     // The body's front-back line is laid on the travel by the shorter turn:
     // a travel behind the body is flown backward, facing as it stood, as a
     // performer yanked back on a wire is, never turned about on the spot. A
     // lift whose end lies a few centimetres behind the stance's root (the
     // stand holds its root ahead of the feet) is thus no half turn.
     const facing: number = wrap(heading - entry.yaw);
-    const turn: number =
-      Math.abs(facing) > 90 ? wrap(facing - 180) : facing;
+    const turn: number = Math.abs(facing) > 90 ? wrap(facing - 180) : facing;
     const shape: IShape = SHAPES[context.params.shape ?? "hover"];
     // The quiet stance the flight leaves and lands in: the column upright
     // and the arms hanging relaxed, digits clear of the thighs
@@ -135,9 +165,9 @@ export namespace wireFlight {
     // it, so a bone the shape does not name keeps its hanging angle.
     const quiet: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(context.body),
-      ...standUpright.of(context.body).joints,
+      ...standUpright(context.body).joints,
     };
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(seconds, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
       { name: "takeoff", seconds: 0 },
       { name: "land", seconds },
     ]);
@@ -154,8 +184,7 @@ export namespace wireFlight {
       );
     };
     // The arc length gone at a second, on one minimum-jerk profile.
-    const gone = (t: number): number =>
-      total * minimumJerk.share(t / seconds);
+    const gone = (t: number): number => total * minimumJerk.share(t / seconds);
     // The feet stay planted while the wire takes the weight (`LIFT`), the
     // heels rising as the body rises past the straightened legs, then leave
     // the floor.
@@ -279,22 +308,37 @@ export namespace wireFlight {
     );
   }
 
-  /** The share of the flight the feet stay planted for while the wire takes the weight: authored; a foot whose leg straightens before it raises its heel. */
+  /**
+   * The share of the flight the feet stay planted for while the wire takes the
+   * weight: authored; a foot whose leg straightens before it raises its heel.
+   */
   export const LIFT: number = 0.08;
 
-  /** How long a touch comes in before its share and goes out after, seconds (`wireFlightTouches.TOUCH`). */
+  /**
+   * How long a touch comes in before its share and goes out after, seconds
+   * (`wireFlightTouches.TOUCH`).
+   */
   export const TOUCH: number = wireFlightTouches.TOUCH;
 
-  /** The shoulder's height on a standing body, in statures (`wireFlightTouches.SHOULDER`). */
+  /**
+   * The shoulder's height on a standing body, in statures
+   * (`wireFlightTouches.SHOULDER`).
+   */
   export const SHOULDER: number = wireFlightTouches.SHOULDER;
 
   /** The ankle's height above the sole, in statures (`wireFlightTouches.ANKLE`). */
   export const ANKLE: number = wireFlightTouches.ANKLE;
 
-  /** How far the wrist stands off a surface the palm lies on, metres (`wireFlightTouches.PALM`). */
+  /**
+   * How far the wrist stands off a surface the palm lies on, metres
+   * (`wireFlightTouches.PALM`).
+   */
   export const PALM: number = wireFlightTouches.PALM;
 
-  /** One flight shape: the body's pitch and joint angles, degrees (provisional stage readings). */
+  /**
+   * One flight shape: the body's pitch and joint angles, degrees (provisional
+   * stage readings).
+   */
   interface IShape {
     /** Whole-body pitch, degrees; positive face down. */
     pitch: number;

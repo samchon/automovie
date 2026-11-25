@@ -1,21 +1,3 @@
-# src/props/HandheldDevice.ts#HandheldDevice
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Device dimensions, records and shared case contacts give their units and frames.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The device kind selects one model table or dimension band in metres and kilograms.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The shared builder owns case dimensions and repeated case contacts. Each producer owns its device-specific controls.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Out-of-kind model choices are refused in the draw and each producer supplies its own contact IDs.
-
 # src/props/HandheldDevice.ts#HandheldDevice.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

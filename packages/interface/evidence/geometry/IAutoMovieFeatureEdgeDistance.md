@@ -1,21 +1,3 @@
-# src/geometry/IAutoMovieFeatureEdgeDistance.ts#IAutoMovieFeatureEdgeDistance
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the input and result of the per-point feature edge distance.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-`interface` owns it; `autoMovieFeatureEdgeDistance` is its producer and tests read it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No member names a consumer.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States that it is the CPU reference of the shader's distances.
-
 # src/geometry/IAutoMovieFeatureEdgeDistance.ts#IAutoMovieFeatureEdgeDistance.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -16,12 +16,8 @@ import { subjectOfFilm } from "./subjectOfFilm";
  * read it the same way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the subjects are, who draws them, and which mapping makes each one.
- * @evidence contracts/development/implementation.md#principled-implementation Maps the film registry through the one film-to-subject mapping.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One entry per film; the mapping lives in `subjectOfFilm`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No film is named; the props are not read, since films need none.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the registered films; a film is created only when its subject is.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A mapping made once per page.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each subject's dispose releases its film, as `subjectOfFilm` states.
+ * @evidence contracts/development/implementation.md#principled-implementation Maps the film registry through the one film-to-subject mapping. No film is named; the props are not read, since films need none.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One entry per film; the mapping lives in `subjectOfFilm`. Linear in the registered films; a film is created only when its subject is. A mapping made once per page. Each subject's dispose releases its film, as `subjectOfFilm` states.
  */
 export const subjects: AutoMovieDrawSubjects = (): Readonly<
   Record<string, IAutoMovieDrawSubject>

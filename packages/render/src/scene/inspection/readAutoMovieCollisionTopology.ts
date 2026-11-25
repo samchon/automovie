@@ -2,25 +2,14 @@ import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
-
-/** Topology facts per geometry, recomputed when its buffers change. */
-const TOPOLOGY: WeakMap<
-  THREE.BufferGeometry,
-  { key: string; topology: readAutoMovieCollisionTopology.ITopology | null }
-> = new WeakMap();
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /**
- * Read the drawn triangle list of a resident geometry once per buffer version.
+ * Read the drawn triangle list of a resident geometry from its current buffers.
  *
  * @param geometry The drawn geometry.
- * @returns Its drawn triangles, rest bounds and closure, or null when the buffers or draw range cannot be read.
- * @evidence contracts/development/common.md#meaningful-documentation States the cache key, the draw range rule and the null outcome.
- * @evidence contracts/development/implementation.md#principled-implementation Reads indices inside the draw range, rejects out-of-range indices and judges closure by directed-edge balance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader owns triangle extraction, bounds and closure for every collision source.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cut or misaligned draw range, normalized or non-three-component positions certify nothing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the drawn indices once per buffer version.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Cached per geometry by position, index and draw-range versions.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak map releases the record with its geometry.
+ * @returns Its drawn triangles, rest bounds and closure, or null when the
+ *   buffers or draw range cannot be read.
  */
 export function readAutoMovieCollisionTopology(
   geometry: THREE.BufferGeometry,
@@ -29,35 +18,17 @@ export function readAutoMovieCollisionTopology(
     | THREE.BufferAttribute
     | THREE.InterleavedBufferAttribute
     | undefined = geometry.getAttribute("position");
-  const index: THREE.BufferAttribute | null = geometry.getIndex();
-  const key: string = JSON.stringify([
-    positions instanceof THREE.BufferAttribute ? positions.version : -1,
-    index?.version ?? -1,
-    geometry.drawRange.start,
-    geometry.drawRange.count,
-  ]);
-  const cached:
-    | { key: string; topology: readAutoMovieCollisionTopology.ITopology | null }
-    | undefined = TOPOLOGY.get(geometry);
-  if (cached?.key === key) return cached.topology;
-  const topology: readAutoMovieCollisionTopology.ITopology | null =
-    positions === undefined ? null : extract(positions, index, geometry);
-  TOPOLOGY.set(geometry, { key, topology });
-  return topology;
+  return positions === undefined
+    ? null
+    : extract(positions, geometry.getIndex(), geometry);
 }
 
 /**
- * Drawn triangles, bounds, closure, lazy posing and world boxes shared by every collision source.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each topology field's space and states what the lazy posing, world box and finiteness helpers return.
- * @evidence contracts/development/design.md#principled-representation ITopology holds rest positions, drawn triangle indices, rest bounds and closure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the collision sources and their lazy surfaces only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Closure is derived from the drawn triangles, never from a constructor, and a non-finite placement yields no world box.
+ * Drawn triangles, bounds, closure, lazy posing and world boxes shared by every
+ * collision source.
  */
 export namespace readAutoMovieCollisionTopology {
-  /**
-   * The drawn triangle list of one geometry in its own space.
-   */
+  /** The drawn triangle list of one geometry in its own space. */
   export interface ITopology {
     /** Rest positions of the geometry. */
     readonly positions:
@@ -70,14 +41,18 @@ export namespace readAutoMovieCollisionTopology {
     /** Rest bounds of the drawn vertices. */
     readonly bounds: THREE.Box3;
 
-    /** Every drawn edge, merged by rest position, is traversed equally in both directions. */
+    /**
+     * Every drawn edge, merged by rest position, is traversed equally in both
+     * directions.
+     */
     readonly closed: boolean;
   }
 
   /**
    * Pose a surface once, on first use, within the shared vertex allowance.
    *
-   * @param budget Posed vertices the frame may still spend; charged on first read.
+   * @param budget Posed vertices the frame may still spend; charged on first
+   *   read.
    * @param topology The drawn triangles to pose.
    * @param pose World position of one rest vertex.
    * @param error Pose error of each position in world metres.
@@ -117,31 +92,13 @@ export namespace readAutoMovieCollisionTopology {
     local: THREE.Box3,
     matrix: THREE.Matrix4,
   ): IAutoMovieSubjectBox | null {
-    if (!matrix.elements.every(Number.isFinite)) return null;
     const box: THREE.Box3 = local.clone().applyMatrix4(matrix);
-    return finite(box.min) && finite(box.max)
-      ? {
-          min: { x: box.min.x, y: box.min.y, z: box.min.z },
-          max: { x: box.max.x, y: box.max.y, z: box.max.z },
-        }
-      : null;
-  }
-
-  /**
-   * All three coordinates are finite in double and single precision.
-   *
-   * @param point A world or local point.
-   * @returns Whether the GPU can represent it.
-   */
-  export function finite(point: THREE.Vector3): boolean {
-    return (
-      Number.isFinite(point.x) &&
-      Number.isFinite(point.y) &&
-      Number.isFinite(point.z) &&
-      Number.isFinite(Math.fround(point.x)) &&
-      Number.isFinite(Math.fround(point.y)) &&
-      Number.isFinite(Math.fround(point.z))
-    );
+    if (!isAutoMovieFloat32Point(box.min) || !isAutoMovieFloat32Point(box.max))
+      return null;
+    return {
+      min: { x: box.min.x, y: box.min.y, z: box.min.z },
+      max: { x: box.max.x, y: box.max.y, z: box.max.z },
+    };
   }
 }
 
@@ -166,11 +123,6 @@ function extract(
     if (vertex >= positions.count) return null;
     bounds.expandByPoint(point.fromBufferAttribute(positions, vertex));
   }
-  if (
-    !readAutoMovieCollisionTopology.finite(bounds.min) ||
-    !readAutoMovieCollisionTopology.finite(bounds.max)
-  )
-    return null;
   return {
     positions,
     triangles,
@@ -248,12 +200,6 @@ function poseSurface(
     const a: number = topology.triangles[i]!;
     const b: number = topology.triangles[i + 1]!;
     const c: number = topology.triangles[i + 2]!;
-    if (
-      !readAutoMovieCollisionTopology.finite(values[a]!) ||
-      !readAutoMovieCollisionTopology.finite(values[b]!) ||
-      !readAutoMovieCollisionTopology.finite(values[c]!)
-    )
-      return null;
     ab.subVectors(values[b]!, values[a]!);
     ac.subVectors(values[c]!, values[a]!);
     if (

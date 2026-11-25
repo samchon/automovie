@@ -1,10 +1,17 @@
 import type { IAutoMovieSampledChannel } from "@automovie/interface";
 import type * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+
 /**
  * Write an already-authoritative sample table to borrowed Three scene objects.
  *
- * Transforms use engine vector/quaternion order and write parent-local fields; the caller supplies samples in that frame, with no world-to-local conversion here. Morph weights address each descendant mesh's glTF index order, stop at its influence count and preserve omitted entries. Missing objects and non-node channels are skipped. The current four-path switch does not assert exhaustiveness for future unions.
+ * Transforms use engine vector/quaternion order and write parent-local fields;
+ * the caller supplies samples in that frame, with no world-to-local conversion
+ * here. Morph weights address each descendant mesh's glTF index order, stop at
+ * its influence count and preserve omitted entries. Missing objects and
+ * non-node channels are skipped. The current four-path switch does not assert
+ * exhaustiveness for future unions.
  */
 export const applySampledObjectMotion: (
   sampled: ReadonlyMap<string, IAutoMovieSampledChannel>,
@@ -62,8 +69,12 @@ const applyMorphWeights: (object: THREE.Object3D, value: number[]) => void = (
   value: number[],
 ): void => {
   object.traverse((child: THREE.Object3D): void => {
-    const influences: number[] | undefined = (child as THREE.Mesh)
-      .morphTargetInfluences;
+    const influences: number[] | undefined =
+      AutoMovieThreeKind.isMesh(child) ||
+      AutoMovieThreeKind.isLine(child) ||
+      AutoMovieThreeKind.isPoints(child)
+        ? child.morphTargetInfluences
+        : undefined;
     if (influences === undefined) return;
     const count: number = Math.min(influences.length, value.length);
     for (let i: number = 0; i < count; ++i) influences[i] = value[i]!;

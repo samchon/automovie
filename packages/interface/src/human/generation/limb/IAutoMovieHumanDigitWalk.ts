@@ -5,16 +5,21 @@ import type { IAutoMovieHumanSectionSite } from "./IAutoMovieHumanSectionSite";
 import type { IAutoMovieHumanSectionSource } from "./IAutoMovieHumanSectionSource";
 
 /**
- * Digit joint-course inputs, named site laws and original parent material attachments. Runtime construction and admission remain with AutoMovieHumanDigitWalk in Human.
+ * Digit joint-course inputs, named site laws and original parent material
+ * attachments. Runtime construction and admission remain with
+ * AutoMovieHumanDigitWalk in Human.
  */
 export namespace IAutoMovieHumanDigitWalk {
-  /** What a digit is built from.
-   */
+  /** What a digit is built from. */
   export interface IInput {
     /** Chain name, such as `finger.left.index` or `toe.left.1`. */
     name: string;
 
-    /** The joint centres from the base (the knuckle, inside the host) to the distal phalanx's end: base, then each interphalangeal joint, then the end, at least three. */
+    /**
+     * The joint centres from the base (the knuckle, inside the host) to the
+     * distal phalanx's end: base, then each interphalangeal joint, then the
+     * end, at least three.
+     */
     centres: AutoMovieVector3Tuple[];
 
     /** The dorsal direction on the first phalanx. */
@@ -26,7 +31,8 @@ export namespace IAutoMovieHumanDigitWalk {
     ranges?: IAutoMovieHumanSectionSource["ranges"];
 
     /**
-     * The laws at a site: `base`, `joint <k>` (k from 1, the first joint after the base), `shaft <k>` (the middle of bone k from 0), `end`.
+     * The laws at a site: `base`, `joint <k>` (k from 1, the first joint after
+     * the base), `shaft <k>` (the middle of bone k from 0), `end`.
      */
     law(site: string): ISiteLaw;
 
@@ -39,8 +45,7 @@ export namespace IAutoMovieHumanDigitWalk {
     attachment?: IAutoMovieHumanHandAttachment.IConnection;
   }
 
-  /** A digit's laws at one site.
-   */
+  /** A digit's laws at one site. */
   export interface ISiteLaw {
     /** Whole breadth across the digit, mm. */
     breadth: number;
@@ -53,9 +58,15 @@ export namespace IAutoMovieHumanDigitWalk {
 
     /** The sourced conic shoulder of the section there. */
     shoulder: number;
-    /** Actual parent-derived quarter fullness in this digit's engine material frame. */
+    /**
+     * Actual parent-derived quarter fullness in this digit's engine material
+     * frame.
+     */
     shoulders?: [number, number, number, number];
-    /** Available quarter jets in the same normalized source clock; a held parent section declares its constant pullback explicitly. */
+    /**
+     * Available quarter jets in the same normalized source clock; a held parent
+     * section declares its constant pullback explicitly.
+     */
     shoulderJets?: IAutoMovieViewPart.IQuarters<
       IAutoMovieViewPart.IKnot["jet"]
     >;

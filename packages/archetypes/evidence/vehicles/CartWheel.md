@@ -1,21 +1,3 @@
-# src/vehicles/CartWheel.ts#CartWheel
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An axle rod and two spoked discs, each disc's roll a knob about the axle.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The one helper `CartDrawn` and `CartCoach` share.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/vehicles/CartWheel.ts#CartWheel.IPair
 
 ## @evidence contracts/development/common.md#meaningful-documentation

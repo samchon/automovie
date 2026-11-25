@@ -1,6 +1,7 @@
 /**
- * Physical coverage limits of an aligned-ellipse image reconstruction.
- * A successful fit remains conditional inference rather than a measurement of unseen skin.
+ * Physical coverage limits of an aligned-ellipse image reconstruction. A
+ * successful fit remains conditional inference rather than a measurement of
+ * unseen skin.
  */
 export interface IAutoMovieRecoveryImageLoftCoverage {
   /** Lateral shape is inferred under the aligned elliptical-section hypothesis. */

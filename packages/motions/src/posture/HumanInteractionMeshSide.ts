@@ -1,4 +1,8 @@
-import { Vector3, rootsAutoMovieCubicBernstein64, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
+import {
+  Vector3,
+  rootsAutoMovieCubicBernstein64,
+  tetrahedralizeAutoMovieDelaunay,
+} from "@automovie/engine";
 import type {
   IAutoMovieTetrahedralizeDelaunay,
   IAutoMovieVector3,
@@ -7,26 +11,14 @@ import type {
 /**
  * The sides an interaction mesh records (`HumanInteractionMesh`): each
  * tetrahedron not flat on the key pose keeps its orientation, so no point
- * passes through the face across from it, which is how one body would pass
- * into another. The determinant is scaled by the reference's largest
- * face area, giving an altitude in metres. Close to zero, the barrier of
- * Li et al. 2020 §4.2 repels compression. Their §4.4 line filter finds an
- * admissible step before the first possible element collapse.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a side is, why it is kept, its unit and its bound.
- * @evidence contracts/development/design.md#principled-representation The four corners and a fixed local metric define the determinant, derivatives and line polynomial of the same constraint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One side record plus its measurements and the inversion line filter.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sides are read off the reference, never off the adapted points.
+ * passes through the face across from it, which is how one body would pass into
+ * another. The determinant is scaled by the reference's largest face area,
+ * giving an altitude in metres. Close to zero, the barrier of Li et al. 2020
+ * §4.2 repels compression. Their §4.4 line filter finds an admissible step
+ * before the first possible element collapse.
  */
 export namespace HumanInteractionMeshSide {
-  /**
-   * A tetrahedron that records a side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the four corners and their reference orientation.
-   * @evidence contracts/development/design.md#principled-representation Four point indices identify the oriented simplex whose determinant must remain positive.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the corners are stored; each reading derives its volume from the current points.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores no soft margin or fitted penalty that could trade a side against another constraint.
-   */
+  /** A tetrahedron that records a side. */
   export interface ISide {
     /** The corners, in the mesh's positive orientation. */
     corners: readonly [number, number, number, number];
@@ -47,14 +39,6 @@ export namespace HumanInteractionMeshSide {
    * @param extent The points' extent, metres.
    * @param accuracy The adaptation's geometric accuracy, metres.
    * @returns The sides.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which tetrahedra record a side and the bound each keeps.
-   * @evidence contracts/development/implementation.md#principled-implementation A tetrahedron flat on the reference is oriented only by the joggle and records no side: the joggle moves each corner by at most `δ` per axis, so each edge by `2 √3 δ` and the triple product of three edges no longer than twice the extent by at most `3 (2 √3 δ)(2 extent)²`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and one map.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flat bound is derived from the engine's joggle, not chosen.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the tetrahedra, once per adaptation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The volume and the joggle are the engine's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function record(
     mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
@@ -72,9 +56,18 @@ export namespace HumanInteractionMeshSide {
       )
       .map((corners: ISide["corners"]): ISide => {
         const [a, b, c, d] = corners;
-        const e1: IAutoMovieVector3 = Vector3.subtract(reference[b]!, reference[a]!);
-        const e2: IAutoMovieVector3 = Vector3.subtract(reference[c]!, reference[a]!);
-        const e3: IAutoMovieVector3 = Vector3.subtract(reference[d]!, reference[a]!);
+        const e1: IAutoMovieVector3 = Vector3.subtract(
+          reference[b]!,
+          reference[a]!,
+        );
+        const e2: IAutoMovieVector3 = Vector3.subtract(
+          reference[c]!,
+          reference[a]!,
+        );
+        const e3: IAutoMovieVector3 = Vector3.subtract(
+          reference[d]!,
+          reference[a]!,
+        );
         const bc: IAutoMovieVector3 = Vector3.cross(e1, e2);
         const bd: IAutoMovieVector3 = Vector3.cross(e1, e3);
         const cd: IAutoMovieVector3 = Vector3.cross(e2, e3);
@@ -97,23 +90,17 @@ export namespace HumanInteractionMeshSide {
    * @param x The points, x then y then z by point.
    * @param side The side.
    * @returns Metres; positive where the side is kept.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reading, its unit and its sign.
-   * @evidence contracts/development/implementation.md#principled-implementation The scalar triple product divided by the fixed double face area has the signed volume's orientation and the units of altitude.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One triple product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The line filter uses the same edge triple product.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function value(x: Float64Array, side: ISide): number {
     const [a, b, c, d] = side.corners;
     const p: IAutoMovieVector3 = at(x, a);
-    return triple(
-      Vector3.subtract(at(x, b), p),
-      Vector3.subtract(at(x, c), p),
-      Vector3.subtract(at(x, d), p),
-    ) / side.area;
+    return (
+      triple(
+        Vector3.subtract(at(x, b), p),
+        Vector3.subtract(at(x, c), p),
+        Vector3.subtract(at(x, d), p),
+      ) / side.area
+    );
   }
 
   /** The indexed gradient of one signed altitude. */
@@ -131,14 +118,6 @@ export namespace HumanInteractionMeshSide {
    * @param x The points, x then y then z by point.
    * @param side The side.
    * @returns Its twelve sparse Cartesian derivatives.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the linearisation and the bound.
-   * @evidence contracts/development/implementation.md#principled-implementation The signed determinant's gradient is the opposite face normal at each corner, divided by the fixed reference area.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three edges, four gradients, one row.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All four vertices contribute, including the negative sum at the origin vertex.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scalar altitude and its gradient share the same local metric.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function gradient(x: Float64Array, side: ISide): IGradient {
     const [a, b, c, d] = side.corners;
@@ -173,16 +152,12 @@ export namespace HumanInteractionMeshSide {
    * @param step The proposed Cartesian displacement.
    * @param sides The recorded elements.
    * @returns One, or the first conservative compression event on the step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the admissible maximum can cut a step even when its end is oriented.
-   * @evidence contracts/development/implementation.md#principled-implementation Expands the trilinear determinant in cubic Bernstein coefficients. The convex hull omits safe elements; the shared cubic root owner finds the earliest contact with 20% of the current determinant as in Li et al. 2020 technical supplement §4.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One element scan, each either passing its coefficient lower bound or reducing the allowed fraction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Endpoint signs alone do not rule out intermediate inversion; nonlinear merit still verifies strict positivity.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per element before the root search, which is needed only where the Bernstein interval spans the barrier.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The solver uses the same tetrahedra and determinant as the barrier.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the scalar fraction.
    */
-  export function limit(x: Float64Array, step: Float64Array, sides: readonly ISide[]): number {
+  export function limit(
+    x: Float64Array,
+    step: Float64Array,
+    sides: readonly ISide[],
+  ): number {
     let fraction: number = 1;
     for (const side of sides) {
       const [a, b, c, d] = side.corners;
@@ -191,15 +166,26 @@ export namespace HumanInteractionMeshSide {
       const e1: IAutoMovieVector3 = Vector3.subtract(at(x, b), origin);
       const e2: IAutoMovieVector3 = Vector3.subtract(at(x, c), origin);
       const e3: IAutoMovieVector3 = Vector3.subtract(at(x, d), origin);
-      const f1: IAutoMovieVector3 = Vector3.add(e1, Vector3.scale(Vector3.subtract(at(step, b), move), fraction));
-      const f2: IAutoMovieVector3 = Vector3.add(e2, Vector3.scale(Vector3.subtract(at(step, c), move), fraction));
-      const f3: IAutoMovieVector3 = Vector3.add(e3, Vector3.scale(Vector3.subtract(at(step, d), move), fraction));
+      const f1: IAutoMovieVector3 = Vector3.add(
+        e1,
+        Vector3.scale(Vector3.subtract(at(step, b), move), fraction),
+      );
+      const f2: IAutoMovieVector3 = Vector3.add(
+        e2,
+        Vector3.scale(Vector3.subtract(at(step, c), move), fraction),
+      );
+      const f3: IAutoMovieVector3 = Vector3.add(
+        e3,
+        Vector3.scale(Vector3.subtract(at(step, d), move), fraction),
+      );
       const initial: number = triple(e1, e2, e3);
       const floor: number = (1 - COMPRESSION) * initial;
       const coefficients: number[] = [
         initial - floor,
-        (triple(f1, e2, e3) + triple(e1, f2, e3) + triple(e1, e2, f3)) / 3 - floor,
-        (triple(e1, f2, f3) + triple(f1, e2, f3) + triple(f1, f2, e3)) / 3 - floor,
+        (triple(f1, e2, e3) + triple(e1, f2, e3) + triple(e1, e2, f3)) / 3 -
+          floor,
+        (triple(e1, f2, f3) + triple(f1, e2, f3) + triple(f1, f2, e3)) / 3 -
+          floor,
         triple(f1, f2, f3) - floor,
       ];
       if (coefficients.every((v: number): boolean => v > 0)) continue;
@@ -213,11 +199,18 @@ export namespace HumanInteractionMeshSide {
     return fraction;
   }
 
-  /** Fraction of an element's current volume it may lose in one feasible step (Li et al. 2020 technical supplement §4). */
+  /**
+   * Fraction of an element's current volume it may lose in one feasible step
+   * (Li et al. 2020 technical supplement §4).
+   */
   const COMPRESSION: number = 0.8;
 
   /** The oriented determinant of three tetrahedron edge vectors. */
-  function triple(a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3): number {
+  function triple(
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    c: IAutoMovieVector3,
+  ): number {
     return Vector3.dot(a, Vector3.cross(b, c));
   }
 

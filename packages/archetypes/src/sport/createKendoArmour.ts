@@ -25,36 +25,30 @@ const UNREAD: string =
   "an estimate of a coarse figure; no maker's size table was read";
 
 /**
- * A piece of kendo armour (bogu), worn on one body region: the helmet
- * (`men`), the trunk protector (`do`), the padded gauntlet (`kote`) or the
- * waist flaps (`tare`).
+ * A piece of kendo armour (bogu), worn on one body region: the helmet (`men`),
+ * the trunk protector (`do`), the padded gauntlet (`kote`) or the waist flaps
+ * (`tare`).
  *
- * Each piece stands as worn by a body standing at the origin facing `+Z`,
- * `+Y` up and the wearer's left toward `+X`. `wear` is the socket the body
- * region goes into, `+Y` toward it: the men's padded inside top rests on
- * the head's crown, the do's inside centre on the solar plexus, the kote's
- * inside back on the back of the hand with the fingers along `+Y`, and the
- * tare's belt on the lower abdomen. The struck regions the rules name are
- * surfaces facing out of the piece: the men's top (`men`) and its throat
- * flap (`tsuki`), the do's right and left sides (`migiDo`, `hidariDo`) and
- * the kote's wrist cuff (`kote`). The tare is protection and names none.
+ * Each piece stands as worn by a body standing at the origin facing `+Z`, `+Y`
+ * up and the wearer's left toward `+X`. `wear` is the socket the body region
+ * goes into, `+Y` toward it: the men's padded inside top rests on the head's
+ * crown, the do's inside centre on the solar plexus, the kote's inside back on
+ * the back of the hand with the fingers along `+Y`, and the tare's belt on the
+ * lower abdomen. The struck regions the rules name are surfaces facing out of
+ * the piece: the men's top (`men`) and its throat flap (`tsuki`), the do's
+ * right and left sides (`migiDo`, `hidariDo`) and the kote's wrist cuff
+ * (`kote`). The tare is protection and names none.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The piece.
- * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each piece's frame as worn, its wear socket and the struck regions with their rule source.
- * @evidence contracts/development/implementation.md#principled-implementation Coarse padded boxes, rods and a shell sized by the drawn width, height and depth, with the struck surfaces placed on the outside of the parts the rules name.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind with its parts, its wear socket and its struck surfaces.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parts do not flex, the grille is one panel and the flaps are rigid; every size is a named estimate, and the struck regions are the rule's names, not scoring logic.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts and five affordances.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension
+ *   outside its band.
  */
 export function createKendoArmour(
   params: createKendoArmour.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createKendoArmour.Affordance,
   createKendoArmour.Dimension
@@ -229,14 +223,7 @@ export function createKendoArmour(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createKendoArmour}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation A closed union of the four pieces, one band per dimension each, and the struck regions named as the rules name them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The socket a body region goes into and the struck surfaces a strike aims at.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size is an estimate marked as such; the struck regions are the rule's, the geometry coarse.
- */
+/** Companion types, constants and bands of {@link createKendoArmour}. */
 export namespace createKendoArmour {
   /** The pieces of the armour. */
   export type Kind = "men" | "do" | "kote" | "tare";
@@ -253,7 +240,8 @@ export namespace createKendoArmour {
    * - `wear`: the socket the body region goes into, `+Y` toward it.
    * - `men`: the men's top, the struck head region, facing up.
    * - `tsuki`: the men's throat flap, the thrust region, facing forward.
-   * - `migiDo`, `hidariDo`: the do's right and left sides, facing out and forward.
+   * - `migiDo`, `hidariDo`: the do's right and left sides, facing out and
+   *   forward.
    * - `kote`: the kote's wrist cuff on the back of the hand's side.
    *
    * The struck regions are the rules' datotsu-bui (FIK, Article 14).
@@ -278,9 +266,12 @@ export namespace createKendoArmour {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`: the men's shell across, the do's and the tare's front across, the kote's mitten across.
-   * - `height`: the men from the throat flap's foot to its top, the do's and a tare flap's height, the kote from cuff to fingertip.
-   * - `depth`: the men front to back, the do's standing off the solar plexus, the tare's belt off the abdomen, the kote's mitten thickness.
+   * - `width`: the men's shell across, the do's and the tare's front across, the
+   *   kote's mitten across.
+   * - `height`: the men from the throat flap's foot to its top, the do's and a
+   *   tare flap's height, the kote from cuff to fingertip.
+   * - `depth`: the men front to back, the do's standing off the solar plexus, the
+   *   tare's belt off the abdomen, the kote's mitten thickness.
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "height" | "depth" | "mass";
@@ -295,7 +286,10 @@ export namespace createKendoArmour {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which piece. */
     kind: Kind;

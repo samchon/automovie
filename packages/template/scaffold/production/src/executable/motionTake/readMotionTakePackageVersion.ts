@@ -6,12 +6,8 @@ import path from "node:path";
  * Looks up the nearest manifest from the importing module's directory.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which version is read and where lookup begins.
- * @evidence contracts/development/implementation.md#principled-implementation Searches the same ancestor node_modules directories as standard bare package resolution and reads the first manifest found.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms the package manifest address at each ancestor, then reads its recorded version.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Global packages are outside this search, and private manifest exports do not hide the installed version.
- * @evidence contracts/development/implementation.md#efficient-algorithms Checks at most one manifest per ancestor before returning.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each invocation obtains the current installed version.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Manifest reads open no persistent handles and return just a version string.
+ * @evidence contracts/development/implementation.md#principled-implementation Searches the same ancestor node_modules directories as standard bare package resolution and reads the first manifest found. Global packages are outside this search, and private manifest exports do not hide the installed version.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Forms the package manifest address at each ancestor, then reads its recorded version. Checks at most one manifest per ancestor before returning. Each invocation obtains the current installed version. Manifest reads open no persistent handles and return just a version string.
  */
 export async function readMotionTakePackageVersion(
   root: string,

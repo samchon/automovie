@@ -1,7 +1,8 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
- * Append a range violation for a non-finite scalar or an open/closed interval failure.
+ * Append a range violation for a non-finite scalar or an open/closed interval
+ * failure.
  */
 export const validateSoftNumeric: (
   out: IAutoMovieViolationCollector,
@@ -20,11 +21,7 @@ export const validateSoftNumeric: (
   exclusive: boolean,
   max: number,
 ): void => {
-  if (
-    !Number.isFinite(value) ||
-    (exclusive ? value <= min : value < min) ||
-    value > max
-  )
+  if ((exclusive ? value <= min : value < min) || value > max)
     out.push(
       "range",
       path,

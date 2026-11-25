@@ -3,7 +3,8 @@ import type { IAutoMovieMotionHumanPlayground } from "./IAutoMovieMotionHumanPla
 import type { IAutoMovieMotionHumanSurface } from "./IAutoMovieMotionHumanSurface";
 
 /**
- * Open inputs for the ice, snow, board, playground and medium-walk laws in the surface lexicon.
+ * Open inputs for the ice, snow, board, playground and medium-walk laws in the
+ * surface lexicon.
  */
 export interface IAutoMovieMotionHumanLexiconSurfaceParams {
   /** Travel over ice, optionally turning or coming to a stop. */

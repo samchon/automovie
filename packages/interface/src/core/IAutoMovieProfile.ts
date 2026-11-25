@@ -4,15 +4,24 @@ import type { IAutoMovieDriver } from "./IAutoMovieDriver";
 import type { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 
 /**
- * A profile (a USD applied schema): a declarative capability layered onto a subtree of the node graph, contributing drivers, channel limits, typed traits and gaits.
+ * A profile (a USD applied schema): a declarative capability layered onto a
+ * subtree of the node graph, contributing drivers, channel limits, typed traits
+ * and gaits.
  *
- * A model lists profile data, and an application pairs a profile with IAutoMovieProfileBinding. Limits, drivers, traits and gait declarations contribute only the behavior their existing consumers implement.
+ * A model lists profile data, and an application pairs a profile with
+ * IAutoMovieProfileBinding. Limits, drivers, traits and gait declarations
+ * contribute only the behavior their existing consumers implement.
  *
- * Node references inside limits and drivers are semantic keys: bindProfile reads an own boneMap entry, prepends the placement prefix and refuses missing entries or blank mapped node ids. Pointer channels pass through unchanged. Bound-limit findings carry the profile id; traits declare capability metadata without performing an action.
+ * Node references inside limits and drivers are semantic keys: bindProfile
+ * reads an own boneMap entry, prepends the placement prefix and refuses missing
+ * entries or blank mapped node ids. Pointer channels pass through unchanged.
+ * Bound-limit findings carry the profile id; traits declare capability metadata
+ * without performing an action.
  */
 export interface IAutoMovieProfile {
   /**
-   * Id a binding's `profile` must equal; non-blank and unique among one model's profiles, and attached to every violation of a bound limit.
+   * Id a binding's `profile` must equal; non-blank and unique among one model's
+   * profiles, and attached to every violation of a bound limit.
    */
   id: string;
 
@@ -20,24 +29,36 @@ export interface IAutoMovieProfile {
   name: string;
 
   /**
-   * Drivers contributed with semantic node keys. Bound descriptors precede direct descriptors in the frame's input list; channel-space dependency sorting may reorder execution, while world drivers preserve their combined list order.
+   * Drivers contributed with semantic node keys. Bound descriptors precede
+   * direct descriptors in the frame's input list; channel-space dependency
+   * sorting may reorder execution, while world drivers preserve their combined
+   * list order.
    */
   drivers: IAutoMovieDriver[];
 
   /**
-   * Value limits the profile contributes (its default range of motion), with node channels written as semantic keys. Bound limits clamp before the caller's own limits, so a caller's limit has the final word.
+   * Value limits the profile contributes (its default range of motion), with
+   * node channels written as semantic keys. Bound limits clamp before the
+   * caller's own limits, so a caller's limit has the final word.
    */
   limits: IAutoMovieChannelLimit[];
 
   /**
-   * Typed semantic capabilities this profile declares, at most one of each kind; omitted is an empty list.
+   * Typed semantic capabilities this profile declares, at most one of each
+   * kind; omitted is an empty list.
    *
-   * `validateProfileCapabilities` and the production design lint validate them; declaring a trait alone performs no action. Model names and free-form labels are never a substitute. Locomotion is the gaits field, not a trait.
+   * `validateProfileCapabilities` and the production design lint validate them;
+   * declaring a trait alone performs no action. Model names and free-form
+   * labels are never a substitute. Locomotion is the gaits field, not a trait.
    */
   traits?: IAutoMovieProfileTrait[];
 
   /**
-   * The characteristic gaits this profile's body performs, such as a horse's walk, trot, canter and gallop. `bindProfileGaits` synthesises each one into a clip for a concrete skeleton, so one gait set drives many bodies, and throws on a repeated gait name. Omitted or empty for a profile that does not locomote, such as a door.
+   * The characteristic gaits this profile's body performs, such as a horse's
+   * walk, trot, canter and gallop. `bindProfileGaits` synthesises each one into
+   * a clip for a concrete skeleton, so one gait set drives many bodies, and
+   * throws on a repeated gait name. Omitted or empty for a profile that does
+   * not locomote, such as a door.
    */
   gaits?: IAutoMovieGait[];
 }

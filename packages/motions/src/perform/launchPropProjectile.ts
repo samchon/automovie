@@ -1,4 +1,9 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  projectileDragFlight,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionPropLaunch,
   IAutoMovieProjectile,
@@ -9,24 +14,17 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Construct the flight state from the displayed prop origin at release.
- * An opt-in sphere flies by its centre. A time-constrained world aim is
- * inverted from the same gravity equation the engine samples.
+ * Construct the flight state from the displayed prop origin at release. An
+ * opt-in sphere flies by its centre. A time-constrained world aim is inverted
+ * from the same gravity equation the engine samples.
  *
  * @param launch The published release request.
  * @param origin The prop's displayed origin in world metres.
  * @param rotation The prop's displayed rotation.
  * @param drag The body's optional quadratic drag data.
- * @returns The admitted engine projectile with world initial position and velocity.
+ * @returns The admitted engine projectile with world initial position and
+ *   velocity.
  * @throws {HumanRefusal} For invalid sphere data or an invalid drag-free aim.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies request, world frame, optional controls and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Offsets the release origin by the rotated spherical centre and solves a supplied elapsed-time aim under standard uniform gravity.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates optional shape and aim, then constructs the initial state.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses invalid sphere parameters, rotating sphere attitudes and aims under drag; an un-aimed release uses the authored velocity.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of scalar and vector operations.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the engine gravity, quaternion and vector owners and returns the standard projectile consumed by the same sampler and collision resolver.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one value and retains no resources.
  */
 export function launchPropProjectile(
   launch: IAutoMovieMotionPropLaunch,
@@ -38,11 +36,8 @@ export function launchPropProjectile(
   if (
     sphere !== undefined &&
     (!(sphere.radius > 0) ||
-      !Number.isFinite(sphere.radius) ||
-      !Number.isFinite(Vector3.length(sphere.centre)) ||
       (sphere.tangentialFriction !== undefined &&
-        (!(sphere.tangentialFriction >= 0) ||
-          !Number.isFinite(sphere.tangentialFriction))) ||
+        !(sphere.tangentialFriction >= 0)) ||
       (launch.attitude !== undefined && launch.attitude.kind !== "fixed"))
   )
     throw new HumanRefusal({
@@ -54,13 +49,7 @@ export function launchPropProjectile(
       fix: "declare the ball's spherical collider and a valid release attitude and friction",
     });
   const aim: IAutoMovieMotionPropLaunch["aim"] = launch.aim;
-  if (
-    aim !== undefined &&
-    (drag !== undefined ||
-      !(aim.seconds > 0) ||
-      !Number.isFinite(aim.seconds) ||
-      !Number.isFinite(Vector3.length(aim.point)))
-  )
+  if (aim !== undefined && (drag !== undefined || !(aim.seconds > 0)))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "aim",
@@ -74,7 +63,7 @@ export function launchPropProjectile(
     sphere === undefined
       ? origin
       : Vector3.add(origin, Quaternion.rotateVector(rotation, sphere.centre));
-  return {
+  const projectile: IAutoMovieProjectile = {
     origin: centre,
     velocity:
       aim === undefined
@@ -92,4 +81,7 @@ export function launchPropProjectile(
           ? launch.attitude
           : { ...launch.attitude, rotation },
   };
+  return drag === undefined
+    ? projectile
+    : { ...projectile, flight: projectileDragFlight(projectile) };
 }

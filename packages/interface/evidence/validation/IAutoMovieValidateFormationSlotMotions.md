@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieValidateFormationSlotMotions.ts#IAutoMovieValidateFormationSlotMotions
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Compiled slot identities and authored sparse cues inspected by formation member-motion admission. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Formation ids and zero-based slot ordinals bind metre/degree states to second-based intervals.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Sparse cue admission needs only compiled id/count/heroes plus canonical cue records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Hero exclusion preserves explicit actor ownership and typed shape remains an upstream premise.
-
 # src/validation/IAutoMovieValidateFormationSlotMotions.ts#IAutoMovieValidateFormationSlotMotions.IValue
 
 ## @evidence contracts/development/common.md#meaningful-documentation

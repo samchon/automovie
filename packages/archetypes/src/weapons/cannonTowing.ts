@@ -7,9 +7,12 @@ import type { createCannon } from "./createCannon";
  * Declare the field gun's transverse wheel support for limbered towing.
  *
  * @param gun Neutral fieldGun output; its trail coupling is behind its own +Z.
- * @returns An independent model-space metre axle, permitting rigid pitch while its two wheels stay grounded.
- * @throws {RangeError} For another producer/kind or invalid wheel-axis geometry.
- * @throws {AutoMovieArchetypeRefusal} If a required wheel-spin affordance is absent.
+ * @returns An independent model-space metre axle, permitting rigid pitch while
+ *   its two wheels stay grounded.
+ * @throws {RangeError} For another producer/kind or invalid wheel-axis
+ *   geometry.
+ * @throws {AutoMovieArchetypeRefusal} If a required wheel-spin affordance is
+ *   absent.
  */
 export function cannonTowing(
   gun: AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension>,

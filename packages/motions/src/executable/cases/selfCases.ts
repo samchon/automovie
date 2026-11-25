@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
@@ -25,35 +26,26 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the self-directed body actions (#3285) on one polygon man
- * standing from quiet standing.
+ * Capture cases of the self-directed body actions on one polygon man standing
+ * from quiet standing.
  *
- * - Touch rows of the `touch` law on the performer's own regions: a belly
- *   pat, a nape rub, a scratch of the left forearm, a self hug (hands on the
- *   opposite shoulders), both hands over the ears, a hand on the heart, a
- *   slap of the thigh, a facepalm and a brow wiped with the back of the hand.
- * - Whole-body rows of the `selfAction` law: the stretch, victory arms, a
- *   fist pump, a neck roll and a shoulder roll.
+ * - Touch rows of the `touch` law on the performer's own regions: a belly pat, a
+ *   nape rub, a scratch of the left forearm, a self hug (hands on the opposite
+ *   shoulders), both hands over the ears, a hand on the heart, a slap of the
+ *   thigh, a facepalm and a brow wiped with the back of the hand.
+ * - Whole-body rows of the `selfAction` law: the stretch, victory arms, a fist
+ *   pump, a neck roll and a shoulder roll.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. A touch row adds the issue's acceptance for each hand: the
- * effector within 10 mm of its region's surface through the contact window
- * (along the normal for a moving kind, as a point for a still one), a pat
- * coming down exactly `count` times, and the forearm never deeper than
- * 10 mm into the rest of the body. The stretch and victory rows check both
- * wrists above the crown at `stroke`; the fist pump checks three drops of
- * the fist.
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot. A
+ * touch row adds the issue's acceptance for each hand: the effector within 10
+ * mm of its region's surface through the contact window (along the normal for a
+ * moving kind, as a point for a still one), a pat coming down exactly `count`
+ * times, and the forearm never deeper than 10 mm into the rest of the body. The
+ * stretch and victory rows check both wrists above the crown at `stroke`; the
+ * fist pump checks three drops of the fist.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every row and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones through the touch effector's point and the engine's region placement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the touch rows, one over the whole-body rows.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the laws' goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per row and body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function selfCases(
   bodies: readonly string[] = ["m-average"],
@@ -116,11 +108,10 @@ export function selfCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const [label, params] of rows) {
       const name: string = `self-${label}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        () => perform(body, HumanChain.subject("a").act("touch", params)),
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(out, name, () =>
+          perform(body, HumanChain.subject("a").act("touch", params)),
+        );
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
       const form: IAutoMovieMotionHumanTouchForm.IForm =
@@ -142,19 +133,19 @@ export function selfCases(
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];
+      const target: IAutoMovieMotionTarget = params.target;
+      const other: IAutoMovieMotionTarget | undefined = params.other;
+      if (target.kind !== "self") continue;
       const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion][] = [
-        [
-          "right",
-          (params.target as { region: AutoMovieHumanoidRegion }).region,
-        ],
-        ...(params.other === undefined
-          ? []
-          : [
-              [
-                "left",
-                (params.other as { region: AutoMovieHumanoidRegion }).region,
-              ] as [AutoMovieHumanSide, AutoMovieHumanoidRegion],
-            ]),
+        ["right", target.region],
+        ...(other?.kind === "self"
+          ? [
+              ["left", other.region] satisfies [
+                AutoMovieHumanSide,
+                AutoMovieHumanoidRegion,
+              ],
+            ]
+          : []),
       ];
       for (const [side, region] of hands) {
         const pad: number = AutoMovieMotionHumanTouchEffector.pad(
@@ -254,14 +245,12 @@ export function selfCases(
       "fistPump",
       "neckRoll",
       "shoulderRoll",
-    ] as IAutoMovieMotionHumanSelfAction.Kind[]) {
+    ] satisfies IAutoMovieMotionHumanSelfAction.Kind[]) {
       const name: string = `self-${kind}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        () =>
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(out, name, () =>
           perform(body, HumanChain.subject("a").act("selfAction", { kind })),
-      );
+        );
       if (performance === null) continue;
       const stroke: number = TouchVerdicts.event(performance, "a", "stroke");
       const verdicts: IMotionCaptureCase.IVerdict[] = [
@@ -312,20 +301,6 @@ export function selfCases(
     }
   }
   return out;
-}
-
-/** A performance or, when planning throws, a failing case pushed in its place. */
-function attempt(
-  out: IMotionCaptureCase[],
-  name: string,
-  run: () => IAutoMovieMotionHumanPerformance,
-): IAutoMovieMotionHumanPerformance | null {
-  try {
-    return run();
-  } catch (error) {
-    out.push(FamilyCaseKit.refused(name, error));
-    return null;
-  }
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */

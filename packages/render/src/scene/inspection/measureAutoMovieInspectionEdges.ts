@@ -4,12 +4,30 @@ import * as THREE from "three";
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 
+/** The three sides of one triangle, each as its two corner indices. */
+function sides(a: number, b: number, c: number): [number, number][] {
+  return [
+    [a, b],
+    [b, c],
+    [c, a],
+  ];
+}
+
 /**
- * Read a mesh's triangle edges and return them as one mark lying on the mesh as it is posed, so the triangles are drawn over the shaded surface or alone.
+ * Read a mesh's triangle edges and return them as one mark lying on the mesh as
+ * it is posed, so the triangles are drawn over the shaded surface or alone.
  *
- * Every mesh has edges, so the inspection measures them itself on the meshes it draws. Each edge of a triangle is drawn once, however many triangles share it. Corners are welded by their stored positions, so an indexed geometry and a non-indexed one of the same form give the same edges, and a triangle side between two corners at one place draws nothing. The mark's kind is `edge`, its path the mesh's path followed by `edge`, its label `mesh edge` and its colour the palette's dark blue, which no shade uses.
+ * Every mesh has edges, so the inspection measures them itself on the meshes it
+ * draws. Each edge of a triangle is drawn once, however many triangles share
+ * it. Corners are welded by their stored positions, so an indexed geometry and
+ * a non-indexed one of the same form give the same edges, and a triangle side
+ * between two corners at one place draws nothing. The mark's kind is `edge`,
+ * its path the mesh's path followed by `edge`, its label `mesh edge` and its
+ * colour the palette's dark blue, which no shade uses.
  *
- * The coordinates are read from the mesh as three.js poses it, morph targets and linear-blend skinning included, through the first stored vertex of each welded corner.
+ * The coordinates are read from the mesh as three.js poses it, morph targets
+ * and linear-blend skinning included, through the first stored vertex of each
+ * welded corner.
  */
 export function measureAutoMovieInspectionEdges(props: {
   /** The mesh to read, drawn and with a position buffer. */
@@ -40,11 +58,7 @@ export function measureAutoMovieInspectionEdges(props: {
   const seen: Set<number> = new Set<number>();
   const ends: number[] = [];
   for (let k: number = 0; k + 2 < count; k += 3)
-    for (const [a, b] of [
-      [at(k), at(k + 1)],
-      [at(k + 1), at(k + 2)],
-      [at(k + 2), at(k)],
-    ] as [number, number][]) {
+    for (const [a, b] of sides(at(k), at(k + 1), at(k + 2))) {
       if (a === b) continue;
       const key: number = Math.min(a, b) * position.count + Math.max(a, b);
       if (seen.has(key)) continue;

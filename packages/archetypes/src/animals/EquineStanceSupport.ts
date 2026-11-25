@@ -9,13 +9,22 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 
-/** The proxy centre of mass's least distance inside the remaining supports before a hoof leaves the floor, metres: authored. */
+/**
+ * The proxy centre of mass's least distance inside the remaining supports
+ * before a hoof leaves the floor, metres: authored.
+ */
 const MARGIN: number = 0.03;
 
 /**
- * The support rules every stance row shares: hooves on their anchors, a limb folded by a share of its turns, trunk shifts, and the weight transfer that must precede releasing a hoof.
+ * The support rules every stance row shares: hooves on their anchors, a limb
+ * folded by a share of its turns, trunk shifts, and the weight transfer that
+ * must precede releasing a hoof.
  *
- * Before a hoof leaves the floor the trunk carries the proxy centre of mass (`EquineBodyPose`) at least `MARGIN` inside the triangle of the three hooves that stay: the motion skill's rule that weight moves to the next support before the current one is released, judged by the static-stability criterion that the centre of mass projects inside the support.
+ * Before a hoof leaves the floor the trunk carries the proxy centre of mass
+ * (`EquineBodyPose`) at least `MARGIN` inside the triangle of the three hooves
+ * that stay: the motion skill's rule that weight moves to the next support
+ * before the current one is released, judged by the static-stability criterion
+ * that the centre of mass projects inside the support.
  */
 export namespace EquineStanceSupport {
   /**
@@ -87,7 +96,8 @@ export namespace EquineStanceSupport {
   }
 
   /**
-   * The yaw of a trunk motion: the turn about the vertical that carries +Z onto the trunk's forward direction projected on the floor.
+   * The yaw of a trunk motion: the turn about the vertical that carries +Z onto
+   * the trunk's forward direction projected on the floor.
    *
    * @param motion The trunk's motion.
    * @returns The heading rotation; the identity for an unturned trunk.
@@ -110,7 +120,8 @@ export namespace EquineStanceSupport {
   }
 
   /**
-   * A vector authored in the horse's own frame (X to its left, Y up, Z forward) carried into the base model's space by a trunk's heading.
+   * A vector authored in the horse's own frame (X to its left, Y up, Z forward)
+   * carried into the base model's space by a trunk's heading.
    *
    * @param motion The trunk's motion.
    * @param vector The vector in the horse's frame.
@@ -124,7 +135,8 @@ export namespace EquineStanceSupport {
   }
 
   /**
-   * A point on a lifted hoof path between two places: their blend raised by a half-sine of the given height.
+   * A point on a lifted hoof path between two places: their blend raised by a
+   * half-sine of the given height.
    *
    * @param from The place at share 0, metres.
    * @param to The place at share 1, metres.
@@ -165,7 +177,8 @@ export namespace EquineStanceSupport {
   }
 
   /**
-   * The level shift carrying the proxy centre of mass `MARGIN` inside the triangle of the other three hooves, or none when it is already there.
+   * The level shift carrying the proxy centre of mass `MARGIN` inside the
+   * triangle of the other three hooves, or none when it is already there.
    *
    * @param body The prepared solver, for the rest centre of mass.
    * @param state The stance before the release.

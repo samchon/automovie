@@ -13,8 +13,8 @@ import { materializeCompiledFormation } from "./materializeCompiledFormation";
  * Records are keyed by formation id and inserted in code-unit order of that id,
  * so the inventory and every artifact that serializes it are the same whatever
  * order the designs were read in. Each formation is compiled against the same
- * model groups, radii and terrain, which is what makes a unit compiled here the unit
- * a shot compiled from the same inputs would hold.
+ * model groups, radii and terrain, which is what makes a unit compiled here the
+ * unit a shot compiled from the same inputs would hold.
  */
 export const materializeCompiledFormationInventory: (
   props: IAutoMovieMaterializeCompiledFormationInventory.IProps,

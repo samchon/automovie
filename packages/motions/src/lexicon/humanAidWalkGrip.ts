@@ -30,16 +30,12 @@ import type { HumanRideHands } from "./HumanRideHands";
 /** Palm-to-rod stage admission in world metres. */
 const GRIP_GAP: number = 0.01;
 
-/**
- * Fit one grip per hand for a complete staged floor-aid course.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when the model grip and finger closure remain fixed.
- * @evidence contracts/development/design.md#principled-representation All candidate hand points and approaches belong to the real grip rod, and the displayed palm is measured against its geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law supplies the support samples and retains the accepted grip. HumanMountRider owns native hand pose fitting.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A single sampled grip is chosen per hand for the entire course. The fitting never substitutes the wrist target for the actual material contact.
- */
+/** Fit one grip per hand for a complete staged floor-aid course. */
 export namespace humanAidWalkGrip {
-  /** One sampled instant of the aided walk: the aid's displayed floor frame and the body's planned posture. */
+  /**
+   * One sampled instant of the aided walk: the aid's displayed floor frame and
+   * the body's planned posture.
+   */
   export interface IStation {
     /** The aid's world frame, metres. */
     frame: IAutoMovieRigidTransform;
@@ -69,7 +65,10 @@ export namespace humanAidWalkGrip {
     digits: IAutoMovieMotionHumanPosture["joints"];
   }
 
-  /** Convert a model grip into the world grip role the native holding solver expects. */
+  /**
+   * Convert a model grip into the world grip role the native holding solver
+   * expects.
+   */
   export function target(
     contact: IAutoMovieAffordance,
     world: IAutoMovieRigidTransform,

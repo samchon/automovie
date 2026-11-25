@@ -14,49 +14,44 @@ import { HumanSupportPatch } from "../posture/HumanSupportPatch";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
- * Whether the loads a motion declares on its contacts can hold the body
- * still (#3425). A still body's support forces balance its weight along the
- * weight's line of action, so their resultant passes through the point
- * under the centre of mass (the static equilibrium of a rigid body). A
- * contact bearing a share `w` of the weight acts at its centre of pressure,
- * somewhere within its contact patch, so the points the resultant can pass
- * through are the load-weighted Minkowski sum `Σ w P` of the patches, the
- * shares normalized to sum to one. The reading is how far, horizontally, the
- * centre of mass lies outside that region, zero inside.
+ * Whether the loads a motion declares on its contacts can hold the body still.
+ * A still body's support forces balance its weight along the weight's line of
+ * action, so their resultant passes through the point under the centre of mass
+ * (the static equilibrium of a rigid body). A contact bearing a share `w` of
+ * the weight acts at its centre of pressure, somewhere within its contact
+ * patch, so the points the resultant can pass through are the load-weighted
+ * Minkowski sum `Σ w P` of the patches, the shares normalized to sum to one.
+ * The reading is how far, horizontally, the centre of mass lies outside that
+ * region, zero inside.
  *
  * A foot's patch is the outline of its sole where it bears (`HumanFoot.base`,
- * the base of support's own owner); every other contact's patch is its
- * point, the engine's point of its `region` or of its part's default region
- * (`HumanContactWindow.REGIONS`), on the displayed bones. An instant is
- * read when at least one bearing window is open, every open bearing window
- * declares its `load` and one load is positive, since an undeclared share
- * has no weight to check, and when the body is held: its extrapolated
- * centre lies no further from the centre than the bound itself (Hof,
- * Gazendam and Sinke 2005, `x + v / ω0`), so a moving centre's own lead
- * cannot pass for a static error.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the law, the region the resultant may pass through, each contact's patch, which instants are read and why, and what the reading is.
- * @evidence contracts/development/implementation.md#principled-implementation Static equilibrium of a still body with each support force at a centre of pressure inside its contact patch: the resultant's line meets the floor inside the load-weighted Minkowski sum of the patches, a convex set built as the hull of the weighted sums of the patches' hull corners; the held test is Hof's extrapolated centre against the same bound.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate for the instants read, one weighted region, one walk of the grid.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An instant is skipped only by its declared windows and its own motion, never by its reading.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most one centre of mass per grid instant, placed only at held instants and their two neighbours; the mass model is the body's own (`body.massModel`), read only once an instant is held; the Minkowski sum is folded window by window and reduced to its hull after each, so it stays at the size of a hull.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each grid instant's centre is placed once and shared by the held test of its neighbours and its own reading, keyed by the grid index of the motion's unchanged bones.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * the base of support's own owner); every other contact's patch is its point,
+ * the engine's point of its `region` or of its part's default region
+ * (`HumanContactWindow.REGIONS`), on the displayed bones. An instant is read
+ * when at least one bearing window is open, every open bearing window declares
+ * its `load` and one load is positive, since an undeclared share has no weight
+ * to check, and when the body is held: its extrapolated centre lies no further
+ * from the centre than the bound itself (Hof, Gazendam and Sinke 2005, `x + v /
+ * ω0`), so a moving centre's own lead cannot pass for a static error.
  */
 export namespace AutoMovieMotionHumanAuditStatics {
-  /** The bound on the reading, as a share of stature: 2 % (the motion-dynamics-core campaign's acceptance, #3415). */
+  /**
+   * The bound on the reading, as a share of stature: 2 % (the
+   * motion-dynamics-core campaign's acceptance).
+   */
   export const SHARE: number = 0.02;
 
   /**
-   * The worst horizontal distance by which the centre of mass lies outside
-   * the load-weighted region of the contact patches, over the held instants
-   * with declared loads.
+   * The worst horizontal distance by which the centre of mass lies outside the
+   * load-weighted region of the contact patches, over the held instants with
+   * declared loads.
    *
    * @param motion The motion.
    * @param subject The person.
    * @param body Their body.
    * @param rate Grid samples per second.
-   * @returns Metres (zero when nothing is read or nothing lies outside), with the windows and the second.
+   * @returns Metres (zero when nothing is read or nothing lies outside), with
+   *   the windows and the second.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -74,15 +69,13 @@ export namespace AutoMovieMotionHumanAuditStatics {
     const bound: number = SHARE * body.measure.stature;
     const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
 
-    // The body's own mass model, read only once an instant is held, and each
-    // grid instant's centre placed once: consecutive held instants share
-    // their neighbours' centres.
-    let model: IAutoMovieResolveCenterOfMass.IModel | undefined;
+    // Each grid instant's centre placed once within this measure:
+    // consecutive held instants share their neighbours' centres.
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const centres: Map<number, IAutoMovieVector3> = new Map();
     const centre = (i: number): IAutoMovieVector3 => {
       let found: IAutoMovieVector3 | undefined = centres.get(i);
       if (found === undefined) {
-        model ??= body.massModel;
         found = resolveAutoMovieCenterOfMass.place(
           model,
           motion.bones(subject, times[i]!),
@@ -148,9 +141,8 @@ export namespace AutoMovieMotionHumanAuditStatics {
   }
 
   /**
-   * The bearing windows open at an instant: those of a kind that bears the
-   * body (`HumanContactWindow.BEARING`), or of any kind with a declared
-   * load.
+   * The bearing windows open at an instant: those of a kind that bears the body
+   * (`HumanContactWindow.BEARING`), or of any kind with a declared load.
    *
    * @param windows The person's windows, film seconds.
    * @param seconds Film seconds.
@@ -181,20 +173,20 @@ export namespace AutoMovieMotionHumanAuditStatics {
   export const point: typeof HumanSupportPatch.point = HumanSupportPatch.point;
 
   /**
-   * The corners of a window's contact patch: a foot's bearing sole outline
-   * when the window names no other region, otherwise its contact point.
+   * The corners of a window's contact patch: a foot's bearing sole outline when
+   * the window names no other region, otherwise its contact point.
    *
    * @param body The body.
    * @param bones The displayed bones.
    * @param contact The window.
    * @returns World metres.
    */
-  export const patch: typeof HumanSupportPatch.of = HumanSupportPatch.of;
+  export const patch: typeof HumanSupportPatch = HumanSupportPatch;
 
   /**
-   * The load-weighted Minkowski sum of the open windows' patches, the
-   * shares normalized to sum to one: the hull of the weighted sums of their
-   * corners, folded one window at a time.
+   * The load-weighted Minkowski sum of the open windows' patches, the shares
+   * normalized to sum to one: the hull of the weighted sums of their corners,
+   * folded one window at a time.
    *
    * @param body The body.
    * @param bones The displayed bones.

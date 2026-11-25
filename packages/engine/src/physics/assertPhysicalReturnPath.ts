@@ -18,7 +18,11 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /**
- * Reject an obstructed C1 return before advancing native bodies. This checks the complete next kinematic articulation against current dynamic receivers, the floor, admitted self pairs and fixed pivots. It is a discrete path admission, not a continuous collision or dynamically feasible control certificate.
+ * Reject an obstructed C1 return before advancing native bodies. This checks
+ * the complete next kinematic articulation against current dynamic receivers,
+ * the floor, admitted self pairs and fixed pivots. It is a discrete path
+ * admission, not a continuous collision or dynamically feasible control
+ * certificate.
  */
 export function assertPhysicalReturnPath(
   input: IAutoMoviePhysicalSimulationInput.IInput,

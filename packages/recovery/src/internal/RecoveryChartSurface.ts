@@ -11,23 +11,25 @@ import { RecoveryChartLeafFit as L } from "./RecoveryChartLeafFit";
 import { RecoveryChartMap as M } from "./RecoveryChartMap";
 
 /**
- * Private four-sided disk observations to a jointly fitted bicubic coefficient atlas.
- * Boundary paths are ordered bottom/right/top/left, with bottom and top increasing u
- * and left and right increasing v. Accepted fitter parameters, rather than input
- * chord fractions, register the private boundary observations to their fitted curves.
- * Shared coefficient identities give C0 continuity only; transverse derivatives,
- * injectivity, source creases and continuous source distance remain unqualified.
- * Unavailable rank diagnostics do not forbid a finite exploratory residual refit
- * when physical-area rows support every unknown and numerical convergence passes.
- * Known rank deficiency remains separate; only a lower original area RMS can
- * replace the preceding area candidate, and point fallback cannot replace it.
- * Optional source PL physical-gradient rows constrain observed slopes softly;
- * they neither impose exact cross-chart G1 nor certify the original embedding.
+ * Private four-sided disk observations to a jointly fitted bicubic coefficient
+ * atlas. Boundary paths are ordered bottom/right/top/left, with bottom and top
+ * increasing u and left and right increasing v. Accepted fitter parameters,
+ * rather than input chord fractions, register the private boundary observations
+ * to their fitted curves. Shared coefficient identities give C0 continuity
+ * only; transverse derivatives, injectivity, source creases and continuous
+ * source distance remain unqualified. Unavailable rank diagnostics do not
+ * forbid a finite exploratory residual refit when physical-area rows support
+ * every unknown and numerical convergence passes. Known rank deficiency remains
+ * separate; only a lower original area RMS can replace the preceding area
+ * candidate, and point fallback cannot replace it. Optional source PL
+ * physical-gradient rows constrain observed slopes softly; they neither impose
+ * exact cross-chart G1 nor certify the original embedding.
  */
 export namespace RecoveryChartSurface {
   /**
-   * Fit one observed orientable disk whose four boundary paths are already identified.
-   * Paths include their shared endpoints and contain private vertex ordinals.
+   * Fit one observed orientable disk whose four boundary paths are already
+   * identified. Paths include their shared endpoints and contain private vertex
+   * ordinals.
    */
   export function fit(
     input: Parameters<IAutoMovieRecoveryChartSurface.Fit>[0],
@@ -46,10 +48,7 @@ export namespace RecoveryChartSurface {
       if (
         ids.length < 2 ||
         ids.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) ||
-            id < 0 ||
-            id >= input.verticesMm.length,
+          (id: number): boolean => id < 0 || id >= input.verticesMm.length,
         )
       )
         throw new Error("Four nonempty private boundary paths are required");
@@ -139,7 +138,7 @@ export namespace RecoveryChartSurface {
       if (
         values.some(
           (value: number, i: number): boolean =>
-            !Number.isFinite(value) || (i > 0 && value <= values[i - 1]!),
+            i > 0 && value <= values[i - 1]!,
         )
       )
         throw new Error(
@@ -182,12 +181,7 @@ export namespace RecoveryChartSurface {
       );
     const maximumRows: number = input.maxObservationRows ?? 250_000,
       maximumRefinements: number = input.maxRefinements ?? 4;
-    if (
-      !Number.isSafeInteger(maximumRows) ||
-      maximumRows < 49 ||
-      !Number.isSafeInteger(maximumRefinements) ||
-      maximumRefinements < 0
-    )
+    if (maximumRows < 49 || maximumRefinements < 0)
       throw new Error(
         "Finite area-observation and refinement budgets are required",
       );
@@ -197,7 +191,7 @@ export namespace RecoveryChartSurface {
       triangles: input.triangles,
       parameters: map.parameters,
       curves,
-      knots: partitions as [number[], number[], number[], number[]],
+      knots: [partitions[0]!, partitions[1]!, partitions[2]!, partitions[3]!],
       toleranceMm: input.toleranceMm,
       maxPatches: input.maxPatches,
       maxIterations: input.maxIterations,

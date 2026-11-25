@@ -6,10 +6,10 @@ import type {
   IAutoMovieConstructionSplitBand,
 } from "@automovie/interface";
 
+import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAddress";
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAddress";
 
 /** Physical point/vector, mm. */
 type Vec3 = AutoMovieVector3Tuple;
@@ -17,12 +17,11 @@ type Vec3 = AutoMovieVector3Tuple;
 type ISide = IAutoMovieConstructionSplitBand.ISide;
 const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 
-/**
- * The existing radial port chart and angle/length clock correspondence.
- */
+/** The existing radial port chart and angle/length clock correspondence. */
 export namespace AutoMovieConstructionPortCurve {
   /**
-   * The admitted loop's existing column addresses and unscaled inward chart directions.
+   * The admitted loop's existing column addresses and unscaled inward chart
+   * directions.
    */
   export function chart(
     loop: IAutoMovieConstructionPortLoop,
@@ -50,24 +49,32 @@ export namespace AutoMovieConstructionPortCurve {
   }
 
   /**
-   * The port curve between its columns as well as at them: in the normalized chart `X = (u - y0) / a`, `Y = (v - p0) / (sense b)` it
-   * is the polar curve `r(c) (cos c, sin c)`, `r` the periodic cubic through the loop's shares (`AutoMovieConstructionPortField.periodic`),
-   * or 1 for the plain ellipse.
-   * Its clock at a chart point is that point's polar angle, so the foot of a point on the curve is the point itself, and inside is
-   * `hypot(X, Y) < r(atan2(Y, X))`.
+   * The port curve between its columns as well as at them: in the normalized
+   * chart `X = (u - y0) / a`, `Y = (v - p0) / (sense b)` it is the polar curve
+   * `r(c) (cos c, sin c)`, `r` the periodic cubic through the loop's shares
+   * (`AutoMovieConstructionPortField.periodic`), or 1 for the plain ellipse.
+   * Its clock at a chart point is that point's polar angle, so the foot of a
+   * point on the curve is the point itself, and inside is `hypot(X, Y) <
+   * r(atan2(Y, X))`.
    *
    * @param loop The admitted loop.
    * @param count The columns.
-   * @param period The host's phase period, under which a chart phase is read on the branch nearest the centre; absent, as given.
-   * @returns The curve, or the refusal when a share between columns is not positive.
+   * @param period The host's phase period, under which a chart phase is read on
+   *   the branch nearest the centre; absent, as given.
+   * @returns The curve, or the refusal when a share between columns is not
+   *   positive.
    */
   export function curve(
     loop: IAutoMovieConstructionPortLoop,
     count: number,
     period: number | undefined,
   ): IAutoMovieConstructionPortCurve.ICurve | string {
-    const columns: { addresses: [number, number][]; inward: [number, number][] } = chart(loop, count);
-    const share: IAutoMovieConstructionPortField.IField = loop.shape === undefined ? Field.constant(1) : Field.periodic(loop.shape);
+    const columns: {
+      addresses: [number, number][];
+      inward: [number, number][];
+    } = chart(loop, count);
+    const share: IAutoMovieConstructionPortField.IField =
+      loop.shape === undefined ? Field.constant(1) : Field.periodic(loop.shape);
     if (!(share.bounds[0] > 0))
       return "the port curve's share between columns is not positive everywhere";
     const y0: number = loop.centre[0] * 1000;
@@ -77,7 +84,10 @@ export namespace AutoMovieConstructionPortCurve {
     const s: number = loop.sense;
     const turn: number = 2 * Math.PI;
 
-    /** The normalized chart point of a chart point, its phase on the branch nearest the centre. */
+    /**
+     * The normalized chart point of a chart point, its phase on the branch
+     * nearest the centre.
+     */
     const normal = (u: number, v: number): [number, number] => [
       (u - y0) / a,
       (AutoMovieSolidCycle.shift(v, p0, period) - p0) / (s * b),
@@ -87,17 +97,32 @@ export namespace AutoMovieConstructionPortCurve {
       reach: [y0 - share.bounds[1] * a, y0 + share.bounds[1] * a],
       semi: a,
       share,
-      at: (psi: number): { point: [number, number]; first: [number, number]; second: [number, number] } => {
+      at: (
+        psi: number,
+      ): {
+        point: [number, number];
+        first: [number, number];
+        second: [number, number];
+      } => {
         const [r, r1, r2]: [number, number, number] = share.at(psi);
         const cos: number = Math.cos(psi);
         const sin: number = Math.sin(psi);
         return {
           point: [y0 + r * a * cos, p0 + r * s * b * sin],
           first: [a * (r1 * cos - r * sin), s * b * (r1 * sin + r * cos)],
-          second: [a * (r2 * cos - 2 * r1 * sin - r * cos), s * b * (r2 * sin + 2 * r1 * cos - r * sin)],
+          second: [
+            a * (r2 * cos - 2 * r1 * sin - r * cos),
+            s * b * (r2 * sin + 2 * r1 * cos - r * sin),
+          ],
         };
       },
-      direction: (psi: number): { d: [number, number]; first: [number, number]; second: [number, number] } => {
+      direction: (
+        psi: number,
+      ): {
+        d: [number, number];
+        first: [number, number];
+        second: [number, number];
+      } => {
         const cos: number = Math.cos(psi);
         const sin: number = Math.sin(psi);
         return {
@@ -120,7 +145,8 @@ export namespace AutoMovieConstructionPortCurve {
   }
 
   /**
-   * The actual operator's child phases, preserving its samples, searches and refusal reasons.
+   * The actual operator's child phases, preserving its samples, searches and
+   * refusal reasons.
    */
   export function correspondence(
     child: ISide,
@@ -136,11 +162,14 @@ export namespace AutoMovieConstructionPortCurve {
     return side.along === undefined ? side.station : side.along(psi);
   }
   /**
-   * The child's rail phase at each loop point by arclength, for a split's child and a port's alike: the ring is the child's rail read at
-   * its station at each phase (`railAt`, a port's rail curve when it has one), and every column takes the phase that stands as far round
-   * the ring, as a share of the ring's length, as the column stands round the loop, the two run the same way when their Newell normals
-   * agree, from the start on the ring at which the two curves, each about its own centroid, stand closest in the least-squares sense.
-   * Neither curve need be star-shaped about the centroid.
+   * The child's rail phase at each loop point by arclength, for a split's child
+   * and a port's alike: the ring is the child's rail read at its station at
+   * each phase (`railAt`, a port's rail curve when it has one), and every
+   * column takes the phase that stands as far round the ring, as a share of the
+   * ring's length, as the column stands round the loop, the two run the same
+   * way when their Newell normals agree, from the start on the ring at which
+   * the two curves, each about its own centroid, stand closest in the
+   * least-squares sense. Neither curve need be star-shaped about the centroid.
    */
   function lengths(child: ISide, loop: readonly Vec3[], guidedRail?: IAutoMovieConstructionSplitBand.IGuidedRail): number[] | string {
     const turn: number = 2 * Math.PI;
@@ -284,7 +313,9 @@ export namespace AutoMovieConstructionPortCurve {
   }
 
   /**
-   * The child's rail phase at each loop point: the phase whose rail point stands at the loop point's angle about the rail ring's centroid, in the ring's Newell plane; or why none is admitted.
+   * The child's rail phase at each loop point: the phase whose rail point
+   * stands at the loop point's angle about the rail ring's centroid, in the
+   * ring's Newell plane; or why none is admitted.
    */
   function phases(child: ISide, loop: readonly Vec3[]): number[] | string {
     const turn: number = 2 * Math.PI;

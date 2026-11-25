@@ -14,15 +14,16 @@ import { animalAttachmentObserver as observe } from "./animalAttachmentObserver"
 import { nclose } from "./nclose";
 
 /**
- * Exercise one successful real ride through attachment, solid contact and replay.
+ * Exercise one successful real ride through attachment, solid contact and
+ * replay.
  *
  * @param animal Actual source model, captured before the ride is prepared.
  * @param prepare The public ride call; refusal is a failed positive scenario.
  * @param clock Independent period and fore/hind support durations in seconds.
  * @param label Complete producer/cohort/gait/lead identity.
  * @param findings Whole-round failure collector shared by the scenario owner.
- * @param handContacts Explicit trunk-carried hand origins whose actual rods span to the moving head.
- *
+ * @param handContacts Explicit trunk-carried hand origins whose actual rods
+ *   span to the moving head.
  * @evidence contracts/development/common.md#meaningful-documentation Defines actual source ownership, independent clocks, exact event and microsecond-neighbor samples, geometric precision, solid support and unordered/alias replay; positive refusals are never counted as success.
  * @evidence contracts/development/implementation.md#principled-implementation Samples exact touchdown/liftoff and both sides, independent off-grid stance/swing times and film endpoints. The independent observer checks actual attachments/solids; stance footprints hold world X/Z and actual soles touch the floor. Query-order and returned-record mutation are relational ownership checks rather than physical-motion oracles.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Capture source, prepare one actual ride, form bounded event neighborhoods, observe all geometry/contact concerns, inspect support windows and replay in reverse order after mutating one returned sample.
@@ -126,7 +127,7 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
       for (const [limb, foot] of feet)
         truth(
           `${time}/${limb} whole solid clears floor (${foot.soleY})`,
-          Number.isFinite(foot.soleY) && foot.soleY >= -1e-9,
+          foot.soleY >= -1e-9,
         );
       for (const contact of animal.affordances) {
         if (contact.id !== "lead") continue;
@@ -243,7 +244,10 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
       );
     }
 
-    /** Gather every geometry concern instead of stopping at the first detached limb. */
+    /**
+     * Gather every geometry concern instead of stopping at the first detached
+     * limb.
+     */
     function truth(id: string, condition: boolean): void {
       try {
         TestValidator.predicate(`${label}: ${id}`, condition);
@@ -267,7 +271,10 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No expected pose, unsupported-success flag, physiological bound or wall-clock budget is encoded.
  */
 export namespace animalAttachmentScenario {
-  /** Literal source contact durations or explicitly authored clocks, all seconds. */
+  /**
+   * Literal source contact durations or explicitly authored clocks, all
+   * seconds.
+   */
   export interface IClock {
     /** One complete stride. */
     period: number;

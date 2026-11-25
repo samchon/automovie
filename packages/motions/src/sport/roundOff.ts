@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionEvent,
@@ -26,32 +27,30 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
-import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 import { cartwheel } from "./cartwheel";
+import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 
 /**
- * A round-off (#3377): a cartwheel that travels along the way the body
- * faced, turns half round about the vertical and lands on both feet at
- * once, facing back where it came from, the entry to a back handspring or
- * a back salto.
+ * A round-off: a cartwheel that travels along the way the body faced, turns
+ * half round about the vertical and lands on both feet at once, facing back
+ * where it came from, the entry to a back handspring or a back salto.
  *
- * The body rolls as the cartwheel's wheel (`GymnasticsWheel`): the arms
- * raised wide and the legs straddled over the first `cartwheel.SHAPE`
- * degrees, the lowest spoke bearing at every angle. On the way to the
- * hands it turns a quarter about the vertical through what bears, so the
- * wheel rolls along the heading; past the handstand it turns the second
- * quarter about the bearing hand while the legs close, so both feet come
- * down together, knees bent to take the landing. The roll is one axis and
- * each quarter turn is another, about the vertical, and the two run at once
- * while a quarter is being made (over the wheel's first `ENTRY` degrees and
- * over `SNAP` degrees past the handstand): the posture's heading turns and
- * its roll grows in the same instant, composed as heading then roll, not
- * solved as one rotation about a moving axis (#3416 keeps that multi-axis
- * case).
+ * The body rolls as the cartwheel's wheel (`GymnasticsWheel`): the arms raised
+ * wide and the legs straddled over the first `cartwheel.SHAPE` degrees, the
+ * lowest spoke bearing at every angle. On the way to the hands it turns a
+ * quarter about the vertical through what bears, so the wheel rolls along the
+ * heading; past the handstand it turns the second quarter about the bearing
+ * hand while the legs close, so both feet come down together, knees bent to
+ * take the landing. The roll is one axis and each quarter turn is another,
+ * about the vertical, and the two run at once while a quarter is being made
+ * (over the wheel's first `ENTRY` degrees and over `SNAP` degrees past the
+ * handstand): the posture's heading turns and its roll grows in the same
+ * instant, composed as heading then roll, not solved as one rotation about a
+ * moving axis (is a multi-axis case, not planned here).
  *
  * The angle follows minimum-jerk progress over the seconds; nothing is
- * integrated, and no hurdle step, push off the second hand or flight before
- * the landing is shown, a first pass.
+ * integrated, and no hurdle step, push off the second hand or flight before the
+ * landing is shown, a first pass.
  *
  * Events: `handsDown` (the first hand bears), `inverted` (half the wheel),
  * `feetDown` (the feet bear again), `relax` (the end).
@@ -60,7 +59,10 @@ export namespace roundOff {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "roundOff";
 
-  /** Cancel table: from the end, into standing, walking, a handspring or a salto. */
+  /**
+   * Cancel table: from the end, into standing, walking, a handspring or a
+   * salto.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -69,18 +71,27 @@ export namespace roundOff {
       salto: ["fromRelax", "smooth"],
     });
 
-  /** The round-off's seconds when the author names none (provisional: quicker than the cartwheel's, its rhythm of a tumbling run). */
+  /**
+   * The round-off's seconds when the author names none (provisional: quicker
+   * than the cartwheel's, its rhythm of a tumbling run).
+   */
   export const SECONDS: number = 1.2;
 
-  /** The wheel's angle by which the first quarter turn is made, degrees (provisional: before the first hand bears). */
+  /**
+   * The wheel's angle by which the first quarter turn is made, degrees
+   * (provisional: before the first hand bears).
+   */
   export const ENTRY: number = 60;
 
-  /** The angle past the handstand over which the legs close and the second quarter turn is made, degrees (provisional). */
+  /**
+   * The angle past the handstand over which the legs close and the second
+   * quarter turn is made, degrees (provisional).
+   */
   export const SNAP: number = 120;
 
   /**
-   * The landing shape on a body: the legs together, the knees bent and the
-   * arms still up (provisional angles).
+   * The landing shape on a body: the legs together, the knees bent and the arms
+   * still up (provisional angles).
    *
    * @param body The body.
    * @returns The key.
@@ -95,6 +106,22 @@ export namespace roundOff {
     );
   }
 
+  /**
+   * The heading's turn at an angle of the wheel: a quarter turn toward the
+   * trailing side over the first `ENTRY` degrees, and a second quarter over
+   * `SNAP` past the handstand, each a minimum-jerk share.
+   *
+   * @param sign 1 leading right, -1 leading left.
+   * @param angle The wheel's turn, degrees, 0 to 360.
+   * @returns Degrees.
+   */
+  export function turned(sign: number, angle: number): number {
+    return (
+      sign *
+      (90 * minimumJerk.share(angle / ENTRY) +
+        90 * minimumJerk.share((angle - 180) / SNAP))
+    );
+  }
   /**
    * Plan a round-off.
    *
@@ -130,7 +157,7 @@ export namespace roundOff {
     // trailing side on the way to the hands, so the leading side faces the
     // heading, and a second quarter past the handstand.
     const turn: (angle: number) => number = (angle: number): number =>
-      sign * (90 * ease(angle / ENTRY) + 90 * ease((angle - 180) / SNAP));
+      turned(sign, angle);
 
     // The shape at an angle: the cartwheel's wheel in the first half, closing
     // to the landing shape past the handstand.
@@ -162,8 +189,8 @@ export namespace roundOff {
     const ground: IAutoMovieMotionHumanContactWindow.Support = {
       kind: "ground",
     };
-    const lead: "left" | "right" = sign < 0 ? "left" : "right";
-    const trail: "left" | "right" = lead === "left" ? "right" : "left";
+    const lead: AutoMovieHumanSide = sign < 0 ? "left" : "right";
+    const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
       { bones: ["leftFoot", "rightFoot"], height: ankle, support: ground },
       { bones: [`${lead}Foot`], height: ankle, support: ground },
@@ -227,13 +254,22 @@ export namespace roundOff {
       yaw: standing.yaw,
     };
     // A foot rolled past the ankle's range bears on its forefoot's edge.
-    const borne: IAutoMovieMotionHumanContactWindow[] =
-      edgeGymnasticsWheelFeet(body, contacts, duration, carried);
-    const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
-      GymnasticsWheelPlants.of(body, borne, duration, carried, {
+    const borne: IAutoMovieMotionHumanContactWindow[] = edgeGymnasticsWheelFeet(
+      body,
+      contacts,
+      duration,
+      carried,
+    );
+    const lay: ReturnType<typeof GymnasticsWheelPlants> = GymnasticsWheelPlants(
+      body,
+      borne,
+      duration,
+      carried,
+      {
         first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),
         second: HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
-      });
+      },
+    );
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,

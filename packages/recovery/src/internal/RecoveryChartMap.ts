@@ -7,19 +7,18 @@ import type { IAutoMovieRecoveryChartMap } from "@automovie/interface";
 export namespace RecoveryChartMap {
   /**
    * Solve a positive-weight Dirichlet graph Laplacian with diagonal PCG.
-   * Anchoring every connected component makes the free matrix positive definite.
-   * The caller still establishes disk topology and a compatible boundary map;
-   * positive computed triangle areas are checked rather than assumed from that premise.
+   * Anchoring every connected component makes the free matrix positive
+   * definite. The caller still establishes disk topology and a compatible
+   * boundary map; positive computed triangle areas are checked rather than
+   * assumed from that premise.
    */
   export function parameterize(
     input: IAutoMovieRecoveryChartMap.Input,
   ): IAutoMovieRecoveryChartMap.Result {
     if (
-      !Number.isSafeInteger(input.vertices) ||
       input.vertices < 3 ||
       !input.triangles.length ||
-      !(input.tolerance > 0 && Number.isFinite(input.tolerance)) ||
-      !Number.isSafeInteger(input.maxIterations) ||
+      !(input.tolerance > 0) ||
       input.maxIterations < 1
     )
       throw new Error(
@@ -37,14 +36,7 @@ export namespace RecoveryChartMap {
       for (let k: number = 0; k < 3; k++) {
         const a: number = triangle[k]!,
           b: number = triangle[(k + 1) % 3]!;
-        if (
-          !Number.isSafeInteger(a) ||
-          a < 0 ||
-          a >= input.vertices ||
-          !Number.isSafeInteger(b) ||
-          b < 0 ||
-          b >= input.vertices
-        )
+        if (a < 0 || a >= input.vertices || b < 0 || b >= input.vertices)
           throw new Error("Private chart triangle addresses are invalid");
         adjacency[a]!.add(b);
         adjacency[b]!.add(a);
@@ -53,13 +45,10 @@ export namespace RecoveryChartMap {
     const fixed: Map<number, [number, number]> = new Map();
     for (const value of input.fixed) {
       if (
-        !Number.isSafeInteger(value.vertex) ||
         value.vertex < 0 ||
         value.vertex >= input.vertices ||
         fixed.has(value.vertex) ||
-        ![value.u, value.v].every(
-          (x: number): boolean => Number.isFinite(x) && x >= 0 && x <= 1,
-        )
+        ![value.u, value.v].every((x: number): boolean => x >= 0 && x <= 1)
       )
         throw new Error("Unique finite fixed chart coordinates are required");
       fixed.set(value.vertex, [value.u, value.v]);
@@ -144,8 +133,10 @@ export namespace RecoveryChartMap {
         const applied: Float64Array = multiply(direction),
           denominator: number = dot(direction, applied);
         if (
-          !(denominator > 0 && Number.isFinite(denominator)) ||
-          !Number.isFinite(product)
+          !(denominator > 0) ||
+          denominator === Infinity ||
+          product === Infinity ||
+          product === -Infinity
         ) {
           diagnostics.push(
             `Unresolved harmonic arithmetic in coordinate ${coordinate}`,
@@ -190,11 +181,11 @@ export namespace RecoveryChartMap {
           c: [number, number] = parameters[triangle[2]]!;
         const area: number =
           (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
-        if (!(area > 0 && Number.isFinite(area))) failedTriangles.push(i);
+        if (!(area > 0) || area === Infinity) failedTriangles.push(i);
       },
     );
     const inRange: boolean = parameters.every((p: [number, number]): boolean =>
-      p.every((x: number): boolean => Number.isFinite(x) && x >= 0 && x <= 1),
+      p.every((x: number): boolean => x >= 0 && x <= 1),
     );
     if (!inRange)
       diagnostics.push(

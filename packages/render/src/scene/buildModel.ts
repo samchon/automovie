@@ -8,6 +8,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import { applyTransform } from "./applyTransform.js";
@@ -227,11 +228,7 @@ export const buildModel: (
               tangent.getY(k),
               tangent.getZ(k),
             );
-            if (
-              !Number.isFinite(tangent.getW(k)) ||
-              !Number.isFinite(length) ||
-              length === 0
-            ) {
+            if (length === 0) {
               geo.deleteAttribute("tangent");
               break;
             }
@@ -274,7 +271,7 @@ export const buildModel: (
           mesh.userData.automovieMorphTargetDrivers = driven;
         if (part.transform !== null) applyTransform(mesh, part.transform);
 
-        if (mesh instanceof THREE.SkinnedMesh && skin !== null) {
+        if (AutoMovieThreeKind.isSkinnedMesh(mesh) && skin !== null) {
           const palette: string = JSON.stringify(skin.joints);
           let skeleton: THREE.Skeleton | undefined = skeletons.get(palette);
           if (skeleton === undefined) {

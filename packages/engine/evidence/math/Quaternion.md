@@ -1,21 +1,3 @@
-# src/math/Quaternion.ts#Quaternion
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the component order, where quaternions come from and go, the unit-length premise for rotation arguments, and that every function returns a new value.
-
-## @evidence contracts/development/design.md#principled-representation
-
-GlTF-ordered real components describe rotations, composed and read in the stated world/local conventions. Degrees enter Euler and axis-angle construction. Prepared axis readers own fixed axis scalars, and prepared interpolation owns one unchanged endpoint pair's exact arc invariants, never changing-angle/progress results.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Rotation construction, products, normalization, inversion, vector rotation, interpolation and angular distance serve existing engine consumers. prepareAxisAngle serves changing-angle OnBasis factors, prepareSlerp serves fixed-interval flight playback, and the internal scalar normalization owner also serves actual projector scores. No metadata getter or target cache is exposed.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Prepared construction keeps the direct formula's rescaling, division and multiplication order rather than substituting a predivided unit axis. Prepared interpolation keeps shorter-arc, threshold, weights and normalization under one arithmetic owner. Zero-axis identity and nonfinite propagation keep their existing meanings; every public quaternion output remains fresh.
-
 # src/math/Quaternion.ts#Quaternion.identity
 
 ## @evidence contracts/development/implementation.md#principled-implementation

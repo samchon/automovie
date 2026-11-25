@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanBodyFitTypes.ts#IAutoMovieMotionHumanBodyFitTypes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: The point in the bone's frame, metres; its origin when absent. on: The bone carrying the goal frame; world coordinates when absent. goal: Where it goes, metres in the goal frame.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: The point in the bone's frame, metres; its origin when absent. on: The bone carrying the goal frame; world coordinates when absent. goal: Where it goes, metres in the goal frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/support.ts (support.plan, return); actions/supportContact.ts (supportContact.swing, return); actions/supportKey.ts (supportKey.solved, swings); actions/supportKey.ts (supportKey.solved.targets, return); posture/HumanBodyFit.ts (HumanBodyFit.fit, t); posture/HumanBodyFitMerit.ts (HumanBodyFitMerit.of.misses.goals, t).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSequentialConvex.Reason, IAutoMovieMotionHumanBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanBodyFitTypes.ts#IAutoMovieMotionHumanBodyFitTypes.ITarget
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -46,7 +28,7 @@ Residuals are measured after the fitted variables are written, not taken from a 
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Posture, feasibility, convergence reason and each requested constraint family's residuals.
+Posture, feasibility, the loop's end status (sco's `OptStatus`, `IAutoMovieMotionHumanSequentialConvex.Status`) and each requested constraint family's residuals; each target's residual is the named `IResidual`.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -69,3 +51,21 @@ Only current solver inputs; the sprint set is the consumer requiring angles and 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 Named goals do not alter the rig's joint ranges or substitute a bone for the mass centre.
+
+# src/motion/human/posture/IAutoMovieMotionHumanBodyFitTypes.ts#IAutoMovieMotionHumanBodyFitTypes.IResidual
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+point: the target's Euclidean point error over its selected axes, millimetres, without subtracting the allowed radius. turn: its rotation or normal-direction residual norm, degrees, zero when neither is requested.
+
+## @evidence contracts/development/design.md#principled-representation
+
+Both are measured on the fitted posture after its variables are written, in the units laws compare with their declared bounds.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Runtime boundary references: posture/HumanBodyFit.ts (HumanBodyFit.fit, residuals); posture/HumanBodyFitRows.ts (HumanBodyFitRows.residual).
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The allowed radius is not subtracted, so a law reads the actual error against its own bound.

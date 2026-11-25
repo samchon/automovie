@@ -22,50 +22,51 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
 import { manipulatePlan } from "./manipulatePlan";
 
+/** The record of `ISequenceGivenPlaced`'s site. */
+type ISequenceGivenPlaced = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  travel: number | undefined;
+};
+
+/** The record of `ISequenceSitesEntry`'s site. */
+type ISequenceSitesEntry = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  travel: number | undefined;
+};
+
 /**
- * A keyed contact sequence: digits of one hand or both pressing sites of a
- * prop one after another, timed by the caller or by skill. Typing, a piano's
- * keys, a guitar's frets, a phone's keypad and a dial are the same structure
- * and are rows of this law (`HumanManipulate`).
+ * A keyed contact sequence: digits of one hand or both pressing sites of a prop
+ * one after another, timed by the caller or by skill. Typing, a piano's keys, a
+ * guitar's frets, a phone's keypad and a dial are the same structure and are
+ * rows of this law (`HumanManipulate`).
  *
- * The prop's sites are its affordances: each contact names one, whose
- * frame's translation is the site and whose `+Y` is the site's outward
- * normal, read in the prop's frame at the act's start. A contact names its
- * digit, or leaves it to the fingering: the digit chosen is the one whose
- * press keeps the hand still, by dynamic programming over the sequence of
- * each hand (the Viterbi path over digits, cost the distance the hand's
- * wrist must travel between consecutive presses), so a run of nearby keys
- * stays under one placement of the hand. This is the outcome Handrix
- * reports for its fretting hand, which begins on the middle finger to keep
- * the wrist still (ElKoura and Singh 2003, "Handrix: animating the human
- * hand", SCA 2003, pp. 110-119); its own cost terms (finger strength,
- * stretch) were not read at the source, so the wrist's travel alone is the
- * cost here, a first pass. A text with the touch-typing layout assigns every
- * letter's digit by the standard home-row chart instead.
+ * The prop's sites are its affordances: each contact names one, whose frame's
+ * translation is the site and whose `+Y` is the site's outward normal, read in
+ * the prop's frame at the act's start. A contact names its digit, or leaves it
+ * to the fingering: the digit chosen is the one whose press keeps the hand
+ * still, by dynamic programming over the sequence of each hand (the Viterbi
+ * path over digits, cost the distance the hand's wrist must travel between
+ * consecutive presses), so a run of nearby keys stays under one placement of
+ * the hand. This is the outcome Handrix reports for its fretting hand, which
+ * begins on the middle finger to keep the wrist still (ElKoura and Singh 2003,
+ * "Handrix: animating the human hand", SCA 2003, pp. 110-119); its own cost
+ * terms (finger strength, stretch) were not read at the source, so the wrist's
+ * travel alone is the cost here, a first pass. A text with the touch-typing
+ * layout assigns every letter's digit by the standard home-row chart instead.
  *
  * Each press is two goals. The arm carries the hand so the pressing digit's
  * tip, the digit straight and the others curled clear of the keys
- * (`manipulateShape`), stands over its site at the hover height, drawn back
- * by as much as its swing down to the key shortens its reach
- * (`manipulateReach`), moving
- * between placements on minimum-jerk paths; the digit's own inverse
+ * (`manipulateShape`), stands over its site at the hover height, drawn back by
+ * as much as its swing down to the key shortens its reach (`manipulateReach`),
+ * moving between placements on minimum-jerk paths; the digit's own inverse
  * kinematics (`HumanPosture.digits`) then takes the tip down by the key's
  * travel and up again. Times come from `at` when every contact gives it, or
  * from typing skill otherwise (the interval of `typeText`, Salthouse 1986),
  * each press taking the first 40 % of its interval to reach the key and the
  * rest to lift, as `typeText` does. The body holds the posture it is entered
  * in. Events `press1` to `pressN`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sites, the fingering and its source status, the two goals of a press, the timing and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over a prop's affordances and a list of contacts, with a pure plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan; rows fix the layout.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand, the posture's digit goals, typing's layout and timing.
- * @evidence contracts/development/implementation.md#principled-implementation Arm placement by the pressing digit's tip in the pressing hand's shape and the digit's own inverse kinematics for the press; fingering by an exact Viterbi path minimizing wrist travel.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Sites, times, fingering, placements, then each posture.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown site or key is refused with the alternatives; the fingering's cost is a measured distance, no weight.
- * @evidence contracts/development/implementation.md#efficient-algorithms The fingering is linear in contacts times the square of five digits; the plan prepares contact geometry once and selects each hand's active contact in logarithmic time.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Contact placement, hand shapes and activation windows are prepared once per plan (`manipulatePlan`).
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
  */
 export namespace manipulate {
   /** The law's name, as productions register it. */
@@ -88,15 +89,8 @@ export namespace manipulate {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On no contacts, an unknown site or key, or times given for some contacts and not others.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the resolved sequence and refusals; the namespace documents finger, site, timing and hand-goal conventions.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing sequence/fingering result is prepared by manipulatePlan with the same minimum-jerk wrist and digit goal equations.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sequence owns contact admission and timing; manipulatePlan owns invariant preparation and active-contact evaluation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No press, authored order, key depth, time, event or hand goal is discarded or approximated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sequence keeps its Viterbi cost while fixed contact geometry/windows are prepared once and each displayed posture selects at most two contacts by binary search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body, entry posture, sequence and skill interval share prepared geometry; each requested second evaluates its actual active press.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(N) prepared contacts and windows until release and stores no evaluated-time pose history.
+   * @throws {HumanRefusal} On no contacts, an unknown site or key, or times
+   *   given for some contacts and not others.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
@@ -115,14 +109,6 @@ export namespace manipulate {
    *
    * @param context The action's context.
    * @returns The presses, in order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States resolved sites, fingers and action-relative press times; parameter declarations give the site/digit/time/depth meanings.
-   * @evidence contracts/development/implementation.md#principled-implementation Prop affordances are placed at the original action-start frame, skill/random timing remains in original contact order and the same exact fingering owner chooses free digits.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Site resolution, time admission, clock draws and hand-wise fingering precede the returned press records.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing sites, empty sequences and partly supplied times retain their original refusals; no random draw or contact ordering changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each distinct named site is resolved once per sequence, plus the original linear timing and bounded-state fingering work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated site names share only the same prop/start-frame point, normal and default travel; individual depths, hands and times stay contact-specific.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The local distinct-site map ends with this call; returned presses retain only the geometry and values they use.
    */
   export function sequence(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
@@ -131,14 +117,7 @@ export namespace manipulate {
     const read: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
     const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const side: AutoMovieHumanSide = params.hand === "left" ? "left" : "right";
-    const sites: Map<
-      string,
-      {
-        point: IAutoMovieVector3;
-        normal: IAutoMovieVector3;
-        travel: number | undefined;
-      }
-    > = new Map();
+    const sites: Map<string, ISequenceSitesEntry> = new Map();
 
     // A text on a keyboard: each key's site from typing's layout and its
     // digit from the touch-typing chart.
@@ -149,13 +128,7 @@ export namespace manipulate {
             (
               c: IAutoMovieMotionHumanManipulate.IContact,
             ): IAutoMovieMotionHumanManipulate.IContactAt => {
-              let placed:
-                | {
-                    point: IAutoMovieVector3;
-                    normal: IAutoMovieVector3;
-                    travel: number | undefined;
-                  }
-                | undefined = sites.get(c.site);
+              let placed: ISequenceGivenPlaced | undefined = sites.get(c.site);
               if (placed === undefined) {
                 const affordance: IAutoMovieAffordance = site(
                   read.prop,
@@ -267,10 +240,16 @@ export namespace manipulate {
   }
 }
 
-/** The share of a press's interval spent reaching the key, as `typeText` times it. */
+/**
+ * The share of a press's interval spent reaching the key, as `typeText` times
+ * it.
+ */
 const REACH: number = 0.4;
 
-/** The touch-typing chart: each letter's finger on the standard home row (left hand on ASDF, right on JKL;), the space under the right thumb. */
+/**
+ * The touch-typing chart: each letter's finger on the standard home row (left
+ * hand on ASDF, right on JKL;), the space under the right thumb.
+ */
 const CHART: Readonly<
   Record<
     string,
@@ -314,14 +293,20 @@ const CHART: Readonly<
   " ": ["right", "thumb"],
 };
 
-/** The interval between presses at the performer's skill: typing's, 0.5 s for a novice to 0.15 s for an elite (Salthouse 1986). */
+/**
+ * The interval between presses at the performer's skill: typing's, 0.5 s for a
+ * novice to 0.15 s for an elite (Salthouse 1986).
+ */
 const interval: (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
 ) => number = (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
 ): number => HumanSkill.quantity(context.skill, "speed", 0.5, 0.15);
 
-/** The affordance a contact names, refused with the prop's sites when it has none by that id. */
+/**
+ * The affordance a contact names, refused with the prop's sites when it has
+ * none by that id.
+ */
 const site: (
   prop: IAutoMovieMotionHumanProp,
   id: string,
@@ -347,6 +332,8 @@ const site: (
     });
   return found;
 };
+/** The record of `ITypedKey`'s site. */
+type ITypedKey = { at: IAutoMovieVector3; side: AutoMovieHumanSide };
 
 /** A text's presses on a keyboard prop: typing's key layout, the chart's digits. */
 const typed: (
@@ -366,8 +353,7 @@ const typed: (
   );
   return [...text].map(
     (letter: string): IAutoMovieMotionHumanManipulate.IContactAt => {
-      const key: { at: IAutoMovieVector3; side: AutoMovieHumanSide } =
-        typeText.key(letter);
+      const key: ITypedKey = typeText.key(letter);
 
       // A named digit types every key with the hand on the key's side, as two-
       // finger typing does; otherwise the touch-typing chart assigns it.

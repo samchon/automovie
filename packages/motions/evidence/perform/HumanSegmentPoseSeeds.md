@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentPoseSeeds.ts#HumanSegmentPoseSeeds
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents fit names, cold/continued seed distinction and the existing pose/rate records.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Reuses engine swivel seeds and velocity state in world-frame poses at film seconds; no separate solver or timebase is introduced.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns the shared continuation records and exact-name lookup used by displayed poses, overlays, plants and entry-state sampling.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Null seeds and absent names remain distinct from an available matching fit; no unrelated stage or actor supplies a fallback seed.
-
 # src/perform/HumanSegmentPoseSeeds.ts#HumanSegmentPoseSeeds.nearby
 
 ## @evidence contracts/development/common.md#meaningful-documentation

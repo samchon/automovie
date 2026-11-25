@@ -1,8 +1,8 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
- * Report a declared collection of a soft body that is larger than its
- * budget: its path, its size and how far past the budget it runs.
+ * Report a declared collection of a soft body that is larger than its budget:
+ * its path, its size and how far past the budget it runs.
  *
  * @param out The collector.
  * @param path The collection's path.

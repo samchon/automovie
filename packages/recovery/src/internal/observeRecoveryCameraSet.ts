@@ -10,7 +10,8 @@ import { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
 
 /**
- * Observe each fixed chart once and match every admitted pair in both directions.
+ * Observe each fixed chart once and match every admitted pair in both
+ * directions.
  */
 export function observeRecoveryCameraSet(
   views: readonly IAutoMovieRecoveryCameraView[],
@@ -32,11 +33,7 @@ export function observeRecoveryCameraSet(
       descriptorComparisons +=
         2 * features[first]!.points.length * features[second]!.points.length;
   const pairCount: number = (views.length * (views.length - 1)) / 2;
-  if (
-    !Number.isSafeInteger(descriptorComparisons) ||
-    !Number.isSafeInteger(pairCount) ||
-    descriptorComparisons > maximumComparisons
-  )
+  if (descriptorComparisons > maximumComparisons)
     throw new Error("camera-map: aggregate descriptor pair budget exhausted");
   const pairs: IAutoMovieRecoveryCameraSetObservation["pairs"] = [];
   for (let first: number = 0; first < views.length; first++)

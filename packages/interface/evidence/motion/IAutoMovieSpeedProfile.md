@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieSpeedProfile.ts#IAutoMovieSpeedProfile
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distance is metres, time is film seconds, speed is metres per second and acceleration is metres per second squared. The distance/seconds stretch union separates endpoints; speedProfile admits ranges, while readers retain the mutable phase array and require stable inputs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieSpeedProfile contracts used by packages/engine/src/motion/speedProfile.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Distance is metres, time is film seconds, speed is metres per second and acceleration is metres per second squared. The distance/seconds stretch union separates endpoints; speedProfile admits ranges, while readers retain the mutable phase array and require stable inputs. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieSpeedProfile contract belongs to interface; packages/engine/src/motion/speedProfile.ts and packages/motions/src/ensemble/HumanFormationPath.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieSpeedProfile.ts#IAutoMovieSpeedProfile.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

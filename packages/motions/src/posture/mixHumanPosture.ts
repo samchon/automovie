@@ -15,30 +15,22 @@ import { HumanPosture } from "./HumanPosture";
  * layer, as an animator's layer weight scales what the layer adds.
  *
  * `from` is the posture without the layer and `to` the posture with it. The
- * root, the heading, the tips and every joint angle move by the weight; a
- * joint only one of them sets counts as zero in the other. A limb goal both
- * set moves its point and its bend by the weight and keeps everything else
- * of `from` (its planting, its contact, its attachment), since a layer adds
- * to a goal and never changes what holds it; a goal only one of them sets
- * is kept as that one has it. A digit goal moves its point the same way and
- * keeps the rest of `from`'s (its surface, its facing, its attachment), so a
- * hand's grip holds through the mix as it does at both ends. A whole-body
- * `rotation` blends as a rotation, the shorter-arc slerp of the two turns at
- * constant angular speed with a line between their points; a posture
- * without one counts as the identity turn about the other's point.
+ * root, the heading, the tips and every joint angle move by the weight; a joint
+ * only one of them sets counts as zero in the other. A limb goal both set moves
+ * its point and its bend by the weight and keeps everything else of `from` (its
+ * planting, its contact, its attachment), since a layer adds to a goal and
+ * never changes what holds it; a goal only one of them sets is kept as that one
+ * has it. A digit goal moves its point the same way and keeps the rest of
+ * `from`'s (its surface, its facing, its attachment), so a hand's grip holds
+ * through the mix as it does at both ends. A whole-body `rotation` blends as a
+ * rotation, the shorter-arc slerp of the two turns at constant angular speed
+ * with a line between their points; a posture without one counts as the
+ * identity turn about the other's point.
  *
  * @param from The posture at weight 0.
  * @param to The posture at weight 1.
  * @param weight The weight in [0, 1].
  * @returns The mixed posture; `from` itself at 0 and `to` itself at 1.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the two postures are, how each field moves and what a limb or digit goal keeps.
- * @evidence contracts/development/implementation.md#principled-implementation Linear interpolation of the additive difference: clinical angles and world offsets are the quantities a layer adds, so scaling the difference scales the layer.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Four scalars, one pass over the joints either sets, one over the four limbs and one over the digits either sets.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal's planting, contact and attachment are never mixed, and no goal either posture holds is dropped between the ends; the ends return the given postures unchanged, so a full or absent layer costs and changes nothing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints and digit goals the two postures hold.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function mixHumanPosture(
   from: IAutoMovieMotionHumanPosture,

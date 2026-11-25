@@ -1,6 +1,4 @@
-/**
- * An omitted domain and its mandatory textual cause.
- */
+/** An omitted domain and its mandatory textual cause. */
 
 export interface IAutoMovieRecoveryUnsupportedDomain {
   /** Identity of the omitted domain. */

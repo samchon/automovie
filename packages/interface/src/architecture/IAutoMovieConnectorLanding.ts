@@ -18,8 +18,8 @@ export interface IAutoMovieConnectorLanding {
   /**
    * Arc-length fraction of the 3D route polyline where the run serves it,
    * strictly between `0` (the {@link IAutoMovieBuiltConnector.from} end) and `1`
-   * (the {@link IAutoMovieBuiltConnector.to} end), and strictly greater than
-   * the previous landing's fraction.
+   * (the {@link IAutoMovieBuiltConnector.to} end), and strictly greater than the
+   * previous landing's fraction.
    */
   at: number;
 }

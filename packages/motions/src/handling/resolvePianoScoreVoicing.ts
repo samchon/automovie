@@ -18,18 +18,10 @@ import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
 
 /**
- * Place the wrist for a voicing from the key centers and the performer's
- * finger lengths. The wrist averages individual press placements at the
- * common orientation, with its forward reach set by the digit that needs
- * the wrist closest to the keys.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the input geometry and the shared placement criterion.
- * @evidence contracts/development/implementation.md#principled-implementation Fits one wrist to all keys with a least-squares translation constrained by each finger's forward press placement. Playing fingers start with the canonical straight seed, while idle fingers use the shared plane-aware shapes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve key geometry, then calculate the wrist and hand shape.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the piano's button frames and the performer's skeleton. The caller admits the fitted contact residuals.
- * @evidence contracts/development/implementation.md#efficient-algorithms Visits each key and its owning digit once during voicing placement.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The score retains the wrist and the digit seeds for all pose samples.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the resolved voicing leaves this function.
+ * Place the wrist for a voicing from the key centers and the performer's finger
+ * lengths. The wrist averages individual press placements at the common
+ * orientation, with its forward reach set by the digit that needs the wrist
+ * closest to the keys.
  */
 export function resolvePianoScoreVoicing(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoScore>,
@@ -76,7 +68,15 @@ export function resolvePianoScoreVoicing(
     score.hand,
   );
   const reach: ReturnType<typeof manipulateReach.prepare> =
-    manipulateReach.prepare(context.body, score.hand, rotation);
+    manipulateReach.prepare(
+      context.body,
+      score.hand,
+      rotation,
+      notes.map(
+        (note): IAutoMovieMotionHumanPianoScore.INote["digit"] =>
+          note.score.digit,
+      ),
+    );
   const preferred: IAutoMovieVector3[] = notes.map(
     (note: resolvePianoScoreVoicing.Note): IAutoMovieVector3 =>
       reach(note.score.digit, note.points[0], note.normal, note.dip),
@@ -128,14 +128,7 @@ export function resolvePianoScoreVoicing(
   return { score, notes, normal, arm, shape, ends: [{}, {}] };
 }
 
-/**
- * The key contacts, common arm placement and hand shapes read by pianoScore.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the data shared between placement and playback.
- * @evidence contracts/development/design.md#principled-representation One arm placement per co-timed group and one physical contact per key.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's internal planning data.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the canonical note and joint types.
- */
+/** The key contacts, common arm placement and hand shapes read by pianoScore. */
 export namespace resolvePianoScoreVoicing {
   /**
    * An authored note with its key validated by the score law.
@@ -167,7 +160,10 @@ export namespace resolvePianoScoreVoicing {
     dip: number;
     /** The button's outward surface normal in world coordinates. */
     normal: IAutoMovieVector3;
-    /** The button's unpressed and fully depressed contact points, in world metres. */
+    /**
+     * The button's unpressed and fully depressed contact points, in world
+     * metres.
+     */
     points: readonly [IAutoMovieVector3, IAutoMovieVector3];
     /** The rig's pressing digit. */
     digit: AutoMovieHumanDigit;

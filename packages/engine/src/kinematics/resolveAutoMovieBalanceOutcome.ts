@@ -13,44 +13,45 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * What an impulse does to a standing body's balance (#3429): it absorbs it
  * within its base, catches it with capture steps, or falls.
  *
- * The impulse `J` changes the centre of mass's velocity to `v + J / m` and
- * its angular momentum about the centre by `(p - c) × J`. The body is a
- * linear inverted pendulum of length `l` with eigenfrequency `ω0 = sqrt(g /
- * l)`, whose extrapolated centre `ξ = x + v / ω0` must lie within the base
- * of support for the body to stay (Hof, Gazendam and Sinke 2005, J Biomech
- * 38:1-8): inside the support polygon, the body absorbs the push.
+ * The impulse `J` changes the centre of mass's velocity to `v + J / m` and its
+ * angular momentum about the centre by `(p - c) × J`. The body is a linear
+ * inverted pendulum of length `l` with eigenfrequency `ω0 = sqrt(g / l)`, whose
+ * extrapolated centre `ξ = x + v / ω0` must lie within the base of support for
+ * the body to stay (Hof, Gazendam and Sinke 2005, J Biomech 38:1-8): inside the
+ * support polygon, the body absorbs the push.
  *
- * Outside it, the body steps, the capture point `ξ` diverging from the
- * centre of pressure as the pendulum does, `d(t) = d0 exp(ω0 t)` (the
- * capture point of Pratt, Carff, Drakunov and Goswami 2006, as the stepping
- * literature states it): until the first foot lands, `first` after the
- * impulse, the centre of pressure is held at the base's edge along the lead,
- * so `d0` is the capture point's distance beyond that edge. A foot lands at
- * most `reach` (a leg length, as `stagger` reaches) beyond the last centre
- * of pressure and catches the capture point within its half length,
- * `margin`; one that falls short moves the centre of pressure to its front
- * edge, `reach + margin` on, and leaves the rest to diverge over the next
- * swing, `step`: `d_{k+1} = (d_k - reach - margin) exp(ω0 step)`. The
- * recurrence shrinks to a catch exactly when the first landing's distance is
- * below its fixed point `d* = (reach + margin) a / (a - 1)`, `a = exp(ω0
- * step)`, the infinite-step capture distance in the framework of Koolen, de
- * Boer, Rebula, Goswami and Pratt 2012 ("Capturability-based analysis and
- * control of legged locomotion, Part 1", Int J Robot Res 31(9)); at or past
- * it no number of steps catches the body and it falls. Both papers are
- * located, not yet read at the source; the recurrence is derived here from
- * the linear inverted pendulum's divergence. The steps are laid along the
- * lead from the base's edge.
+ * Outside it, the body steps, the capture point `ξ` diverging from the centre
+ * of pressure as the pendulum does, `d(t) = d0 exp(ω0 t)` (the capture point of
+ * Pratt, Carff, Drakunov and Goswami 2006, as the stepping literature states
+ * it): until the first foot lands, `first` after the impulse, the centre of
+ * pressure is held at the base's edge along the lead, so `d0` is the capture
+ * point's distance beyond that edge. A foot lands at most `reach` (a leg
+ * length, as `stagger` reaches) beyond the last centre of pressure and catches
+ * the capture point within its half length, `margin`; one that falls short
+ * moves the centre of pressure to its front edge, `reach + margin` on, and
+ * leaves the rest to diverge over the next swing, `step`: `d_{k+1} = (d_k -
+ * reach - margin) exp(ω0 step)`. The recurrence shrinks to a catch exactly when
+ * the first landing's distance is below its fixed point `d* = (reach + margin)
+ * a / (a - 1)`, `a = exp(ω0 step)`, the infinite-step capture distance in the
+ * framework of Koolen, de Boer, Rebula, Goswami and Pratt 2012
+ * ("Capturability-based analysis and control of legged locomotion, Part 1", Int
+ * J Robot Res 31(9)); at or past it no number of steps catches the body and it
+ * falls. Both papers are located, not yet read at the source; the recurrence is
+ * derived here from the linear inverted pendulum's divergence. The steps are
+ * laid along the lead from the base's edge.
  *
- * The bounds are the impulse magnitudes along the push's horizontal
- * direction at which the outcome changes: `m ω0 b` to leave the base, with
- * `b` the distance from the current extrapolated centre to the base's edge
- * along the push, and `m ω0 (e + d* exp(-ω0 first) - lead)` to leave the
- * capture region, with `e` the centre's distance to the base's edge along
- * the push and `lead` the current extrapolated centre's distance from the
- * centre.
- * * @param props The body's state, the impulse and the support.
+ * The bounds are the impulse magnitudes along the push's horizontal direction
+ * at which the outcome changes: `m ω0 b` to leave the base, with `b` the
+ * distance from the current extrapolated centre to the base's edge along the
+ * push, and `m ω0 (e + d* exp(-ω0 first) - lead)` to leave the capture region,
+ * with `e` the centre's distance to the base's edge along the push and `lead`
+ * the current extrapolated centre's distance from the centre.
+ *
+ * - @param props The body's state, the impulse and the support.
+ *
  * @returns The outcome, the steps and the bounds.
- * @throws {Error} When the mass, the length, the reach or the step time is not positive, the margin is not finite, or there is no support point.
+ * @throws {Error} When the mass, the length, the reach or the step time is not
+ *   positive, the margin is not finite, or there is no support point.
  */
 export function resolveAutoMovieBalanceOutcome(
   props: IAutoMovieResolveBalanceOutcome.IProps,
@@ -62,12 +63,11 @@ export function resolveAutoMovieBalanceOutcome(
       length > 0 &&
       reach > 0 &&
       step > 0 &&
-      (props.first === undefined || props.first > 0) &&
-      Number.isFinite(props.margin)
+      (props.first === undefined || props.first > 0)
     )
   )
     throw new Error(
-      "The balance outcome needs a positive mass, pendulum length, reach and step time, and a finite margin",
+      "The balance outcome needs a positive mass, pendulum length, reach and step time",
     );
   if (props.support.length === 0)
     throw new Error("The balance outcome needs a support point");
@@ -186,8 +186,8 @@ export function resolveAutoMovieBalanceOutcome(
 }
 
 /**
- * How far a point may move along a direction before it leaves a convex hull
- * on the floor plane.
+ * How far a point may move along a direction before it leaves a convex hull on
+ * the floor plane.
  *
  * @param hull The hull's corners in order.
  * @param point The point, inside or outside.

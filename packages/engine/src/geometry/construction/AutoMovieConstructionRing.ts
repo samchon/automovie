@@ -8,12 +8,18 @@ import type {
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
 /**
- * A continuation's shared ring on the body: its vertices on the host face's end section at uniform host phases, a winding cycle of the host face there, and the same vertices as a winding cycle of the part face at the matching part phases (the host's phase, or its negative when the part's stations run against the host's), so the two faces are drawn onto one ring vertex for vertex.
+ * A continuation's shared ring on the body: its vertices on the host face's end
+ * section at uniform host phases, a winding cycle of the host face there, and
+ * the same vertices as a winding cycle of the part face at the matching part
+ * phases (the host's phase, or its negative when the part's stations run
+ * against the host's), so the two faces are drawn onto one ring vertex for
+ * vertex.
  */
 export namespace AutoMovieConstructionRing {
   /**
    * Add the host-sampled vertices and both faces' cycles to the mutable body.
-   * Matching endpoint geometry has already been established by the continuation.
+   * Matching endpoint geometry has already been established by the
+   * continuation.
    */
   export function create(
     body: IAutoMovieSolidBody.IBody,

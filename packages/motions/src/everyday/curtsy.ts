@@ -25,37 +25,36 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { curtsyCross } from "./curtsyCross";
 
 /** Positional tolerance for a solved ankle or sole, in metres. */
 const FIT: number = 0.006;
 
 /**
- * A small ceremonial curtsy. The Royal Household describes a small curtsy
- * as a traditional optional greeting (https://www.royal.uk/encyclopedia/greeting-the-king-and-queen).
- * Canadian Heritage describes placing the right foot behind the left heel
- * and bending the knees slightly (https://www.canada.ca/en/canadian-heritage/services/meeting-royal-family.html).
+ * A small ceremonial curtsy. The Royal Household describes a small curtsy as a
+ * traditional optional greeting
+ * (https://www.royal.uk/encyclopedia/greeting-the-king-and-queen). Canadian
+ * Heritage describes placing the right foot behind the left heel and bending
+ * the knees slightly
+ * (https://www.canada.ca/en/canadian-heritage/services/meeting-royal-family.html).
  * Melinda Coy's 2019 Practical Etiquette guide for Dickens Fair performers
  * teaches a rear step and a flat-footed dip
  * (https://static1.squarespace.com/static/5bae69697fdcb819deb44456/t/68e2f5d69da9b523c4d22f95/1759704534424/Practical%2BEtiquette.pdf).
- * The performer transfers onto one leg, sets the other foot across and
- * behind it, dips with both feet grounded, rises, then uncrosses and
- * restores the entry stance. The depth, phase durations and step margins
- * are provisional staging choices.
+ * The performer transfers onto one leg, sets the other foot across and behind
+ * it, dips with both feet grounded, rises, then uncrosses and restores the
+ * entry stance. The depth, phase durations and step margins are provisional
+ * staging choices.
  *
- * This floor variant uses flat feet in the dip. The heel and toes stay on
- * the floor in each plant. The law refuses a body or stance whose solved
- * feet fail the plant, clearance or reach checks at the key poses and the
- * intervening witnesses. The arms, hands and head are available for layers.
+ * This floor variant uses flat feet in the dip. The heel and toes stay on the
+ * floor in each plant. The law refuses a body or stance whose solved feet fail
+ * the plant, clearance or reach checks at the key poses and the intervening
+ * witnesses. The arms, hands and head are available for layers.
  *
  * Register with HumanChain.extend({ curtsy }) and HumanPerformance's laws.
  * Enter from standing and cut into another action only after recovery.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sequence, support, source, provisional parameters, fit and registration.
- * @evidence contracts/development/design.md#principled-representation Plans one reversible floor motion with a shared clock, root excursion and world foot placements.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes a single registered law with the crossing side, depth and time as inputs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Derives the landing and clearance from measured soles and audits resolved feet independently of the IK goals.
  */
 export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy> =
   {
@@ -90,15 +89,6 @@ function plan(
     "s",
   );
   const rear: AutoMovieHumanSide = params.side ?? "right";
-  if (rear !== "left" && rear !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "side",
-      value: rear,
-      feasible: { kind: "alternatives", values: ["left", "right"] },
-      reason: "the curtsy needs a left or right crossing foot",
-      fix: "choose left or right",
-    });
   const lead: AutoMovieHumanSide = rear === "right" ? "left" : "right";
   const front: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[lead];
   const rearEntry: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[rear];
@@ -156,27 +146,19 @@ function plan(
   const rearZ: number[] = rearSole.map(
     (point: IAutoMovieVector3): number => HumanFrame.local(frame, point).z,
   );
-  const rearToe: number = Math.max(...rearZ);
-  const length: number = rearToe - Math.min(...rearZ);
-  const crossed: IAutoMovieMotionHumanFoot.IPlacement = {
-    ankle: HumanFrame.point(frame, {
-      x: frontLocal.x + leadSign * 0.1 * length,
-      y: rearLocal.y,
-      z: rearLocal.z + Math.min(...frontZ) - rearToe - 0.15 * length,
-    }),
-    rotation: rearEntry.rotation,
-  };
-
-  // Shift the pelvis to the lead foot before lifting the other foot.
-  const transfer: IAutoMovieVector3 = {
-    x: frontLocal.x,
-    y: 0,
-    z: 0.75 * Math.min(...frontZ) + 0.25 * Math.max(...frontZ),
-  };
-  const approach: IAutoMovieVector3 = {
-    ...transfer,
-    z: transfer.z - 0.2 * length,
-  };
+  // The crossed rear foot, and the pelvis shifted to the lead foot before the
+  // other foot lifts (`curtsyCross`).
+  const cross: curtsyCross.ICross = curtsyCross(
+    frame,
+    { front: frontLocal, rear: rearLocal },
+    { front: frontZ, rear: rearZ },
+    lead,
+    rearEntry.rotation,
+  );
+  const length: number = cross.length;
+  const crossed: IAutoMovieMotionHumanFoot.IPlacement = cross.crossed;
+  const transfer: IAutoMovieVector3 = cross.transfer;
+  const approach: IAutoMovieVector3 = cross.approach;
 
   // Fit the shifted standing height separately from the landing height so
   // the pelvis lowers for the rear footprint only once the foot leaves.
@@ -186,35 +168,32 @@ function plan(
   ): number => {
     const carried: IAutoMovieMotionHumanPosture =
       AutoMovieMotionHumanRoot.place(entry.posture, { point: offset, yaw: 0 });
-    const ready: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-      body,
-      {
-        ...carried,
-        limbs: {
-          ...carried.limbs,
-          [`${lead}Leg`]: AutoMovieMotionHumanLeg.goal(
-            body,
-            carried,
-            lead,
-            front,
-            true,
-          ),
-          [`${rear}Leg`]: AutoMovieMotionHumanLeg.goal(
-            body,
-            carried,
-            rear,
-            trailing,
-            true,
-          ),
-        },
+    const ready: IAutoMovieMotionHumanPosture = lowerHumanPosture(body, {
+      ...carried,
+      limbs: {
+        ...carried.limbs,
+        [`${lead}Leg`]: AutoMovieMotionHumanLeg.goal(
+          body,
+          carried,
+          lead,
+          front,
+          true,
+        ),
+        [`${rear}Leg`]: AutoMovieMotionHumanLeg.goal(
+          body,
+          carried,
+          rear,
+          trailing,
+          true,
+        ),
       },
-    );
+    });
     return ready.root.y - carried.root.y;
   };
   const transferDrop: number = reach(transfer, rearEntry);
   const landingDrop: number = reach(approach, crossed);
 
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
     { name: "stepOff", seconds: 0.18 * duration },
     { name: "crossed", seconds: 0.35 * duration },
     { name: "dip", seconds: 0.5 * duration },
@@ -412,7 +391,10 @@ function solePoints(
   ];
 }
 
-/** Check corresponding footprint points for rotation and translation errors as well as clearance. */
+/**
+ * Check corresponding footprint points for rotation and translation errors as
+ * well as clearance.
+ */
 function fitsFoot(
   points: readonly IAutoMovieVector3[],
   entry: readonly IAutoMovieVector3[],

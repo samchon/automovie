@@ -24,28 +24,27 @@ const GEOMETRY: string =
   "typical road frame geometry; maker geometry charts could not be opened";
 
 /**
- * A bicycle: two wheels, a frame, a saddle, handlebars, and a crank with its two pedals.
+ * A bicycle: two wheels, a frame, a saddle, handlebars, and a crank with its
+ * two pedals.
  *
- * The bicycle stands upright with its bottom bracket over the origin and its front toward `+Z`. The `crank` turns both arms: at travel 0 the left arm (`+X`) points straight up, at top dead centre, and a positive travel pedals forward. Each pedal rides the crank and stays level. The rider sits on the `saddle`, whose height along the seat tube from the bottom bracket is the `saddleHeight` dimension, and holds the two grips.
+ * The bicycle stands upright with its bottom bracket over the origin and its
+ * front toward `+Z`. The `crank` turns both arms: at travel 0 the left arm
+ * (`+X`) points straight up, at top dead centre, and a positive travel pedals
+ * forward. Each pedal rides the crank and stays level. The rider sits on the
+ * `saddle`, whose height along the seat tube from the bottom bracket is the
+ * `saddleHeight` dimension, and holds the two grips.
  *
  * `rideBicycle` moves it along a course.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bicycle.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bicycle's origin and front, the crank's zero and turning sense, and how the saddle height is measured.
- * @evidence contracts/development/implementation.md#principled-implementation Rods for the frame's tubes from the bottom bracket, the two axles and the saddle; the saddle's top lies `saddleHeight` up the seat tube from the bottom bracket's centre, the point LeMond's 0.883 of the inseam is measured to (Bini, Hume and Croft 2011, Sports Med 41:463, section 3.1.1). The crank's frame points out of the left side so that a right-handed turn about it carries the top of the stroke forward.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, place the five points of the frame, then the parts and the affordances on them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The round wheel forms carry visible spin markers. Chain, gears and brakes are not modeled.
- * @evidence contracts/development/implementation.md#efficient-algorithms About fifteen parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBicycle(
   params: createBicycle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBicycle.Affordance, createBicycle.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBicycle.Dimension> =
     new AutoMovieArchetypeDrawSession<createBicycle.Dimension>(
@@ -228,16 +227,12 @@ export function createBicycle(
   return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
-/**
- * Companion types and bands of {@link createBicycle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one band per dimension; the fit dimensions are those bicycle fitting measures (saddle height from the bottom bracket, crank length, reach).
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a pedalling and a steering act read (#3372): the saddle, the grips, the crank's length and the pedals' places.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One crank articulation turns both arms, so the two pedals cannot fall out of phase.
- */
+/** Companion types and bands of {@link createBicycle}. */
 export namespace createBicycle {
-  /** The rear axle from the bottom bracket, metres: a typical road chain stay, not read at a source. */
+  /**
+   * The rear axle from the bottom bracket, metres: a typical road chain stay,
+   * not read at a source.
+   */
   export const CHAINSTAY: number = 0.42;
 
   /** A saddle's length, metres: typical, not read at a source. */
@@ -253,10 +248,13 @@ export namespace createBicycle {
    * The affordance ids:
    *
    * - `saddle`: the seat, facing forward.
-   * - `leftGrip`, `rightGrip`: the handlebar's grips on `+X` and `-X`, taken from above.
-   * - `crank`: the crank's axle, out of the left side; its travel turns both arms, positive pedalling forward from the left arm's top dead centre.
+   * - `leftGrip`, `rightGrip`: the handlebar's grips on `+X` and `-X`, taken from
+   *   above.
+   * - `crank`: the crank's axle, out of the left side; its travel turns both
+   *   arms, positive pedalling forward from the left arm's top dead centre.
    * - `leftPedal`, `rightPedal`: the pedals, riding the crank and staying level.
-   * - `frontSpin`, `rearSpin`: wheel travel about their axles, positive rolling forward.
+   * - `frontSpin`, `rearSpin`: wheel travel about their axles, positive rolling
+   *   forward.
    */
   export type Affordance =
     | "saddle"
@@ -275,8 +273,10 @@ export namespace createBicycle {
    * - `wheelbase`: axle to axle.
    * - `bottomBracket`: the crank axle above the ground.
    * - `crank`: a crank arm's length, axle to pedal spindle.
-   * - `stance`: the distance between the two crank arms' outer faces across the bicycle.
-   * - `saddleHeight`: the saddle's top from the bottom bracket's centre along the seat tube.
+   * - `stance`: the distance between the two crank arms' outer faces across the
+   *   bicycle.
+   * - `saddleHeight`: the saddle's top from the bottom bracket's centre along the
+   *   seat tube.
    * - `seatAngle`: the seat tube from the horizontal, degrees.
    * - `saddleWidth`: the saddle's width.
    * - `reach`: the handlebar ahead of the saddle's middle.
@@ -322,7 +322,10 @@ export namespace createBicycle {
     id?: string;
   }
 
-  /** The band of each free dimension; every one is provisional, read at secondary sources or not at all. */
+  /**
+   * The band of each free dimension; every one is provisional, read at
+   * secondary sources or not at all.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     wheelDiameter: m(
       0.672,

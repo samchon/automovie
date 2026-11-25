@@ -1,11 +1,12 @@
 /**
- * Foot-fan knot coordinates and retained guide splines, including first and second derivatives.
+ * Foot-fan knot coordinates and retained guide splines, including first and
+ * second derivatives.
  *
- * The interface package owns these declarations; AutoMovieHumanFootGuide in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanFootGuide in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanFootGuide {
-  /** A guide: its kept knots' stations and places, and their spline's jets.
-   */
+  /** A guide: its kept knots' stations and places, and their spline's jets. */
   export interface IGuide {
     /** Strictly increasing stations of the kept knots. */
     stations: number[];
@@ -23,8 +24,8 @@ export namespace IAutoMovieHumanFootGuide {
   /**
    * A knot read in the fan's own plane: `[share, a, u, y/L, y/H]`, the plane's
    * station as a share of the web ring to the ankle ring, and the landmark's
-   * place with its height both in foot lengths and in lateral malleolus
-   * heights (handed from the first to the second over the turn).
+   * place with its height both in foot lengths and in lateral malleolus heights
+   * (handed from the first to the second over the turn).
    */
   export type IFanKnot = readonly [number, number, number, number, number];
 }

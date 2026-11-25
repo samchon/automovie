@@ -1,5 +1,4 @@
-/** Termination and objective diagnostics of one fixed-subset local pose fit.
- */
+/** Termination and objective diagnostics of one fixed-subset local pose fit. */
 export interface IAutoMovieRecoveryCameraOptimizerFit {
   /** Actual attempted local steps. */
   iterations: number;

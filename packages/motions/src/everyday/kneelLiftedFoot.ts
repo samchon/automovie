@@ -15,27 +15,21 @@ import { HumanFoot } from "../posture/HumanFoot";
  * dorsiflexion over what a weightless ankle reaches
  * (`ANKLE_DORSIFLEXION.unloaded`), the excess read on the knee the fit will
  * place: the two-link knee in the plane of the hip, the ankle and the goal's
- * own bend point. The foot turns about its toes' joint while the toes extend
- * by the turn, up to their range, so the toe pads keep where they lie: a
- * foot in the air turns without dropping its toes, and a tucked foot rolls
- * its ankle over the toe pads it bears on.
+ * own bend point. The foot turns about its toes' joint while the toes extend by
+ * the turn, up to their range, so the toe pads keep where they lie: a foot in
+ * the air turns without dropping its toes, and a tucked foot rolls its ankle
+ * over the toe pads it bears on.
  *
  * @param body The body.
  * @param side The leg.
- * @param pole The leg's pole: the direction its knee bends toward, the body's forward.
+ * @param pole The leg's pole: the direction its knee bends toward, the body's
+ *   forward.
  * @param hip The leg's hip joint, world metres.
  * @param goal The leg goal, its foot turned by `rotation`.
  * @param toes The toes' extension the foot has, degrees.
  * @param weight The share of the excess turned, 0 to 1.
- * @returns The goal and the toes' extension, turned when they must be; unchanged otherwise.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the limit, where the knee is read, the pivot and when nothing changes.
- * @evidence contracts/development/implementation.md#principled-implementation The knee is the closed-form two-link solution in the bend plane; the dorsiflexion is the shank's lean over the foot's own up axis in its forward plane; the turn is about the toes' joint with the toes extending by it, which keeps the toe segment and its pads in place.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Knee, lean, excess, turn, then the ankle carried so the toes' joint stays.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The margin is named for the difference between this reading and the fitted joint's, not a looser limit; the toes never pass their range.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic per call.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call is independent arithmetic.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @returns The goal and the toes' extension, turned when they must be;
+ *   unchanged otherwise.
  */
 export function kneelLiftedFoot(
   body: IAutoMovieMotionHumanBody,
@@ -64,7 +58,9 @@ export function kneelLiftedFoot(
   const bend: IAutoMovieVector3 = across(Vector3.subtract(goal.bend, hip));
   const ahead: IAutoMovieVector3 = across(pole);
   const off: IAutoMovieVector3 =
-    Vector3.length(bend) > SIDE * d && Vector3.dot(bend, ahead) > 0 ? bend : ahead;
+    Vector3.length(bend) > SIDE * d && Vector3.dot(bend, ahead) > 0
+      ? bend
+      : ahead;
   if (Vector3.length(off) < 1e-9) return kept;
   const a: number = Math.min(
     thigh,
@@ -141,18 +137,16 @@ export function kneelLiftedFoot(
     };
   };
   return {
-    goal: about(about(goal, "mtp", extend, toes), "toe", turn - extend, toes + extend),
+    goal: about(
+      about(goal, "mtp", extend, toes),
+      "toe",
+      turn - extend,
+      toes + extend,
+    ),
     toes: toes + extend,
   };
 }
-/**
- * Companion types of {@link kneelLiftedFoot}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the result carries.
- * @evidence contracts/development/design.md#principled-representation The leg goal and the toes' extension that go together.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the kneel writes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both are read from the turn, never authored.
- */
+/** Companion types of {@link kneelLiftedFoot}. */
 export namespace kneelLiftedFoot {
   /** A turned foot: its leg goal and its toes' extension, degrees. */
   export interface IFoot {
@@ -167,8 +161,15 @@ export namespace kneelLiftedFoot {
   export type Pivot = Parameters<typeof HumanFoot.point>[2];
 }
 
-/** How far off the hip-to-ankle line a bend point must lie to name the knee's side, as a share of that line (provisional: a hundredth). */
+/**
+ * How far off the hip-to-ankle line a bend point must lie to name the knee's
+ * side, as a share of that line (provisional: a hundredth).
+ */
 const SIDE: number = 0.01;
 
-/** How far short of the unloaded limit the reading keeps a weightless ankle, degrees: the closed-form knee and the fitted one differ by a few degrees where the pelvis turns (provisional, as `unloadedFoot`'s). */
+/**
+ * How far short of the unloaded limit the reading keeps a weightless ankle,
+ * degrees: the closed-form knee and the fitted one differ by a few degrees
+ * where the pelvis turns (provisional, as `unloadedFoot`'s).
+ */
 const MARGIN: number = 3;

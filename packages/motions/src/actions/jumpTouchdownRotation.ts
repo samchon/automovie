@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -22,14 +23,6 @@ import type { jumpLanding } from "./jumpLanding";
  * @param headingChange Signed degrees from flight heading to landing heading.
  * @param subject The performer, for a located refusal.
  * @returns The terminal target and its check on the returned rotation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how a real flight endpoint is compared with the planted phase in world units.
- * @evidence contracts/development/implementation.md#principled-implementation A rotation error of θ moves a point at radius r by at most 2r sin(θ/2). The shooting residual is an L2 norm over three angles, whose L1 norm bounds the relative rigid angle and is at most sqrt(3) times the L2 norm. Assign half the displacement budget to the angular target, leaving room for pivot differences and nonangular geometry. Check the handed-back turn and pivot against the original displacement limit.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce the known terminal geometry to one radius, then check one rotation returned by flight planning.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angular target is derived before shooting. The check refuses a returned turn outside the original motion continuity budget without changing the judged trajectory, its momentum or the ground targets.
- * @evidence contracts/development/implementation.md#efficient-algorithms Evaluates six sole landmarks and the root once. The returned check reads one quaternion and one pivot, with no pose sampling or search.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The radius uses the landing's existing footprint placement and the same COM as the ballistic path, computed before the flight pass.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the chosen turn, centre, radius and subject with the jump plan. No body, pose or sample history is retained by the check.
  */
 export function jumpTouchdownRotation(
   body: IAutoMovieMotionHumanBody,
@@ -94,17 +87,8 @@ export namespace jumpTouchdownRotation {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the turned ground phase, physical shooting angle and actual handed-back rotation.
    * @evidence contracts/development/design.md#principled-representation Holds the target and read-back check derived from the same known landing geometry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The jump sends the ground-phase policy and geometry requirement through its native flight record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The shape is the flight record's own `IAutoMovieMotionHumanFlight.ITouchdown`; the jump writes it on the native flight request it declares (`touchdown`), where the flight pass reads it.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The required angle is a target for the original solver and grants no ability to override the physical result.
    */
-  export interface IRequirement {
-    /** Whether the ground phase already adopts the terminal yaw. */
-    turnedLanding: boolean;
-
-    /** Physical shooting residual limit in radians, derived from the displacement budget. */
-    angularTolerance: number;
-
-    /** Verify the actual rigid rotation received from the flight pass. */
-    check: (rotation: IAutoMovieHumanPostureRotation) => void;
-  }
+  export type IRequirement = IAutoMovieMotionHumanFlight.ITouchdown;
 }

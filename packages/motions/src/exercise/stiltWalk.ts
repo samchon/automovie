@@ -26,22 +26,17 @@ import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * A walk on stilts (#3997). Each foot stands strapped on its stilt's
- * platform and carries the stilt with it, so the stilts' tips are the only
- * floor contacts; the feet bear on the platforms' height as on a raised
- * floor. The steps are short, `STEP` hip heights, on the stance's own wide
- * base, one every `PERIOD` seconds with the foot in the air over `SWING` of
- * it, lifted `LIFT` metres so the tip clears the floor; the hips ride over
- * the feet and the arms are held a little out for balance. Standing still
- * is stepping in place: a stop at the start steps each foot where it stands.
+ * A walk on stilts. Each foot stands strapped on its stilt's platform and
+ * carries the stilt with it, so the stilts' tips are the only floor contacts;
+ * the feet bear on the platforms' height as on a raised floor. The steps are
+ * short, `STEP` hip heights, on the stance's own wide base, one every `PERIOD`
+ * seconds with the foot in the air over `SWING` of it, lifted `LIFT` metres so
+ * the tip clears the floor; the hips ride over the feet and the arms are held a
+ * little out for balance. Standing still is stepping in place: a stop at the
+ * start steps each foot where it stands.
  *
- * Refused: a stilt with no `foot` or `tip`, and an entry foot not standing
- * on its stilt's platform.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contacts, the gait, the stepping in place and the refusals.
- * @evidence contracts/development/design.md#principled-representation Foot keys over the shared footwork, the stilts carried on the feet.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the gait constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The platform's height is the prop's; the step is the body's.
+ * Refused: a stilt with no `foot` or `tip`, and an entry foot not standing on
+ * its stilt's platform.
  */
 export namespace stiltWalk {
   /** The action's name. */
@@ -53,7 +48,10 @@ export namespace stiltWalk {
       stiltWalk: ["fromRelax", "smooth"],
     });
 
-  /** A step, hip heights (provisional: shorter than a walk's on the stilts' longer lever). */
+  /**
+   * A step, hip heights (provisional: shorter than a walk's on the stilts'
+   * longer lever).
+   */
   export const STEP: number = 0.35;
 
   /** Seconds a step (provisional). */
@@ -68,20 +66,54 @@ export namespace stiltWalk {
   /** How far an entry foot may stand off its platform, metres. */
   export const ON: number = 0.06;
 
+  /** A stilt walk's steps. */
+  export interface IPacing {
+    /** The natural step, `STEP` hip heights, metres. */
+    step: number;
+
+    /** The steps, at least two, enough to cover the way by default. */
+    steps: number;
+
+    /** Each stride, metres. */
+    stride: number;
+
+    /** The walk's seconds: a `PERIOD` a step and half of one to settle. */
+    duration: number;
+  }
+
+  /**
+   * Pace a stilt walk over a way.
+   *
+   * @param length The way's level length, metres.
+   * @param hip The walker's hip height, metres.
+   * @param asked The steps asked, if any.
+   * @returns The pacing.
+   * @throws {HumanRefusal} When the steps are no whole number.
+   */
+  export function pacing(
+    length: number,
+    hip: number,
+    asked: number | undefined,
+  ): IPacing {
+    const step: number = STEP * hip;
+    const steps: number = HumanBound.whole(
+      "steps",
+      asked ?? Math.max(2, Math.ceil(length / step) + 1),
+    );
+    return {
+      step,
+      steps,
+      stride: length / Math.max(1, steps - 1),
+      duration: steps * PERIOD + PERIOD / 2,
+    };
+  }
   /**
    * Plan a stilt walk.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When a stilt lacks its foot or tip, an entry foot is off its platform, or the step count is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Footprints a step apart along the way at the platforms' height, each foot keyed through them, the stilts held on the feet throughout.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stilts, way, keys, composition, the worn stilts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An entry off the platforms is refused, never snapped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared footwork.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys.
+   * @throws {HumanRefusal} When a stilt lacks its foot or tip, an entry foot is
+   *   off its platform, or the step count is not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStiltWalk.IParams>,
@@ -118,11 +150,11 @@ export namespace stiltWalk {
               z: 1,
             },
           );
-    const step: number = STEP * body.measure.hipHeight;
-    const steps: number = p.steps ?? Math.max(2, Math.ceil(length / step) + 1);
-    HumanBound.whole("steps", steps);
-    const stride: number = length / Math.max(1, steps - 1);
-    const duration: number = steps * PERIOD + PERIOD / 2;
+    const { steps, stride, duration }: stiltWalk.IPacing = pacing(
+      length,
+      body.measure.hipHeight,
+      p.steps,
+    );
     const keys: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanDanceFootKey[]

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanRacket,
@@ -19,34 +20,25 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the racket and golf positions (#3249) from quiet
- * standing.
+ * Capture cases of the racket and golf positions from quiet standing.
  *
- * Every case reports foot slip at most 5 mm (the issue's planted-foot
- * bound, pivot allowed) and no range-of-motion overshoot. Beyond that:
+ * Every case reports foot slip at most 5 mm (the issue's planted-foot bound,
+ * pivot allowed) and no range-of-motion overshoot. Beyond that:
  *
- * - `racket-readyPosition`: the two fists within one and a half hand
- *   lengths of each other on the implied handle and the feet at least three
- *   half shoulder widths apart, mid-hold;
- * - `racket-splitStep`: both soles off the floor by more than 5 mm at the
- *   hop's peak, no collider deeper than 10 mm below the floor (decision
- *   11's penetration bound), and the stance wider after the landing by at
- *   least 0.8 half shoulder widths;
- * - `racket-golfAddress`: the trunk (hips to neck) inclined 25 to 45
- *   degrees from the vertical (provisional band around the law's 35), the
- *   hands within 10 cm horizontally of the shoulders' midpoint (hanging
- *   arms), and two waggles counted as forward extremes of the hands.
+ * - `racket-readyPosition`: the two fists within one and a half hand lengths of
+ *   each other on the implied handle and the feet at least three half shoulder
+ *   widths apart, mid-hold;
+ * - `racket-splitStep`: both soles off the floor by more than 5 mm at the hop's
+ *   peak, no collider deeper than 10 mm below the floor (decision 11's
+ *   penetration bound), and the stance wider after the landing by at least 0.8
+ *   half shoulder widths;
+ * - `racket-golfAddress`: the trunk (hips to neck) inclined 25 to 45 degrees from
+ *   the vertical (provisional band around the law's 35), the hands within 10 cm
+ *   horizontally of the shoulders' midpoint (hanging arms), and two waggles
+ *   counted as forward extremes of the hands.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones and colliders.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per position, one verdict block per position.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function racketCases(
   bodies: readonly string[] = ["m-average"],
@@ -67,6 +59,8 @@ export function racketCases(
     ] as const satisfies readonly IAutoMovieMotionHumanRacket.Position[]) {
       const name: string = `racket-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "racket",
@@ -98,8 +92,8 @@ export function racketCases(
         "strokeEnd",
       );
       const relax: number = TouchVerdicts.event(performance, "a", "relax");
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const width = (t: number): number =>
         Math.abs(at(t, "leftFoot").x - at(t, "rightFoot").x);
       const verdicts: IMotionCaptureCase.IVerdict[] = [

@@ -5,10 +5,10 @@ import type {
 
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import { admitPhysicalPlaybackMetadata } from "./admitPhysicalPlaybackMetadata";
-import { freezePhysicalRecord } from "./freezePhysicalRecord";
 
 /**
- * Admit one downloaded/archive byte sequence against the current authored input identity.
+ * Admit one downloaded/archive byte sequence against the current authored input
+ * identity.
  */
 export async function decodePhysicalPlayback(
   source: Uint8Array,
@@ -16,9 +16,9 @@ export async function decodePhysicalPlayback(
   budget: IAutoMovieDecodePhysicalPlayback.IBudget,
 ): IAutoMovieDecodePhysicalPlayback.IResult {
   if (
-    ![budget.maximumBytes, budget.maximumFrames, budget.maximumSegments].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
-    ) ||
+    budget.maximumBytes <= 0 ||
+    budget.maximumFrames <= 0 ||
+    budget.maximumSegments <= 0 ||
     source.byteLength > budget.maximumBytes ||
     source.byteLength < 40 ||
     !/^sha256:[0-9a-f]{64}$/u.test(expectedIdentity)
@@ -50,46 +50,29 @@ export async function decodePhysicalPlayback(
     header.format !== 1 ||
     header.protocol !== Cache.protocol ||
     header.identity !== expectedIdentity ||
-    !Number.isSafeInteger(header.rate) ||
     header.rate <= 0 ||
-    !Number.isFinite(header.duration) ||
     header.duration <= 0 ||
-    !Number.isSafeInteger(header.duration * header.rate) ||
-    header.duration * header.rate + 1 > budget.maximumFrames ||
-    !Array.isArray(header.segments) ||
+    Math.round(header.duration * header.rate) + 1 > budget.maximumFrames ||
     !header.segments.length ||
     header.segments.length > budget.maximumSegments ||
-    header.segments.some(
-      (entry: (typeof header.segments)[number]): boolean =>
-        !Array.isArray(entry) ||
-        entry.length !== 2 ||
-        entry.some(
-          (name: string): boolean => typeof name !== "string" || !name.trim(),
-        ),
+    header.segments.some((entry: (typeof header.segments)[number]): boolean =>
+      entry.some((name: string): boolean => !name.trim()),
     ) ||
     new Set(
       header.segments.map((entry: (typeof header.segments)[number]): string =>
         JSON.stringify(entry),
       ),
-    ).size !== header.segments.length ||
-    !Array.isArray(header.contacts) ||
-    !header.recovery ||
-    typeof header.recovery !== "object"
+    ).size !== header.segments.length
   )
     throw new Error("Incompatible or malformed physical playback metadata");
   const offset: number = Math.ceil((8 + length) / 8) * 8;
   const count: number =
-    (header.duration * header.rate + 1) * header.segments.length;
-  if (
-    !Number.isSafeInteger(count) ||
-    offset + count * (13 * 8) + 32 !== bytes.length
-  )
+    (Math.round(header.duration * header.rate) + 1) * header.segments.length;
+  if (offset + count * (13 * 8) + 32 !== bytes.length)
     throw new Error("Truncated or oversized physical playback records");
   for (let index: number = 0; index < count; index++) {
     const cursor: number = offset + index * (13 * 8);
-    for (let field: number = 0; field < 13; field++)
-      if (!Number.isFinite(view.getFloat64(cursor + field * 8, true)))
-        throw new Error("Nonfinite physical playback record");
+
     if (
       Math.abs(
         Math.hypot(
@@ -105,6 +88,5 @@ export async function decodePhysicalPlayback(
   header.recovery = Object.assign(Object.create(null), header.recovery);
   for (const state of Object.values(header.recovery))
     state.offsets = Object.assign(Object.create(null), state.offsets);
-  freezePhysicalRecord(header);
   return { bytes, header, offset };
 }

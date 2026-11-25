@@ -20,10 +20,13 @@ interface IInterval {
   at: IOffset;
 
   /** Actual rigid departure and arrival placements, borrowed unchanged. */
-  placements: readonly [IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanFoot.IPlacement];
+  placements: readonly [
+    IAutoMovieMotionHumanFoot.IPlacement,
+    IAutoMovieMotionHumanFoot.IPlacement,
+  ];
 
-  /** Native fixed geometry, acquired only when placement is actually observed. */
-  arc?: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>;
+  /** The swing's arc between the two placements, prepared with the course. */
+  arc: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>;
 }
 
 /** A current interval selection; it is released with this one observation. */
@@ -34,26 +37,17 @@ interface IReading {
   /** Original half-beat progress, or one while held. */
   swing: number;
 }
+/** The record of `IPrepareDanceFootCourseReadNext`'s site. */
+type IPrepareDanceFootCourseReadNext = { beat: number; at: IOffset };
 
-/**
- * Prepare a dance foot's fixed footfalls and rigid swing geometry. Each
- * observation independently selects its original half-beat interval;
- * placement, bearing and lateral offsets retain their separate readers.
- *
- * @param path Ordered footfalls with unchanged second-valued beats and local-metre offsets.
- * @param placements The unchanged actual world placement of each path/origin offset.
- * @param origin The initial local offset, present in placements.
- * @param period The existing beat period, seconds.
- * @param clearance The original swing height, metres.
- * @returns Independent current-time readers for local offset, fresh rigid placement and bearing.
- */
-export function prepareDanceFootCourse(
-  path: readonly { beat: number; at: IOffset }[],
-  placements: ReadonlyMap<IOffset, IAutoMovieMotionHumanFoot.IPlacement>,
-  origin: IOffset,
-  period: number,
-  clearance: number,
-): {
+/** The record of `IPrepareDanceFootCourseMovingFall`'s site. */
+type IPrepareDanceFootCourseMovingFall = { beat: number; at: IOffset };
+
+/** The record of `IPrepareDanceFootCourseOffsetsFall`'s site. */
+type IPrepareDanceFootCourseOffsetsFall = { beat: number; at: IOffset };
+
+/** The record of `IPrepareDanceFootCourseResult`'s site. */
+type IPrepareDanceFootCourseResult = {
   /** Current local offset in metres, with the original unclipped interpolation. */
   along: (seconds: number) => IOffset;
 
@@ -62,24 +56,57 @@ export function prepareDanceFootCourse(
 
   /** Whether the original half-beat swing has completed. */
   planted: (seconds: number) => boolean;
-} {
+};
+
+/** The record of `IPrepareDanceFootCoursePathItem`'s site. */
+type IPrepareDanceFootCoursePathItem = { beat: number; at: IOffset };
+
+/**
+ * Prepare a dance foot's fixed footfalls and rigid swing geometry. Each
+ * observation independently selects its original half-beat interval; placement,
+ * bearing and lateral offsets retain their separate readers.
+ *
+ * @param path Ordered footfalls with unchanged second-valued beats and
+ *   local-metre offsets.
+ * @param placements The unchanged actual world placement of each path/origin
+ *   offset.
+ * @param origin The initial local offset, present in placements.
+ * @param period The existing beat period, seconds.
+ * @param clearance The original swing height, metres.
+ * @returns Independent current-time readers for local offset, fresh rigid
+ *   placement and bearing.
+ */
+export function prepareDanceFootCourse(
+  path: readonly IPrepareDanceFootCoursePathItem[],
+  placements: ReadonlyMap<IOffset, IAutoMovieMotionHumanFoot.IPlacement>,
+  origin: IOffset,
+  period: number,
+  clearance: number,
+): IPrepareDanceFootCourseResult {
   const offsets: readonly IOffset[] = [
     origin,
-    ...path.map((fall: { beat: number; at: IOffset }): IOffset => fall.at),
+    ...path.map((fall: IPrepareDanceFootCourseOffsetsFall): IOffset => fall.at),
   ];
   const pair: (from: IOffset, at: IOffset) => IInterval = (
     from: IOffset,
     at: IOffset,
-  ): IInterval => ({
-    from,
-    at,
-    placements: [placements.get(from)!, placements.get(at)!],
-  });
+  ): IInterval => {
+    const ends: IInterval["placements"] = [
+      placements.get(from)!,
+      placements.get(at)!,
+    ];
+    return {
+      from,
+      at,
+      placements: ends,
+      arc: AutoMovieMotionHumanLeg.prepareArc(ends[0], ends[1], clearance),
+    };
+  };
   const held: IInterval[] = offsets.map(
     (at: IOffset): IInterval => pair(at, at),
   );
   const moving: IInterval[] = path.map(
-    (fall: { beat: number; at: IOffset }, index: number): IInterval =>
+    (fall: IPrepareDanceFootCourseMovingFall, index: number): IInterval =>
       pair(offsets[index]!, fall.at),
   );
   const read: (seconds: number) => IReading = (seconds: number): IReading => {
@@ -90,7 +117,7 @@ export function prepareDanceFootCourse(
       if (seconds >= path[mid]!.beat) lo = mid + 1;
       else hi = mid;
     }
-    const next: { beat: number; at: IOffset } | undefined = path[lo];
+    const next: IPrepareDanceFootCourseReadNext | undefined = path[lo];
     return next !== undefined && seconds > next.beat - period / 2
       ? {
           interval: moving[lo]!,
@@ -109,13 +136,7 @@ export function prepareDanceFootCourse(
     },
     placed: (seconds: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const current: IReading = read(seconds);
-      const interval: IInterval = current.interval;
-      interval.arc ??= AutoMovieMotionHumanLeg.prepareArc(
-        interval.placements[0],
-        interval.placements[1],
-        clearance,
-      );
-      return interval.arc(current.swing);
+      return current.interval.arc(current.swing);
     },
     planted: (seconds: number): boolean => read(seconds).swing >= 1,
   };

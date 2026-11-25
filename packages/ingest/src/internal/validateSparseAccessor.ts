@@ -8,7 +8,12 @@ import { positiveInteger } from "./positiveInteger";
 /**
  * Admit sparse accessor byte ranges within validated glTF buffer views.
  *
- * Absent sparse metadata does nothing. Present metadata needs a positive count no greater than accessor count, valid index/value views, unsigned byte/short/int indices and nonnegative zero-default offsets. Both tightly packed extents must fit their views; index ordering, index values and sparse payload values are not decoded, and skin/motion readers reject sparse accessors separately.
+ * Absent sparse metadata does nothing. Present metadata needs a positive count
+ * no greater than accessor count, valid index/value views, unsigned
+ * byte/short/int indices and nonnegative zero-default offsets. Both tightly
+ * packed extents must fit their views; index ordering, index values and sparse
+ * payload values are not decoded, and skin/motion readers reject sparse
+ * accessors separately.
  */
 export const validateSparseAccessor: (
   accessor: Record<string, unknown>,

@@ -41,13 +41,13 @@ import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 import { updateRecoveryRegularization } from "./updateRecoveryRegularization";
 
 /**
- * Refine a fixed camera map while retaining every hard pixel observation.
- * This internal opt-in method uses the same robust objective, seven-freedom
- * gauge, independent original ranks and actual point qualification. Pixel KKT
- * is claimed only while nonpixel gates remain strictly interior; other gate
+ * Refine a fixed camera map while retaining every hard pixel observation. This
+ * internal opt-in method uses the same robust objective, seven-freedom gauge,
+ * independent original ranks and actual point qualification. Pixel KKT is
+ * claimed only while nonpixel gates remain strictly interior; other gate
  * blockage is incomplete, and the coordinator still owns atomic acceptance.
- * Current-radius models prepay512 extra chart visits and each seed trial256;
- * 64 separate numerical slots cover raw/differentiated chart scratch.
+ * Current-radius models prepay512 extra chart visits and each seed trial256; 64
+ * separate numerical slots cover raw/differentiated chart scratch.
  */
 export function refineRecoveryCameraMapFeasible(
   initialPoses: readonly IAutoMovieRecoveryMapPose[],
@@ -191,8 +191,6 @@ export function refineRecoveryCameraMapFeasible(
           )
             return null;
         }
-        if (!Number.isFinite(cost) || !Number.isFinite(square))
-          throw new Error("camera-feasible: nonrepresentable actual objective");
         initialSquaredError ??= square;
         return cost;
       },
@@ -317,10 +315,11 @@ export function refineRecoveryCameraMapFeasible(
               at: number,
             ): IAutoMovieRecoveryMapLandmark => ({
               ...landmark,
-              point: landmark.point.map(
-                (value: number, axis: number): number =>
-                  value + step[cameraWidth + 3 * at + axis]!,
-              ) as [number, number, number],
+              point: [
+                landmark.point[0] + step[cameraWidth + 3 * at]!,
+                landmark.point[1] + step[cameraWidth + 3 * at + 1]!,
+                landmark.point[2] + step[cameraWidth + 3 * at + 2]!,
+              ],
             }),
           ),
         };
@@ -335,7 +334,6 @@ export function refineRecoveryCameraMapFeasible(
               if (
                 selected.some(
                   (row: number, at: number): boolean =>
-                    !Number.isSafeInteger(row) ||
                     row < 1 ||
                     row > observations ||
                     (at > 0 && row <= selected[at - 1]!),
@@ -368,7 +366,7 @@ export function refineRecoveryCameraMapFeasible(
                   );
                   const value: number =
                     (norm / policy.maximumReprojectionErrorPx) ** 2 - 1;
-                  if (!Number.isFinite(value)) return null;
+                  if (value === Infinity) return null;
                   values.push(value);
                   at++;
                 }
@@ -409,11 +407,7 @@ export function refineRecoveryCameraMapFeasible(
                   currentBlocks === null ||
                   currentGradient === null ||
                   increment.length !== width ||
-                  !(
-                    Number.isFinite(oldCost) &&
-                    Number.isFinite(newCost) &&
-                    newCost < oldCost
-                  )
+                  !(newCost < oldCost)
                 )
                   throw new Error(
                     "camera-regularization: selected current-base actual decrease required",

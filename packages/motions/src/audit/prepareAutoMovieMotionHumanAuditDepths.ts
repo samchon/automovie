@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalHullFaces,
+  physicalShapeHull,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
@@ -16,19 +16,23 @@ import type {
 import { HumanColliders } from "../posture/HumanColliders";
 
 /**
- * Prepare one placed collider segment as the segment other segments' probes
- * are read in (`AutoMovieMotionHumanAuditTangleModel.depths`).
+ * Prepare one placed collider segment as the segment other segments' probes are
+ * read in (`AutoMovieMotionHumanAuditTangleModel.depths`).
  *
- * A reading may be handed an array to receive each probe's room: the most, over `b`'s shapes, of the
- * shape's bounding-sphere radius less the probe's distance from its centre.
- * A shape lies inside its bounding sphere, so a point's depth in it is no
- * more than its depth in the sphere, and the room bounds the probe's depth
- * from above where it is positive; it is a distance difference, so it moves
- * no faster than the probe and the segment move apart, which is what a
- * conservative-advancement certificate needs.
+ * A reading may be handed an array to receive each probe's room: the most, over
+ * `b`'s shapes, of the shape's bounding-sphere radius less the probe's distance
+ * from its centre. A shape lies inside its bounding sphere, so a point's depth
+ * in it is no more than its depth in the sphere, and the room bounds the
+ * probe's depth from above where it is positive; it is a distance difference,
+ * so it moves no faster than the probe and the segment move apart, which is
+ * what a conservative-advancement certificate needs.
  *
- * @param b The placed segment the probes are read in. Its pose and its shapes' transforms stay unchanged while the reader is used: the reader belongs to one reading of one pose.
- * @returns A reader of how deep each probe of another placed segment lies in `b`: the probes in that segment's frame, the segment and the optional room array, giving metres per probe, zero outside.
+ * @param b The placed segment the probes are read in. Its pose and its shapes'
+ *   transforms stay unchanged while the reader is used: the reader belongs to
+ *   one reading of one pose.
+ * @returns A reader of how deep each probe of another placed segment lies in
+ *   `b`: the probes in that segment's frame, the segment and the optional room
+ *   array, giving metres per probe, zero outside.
  */
 export function prepareAutoMovieMotionHumanAuditDepths(
   b: IAutoMovieMotionHumanColliders.IPlaced,
@@ -42,9 +46,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
   // Each shape's bounding sphere in the segment's frame: a probe outside it
   // is outside the shape, which then adds no depth.
   const balls: IProbeBall[] = b.shapes.map(
-    (
-      shape: IAutoMoviePhysicalShape,
-    ): IProbeBall => {
+    (shape: IAutoMoviePhysicalShape): IProbeBall => {
       const ball: IAutoMovieMotionHumanColliders.IBall =
         HumanColliders.bound(shape);
       const squared: number = ball.radius * ball.radius;
@@ -54,16 +56,31 @@ export function prepareAutoMovieMotionHumanAuditDepths(
           Quaternion.rotateVector(shape.transform.rotation, ball.centre),
         ),
         radius: ball.radius,
-        outsideSquared: squared >= 2 ** -1000 && squared <= 2 ** 1000 &&
-          Math.sqrt(squared) >= ball.radius ? squared : Infinity,
+        outsideSquared:
+          squared >= 2 ** -1000 &&
+          squared <= 2 ** 1000 &&
+          Math.sqrt(squared) >= ball.radius
+            ? squared
+            : Infinity,
       };
     },
   );
-  let inverses: IAutoMovieQuaternion[] | undefined;
 
-  // Each hull's faces, read off the engine's hull of its points at the
-  // hull's first probe: the same record every probe read before.
-  let hulls: IAutoMoviePhysicalHullFaces.IFace[][] | undefined;
+  // Each hull's inverse turn and faces, read off the engine's hull of its
+  // points, here, so a probe reads them only.
+  const inverses: (IAutoMovieQuaternion | undefined)[] = b.shapes.map(
+    (shape: IAutoMoviePhysicalShape): IAutoMovieQuaternion | undefined =>
+      shape.kind === "hull"
+        ? Quaternion.inverse(shape.transform.rotation)
+        : undefined,
+  );
+  const hulls: (IAutoMoviePhysicalHullFaces.IFace[] | undefined)[] =
+    b.shapes.map(
+      (
+        shape: IAutoMoviePhysicalShape,
+      ): IAutoMoviePhysicalHullFaces.IFace[] | undefined =>
+        shape.kind === "hull" ? physicalShapeHull(shape).faces : undefined,
+    );
   return (
     probes: readonly IAutoMovieVector3[],
     a: IAutoMovieMotionHumanColliders.IPlaced,
@@ -93,7 +110,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       const lx: number = position.x + (probe.x + rw * tx + (ry * tz - rz * ty));
       const ly: number = position.y + (probe.y + rw * ty + (rz * tx - rx * tz));
       const lz: number = position.z + (probe.z + rw * tz + (rx * ty - ry * tx));
-      let local: IAutoMovieVector3 | undefined;
+      const local: IAutoMovieVector3 = { x: lx, y: ly, z: lz };
       let deepest: number = 0;
       let roomy: number = -Infinity;
       for (let s: number = 0; s < b.shapes.length; s++) {
@@ -107,27 +124,21 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         // underflows nor overflows, its own scaled form elsewhere.
         const ordinary: boolean = squared >= 2 ** -1000 && squared <= 2 ** 1000;
         // Monotonicity of sqrt proves the original outside comparison.
-        if (room === undefined && ordinary && squared >= ball.outsideSquared) continue;
-        const apart: number =
-          ordinary
-            ? Math.sqrt(squared)
-            : Vector3.distance({ x: lx, y: ly, z: lz }, ball.centre);
+        if (room === undefined && ordinary && squared >= ball.outsideSquared)
+          continue;
+        const apart: number = ordinary
+          ? Math.sqrt(squared)
+          : Vector3.distance({ x: lx, y: ly, z: lz }, ball.centre);
         if (room !== undefined) roomy = Math.max(roomy, ball.radius - apart);
         if (apart >= ball.radius) continue;
         if (shape.kind !== "hull") {
-          local ??= { x: lx, y: ly, z: lz };
           deepest = Math.max(
             deepest,
             -physicalShapeSegmentDistance(IDENTITY, shape, local, local),
           );
           continue;
         }
-        let unturn: IAutoMovieQuaternion | undefined = inverses?.[s];
-        if (unturn === undefined) {
-          unturn = Quaternion.inverse(shape.transform.rotation);
-          if (inverses === undefined) inverses = [];
-          inverses[s] = unturn;
-        }
+        const unturn: IAutoMovieQuaternion = inverses[s]!;
         // The probe in the hull's frame: `unturn * (local - position)`.
         const vx: number = lx - shape.transform.position.x;
         const vy: number = ly - shape.transform.position.y;
@@ -139,13 +150,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         const py: number = vy + unturn.w * uy + (unturn.z * ux - unturn.x * uz);
         const pz: number = vz + unturn.w * uz + (unturn.x * uy - unturn.y * ux);
         let inside: number = Infinity;
-        let faces: IAutoMoviePhysicalHullFaces.IFace[] | undefined = hulls?.[s];
-        if (faces === undefined) {
-          faces = physicalHullFaces(shape.points).faces;
-          if (hulls === undefined) hulls = [];
-          hulls[s] = faces;
-        }
-        for (const face of faces) {
+        for (const face of hulls[s]!) {
           inside = Math.min(
             inside,
             face.offset -

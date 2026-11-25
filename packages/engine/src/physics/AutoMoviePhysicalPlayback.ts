@@ -16,12 +16,14 @@ import { decodePhysicalPlayback } from "./decodePhysicalPlayback";
 import { encodePhysicalPlayback } from "./encodePhysicalPlayback";
 import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
 
-/** Compact precomputed playback, loaded without initializing the native solver.
- * One little-endian Float64 record stores each segment's pose and velocities.
- * A SHA-256 trailer detects damaged data; the caller's expected input identity
+/**
+ * Compact precomputed playback, loaded without initializing the native solver.
+ * One little-endian Float64 record stores each segment's pose and velocities. A
+ * SHA-256 trailer detects damaged data; the caller's expected input identity
  * independently rejects stale performances. Loading checks the byte budget
- * before copying, then admits frame/segment counts before scanning records. WebCrypto
- * is required, as provided by Node 22 and secure browser contexts (localhost).
+ * before copying, then admits frame/segment counts before scanning records.
+ * WebCrypto is required, as provided by Node 22 and secure browser contexts
+ * (localhost).
  */
 export class AutoMoviePhysicalPlayback {
   /** Bytes per position/quaternion/linear/angular-velocity record. */
@@ -60,7 +62,10 @@ export class AutoMoviePhysicalPlayback {
   public get ownership(): readonly IAutoMoviePhysicalOwnershipEvent[] {
     return this.header.ownership;
   }
-  /** Requested versus allocated support predictions, before native motor caps/integration. Actual floor load is measured only by contacts. */
+  /**
+   * Requested versus allocated support predictions, before native motor
+   * caps/integration. Actual floor load is measured only by contacts.
+   */
   public get supportWrenches(): readonly IAutoMoviePhysicalSupportWrench[] {
     return this.header.supportWrenches;
   }
@@ -87,7 +92,7 @@ export class AutoMoviePhysicalPlayback {
   /**
    * Pack completed cached poses and causal metadata into an owned archive.
    *
-   * maximumBytes caps the final archive, not the metadata serialization's
+   * MaximumBytes caps the final archive, not the metadata serialization's
    * transient memory. Native/controller checkpoints remain in the live cache.
    * The encoder rejects incomplete frames and nonfinite pose/velocity fields;
    * WebCrypto supplies the integrity digest.
@@ -104,8 +109,8 @@ export class AutoMoviePhysicalPlayback {
    *
    * The decoder copies source bytes before its asynchronous integrity check.
    * Positive safe-integer byte/frame/segment budgets bound admission. Invalid
-   * format, identity, record data or causal metadata reject the promise;
-   * no solver is initialized and no partially admitted reader is returned.
+   * format, identity, record data or causal metadata reject the promise; no
+   * solver is initialized and no partially admitted reader is returned.
    */
   public static async decode(
     source: Uint8Array,
@@ -132,7 +137,7 @@ export class AutoMoviePhysicalPlayback {
    * quaternion arc. Returns a fresh frame without advancing a solver.
    */
   public at(seconds: number): IAutoMoviePhysicalFrame {
-    if (!Number.isFinite(seconds) || seconds < 0 || seconds > this.duration)
+    if (seconds < 0 || seconds > this.duration)
       throw new Error("Physical playback seek outside completed film");
     const step: number = seconds * this.rate;
     const low: number = Math.floor(step);

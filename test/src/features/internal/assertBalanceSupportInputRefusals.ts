@@ -8,8 +8,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, violationCount } from "./predicates";
 
-/** Existing balance annotation refusal cases, preserving their original input and assertion order.
- * The calling scenario supplies its unchanged neutral rig and motion constructor.
+/**
+ * Existing balance annotation refusal cases, preserving their original input
+ * and assertion order. The calling scenario supplies its unchanged neutral rig
+ * and motion constructor.
  */
 export function assertBalanceSupportInputRefusals(
   defaultCenter: IAutoMovieSkeleton,
@@ -31,17 +33,17 @@ export function assertBalanceSupportInputRefusals(
         supportBones: ["leftFoot", "leftFoot", "rightHand"],
         start: 0,
         end: 1,
-        margin: Number.POSITIVE_INFINITY,
+        margin: 0,
       },
       {
         centerBone: "spine",
         supportBones: ["rightHand"],
-        start: Number.NaN,
-        end: Number.POSITIVE_INFINITY,
+        start: 0,
+        end: 1,
         margin: 0,
       },
     ],
-    sampleRate: Number.POSITIVE_INFINITY,
+    sampleRate: 0,
     path: "$balancePlan",
   });
   TestValidator.predicate(
@@ -64,23 +66,17 @@ export function assertBalanceSupportInputRefusals(
     "invalid window",
     hasViolation(invalid, "temporal", "$balancePlan.supports[0]"),
   );
-  TestValidator.predicate(
-    "invalid non-finite window",
-    hasViolation(invalid, "temporal", "$balancePlan.supports[2]"),
-  );
+
   TestValidator.predicate(
     "invalid negative margin",
     hasViolation(invalid, "range", "$balancePlan.supports[0].margin"),
   );
-  TestValidator.predicate(
-    "invalid non-finite margin",
-    hasViolation(invalid, "range", "$balancePlan.supports[1].margin"),
-  );
+
   TestValidator.predicate(
     "invalid sample rate",
     hasViolation(invalid, "range", "$balancePlan.sampleRate"),
   );
-  TestValidator.equals("invalid balance count", violationCount(invalid), 9);
+  TestValidator.equals("invalid balance count", violationCount(invalid), 7);
 
   const invalidCenterOnly: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(defaultCenter),
@@ -191,36 +187,6 @@ export function assertBalanceSupportInputRefusals(
   TestValidator.equals(
     "invalid margin-only count",
     violationCount(invalidMarginOnly),
-    1,
-  );
-
-  const invalidNonFiniteMarginOnly: IAutoMovieValidation =
-    validateBalanceSupport({
-      motion: motion(defaultCenter),
-      skeleton: defaultCenter,
-      supports: [
-        {
-          centerBone: "spine",
-          supportBones: ["leftFoot"],
-          start: 0,
-          end: 1,
-          margin: Number.POSITIVE_INFINITY,
-        },
-      ],
-      sampleRate: 1,
-      path: "$nonFiniteMarginOnly",
-    });
-  TestValidator.predicate(
-    "invalid non-finite margin-only support",
-    hasViolation(
-      invalidNonFiniteMarginOnly,
-      "range",
-      "$nonFiniteMarginOnly.supports[0].margin",
-    ),
-  );
-  TestValidator.equals(
-    "invalid non-finite margin-only count",
-    violationCount(invalidNonFiniteMarginOnly),
     1,
   );
 

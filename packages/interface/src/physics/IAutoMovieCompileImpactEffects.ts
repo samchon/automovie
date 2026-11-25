@@ -1,16 +1,15 @@
 import type { IAutoMovieEffectRecipe } from "../production/IAutoMovieEffectRecipe";
 import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
 
-/**
- * Compile contact-driven spray through the existing effect stream and sampler.
- */
+/** Compile contact-driven spray through the existing effect stream and sampler. */
 export namespace IAutoMovieCompileImpactEffects {
   /**
-   * Compile contact-driven spray through the existing effect stream and sampler.
-   * Colour, accumulation and physical coefficients belong to the provider or
-   * production; Engine has no skin, coat, blood or species preset. Each stream
-   * seed/digest covers actual contact bytes and its complete recipe. Kinematic
-   * callers must explicitly supply their formula-derived impulse estimate.
+   * Compile contact-driven spray through the existing effect stream and
+   * sampler. Colour, accumulation and physical coefficients belong to the
+   * provider or production; Engine has no skin, coat, blood or species preset.
+   * Each stream seed/digest covers actual contact bytes and its complete
+   * recipe. Kinematic callers must explicitly supply their formula-derived
+   * impulse estimate.
    */
   export type IInput = {
     /** Chronological actual contact episodes, including source identity. */

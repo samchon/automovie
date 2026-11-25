@@ -9,7 +9,9 @@ import { actorWeightedArmPose } from "./actorWeightedArmPose";
 import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 
 /**
- * Bake a moving arm goal with an easeInOut extension over the first half of a positive second duration, then hold its sampled solved articulation. An unresolved target sample returns null.
+ * Bake a moving arm goal with an easeInOut extension over the first half of a
+ * positive second duration, then hold its sampled solved articulation. An
+ * unresolved target sample returns null.
  */
 export const createDynamicActorExtendClip: (
   props: IAutoMovieCreateDynamicActorExtendClip.IProps,

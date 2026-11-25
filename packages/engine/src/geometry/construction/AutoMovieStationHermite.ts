@@ -8,31 +8,31 @@ import type {
  * Interpolation of a chain's values between two principal layers from their
  * values and station derivatives.
  *
- * A layer that carries first derivatives only is joined by the cubic
- * Hermite rule; two layers that both carry second derivatives as well are
- * joined by the quintic Hermite rule
+ * A layer that carries first derivatives only is joined by the cubic Hermite
+ * rule; two layers that both carry second derivatives as well are joined by the
+ * quintic Hermite rule
  *
  * ```text
  * f(u) = H0 f_a + H1 H f'_a + H2 H^2 f''_a + H3 H^2 f''_b + H4 H f'_b + H5 f_b
  * ```
  *
- * with `u = (s - s_a) / H` and the quintic basis H0 .. H5, which matches
- * value, slope and curvature at both layers. A natural cubic spline's
- * interval is a cubic, which the quintic rule reproduces exactly from the
- * spline's own derivatives, so expanding a feature chain with second
- * derivatives changes no interval of the spline; it only lets an interval
- * end on a neighbour's derivatives (a shared key, a cap's end key), which
- * the redesign plan's section 2 requires for C2 joins.
+ * With `u = (s - s_a) / H` and the quintic basis H0 .. H5, which matches value,
+ * slope and curvature at both layers. A natural cubic spline's interval is a
+ * cubic, which the quintic rule reproduces exactly from the spline's own
+ * derivatives, so expanding a feature chain with second derivatives changes no
+ * interval of the spline; it only lets an interval end on a neighbour's
+ * derivatives (a shared key, a cap's end key), which the redesign plan's
+ * section 2 requires for C2 joins.
  */
 export namespace AutoMovieStationHermite {
   /**
    * Weights of `[f_a, f'_a, f''_a, f''_b, f'_b, f_b]` for the value or a
    * station derivative at unit parameter u of an interval of width H.
    *
-   * The slope and curvature weights already include their factors H and
-   * H^2, and the derivative weights the chain rule's `1 / H^order`, so a
-   * value is the plain weighted sum of the six arrays. The cubic rule puts
-   * zero on both curvatures.
+   * The slope and curvature weights already include their factors H and H^2,
+   * and the derivative weights the chain rule's `1 / H^order`, so a value is
+   * the plain weighted sum of the six arrays. The cubic rule puts zero on both
+   * curvatures.
    *
    * @param u Unit parameter in `[0, 1]`.
    * @param H Interval width in station units.
@@ -133,7 +133,8 @@ export namespace AutoMovieStationHermite {
   }
 
   /**
-   * Whether a layer has both a frame and first frame derivatives; second derivatives remain optional.
+   * Whether a layer has both a frame and first frame derivatives; second
+   * derivatives remain optional.
    */
   export function framed(layer: IAutoMovieLoftChain.ILayer): boolean {
     return layer.frame !== undefined && layer.frameSlopes !== undefined;
@@ -161,7 +162,8 @@ export namespace AutoMovieStationHermite {
   }
 
   /**
-   * Plane of nine `[origin, u, v]` numbers; interpolated axes are preserved without renormalization.
+   * Plane of nine `[origin, u, v]` numbers; interpolated axes are preserved
+   * without renormalization.
    */
   export function unflat(x: readonly number[]): IAutoMovieLoftSectionFrame {
     return {

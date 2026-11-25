@@ -23,33 +23,29 @@ import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 import { balletPositions } from "./balletPositions";
 import { dance } from "./dance";
+import { danceGrooveEnvelope } from "./danceGrooveEnvelope";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
 /**
- * Street grooves on the dance law's beat clock (#4010).
+ * Street grooves on the dance law's beat clock.
  *
  * - Rock: the knees give `BOUNCE` of the stature on every beat; the chest
- *   isolates `CHEST` degrees side to side and the head `HEAD` degrees the
- *   other way, one side a beat; each popping hit drives the forearms to a
- *   struck pose that peaks exactly on its subdivision, rising over `RISE`
- *   of a beat on a sharp ease-in and released over the half beat after.
- * - Moonwalk: one foot stands on its ball, the heel up `HEEL` degrees,
- *   while the other slides back flat along the floor, never lifting, from
- *   `STEP` foot lengths ahead of the standing foot to as far behind; on the
- *   beat the slid foot rises onto its ball and the standing heel drops, so
- *   the roles change every beat and the dancer travels backward while
- *   seeming to step forward. The hips ride over the feet's midpoint.
+ *   isolates `CHEST` degrees side to side and the head `HEAD` degrees the other
+ *   way, one side a beat; each popping hit drives the forearms to a struck pose
+ *   that peaks exactly on its subdivision, rising over `RISE` of a beat on a
+ *   sharp ease-in and released over the half beat after.
+ * - Moonwalk: one foot stands on its ball, the heel up `HEEL` degrees, while the
+ *   other slides back flat along the floor, never lifting, from `STEP` foot
+ *   lengths ahead of the standing foot to as far behind; on the beat the slid
+ *   foot rises onto its ball and the standing heel drops, so the roles change
+ *   every beat and the dancer travels backward while seeming to step forward.
+ *   The hips ride over the feet's midpoint.
  *
- * Every instant of a member strays from the beat by an offset drawn once
- * from its seed within `vary`, so a crowd keeps the beat without moving
- * cloned (Burger et al. 2013 measured such individual timing in groove).
+ * Every instant of a member strays from the beat by an offset drawn once from
+ * its seed within `vary`, so a crowd keeps the beat without moving cloned
+ * (Burger et al. 2013 measured such individual timing in groove).
  *
  * Events: `beat{k}`, the rock's `hit{n}`, the moonwalk's `slide{k}`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each groove's motion, the hits' timing, the backslide's roles, the variation and the events.
- * @evidence contracts/development/design.md#principled-representation A law over the shared beat clock and footwork.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; times are the beat's plus the member's seeded offset.
  */
 export namespace streetDance {
   /** The action's name. */
@@ -76,13 +72,19 @@ export namespace streetDance {
   /** A hit's rise, a share of a beat: short, so it stops sharp (provisional). */
   export const RISE: number = 0.15;
 
-  /** How low the hips ride in the moonwalk, a share of the stature: enough for the sliding leg to reach the floor behind (provisional). */
+  /**
+   * How low the hips ride in the moonwalk, a share of the stature: enough for
+   * the sliding leg to reach the floor behind (provisional).
+   */
   export const CROUCH: number = 0.025;
 
   /** The moonwalk's standing heel lift, degrees about the ball (provisional). */
   export const HEEL: number = 35;
 
-  /** The moonwalk's slide, foot lengths ahead of and behind the standing foot (provisional). */
+  /**
+   * The moonwalk's slide, foot lengths ahead of and behind the standing foot
+   * (provisional).
+   */
   export const STEP: number = 0.5;
 
   /**
@@ -90,15 +92,8 @@ export namespace streetDance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the tempo, the beat count or the variation is not admitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The rock's bounce, isolations and hits as functions of the beat clock; the moonwalk as foot keys whose slides have no clearance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, offset, then one branch per groove.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hit peaks on its subdivision exactly, offset only by the member's draw.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in beats; constant work per sample beyond a hit scan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared beat clock, footwork and foot pivots.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the hit list.
+   * @throws {HumanRefusal} When the tempo, the beat count or the variation is
+   *   not admitted.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStreetDance.IParams>,
@@ -158,7 +153,7 @@ export namespace streetDance {
       });
       const side: (t: number) => number = (t: number): number =>
         Math.sin((Math.PI * (t - beats.at(1))) / beats.period) *
-        settle(t, beats, end);
+        danceGrooveEnvelope(t, beats, end);
       const struck: (t: number) => number = (t: number): number => {
         let best: number = 0;
         for (const s of peaks) {
@@ -197,7 +192,7 @@ export namespace streetDance {
               standing.y -
               BOUNCE *
                 body.measure.stature *
-                settle(t, beats, end) *
+                danceGrooveEnvelope(t, beats, end) *
                 (0.5 +
                   0.5 *
                     Math.cos((2 * Math.PI * (t - beats.at(1))) / beats.period)),
@@ -390,7 +385,9 @@ export namespace streetDance {
             x: standing.x + mid.x - start.x,
             y:
               standing.y -
-              CROUCH * body.measure.stature * settle(t, beats, end),
+              CROUCH *
+                body.measure.stature *
+                danceGrooveEnvelope(t, beats, end),
             z: standing.z + mid.z - start.z,
           };
         },
@@ -400,21 +397,6 @@ export namespace streetDance {
       },
       { kind: "ground" },
     );
-  }
-
-  /** The groove's envelope: in by the first beat, out after the last. */
-  function settle(
-    t: number,
-    beats: IAutoMovieMotionHumanDanceBeats,
-    end: number,
-  ): number {
-    const first: number = beats.at(1);
-    const last: number = beats.at(beats.count);
-    if (t <= first)
-      return minimumJerk.share(Math.max(0, t) / Math.max(1e-9, first));
-    if (t >= last)
-      return 1 - minimumJerk.share((t - last) / Math.max(1e-9, end - last));
-    return 1;
   }
 
   /** Two joint sets mixed by a share. */

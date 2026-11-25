@@ -8,9 +8,7 @@ type V =
 type Triangle =
   Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];
 
-/**
- * Prepare immutable source rank and incidence once for all scalar queries.
- */
+/** Prepare immutable source rank and incidence once for all scalar queries. */
 export function RecoveryEventRegionSource(
   source: Parameters<IAutoMovieRecoveryEventRegionSource.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> {
@@ -41,8 +39,6 @@ export function RecoveryEventRegionSource(
       canonical: number = source.canon[i];
     if (
       p.length !== 3 ||
-      !p.every(Number.isFinite) ||
-      !Number.isFinite(source.heights[i]) ||
       canonical < 0 ||
       canonical >= size ||
       source.canon[canonical] !== canonical
@@ -76,12 +72,7 @@ export function RecoveryEventRegionSource(
   ): string => (a < b ? `${a}:${b}` : `${b}:${a}`);
   for (let i: number = 0; i < source.triangles.length; i++) {
     const t: Triangle = source.triangles[i];
-    if (
-      t.length !== 3 ||
-      t.some(
-        (v: number): boolean => !Number.isSafeInteger(v) || v < 0 || v >= size,
-      )
-    )
+    if (t.length !== 3 || t.some((v: number): boolean => v < 0 || v >= size))
       throw new Error(
         "Private source faces require valid original vertex addresses",
       );

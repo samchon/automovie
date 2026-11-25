@@ -16,6 +16,7 @@ import type {
 import * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 import type { IAutoMovieFlamesObject } from "./IAutoMovieFlamesObject.js";
 import type { IPrepareAutoMovieFlamesProps } from "./IPrepareAutoMovieFlamesProps.js";
 import { createAutoMovieFlameMaterial } from "./createAutoMovieFlameMaterial.js";
@@ -62,13 +63,14 @@ export function prepareAutoMovieFlames(
       ],
     ),
   );
-  const meshes: THREE.Mesh[] = [];
+  const meshes: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>[] =
+    [];
   const emissions: { color: IAutoMovieColor; luminance: number }[] = [];
   const release: () => void = (): void => {
     for (const mesh of meshes) {
       mesh.removeFromParent();
       mesh.geometry.dispose();
-      (mesh.material as THREE.Material).dispose();
+      mesh.material.dispose();
     }
   };
 
@@ -93,10 +95,11 @@ export function prepareAutoMovieFlames(
       const geometry: THREE.BufferGeometry = toGeometry(
         sampleAutoMovieFlame(cue, 0).mesh,
       );
-      const mesh: THREE.Mesh = new THREE.Mesh(
-        geometry,
-        createAutoMovieFlameMaterial(emission.color, emission.luminance),
-      );
+      const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> =
+        new THREE.Mesh(
+          geometry,
+          createAutoMovieFlameMaterial(emission.color, emission.luminance),
+        );
       meshes.push(mesh);
       emissions.push(emission);
       mesh.name = name;
@@ -116,24 +119,25 @@ export function prepareAutoMovieFlames(
   let disposed: boolean = false;
   return {
     apply: (seconds: number): void => {
-      if (!Number.isFinite(seconds))
-        throw new RangeError(`Flames cannot be sampled at ${seconds} s`);
       cues.forEach((cue: IAutoMovieFlameCue, index: number): void => {
-        const mesh: THREE.Mesh = meshes[index]!;
+        const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> =
+          meshes[index]!;
         mesh.visible =
           cue.on === undefined || (cue.on[0] <= seconds && seconds < cue.on[1]);
         if (!mesh.visible) return;
         const sample: { mesh: IAutoMovieMesh; area: number } =
           sampleAutoMovieFlame(cue, seconds);
-        const position: THREE.BufferAttribute = mesh.geometry.getAttribute(
+        const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+          mesh.geometry,
           "position",
-        ) as THREE.BufferAttribute;
-        (position.array as Float32Array).set(sample.mesh.positions);
+        );
+        position.copyArray(sample.mesh.positions);
         position.needsUpdate = true;
-        const normal: THREE.BufferAttribute = mesh.geometry.getAttribute(
+        const normal: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+          mesh.geometry,
           "normal",
-        ) as THREE.BufferAttribute;
-        (normal.array as Float32Array).set(sample.mesh.normals ?? []);
+        );
+        normal.copyArray(sample.mesh.normals ?? []);
         normal.needsUpdate = true;
         mesh.geometry.computeBoundingSphere();
 
@@ -144,7 +148,7 @@ export function prepareAutoMovieFlames(
           const scale: number =
             (luminance * sample.area) /
             (Math.PI * cue.size.radius * cue.size.radius);
-          (mesh.material as THREE.MeshBasicMaterial).color.setRGB(
+          mesh.material.color.setRGB(
             color.r * scale,
             color.g * scale,
             color.b * scale,

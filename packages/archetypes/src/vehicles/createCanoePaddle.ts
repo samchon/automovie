@@ -22,17 +22,10 @@ const v: typeof Vector3.create = Vector3.create;
  * @param params Optional scene identity or exact reference overrides.
  * @param seed Provenance seed. The reference dimensions are fixed.
  * @returns The paddle, lower shaft grip, top T-grip and one blade-tip face.
- * @evidence contracts/development/common.md#meaningful-documentation Defines its axes, the two different grips, size and provenance.
- * @evidence contracts/development/implementation.md#principled-implementation One measured blade and shaft terminate at a separate T-shaped handle, with contacts on those physical pieces.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read one known envelope, join the three shapes, then declare their contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No second blade or assumed symmetric grip. The shaft diameter and the local blade thickness are authored.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry independent of scene length.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the measured blade's panel construction and the contact convention of the paired paddle.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no external state.
  */
 export function createCanoePaddle(
   params: createCanoePaddle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createCanoePaddle.Affordance,
   createCanoePaddle.Dimension
@@ -105,14 +98,7 @@ export function createCanoePaddle(
   return builder.build(d.mass);
 }
 
-/**
- * Shaft and blade dimensions and three contact ids of the single-bladed paddle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the three grips or markers and the exact reference values.
- * @evidence contracts/development/design.md#principled-representation Each dimension has an explicit physical measurement site and provenance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the shaft and T-grip contacts plus the blade-tip surface are published.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Includes the measured 56 inch model as one reference, without inventing other sizes.
- */
+/** Shaft and blade dimensions and three contact ids of the single-bladed paddle. */
 export namespace createCanoePaddle {
   /** Shaft hand, T-grip hand, and the edge that crosses the water. */
   export type Affordance = "shaftGrip" | "topGrip" | "bladeTip";

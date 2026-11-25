@@ -3,6 +3,7 @@ import { Box3, Camera, Frustum, Matrix4, Mesh, Plane, Vector3 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
 import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCameraFrameEdgeSurface.js";
 
 /** The delivery camera and a required subject's bounds and admitted meshes. */
@@ -76,14 +77,6 @@ export function measureAutoMovieCameraFrameEdge(
     camera.coordinateSystem,
     camera.reversedDepth,
   );
-  if (
-    !projection.elements.every(Number.isFinite) ||
-    frustum.planes.some(
-      (plane: Plane): boolean =>
-        ![...plane.normal.toArray(), plane.constant].every(Number.isFinite),
-    )
-  )
-    return { status: "unmeasured", reason: "Non-finite delivery projection." };
   const box: Box3 | undefined =
     props.bounds === undefined
       ? meshes === undefined
@@ -119,7 +112,7 @@ export function measureAutoMovieCameraFrameEdge(
   }
   const crossings: measureAutoMovieCameraFrameEdge.ICrossing[] = crossed.map(
     (i: number): measureAutoMovieCameraFrameEdge.ICrossing =>
-      Number.isFinite(reach[i]!)
+      reach[i] !== -Infinity
         ? { side: SIDES[i]!, extent: reach[i]! }
         : { side: SIDES[i]! },
   );
@@ -209,7 +202,8 @@ function toBox(input: IAutoMovieSubjectBox): Box3 | undefined {
     new Vector3(input.max.x, input.max.y, input.max.z),
   );
   return !box.isEmpty() &&
-    [...box.min.toArray(), ...box.max.toArray()].every(Number.isFinite)
+    isAutoMovieFloat32Point(box.min) &&
+    isAutoMovieFloat32Point(box.max)
     ? box
     : undefined;
 }

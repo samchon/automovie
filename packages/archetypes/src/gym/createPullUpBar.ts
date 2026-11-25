@@ -18,26 +18,19 @@ const FIG: string =
  * A bar to hang from: a gym's pull-up bar or gymnastics' horizontal bar, a
  * round bar level between two uprights.
  *
- * It stands on the floor with the middle of its footprint at the origin,
- * the bar along `X`. `bar` is the bar's middle, on its axis, with `+Y` up:
- * hands take it from below at any place along its length.
+ * It stands on the floor with the middle of its footprint at the origin, the
+ * bar along `X`. `bar` is the bar's middle, on its axis, with `+Y` up: hands
+ * take it from below at any place along its length.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bar.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two kinds, how it stands and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation One bar at its height and an upright under each end; the horizontal bar's three sizes are the norm's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, three rods, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guy wires, feet or wall mounts; a gym bar's sizes are estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three rods.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPullUpBar(
   params: createPullUpBar.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPullUpBar.Affordance, createPullUpBar.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPullUpBar.Dimension> =
     new AutoMovieArchetypeDrawSession<createPullUpBar.Dimension>(
@@ -94,14 +87,7 @@ export function createPullUpBar(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createPullUpBar}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one band per dimension per kind, the norm's for the horizontal bar and marked estimates for a gym's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bar's height, length and thickness a hanging body reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
- */
+/** Companion types and bands of {@link createPullUpBar}. */
 export namespace createPullUpBar {
   /** The kinds of bar. */
   export type Kind = "gym" | "horizontalBar";
@@ -112,7 +98,10 @@ export namespace createPullUpBar {
   /** An upright's radius, metres. An estimate, not read at a source. */
   export const UPRIGHT: number = 0.03;
 
-  /** The affordance ids: `bar`, the bar's middle on its axis, `+Y` up, hung from below. */
+  /**
+   * The affordance ids: `bar`, the bar's middle on its axis, `+Y` up, hung from
+   * below.
+   */
   export type Affordance = "bar";
 
   /**
@@ -135,7 +124,10 @@ export namespace createPullUpBar {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bar. */
     kind: Kind;

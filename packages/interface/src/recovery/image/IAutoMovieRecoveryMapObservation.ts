@@ -1,5 +1,4 @@
-/** One automatically linked, geometrically retained landmark observation.
- */
+/** One automatically linked, geometrically retained landmark observation. */
 export interface IAutoMovieRecoveryMapObservation {
   /** Index in the owning operation's source array; zero and one are the seed. */
   viewIndex: number;

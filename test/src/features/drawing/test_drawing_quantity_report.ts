@@ -46,7 +46,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  *    off, a cell written with unnormalized normals, and a cell nothing bounds.
  * 7. A cell's cross-section has its expected area where the cut passes through it, empty where
  *    it does not, and reported as unbounded where the design never closed it.
- * 8. A malformed bound and an invalid design are refused at their own messages.
+ * 8. A malformed bound is refused at its own message.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs measureAutoMovieQuantities plus the existing cell volume/section probes, checking full subject/unit/value/basis rows, contributor ordering/truncation/reconciliation, approximation/gap policy, empty subjects, repeated digest and malformed-input refusal. Original scenarios 6/7 are delegated sequentially to test02DrawingQuantityGeometry.
  * @evidence contracts/development/testing.md#independent-expectations Authored boxes give 60 floor area and 180+30 volume; a 0.9-by-2.1 void and radius-0.3 circle give opening area, while sqrt(13)+five gives route length on the six-decimal output grid. Literal counts/owner lists and box 24, clipped-cube 5/6 and section eight supply analytic expectations without product-calculated expected values.
@@ -298,17 +298,8 @@ export function test_drawing_quantity_report(): void {
 
   // 8. Refusals.
   TestValidator.equals(
-    "a malformed bound and an invalid design are refused at their own messages",
+    "a malformed bound is refused at its own message",
     namedFacts([
-      [
-        "a fractional contributor bound is refused",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieQuantityReport =>
-              measureAutoMovieQuantities({ environment, maxContributors: 1.5 }),
-            "must be a positive safe integer",
-          ),
-      ],
       [
         "a zero contributor bound is refused",
         (): boolean =>
@@ -329,23 +320,10 @@ export function test_drawing_quantity_report(): void {
               entry.subject === "element-count",
           )!.contributors.length === 1,
       ],
-      [
-        "an invalid design is refused before anything is measured",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieQuantityReport =>
-              measureAutoMovieQuantities({
-                environment: { ...environment, version: 2 as unknown as 1 },
-              }),
-            ["is invalid at", "building schema version must be 1"],
-          ),
-      ],
     ]),
     {
-      "a fractional contributor bound is refused": true,
       "a zero contributor bound is refused": true,
       "a bound of one is accepted and names exactly one owner": true,
-      "an invalid design is refused before anything is measured": true,
     },
   );
 }

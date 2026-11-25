@@ -22,8 +22,8 @@ export const AUTOMOVIE_TRUE_PEAK_LIMITER: Readonly<{
 
   /** Release time constant, in seconds. */
   releaseSeconds: number;
-}> = Object.freeze({
+}> = {
   ceilingMarginDb: 1,
   lookAheadSeconds: 0.005,
   releaseSeconds: 0.1,
-});
+};

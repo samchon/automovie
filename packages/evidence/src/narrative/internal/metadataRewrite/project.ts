@@ -12,9 +12,7 @@ import { lineEnding } from "./lineEnding";
 import { singleLineDeclaration } from "./singleLineDeclaration";
 import { withoutEnding } from "./withoutEnding";
 
-/**
- * Removes only the declared metadata ownership and records source mappings.
- */
+/** Removes only the declared metadata ownership and records source mappings. */
 export function project(
   markdown: string,
   original: Buffer,

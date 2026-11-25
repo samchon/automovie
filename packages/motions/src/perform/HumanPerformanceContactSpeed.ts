@@ -6,40 +6,29 @@ import type {
 
 /**
  * The speed bounds a performance states to the engine's contact scan
- * (`IAutoMovieResolveContactEvents.IWeapon.speed`, `IBody.speed`), each on
- * one search's grid, so the scan reads no grid second a clear gap rules out
- * and finds the contact a scan of every second finds.
+ * (`IAutoMovieResolveContactEvents.IWeapon.speed`, `IBody.speed`), each on one
+ * search's grid, so the scan reads no grid second a clear gap rules out and
+ * finds the contact a scan of every second finds.
  *
- * A weapon's bound is read off its own path: the most any end of its axis
- * moves between two neighbouring grid seconds of its live window, over
- * their interval, which by the triangle inequality bounds every pair of grid
- * seconds and, the radii being fixed, every point of its sphere or capsule.
- * A person's bound is 0 where the display pipeline proves the shown pose
- * constant (`HumanSegmentStill.within`), and none elsewhere: a limb fit states no rate bound,
- * so a moving pose has no certified one.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both bounds, why each holds on the grid and where none is stated.
- * @evidence contracts/development/design.md#principled-representation Bounds on the search's own grid, the only seconds the scan reads where it advances.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The weapon's grid bound the contact resolution states; the person's certificate is `HumanSegmentStill`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No bound is estimated: the weapon's is measured on the grid from its own path, the person's is 0 only where the pose provably does not change.
+ * A weapon's bound is read off its own path: the most any end of its axis moves
+ * between two neighbouring grid seconds of its live window, over their
+ * interval, which by the triangle inequality bounds every pair of grid seconds
+ * and, the radii being fixed, every point of its sphere or capsule. A person's
+ * bound is 0 where the display pipeline proves the shown pose constant
+ * (`HumanSegmentStill.within`), and none elsewhere: a limb fit states no rate
+ * bound, so a moving pose has no certified one.
  */
 export namespace HumanPerformanceContactSpeed {
   /**
    * A weapon's bound on a search's grid, from its own path.
    *
-   * @param read The weapon's axis at a second: its centre or first end, and its capsule's other end.
+   * @param read The weapon's axis at a second: its centre or first end, and its
+   *   capsule's other end.
    * @param from The weapon's live start, seconds.
    * @param to The weapon's live end, seconds.
    * @param grid The search's grid.
-   * @returns The bound between two grid seconds of the live window; undefined at a second off the grid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reader, the window and the off-grid answer.
-   * @evidence contracts/development/implementation.md#principled-implementation The largest end displacement between neighbouring grid seconds over their interval bounds the displacement between any two grid seconds by the triangle inequality, and every capsule point moves no farther than its ends do (each is a fixed affine mix of them).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The grid seconds from the first one asked are read once each, as far as an ask reaches, their neighbouring rates kept in order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every grid second of the window is read from the actual path; a second off the grid is given no bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read per grid second an ask reaches, once a search, which the caller shares with the scan's own reads at those seconds; the scan asks over windows doubling from one step, so the seconds read are at most twice those certified; each ask walks its window's steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid seconds read are the scan's own.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One number array over the steps read and the last axis read, released with the search.
+   * @returns The bound between two grid seconds of the live window; undefined
+   *   at a second off the grid.
    */
   export function weapon(
     read: (
@@ -77,10 +66,15 @@ export namespace HumanPerformanceContactSpeed {
     // read kept for the next rate.
     let first: number | undefined;
     const rates: number[] = [];
-    let before: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] | undefined;
+    let before:
+      | readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined]
+      | undefined;
     const extend = (end: number): void => {
       for (let k: number = first! + rates.length; k < end; ++k) {
-        const after: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] = read(second(k + 1));
+        const after: readonly [
+          IAutoMovieVector3,
+          IAutoMovieVector3 | undefined,
+        ] = read(second(k + 1));
         const moved: number = Math.max(
           Vector3.distance(before![0], after[0]),
           Vector3.distance(before![1] ?? before![0], after[1] ?? after[0]),
@@ -104,7 +98,8 @@ export namespace HumanPerformanceContactSpeed {
       while (end < last && second(end + 1) <= until) ++end;
       extend(end);
       let bound: number = 0;
-      for (let j: number = k - first; j < end - first; ++j) bound = Math.max(bound, rates[j]!);
+      for (let j: number = k - first; j < end - first; ++j)
+        bound = Math.max(bound, rates[j]!);
       return bound;
     };
   }

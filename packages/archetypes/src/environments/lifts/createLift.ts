@@ -13,30 +13,23 @@ import { liftStopHeights } from "./liftStopHeights";
 
 /**
  * Define a lift whose cab, door panels and stopped landings can be staged
- * together by `createEnvironment`. Local +Y is up and +Z points out of the
- * cab. The module exports `<stop>` at the sill, `<stop>/approach` at the
- * landing's outer edge and `<stop>/call` on the fixed button. The cab and
- * landing are ordinary props with `floor` and aperture-width `sill`
- * affordances. Their existing
- * motion-transfer inputs come from `transfer` for a checked open interval.
+ * together by `createEnvironment`. Local +Y is up and +Z points out of the cab.
+ * The module exports `<stop>` at the sill, `<stop>/approach` at the landing's
+ * outer edge and `<stop>/call` on the fixed button. The cab and landing are
+ * ordinary props with `floor` and aperture-width `sill` affordances. Their
+ * existing motion-transfer inputs come from `transfer` for a checked open
+ * interval.
  *
  * @param input Lift geometry, named stops and timeline in shot-local seconds.
  * @returns A reusable environment definition and its boarding query.
- * @throws If the timeline is invalid, or on placement if the stops or shaft are not aligned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the source coordinate convention, supported frames, prop anchors, timeline and failure boundaries.
- * @evidence contracts/development/implementation.md#principled-implementation Validates timeline order and door interlocks, then generates the stock rigid car, admits compatible named stops through the existing built environment, and lowers ordinary stage pieces and object-motion tracks.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reusable definition closes over the immutable schedule. Placement owns geometry and the transfer query projects the already admitted open intervals into the existing motion grammar.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only full-open stationary windows allow a requested crossing. No inference of a missing stop, permissive fallback, artificial stretching or real elevator controller is involved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Timeline preparation is O(K) with O(K + F) input copying for K keys and F stops. Placement resolves F stops, runs the wall and building admission, and lowers tracks for participating animated nodes. Transfer visits only this stop's open windows.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable authored data and open intervals are reused for every occurrence and transfer. The seeded car and geometry are built once per placement because the occurrence namespace, seed and references define that placement.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A module retains only copied authored data and one bounded open-window index. A placement returns its own plain records and opens no resources.
+ * @throws If the timeline is invalid, or on placement if the stops or shaft are
+ *   not aligned.
  */
 export function createLift(input: createLift.IProps): createLift.IDefinition {
   const props: createLift.IProps = structuredClone(input);
-  if (!Number.isFinite(props.gap) || props.gap <= 0)
+  if (props.gap <= 0)
     throw new Error("Lift gap must be a positive finite number of metres.");
-  if (!Number.isFinite(props.landingDepth) || props.landingDepth <= 0)
+  if (props.landingDepth <= 0)
     throw new Error(
       "Lift landing depth must be a positive finite number of metres.",
     );
@@ -79,9 +72,7 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
       ],
     };
   };
-  const transfer = (
-    crossing: createLift.ICrossing,
-  ): createLift.ITransfer => {
+  const transfer = (crossing: createLift.ICrossing): createLift.ITransfer => {
     const { id, stop, direction, start, seconds, lead, landing } = crossing;
     if (!Object.hasOwn(props.stops, stop))
       throw new Error(`Lift ${id} has no stop named ${stop}.`);
@@ -90,8 +81,6 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
     if (direction !== "board" && direction !== "exit")
       throw new Error(`Lift ${id} stop ${stop} requires boarding or exiting.`);
     if (
-      !Number.isFinite(start) ||
-      !Number.isFinite(seconds) ||
       seconds <= 0 ||
       !windows
         .get(stop)
@@ -144,10 +133,7 @@ function prepareSchedule(props: createLift.IProps): Map<string, Interval[]> {
       throw new Error(
         `Lift schedule key ${i} at ${key.stop} requires open or closed doors.`,
       );
-    if (
-      !Number.isFinite(key.seconds) ||
-      (before !== undefined && key.seconds <= before.seconds)
-    )
+    if (before !== undefined && key.seconds <= before.seconds)
       throw new Error(
         `Lift schedule key ${i} at ${key.stop} needs a finite, strictly increasing second.`,
       );
@@ -169,13 +155,7 @@ function prepareSchedule(props: createLift.IProps): Map<string, Interval[]> {
   return byStop;
 }
 
-/**
- * The lift definition's authorable geometry, stop clock and crossing contracts.
- * @evidence contracts/development/common.md#meaningful-documentation The members name the sill references, metre frame and shot-local schedule.
- * @evidence contracts/development/design.md#principled-representation One stop table and one timeline drive the building and motion projections.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Houses the definition's paired input and query types.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no generic simulation or motion-law dialect.
- */
+/** The lift definition's authorable geometry, stop clock and crossing contracts. */
 export namespace createLift {
   /**
    * The sill height relative to the module, or a named world sill to align.
@@ -185,9 +165,9 @@ export namespace createLift {
   export type Stop = number | { anchor: string };
 
   /**
-   * One commanded stopped position at a full door state, on the shot clock.
-   * The doors stay closed while the cab travels between stops. At one stop
-   * the cab stays still and the doors interpolate between the keyed states.
+   * One commanded stopped position at a full door state, on the shot clock. The
+   * doors stay closed while the cab travels between stops. At one stop the cab
+   * stays still and the doors interpolate between the keyed states.
    */
   export interface IKey {
     /** Finite shot-local second, strictly increasing from zero. */
@@ -201,18 +181,24 @@ export namespace createLift {
   }
 
   /**
-   * Authorable shaft and schedule settings.
-   * The stock car determines the aperture for both door layers. Adjacent sills
-   * must be farther apart than the door height for their openings to fit.
+   * Authorable shaft and schedule settings. The stock car determines the
+   * aperture for both door layers. Adjacent sills must be farther apart than
+   * the door height for their openings to fit.
    */
   export interface IProps {
-    /** At least two named local-height or anchor constraints on one vertical shaft. */
+    /**
+     * At least two named local-height or anchor constraints on one vertical
+     * shaft.
+     */
     stops: Readonly<Record<string, Stop>>;
 
     /** At least two keys from time zero, in strictly increasing seconds. */
     schedule: readonly IKey[];
 
-    /** Metres between the cab floor edge and the fixed landing edge, greater than the cab leaf depth. */
+    /**
+     * Metres between the cab floor edge and the fixed landing edge, greater
+     * than the cab leaf depth.
+     */
     gap: number;
 
     /** Positive landing floor depth beyond its edge, metres along local +Z. */
@@ -222,24 +208,34 @@ export namespace createLift {
     car?: Omit<createElevator.IParams, "id">;
   }
 
-  /** A prop surface selector of the support-transfer grammar: a prop subject id and its surface affordance id. */
+  /**
+   * A prop surface selector of the support-transfer grammar: a prop subject id
+   * and its surface affordance id.
+   */
   export type ISurface = IAutoMovieMotionHumanSupportTransfer.ISurface;
 
-  /** The foot, duration and destination station a crossing hands to the support-transfer grammar unchanged. */
+  /**
+   * The foot, duration and destination station a crossing hands to the
+   * support-transfer grammar unchanged.
+   */
   export type ITiming = Pick<
     IAutoMovieMotionHumanSupportTransfer,
     "lead" | "seconds" | "landing"
   >;
 
-  /** The support-transfer input `transfer` returns: both surfaces plus the crossing's foot, duration and station. Docking is left at its stationary default. */
+  /**
+   * The support-transfer input `transfer` returns: both surfaces plus the
+   * crossing's foot, duration and station. Docking is left at its stationary
+   * default.
+   */
   export type ITransfer = Pick<
     IAutoMovieMotionHumanSupportTransfer,
     "from" | "to" | "lead" | "seconds" | "landing"
   >;
 
   /**
-   * One shot-local transfer between the named landing and cab surfaces.
-   * The stop and time select a docked window. The leading foot and optional
+   * One shot-local transfer between the named landing and cab surfaces. The
+   * stop and time select a docked window. The leading foot and optional
    * destination-surface coordinates use the existing support-transfer grammar.
    */
   export interface ICrossing extends ITiming {
@@ -257,9 +253,9 @@ export namespace createLift {
   }
 
   /**
-   * A reusable callable lift module with a boarding admission query.
-   * The same schedule drives the placed lift and checks timing for a crossing
-   * of any occurrence. The support-transfer law checks the actor's motion.
+   * A reusable callable lift module with a boarding admission query. The same
+   * schedule drives the placed lift and checks timing for a crossing of any
+   * occurrence. The support-transfer law checks the actor's motion.
    */
   export interface IDefinition extends IAutoMovieEnvironmentModule {
     /**

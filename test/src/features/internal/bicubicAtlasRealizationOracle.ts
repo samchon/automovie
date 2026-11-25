@@ -2,9 +2,15 @@ import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
 
 import { nclose } from "../internal/nclose";
 
-/** Independent indexed-face and signed-area measurements for the public atlas realization scenarios. */
+/**
+ * Independent indexed-face and signed-area measurements for the public atlas
+ * realization scenarios.
+ */
 export namespace bicubicAtlasRealizationOracle {
-  /** Independent indexed-face measurements for a curve translated along the y station axis. */
+  /**
+   * Independent indexed-face measurements for a curve translated along the y
+   * station axis.
+   */
   export const translatedFaces: (
     positions: readonly number[],
     indices: readonly number[],
@@ -51,8 +57,7 @@ export namespace bicubicAtlasRealizationOracle {
       string,
       { a: number; b: number; uses: number; direction: number }
     > = new Map();
-    let finite: boolean =
-        indices.length > 0 && positions.every(Number.isFinite),
+    let finite: boolean = indices.length > 0,
       flatAlongStation: boolean = true,
       oriented: boolean = true,
       area: number = 0,
@@ -61,8 +66,7 @@ export namespace bicubicAtlasRealizationOracle {
       const ids: number[] = indices.slice(i, i + 3);
       if (
         !ids.every(
-          (id: number): boolean =>
-            Number.isSafeInteger(id) && id >= 0 && id < positions.length / 3,
+          (id: number): boolean => id >= 0 && id < positions.length / 3,
         )
       ) {
         finite = false;
@@ -81,7 +85,7 @@ export namespace bicubicAtlasRealizationOracle {
           a[0]! * b[1]! - a[1]! * b[0]!,
         ],
         length: number = Math.hypot(...n);
-      finite &&= Number.isFinite(length) && length > 0;
+      finite &&= length > 0;
       flatAlongStation &&= Math.abs(n[1]!) <= determinantAllowance;
       oriented &&=
         n[0]! * (p[0]![0]! + p[1]![0]! + p[2]![0]!) +
@@ -161,7 +165,10 @@ export namespace bicubicAtlasRealizationOracle {
     };
   };
 
-  /** Measure physical area from the output itself without requiring one particular square triangulation. */
+  /**
+   * Measure physical area from the output itself without requiring one
+   * particular square triangulation.
+   */
   export const squareArea: (
     result: ReturnType<typeof realizeAutoMovieBicubicAtlas64>,
   ) => number = (

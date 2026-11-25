@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewOutline.ts#AutoMovieViewOutline
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes the input curve from the final loft and station derivatives from parameter derivatives at a pole.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The scalar source shared by lofting, origin placement and inspection: a default natural cubic or explicitly requested C2 quintic knot jets/range, in station or a selected root-distance/angle parameter: companion namespace of 11 members (`IEnds`, `IOutline`, `IFailure`, `IReading`, `create`, `criticalStations`, ...); units and frames named in its text: second, degree, world, frame, frames. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewOutline` in packages/engine/src/geometry/construction/AutoMovieViewOutline.ts; its surface is the 11 members listed and the text shows 64 other files naming it, mostly packages/human (43), packages/engine (11), test (10), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewOutline.ts#AutoMovieViewOutline.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

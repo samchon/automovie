@@ -1,21 +1,3 @@
-# src/handling/HumanGrip.ts#HumanGrip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which digits close per grip kind, the frame the curl runs in, where phalanx radius and tip come from, and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Canonical digit identities, body-declared capsule geometry, clinical tuples and world hand/collider frames describe the existing grip without another rig or pose representation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Five operations and one digit-order table serve grasp closure, finger extraction and aperture readers; poseBones owns canonical FK and curlChainUntilContact owns numerical contact search.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing capsules still throw. The existing minimum-radius uniform chain approximates wider phalanges, so exact drawn-surface contact is not certified; no new radius guess, target proxy or numerical repair is added.
-
 # src/handling/HumanGrip.ts#HumanGrip.bones
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -84,7 +66,7 @@ States start angles, hand/object world frames, digit ordering and returned clini
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-One rigid transform carries the world colliders into the rest hand's frame, then the engine's ordered first-contact curl (GraspIt!'s auto-grasp) closes each chain within its range of motion.
+One rigid transform carries the world colliders into the rest hand's frame, then the engine's ordered first-contact curl (the auto-grasp stopping rule of Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110) closes each chain within its range of motion.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -6,6 +6,7 @@ import type {
   IAutoMovieSolidSharedCurve,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
@@ -23,39 +24,67 @@ type IPoint = IAutoMovieSolidIntersection.IPoint;
 type IChart = ReturnType<IAutoMovieSolidSharedCurve.Loop>;
 /** Contact at one clock, or the exact premise which refused it. */
 type Reading = { point: IPoint; gap: number } | string;
-const { combine, cross, dot, norm, scale, solve2, sub, unit }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
+const {
+  combine,
+  cross,
+  dot,
+  norm,
+  scale,
+  solve2,
+  sub,
+  unit,
+}: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
- * A join's contact as a declared closed loop on the host that both surfaces share, in place of a traced intersection: the curve of a
- * mixed join, along which the part runs on from the host where the two are tangent and crosses it elsewhere.
+ * A join's contact as a declared closed loop on the host that both surfaces
+ * share, in place of a traced intersection: the curve of a mixed join, along
+ * which the part runs on from the host where the two are tangent and crosses it
+ * elsewhere.
  *
- * A trace solves `A = B` with the Jacobian `[A_s, A_phi, -B_y, -B_theta]`, which is singular where the two normals are parallel, so a
- * contact that is tangential over an arc cannot be traced however it is parameterized. A shared boundary needs no trace: one owner
- * supplies the loop `x(t) = (y(t), theta(t))` on the host's chart with two derivatives (a port curve, a face's skin cut by a surface
- * fixed in a frame), and the part passes through it by construction. The curve is then `C(t) = B(x(t))` with `C' = B_y y' + B_theta
- * theta'` and `C'' = Q_B + B_y y'' + B_theta theta''` exactly, and the part's preimage is the foot of `C(t)` on the part, solved by
- * Newton on `A_s . (A - C) = 0`, `A_phi . (A - C) = 0`, a problem that stays regular at any angle between the surfaces. The part's
- * rates solve `I_A (s', phi') = (A_s . C', A_phi . C')` and `I_A (s'', phi'') = (A_s . (C'' - Q_A), A_phi . (C'' - Q_A))`, exact
- * where the loop lies on the part and within the gap's order where it stands off by less than the tolerance.
- * When an authored source supplies both charts, map both actual surface jets at each clock and compare their signed world 2-jets.
- * Those same addresses then drive the rails and trims.
+ * A trace solves `A = B` with the Jacobian `[A_s, A_phi, -B_y, -B_theta]`,
+ * which is singular where the two normals are parallel, so a contact that is
+ * tangential over an arc cannot be traced however it is parameterized. A shared
+ * boundary needs no trace: one owner supplies the loop `x(t) = (y(t),
+ * theta(t))` on the host's chart with two derivatives (a port curve, a face's
+ * skin cut by a surface fixed in a frame), and the part passes through it by
+ * construction. The curve is then `C(t) = B(x(t))` with `C' = B_y y' + B_theta
+ * theta'` and `C'' = Q_B + B_y y'' + B_theta theta''` exactly, and the part's
+ * preimage is the foot of `C(t)` on the part, solved by Newton on `A_s . (A -
+ * C) = 0`, `A_phi . (A - C) = 0`, a problem that stays regular at any angle
+ * between the surfaces. The part's rates solve `I_A (s', phi') = (A_s . C',
+ * A_phi . C')` and `I_A (s'', phi'') = (A_s . (C'' - Q_A), A_phi . (C'' -
+ * Q_A))`, exact where the loop lies on the part and within the gap's order
+ * where it stands off by less than the tolerance. When an authored source
+ * supplies both charts, map both actual surface jets at each clock and compare
+ * their signed world 2-jets. Those same addresses then drive the rails and
+ * trims.
  *
- * What the surfaces decide, with no arc declared: the turn between the two outward normals at each point is the fold's angle, which a
- * `fold` width law reads (`AutoMovieConstructionWidths`); a point where the tangent planes meet under `grazing` is on a smooth arc
- * and any other on a fold arc (`arc`). What the loop decides is only what the normals cannot (`toward`): the host's rail stands
- * outside the loop at every point, and on a smooth arc the part's rail stands where the part runs on from the host across the loop.
- * On a fold arc the part's side is the normals' own, as a traced join reads it. The two readings of the part's side agree wherever
- * both are defined and the part rises from the host inside the loop; a part whose side reverses between neighbouring points passes
- * under its host along an arc and is refused.
+ * What the surfaces decide, with no arc declared: the turn between the two
+ * outward normals at each point is the fold's angle, which a `fold` width law
+ * reads (`AutoMovieConstructionWidths`); a point where the tangent planes meet
+ * under `grazing` is on a smooth arc and any other on a fold arc (`arc`). What
+ * the loop decides is only what the normals cannot (`toward`): the host's rail
+ * stands outside the loop at every point, and on a smooth arc the part's rail
+ * stands where the part runs on from the host across the loop. On a fold arc
+ * the part's side is the normals' own, as a traced join reads it. The two
+ * readings of the part's side agree wherever both are defined and the part
+ * rises from the host inside the loop; a part whose side reverses between
+ * neighbouring points passes under its host along an arc and is refused.
  */
 export namespace AutoMovieSolidSharedCurve {
   /** Newton steps of one foot. */
   export const STEPS: number = 40;
 
-  /** Relative size of the last foot step, of one millimetre plus the point's distance from the origin, as `AutoMovieSolidRail.ROUNDING`. */
+  /**
+   * Relative size of the last foot step, of one millimetre plus the point's
+   * distance from the origin, as `AutoMovieSolidRail.ROUNDING`.
+   */
   export const ROUNDING: number = 1e-12;
 
-  /** The grid a foot starts from where no start is given: stations by phases over the part's declared domain. */
+  /**
+   * The grid a foot starts from where no start is given: stations by phases
+   * over the part's declared domain.
+   */
   export const GRID: [number, number] = [33, 64];
 
   /**
@@ -64,8 +93,12 @@ export namespace AutoMovieSolidSharedCurve {
    * @param input The surfaces, the loop and the limits.
    * @returns The contact, or null with one diagnostic.
    */
-  export function create(input: IAutoMovieSolidSharedCurve.IInput): IAutoMovieSolidSharedCurve.IResult {
-    const host: IAutoMovieSolidAtlas = AutoMovieSolidIntersection.atlas(input.host);
+  export function create(
+    input: IAutoMovieSolidSharedCurve.IInput,
+  ): IAutoMovieSolidSharedCurve.IResult {
+    const host: IAutoMovieSolidAtlas = AutoMovieSolidIntersection.atlas(
+      input.host,
+    );
     const index: number = input.face ?? 0;
     const face: IAutoMovieSolidSurface = host.faces[index]!;
     const part: IAutoMovieSolidSurface = input.part;
@@ -74,29 +107,59 @@ export namespace AutoMovieSolidSharedCurve {
     const period: number = part.period ?? turn;
 
     /** One refusal. */
-    const refuse = (contract: string, detail: string): IAutoMovieSolidSharedCurve.IResult => ({
+    const refuse = (
+      contract: string,
+      detail: string,
+    ): IAutoMovieSolidSharedCurve.IResult => ({
       shared: null,
       diagnostics: [{ producer, level: 6, contract, detail }],
     });
 
-    /** The world curve's signed velocity and acceleration through an original chart. */
+    /**
+     * The world curve's signed velocity and acceleration through an original
+     * chart.
+     */
     const derivatives = (chart: IChart, jet: IJet): [Vec3, Vec3] => [
-      combine([[chart.first[0], jet.u], [chart.first[1], jet.v]]),
       combine([
-        [chart.first[0] ** 2, jet.uu], [2 * chart.first[0] * chart.first[1], jet.uv], [chart.first[1] ** 2, jet.vv],
-        [chart.second[0], jet.u], [chart.second[1], jet.v],
+        [chart.first[0], jet.u],
+        [chart.first[1], jet.v],
+      ]),
+      combine([
+        [chart.first[0] ** 2, jet.uu],
+        [2 * chart.first[0] * chart.first[1], jet.uv],
+        [chart.first[1] ** 2, jet.vv],
+        [chart.second[0], jet.u],
+        [chart.second[1], jet.v],
       ]),
     ];
 
     /** The projected and paired paths publish the same contact record. */
-    const contact = (t: number, c: IChart, d: IChart, b: IJet, a: IJet, tangent: Vec3, second: Vec3): Reading => {
+    const contact = (
+      t: number,
+      c: IChart,
+      d: IChart,
+      b: IJet,
+      a: IJet,
+      tangent: Vec3,
+      second: Vec3,
+    ): Reading => {
       const nA: Vec3 | null = unit(cross(a.u, a.v));
       const nB: Vec3 | null = unit(cross(b.u, b.v));
-      if (nA === null || nB === null) return `a normal vanishes at the loop point [${c.point[0]}, ${c.point[1]}]`;
+      if (nA === null || nB === null)
+        return `a normal vanishes at the loop point [${c.point[0]}, ${c.point[1]}]`;
       return {
         point: {
-          t, phi: d.point[1], s: d.point[0], face: index, y: c.point[0], theta: c.point[1],
-          point: b.p, tangent, second, rate: [...d.first, ...c.first], rate2: [...d.second, ...c.second],
+          t,
+          phi: d.point[1],
+          s: d.point[0],
+          face: index,
+          y: c.point[0],
+          theta: c.point[1],
+          point: b.p,
+          tangent,
+          second,
+          rate: [...d.first, ...c.first],
+          rate2: [...d.second, ...c.second],
           angle: Math.acos(Math.min(1, Math.abs(dot(nA, nB)))),
         },
         gap: norm(sub(a.p, b.p)),
@@ -106,10 +169,15 @@ export namespace AutoMovieSolidSharedCurve {
     /** Compare analytic world vectors at the kernel's roundoff scale. */
     const sameVector = (a: Vec3, b: Vec3): boolean => {
       const scale: number = Math.max(norm(a), norm(b));
-      return Number.isFinite(scale) && norm(sub(a, b)) <= ROUNDING * (1 + scale);
+      return (
+        Number.isFinite(scale) && norm(sub(a, b)) <= ROUNDING * (1 + scale)
+      );
     };
 
-    /** Read the two original charts, or run the legacy foot from its continuation guess. */
+    /**
+     * Read the two original charts, or run the legacy foot from its
+     * continuation guess.
+     */
     const evaluate = (t: number, guess: readonly [number, number]): Reading => {
       let c: IChart;
       let d: IChart | undefined;
@@ -120,16 +188,24 @@ export namespace AutoMovieSolidSharedCurve {
         if (error instanceof AutoMovieLoftAdmissionError) return error.message;
         throw error;
       }
-      const b: IJet | null = AutoMovieSolidDomain.jet(face, c.point[0], c.point[1]);
-      if (b === null) return `the loop leaves the host face's domain at [${c.point[0]}, ${c.point[1]}]`;
+      const b: IJet | null = AutoMovieSolidDomain.jet(
+        face,
+        c.point[0],
+        c.point[1],
+      );
+      if (b === null)
+        return `the loop leaves the host face's domain at [${c.point[0]}, ${c.point[1]}]`;
 
       const [tangent, second]: [Vec3, Vec3] = derivatives(c, b);
       if (input.partAt !== undefined) {
-        if (d === undefined) return "the original part chart reader returned no address";
+        if (d === undefined)
+          return "the original part chart reader returned no address";
         const a: IJet | null = AutoMovieSolidDomain.jet(part, ...d.point);
-        if (a === null) return `the original part chart is unavailable at [${d.point.join(", ")}]`;
+        if (a === null)
+          return `the original part chart is unavailable at [${d.point.join(", ")}]`;
         const gap: number = norm(sub(a.p, b.p));
-        if (!(gap <= input.tolerance)) return `the paired original points differ by ${gap} mm`;
+        if (!(gap <= input.tolerance))
+          return `the paired original points differ by ${gap} mm`;
         const [first, next]: [Vec3, Vec3] = derivatives(d, a);
         if (!(norm(tangent) > 0 && sameVector(tangent, first)))
           return `the paired original first derivatives disagree by ${norm(sub(tangent, first))} mm per radian`;
@@ -145,7 +221,8 @@ export namespace AutoMovieSolidSharedCurve {
       let settled: boolean = false;
       for (let step: number = 0; step < STEPS && !settled; ++step) {
         const a: IJet | null = AutoMovieSolidDomain.jet(part, s, phi);
-        if (a === null) return `the part has no jet at [${s}, ${phi}] on the way to the loop point's foot`;
+        if (a === null)
+          return `the part has no jet at [${s}, ${phi}] on the way to the loop point's foot`;
         const r: Vec3 = sub(a.p, b.p);
         const move: [number, number] | null = solve2(
           dot(a.u, a.u) + dot(a.uu, r),
@@ -154,7 +231,11 @@ export namespace AutoMovieSolidSharedCurve {
           dot(a.v, a.v) + dot(a.vv, r),
           [-dot(a.u, r), -dot(a.v, r)],
         );
-        if (move === null || !Number.isFinite(move[0]) || !Number.isFinite(move[1]))
+        if (
+          move === null ||
+          !Number.isFinite(move[0]) ||
+          !Number.isFinite(move[1])
+        )
           return `the part's foot of the loop point is singular at [${s}, ${phi}]`;
         s += move[0];
         phi += move[1];
@@ -166,16 +247,22 @@ export namespace AutoMovieSolidSharedCurve {
             ]),
           ) <= reach;
       }
-      if (!settled) return `the part's foot of the loop point did not settle in ${STEPS} steps`;
+      if (!settled)
+        return `the part's foot of the loop point did not settle in ${STEPS} steps`;
       const a: IJet | null = AutoMovieSolidDomain.jet(part, s, phi);
-      if (a === null) return `the part has no jet at the loop point's foot [${s}, ${phi}]`;
+      if (a === null)
+        return `the part has no jet at the loop point's foot [${s}, ${phi}]`;
 
       // The part's rates along the curve: the tangent and the second derivative read in the part's own tangent plane.
       const E: number = dot(a.u, a.u);
       const F: number = dot(a.u, a.v);
       const G: number = dot(a.v, a.v);
-      const rate: [number, number] | null = solve2(E, F, F, G, [dot(a.u, tangent), dot(a.v, tangent)]);
-      if (rate === null) return `the part's chart is singular at the loop point's foot [${s}, ${phi}]`;
+      const rate: [number, number] | null = solve2(E, F, F, G, [
+        dot(a.u, tangent),
+        dot(a.v, tangent),
+      ]);
+      if (rate === null)
+        return `the part's chart is singular at the loop point's foot [${s}, ${phi}]`;
       const rest: Vec3 = sub(
         second,
         combine([
@@ -184,25 +271,56 @@ export namespace AutoMovieSolidSharedCurve {
           [rate[1] * rate[1], a.vv],
         ]),
       );
-      const rate2: [number, number] | null = solve2(E, F, F, G, [dot(a.u, rest), dot(a.v, rest)]);
-      if (rate2 === null) return `the part's chart has no second rate at the loop point's foot [${s}, ${phi}]`;
-      return contact(t, c, { point: [s, phi], first: rate, second: rate2 }, b, a, tangent, second);
+      const rate2: [number, number] | null = solve2(E, F, F, G, [
+        dot(a.u, rest),
+        dot(a.v, rest),
+      ]);
+      if (rate2 === null)
+        return `the part's chart has no second rate at the loop point's foot [${s}, ${phi}]`;
+      return contact(
+        t,
+        c,
+        { point: [s, phi], first: rate, second: rate2 },
+        b,
+        a,
+        tangent,
+        second,
+      );
     };
 
     // Where the first foot starts: the given chart point, or the nearest point of a grid over the part.
-    if (!(Number.isInteger(input.count) && input.count >= 8)) return refuse("shared loop", `the count ${input.count} is not an integer of at least 8`);
+    if (!(Number.isInteger(input.count) && input.count >= 8))
+      return refuse(
+        "shared loop",
+        `the count ${input.count} is not an integer of at least 8`,
+      );
     let guess: [number, number];
     if (input.partAt !== undefined) guess = [0, 0];
-    else if (input.start !== undefined) guess = [input.start[0], input.start[1]];
+    else if (input.start !== undefined)
+      guess = [input.start[0], input.start[1]];
     else {
-      if (part.domain === undefined) return refuse("shared loop", "a part without a declared domain needs the start of its first foot");
-      const origin: IJet | null = AutoMovieSolidDomain.jet(face, input.loop(0).point[0], input.loop(0).point[1]);
-      if (origin === null) return refuse("shared loop", "the loop's first point lies outside the host face's domain");
+      if (part.domain === undefined)
+        return refuse(
+          "shared loop",
+          "a part without a declared domain needs the start of its first foot",
+        );
+      const origin: IJet | null = AutoMovieSolidDomain.jet(
+        face,
+        input.loop(0).point[0],
+        input.loop(0).point[1],
+      );
+      if (origin === null)
+        return refuse(
+          "shared loop",
+          "the loop's first point lies outside the host face's domain",
+        );
       guess = [part.domain[0], 0];
       let least: number = Infinity;
       for (let i: number = 0; i < GRID[0]; ++i)
         for (let j: number = 0; j < GRID[1]; ++j) {
-          const s: number = part.domain[0] + ((part.domain[1] - part.domain[0]) * i) / (GRID[0] - 1);
+          const s: number =
+            part.domain[0] +
+            ((part.domain[1] - part.domain[0]) * i) / (GRID[0] - 1);
           const phi: number = (period * j) / GRID[1];
           const p: Vec3 = part.point?.(s, phi) ?? part.jet(s, phi).p;
           const distance: number = norm(sub(p, origin.p));
@@ -216,7 +334,8 @@ export namespace AutoMovieSolidSharedCurve {
     for (let i: number = 0; i < input.count; ++i) {
       const t: number = (turn * i) / input.count;
       const read: { point: IPoint; gap: number } | string = evaluate(t, guess);
-      if (typeof read === "string") return refuse("shared loop", `at clock ${t}: ${read}`);
+      if (typeof read === "string")
+        return refuse("shared loop", `at clock ${t}: ${read}`);
       points.push(read.point);
       gaps.push(read.gap);
       guess = [read.point.s, read.point.phi];
@@ -227,11 +346,14 @@ export namespace AutoMovieSolidSharedCurve {
       for (let i: number = 0; i < input.count; ++i) {
         const t: number = (turn * (i + 0.5)) / input.count;
         const read: Reading = evaluate(t, guess);
-        if (typeof read === "string") return refuse("shared loop", `at interleaved clock ${t}: ${read}`);
+        if (typeof read === "string")
+          return refuse("shared loop", `at interleaved clock ${t}: ${read}`);
       }
 
     // A part that leaves the loop is refused with the arc it leaves over: the longest run of points off it, from its first clock to its last.
-    const off: boolean[] = gaps.map((gap: number): boolean => !(gap <= input.tolerance));
+    const off: boolean[] = gaps.map(
+      (gap: number): boolean => !(gap <= input.tolerance),
+    );
     if (off.some((x: boolean): boolean => x)) {
       const worst: number = gaps.indexOf(Math.max(...gaps));
       let from: number = 0;
@@ -253,9 +375,16 @@ export namespace AutoMovieSolidSharedCurve {
 
     // One turn must bring the foot back onto itself, the part's phase by whole periods.
     const first: IPoint = points[0]!;
-    const closing: { point: IPoint; gap: number } | string = evaluate(turn, guess);
-    if (typeof closing === "string") return refuse("closed loop", `at the end of the turn: ${closing}`);
-    const partWinding: number = part.period === undefined ? 0 : Math.round((closing.point.phi - first.phi) / period);
+    const closing: { point: IPoint; gap: number } | string = evaluate(
+      turn,
+      guess,
+    );
+    if (typeof closing === "string")
+      return refuse("closed loop", `at the end of the turn: ${closing}`);
+    const partWinding: number =
+      part.period === undefined
+        ? 0
+        : Math.round((closing.point.phi - first.phi) / period);
     const start: IJet = part.jet(first.s, first.phi);
     const miss: number = norm(
       combine([
@@ -264,25 +393,51 @@ export namespace AutoMovieSolidSharedCurve {
       ]),
     );
     if (!(miss <= 10 * input.tolerance))
-      return refuse("closed loop", `the part's foot returns ${miss} mm from its start after one turn of the loop`);
-    if (input.partAt !== undefined &&
-        (!sameVector(first.tangent, closing.point.tangent) || !sameVector(first.second, closing.point.second)))
-      return refuse("closed loop", "the authored boundary does not return to its signed first and second derivatives");
-    const winding: number = face.period === undefined ? 0 : Math.round((closing.point.theta - first.theta) / face.period);
+      return refuse(
+        "closed loop",
+        `the part's foot returns ${miss} mm from its start after one turn of the loop`,
+      );
+    if (
+      input.partAt !== undefined &&
+      (!sameVector(first.tangent, closing.point.tangent) ||
+        !sameVector(first.second, closing.point.second))
+    )
+      return refuse(
+        "closed loop",
+        "the authored boundary does not return to its signed first and second derivatives",
+      );
+    const winding: number =
+      face.period === undefined
+        ? 0
+        : Math.round((closing.point.theta - first.theta) / face.period);
     if (winding !== 0)
-      return refuse("enclosed loop", `the loop winds ${winding} times round the host's phase: it must enclose a region of the host's chart`);
+      return refuse(
+        "enclosed loop",
+        `the loop winds ${winding} times round the host's phase: it must enclose a region of the host's chart`,
+      );
 
     // The loop's sense in the host's chart: its outside is on the right of a counter-clockwise loop and on the left of a clockwise one.
     let area: number = 0;
     points.forEach((p: IPoint, i: number): void => {
       const q: IPoint = points[(i + 1) % points.length]!;
-      area += (p.y - first.y) * (q.theta - first.theta) - (q.y - first.y) * (p.theta - first.theta);
+      area +=
+        (p.y - first.y) * (q.theta - first.theta) -
+        (q.y - first.y) * (p.theta - first.theta);
     });
-    if (!(area !== 0)) return refuse("enclosed loop", "the loop encloses no area of the host's chart");
+    if (!(area !== 0))
+      return refuse(
+        "enclosed loop",
+        "the loop encloses no area of the host's chart",
+      );
     const sense: number = area > 0 ? 1 : -1;
 
-    /** Both rails' sides at a point: the host's outside the loop, the part's from the normals on a fold arc and from the loop on a smooth one. */
-    const toward: IAutoMovieSolidSharedCurve.IShared["toward"] = (p: IPoint): IAutoMovieSolidRail.IToward | null => {
+    /**
+     * Both rails' sides at a point: the host's outside the loop, the part's
+     * from the normals on a fold arc and from the loop on a smooth one.
+     */
+    const toward: IAutoMovieSolidSharedCurve.IShared["toward"] = (
+      p: IPoint,
+    ): IAutoMovieSolidRail.IToward | null => {
       const b: IJet = face.jet(p.y, p.theta);
       const a: IJet = part.jet(p.s, p.phi);
       const along: number = dot(p.tangent, p.tangent);
@@ -293,7 +448,9 @@ export namespace AutoMovieSolidSharedCurve {
         [sense * p.rate[3], b.u],
         [-sense * p.rate[2], b.v],
       ]);
-      const hostSide: Vec3 | null = unit(sub(outward, scale(p.tangent, dot(outward, p.tangent) / along)));
+      const hostSide: Vec3 | null = unit(
+        sub(outward, scale(p.tangent, dot(outward, p.tangent) / along)),
+      );
       const nB: Vec3 | null = unit(cross(b.u, b.v));
       const nA: Vec3 | null = unit(cross(a.u, a.v));
       if (hostSide === null || nB === null || nA === null) return null;
@@ -304,17 +461,24 @@ export namespace AutoMovieSolidSharedCurve {
       const product: number =
         p.angle < input.grazing
           ? -dot(square, hostSide)
-          : dot(square, nB) * face.orientation * (input.keep === "outside" ? 1 : -1);
+          : dot(square, nB) *
+            face.orientation *
+            (input.keep === "outside" ? 1 : -1);
       if (!(Math.abs(product) > 0)) return null;
       return { part: scale(square, product > 0 ? 1 : -1), host: hostSide };
     };
 
     // One kept side all round: neighbouring points' part directions turn with the loop, never against each other.
-    let before: IAutoMovieSolidRail.IToward | null = toward(points[points.length - 1]!);
+    let before: IAutoMovieSolidRail.IToward | null = toward(
+      points[points.length - 1]!,
+    );
     for (const p of points) {
       const here: IAutoMovieSolidRail.IToward | null = toward(p);
       if (here === null || before === null)
-        return refuse("one kept side", `no side can be read at clock ${p.t}: a direction square to the curve vanishes`);
+        return refuse(
+          "one kept side",
+          `no side can be read at clock ${p.t}: a direction square to the curve vanishes`,
+        );
       if (!(dot(here.part, before.part) > 0))
         return refuse(
           "one kept side",
@@ -345,7 +509,8 @@ export namespace AutoMovieSolidSharedCurve {
           },
         },
         toward,
-        arc: (p: IPoint): "smooth" | "fold" => (p.angle < input.grazing ? "smooth" : "fold"),
+        arc: (p: IPoint): "smooth" | "fold" =>
+          p.angle < input.grazing ? "smooth" : "fold",
       },
       diagnostics: [],
     };

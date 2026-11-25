@@ -1,5 +1,6 @@
 /**
- * Computational role of an authored service node, independent of equipment catalog geometry.
+ * Computational role of an authored service node, independent of equipment
+ * catalog geometry.
  */
 export type AutoMovieServiceNodeKind =
   /** Where the medium enters or leaves the building: a main, a panel, a stack. */

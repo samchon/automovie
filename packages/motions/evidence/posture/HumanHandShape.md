@@ -2,29 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the module gives and where the angles are sourced.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One function from a closed shape name to clinical flexion per finger segment.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The tables, and the direction a digit takes under them (`digit`); and the least turn that aims a digit (`aim`); `HumanHand` owns the shape names and calls the table as its `shape`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No hand is special: the side only prefixes the bone names.
-
-# src/posture/HumanHandShape.ts#HumanHandShape.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the inputs, the unit and what the result covers.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A fist and the curled fingers of a point use the active closure angles documented in `HumanHand`. A flat hand is straight. A relaxed finger takes the position of rest from the straight canonical finger.
+A fist and the curled fingers of a point use the active closure angles documented in `HumanHand`. A flat hand is straight with its thumb laid in the palm's plane. A bridge is straight with its thumb at its neutral, spread from the forefinger. A relaxed finger takes the position of rest from the straight canonical finger.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -144,11 +126,11 @@ States the frame, the curl's reading and the measured defect.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The shape's angles plus the curl on the fingers, as `AutoMovieMotionHumanHand` displays them, posed by forward kinematics, the surface read on its distal phalanx's region.
+The shape's angles plus the curl on the fingers, as `AutoMovieMotionHumanHand` displays them, posed by forward kinematics, the surface read on its distal phalanx's region; a pad is the support of the digit's own collider along the pad's outward normal (`physicalShapeSurfaceAnchor`), so the pad a goal lays on a surface and the collider the floor and contact audits read are one geometry.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One pose, one region placement and one change of frame.
+One pose, one region placement, a pad's collider support, and one change of frame.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -156,12 +138,12 @@ The curl is not added to the thumb, whose flexion closes across the palm.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Remembered per body, side, surface, shape and curl.
+Reuses the body's forward kinematics, its surface frames and its collider placement.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One forward kinematics per body, side, surface, shape and curl.
+One forward kinematics, and for a pad one collider placement, per call.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The memo is weak in the body.
+Retains nothing; the frame is the caller's.

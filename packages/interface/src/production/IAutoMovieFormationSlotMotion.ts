@@ -4,11 +4,21 @@ import type { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotStat
 /**
  * One source-authored exception naming members inside one compiled formation.
  *
- * Unit-level cues move the whole formation; this sparse channel names individual slot exceptions. Stored cue data grows with authored cues and slot references rather than requiring a row for every untouched member. Sampling scans supplied cues and slot lists per query, and rendering or validation still performs its own population work.
+ * Unit-level cues move the whole formation; this sparse channel names
+ * individual slot exceptions. Stored cue data grows with authored cues and slot
+ * references rather than requiring a row for every untouched member. Sampling
+ * scans supplied cues and slot lists per query, and rendering or validation
+ * still performs its own population work.
  *
- * Sampled exactly as {@link IAutoMovieFormationMotion} is: a member holds the identity state before its first cue, interpolates inside a cue, and retains a cue's `to` state after it ends. So a member removed at four seconds by a cue whose `to` is absent stays absent for the rest of the shot without the author restating it, and a member that falls stays down.
+ * Sampled exactly as {@link IAutoMovieFormationMotion} is: a member holds the
+ * identity state before its first cue, interpolates inside a cue, and retains a
+ * cue's `to` state after it ends. So a member removed at four seconds by a cue
+ * whose `to` is absent stays absent for the rest of the shot without the author
+ * restating it, and a member that falls stays down.
  *
- * A named slot stays an instanced member. Promotion to a named actor is the other, dearer thing: it exists, it is capped, and this is deliberately not it.
+ * A named slot stays an instanced member. Promotion to a named actor is the
+ * other, dearer thing: it exists, it is capped, and this is deliberately not
+ * it.
  */
 export interface IAutoMovieFormationSlotMotion {
   /** Stable cue id, unique inside one shot. */
@@ -20,7 +30,8 @@ export interface IAutoMovieFormationSlotMotion {
   /**
    * Zero-based slots this exception names, unique and below the unit's count.
    *
-   * Several slots share one cue when the same thing happens to each of them at the same time; a member that needs its own timing gets its own cue.
+   * Several slots share one cue when the same thing happens to each of them at
+   * the same time; a member that needs its own timing gets its own cue.
    */
   slots: number[];
 

@@ -22,7 +22,8 @@ import { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
  */
 export namespace AutoMovieMotionAudit {
   /**
-   * Sample all bodies, support windows, speeds, floor clearances and pair contacts.
+   * Sample all bodies, support windows, speeds, floor clearances and pair
+   * contacts.
    */
   export async function run(
     input: IAutoMovieMotionAudit.IInput,
@@ -84,10 +85,6 @@ export namespace AutoMovieMotionAudit {
             frame.bodies[body.id] ?? {},
             seconds,
           );
-          if (!Number.isFinite(value))
-            throw new Error(
-              `Nonfinite motion audit measurement: ${constraint.label}`,
-            );
           if (value < (constraint.minimum ?? -Infinity))
             findings.push({
               seconds,

@@ -1,6 +1,4 @@
-/**
- * The minimum film-layer shape needed to decide beauty composition.
- */
+/** The minimum film-layer shape needed to decide beauty composition. */
 export interface IAutoMovieFilmBeautyLayer {
   /** Sampled contribution in `[0, 1]`, applied to source display bytes. */
   weight: number;

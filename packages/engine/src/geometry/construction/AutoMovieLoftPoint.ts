@@ -90,7 +90,7 @@ export namespace AutoMovieLoftPoint {
       | undefined =
       original === undefined
         ? undefined
-        : original.pointAt?.(s) ?? ((t: number) => original.point(s, t));
+        : (original.pointAt?.(s) ?? ((t: number) => original.point(s, t)));
 
     // A lifted section leaves its plane along the frame normal by the
     // spline of its lift values, evaluated as the x block of a section

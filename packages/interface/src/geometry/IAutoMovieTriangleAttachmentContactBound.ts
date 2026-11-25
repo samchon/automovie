@@ -11,9 +11,7 @@
  * proof false with the measured gap and deficit kept for diagnosis.
  */
 export interface IAutoMovieTriangleAttachmentContactBound {
-  /**
-   * Whether the cap bounds every contact of the complete fan with the support.
-   */
+  /** Whether the cap bounds every contact of the complete fan with the support. */
   proved: boolean;
 
   /**

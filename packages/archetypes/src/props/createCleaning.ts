@@ -22,24 +22,20 @@ const SPONGE: string =
 /**
  * A thing a hand wipes or scrubs with: a cloth folded flat or a sponge.
  *
- * It lies flat on a surface centred over the origin. `grip` is the hold at its middle, pinched for a cloth and closed round for a sponge, its thickness the aperture; `face` its underside, facing down, the side that meets what is wiped.
+ * It lies flat on a surface centred over the origin. `grip` is the hold at its
+ * middle, pinched for a cloth and closed round for a sponge, its thickness the
+ * aperture; `face` its underside, facing down, the side that meets what is
+ * wiped.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The thing.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it lies and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn width, length and thickness.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cloth does not drape and a sponge does not squeeze; both are rigid boxes.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCleaning(
   params: createCleaning.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCleaning.Affordance, createCleaning.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCleaning.Dimension> =
     new AutoMovieArchetypeDrawSession<createCleaning.Dimension>(
@@ -99,14 +95,7 @@ export function createCleaning(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createCleaning}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two and one band per dimension each.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hold and the wiping face.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, the cloth's folded in four; the sponge's weight is not given, so its mass band is provisional.
- */
+/** Companion types and bands of {@link createCleaning}. */
 export namespace createCleaning {
   /** The kinds: a cloth folded in four, a kitchen sponge. */
   export type Kind = "cloth" | "sponge";
@@ -140,7 +129,10 @@ export namespace createCleaning {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
     kind: Kind;

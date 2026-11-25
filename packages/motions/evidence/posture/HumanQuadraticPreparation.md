@@ -1,21 +1,3 @@
-# src/posture/HumanQuadraticPreparation.ts#HumanQuadraticPreparation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the Ruiz source, caller ownership, exact dependency checks, solve-local intervals and absence of retained iterates or adaptive parameters.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups only admitted numeric preparation; positive scaling preserves the original variable and row units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The internal scaled and factor functions serve the existing quadratic solvers without changing their public problem or state.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses no body, plan, fixture key, module cache or approximate numeric equivalence; the caller's record only offers copied dependencies to compare.
-
 # src/posture/HumanQuadraticPreparation.ts#HumanQuadraticPreparation.scaled
 
 ## @evidence contracts/development/implementation.md#principled-implementation

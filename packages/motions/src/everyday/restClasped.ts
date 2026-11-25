@@ -14,16 +14,29 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanTrunk } from "./HumanTrunk";
+import { restForearm } from "./restForearm";
+
+/** The record of `IFrontGoalsPlace`'s site. */
+type IFrontGoalsPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IFrontAtResult`'s site. */
+type IFrontAtResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IFrontAt`'s site. */
+type IFrontAt = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
 
 /**
- * The rest goals of two hands laid one on the other against the trunk: in
- * front of the pelvis or behind it.
+ * The rest goals of two hands laid one on the other against the trunk: in front
+ * of the pelvis or behind it.
  *
- * The left hand lies on the trunk's own surface and the right hand on the
- * left one, both the same way round, as one hand rests on the other:
+ * The left hand lies on the trunk's own surface and the right hand on the left
+ * one, both the same way round, as one hand rests on the other:
  *
- * - In front the left palm lies on the front of the pelvis and the right palm
- *   on the back of the left hand, so both palms face the body.
+ * - In front the left palm lies on the front of the pelvis and the right palm on
+ *   the back of the left hand, so both palms face the body.
  * - Behind, the back of the left hand lies on the sacrum and the back of the
  *   right hand in the left palm, so both palms face back, the fingers of both
  *   hands extended (`behind`).
@@ -31,29 +44,17 @@ import { HumanTrunk } from "./HumanTrunk";
  * The place on the trunk is a point of its colliders on the midline
  * (`HumanTrunk.surface`), and the hand surface faces into the surface's own
  * normal there, so the hand touches the body where the body is. Each hand
- * continues its forearm: the fingers point along the forearm's direction as
- * far as the surface the hand lies on allows, which leaves the wrist near
- * neutral in flexion and deviation. The forearm is the one of the arm's two
- * segments on the shoulder, the wrist and the elbow's bend hint; the wrist
- * follows from the fingers, so the two are settled by a few rounds of
- * substitution.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which surface lies on which, where the place and the hand's turn come from, and which values are provisional.
- * @evidence contracts/development/design.md#principled-representation Two functions that return both hands' goals, since either place holds both hands and the right hand's goal depends on the left one's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two places and the one constant the front place reads; the rest law's goal table is the only caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Returns the rest law's own goal type; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation A point and normal of the true colliders, a comfortable elbow flexion for the height, and a neutral wrist from the arm's triangle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface point per place, one laid hand, one hand stacked on it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is bounded by the regions the trunk names, not moved until a verdict passes; a ray that misses the trunk throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms One demanded trunk/shoulder FK supplies all anatomical points and the 12-step front-height ray-cast bisection; fixed ray direction, arm lengths, hand-local point and rest alignment are prepared once per side. Every ray, world alignment and three actual wrist substitutions per hand remain.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous HumanTrunk.prepare reading shares the fixed posture's FK/collider frames across regions, shoulders and rays. Each side's lazy hand reader shares its unchanged rest basis through HumanHand.prepareAlignment and its existing point-placement owner; each current normal, forward, wrist and ray hit is recomputed.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local trunk and two hand readers end with goal preparation or throw; lazy hand preparation remains after the first actual surface query, and only the returned fresh goals survive, without time/history or body-result caches.
+ * continues its forearm: the fingers point along the forearm's direction as far
+ * as the surface the hand lies on allows, which leaves the wrist near neutral
+ * in flexion and deviation. The forearm is the one of the arm's two segments on
+ * the shoulder, the wrist and the elbow's bend hint; the wrist follows from the
+ * fingers, so the two are settled by a few rounds of substitution.
  */
 export namespace restClasped {
   /**
    * The elbow flexion the hands clasped in front settle at, degrees
-   * (provisional: no measurement of this stance was located; the arms hang
-   * a little short of straight).
+   * (provisional: no measurement of this stance was located; the arms hang a
+   * little short of straight).
    */
   export const FLEXION: number = 30;
 
@@ -61,47 +62,57 @@ export namespace restClasped {
    * Both hands' goals clasped in front of the pelvis.
    *
    * The left palm lies on the front midline of the trunk at the height where
-   * the farther of the two wrists, as both goals place them, is as far from
-   * its shoulder as the arm reaches with the elbow flexed by `FLEXION`; the
+   * the farther of the two wrists, as both goals place them, is as far from its
+   * shoulder as the arm reaches with the elbow flexed by `FLEXION`; the
    * covering hand lies a hand's thickness farther out, so it is usually the
    * one. Found by bisection since a higher place is nearer the shoulder. The
-   * height stays
-   * between the groin and the abdomen regions: a long arm bends more at the
-   * groin and a short one straightens toward the abdomen.
+   * height stays between the groin and the abdomen regions: a long arm bends
+   * more at the groin and a short one straightens toward the abdomen.
    *
    * @param body The body.
    * @param posture The standing posture.
    * @param elbows Each elbow's bend hint, world metres.
    * @returns Both goals.
    * @throws {Error} When the trunk has no front surface at the height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where each palm lies, how the height is found and its bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation A bisection of the height between the groin and abdomen regions on the farther wrist's excess over its arm's reach at `FLEXION`, the excess falling as the place rises toward the shoulders.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface ray per trial height, one laid hand and one stacked on it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height stays inside the regions the trunk names; a ray that misses the trunk throws.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twelve bisection trials, each one ray and two closed-form hand placements.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One trunk reading serves every ray, region and shoulder; each side's hand preparation serves every trial.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function front(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> {
-    const trunk: HumanTrunk.IReading = HumanTrunk.prepare(body, posture, FRAMES);
+    const trunk: HumanTrunk.IReading = HumanTrunk.prepare(
+      body,
+      posture,
+      FRAMES,
+    );
     const ahead: IAutoMovieVector3 = heading(posture);
     const groin: IAutoMovieVector3 = trunk.region("groin").point;
     const abdomen: IAutoMovieVector3 = trunk.region("abdomen").point;
-    const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> = joints(
-      trunk,
+    const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> =
+      joints(trunk);
+    const ray: IAutoMovieVector3 = Vector3.addScaled(
+      groin,
+      ahead,
+      body.measure.stature,
     );
-    const ray: IAutoMovieVector3 = Vector3.addScaled(groin, ahead, body.measure.stature);
     const inward: IAutoMovieVector3 = Vector3.scale(ahead, -1);
-    const layLeft: Lay = prepareLaid(body, "left", "palm", shoulders.left, elbows.left, "relaxed");
-    const layRight: Lay = prepareLaid(body, "right", "palm", shoulders.right, elbows.right, "relaxed");
-    const at: (y: number) => { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = (
-      y: number,
-    ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
+    const layLeft: Lay = prepareLaid(
+      body,
+      "left",
+      "palm",
+      shoulders.left,
+      elbows.left,
+      "relaxed",
+    );
+    const layRight: Lay = prepareLaid(
+      body,
+      "right",
+      "palm",
+      shoulders.right,
+      elbows.right,
+      "relaxed",
+    );
+    const at: (y: number) => IFrontAt = (y: number): IFrontAtResult =>
       trunk.surface(
         {
           ...ray,
@@ -109,44 +120,58 @@ export namespace restClasped {
         },
         inward,
       );
-    const goals: (y: number) => Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> = (
+    const goals: (
+      y: number,
+    ) => Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> = (
       y: number,
     ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> => {
-      const place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = at(y);
+      const place: IFrontGoalsPlace = at(y);
       const left: IAutoMovieMotionHumanRest.IGoal = layLeft(
         place.point,
         place.normal,
       );
       return {
         left,
-        right: stacked(
-          body,
-          left,
-          "handBack",
-          layRight,
-        ),
+        right: stacked(body, left, "handBack", layRight),
       };
     };
     // How far the farther of the two wrists lies beyond its arm's reach at
     // the comfortable flexion, metres.
-    const comfortable: (side: AutoMovieHumanSide) => number = (side: AutoMovieHumanSide): number => {
+    const comfortable: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number => {
       const upper: number = segment(body, side, "UpperArm", "LowerArm");
       const lower: number = segment(body, side, "LowerArm", "Hand");
-      return Math.sqrt(upper * upper + lower * lower +
-        2 * upper * lower * Math.cos((FLEXION * Math.PI) / 180));
+      return Math.sqrt(
+        upper * upper +
+          lower * lower +
+          2 * upper * lower * Math.cos((FLEXION * Math.PI) / 180),
+      );
     };
     const reaches: Record<AutoMovieHumanSide, number> = {
-      left: comfortable("left"), right: comfortable("right"),
+      left: comfortable("left"),
+      right: comfortable("right"),
     };
     const excess: (y: number) => number = (y: number): number => {
-      const both: Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> = goals(y);
+      const both: Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> =
+        goals(y);
       let far: number = -Infinity;
       for (const side of ["left", "right"] as const) {
         const goal: IAutoMovieMotionHumanRest.IGoal = both[side];
-        far = Math.max(far, Vector3.distance(
-          HumanHand.place(body, side, goal.surface, goal.point, goal.rotation, goal.shape).point,
-          shoulders[side],
-        ) - reaches[side]);
+        far = Math.max(
+          far,
+          Vector3.distance(
+            HumanHand.place(
+              body,
+              side,
+              goal.surface,
+              goal.point,
+              goal.rotation,
+              goal.shape,
+            ).point,
+            shoulders[side],
+          ) - reaches[side],
+        );
       }
       return far;
     };
@@ -171,34 +196,29 @@ export namespace restClasped {
    * manual's parade rest holds them (TC 3-21.5, as the Army's Fort Jackson
    * drill modules reproduce it: "Keep the fingers of both hands extended and
    * joined, interlocking the thumbs so that the palm of the right hand is
-   * outward"). Relaxed, the left fingers curled past the right wrist into
-   * the right forearm.
+   * outward"). Relaxed, the left fingers curled past the right wrist into the
+   * right forearm.
    *
    * @param body The body.
    * @param posture The standing posture.
    * @param elbows Each elbow's bend hint, world metres.
    * @returns Both goals.
    * @throws {Error} When the trunk has no back surface at the height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where each hand lies, the drill-manual source and the height below the lower back.
-   * @evidence contracts/development/implementation.md#principled-implementation One ray onto the back midline below the lower-back region, the left hand laid there and the right stacked in its palm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface ray, one laid hand and one stacked on it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A ray that misses the trunk throws.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work: one ray and two hand placements.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One trunk reading serves the region, the shoulders and the ray.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function behind(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> {
-    const trunk: HumanTrunk.IReading = HumanTrunk.prepare(body, posture, FRAMES);
+    const trunk: HumanTrunk.IReading = HumanTrunk.prepare(
+      body,
+      posture,
+      FRAMES,
+    );
     const ahead: IAutoMovieVector3 = heading(posture);
     const back: IAutoMovieVector3 = trunk.region("lowerBack").point;
-    const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> = joints(
-      trunk,
-    );
+    const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> =
+      joints(trunk);
     const place: HumanTrunk.ISurface = trunk.surface(
       {
         ...Vector3.subtract(back, Vector3.scale(ahead, body.measure.stature)),
@@ -206,20 +226,29 @@ export namespace restClasped {
       },
       ahead,
     );
-    const layLeft: Lay = prepareLaid(body, "left", "handBack", shoulders.left, elbows.left, "flat");
-    const layRight: Lay = prepareLaid(body, "right", "handBack", shoulders.right, elbows.right, "flat");
+    const layLeft: Lay = prepareLaid(
+      body,
+      "left",
+      "handBack",
+      shoulders.left,
+      elbows.left,
+      "flat",
+    );
+    const layRight: Lay = prepareLaid(
+      body,
+      "right",
+      "handBack",
+      shoulders.right,
+      elbows.right,
+      "flat",
+    );
     const left: IAutoMovieMotionHumanRest.IGoal = layLeft(
       place.point,
       place.normal,
     );
     return {
       left,
-      right: stacked(
-        body,
-        left,
-        "palm",
-        layRight,
-      ),
+      right: stacked(body, left, "palm", layRight),
     };
   }
 }
@@ -232,7 +261,10 @@ function heading(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
   );
 }
 
-/** Both shoulder joints of a posture, world metres: they ride the trunk, not the arm's goal. */
+/**
+ * Both shoulder joints of a posture, world metres: they ride the trunk, not the
+ * arm's goal.
+ */
 function joints(
   trunk: HumanTrunk.IReading,
 ): Record<AutoMovieHumanSide, IAutoMovieVector3> {
@@ -243,73 +275,52 @@ function joints(
 }
 
 /** Midline collider and shoulder frames used by one clasp placement search. */
-const FRAMES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-  "hips", "spine", "chest", "upperChest", "neck", "head", "jaw",
-  "leftUpperArm", "rightUpperArm",
-]);
+const FRAMES: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
+    "hips",
+    "spine",
+    "chest",
+    "upperChest",
+    "neck",
+    "head",
+    "jaw",
+    "leftUpperArm",
+    "rightUpperArm",
+  ]);
+/** The alternatives of `SegmentTo`'s site. */
+type SegmentTo = "LowerArm" | "Hand";
+
+/** The alternatives of `SegmentFrom`'s site. */
+type SegmentFrom = "UpperArm" | "LowerArm";
 
 /** A rest length between two joints of an arm, metres. */
 function segment(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
-  from: "UpperArm" | "LowerArm",
-  to: "LowerArm" | "Hand",
+  from: SegmentFrom,
+  to: SegmentTo,
 ): number {
   return Vector3.distance(
-    body.rest.get(`${side}${to}`)!, body.rest.get(`${side}${from}`)!,
+    body.rest.get(`${side}${to}`)!,
+    body.rest.get(`${side}${from}`)!,
   );
 }
 
-/** A vector's unit component across a unit normal. */
-function across(
-  normal: IAutoMovieVector3,
-  vector: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return Vector3.normalize(
-    Vector3.subtract(
-      vector,
-      Vector3.scale(normal, Vector3.dot(vector, normal)),
-    ),
-  );
-}
+/** The record of `IPrepareLaidFixed`'s site. */
+type IPrepareLaidFixed = {
+  upper: number;
+  lower: number;
+  local: IAutoMovieMotionHumanHand.IFrame;
+  align: ReturnType<typeof HumanHand.prepareAlignment>;
+};
 
 /**
- * The unit direction of a forearm, from the elbow to the wrist: the elbow
- * lies on the circle the arm's two segments allow about the line from the
- * shoulder to the wrist, on the side of the bend hint.
- */
-function forearm(
-  upper: number,
-  lower: number,
-  shoulder: IAutoMovieVector3,
-  wrist: IAutoMovieVector3,
-  hint: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  const span: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
-  const axis: IAutoMovieVector3 = Vector3.normalize(span);
-  const reach: number = Math.min(
-    upper + lower,
-    Math.max(Math.abs(upper - lower), Vector3.length(span), 1e-9),
-  );
-  const along: number =
-    (upper * upper - lower * lower + reach * reach) / (2 * reach);
-  const off: number = Math.sqrt(Math.max(0, upper * upper - along * along));
-  const elbow: IAutoMovieVector3 = Vector3.addScaled(
-    Vector3.addScaled(shoulder, axis, along),
-    across(axis, Vector3.subtract(hint, shoulder)), off,
-  );
-  return Vector3.normalize(
-    Vector3.subtract(Vector3.addScaled(shoulder, axis, reach), elbow),
-  );
-}
-
-/**
- * A hand surface laid on a surface point in a shape: its normal turned into
- * the surface's outward normal exactly, and the fingers along the forearm as far
- * as that allows. The wrist depends on the fingers and the forearm on the
- * wrist, so the direction starts at the line from the shoulder to the point
- * and is substituted three times. Fixed hand and arm geometry is prepared
- * lazily after the first actual surface query and shared across heights.
+ * A hand surface laid on a surface point in a shape: its normal turned into the
+ * surface's outward normal exactly, and the fingers along the forearm as far as
+ * that allows. The wrist depends on the fingers and the forearm on the wrist,
+ * so the direction starts at the line from the shoulder to the point and is
+ * substituted three times. The fixed hand and arm geometry is prepared with the
+ * lay and shared across heights.
  */
 function prepareLaid(
   body: IAutoMovieMotionHumanBody,
@@ -319,30 +330,37 @@ function prepareLaid(
   elbow: IAutoMovieVector3,
   shape: IAutoMovieMotionHumanHand.Shape,
 ): Lay {
-  let fixed: { upper: number; lower: number; local: IAutoMovieMotionHumanHand.IFrame; align: ReturnType<typeof HumanHand.prepareAlignment> } | undefined;
-  return (point: IAutoMovieVector3, normal: IAutoMovieVector3): IAutoMovieMotionHumanRest.IGoal => {
-    // Keep the original first ray/stacked-surface query ahead of hand preparation.
-    if (fixed === undefined) {
-      const upper: number = segment(body, side, "UpperArm", "LowerArm");
-      const lower: number = segment(body, side, "LowerArm", "Hand");
-      const local: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, surface);
-      fixed = { upper, lower, local, align: HumanHand.prepareAlignment({
-        normal: local.normal,
-        forward: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-      }) };
-    }
-    const hand: NonNullable<typeof fixed> = fixed;
+  const upper: number = segment(body, side, "UpperArm", "LowerArm");
+  const lower: number = segment(body, side, "LowerArm", "Hand");
+  const local: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+    body,
+    side,
+    surface,
+  );
+  const hand: IPrepareLaidFixed = {
+    upper,
+    lower,
+    local,
+    align: HumanHand.prepareAlignment({
+      normal: local.normal,
+      forward: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+    }),
+  };
+  return (
+    point: IAutoMovieVector3,
+    normal: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanRest.IGoal => {
     const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
     let rotation: IAutoMovieQuaternion = hand.align({
       normal: into,
-      forward: across(into, Vector3.subtract(point, shoulder)),
+      forward: restForearm.across(into, Vector3.subtract(point, shoulder)),
     });
     for (let i: number = 0; i < 3; i++)
       rotation = hand.align({
         normal: into,
-        forward: across(
+        forward: restForearm.across(
           into,
-          forearm(
+          restForearm.direction(
             hand.upper,
             hand.lower,
             shoulder,
@@ -356,11 +374,14 @@ function prepareLaid(
 }
 
 /** Actual world surface inputs of one fixed hand/shoulder configuration. */
-type Lay = (point: IAutoMovieVector3, normal: IAutoMovieVector3) => IAutoMovieMotionHumanRest.IGoal;
+type Lay = (
+  point: IAutoMovieVector3,
+  normal: IAutoMovieVector3,
+) => IAutoMovieMotionHumanRest.IGoal;
 
 /**
- * A hand surface laid on a surface of the left hand as the left hand holds
- * its own goal.
+ * A hand surface laid on a surface of the left hand as the left hand holds its
+ * own goal.
  */
 function stacked(
   body: IAutoMovieMotionHumanBody,
@@ -376,7 +397,12 @@ function stacked(
     left.rotation,
     left.shape,
   );
-  const face: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, "left", on, left.shape);
+  const face: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+    body,
+    "left",
+    on,
+    left.shape,
+  );
   return lay(
     Vector3.add(
       wrist.point,

@@ -5,7 +5,8 @@ import type { IAutoMovieMotionHumanRopeSkip } from "../exercise/IAutoMovieMotion
 import type { IAutoMovieMotionHumanWorkout } from "../next/IAutoMovieMotionHumanWorkout";
 
 /**
- * Open parameters of the sportWorkout lexicon family, keyed by each runtime export name.
+ * Open parameters of the sportWorkout lexicon family, keyed by each runtime
+ * export name.
  */
 export interface IAutoMovieMotionHumanLexiconSportWorkoutParams {
   /** Push-ups. */
@@ -113,7 +114,10 @@ export interface IAutoMovieMotionHumanLexiconSportWorkoutParams {
   /** Warrior II of yoga. */
   warriorTwo: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
-  /** The standing half of a sun salutation; the plank, the cobra and the dog complete the flow as their own rows. */
+  /**
+   * The standing half of a sun salutation; the plank, the cobra and the dog
+   * complete the flow as their own rows.
+   */
   sunSalutation: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
   /** The triangle of yoga. */

@@ -6,7 +6,7 @@ A closed union of three placements, discriminated by `kind`, resolves in the roo
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns the authored relation; `resolveFurnishingPieces` in `archetypes` consumes it for `createFurnishedRoom` and the room kits. The `at` member keeps the existing absolute placement so one record can hold every piece.
+The interface package owns the authored relation; `resolveFurnishingPieces` in `archetypes` consumes it for `createFurnishedRoom` and the room kits. The `at` member keeps the existing absolute placement so one record can hold every piece.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -8,37 +9,30 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { standUpright } from "./standUpright";
 
 /**
- * The root of a quiet stance over two ankle points (`stand.root`): the
- * pelvis over the feet's midpoint as it stands over its rest feet, shifted
- * forward by the upright alignment's lean (`standUpright`), `drop` below its
- * rest height above the mean ankle plane, and lowered where feet set wider
- * or staggered than the rest feet (a fighting stance kept from the entry)
- * would hold a hip farther from its ankle than the quiet stance does, so
- * each leg spans its foot with the quiet stance's knee, as a person settles
- * into a wide stance. The quiet stance itself is unchanged.
+ * The root of a quiet stance over two ankle points (`stand.root`): the pelvis
+ * over the feet's midpoint as it stands over its rest feet, shifted forward by
+ * the upright alignment's lean (`standUpright`), `drop` below its rest height
+ * above the mean ankle plane, and lowered where feet set wider or staggered
+ * than the rest feet (a fighting stance kept from the entry) would hold a hip
+ * farther from its ankle than the quiet stance does, so each leg spans its foot
+ * with the quiet stance's knee, as a person settles into a wide stance. The
+ * quiet stance itself is unchanged.
  *
  * @param body The body.
  * @param feet Ankle points, world metres.
  * @param yaw The heading, degrees.
- * @param drop How far the quiet stance's root sits below its rest height, metres.
+ * @param drop How far the quiet stance's root sits below its rest height,
+ *   metres.
  * @returns The root, world metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the placement rule, the reach bound and the units.
- * @evidence contracts/development/implementation.md#principled-implementation The rest stance's root-to-feet offset turned to the heading, plus the lean, at the ankles' mean height less the ankle height and `drop`, no higher than the closed-form height at which each hip lies the quiet stance's hip-to-ankle distance from its ankle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One level placement, then one closed-form bound per leg.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height follows from the ankles given, never from a floor assumed at zero; the bound is the body's own quiet span.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work after standUpright's per-body alignment.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads standUpright's alignment for the lean.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point and retains nothing.
  */
 export function standRoot(
   body: IAutoMovieMotionHumanBody,
-  feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+  feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
   yaw: number,
   drop: number,
 ): IAutoMovieVector3 {
   const placed: IAutoMovieVector3 = level(body, feet, yaw, drop);
-  const quiet: Record<"left" | "right", IAutoMovieVector3> = {
+  const quiet: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: { ...body.rest.get("leftFoot")!, y: body.measure.ankleHeight },
     right: { ...body.rest.get("rightFoot")!, y: body.measure.ankleHeight },
   };
@@ -46,7 +40,10 @@ export function standRoot(
   let y: number = placed.y;
   for (const side of ["left", "right"] as const) {
     const hip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-    const span: number = Vector3.distance(Vector3.add(rested, hip), quiet[side]);
+    const span: number = Vector3.distance(
+      Vector3.add(rested, hip),
+      quiet[side],
+    );
     const turned: IAutoMovieVector3 = HumanFrame.point(
       { origin: placed, yaw },
       hip,
@@ -57,16 +54,21 @@ export function standRoot(
     );
     y = Math.min(
       y,
-      feet[side].y + Math.sqrt(Math.max(0, span * span - across * across)) - hip.y,
+      feet[side].y +
+        Math.sqrt(Math.max(0, span * span - across * across)) -
+        hip.y,
     );
   }
   return { ...placed, y };
 }
 
-/** The root before the legs' reach: over the feet's midpoint, leaned, `drop` below the rest height. */
+/**
+ * The root before the legs' reach: over the feet's midpoint, leaned, `drop`
+ * below the rest height.
+ */
 function level(
   body: IAutoMovieMotionHumanBody,
-  feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+  feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
   yaw: number,
   drop: number,
 ): IAutoMovieVector3 {
@@ -78,7 +80,7 @@ function level(
   );
   const lean: IAutoMovieVector3 = HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw },
-    { x: 0, y: 0, z: standUpright.of(body).lean },
+    { x: 0, y: 0, z: standUpright(body).lean },
   );
   return {
     x: (feet.left.x + feet.right.x) / 2 - mid.x + lean.x,

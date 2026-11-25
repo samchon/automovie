@@ -8,28 +8,39 @@ import { look as lookLaw } from "../everyday/look";
  * An overlay: where the eyes and head look. It layers on any whole-body action.
  *
  * Laws and helpers, each the shipped function under the family name:
- * - `look`: Standing and turning the eyes, head and trunk to a target, either at once or, when cued by something seen or heard, after a seeded reaction time: the orienting response of a bystander.
- * - `lookPrimitive`: The eyes and the head brought toward a target by a weight: the gaze primitive, on the head channel only.
- * - `glance`: A glance: the gaze goes to a target and comes back, its weight rising over one window and falling over another on the clock's envelope, and the head is written from the first instant to the last.
  *
- * Presets, named parameter values spread into a law's parameters beside the hold; a preset adds no method:
- * - `RECRUITS`: The segments a gaze primitive may recruit, as data: the eyes alone, or the eyes and the head.
+ * - `look`: Standing and turning the eyes, head and trunk to a target, either at
+ *   once or, when cued by something seen or heard, after a seeded reaction
+ *   time: the orienting response of a bystander.
+ * - `lookPrimitive`: The eyes and the head brought toward a target by a weight:
+ *   the gaze primitive, on the head channel only.
+ * - `glance`: A glance: the gaze goes to a target and comes back, its weight
+ *   rising over one window and falling over another on the clock's envelope,
+ *   and the head is written from the first instant to the last.
+ *
+ * Presets, named parameter values spread into a law's parameters beside the
+ * hold; a preset adds no method:
+ *
+ * - `RECRUITS`: The segments a gaze primitive may recruit, as data: the eyes
+ *   alone, or the eyes and the head.
  *
  * Lexicon rows and tables, the shipped data the laws and the chain read:
- * - `HumanGaze`: Gaze as a goal: the eyes' lines brought onto a target, with the eyes, the head and neck and the trunk recruited in that order as the target lies farther from where the body faces.
  *
- * A member here is the shipped law, preset or row itself, bound to its owner by `typeof` and never wrapped, so its parameters, units, frames and refusals are those its own comment states. The family's shared model and each law's parameters are declared by {@link IAutoMovieMotionHumanGaze} in `@automovie/interface`.
+ * - `HumanGaze`: Gaze as a goal: the eyes' lines brought onto a target, with the
+ *   eyes, the head and neck and the trunk recruited in that order as the target
+ *   lies farther from where the body faces.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the family covers, how its members relate and where its model is declared.
- * @evidence contracts/development/design.md#principled-representation Each member is the shipped law, preset or row itself, so the units, frames and invariants are those its owner states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the family groups; each stays owned by its module.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is wrapped, widened or redefined, so no behaviour is added here.
+ * A member here is the shipped law, preset or row itself, bound to its owner by
+ * `typeof` and never wrapped, so its parameters, units, frames and refusals are
+ * those its own comment states. The family's shared model and each law's
+ * parameters are declared by {@link IAutoMovieMotionHumanGaze} in
+ * `@automovie/interface`.
  */
 export namespace AutoMovieMotionHumanGaze {
   /**
    * Standing and turning the eyes, head and trunk to a target, either at once
-   * or, when cued by something seen or heard, after a seeded reaction time:
-   * the orienting response of a bystander.
+   * or, when cued by something seen or heard, after a seeded reaction time: the
+   * orienting response of a bystander.
    *
    * The feet stay planted where they are (the stand law places the body), and
    * the gaze goal is the eyes' lines on the target, recruited eyes, head and
@@ -68,13 +79,14 @@ export namespace AutoMovieMotionHumanGaze {
    * Brain Res 154:261) find that large turns recruit the eyes, head, trunk and
    * feet in that order. The split here keeps the final eye-in-head eccentricity
    * at most `EYES` (15 degrees) on each axis, gives the head and neck the
-   * remainder up to `HEAD` (comfortable cervical share, the yaw after Bennett et al. 2002 and the pitch provisional: 60 degrees
-   * of yaw, 40 down and 30 up, inside `DEFAULT_HUMANOID_ROM`), and, when the
-   * trunk may join, gives the chest and lumbar spine the yaw beyond that up to
-   * `TRUNK` (40 degrees, provisional, inside their combined twist range), 60 %
-   * to the chest and 40 % to the spine. What none of these can hold stays on
-   * the eyes, clamped to their range, so a gaze too far behind the body is
-   * visibly short; turning the feet is the `look` action's step-turn.
+   * remainder up to `HEAD` (comfortable cervical share, the yaw after Bennett
+   * et al. 2002 and the pitch provisional: 60 degrees of yaw, 40 down and 30
+   * up, inside `DEFAULT_HUMANOID_ROM`), and, when the trunk may join, gives the
+   * chest and lumbar spine the yaw beyond that up to `TRUNK` (40 degrees,
+   * provisional, inside their combined twist range), 60 % to the chest and 40 %
+   * to the spine. What none of these can hold stays on the eyes, clamped to
+   * their range, so a gaze too far behind the body is visibly short; turning
+   * the feet is the `look` action's step-turn.
    *
    * The head and neck angles come from the engine's `gazeChainJoints`, which
    * splits one aim over the neck and the head inside their ranges; the eyes are
@@ -88,11 +100,11 @@ export namespace AutoMovieMotionHumanGaze {
    * milliseconds for an amplitude of `A` degrees (Bahill, Clark and Stark 1975,
    * Math Biosci 24:191; Carpenter 1988), and the head and trunk on a
    * minimum-jerk profile of `0.15 + 0.004 A` seconds (provisional: head
-   * movements are slower than saccades and lengthen with amplitude, Zangemeister
-   * and Stark 1981; the coefficients are unmeasured). Because the eyes are
-   * re-solved against the moving head on every frame, they hold the target
-   * while the head catches up, as the vestibulo-ocular reflex does, and a moving
-   * target is pursued.
+   * movements are slower than saccades and lengthen with amplitude,
+   * Zangemeister and Stark 1981; the coefficients are unmeasured). Because the
+   * eyes are re-solved against the moving head on every frame, they hold the
+   * target while the head catches up, as the vestibulo-ocular reflex does, and
+   * a moving target is pursued.
    */
   export import HumanGaze = HumanGazeSource;
 
@@ -114,9 +126,9 @@ export namespace AutoMovieMotionHumanGaze {
   export const lookPrimitive: typeof lookPrimitiveLaw = lookPrimitiveLaw;
 
   /**
-   * A glance: the gaze goes to a target and comes back, its weight rising
-   * over one window and falling over another on the clock's envelope, and the
-   * head is written from the first instant to the last. Re-exported as
+   * A glance: the gaze goes to a target and comes back, its weight rising over
+   * one window and falling over another on the clock's envelope, and the head
+   * is written from the first instant to the last. Re-exported as
    * `AutoMovieMotionHumanGaze.glance`.
    *
    * @param body The body.

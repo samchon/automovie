@@ -16,24 +16,20 @@ const ADA: string =
 /**
  * A ramp with its top landing.
  *
- * The ramp rises along `+Z` from the floor at the origin to its `rise`, at the drawn slope, then runs level for a landing. The `slope` is the walking surface, its frame at the middle of the incline with `+Y` square to it; `top` is the edge where the incline meets the landing.
+ * The ramp rises along `+Z` from the floor at the origin to its `rise`, at the
+ * drawn slope, then runs level for a landing. The `slope` is the walking
+ * surface, its frame at the middle of the incline with `+Y` square to it; `top`
+ * is the edge where the incline meets the landing.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The ramp.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ramp's direction, origin and the two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The run is the rise divided by the slope; the incline is a thin slab whose upper face lies in the slope, from where its lower edge meets the floor to the landing's edge, over a block under its upper half, and the landing a box at the rise; no part reaches below the floor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, derive the run, three parts and three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No handrail here: a ramp that needs one takes a `createBar` rail beside it. The incline is not a solid wedge, which no primitive is: the slab leaves out the toe lower than its own thickness and stands open under its lower half, while the `slope` surface covers the whole incline from the floor.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRamp(
   params: createRamp.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRamp.Affordance, createRamp.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRamp.Dimension> =
     new AutoMovieArchetypeDrawSession<createRamp.Dimension>(
@@ -135,16 +131,12 @@ export function createRamp(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createRamp}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation The slope is a ratio of rise to run, as the standard states it; one cited band per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The slope, the rise and the width a walking act reads (#3371).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The run is derived, never stated beside the slope and rise it follows from.
- */
+/** Companion types and bands of {@link createRamp}. */
 export namespace createRamp {
-  /** The landing's length, metres: the 60 in (1525 mm) minimum of 2010 ADA Standards 405.7.3. */
+  /**
+   * The landing's length, metres: the 60 in (1525 mm) minimum of 2010 ADA
+   * Standards 405.7.3.
+   */
   export const LANDING: number = 1.525;
 
   /**

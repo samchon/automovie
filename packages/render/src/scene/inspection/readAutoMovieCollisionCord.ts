@@ -30,7 +30,8 @@ const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
  * @param mesh The drawn tube.
  * @param identity The cord's path; segments append `/segment/<i>`.
  * @param cord The particles and radius recorded with the tube.
- * @param budget Posed vertices the frame may still spend; charged when the tube is read.
+ * @param budget Posed vertices the frame may still spend; charged when the tube
+ *   is read.
  * @param add Receives each segment part and its share of the tube surface.
  */
 export function readAutoMovieCollisionCord(
@@ -65,12 +66,7 @@ export function readAutoMovieCollisionCord(
         cord.points[i + 2],
       ).applyMatrix4(mesh.matrixWorld),
     );
-  if (
-    !(radius > 0) ||
-    !Number.isFinite(radius) ||
-    points.length < 2 ||
-    !points.every(readAutoMovieCollisionTopology.finite)
-  ) {
+  if (!(radius > 0) || points.length < 2) {
     add({ id: identity, geometry: null }, undefined, "no-displayed-geometry");
     return;
   }
@@ -116,7 +112,10 @@ export function readAutoMovieCollisionCord(
   }
 }
 
-/** One enclosing capsule along a world segment, or null for a degenerate segment. */
+/**
+ * One enclosing capsule along a world segment, or null for a degenerate
+ * segment.
+ */
 function capsule(
   id: string,
   group: Collision.IGroup,

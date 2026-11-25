@@ -5,8 +5,8 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * Where one carriage of a run stands, in world space, at one state.
  *
  * Produced by `builtConnectorCarriagePlacements`, one per carriage in authored
- * order. Without a named state the record's own current state is used. The
- * pose is the carriage element's world matrix with every moving member's
+ * order. Without a named state the record's own current state is used. The pose
+ * is the carriage element's world matrix with every moving member's
  * displacement for that state applied down the hierarchy; a member whose
  * operation lacks the named state contributes none and stands at its rest
  * transform.

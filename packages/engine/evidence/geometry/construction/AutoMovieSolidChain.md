@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidChain.ts#AutoMovieSolidChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the chart, orientation and actual-domain policy; finite tip Point0 is separate from unavailable physical2.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A lofted chain read as a solid surface: `u` its station in mm, `v` its phase in radians with period `2 pi`: companion namespace of 2 members (`framed`, `surface`); units and frames named in its text: frame, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidChain` in packages/engine/src/geometry/construction/AutoMovieSolidChain.ts; its surface is the 2 members listed and the text shows 30 other files naming it, mostly packages/human (16), test (8), packages/engine (6), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieSolidChain.ts#AutoMovieSolidChain.framed
 
 ## @evidence contracts/development/implementation.md#principled-implementation

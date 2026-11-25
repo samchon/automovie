@@ -6,7 +6,7 @@ A seeded solid texture stated by its generator kind, an unsigned 32-bit seed, a 
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns it as the `procedural` field of `IAutoMovieMaterial`. The engine admits it and samples it on the CPU (`sampleAutoMovieProceduralSurface`), and render's `applyProceduralSurface` evaluates it per fragment. `piece` exists because a #1857 pattern piece samples a sheet, not object space, and the sheet kind decides whether pieces continue or differ.
+The interface package owns it as the `procedural` field of `IAutoMovieMaterial`. The engine admits it and samples it on the CPU (`sampleAutoMovieProceduralSurface`), and render's `applyProceduralSurface` evaluates it per fragment. `piece` exists because a #1857 pattern piece samples a sheet, not object space, and the sheet kind decides whether pieces continue or differ.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

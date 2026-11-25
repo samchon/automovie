@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanRoll } from "../floor/IAutoMovieMotionHumanRoll";
 
 /**
- * Open parameters of the floorRoll lexicon family, keyed by each runtime export name.
+ * Open parameters of the floorRoll lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconFloorRollParams {
   /** A forward roll: crouch, roll over the back forward, rise on the feet. */

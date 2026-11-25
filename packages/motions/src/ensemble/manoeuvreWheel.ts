@@ -10,43 +10,37 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormation } from "./HumanFormation";
 
 /**
- * A wheel on a fixed pivot: the formation turned rigidly about its pivot
- * flank, so the line stays straight as it wheels. In the drill books one
- * flank stands fast while the rest moves round it; "the outward wheeling
- * man always lengthens his step to 33 inches" from the ordinary 30, and
- * every other man shortens his step "in proportion as he is nearer to the
- * standing flank on which the wheel is made" (Rules and Regulations for the
- * Formations and Movements of the Militia of Lower-Canada, c. 1814, after
- * Dundas 1792).
+ * A wheel on a fixed pivot: the formation turned rigidly about its pivot flank,
+ * so the line stays straight as it wheels. In the drill books one flank stands
+ * fast while the rest moves round it; "the outward wheeling man always
+ * lengthens his step to 33 inches" from the ordinary 30, and every other man
+ * shortens his step "in proportion as he is nearer to the standing flank on
+ * which the wheel is made" (Rules and Regulations for the Formations and
+ * Movements of the Militia of Lower-Canada, c. 1814, after Dundas 1792).
  *
- * The wheeling frame is a course standing on the pivot, the `from`
- * formation's blocks moved so each slot stands where it stood at the word,
- * its heading turning and sampled every `HumanFormation.SAMPLE` seconds: a
- * frame that only turns carries every slot round the pivot exactly between
- * samples. Its angular speed is the slowest
- * member's travel speed lengthened by `LENGTHENED`, over the outward
- * radius, so the outward man takes the lengthened step and nobody a longer
- * one; it gathers and sheds that speed at `HumanFormation.ACCELERATION`
+ * The wheeling frame is a course standing on the pivot, the `from` formation's
+ * blocks moved so each slot stands where it stood at the word, its heading
+ * turning and sampled every `HumanFormation.SAMPLE` seconds: a frame that only
+ * turns carries every slot round the pivot exactly between samples. Its angular
+ * speed is the slowest member's travel speed lengthened by `LENGTHENED`, over
+ * the outward radius, so the outward man takes the lengthened step and nobody a
+ * longer one; it gathers and sheds that speed at `HumanFormation.ACCELERATION`
  * over the same radius. Each member keeps its own slot of the wheeling
  * formation as a station, so at a called cadence its steps shorten with its
  * radius (`walkStation.cadenced`) and the pivot turns on its own ground. Its
  * way on paper is the arc its slot draws, a point every `ARC` degrees.
  *
- * @param ensemble The ensemble, its member `i` standing in slot `members[i].index` of `from`.
+ * @param ensemble The ensemble, its member `i` standing in slot
+ *   `members[i].index` of `from`.
  * @param manoeuvre The wheel.
  * @param starts Where each stands at the word.
  * @param ends Each one's slot in `to`.
  * @param speeds Each one's travel speed, m/s.
+ * @param column `from`, prepared (`HumanFormation.prepare`).
+ * @param line `to`, prepared.
  * @returns Each member's way and station; no stations when nothing turns.
- * @throws {HumanRefusal} When `to` is not `from` turned about the pivot, naming the member whose slot lies elsewhere and how far.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the drill's rule with its source, how the frame turns, its speed bound and what each member keeps.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid turn about the pivot with a trapezoidal angular profile, bounded so the outward man's step is the manual's lengthened one; each member's station is a slot of the same blocks in that frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The pivot, the check of the target, the profile, the samples, then one station and one arc per member.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `LENGTHENED` is the manual's 33 over 30 inches; a target that is not the turned formation is refused, not bent onto it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members and in the samples, the frame shared by every station.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The frame is built once and shared.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stations hold the frame for as long as they are held.
+ * @throws {HumanRefusal} When `to` is not `from` turned about the pivot, naming
+ *   the member whose slot lies elsewhere and how far.
  */
 export function manoeuvreWheel(
   ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -54,16 +48,16 @@ export function manoeuvreWheel(
   starts: readonly IAutoMovieVector3[],
   ends: readonly IAutoMovieMotionHumanFormation.ISlot[],
   speeds: readonly number[],
+  column: HumanFormation.IPrepared,
+  line: HumanFormation.IPrepared,
 ): IAutoMovieMotionHumanManoeuvreWheel.IWheel {
   const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] =
     ensemble.members;
   const pivot: IAutoMovieVector3 = pivotOf(manoeuvre, members, starts);
-  const origin: { at: IAutoMovieVector3; heading: number } =
-    HumanFormation.frame(manoeuvre.from, manoeuvre.at);
-  const target: number = HumanFormation.frame(
-    manoeuvre.to,
+  const origin: IAutoMovieMotionHumanFormation.IFrameResult = column.frame(
     manoeuvre.at,
-  ).heading;
+  );
+  const target: number = line.frame(manoeuvre.at).heading;
   const sweep: number =
     ((((target - origin.heading + 180) % 360) + 360) % 360) - 180;
 
@@ -166,19 +160,19 @@ export function manoeuvreWheel(
   };
 }
 
-/**
- * Constants and types of {@link manoeuvreWheel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each constant states its unit and source.
- * @evidence contracts/development/design.md#principled-representation A ratio of steps, a distance, an angle, and the ways and stations a wheel returns.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanManoeuvre.plan` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Named, not numbers inside the function.
- */
+/** Constants and types of {@link manoeuvreWheel}. */
 export namespace manoeuvreWheel {
-  /** The outward man's lengthened step over the ordinary one: 33 inches over 30 (Rules and Regulations for the Formations and Movements of the Militia of Lower-Canada, c. 1814, after Dundas 1792). */
+  /**
+   * The outward man's lengthened step over the ordinary one: 33 inches over 30
+   * (Rules and Regulations for the Formations and Movements of the Militia of
+   * Lower-Canada, c. 1814, after Dundas 1792).
+   */
   export const LENGTHENED: number = 33 / 30;
 
-  /** Metres a target slot may lie from the turned one: a millimetre, the rounding of a laid slot, so only a formation of another shape is refused. */
+  /**
+   * Metres a target slot may lie from the turned one: a millimetre, the
+   * rounding of a laid slot, so only a formation of another shape is refused.
+   */
   export const FIT: number = 1e-3;
 
   /** Degrees between two points of a wheeling member's arc. */
@@ -200,8 +194,13 @@ function turn(
     z: pivot.z - dx * Math.sin(radians) + dz * Math.cos(radians),
   };
 }
+/** The alternatives of `PivotOfSide`'s site. */
+type PivotOfSide = "left" | "right" | "centre";
 
-/** The wheel's pivot: the front rank's left or right file, or its centre, where the members stand at the word. */
+/**
+ * The wheel's pivot: the front rank's left or right file, or its centre, where
+ * the members stand at the word.
+ */
 function pivotOf(
   manoeuvre: IAutoMovieMotionHumanManoeuvre,
   members: readonly IAutoMovieMotionHumanEnsemble.IMember[],
@@ -229,7 +228,7 @@ function pivotOf(
     )
     .map((e: [number, IAutoMovieMotionHumanFormation.ILocal]): number => e[0]);
   if (front.length === 0) return starts[0] ?? { x: 0, y: 0, z: 0 };
-  const side: "left" | "right" | "centre" = manoeuvre.pivot ?? "left";
+  const side: PivotOfSide = manoeuvre.pivot ?? "left";
   if (side === "centre") {
     const n: number = front.length;
     return {
@@ -244,7 +243,10 @@ function pivotOf(
   return starts[side === "left" ? front[0]! : front[front.length - 1]!]!;
 }
 
-/** A way about a pivot from one point to another: the radius and the angle each changed evenly, a point every `ARC` degrees. */
+/**
+ * A way about a pivot from one point to another: the radius and the angle each
+ * changed evenly, a point every `ARC` degrees.
+ */
 function arc(
   centre: IAutoMovieVector3,
   from: IAutoMovieVector3,

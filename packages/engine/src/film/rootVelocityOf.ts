@@ -11,11 +11,22 @@ import { VELOCITY_DT } from "./constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 
 /**
- * World root velocity of a node playing `clip` at clip-local `localTime`, in metres per second, from a backward difference of the clip's root folded through the node's staged placement.
+ * World root velocity of a node playing `clip` at clip-local `localTime`, in
+ * metres per second, from a backward difference of the clip's root folded
+ * through the node's staged placement.
  *
- * The window ends at `localTime` and spans {@link VELOCITY_DT} where it can. A looping clip's root jumps back at the seam, so the window never crosses it: within a cycle it is the trailing `VELOCITY_DT`, in the cycle's first instants it shrinks to `[0, phase]`, and exactly on the seam it measures the cycle's closing stretch with the clip sampled unlooped, so reading `duration` does not wrap to the cycle start. A one-shot clip sampled at or before its end uses the same trailing window clamped at zero, and a sample after its end answers zero because the pose is held. A window of zero length, such as a one-shot at time zero, answers zero.
+ * The window ends at `localTime` and spans {@link VELOCITY_DT} where it can. A
+ * looping clip's root jumps back at the seam, so the window never crosses it:
+ * within a cycle it is the trailing `VELOCITY_DT`, in the cycle's first
+ * instants it shrinks to `[0, phase]`, and exactly on the seam it measures the
+ * cycle's closing stretch with the clip sampled unlooped, so reading `duration`
+ * does not wrap to the cycle start. A one-shot clip sampled at or before its
+ * end uses the same trailing window clamped at zero, and a sample after its end
+ * answers zero because the pose is held. A window of zero length, such as a
+ * one-shot at time zero, answers zero.
  *
- * `resolveBeatSnapshot` stores the result as an actor's `rootVelocity`, the momentum the next beat continues.
+ * `resolveBeatSnapshot` stores the result as an actor's `rootVelocity`, the
+ * momentum the next beat continues.
  *
  * @param node Scene node whose staged transform the root is folded through.
  * @param clip Motion the node plays.

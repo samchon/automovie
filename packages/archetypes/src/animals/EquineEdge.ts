@@ -5,12 +5,15 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
- * The trunk's pitch across a steep face's edge: a course pitches its root with each leg's grade the moment the root crosses into the leg, which on a steep face would swing the whole body about the root at once and sweep the hindquarters and tail into the ground behind; a horse instead pitches with the line between its fore and hind support, from the moment its fores cross the edge to the moment its hinds do.
+ * The trunk's pitch across a steep face's edge: a course pitches its root with
+ * each leg's grade the moment the root crosses into the leg, which on a steep
+ * face would swing the whole body about the root at once and sweep the
+ * hindquarters and tail into the ground behind; a horse instead pitches with
+ * the line between its fore and hind support, from the moment its fores cross
+ * the edge to the moment its hinds do.
  */
 export namespace EquineEdge {
-  /**
-   * One edge between two legs' grades.
-   */
+  /** One edge between two legs' grades. */
   export interface IEdge {
     /** The edge's course distance, metres. */
     at: number;
@@ -30,7 +33,8 @@ export namespace EquineEdge {
    * @param legs The course's legs.
    * @param index The leg's index.
    * @param plan The course plan.
-   * @param hooves The neutral hoof endpoints, model metres: the left fore's ahead of the root and the left hind's behind it.
+   * @param hooves The neutral hoof endpoints, model metres: the left fore's
+   *   ahead of the root and the left hind's behind it.
    * @returns The edges.
    */
   export function of(
@@ -68,7 +72,8 @@ export namespace EquineEdge {
   }
 
   /**
-   * The pitch to add to the course's at a course distance, degrees, positive nose-down.
+   * The pitch to add to the course's at a course distance, degrees, positive
+   * nose-down.
    *
    * @param edges The edges.
    * @param distance The root's course distance, metres.

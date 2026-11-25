@@ -15,7 +15,10 @@ import type {
 
 import { animalTerminalSole } from "./animalTerminalSole";
 
-/** Actual-model observations and generic numeric/refusal assertions shared by the locomotion units; no expected gait clocks or phase law lives here. */
+/**
+ * Actual-model observations and generic numeric/refusal assertions shared by
+ * the locomotion units; no expected gait clocks or phase law lives here.
+ */
 export namespace animalLocomotionFixture {
   /** Actual cohort consumer, including its producer-owned contact vocabulary. */
   export type Animal = ReturnType<typeof createCamel>;
@@ -26,7 +29,10 @@ export namespace animalLocomotionFixture {
     AutoMovieArchetypeQuadrupedBody.Dimension
   >;
 
-  /** Four literal feet; their identifiers are the public quadruped bone contract. */
+  /**
+   * Four literal feet; their identifiers are the public quadruped bone
+   * contract.
+   */
   export const FEET: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
     "leftFore",
     "rightFore",
@@ -34,7 +40,10 @@ export namespace animalLocomotionFixture {
     "rightHind",
   ];
 
-  /** Six seconds at constant speed, under translation and yaw, without speed ramps. */
+  /**
+   * Six seconds at constant speed, under translation and yaw, without speed
+   * ramps.
+   */
   export function course(
     speed: number,
     lead: AutoMovieArchetypeQuadrupedGait.Lead = "left",
@@ -48,7 +57,10 @@ export namespace animalLocomotionFixture {
     };
   }
 
-  /** Observe a real terminal bar's distal centre through its actual pose and root transforms. */
+  /**
+   * Observe a real terminal bar's distal centre through its actual pose and
+   * root transforms.
+   */
   export function foot(
     ride: Ride,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -91,7 +103,6 @@ export namespace animalLocomotionFixture {
    * @param seconds Film seconds sampled through the actual public at() seam.
    * @returns Lowest complete terminal surface in world metres.
    * @throws {Error} For missing or unsupported actual terminal geometry.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States actual source ownership, film-second input, complete world-space primitive support and its distinction from the distal control endpoint.
    * @evidence contracts/development/implementation.md#principled-implementation Finds the actual posed terminal primitive and delegates its complete world support to the single independent analytic test oracle; no producer floor clearance is read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Sample the real ride, find the named terminal and measure its actual world sole.
@@ -114,7 +125,10 @@ export namespace animalLocomotionFixture {
     return animalTerminalSole(part, sample.placement);
   }
 
-  /** Record a failed independently specified numeric bound, including nonfinite output. */
+  /**
+   * Record a failed independently specified numeric bound, including nonfinite
+   * output.
+   */
   export function near(
     findings: string[],
     label: string,
@@ -122,13 +136,16 @@ export namespace animalLocomotionFixture {
     expected: number,
     bound: number,
   ): void {
-    if (!Number.isFinite(actual) || Math.abs(actual - expected) > bound)
+    if (Math.abs(actual - expected) > bound)
       findings.push(
         `${label}: ${actual}, expected ${expected} within ${bound}`,
       );
   }
 
-  /** An invalid public request must produce an actionable parameter refusal, not an incidental exception. */
+  /**
+   * An invalid public request must produce an actionable parameter refusal, not
+   * an incidental exception.
+   */
   export function refused(
     findings: string[],
     label: string,

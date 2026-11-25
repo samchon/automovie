@@ -8,7 +8,7 @@ import type { IAutoMovieDrawScene } from "@automovie/render";
  * with its own materials.
  */
 export function readsAutoMovieInspectorPlacedScene(
-  instance: IAutoMovieDrawScene,
+  instance: Pick<IAutoMovieDrawScene, "inspectPlaced" | "beforeDraw">,
 ): boolean {
   return (
     instance.inspectPlaced !== undefined || instance.beforeDraw !== undefined

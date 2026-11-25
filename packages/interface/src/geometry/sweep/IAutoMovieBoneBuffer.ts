@@ -31,9 +31,7 @@ export interface IAutoMovieBoneBuffer {
    */
   update(posed: readonly IAutoMovieResolvedBone[]): void;
 
-  /**
-   * Return every motion to the identity, the rest pose.
-   */
+  /** Return every motion to the identity, the rest pose. */
   reset(): void;
 
   /**

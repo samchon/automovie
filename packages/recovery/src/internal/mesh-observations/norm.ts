@@ -4,7 +4,8 @@ import { len } from "./len";
 import { mul } from "./mul";
 
 /**
- * Unit direction; a zero input remains zero so callers can handle degeneracy explicitly.
+ * Unit direction; a zero input remains zero so callers can handle degeneracy
+ * explicitly.
  */
 export const norm: (a: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
   a: AutoMovieVector3Tuple,

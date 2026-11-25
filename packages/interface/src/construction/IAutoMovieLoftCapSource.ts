@@ -1,12 +1,8 @@
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
-/**
- * Data and callback contracts shared by the LoftCapSource operations.
- */
+/** Data and callback contracts shared by the LoftCapSource operations. */
 export namespace IAutoMovieLoftCapSource {
-  /**
-   * Immutable source capability for one actual retained closed end.
-   */
+  /** Immutable source capability for one actual retained closed end. */
   export interface ISource {
     /** Original closed station in mm. */
     station: number;

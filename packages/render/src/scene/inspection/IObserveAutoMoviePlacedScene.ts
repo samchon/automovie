@@ -10,13 +10,11 @@ import type {
 import type { Camera, Object3D, Scene } from "three";
 
 /**
- * Observations the placed scene inspector can read synchronously without seeking
- * or selecting an intended contact, owner or edit relation on its own.
+ * Observations the placed scene inspector can read synchronously without
+ * seeking or selecting an intended contact, owner or edit relation on its own.
  */
 export namespace IObserveAutoMoviePlacedScene {
-  /**
-   * The original placed scene and source-owned checks at the selected clock.
-   */
+  /** The original placed scene and source-owned checks at the selected clock. */
   export interface IProps {
     /** Original scene before inspection overlays or visibility masks. */
     readonly scene: Scene;
@@ -35,7 +33,8 @@ export namespace IObserveAutoMoviePlacedScene {
   }
 
   /**
-   * A contact rule bound to placed Three objects and an independent local anchor.
+   * A contact rule bound to placed Three objects and an independent local
+   * anchor.
    */
   export type INativeSupport = Omit<
     Extract<IAutoMoviePlacedContact.IProps, { kind: "support" }>,
@@ -54,9 +53,7 @@ export namespace IObserveAutoMoviePlacedScene {
     };
   };
 
-  /**
-   * A grip rule bound to a placed hand socket and prop.
-   */
+  /** A grip rule bound to a placed hand socket and prop. */
   export type INativeGrip = Omit<
     Extract<IAutoMoviePlacedContact.IProps, { kind: "grip" }>,
     "kind" | "sample"
@@ -69,11 +66,12 @@ export namespace IObserveAutoMoviePlacedScene {
     };
   };
 
-  /**
-   * One source-selected obligation and its stable report identity.
-   */
+  /** One source-selected obligation and its stable report identity. */
   export interface ICheck {
-    /** Stable identity of the same rule and entity occurrence across frames. Use a unique key per check kind in each sample. */
+    /**
+     * Stable identity of the same rule and entity occurrence across frames. Use
+     * a unique key per check kind in each sample.
+     */
     readonly key: string;
 
     /** Whether this declared obligation is required for delivery. */

@@ -27,47 +27,45 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
  * whole arc every place there is unmade, so its strain is at least `UNMADE`
  * plus it.
  *
- * Derivation. A candidate's lower-arm world rotation is
- * `W(ψ) = P · U(ψ) · L · M`, with the shoulder's parent frame `P`, the upper
- * arm's bone-local rotation `U(ψ)` at swivel `ψ`, the lower arm's rest `L` and
- * the branch's one hinge rotation `M`. `U(ψ)` is a fixed rotation turned
- * about a fixed axis by `ψ` (the swivel parameterisation of Tolani, Goswami
- * and Badler 2000), so the quaternion of the turn the hand asks,
- * `q(ψ) = W(ψ)⁻¹ · R`, is linear in `cos(ψ/2)` and `sin(ψ/2)`, and every
- * entry of its rotation matrix is linear in `cos ψ` and `sin ψ`; each is
- * fitted exactly from three swivels and checked at two more.
+ * Derivation. A candidate's lower-arm world rotation is `W(ψ) = P · U(ψ) · L ·
+ * M`, with the shoulder's parent frame `P`, the upper arm's bone-local rotation
+ * `U(ψ)` at swivel `ψ`, the lower arm's rest `L` and the branch's one hinge
+ * rotation `M`. `U(ψ)` is a fixed rotation turned about a fixed axis by `ψ`
+ * (the swivel parameterisation of Tolani, Goswami and Badler 2000), so the
+ * quaternion of the turn the hand asks, `q(ψ) = W(ψ)⁻¹ · R`, is linear in
+ * `cos(ψ/2)` and `sin(ψ/2)`, and every entry of its rotation matrix is linear
+ * in `cos ψ` and `sin ψ`; each is fitted exactly from three swivels and checked
+ * at two more.
  *
- * - The forearm's twist. The strain splits `q` into a swing and a twist about
- *   the forearm's axis `t` (Dobrowolski's swing-twist, `swingTwist`) and
- *   reads the twist's signed angle, `wrap(2 atan2(q_v · t̂, q_w))` for a unit
- *   axis. The vector `(q_w, q_v · t̂)` of two half-angle sinusoids is enclosed
- *   by `AutoMovieMotionHumanBendEnclosure.outer` on the half swivels; where
- *   it may come within `FLOOR` of the origin the twist is undefined (the
- *   swing's half turn) and nothing is certified.
- * - The wrist. The swing `S` turns `t` to `d = q t` about an axis
- *   perpendicular to `t`, so `Sᵀ t = 2 (t · d) t − d`. On a hand whose basis
- *   composes its twist proximally, `Rz(τ) Ry(a) Rx(f)`, with its twist axis
- *   along `t` (`σ` the sign the handedness and the axes' sense give), the
- *   decomposition reads flexion `atan2(m21, m22)` and abduction
- *   `atan2(−m20, cos)` from the entries `m2j = σ (Sᵀ t) · e_j`, which are
- *   `−σ d · e_abd`, `t · d` and `−σ d · e_flex`: flexion is
- *   `atan2(−σ d · e_abd, t · d)` and abduction `asin(σ d · e_flex)`, each of
- *   sinusoids of the full swivel, enclosed by `outer` and `middle`.
- * - Each reading may be either chart (`alternateRigJointAngles`: the outer
- *   angle a half turn on, the middle one reflected about its right angle) and
- *   any full-turn alias after the rest frame's lift, so each excess is the
- *   least over both charts' intervals and every shift
- *   (`AutoMovieMotionHumanBendEnclosure.excess`), the excess being convex
- *   in the angle.
+ * - The forearm's twist. The strain splits `q` into a swing and a twist about the
+ *   forearm's axis `t` (Dobrowolski's swing-twist, `swingTwist`) and reads the
+ *   twist's signed angle, `wrap(2 atan2(q_v · t̂, q_w))` for a unit axis. The
+ *   vector `(q_w, q_v · t̂)` of two half-angle sinusoids is enclosed by
+ *   `AutoMovieMotionHumanBendEnclosure.outer` on the half swivels; where it may
+ *   come within `FLOOR` of the origin the twist is undefined (the swing's half
+ *   turn) and nothing is certified.
+ * - The wrist. The swing `S` turns `t` to `d = q t` about an axis perpendicular
+ *   to `t`, so `Sᵀ t = 2 (t · d) t − d`. On a hand whose basis composes its
+ *   twist proximally, `Rz(τ) Ry(a) Rx(f)`, with its twist axis along `t` (`σ`
+ *   the sign the handedness and the axes' sense give), the decomposition reads
+ *   flexion `atan2(m21, m22)` and abduction `atan2(−m20, cos)` from the entries
+ *   `m2j = σ (Sᵀ t) · e_j`, which are `−σ d · e_abd`, `t · d` and `−σ d ·
+ *   e_flex`: flexion is `atan2(−σ d · e_abd, t · d)` and abduction `asin(σ d ·
+ *   e_flex)`, each of sinusoids of the full swivel, enclosed by `outer` and
+ *   `middle`.
+ * - Each reading may be either chart (`alternateRigJointAngles`: the outer angle
+ *   a half turn on, the middle one reflected about its right angle) and any
+ *   full-turn alias after the rest frame's lift, so each excess is the least
+ *   over both charts' intervals and every shift
+ *   (`AutoMovieMotionHumanBendEnclosure.excess`), the excess being convex in
+ *   the angle.
  *
- * A hand whose basis is not of that form, or a branch whose rotation fails
- * the premise, bounds the wrist's share by 0 and the twist's alone stands;
- * an arc where the twist itself is not certified is bounded by 0.
+ * A hand whose basis is not of that form, or a branch whose rotation fails the
+ * premise, bounds the wrist's share by 0 and the twist's alone stands; an arc
+ * where the twist itself is not certified is bounded by 0.
  */
 export namespace AutoMovieMotionHumanBendUnmadeBound {
-  /**
-   * The fixed terms of the hand's turn the bound reads.
-   */
+  /** The fixed terms of the hand's turn the bound reads. */
   export interface IProps {
     /** The shoulder's parent world rotation, the chain's upper world rotation. */
     parent: IAutoMovieQuaternion;
@@ -84,7 +82,10 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
     /** The forearm's twist range, degrees; absent, the twist has no excess. */
     range: IAutoMovieAngleRange | null | undefined;
 
-    /** The hand's clinical axes, as the strain decomposes the swing on them; absent, the wrist has no excess. */
+    /**
+     * The hand's clinical axes, as the strain decomposes the swing on them;
+     * absent, the wrist has no excess.
+     */
     handAxes: IAutoMovieJointAxes | undefined;
 
     /** The hand's rest frame. */
@@ -98,7 +99,9 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
    * Prepare the unmade-excess bound of one sweep.
    *
    * @param props The fixed hand terms.
-   * @returns Given a branch's upper-arm rotation by swivel and its hinge rotation, the bound's reader over `[low, high]` degrees; null where no term can have an excess.
+   * @returns Given a branch's upper-arm rotation by swivel and its hinge
+   *   rotation, the bound's reader over `[low, high]` degrees; null where no
+   *   term can have an excess.
    */
   export function prepare(
     props: IProps,
@@ -159,10 +162,14 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
           (swivel: number): IAutoMovieVector3 =>
             Quaternion.rotateVector(turn(swivel), unit),
         );
-        const along: (axis: IAutoMovieVector3) => IAutoMovieSwivelArcs.ISinusoid = (
+        const along: (
+          axis: IAutoMovieVector3,
+        ) => IAutoMovieSwivelArcs.ISinusoid = (
           axis: IAutoMovieVector3,
         ): IAutoMovieSwivelArcs.ISinusoid =>
-          fit(sampled.map((d: IAutoMovieVector3): number => Vector3.dot(d, axis)));
+          fit(
+            sampled.map((d: IAutoMovieVector3): number => Vector3.dot(d, axis)),
+          );
         const read: IPointing = {
           flexion: along(wrist.flexion),
           abduction: along(wrist.abduction),
@@ -170,11 +177,23 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
         };
         let held: boolean = true;
         for (const swivel of [45, 225]) {
-          const d: IAutoMovieVector3 = Quaternion.rotateVector(turn(swivel), unit);
+          const d: IAutoMovieVector3 = Quaternion.rotateVector(
+            turn(swivel),
+            unit,
+          );
           const gap: number =
-            Math.abs(AutoMovieMotionHumanBendEnclosure.at(read.flexion, swivel) - Vector3.dot(d, wrist.flexion)) +
-            Math.abs(AutoMovieMotionHumanBendEnclosure.at(read.abduction, swivel) - Vector3.dot(d, wrist.abduction)) +
-            Math.abs(AutoMovieMotionHumanBendEnclosure.at(read.cosine, swivel) - Vector3.dot(d, unit));
+            Math.abs(
+              AutoMovieMotionHumanBendEnclosure.at(read.flexion, swivel) -
+                Vector3.dot(d, wrist.flexion),
+            ) +
+            Math.abs(
+              AutoMovieMotionHumanBendEnclosure.at(read.abduction, swivel) -
+                Vector3.dot(d, wrist.abduction),
+            ) +
+            Math.abs(
+              AutoMovieMotionHumanBendEnclosure.at(read.cosine, swivel) -
+                Vector3.dot(d, unit),
+            );
           if (!(gap <= PREMISE)) held = false;
         }
         if (held) pointing = read;
@@ -209,9 +228,19 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
             );
           if (flexion !== null && abduction !== null) {
             if (wrist.flexionReserve !== null)
-              sum += charted(flexion, false, wrist.frame?.flexion, wrist.flexionReserve);
+              sum += charted(
+                flexion,
+                false,
+                wrist.frame?.flexion,
+                wrist.flexionReserve,
+              );
             if (wrist.abductionReserve !== null)
-              sum += charted(abduction, true, wrist.frame?.abduction, wrist.abductionReserve);
+              sum += charted(
+                abduction,
+                true,
+                wrist.frame?.abduction,
+                wrist.abductionReserve,
+              );
           }
         }
         return sum;
@@ -220,7 +249,10 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
   }
 }
 
-/** The reserved interval of a range: its ends drawn in by the strain's `RESERVE` share of its width. */
+/**
+ * The reserved interval of a range: its ends drawn in by the strain's `RESERVE`
+ * share of its width.
+ */
 interface IReserve {
   /** The reserved start, degrees. */
   lo: number;
@@ -228,6 +260,8 @@ interface IReserve {
   /** The reserved end, degrees. */
   hi: number;
 }
+/** The alternatives of `WristSigma`'s site. */
+type WristSigma = 1 | -1;
 
 /** The hand's admitted basis, read in the swing's frame, and its reserves. */
 interface IWrist {
@@ -238,7 +272,7 @@ interface IWrist {
   abduction: IAutoMovieVector3;
 
   /** The sign of the handed twist axis along the forearm's axis. */
-  sigma: 1 | -1;
+  sigma: WristSigma;
 
   /** The hand's rest frame. */
   frame: IAutoMovieRestFrame | undefined;
@@ -250,7 +284,10 @@ interface IWrist {
   abductionReserve: IReserve | null;
 }
 
-/** Where the forearm's axis turns to, as sinusoids of the swivel: along the hand's flexion and abduction axes and along itself. */
+/**
+ * Where the forearm's axis turns to, as sinusoids of the swivel: along the
+ * hand's flexion and abduction axes and along itself.
+ */
 interface IPointing {
   /** Along the flexion axis. */
   flexion: IAutoMovieSwivelArcs.ISinusoid;
@@ -265,18 +302,27 @@ interface IPointing {
 /** The reader of a branch no bound is certified on. */
 const NONE: (low: number, high: number) => number = (): number => 0;
 
-/** The largest disagreement of a fitted value with the turn's own the premise admits: rounding of the quaternion products, far below what moves an angle by `SLACK` at `FLOOR`. */
+/**
+ * The largest disagreement of a fitted value with the turn's own the premise
+ * admits: rounding of the quaternion products, far below what moves an angle by
+ * `SLACK` at `FLOOR`.
+ */
 const PREMISE: number = 1e-12;
 
 /** A range's reserved interval, or null for no range. */
-function reserved(range: IAutoMovieAngleRange | null | undefined): IReserve | null {
+function reserved(
+  range: IAutoMovieAngleRange | null | undefined,
+): IReserve | null {
   if (range === null || range === undefined) return null;
   const reserve: number =
     AutoMovieMotionHumanBendStrain.RESERVE * (range.max - range.min);
   return { lo: range.min + reserve, hi: range.max - reserve };
 }
 
-/** The hand's basis where the swing identity reads it: proximal twist along the forearm's axis; null otherwise. */
+/**
+ * The hand's basis where the swing identity reads it: proximal twist along the
+ * forearm's axis; null otherwise.
+ */
 function wristOf(
   props: AutoMovieMotionHumanBendUnmadeBound.IProps,
   unit: IAutoMovieVector3,
@@ -316,7 +362,10 @@ function dot(q: IAutoMovieQuaternion, unit: IAutoMovieVector3): number {
   return q.x * unit.x + q.y * unit.y + q.z * unit.z;
 }
 
-/** The least excess of an axis over both charts and every alias after the rest frame's lift. */
+/**
+ * The least excess of an axis over both charts and every alias after the rest
+ * frame's lift.
+ */
 function charted(
   rig: AutoMovieMotionHumanBendEnclosure.IInterval,
   middle: boolean,
@@ -327,12 +376,23 @@ function charted(
     ? [180 - rig[1], 180 - rig[0]]
     : [rig[0] + 180, rig[1] + 180];
   return Math.min(
-    AutoMovieMotionHumanBendEnclosure.excess(lifted(rig, frame), reserve.lo, reserve.hi),
-    AutoMovieMotionHumanBendEnclosure.excess(lifted(alternate, frame), reserve.lo, reserve.hi),
+    AutoMovieMotionHumanBendEnclosure.excess(
+      lifted(rig, frame),
+      reserve.lo,
+      reserve.hi,
+    ),
+    AutoMovieMotionHumanBendEnclosure.excess(
+      lifted(alternate, frame),
+      reserve.lo,
+      reserve.hi,
+    ),
   );
 }
 
-/** A rest-relative interval as clinical degrees, `sign · rig + neutral`, ordered. */
+/**
+ * A rest-relative interval as clinical degrees, `sign · rig + neutral`,
+ * ordered.
+ */
 function lifted(
   rig: AutoMovieMotionHumanBendEnclosure.IInterval,
   frame: IAutoMovieAxisFrame | undefined,

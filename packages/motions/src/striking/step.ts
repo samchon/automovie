@@ -1,5 +1,6 @@
 import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -13,44 +14,55 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
+/** The record of `IPlanProgressResult`'s site. */
+type IPlanProgressResult = {
+  travelled: number;
+  swinging: boolean;
+  share: number;
+  first: boolean;
+};
+
+/** Each foot's swing interval as shares of one step. */
+type SwingWindows = Readonly<Record<AutoMovieHumanSide, readonly [number, number]>>;
+
+/** Both canonical feet, in contact publication order. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+
 /**
- * Fighting-stance footwork: steps that keep the stance, the foot on the side
- * of travel moving first and the other following to restore the stance
- * without crossing (IBA coaching manual pp. 36 to 39: forward, the lead foot
- * then the rear; back, the rear then the lead; sideways, the near foot then
- * the far).
+ * Fighting-stance footwork: steps that keep the stance, the foot on the side of
+ * travel moving first and the other following to restore the stance without
+ * crossing (IBA coaching manual pp. 36 to 39: forward, the lead foot then the
+ * rear; back, the rear then the lead; sideways, the near foot then the far).
  *
  * Each step moves the whole stance by its length along the direction in the
  * body's line frame: the first foot swings in the first half of the step, the
- * second follows in the second, each on a minimum-jerk path lifted clear of
- * the floor, while the root carries the body on its own minimum-jerk profile
- * and the guard rides on the trunk. The step length defaults to half a
- * stance length (the kickboxing research's step share) and the step period
- * scales with the leg by dynamic similarity (`PERIOD`, Alexander 1984): 0.35 s
- * on a 0.93 m hip, about three steps a second, inside the 2 to 3.5 steps a
- * second of the ring-movement reading (provisional).
+ * second follows in the second, each on a minimum-jerk path lifted clear of the
+ * floor, while the root carries the body on its own minimum-jerk profile and
+ * the guard rides on the trunk. The step length defaults to half a stance
+ * length (the kickboxing research's step share) and the step period scales with
+ * the leg by dynamic similarity (`PERIOD`, Alexander 1984): 0.35 s on a 0.93 m
+ * hip, about three steps a second, inside the 2 to 3.5 steps a second of the
+ * ring-movement reading (provisional).
  *
  * An interrupted step hands its bearing foot and airborne placements to the
- * next one. The inherited swing lands before the bearing foot lifts, using
- * the next step's own clock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the foot order with its coaching source, the paths, the defaults and which are provisional.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed direction union, and a pure plan of postures in world metres and seconds with plant windows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table dispatches through.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stance, posture and plan types; the step scales with each body's stance.
+ * next one. The inherited swing lands before the bearing foot lifts, using the
+ * next step's own clock.
  */
 export namespace step {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "step";
 
-  /** Cancel table: footwork chains into strikes, defences and more footwork at any time. */
+  /**
+   * Cancel table: footwork chains into strikes, defences and more footwork at
+   * any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     guard: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
@@ -63,10 +75,10 @@ export namespace step {
    * One step's period in pendulum units, `T / sqrt(l / g)` with `l` the hip
    * height: bodies of different size step alike at equal Froude number
    * (Alexander 1984), so a step's time is a share of the leg's own pendulum
-   * time, never a fixed second. The value reads the provisional 0.35 s
-   * (about three steps a second, inside the 2 to 3.5 of the ring-movement
-   * reading) on the 0.93 m hip the gait laws' speeds are measured at
-   * (`walk.FROUDE`, Bohannon 1997).
+   * time, never a fixed second. The value reads the provisional 0.35 s (about
+   * three steps a second, inside the 2 to 3.5 of the ring-movement reading) on
+   * the 0.93 m hip the gait laws' speeds are measured at (`walk.FROUDE`,
+   * Bohannon 1997).
    */
   export const PERIOD: number =
     0.35 / Math.sqrt(0.93 / AutoMovieGravity.STANDARD);
@@ -79,14 +91,19 @@ export namespace step {
    * @returns Seconds.
    */
   export function period(
-    body: IAutoMovieMotionHumanActionContext["body"],
+    body: {
+      measure: Pick<IAutoMovieMotionHumanActionContext["body"]["measure"], "hipHeight">;
+    },
   ): number {
     return (
       PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieGravity.STANDARD)
     );
   }
 
-  /** Share of a stance length one step covers (IBA: the following foot restores the stance without crossing). */
+  /**
+   * Share of a stance length one step covers (IBA: the following foot restores
+   * the stance without crossing).
+   */
   export const STEP_SHARE: number = 0.5;
 
   /**
@@ -94,24 +111,16 @@ export namespace step {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When count, travel or turn exceeds its documented range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation The coached foot order and lifted minimum-jerk paths use the stance's line frame. On a cut the first swing closes the inherited transfer before the bearing foot leaves. The root keeps its own profile, with both feet and the guard solved by the shared fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the line frame and the feet's schedule once, then each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid counts and lengths throw; the period is a named provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The plan reads nothing that can change; each posture is computed from its inputs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Its closures hold only the instance's own inputs and are released with the plan.
+   * @throws {HumanRefusal} When count, travel or turn exceeds its documented
+   *   range.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanStep.IParams = context.params;
-    const count: number = p.steps ?? 1;
-    HumanBound.whole("steps", count);
+    const count: number = HumanBound.whole("steps", p.steps ?? 1);
     const body = context.body;
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
     const turn: number = p.turn ?? 0;
     HumanBound.within("turn", turn, -90 * count, 90 * count, "deg");
     const transition: boolean =
@@ -145,7 +154,7 @@ export namespace step {
       ...entry.joints,
       ...StrikingStance.joints(entry.joints),
     };
-    const rear: "left" | "right" = StrikingStance.rear({ lead });
+    const rear: AutoMovieHumanSide = StrikingStance.rear({ lead });
 
     // The line frame: the stance's line is the heading turned back by the
     // stance turn; the direction is read in it.
@@ -163,7 +172,7 @@ export namespace step {
           : p.direction === "left"
             ? left
             : Vector3.scale(left, -1);
-    const first: "left" | "right" =
+    const first: AutoMovieHumanSide =
       p.direction === "forward"
         ? lead
         : p.direction === "back"
@@ -171,43 +180,21 @@ export namespace step {
           : p.direction === "left"
             ? "left"
             : "right";
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
     const lift: number = 0.015 * body.measure.stature;
-    const windows: Record<"left" | "right", readonly [number, number]> =
-      first === "left"
-        ? { left: [0, 0.5], right: [0.45, 0.95] }
-        : { left: [0.45, 0.95], right: [0, 0.5] };
-    // Finish an inherited swing before the old bearing foot lifts. A cut in
-    // the overlap of two swings continues that already unsupported interval.
-    const cutFirst: "left" | "right" =
-      support?.bearing === undefined
-        ? first
-        : StrikingStance.rear({ lead: support.bearing });
-    const cutFollow: readonly [number, number] = [
-      support?.bearing === undefined ? 0 : 0.5,
-      0.95,
-    ];
-    const opening: typeof windows =
-      support === undefined
-        ? windows
-        : cutFirst === "left"
-          ? { left: [0, 0.5], right: cutFollow }
-          : { left: cutFollow, right: [0, 0.5] };
+    const planted: IPlants = supportWindows(first, count, support);
 
     // A foot's progress: whole steps done plus the current step's share.
     const progress = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       t: number,
-    ): {
-      travelled: number;
-      swinging: boolean;
-      share: number;
-      first: boolean;
-    } => {
+    ): IPlanProgressResult => {
       const k: number = Math.min(count - 1, Math.floor(t / stride));
       const local: number = (t - k * stride) / stride;
-      const [a, b] = (k === 0 ? opening : windows)[side];
+      const [a, b] = (k === 0 ? planted.opening : planted.windows)[side];
       const s: number = minimumJerk.share((local - a) / (b - a));
       return {
         travelled: (k + s) * length,
@@ -218,30 +205,6 @@ export namespace step {
         first: k === 0,
       };
     };
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (let k: number = 0; k < count; k++)
-      for (const side of ["left", "right"] as const) {
-        const [a, b] = (k === 0 ? opening : windows)[side];
-        if (k !== 0 || support?.landings[side] === undefined)
-          contacts.push({
-            part: `${side}Foot`,
-            kind: "plant",
-            from:
-              k === 0
-                ? 0
-                : (k - 1 + (k === 1 ? opening : windows)[side][1]) / count,
-            to: (k + a) / count,
-            support: { kind: "ground" },
-          });
-        if (k === count - 1)
-          contacts.push({
-            part: `${side}Foot`,
-            kind: "plant",
-            from: (k + b) / count,
-            to: 1,
-            support: { kind: "ground" },
-          });
-      }
     const events: IAutoMovieMotionEvent[] = Array.from(
       { length: count },
       (_: unknown, k: number): IAutoMovieMotionEvent => ({
@@ -252,15 +215,12 @@ export namespace step {
     return {
       duration,
       events,
-      contacts,
+      contacts: planted.contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const placed = {} as Record<
-          "left" | "right",
-          IAutoMovieMotionHumanFoot.IPlacement
-        >;
-        const down = {} as Record<"left" | "right", boolean>;
-        for (const side of ["left", "right"] as const) {
+        const placed: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> = { ...feet };
+        const down: Record<AutoMovieHumanSide, boolean> = { left: true, right: true };
+        for (const side of SIDES) {
           const g = progress(side, t);
           const fromY: number = feet[side].ankle.y;
           const toY: number = support?.landings[side]?.ankle.y ?? fromY;
@@ -280,7 +240,7 @@ export namespace step {
         }
         const carried: number =
           count * length * minimumJerk.share(t / duration);
-        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const posture: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           {
             root: Vector3.add(entry.root, Vector3.scale(unit, carried)),
@@ -290,7 +250,7 @@ export namespace step {
             joints: { ...joints },
             limbs: StrikingStance.legs(body, placed, down),
           },
-          resolveHumanPosture.KNEE,
+          lowerHumanPosture.KNEE,
         );
         return {
           ...posture,
@@ -309,5 +269,71 @@ export namespace step {
         };
       },
     };
+  }
+
+  /** Preparation of a straight sequence's swing and support windows. */
+  export interface IPlants {
+    /** Each foot's swing in a regular beat. */
+    windows: SwingWindows;
+
+    /** Each foot's swing in the first beat, which can finish a cut. */
+    opening: SwingWindows;
+
+    /** The stationary spans, as shares of the complete sequence. */
+    contacts: IAutoMovieMotionHumanContactWindow[];
+  }
+
+  /**
+   * Prepare the stationary intervals between swings. On a cut, the airborne
+   * foot finishes landing before the bearing foot lifts. An inherited overlap
+   * continues without a bearing foot until the first landing.
+   *
+   * @param first The foot due to swing first in a regular beat.
+   * @param count The positive integer number of beats.
+   * @param support The entry's still-airborne feet and any bearing foot.
+   * @returns The regular and opening swing windows and the complementary contacts.
+   */
+  export function supportWindows(
+    first: AutoMovieHumanSide,
+    count: number,
+    support?: Pick<strikingStepSupport.ISupport, "landings" | "bearing">,
+  ): IPlants {
+    const windows: SwingWindows = first === "left"
+      ? { left: [0, 0.5], right: [0.45, 0.95] }
+      : { left: [0.45, 0.95], right: [0, 0.5] };
+    const cutFirst: AutoMovieHumanSide = support?.bearing === undefined
+      ? first
+      : StrikingStance.rear({ lead: support.bearing });
+    const cutFollow: readonly [number, number] = [
+      support?.bearing === undefined ? 0 : 0.5,
+      0.95,
+    ];
+    const opening: SwingWindows = support === undefined
+      ? windows
+      : cutFirst === "left"
+        ? { left: [0, 0.5], right: cutFollow }
+        : { left: cutFollow, right: [0, 0.5] };
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+    for (let k: number = 0; k < count; k++)
+      for (const side of SIDES) {
+        const [a, b]: readonly [number, number] = (k === 0 ? opening : windows)[side];
+        if (k !== 0 || support?.landings[side] === undefined)
+          contacts.push({
+            part: `${side}Foot`,
+            kind: "plant",
+            from: k === 0 ? 0 : (k - 1 + (k === 1 ? opening : windows)[side][1]) / count,
+            to: (k + a) / count,
+            support: { kind: "ground" },
+          });
+        if (k === count - 1)
+          contacts.push({
+            part: `${side}Foot`,
+            kind: "plant",
+            from: (k + b) / count,
+            to: 1,
+            support: { kind: "ground" },
+          });
+      }
+    return { windows, opening, contacts };
   }
 }

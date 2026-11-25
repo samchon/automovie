@@ -1,21 +1,3 @@
-# src/props/ScenicContainerConstruction.ts#ScenicContainerConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Scenic container shells and their supported placement surfaces or cargo mounting frame.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each construction applies the selected variant's coordinate frame and dimensions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Used by the named producers and the legacy selector.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No shape dispatch is shared between unrelated mechanisms.
-
 # src/props/ScenicContainerConstruction.ts#ScenicContainerConstruction.BasketsKind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

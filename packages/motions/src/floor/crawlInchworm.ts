@@ -1,5 +1,6 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -25,53 +26,70 @@ import { crawlInchwormPose } from "./crawlInchwormPose";
 import { floorEntry } from "./floorEntry";
 import { getUp } from "./getUp";
 
+/** The record of `IPlanB`'s site. */
+type IPlanB = { share: number };
+
+/** The record of `IPlanA`'s site. */
+type IPlanA = { share: number };
+
+/** The record of `IPlanItemResult`'s site. */
+type IPlanItemResult = {
+  name: string;
+  share: number;
+};
+
 /**
- * The inchworm, the crawl's `inchworm` kind: from standing the body folds
- * until its palms are flat on the floor before its feet, walks the hands
- * out one at a time to a plank, then walks the feet in one at a time to
- * the hands, a number of cycles, and rises to standing where its feet have
- * come to.
+ * The inchworm, the crawl's `inchworm` kind: from standing the body folds until
+ * its palms are flat on the floor before its feet, walks the hands out one at a
+ * time to a plank, then walks the feet in one at a time to the hands, a number
+ * of cycles, and rises to standing where its feet have come to.
  *
- * The walk is a support sequence (`support`): each placement of the hands
- * and the feet is a stance whose key posture the whole-body fit solves on
- * those four contacts, started from and kept nearest the chain's shape at
- * that placement (`crawlInchwormPose`), so the hips sink as the hands walk
- * out and rise as the feet walk in, and
- * each step lets one limb go, swings it over the middle of its step and sets
- * it down while the other three bear. The fold's and the plank's reaches
- * are the body's middle-plane chain's (`crawlChain`); a cycle walks the
- * wrists from the fold's reach to the plank's and the feet after them by the
- * same length, a hand's step at most `HAND` of the arm's length and a
- * foot's `FOOT` of the leg's. Folding takes `DOWN` seconds, from standing or
- * from the displayed entry when it is entered crouched or on the knees
- * (`floorEntry`), each step `STEP`, and rising back to standing `RISE`. The
- * steps and the timing are provisional, scaled by the square root of the
- * hip height and the manner's tempo.
- * Events: `down`, per cycle `plank<n>` and `folded<n>`, `rising`, and per
- * limb and step `<limb>Liftoff<n>` and `<limb>Touchdown<n>`, the limb one of
- * `leftHand`, `rightHand`, `leftFoot`, `rightFoot`.
+ * The walk is a support sequence (`support`): each placement of the hands and
+ * the feet is a stance whose key posture the whole-body fit solves on those
+ * four contacts, started from and kept nearest the chain's shape at that
+ * placement (`crawlInchwormPose`), so the hips sink as the hands walk out and
+ * rise as the feet walk in, and each step lets one limb go, swings it over the
+ * middle of its step and sets it down while the other three bear. The fold's
+ * and the plank's reaches are the body's middle-plane chain's (`crawlChain`); a
+ * cycle walks the wrists from the fold's reach to the plank's and the feet
+ * after them by the same length, a hand's step at most `HAND` of the arm's
+ * length and a foot's `FOOT` of the leg's. Folding takes `DOWN` seconds, from
+ * standing or from the displayed entry when it is entered crouched or on the
+ * knees (`floorEntry`), each step `STEP`, and rising back to standing `RISE`.
+ * The steps and the timing are provisional, scaled by the square root of the
+ * hip height and the manner's tempo. Events: `down`, per cycle `plank<n>` and
+ * `folded<n>`, `rising`, and per limb and step `<limb>Liftoff<n>` and
+ * `<limb>Touchdown<n>`, the limb one of `leftHand`, `rightHand`, `leftFoot`,
+ * `rightFoot`.
  *
  * Not yet: a push-up at the plank.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the walk, the steps, the timing, the events and what is missing, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A crawl kind expressed as a support sequence of its contact placements, each solved on the body by the shared fit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The constants and the plan the crawl law calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place follows from the body's measure and the floor; no key posture is typed.
  */
 export namespace crawlInchworm {
-  /** A hand's longest step as a share of the upper arm and the forearm (provisional). */
+  /**
+   * A hand's longest step as a share of the upper arm and the forearm
+   * (provisional).
+   */
   export const HAND: number = 0.4;
 
   /** A foot's longest step as a share of the thigh and the shank (provisional). */
   export const FOOT: number = 0.25;
 
-  /** One limb's step, in the body's own time unit, the square root of its hip height over gravity (provisional). */
+  /**
+   * One limb's step, in the body's own time unit, the square root of its hip
+   * height over gravity (provisional).
+   */
   export const STEP: number = 1.6;
 
-  /** The fold from standing to the palms on the floor, in the body's own time unit (provisional). */
+  /**
+   * The fold from standing to the palms on the floor, in the body's own time
+   * unit (provisional).
+   */
   export const DOWN: number = 4.9;
 
-  /** The rise from the last fold to standing, in the body's own time unit (provisional). */
+  /**
+   * The rise from the last fold to standing, in the body's own time unit
+   * (provisional).
+   */
   export const RISE: number = 4.9;
 
   /** The limbs that bear, in the order their contacts are listed. */
@@ -84,31 +102,52 @@ export namespace crawlInchworm {
 
   /** A limb that bears in the inchworm. */
   export type Limb = (typeof LIMBS)[number];
+  /** The record of `IPlanS`'s site. */
+  type IPlanS = {
+    limb: Limb;
+    n: number;
+    at: number;
+  };
+
+  /** The record of `IPlanStepsItem2`'s site. */
+  type IPlanStepsItem2 = { limb: Limb; n: number; at: number };
+
+  /** The record of `IPlanResult`'s site. */
+  type IPlanResult = {
+    stances: IAutoMovieMotionHumanSupport.IStance[];
+    steps: IStepsItemResult[];
+  };
+
+  /** The record of `IStepsItemResult`'s site. */
+  type IStepsItemResult = { limb: Limb; n: number; at: number };
+
+  /** The record of `IPlan`'s site. */
+  type IPlan = {
+    stances: IAutoMovieMotionHumanSupport.IStance[];
+    steps: IPlanStepsItem[];
+  };
+
+  /** The record of `IPlanStepsItem`'s site. */
+  type IPlanStepsItem = { limb: Limb; n: number; at: number };
 
   /**
    * Plan an inchworm.
    *
    * @param context The crawl's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer, or a placement the body cannot bear on (`support`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the refusals; the namespace gives the law.
-   * @evidence contracts/development/implementation.md#principled-implementation Each placement of the four limbs is a stance of the support planner, whose keys are the balanced postures on those contacts nearest the chain's shape there, each solve started from that shape, and each step one limb released, swung and set down (Escande, Kheddar and Miossec 2013).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A placement schedule, its stances, one support plan and the walk's events named on it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One limb moves at a time, so three always bear; the feet come in by exactly what the hands went out, so each cycle ends in the fold it began in.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The chain, fixed floor conversions, two sole prerequisites and palm geometry prepare once across the N actual stance preferences. Each preference retains its actual chain search and complete pose solve, and the support plan retains every original key fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body/chain/floor frame share native geometry and one synchronous exact FK/genuine ROM scope across actual preference construction. Every current foot/wrist placement still builds independent raw preferences, actual full fits and contact points; actual support, chain and entry behavior retain their owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A dedicated stance-construction scope releases all FK/ROM/preference callbacks before support planning; only original numeric preferences, contact targets and step records leave it. Returned support keys/intervals retain no construction loan, callback or query history and forward original settlement.
+   * @throws {HumanRefusal} When the cycle count is not a positive integer, or a
+   *   placement the body cannot bear on (`support`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrawl.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const cycles: number = context.params.count ?? 3;
-    HumanBound.whole("count", cycles);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const cycles: number = HumanBound.whole("count", context.params.count ?? 3);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
 
     // The reaches are measured from a stance over the entry's feet, so an
     // inchworm entered crouched or on the knees walks from where it is.
@@ -123,7 +162,7 @@ export namespace crawlInchworm {
       origin: { ...standing.root, y: 0 },
       yaw: standing.yaw,
     };
-    const chain: crawlChain.IChain = crawlChain.of(
+    const chain: crawlChain.IChain = crawlChain(
       body,
       standing,
       frame,
@@ -151,16 +190,7 @@ export namespace crawlInchworm {
       Math.sqrt(m.hipHeight / AutoMovieGravity.STANDARD) * modifiers.tempo;
     const step: number = STEP * scale;
 
-    const {
-      stances,
-      steps,
-    }: {
-      stances: IAutoMovieMotionHumanSupport.IStance[];
-      steps: { limb: Limb; n: number; at: number }[];
-    } = ((): {
-      stances: IAutoMovieMotionHumanSupport.IStance[];
-      steps: { limb: Limb; n: number; at: number }[];
-    } => {
+    const { stances, steps }: IPlan = ((): IPlanResult => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -177,7 +207,7 @@ export namespace crawlInchworm {
       // A bearing hand is placed by its wrist across the floor (`support`), so
       // its place is the wrist over its flat palm, under the shoulder.
       const point = (limb: Limb): IAutoMovieMotionTarget => {
-        const side: "left" | "right" = limb.startsWith("left")
+        const side: AutoMovieHumanSide = limb.startsWith("left")
           ? "left"
           : "right";
         return {
@@ -228,7 +258,7 @@ export namespace crawlInchworm {
           prefer: prefer(),
         },
       ];
-      const steps: { limb: Limb; n: number; at: number }[] = [];
+      const steps: IPlanStepsItem2[] = [];
       const counts: Record<Limb, number> = {
         leftHand: 0,
         rightHand: 0,
@@ -292,24 +322,12 @@ export namespace crawlInchworm {
       ...planned,
       events: [
         ...planned.events,
-        ...steps.flatMap(
-          (s: {
-            limb: Limb;
-            n: number;
-            at: number;
-          }): {
-            name: string;
-            share: number;
-          }[] => [
-            { name: `${s.limb}Liftoff${s.n}`, share: share(held(s.at - 1)) },
-            { name: `${s.limb}Touchdown${s.n}`, share: share(`bear${s.at}`) },
-          ],
-        ),
+        ...steps.flatMap((s: IPlanS): IPlanItemResult[] => [
+          { name: `${s.limb}Liftoff${s.n}`, share: share(held(s.at - 1)) },
+          { name: `${s.limb}Touchdown${s.n}`, share: share(`bear${s.at}`) },
+        ]),
         { name: "rising", share: share(`folded${cycles}`) },
-      ].sort(
-        (a: { share: number }, b: { share: number }): number =>
-          a.share - b.share,
-      ),
+      ].sort((a: IPlanA, b: IPlanB): number => a.share - b.share),
       base: { kind: "standing" },
     };
   }

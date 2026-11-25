@@ -12,24 +12,25 @@ import { lieDown } from "../floor/lieDown";
 import { clinch } from "./clinch";
 import { grappleSumo } from "./grappleSumo";
 
+/** The alternatives of `RowGrip`'s site. */
+type RowGrip = "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";
+
 /**
  * Floor support keys and hand regions for preplanned grappling performances.
- * The phase shares, turns and body angles are provisional staging values.
- * The IJF atlas identifies the judo silhouettes, and UWW's rules distinguish
- * the freestyle and Greco-Roman contact vocabularies. The phase separation
- * follows Imamura et al. (2006, PMID 24357984) and Yamashita et al. (2020,
- * PMC7739678). The studies do not supply these choreography values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the row's meaning, references and the provenance of the numeric values.
- * @evidence contracts/development/design.md#principled-representation One support schedule supplies changes of bearing, with authored class-specific preferences and the partner regions kept separate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law reads a scene's duration and region goals, then the support keys for the selected role and branch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses canonical contact parts and floor posture shapes with authored variation; never grants a sport score from joint angles.
+ * The phase shares, turns and body angles are provisional staging values. The
+ * IJF atlas identifies the judo silhouettes, and UWW's rules distinguish the
+ * freestyle and Greco-Roman contact vocabularies. The phase separation follows
+ * Imamura et al. (2006, PMID 24357984) and Yamashita et al. (2020, PMC7739678).
+ * The studies do not supply these choreography values.
  */
 export namespace grappleStances {
   /** Whether the receiver finishes on the back, or the actors separate standing. */
   type Finish = "back" | "hold" | "reset";
 
-  /** Visible character of one actor's entry, by pelvis and trunk angles in degrees. */
+  /**
+   * Visible character of one actor's entry, by pelvis and trunk angles in
+   * degrees.
+   */
   interface IEntry {
     /** Pelvis turn toward the actor's lead side. */
     turn: number;
@@ -56,10 +57,13 @@ export namespace grappleStances {
     /** The shared transition to the final supports. */
     finish: Finish;
     /** Initiator's right-lead grip family. */
-    grip: "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";
+    grip: RowGrip;
   }
 
-  /** Illustrative poses separate moving silhouettes within the same rules family. */
+  /**
+   * Illustrative poses separate moving silhouettes within the same rules
+   * family.
+   */
   const rows: Readonly<
     Record<Exclude<IAutoMovieMotionHumanGrapple.Kind, grappleSumo.Kind>, IRow>
   > = {
@@ -204,34 +208,14 @@ export namespace grappleStances {
     };
   }
 
-  /**
-   * Read the default duration for a scene, in seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explains what the numeric row means and its units.
-   * @evidence contracts/development/implementation.md#principled-implementation One lookup by the requested kind.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns the only scalar from that row used to set the clock.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses each authored kind's own duration.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant table lookup.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No intermediate computation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure numeric lookup.
-   */
+  /** Read the default duration for a scene, in seconds. */
   export function seconds(kind: IAutoMovieMotionHumanGrapple.Kind): number {
     return grappleSumo.is(kind)
       ? grappleSumo.seconds(kind)
       : rows[kind].seconds;
   }
 
-  /**
-   * Resolve visible reach sites relative to the partner.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each returned key is the acting hand and its value is the partner's region.
-   * @evidence contracts/development/implementation.md#principled-implementation The clinch owner supplies collar and sleeve. Other rows map the same mirrored hand keys to their sport's named regions.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the scene's grip family, then the sites that the selected lead uses.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leg grip uses a leg region; the Greco-Roman shoulder grip has no leg target.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant lookups.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses clinch regions for the collar-and-sleeve family.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns at most two region strings.
-   */
+  /** Resolve visible reach sites relative to the partner. */
   export function regions(
     kind: IAutoMovieMotionHumanGrapple.Kind,
     side: AutoMovieHumanSide,
@@ -268,17 +252,11 @@ export namespace grappleStances {
    * @param p The scene.
    * @param duration The scene's seconds.
    * @param body The performer's body.
-   * @param partner The partner's body, which a sumo tachiai's contact gap reads.
-   * @param pitch A sumo tachiai's trunk pitch, degrees, as the support fit takes it (`grappleSumo.keys`); the charge pose's own when absent.
+   * @param partner The partner's body, which a sumo tachiai's contact gap
+   *   reads.
+   * @param pitch A sumo tachiai's trunk pitch, degrees, as the support fit
+   *   takes it (`grappleSumo.keys`); the charge pose's own when absent.
    * @returns The timed support keys.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns five ordered stances, with a shared shoulder-exchange clock for the completed shoulder scene and the ordinary floor shares for other scenes.
-   * @evidence contracts/development/implementation.md#principled-implementation The completed shoulder scene keeps the original foot bearings under its small turn and prepares the seat and back roll endpoints. The other entries step and either recover standing or add floor contacts. The staged shoulder-profile receiver carries free arms outward while the pair separates.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the stance family and creates the common entry, transfer, settle and release keys.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Floor fitting belongs to support. An interrupted scene has no fall or award event.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Five keys per role, independent of duration or the number of playback queries.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Floor shapes and standing recovery reuse lieDown and getUp.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No history is retained.
    */
   export function keys(
     p: IAutoMovieMotionHumanGrapple.IParams,

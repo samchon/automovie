@@ -5,21 +5,22 @@ import type { AutoMovieHumanCartoon } from "./AutoMovieHumanCartoon.js";
 import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
 
 /**
- * Build a deliberately exaggerated cartoon face for a posed polygon head.
- * The caller adds the returned object to the already posed head group once.
- * Bounds use that group's metres, +X forward, +Y up and +Z anatomical left.
- * Eyes, brows, nose and mouth are dimensioned marks, not anatomical skin.
- * Supported units are AU1/2/4/5/6/7/12/15/20/23/24/25/26/27/41/43;
- * named lip fields reuse those units. Other actions, tongue and visemes are
- * reported as unsupported. Head orientation stays with the parent; gaze
- * moves pupils and jaw millimetres move the mouth marks. Marks follow the
- * actual polygon front; the silhouette limits exaggerated brow and jaw travel.
- * Pose values must be finite and already admitted by the caller; this drawing
- * applies no second clinical range limit, including when clamping is disabled.
+ * Build a deliberately exaggerated cartoon face for a posed polygon head. The
+ * caller adds the returned object to the already posed head group once. Bounds
+ * use that group's metres, +X forward, +Y up and +Z anatomical left. Eyes,
+ * brows, nose and mouth are dimensioned marks, not anatomical skin. Supported
+ * units are AU1/2/4/5/6/7/12/15/20/23/24/25/26/27/41/43; named lip fields reuse
+ * those units. Other actions, tongue and visemes are reported as unsupported.
+ * Head orientation stays with the parent; gaze moves pupils and jaw millimetres
+ * move the mouth marks. Marks follow the actual polygon front; the silhouette
+ * limits exaggerated brow and jaw travel. Pose values must be finite and
+ * already admitted by the caller; this drawing applies no second clinical range
+ * limit, including when clamping is disabled.
  *
  * @param head Actual local bounds of the polygon head, metres.
  * @param expression Existing public action-unit input; omission means neutral.
- * @param pose Admitted finite eye/jaw pose; neck motion is already on the parent.
+ * @param pose Admitted finite eye/jaw pose; neck motion is already on the
+ *   parent.
  * @returns Owned face geometry, explicit unsupported fields and its disposer.
  */
 export function buildHumanCartoonFace(
@@ -48,31 +49,8 @@ export function buildHumanCartoonFace(
   const extent: THREE.Vector3 = new THREE.Vector3(...head.max).sub(
     new THREE.Vector3(...head.min),
   );
-  if (
-    ![...head.min, ...head.max].every(Number.isFinite) ||
-    Math.min(extent.x, extent.y, extent.z) <= 0 ||
-    typeof head.frontAt !== "function"
-  )
+  if (Math.min(extent.x, extent.y, extent.z) <= 0)
     throw new Error("Cartoon face needs finite positive polygon head bounds");
-
-  // Admission belongs to the pose evaluator; direct calls still need finite
-  // scalars before any geometry or material is acquired.
-  const poseValues: (number | undefined)[] = [
-    pose?.eyes?.left?.vertical,
-    pose?.eyes?.left?.horizontal,
-    pose?.eyes?.right?.vertical,
-    pose?.eyes?.right?.horizontal,
-    pose?.jaw?.opening,
-    pose?.jaw?.protrusion,
-    pose?.jaw?.lateralExcursion,
-  ];
-  if (
-    poseValues.some(
-      (value: number | undefined): boolean =>
-        value !== undefined && !Number.isFinite(value),
-    )
-  )
-    throw new Error("Cartoon face requires finite admitted eye and jaw values");
 
   const centreY: number = (head.min[1] + head.max[1]) / 2;
   const centreZ: number = (head.min[2] + head.max[2]) / 2;
@@ -102,20 +80,23 @@ export function buildHumanCartoonFace(
   /**
    * Admit one sided action and preserve explicit unsupported reporting.
    *
-   * Principled implementation: Enforces finite [0,1] intensity and unique unit/side, writes the original bilateral lookup and records unsupported nonzero unit names once.
-   * Clear and simple design: One admission seam serves activation lists and named lip fields.
-   * Prohibited implementation shortcuts: Unsupported requests are reported rather than converted to invented marks.
+   * Principled implementation: Enforces finite [0,1] intensity and unique
+   * unit/side, writes the original bilateral lookup and records unsupported
+   * nonzero unit names once. Clear and simple design: One admission seam serves
+   * activation lists and named lip fields. Prohibited implementation shortcuts:
+   * Unsupported requests are reported rather than converted to invented marks.
    * Meaningful documentation: States sided admission and unsupported handling.
-   * Efficient algorithms: Constant lookup plus a scan of the bounded unsupported-name list.
-   * Reuse equivalent work: Reuses one bilateral intensity pair per action.
-   * Bound retention and release resources: Plain action records live only through this face build.
+   * Efficient algorithms: Constant lookup plus a scan of the bounded
+   * unsupported-name list. Reuse equivalent work: Reuses one bilateral
+   * intensity pair per action. Bound retention and release resources: Plain
+   * action records live only through this face build.
    */
   const set: (unit: string, side: "left" | "right", value: number) => void = (
     unit: string,
     side: "left" | "right",
     value: number,
   ): void => {
-    if (!Number.isFinite(value) || value < 0 || value > 1)
+    if (value < 0 || value > 1)
       throw new Error("Cartoon AU intensity must be in [0, 1]");
     const address: string = unit + "/" + side;
     if (used.has(address))
@@ -164,13 +145,17 @@ export function buildHumanCartoonFace(
   /**
    * Release the original face's geometry and three shared materials.
    *
-   * Principled implementation: Disposes every recorded geometry and the original ink/white/nose materials without claiming its borrowed head.
-   * Clear and simple design: The returned face owner retains its independent lifetime.
-   * Prohibited implementation shortcuts: No caller head geometry or materials are released.
-   * Meaningful documentation: States owned resource roles and borrowed-head exclusion.
-   * Efficient algorithms: O(G) calls for G created face geometries and three materials.
-   * Reuse equivalent work: Shared materials are each disposed once per call, matching original one-owner use.
-   * Bound retention and release resources: The caller invokes this disposer once when retiring its face; returned object references remain caller-owned.
+   * Principled implementation: Disposes every recorded geometry and the
+   * original ink/white/nose materials without claiming its borrowed head. Clear
+   * and simple design: The returned face owner retains its independent
+   * lifetime. Prohibited implementation shortcuts: No caller head geometry or
+   * materials are released. Meaningful documentation: States owned resource
+   * roles and borrowed-head exclusion. Efficient algorithms: O(G) calls for G
+   * created face geometries and three materials. Reuse equivalent work: Shared
+   * materials are each disposed once per call, matching original one-owner use.
+   * Bound retention and release resources: The caller invokes this disposer
+   * once when retiring its face; returned object references remain
+   * caller-owned.
    */
   const dispose: () => void = (): void => {
     geometries.forEach((geometry: THREE.BufferGeometry): void =>
@@ -184,13 +169,14 @@ export function buildHumanCartoonFace(
   /**
    * Read an admitted sided action, with omitted units neutral.
    *
-   * Principled implementation: Reads the existing bilateral pair or zero, preserving original neutral semantics.
-   * Clear and simple design: One lookup serves all original mark formulas.
-   * Prohibited implementation shortcuts: No emotion preset or inferred activation is added.
-   * Meaningful documentation: Gives omitted-unit zero semantics.
-   * Efficient algorithms: Constant map/tuple access.
-   * Reuse equivalent work: Reads the resolved action table instead of rescanning expression inputs.
-   * Bound retention and release resources: Acquires no resource or retained result.
+   * Principled implementation: Reads the existing bilateral pair or zero,
+   * preserving original neutral semantics. Clear and simple design: One lookup
+   * serves all original mark formulas. Prohibited implementation shortcuts: No
+   * emotion preset or inferred activation is added. Meaningful documentation:
+   * Gives omitted-unit zero semantics. Efficient algorithms: Constant map/tuple
+   * access. Reuse equivalent work: Reads the resolved action table instead of
+   * rescanning expression inputs. Bound retention and release resources:
+   * Acquires no resource or retained result.
    */
   const au: (unit: string, side: number) => number = (
     unit: string,
@@ -200,13 +186,17 @@ export function buildHumanCartoonFace(
   /**
    * Record one original face mark and its owned geometry.
    *
-   * Principled implementation: Creates a mesh over the supplied original primitive/mark buffer, assigns its stable drawing name and mounts it in the owned face group.
-   * Clear and simple design: One seam records every face geometry for cleanup.
-   * Prohibited implementation shortcuts: No shape selection, skeleton or body geometry is introduced.
-   * Meaningful documentation: States owned-buffer recording and face-group mounting.
-   * Efficient algorithms: Constant registry/object work beyond supplied geometry creation.
-   * Reuse equivalent work: Reuses the three borrowed-within-face shared materials.
-   * Bound retention and release resources: Geometry transfers to the face's disposal inventory and remains bounded by its fixed mark population.
+   * Principled implementation: Creates a mesh over the supplied original
+   * primitive/mark buffer, assigns its stable drawing name and mounts it in the
+   * owned face group. Clear and simple design: One seam records every face
+   * geometry for cleanup. Prohibited implementation shortcuts: No shape
+   * selection, skeleton or body geometry is introduced. Meaningful
+   * documentation: States owned-buffer recording and face-group mounting.
+   * Efficient algorithms: Constant registry/object work beyond supplied
+   * geometry creation. Reuse equivalent work: Reuses the three
+   * borrowed-within-face shared materials. Bound retention and release
+   * resources: Geometry transfers to the face's disposal inventory and remains
+   * bounded by its fixed mark population.
    */
   const mesh: (
     name: string,
@@ -227,13 +217,16 @@ export function buildHumanCartoonFace(
   /**
    * Preserve the original Catmull-Rom tubular brow/lip stroke.
    *
-   * Principled implementation: Uses the original curve, at least eight longitudinal segments and five radial segments with supplied metric radius.
-   * Clear and simple design: One drawing primitive serves brows and closed lips.
-   * Prohibited implementation shortcuts: Segment counts and radii are unchanged drawing conventions, without anatomical fitting.
-   * Meaningful documentation: States curve primitive and preserved display sampling.
-   * Efficient algorithms: Geometry work scales with the fixed supplied stroke point count and segment formula.
-   * Reuse equivalent work: Reuses the face ink material and common mesh recorder.
-   * Bound retention and release resources: The created geometry transfers immediately to the face inventory.
+   * Principled implementation: Uses the original curve, at least eight
+   * longitudinal segments and five radial segments with supplied metric radius.
+   * Clear and simple design: One drawing primitive serves brows and closed
+   * lips. Prohibited implementation shortcuts: Segment counts and radii are
+   * unchanged drawing conventions, without anatomical fitting. Meaningful
+   * documentation: States curve primitive and preserved display sampling.
+   * Efficient algorithms: Geometry work scales with the fixed supplied stroke
+   * point count and segment formula. Reuse equivalent work: Reuses the face ink
+   * material and common mesh recorder. Bound retention and release resources:
+   * The created geometry transfers immediately to the face inventory.
    */
   const stroke: (
     name: string,
@@ -367,13 +360,15 @@ export function buildHumanCartoonFace(
   /**
    * Preserve the sided quadratic mouth-corner displacement.
    *
-   * Principled implementation: Uses the original head-height-scaled puller/depressor intensities and u squared for each anatomical side.
-   * Clear and simple design: One scalar curve serves the existing mouth marks.
-   * Prohibited implementation shortcuts: Original exaggeration coefficients are unchanged and are not anatomical measurements.
-   * Meaningful documentation: States sided quadratic displacement and drawing convention.
-   * Efficient algorithms: Constant action lookups and arithmetic.
-   * Reuse equivalent work: Reads the existing action table and head extent.
-   * Bound retention and release resources: Returns one scalar and retains nothing.
+   * Principled implementation: Uses the original head-height-scaled
+   * puller/depressor intensities and u squared for each anatomical side. Clear
+   * and simple design: One scalar curve serves the existing mouth marks.
+   * Prohibited implementation shortcuts: Original exaggeration coefficients are
+   * unchanged and are not anatomical measurements. Meaningful documentation:
+   * States sided quadratic displacement and drawing convention. Efficient
+   * algorithms: Constant action lookups and arithmetic. Reuse equivalent work:
+   * Reads the existing action table and head extent. Bound retention and
+   * release resources: Returns one scalar and retains nothing.
    */
   const corner: (u: number) => number = (u: number): number => {
     const side: number = u >= 0 ? 0 : 1;
@@ -389,13 +384,16 @@ export function buildHumanCartoonFace(
   /**
    * Preserve one original local mouth mark point before front mounting.
    *
-   * Principled implementation: Combines the original front offset, sided half-width/corner curve and converted jaw displacements in head-local metres.
-   * Clear and simple design: One point formula serves open-mouth columns and the closed-mouth stroke.
-   * Prohibited implementation shortcuts: No extra clinical clamp or replacement head surface is used.
-   * Meaningful documentation: States pre-mount head-local point and jaw displacement use.
-   * Efficient algorithms: Constant arithmetic and one vector per requested point.
-   * Reuse equivalent work: Reuses resolved widths, jaw values and corner function.
-   * Bound retention and release resources: Temporary points transfer to primitive geometry construction and are not retained independently.
+   * Principled implementation: Combines the original front offset, sided
+   * half-width/corner curve and converted jaw displacements in head-local
+   * metres. Clear and simple design: One point formula serves open-mouth
+   * columns and the closed-mouth stroke. Prohibited implementation shortcuts:
+   * No extra clinical clamp or replacement head surface is used. Meaningful
+   * documentation: States pre-mount head-local point and jaw displacement use.
+   * Efficient algorithms: Constant arithmetic and one vector per requested
+   * point. Reuse equivalent work: Reuses resolved widths, jaw values and corner
+   * function. Bound retention and release resources: Temporary points transfer
+   * to primitive geometry construction and are not retained independently.
    */
   const mouthPoint: (u: number, vertical: number) => THREE.Vector3 = (
     u: number,

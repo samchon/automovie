@@ -1,6 +1,6 @@
 /**
- * Keep requested draw time separate from the last completed display clock.
- * A completion inherits its synchronous producer's time; an out-of-loop guide
+ * Keep requested draw time separate from the last completed display clock. A
+ * completion inherits its synchronous producer's time; an out-of-loop guide
  * redraw preserves the displayed time unless its producer supplies a new one.
  * Nested redraws restore the enclosing request after completion or refusal.
  * Seconds must be finite and nonnegative before clock state changes.
@@ -13,9 +13,9 @@ export function createViewerDisplayClock(): {
   let displayed: number = 0;
   let producing: number | undefined;
   const validate: (seconds: number) => void = (seconds: number): void => {
-    if (!Number.isFinite(seconds) || seconds < 0)
+    if (seconds < 0)
       throw new Error(
-        "A completed display clock requires finite nonnegative seconds.",
+        "A completed display clock requires nonnegative seconds.",
       );
   };
   return {

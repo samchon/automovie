@@ -25,9 +25,6 @@ import type { physicalPlanarPolygon } from "./physicalPlanarPolygon";
  * The reference keeps the flag in a `GlitchFilteredYoBoolean` with a window of
  * (int) (0.03 / dt) updates (l.40), but only ever calls its `set`, which
  * bypasses the window (l.52, l.60, l.67), so the flag is a plain boolean here.
- * An error that is not a number makes the integral not a number while stuck,
- * and it stays so until the plan moves or the body is unstuck, as in the
- * reference.
  *
  * @param input The integrator's state; the planned capture point's rate and the
  *   centre of mass's velocity, metres per second; the capture point's

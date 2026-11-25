@@ -9,21 +9,28 @@ import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
- * The contact sites of an affordance: the places along or across its extent where a hand, a foot or a body may meet it, each as a frame in the affordance's own convention.
+ * The contact sites of an affordance: the places along or across its extent
+ * where a hand, a foot or a body may meet it, each as a frame in the
+ * affordance's own convention.
  *
- * A site is named by one or two coordinates from 0 to 1 over the extent the affordance's kind reads:
+ * A site is named by one or two coordinates from 0 to 1 over the extent the
+ * affordance's kind reads:
  *
- * | Kind | `u` | `v` |
- * | --- | --- | --- |
- * | `handle`, `bar`, `ledge`, `rein` | along `+X`, from `-length / 2` to `+length / 2` | unused |
- * | `seat` | across `+X`, from `-width / 2` to `+width / 2` | from the front edge back along `-Z` to `depth` |
- * | `surface`, `pedal` | across `+X`, over `width` | along `+Z`, over `depth`, both centred |
- * | `stirrup` | across `+X`, over `width` | unused |
- * | `aperture` | across `+X`, over `width` | up `+Y`, from the threshold to `height` |
- * | `wheel` | round the rim from the frame's `+X`, turning about `+Y` by the right-hand rule | unused |
- * | `crank` | unused: the one site at `radius` along `+X` | unused |
+ * | Kind                             | `u`                                                                            | `v`                                            |
+ * | -------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------- |
+ * | `handle`, `bar`, `ledge`, `rein` | along `+X`, from `-length / 2` to `+length / 2`                                | unused                                         |
+ * | `seat`                           | across `+X`, from `-width / 2` to `+width / 2`                                 | from the front edge back along `-Z` to `depth` |
+ * | `surface`, `pedal`               | across `+X`, over `width`                                                      | along `+Z`, over `depth`, both centred         |
+ * | `stirrup`                        | across `+X`, over `width`                                                      | unused                                         |
+ * | `aperture`                       | across `+X`, over `width`                                                      | up `+Y`, from the threshold to `height`        |
+ * | `wheel`                          | round the rim from the frame's `+X`, turning about `+Y` by the right-hand rule | unused                                         |
+ * | `crank`                          | unused: the one site at `radius` along `+X`                                    | unused                                         |
  *
- * A site keeps the affordance's rotation, except on a `wheel`, where it is a grip on the rim: `+X` along the rim in the turning sense and `+Y` out from the centre, so a hand takes it as it takes a `bar`. A kind without an extent, or an affordance that leaves the dimension out, has the one site of its own frame.
+ * A site keeps the affordance's rotation, except on a `wheel`, where it is a
+ * grip on the rim: `+X` along the rim in the turning sense and `+Y` out from
+ * the centre, so a hand takes it as it takes a `bar`. A kind without an extent,
+ * or an affordance that leaves the dimension out, has the one site of its own
+ * frame.
  */
 export namespace AutoMovieArchetypeSite {
   /**
@@ -34,7 +41,8 @@ export namespace AutoMovieArchetypeSite {
    * @param u The first coordinate, 0 to 1; the middle when absent.
    * @param v The second coordinate, 0 to 1; the middle when absent.
    * @returns The site's frame in the space the affordance's frame is in.
-   * @throws {AutoMovieArchetypeRefusal} When a coordinate is not finite or lies outside 0 to 1.
+   * @throws {AutoMovieArchetypeRefusal} When a coordinate is not finite or lies
+   *   outside 0 to 1.
    */
   export function at(
     archetype: string,
@@ -46,7 +54,7 @@ export namespace AutoMovieArchetypeSite {
       ["u", u],
       ["v", v],
     ] as const)
-      if (!(Number.isFinite(value) && value >= 0 && value <= 1))
+      if (!(value >= 0 && value <= 1))
         throw new AutoMovieArchetypeRefusal({
           kind: "site",
           archetype,

@@ -18,13 +18,13 @@ import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 
 /**
- * Jointly refine calibrated cameras and registered landmarks in one gauge.
- * The first pose must be identity at the origin and stays fixed; the seed
- * translation retains its admitted near-unit current radius,
- * and all later translations have three unrestricted coordinates. Fixed landmark
- * observations retain the same robust objective throughout every trial.
- * Internal feasible options select the separately bounded hard-pixel method;
- * ordinary calls retain this unconstrained local optimizer.
+ * Jointly refine calibrated cameras and registered landmarks in one gauge. The
+ * first pose must be identity at the origin and stays fixed; the seed
+ * translation retains its admitted near-unit current radius, and all later
+ * translations have three unrestricted coordinates. Fixed landmark observations
+ * retain the same robust objective throughout every trial. Internal feasible
+ * options select the separately bounded hard-pixel method; ordinary calls
+ * retain this unconstrained local optimizer.
  */
 export function refineRecoveryCameraMap(
   initialPoses: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[0],
@@ -105,9 +105,6 @@ export function refineRecoveryCameraMap(
     54 * budget.maxSingularSweeps * (observationCount + landmarks.length);
   if (
     observationCount > budget.maxObservations ||
-    !Number.isSafeInteger(localEntries) ||
-    !Number.isSafeInteger(reducedEntries) ||
-    !Number.isSafeInteger(sweepWork) ||
     localEntries > budget.maxLinearEntries ||
     reducedEntries > budget.maxLinearEntries
   )
@@ -121,10 +118,7 @@ export function refineRecoveryCameraMap(
       views.length < 2 ||
       views.length > poses.length ||
       new Set(views).size !== views.length ||
-      views.some(
-        (view: number): boolean =>
-          view < 0 || view >= poses.length || !Number.isSafeInteger(view),
-      )
+      views.some((view: number): boolean => view < 0 || view >= poses.length)
     )
       throw new Error(
         "camera-map: distinct registered observations required per landmark",
@@ -199,8 +193,6 @@ export function refineRecoveryCameraMap(
       }
       blocks.push(block);
     }
-    if (![cost, squared].every(Number.isFinite))
-      throw new Error("camera-map: nonrepresentable joint objective");
     return { cost, squared, blocks };
   };
   charge(2 * observationCount * (cameraWidth + 4) + 512);
@@ -265,10 +257,11 @@ export function refineRecoveryCameraMap(
         at: number,
       ): IAutoMovieRecoveryMapLandmark => ({
         ...landmark,
-        point: landmark.point.map(
-          (value: number, axis: number): number =>
-            value + solution.pointSteps[at]![axis]!,
-        ) as [number, number, number],
+        point: [
+          landmark.point[0] + solution.pointSteps[at]![0],
+          landmark.point[1] + solution.pointSteps[at]![1],
+          landmark.point[2] + solution.pointSteps[at]![2],
+        ],
       }),
     );
     charge(512);
@@ -302,8 +295,7 @@ export function refineRecoveryCameraMap(
         break;
       }
     } else damping *= 10;
-    if (!(damping > 0) || !Number.isFinite(damping))
-      throw new Error("camera-map: exhausted joint damping");
+    if (!(damping > 0)) throw new Error("camera-map: exhausted joint damping");
   }
   return {
     poses,

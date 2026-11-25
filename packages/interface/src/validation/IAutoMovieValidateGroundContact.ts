@@ -5,12 +5,11 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCapsuleProxy } from "./IAutoMovieCapsuleProxy";
 
-/**
- * Data and callback contracts shared by the ValidateGroundContact operations.
- */
+/** Data and callback contracts shared by the ValidateGroundContact operations. */
 export namespace IAutoMovieValidateGroundContact {
   /**
-   * Sample FK and compare configured foot points and valid capsule endpoints to scalar/height-source ground minus tolerance.
+   * Sample FK and compare configured foot points and valid capsule endpoints to
+   * scalar/height-source ground minus tolerance.
    */
   export type IProps = {
     /** Motion clip to sample. */
@@ -25,12 +24,12 @@ export namespace IAutoMovieValidateGroundContact {
     /**
      * Whole-body capsule proxies swept against the ground (#1185): each is a
      * `from → to` bone segment with a radius, and its lowest surface point
-     * (`min(from.y, to.y) − radius`, sampled per endpoint against a heightfield)
-     * must stay above the ground, so a hand, hip, elbow, or prop clipping through
-     * the floor is no longer invisible the way the foot-point check leaves it. A
-     * capsule on a missing or detached bone is a `type` error, not a silent skip
-     * (the totality contract the point check does not carry). Omit to check only
-     * `footBones`.
+     * (`min(from.y, to.y) − radius`, sampled per endpoint against a
+     * heightfield) must stay above the ground, so a hand, hip, elbow, or prop
+     * clipping through the floor is no longer invisible the way the foot-point
+     * check leaves it. A capsule on a missing or detached bone is a `type`
+     * error, not a silent skip (the totality contract the point check does not
+     * carry). Omit to check only `footBones`.
      */
     capsules?: readonly IAutoMovieCapsuleProxy[];
 

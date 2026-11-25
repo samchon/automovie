@@ -24,26 +24,30 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticTeamBase } from "./AquaticTeamBase";
+import { aquaticArtisticSchedule } from "./aquaticArtisticSchedule";
 
-/** Seconds a support contact blends in before its grip and out after its release. */
+/**
+ * Seconds a support contact blends in before its grip and out after its
+ * release.
+ */
 const CONTACT_BLEND: number = 0.22;
 
-/** Seconds a base's support arm takes to reach into its palm offer and back out: provisional, an unhurried sculling arm. */
+/**
+ * Seconds a base's support arm takes to reach into its palm offer and back out:
+ * provisional, an unhurried sculling arm.
+ */
 const BASE_REACH: number = 0.5;
+/** The alternatives of `PlanLimbIndex`'s site. */
+type PlanLimbIndex = 0 | 1;
 
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
- * follow the form distinctions measured by Homma et al. (PMID 31718520).
- * The supported figure uses the separate support and featured roles of the
- * World Aquatics Artistic Swimming Manual, Group B. The timing and contact
- * depths here are authored for this film figure.
+ * follow the form distinctions measured by Homma et al. (PMID 31718520). The
+ * supported figure uses the separate support and featured roles of the World
+ * Aquatics Artistic Swimming Manual, Group B. The timing and contact depths
+ * here are authored for this film figure.
  *
  * @see https://resources.fina.org/fina/document/2026/02/26/e04faca7-a6bd-4b2b-ba86-0354ee34dd82/AQUA-AS_MANUAL_February-2026.pdf
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the researched support shapes and the ensemble variation.
- * @evidence contracts/development/design.md#principled-representation One figure clock governs joint shape and the support blend.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the assisted and unassisted artistic swimming figure.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each foot borrows its own named base's displayed palm over the actual contact interval.
  */
 export namespace AquaticTeam {
   /**
@@ -53,39 +57,20 @@ export namespace AquaticTeam {
    * @param water The shared world water height in metres.
    * @returns The plan with named support and release events for assisted roles.
    * @throws {HumanRefusal} For absent or repeated bases, or when a named
-   * support is not an upward submerged palm during the bearing interval.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the shared water, performer roles, lifted stage and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A base prepares a palm-up target on the same clock as the rising figure. The flyer transfers each actual forefoot surface to a named base's current palm, then returns to the sculling posture.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare nominal figure keys, the optional supporter and the borrowed palm readers once. Sample the nominal figure and apply its timed contact phase.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Contact is an offset anatomical surface on both performers. The law refuses missing or repeated bases and downward or emerged contact offers during declared support.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed participant lookup and anatomy preparation. The support interval requests only each partner hand bone and the required current own bones.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each role shares its prepared posture blends and contact timing across queries. Hand and sole datums reuse the canonical frame owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed posture blends and partner frame readers. Current FK and kinematic target records are released after each query.
+   *   support is not an upward submerged palm during the bearing interval.
    */
   export function artistic(
     context: AquaticPosture.Context,
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const duration: number = 4;
+    const schedule: aquaticArtisticSchedule.ISchedule = aquaticArtisticSchedule(
+      context.subject,
+      params,
+    );
+    const duration: number = aquaticArtisticSchedule.DURATION;
     const lifted: boolean = params.role === "flyer";
-    const bases: readonly [string, string] | undefined = lifted
-      ? params.bases
-      : undefined;
-    if (
-      lifted &&
-      (bases === undefined ||
-        bases[0] === bases[1] ||
-        bases.includes(context.subject))
-    )
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "bases",
-        value: bases ?? null,
-        reason: "an assisted flyer needs two distinct supporting swimmers",
-        fix: "name two other performers as the flyer's left and right bases",
-      });
+    const bases: readonly [string, string] | undefined = schedule.bases;
     const base: boolean = params.role === "base";
     const measured: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
@@ -164,9 +149,9 @@ export namespace AquaticTeam {
     const settle: ReturnType<typeof AquaticPosture.blend> =
       AquaticPosture.blend(upright, laid);
     const lag: number = 0.35 * (params.phase ?? 0);
-    const tVertical: number = 1.35 + lag;
-    const tHigh: number = 2.3 + lag;
-    const tReturn: number = 3.15 + lag;
+    const tVertical: number = schedule.vertical;
+    const tHigh: number = schedule.high;
+    const tReturn: number = schedule.back;
     const partners:
       | readonly [
           IAutoMovieMotionHumanPerformerReader,
@@ -185,8 +170,8 @@ export namespace AquaticTeam {
             "rightFoot",
             "rightLowerLeg",
           ]);
-    const gripStart: number = tHigh - 0.14;
-    const gripEnd: number = tHigh + 0.14;
+    const gripStart: number = schedule.gripStart;
+    const gripEnd: number = schedule.gripEnd;
     const support: ReturnType<typeof AquaticTeamBase.prepare> | undefined = base
       ? AquaticTeamBase.prepare(context, water, tHigh, high)
       : undefined;
@@ -210,41 +195,11 @@ export namespace AquaticTeam {
             new Set([partners[0].body.surfaces.regions.palmRight.bone]),
             new Set([partners[1].body.surfaces.regions.palmLeft.bone]),
           ];
-    const contacts: IAutoMovieMotionHumanContactWindow[] =
-      bases === undefined
-        ? []
-        : (["left", "right"] as const).map(
-            (
-              side: AutoMovieHumanSide,
-              i: number,
-            ): IAutoMovieMotionHumanContactWindow => ({
-              part: `${side}Foot`,
-              kind: "bear",
-              from: gripStart / duration,
-              to: gripEnd / duration,
-              support: {
-                kind: "person",
-                subject: bases[i]!,
-                region: side === "left" ? "palmRight" : "palmLeft",
-              },
-            }),
-          );
+    const contacts: IAutoMovieMotionHumanContactWindow[] = schedule.contacts;
 
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
-      events: [
-        { name: "flatScull", share: 0 },
-        { name: "supportScull", share: tVertical / duration },
-        ...(base || lifted
-          ? [{ name: "supportAcquire", share: gripStart / duration }]
-          : []),
-        { name: "figure", share: tHigh / duration },
-        ...(base || lifted
-          ? [{ name: "supportRelease", share: gripEnd / duration }]
-          : []),
-        { name: "return", share: tReturn / duration },
-        { name: "relax", share: 1 },
-      ],
+      events: schedule.events,
       contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
@@ -306,7 +261,7 @@ export namespace AquaticTeam {
           legsAt(shaped);
         const limb = (
           side: AutoMovieHumanSide,
-          index: 0 | 1,
+          index: PlanLimbIndex,
         ): IAutoMovieHumanLimbGoal => {
           const base: IAutoMovieMotionHumanPerformerReader = partners[index];
           const region: IAutoMovieHumanoidSurfaces.IFrame =
@@ -370,7 +325,7 @@ export namespace AquaticTeam {
         side: AutoMovieHumanSide,
       ): IAutoMovieMotionHumanActionPlan =>
         courseArmGoal({
-          body,
+          context,
           plan: laid,
           side,
           rest: AquaticPosture.rest(body, opening, side),

@@ -9,8 +9,8 @@ import { segmentsCross } from "./segmentsCross";
  *
  * True for a proper crossing by {@link segmentsCross}, or when any endpoint of
  * one segment lies on the other by {@link pointOnSegment}. Those cases are
- * exhaustive: two closed segments that meet without properly crossing must
- * meet at an endpoint of one of them.
+ * exhaustive: two closed segments that meet without properly crossing must meet
+ * at an endpoint of one of them.
  *
  * @param a First endpoint of the first segment, in the caller's planar frame.
  * @param b Second endpoint of the first segment.

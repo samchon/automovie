@@ -16,15 +16,18 @@ import type { IAutoMovieEnvelopeLayer } from "./IAutoMovieEnvelopeLayer";
  * dew point; otherwise both runs are `not-run` with no samples.
  */
 export interface IAutoMovieEnvelopeAssembly {
-  /** Stable assembly identity, unique within the request and reused as sample id. */
+  /**
+   * Stable assembly identity, unique within the request and reused as sample
+   * id.
+   */
   id: string;
 
   /** Building boundary this assembly realizes; non-blank, not resolved here. */
   boundary: string;
 
   /**
-   * Layers from the interior face outward; at least one, ids unique. The
-   * series sum does not depend on their order.
+   * Layers from the interior face outward; at least one, ids unique. The series
+   * sum does not depend on their order.
    */
   layers: readonly IAutoMovieEnvelopeLayer[];
 

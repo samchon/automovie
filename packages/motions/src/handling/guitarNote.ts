@@ -21,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { guitarNoteEntry } from "./guitarNoteEntry";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
 /** A staged guitar note's inputs and entry state. */
@@ -32,24 +33,21 @@ const COINCIDENCE: number = 1e-6;
 
 /**
  * A left index stops one string while the right index crosses it on a
- * stationary guitar. The left stops at the chosen fret bar's crossing with
- * the string. The right crosses that same string at the soundboard centre's
+ * stationary guitar. The left stops at the chosen fret bar's crossing with the
+ * string. The right crosses that same string at the soundboard centre's
  * projection, on the bridge side of the stop. The right fingertip crosses
  * during one continuous sweep and lifts clear as the left continues holding.
  *
- * ElKoura and Singh (2003), [Handrix](https://www.dgp.toronto.edu/~gelkoura/handrix/paper.html),
- * motivate the fretting-hand contact. Pérez-Carrillo (2019),
- * [Finger-String Interaction Analysis in Guitar Playing With Optical Motion Capture](https://doi.org/10.3389/fcomp.2019.00008),
- * observes approach, transverse contact and clearance in the right hand.
- * The sweep and clearances here are staging choices from the string spacing
- * and hand size. The action depicts contacts on rigid bars for a staged shot.
- * The author places and supports the guitar and sets the three contact times.
- * Both hands must be free and within reach of the guitar.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sources, the authoring requirements and how both targets and the sweep are located.
- * @evidence contracts/development/design.md#principled-representation One stationary base and two fingertip trajectories from one instrument and one authored clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The standalone law registers through the existing action registry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named fret and string must intersect within their finite runs. The soundboard and string select the other contact.
+ * ElKoura and Singh (2003),
+ * [Handrix](https://www.dgp.toronto.edu/~gelkoura/handrix/paper.html), motivate
+ * the fretting-hand contact. Pérez-Carrillo (2019), [Finger-String Interaction
+ * Analysis in Guitar Playing With Optical Motion
+ * Capture](https://doi.org/10.3389/fcomp.2019.00008), observes approach,
+ * transverse contact and clearance in the right hand. The sweep and clearances
+ * here are staging choices from the string spacing and hand size. The action
+ * depicts contacts on rigid bars for a staged shot. The author places and
+ * supports the guitar and sets the three contact times. Both hands must be free
+ * and within reach of the guitar.
  */
 export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGuitarNote> =
   {
@@ -63,14 +61,8 @@ export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGui
  *
  * @param context The action's start, performer and authored note.
  * @returns The held base and two time-addressable fingertip motions.
- * @throws {HumanRefusal} For invalid times, an incompatible guitar or occupied hands, or a wrist beyond the arm's geometric reach.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Derives both goals in the prop frame, preserves the entry support and uses minimum jerk to bring each index into the engagement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit clock and prop, derive geometry and arm placements, then evaluate each fingertip by its phase.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid bar geometry, occupied hands and a wrist outside the geometric reach band are refused before the plan is returned.
- * @evidence contracts/development/implementation.md#efficient-algorithms Scans the instrument and rig once during planning, and evaluates two hands per requested posture.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Geometry and entry bones are read once per plan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its base and the geometry for these hands only.
+ * @throws {HumanRefusal} For invalid times, an incompatible guitar or occupied
+ *   hands, or a wrist beyond the arm's geometric reach.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {
@@ -79,51 +71,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     releaseAt,
     duration,
   }: IAutoMovieMotionHumanGuitarNote = context.params;
-  if (
-    !(
-      0 < stopAt &&
-      stopAt < pluckAt &&
-      pluckAt < releaseAt &&
-      releaseAt < duration &&
-      Number.isFinite(duration)
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "stopAt",
-      value: [stopAt, pluckAt, releaseAt, duration],
-      reason:
-        "the note needs strictly increasing finite times from entry to clearance",
-      fix: "give 0 < stopAt < pluckAt < releaseAt < duration in seconds",
-    });
-  if (
-    context.entry.holds.left !== undefined ||
-    context.entry.holds.right !== undefined
-  )
-    throw new HumanRefusal({
-      kind: "channel",
-      axis: "hands",
-      value: context.entry.holds,
-      reason: "the stopped note uses both index fingers",
-      fix: "place the guitar on a support and free both hands before the note",
-    });
+  guitarNoteEntry.timing(context.params);
+  guitarNoteEntry.hands(context.entry.holds);
 
   const reader: IAutoMovieMotionHumanPropReader = context.prop(
     context.params.prop,
   );
-  if (
-    reader.prop.fixed !== true ||
-    reader.prop.motion !== undefined ||
-    reader.prop.worn !== undefined ||
-    reader.prop.mounted !== undefined
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "prop",
-      value: context.params.prop,
-      reason: "guitarNote takes a stationary, independently staged guitar",
-      fix: "stage the guitar on its support with a fixed frame",
-    });
+  guitarNoteEntry.instrument(context.params.prop, reader.prop);
   const sites: ReturnType<typeof resolveGuitarStringContact> =
     resolveGuitarStringContact(context.params, reader.prop.affordances ?? []);
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);
@@ -214,7 +168,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 }
 
-/** Build one arm and index goal from its displayed wrist and the soundboard's normal. */
+/**
+ * Build one arm and index goal from its displayed wrist and the soundboard's
+ * normal.
+ */
 function handPath(
   context: Context,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

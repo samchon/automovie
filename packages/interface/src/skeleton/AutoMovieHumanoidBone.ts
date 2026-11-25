@@ -1,13 +1,19 @@
 /**
  * Closed 55-name vocabulary matching the VRM 1.0 humanoid specification.
  *
- * Typed authoring and runtime admission use these semantic names. A valid name does not guarantee membership in a particular rig or compatibility of its rest basis; retargeting must check both.
+ * Typed authoring and runtime admission use these semantic names. A valid name
+ * does not guarantee membership in a particular rig or compatibility of its
+ * rest basis; retargeting must check both.
  *
- * VRM 1.0 requires 15 slots: hips, spine, head and the four limb chains. Chest, fingers, eyes, jaw, upperChest, neck, toes and shoulders are optional and may be absent from an imported rig.
+ * VRM 1.0 requires 15 slots: hips, spine, head and the four limb chains. Chest,
+ * fingers, eyes, jaw, upperChest, neck, toes and shoulders are optional and may
+ * be absent from an imported rig.
  *
- * Thirty names address fingers; a pose can author only the joints its target rig declares.
+ * Thirty names address fingers; a pose can author only the joints its target
+ * rig declares.
  *
- * Reference: VRM 1.0 humanoid specification (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/humanoid.md).
+ * Reference: VRM 1.0 humanoid specification
+ * (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/humanoid.md).
  */
 export type AutoMovieHumanoidBone =
   // ── torso (4) ──

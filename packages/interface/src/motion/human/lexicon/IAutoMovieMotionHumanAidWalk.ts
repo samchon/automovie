@@ -3,27 +3,21 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 
-/**
- * A held prop's support order and a sequence of authored floor stations.
- */
+/** A held prop's support order and a sequence of authored floor stations. */
 export type IAutoMovieMotionHumanAidWalk =
   | IAutoMovieMotionHumanAidWalk.IHeld
   | IAutoMovieMotionHumanAidWalk.IWalker;
 
 /** The aid alternatives and floor stations of the aided walk. */
 export namespace IAutoMovieMotionHumanAidWalk {
-  /**
-   * A single-grip aid's kind.
-   */
+  /** A single-grip aid's kind. */
   export type HeldKind = "cane" | "crutch";
 
-  /**
-   * What every aided walk names: the prop and the floor stations.
-   */
+  /** What every aided walk names: the prop and the floor stations. */
   export interface ICommon {
     /**
-     * The staged prop with its floor track. A cane or crutch declares a grip and a tip.
-     * A walker declares two grips and a common floor tip.
+     * The staged prop with its floor track. A cane or crutch declares a grip
+     * and a tip. A walker declares two grips and a common floor tip.
      */
     prop: string;
 
@@ -40,9 +34,7 @@ export namespace IAutoMovieMotionHumanAidWalk {
     origin?: IAutoMovieVector3;
   }
 
-  /**
-   * A single-grip aid that swings with the opposite step.
-   */
+  /** A single-grip aid that swings with the opposite step. */
   export interface IHeld extends ICommon {
     /** The single-grip aid. */
     kind: HeldKind;
@@ -51,20 +43,18 @@ export namespace IAutoMovieMotionHumanAidWalk {
     hand?: AutoMovieHumanSide;
   }
 
-  /**
-   * A walker that advances during both-foot support.
-   */
+  /** A walker that advances during both-foot support. */
   export interface IWalker extends ICommon {
     /** The two-handed walker. */
     kind: "walker";
   }
 
-  /**
-   * The aided-walk law and the prop track that moves its aid on the same clock.
-   */
+  /** The aided-walk law and the prop track that moves its aid on the same clock. */
   export interface ILaw extends IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanAidWalk> {
     /**
-     * From the aid's staged floor frame, the walk's parameters and the walk's first film second (zero when absent), the aid's world frame in metres at each film second.
+     * From the aid's staged floor frame, the walk's parameters and the walk's
+     * first film second (zero when absent), the aid's world frame in metres at
+     * each film second.
      */
     track: (
       start: IAutoMovieRigidTransform,
@@ -73,9 +63,7 @@ export namespace IAutoMovieMotionHumanAidWalk {
     ) => (filmSecond: number) => IAutoMovieRigidTransform;
   }
 
-  /**
-   * A floor endpoint and the film time available to reach it.
-   */
+  /** A floor endpoint and the film time available to reach it. */
   export interface IStation {
     /** World X displacement from the entry station, in metres. */
     x: number;
@@ -83,7 +71,10 @@ export namespace IAutoMovieMotionHumanAidWalk {
     /** World Z displacement from the entry station, in metres. */
     z: number;
 
-    /** Heading change relative to the action entry, in degrees. Defaults to zero. */
+    /**
+     * Heading change relative to the action entry, in degrees. Defaults to
+     * zero.
+     */
     turn?: number;
 
     /** Positive film seconds to advance the aid and both feet once. */

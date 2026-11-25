@@ -9,23 +9,35 @@ const FORMS: string =
   "film; x,y,z:tx,ty,tz in metres, followed by any of @ortho=<metres per pixel> or @up=x,y,z; or a name such as front, followed by any of @ortho, @follow, @focus=<pattern> or @flagged";
 
 /**
- * Read one inspection view from its text, the form a page address, a command line and a capture plan all write.
+ * Read one inspection view from its text, the form a page address, a command
+ * line and a capture plan all write.
  *
- * | Text | View |
- * | --- | --- |
- * | `film` | The subject's own delivery camera, unchanged |
- * | `x,y,z:tx,ty,tz` | A fixed camera at the first point looking at the second, in world metres, with the subject's lens and world `+Y` up |
- * | `x,y,z:tx,ty,tz@ortho=<m>` | The same fixed camera, orthographic, `<m>` metres of world per picture pixel |
- * | `x,y,z:tx,ty,tz@up=ux,uy,uz` | The same fixed camera with that up direction, such as a camera looking straight down |
- * | `<name>` | A subject's own view of that name, or a named viewpoint such as `front` fitted to what is drawn |
- * | `<name>@ortho` | The same fit with an orthographic camera |
- * | `<name>@follow` | The same fit made at each drawn second alone instead of over every second a capture plans |
- * | `<name>@focus=<pattern>` | The same fit framing only the drawn objects and marks the path pattern selects |
- * | `<name>@flagged` | The same fit framing only the drawn flagged marks |
+ * | Text                         | View                                                                                                                |
+ * | ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+ * | `film`                       | The subject's own delivery camera, unchanged                                                                        |
+ * | `x,y,z:tx,ty,tz`             | A fixed camera at the first point looking at the second, in world metres, with the subject's lens and world `+Y` up |
+ * | `x,y,z:tx,ty,tz@ortho=<m>`   | The same fixed camera, orthographic, `<m>` metres of world per picture pixel                                        |
+ * | `x,y,z:tx,ty,tz@up=ux,uy,uz` | The same fixed camera with that up direction, such as a camera looking straight down                                |
+ * | `<name>`                     | A subject's own view of that name, or a named viewpoint such as `front` fitted to what is drawn                     |
+ * | `<name>@ortho`               | The same fit with an orthographic camera                                                                            |
+ * | `<name>@follow`              | The same fit made at each drawn second alone instead of over every second a capture plans                           |
+ * | `<name>@focus=<pattern>`     | The same fit framing only the drawn objects and marks the path pattern selects                                      |
+ * | `<name>@flagged`             | The same fit framing only the drawn flagged marks                                                                   |
  *
- * Switches may be combined in any order, such as `three-quarter@ortho@focus=hero/torso` or `0,1,4:0,1,0@ortho=0.004@up=0,0,-1`. A name holds no `@`, `:`, `;`, `,` or space. Whether a name exists is decided by `resolveAutoMovieInspectionView`, which knows the subject.
+ * Switches may be combined in any order, such as
+ * `three-quarter@ortho@focus=hero/torso` or
+ * `0,1,4:0,1,0@ortho=0.004@up=0,0,-1`. A name holds no `@`, `:`, `;`, `,` or
+ * space. Whether a name exists is decided by `resolveAutoMovieInspectionView`,
+ * which knows the subject.
  *
- * It throws an `Error` that names the text and lists the accepted forms for empty text, coordinates that are not two finite triples or that coincide, a switch on `film`, a switch a form does not take (a fit's switches on a fixed camera, `@up` or a valued `@ortho` on a name, a bare `@ortho` on a fixed camera), an unknown or repeated switch, a scale that is not a positive number, an up direction that is not a finite non-zero triple or lies along the line of sight, an empty focus pattern, and a focus pattern beside `@flagged`.
+ * It throws an `Error` that names the text and lists the accepted forms for
+ * empty text, coordinates that are not two finite triples or that coincide, a
+ * switch on `film`, a switch a form does not take (a fit's switches on a fixed
+ * camera, `@up` or a valued `@ortho` on a name, a bare `@ortho` on a fixed
+ * camera), an unknown or repeated switch, a scale that is not a positive
+ * number, an up direction that is not a finite non-zero triple or lies along
+ * the line of sight, an empty focus pattern, and a focus pattern beside
+ * `@flagged`.
  *
  * ```ts
  * const view = parseAutoMovieInspectionView("front@ortho");
@@ -51,17 +63,12 @@ export function parseAutoMovieInspectionView(
   // Fixed: two triples, then the scale and the up direction a recorded camera may need.
   if (head!.includes(":")) {
     const halves: string[] = head!.split(":");
-    const points: number[][] = halves.map(triple);
-    if (
-      points.length !== 2 ||
-      points.some(
-        (point: number[]): boolean =>
-          point.length !== 3 || !point.every(Number.isFinite),
-      )
-    )
+    const position: IAutoMovieVector3 | null =
+      halves.length === 2 ? triple(halves[0]!) : null;
+    const target: IAutoMovieVector3 | null =
+      halves.length === 2 ? triple(halves[1]!) : null;
+    if (position === null || target === null)
       return refuse("is not two finite triples");
-    const position: IAutoMovieVector3 = vector(points[0]!);
-    const target: IAutoMovieVector3 = vector(points[1]!);
     const sight: IAutoMovieVector3 = {
       x: target.x - position.x,
       y: target.y - position.y,
@@ -79,17 +86,17 @@ export function parseAutoMovieInspectionView(
           return refuse(
             "is a fixed camera, whose @ortho states its metres per pixel as @ortho=<m>",
           );
-        const scale: number = value.trim() === "" ? Number.NaN : Number(value);
-        if (!(Number.isFinite(scale) && scale > 0))
+        const scale: number | null = finite(value);
+        if (scale === null || !(scale > 0))
           return refuse(
             `has @ortho=${value}, which is not a positive number of metres per pixel`,
           );
         metresPerPixel = scale;
       } else if (key === "up" && written.startsWith("up=")) {
-        const direction: number[] = triple(value);
-        if (direction.length !== 3 || !direction.every(Number.isFinite))
+        const direction: IAutoMovieVector3 | null = triple(value);
+        if (direction === null)
           return refuse(`has @up=${value}, which is not a finite triple`);
-        up = vector(direction);
+        up = direction;
         const cross: number = Math.hypot(
           up.y * sight.z - up.z * sight.y,
           up.z * sight.x - up.x * sight.z,
@@ -140,16 +147,38 @@ export function parseAutoMovieInspectionView(
   return { type: "named", name: head!, orthographic, follow, focus };
 }
 
-/** The numbers of a comma-separated triple, NaN for a blank one. */
-function triple(text: string): number[] {
-  return text
-    .split(",")
-    .map((value: string): number =>
-      value.trim() === "" ? Number.NaN : Number(value),
-    );
+/**
+ * The vector a comma-separated triple spells, or null unless it is three finite
+ * numbers.
+ */
+function triple(text: string): IAutoMovieVector3 | null {
+  const values: number[] = [];
+  for (const part of text.split(",")) {
+    const value: number | null = finite(part);
+    if (value === null) return null;
+    values.push(value);
+  }
+  return values.length === 3
+    ? { x: values[0]!, y: values[1]!, z: values[2]! }
+    : null;
 }
 
-/** A vector from a triple. */
-function vector(triple: number[]): IAutoMovieVector3 {
-  return { x: triple[0]!, y: triple[1]!, z: triple[2]! };
+/**
+ * A numeric literal as `Number` reads one: decimal with an optional exponent,
+ * or a binary, octal or hexadecimal integer.
+ */
+const NUMERIC: RegExp =
+  /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
+
+/**
+ * The number a text spells, or null for blank, malformed or overflowing text.
+ *
+ * A spelled number is admitted up to the largest exactly representable integer,
+ * 2^53 - 1: it is a metre count, a pixel scale or an integer, and any product of
+ * two such numbers stays below 2^106, far inside binary64.
+ */
+function finite(text: string): number | null {
+  if (!NUMERIC.test(text)) return null;
+  const value: number = Number(text);
+  return Math.abs(value) <= Number.MAX_SAFE_INTEGER ? value : null;
 }

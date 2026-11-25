@@ -1,21 +1,3 @@
-# src/motion/human/touch/IAutoMovieMotionHumanKiss.ts#IAutoMovieMotionHumanKiss
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-side: Which way the head turns for a cheek or the lips; `right` when absent. hold: Seconds the lips stay; `HOLD` when absent. pitch: The lean forward from the hips, degrees.
-
-## @evidence contracts/development/design.md#principled-representation
-
-side: Which way the head turns for a cheek or the lips; `right` when absent. hold: Seconds the lips stay; `HOLD` when absent. pitch: The lean forward from the hips, degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/HumanMutual.ts (HumanMutual.kiss, params); chain/HumanChainMutual.ts (HumanChainMutual.kiss, params); touch/kiss.ts (kiss.plan, context); touch/kiss.ts (kiss.solve, return); touch/kiss.ts (kiss.solve.miss, s); touch/kiss.ts (kiss.solve.least, candidates).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidRegion, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/touch/IAutoMovieMotionHumanKiss.ts#IAutoMovieMotionHumanKiss.HandRole
 
 ## @evidence contracts/development/common.md#meaningful-documentation

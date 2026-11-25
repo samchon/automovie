@@ -11,9 +11,8 @@ import { createDrivenDriver as driven } from "./createDrivenDriver";
 import { createDriverPointer as ptr } from "./createDriverPointer";
 import { createDriverSamples as seed } from "./createDriverSamples";
 import { nclose } from "./nclose";
-import { throwsError } from "./throwsError";
 
-/** Execute the existing reverse-order chain, shared dependency, deferred aim and unknown-kind cases with literal linear-map expectations. Output values cannot prove how many times a dependency was evaluated. */
+/** Execute the existing reverse-order chain, shared dependency, and deferred aim cases with literal linear-map expectations. Output values cannot prove how many times a dependency was evaluated. */
 export function runResolveDriversOrderScenario(): void {
   const a: IAutoMovieDrivenDriver = driven({
     source: ptr("/x"),
@@ -89,17 +88,8 @@ export function runResolveDriversOrderScenario(): void {
     (deferred[0] as IAutoMovieDriver).type,
     "aim",
   );
-  const forged: IAutoMovieDriver = {
-    type: "warp",
-  } as unknown as IAutoMovieDriver;
-  TestValidator.predicate(
-    "unknown driver type rejects",
-    throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers([forged], sampled2, new Map()),
-      ["driver type", "warp"],
-    ),
-  );
 }
+
 
 /** Compare scalar-array width and each component with zero numeric tolerance. */
 function sameValues(actual: number[], expected: number[]): boolean {

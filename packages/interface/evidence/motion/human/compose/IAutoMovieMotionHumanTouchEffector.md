@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTouchEffector.ts#IAutoMovieMotionHumanTouchEffector
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-tool: A held tool's tip from the surface, shares of the hand's length along each axis; none when absent. facing: The direction of the hand turned into the region; the surface's own normal when absent. along: The direction of the hand laid along the region's tangent; the surface's own forward when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-tool: A held tool's tip from the surface, shares of the hand's length along each axis; none when absent. facing: The direction of the hand turned into the region; the surface's own normal when absent. along: The direction of the hand laid along the region's tangent; the surface's own forward when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.drinking, effector); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.admitted, effector); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.held, effector); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.trial, effector); compose/AutoMovieMotionHumanTouchEffector.ts (AutoMovieMotionHumanTouchEffector.local, effector); compose/AutoMovieMotionHumanTouchEffector.ts (AutoMovieMotionHumanTouchEffector.point, effector).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTouchEffector.ts#IAutoMovieMotionHumanTouchEffector.IEffector
 
 ## @evidence contracts/development/common.md#meaningful-documentation

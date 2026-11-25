@@ -14,24 +14,21 @@ import {
 /**
  * A baseball glove: a fielder's glove or a catcher's mitt.
  *
- * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and the wrist opening toward `-Z`, its centre over the origin. `hand` is the wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the catching face a ball comes to, facing up. A glove is worn on the hand (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
+ * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and
+ * the wrist opening toward `-Z`, its centre over the origin. `hand` is the
+ * wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the
+ * catching face a ball comes to, facing up. A glove is worn on the hand
+ * (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The glove.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the glove lies, its two contacts and how it is worn.
- * @evidence contracts/development/implementation.md#principled-implementation One padded box of the drawn width and length, as thick as the kind's padding; the pocket at the palm's centre on top, the opening at the wrist's end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fingers, webbing or lacing; the thickness is a named estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createGlove(
   params: createGlove.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createGlove.Affordance, createGlove.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createGlove.Dimension> =
     new AutoMovieArchetypeDrawSession<createGlove.Dimension>(
@@ -87,14 +84,7 @@ export function createGlove(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createGlove}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two gloves the rules size and one band per dimension per kind, the rules' limits at the top.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The opening a hand enters and the pocket a catch reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the rule's limits as read, which the model takes; the rule leaves the weight free and no maker's weight was read, so the masses are provisional; the padding's thickness is a named estimate.
- */
+/** Companion types, constants and bands of {@link createGlove}. */
 export namespace createGlove {
   /** The kinds. */
   export type Kind = "fielder" | "catcher";
@@ -112,7 +102,8 @@ export namespace createGlove {
    * The affordance ids:
    *
    * - `hand`: the wrist opening, its `+Y` out of it toward `-Z`.
-   * - `pocket`: the catching face, facing up, a half of the width and a third of the length.
+   * - `pocket`: the catching face, facing up, a half of the width and a third of
+   *   the length.
    */
   export type Affordance = "hand" | "pocket";
 
@@ -134,7 +125,10 @@ export namespace createGlove {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which glove. */
     kind: Kind;

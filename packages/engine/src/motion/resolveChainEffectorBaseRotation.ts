@@ -15,7 +15,10 @@ import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";
 
-/** Source end articulation and clinical mappings corresponding to completed FK frames. */
+/**
+ * Source end articulation and clinical mappings corresponding to completed FK
+ * frames.
+ */
 type IProps = Pick<
   IAutoMovieFitChainToTargetProps,
   "skeleton" | "pose" | "chain" | "jointAxes" | "restFrames"
@@ -24,20 +27,12 @@ type IProps = Pick<
 /**
  * Recover the fixed mid-to-effector rotation of a supported descendant chain
  * from two already resolved frames. An unsupported chain keeps the legacy
- * effector-own rest rotation, or identity when its bone is missing.
- * The preceding FK must have admitted all authored records in order and
- * resolved the actual lower/end frames, even when its outputs were demanded;
- * its last effector articulation is removed on the right, retaining every
- * intermediate rest transform and articulation. Topology must belong to the
- * unchanged skeleton, as it does for the preceding FK.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States complete prior authored admission with actual lower/end FK, topology validity, supported ancestry and legacy fallback; fromPrepared documents exact static-joint/operation borrowing below.
- * @evidence contracts/development/implementation.md#principled-implementation A reachable strict upper-to-mid-to-end chain admits fixed-frame recovery; fromPrepared owns the exact inverse composition. An unrelated or missing chain retains the former effector-own rest convention.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This entry owns standalone ancestry admission, while fromPrepared owns fixed-frame recovery and isDescendant is the same traversal preparation uses. Optional genuine static-joint and raw readers meet at one admitted articulation; neither duplicates its convention owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No disconnected branch is treated as fixed below the mid bone. Complete ordered authored admission and actual lower/end FK happen first, even with demanded outputs; no map-shape flag certifies either premise.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two bounded descendant walks plus fromPrepared's O(J+B) record/bone reads, without an additional FK. Preparation calls fromPrepared after its existing admission, avoiding duplicate tree walks.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows actual completed lower/end frames. Preparation's optional same-rig producer and operation key reuse its actual successful effector conversion under immutable axes/frames; raw omission retains original table lookup/reader behavior. Missing end articulation still admits no basis, and no pose result or mutable-rig identity certifies reuse.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one derived quaternion and retains no pose, frame map, rig, handle or task after return.
+ * effector-own rest rotation, or identity when its bone is missing. The
+ * preceding FK must have admitted all authored records in order and resolved
+ * the actual lower/end frames, even when its outputs were demanded; its last
+ * effector articulation is removed on the right, retaining every intermediate
+ * rest transform and articulation. Topology must belong to the unchanged
+ * skeleton, as it does for the preceding FK.
  */
 export function resolveChainEffectorBaseRotation(
   props: IProps & Pick<IAutoMovieFitChainToTargetProps, "topology">,
@@ -67,34 +62,39 @@ export function resolveChainEffectorBaseRotation(
   return resolveChainEffectorBaseRotation.fromPrepared(props, lower, end);
 }
 
-/**
- * The shared ancestry admission and fixed-frame recovery of chain preparation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes already admitted preparation from standalone full-FK inputs.
- * @evidence contracts/development/design.md#principled-representation A rooted descendant relation admits a fixed relative frame; the raw recovery then operates on already resolved rotations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Preparation shares the original ancestry traversal and bypasses only a check it has just completed; standalone orientation and twist use the checked entry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No mutable-body cache, alternate topology or consumer-specific ancestry test is introduced.
- */
+/** The shared ancestry admission and fixed-frame recovery of chain preparation. */
 export namespace resolveChainEffectorBaseRotation {
   /**
    * Recover an admitted chain's fixed frame, reusing a completed lower inverse
    * when available. Completed FK must have admitted the same end articulation
    * and unchanged non-chain records. The caller owns remaining upper/mid
-   * admission and must have admitted strict upper-to-mid-to-end ancestry.
-   * An optional raw operation reader shares pure exact-angle factors while
+   * admission and must have admitted strict upper-to-mid-to-end ancestry. An
+   * optional raw operation reader shares pure exact-angle factors while
    * preserving current clinical/frame reads; missing end records still use
-   * identity without admitting any clinical basis.
-   * An optional genuine poseResolution must own this exact unchanged rig and
-   * mappings; it actually admits the last joint through the same convention
-   * and operation rows used by preceding prepared FK, returning a fresh value.
+   * identity without admitting any clinical basis. An optional genuine
+   * poseResolution must own this exact unchanged rig and mappings; it actually
+   * admits the last joint through the same convention and operation rows used
+   * by preceding prepared FK, returning a fresh value.
    *
-   * States completed end/non-chain admission, the caller's remaining chain admission, strict ancestry and exact optional-inverse identity.
-   * Full FK gives endWorld = lowerWorld * fixedFrame * endArticulation, so left multiplication by lowerWorld inverse and right multiplication by the last end articulation inverse recover the fixed frame.
-   * The same recovery serves preparation and the checked standalone entry, with no repeated FK or ancestry scan after preparation's admission.
-   * Skeleton-declared axes override the host table and the last actual end articulation is removed; unchanged intermediate transforms remain in the recovered frame.
-   * One O(J) last-record scan, at most one O(B) bone lookup and one actual clinical conversion plus constant quaternion recovery; raw readers share pure factors and a genuine prepared rig may share its actual completed same-valued joint. Preparation reuses its lower inverse without another FK. Runtime speedup is unmeasured.
-   * Borrows completed frames/lower inverse. Raw readers retain original current-input admission, while the genuine immutable producer shares exact convention-owned completed conversion after rechecking the actual joint. An absent end still admits no basis.
-   * Returns one derived quaternion and retains no inputs, map, rig, handle or task after return.
+   * States completed end/non-chain admission, the caller's remaining chain
+   * admission, strict ancestry and exact optional-inverse identity. Full FK
+   * gives endWorld = lowerWorld * fixedFrame * endArticulation, so left
+   * multiplication by lowerWorld inverse and right multiplication by the last
+   * end articulation inverse recover the fixed frame. The same recovery serves
+   * preparation and the checked standalone entry, with no repeated FK or
+   * ancestry scan after preparation's admission. Skeleton-declared axes
+   * override the host table and the last actual end articulation is removed;
+   * unchanged intermediate transforms remain in the recovered frame. One O(J)
+   * last-record scan, at most one O(B) bone lookup and one actual clinical
+   * conversion plus constant quaternion recovery; raw readers share pure
+   * factors and a genuine prepared rig may share its actual completed
+   * same-valued joint. Preparation reuses its lower inverse without another FK.
+   * Runtime speedup is unmeasured. Borrows completed frames/lower inverse. Raw
+   * readers retain original current-input admission, while the genuine
+   * immutable producer shares exact convention-owned completed conversion after
+   * rechecking the actual joint. An absent end still admits no basis. Returns
+   * one derived quaternion and retains no inputs, map, rig, handle or task
+   * after return.
    */
   export function fromPrepared(
     props: IProps,
@@ -109,12 +109,12 @@ export namespace resolveChainEffectorBaseRotation {
       if (candidate.bone === props.chain.effector) joint = candidate;
     let articulation: IAutoMovieQuaternion;
     if (joint === undefined) articulation = Quaternion.identity();
-    else if (poseResolution !== undefined) articulation = poseResolution.joint(joint, resolution);
+    else if (poseResolution !== undefined)
+      articulation = poseResolution.joint(joint, resolution);
     else {
       const axes: IAutoMovieJointAxes | undefined =
         props.skeleton.bones.find(
-          (bone: IAutoMovieBone): boolean =>
-            bone.bone === props.chain.effector,
+          (bone: IAutoMovieBone): boolean => bone.bone === props.chain.effector,
         )?.axes ?? props.jointAxes?.[props.chain.effector];
       const frame: IAutoMovieRestFrame | undefined =
         props.restFrames?.[props.chain.effector];
@@ -136,13 +136,18 @@ export namespace resolveChainEffectorBaseRotation {
    * Whether one root-reachable bone lies strictly below another in the same
    * unchanged rooted topology; root reachability excludes detached cycles.
    *
-   * States strict descent, root reachability and unchanged-topology premises.
-   * A depth-first walk of the existing parent-to-children index finds a strict descendant without assuming direct adjacency.
-   * Preparation and standalone frame recovery use one ancestry owner instead of separate hierarchy policies.
-   * Equal identities are not accepted by themselves and unreachable/cyclic inputs are excluded by the callers' root-reachability admission.
-   * Visits at most the ancestor's descendant subtree, O(B) time and O(tree depth) stack, stopping at the first match; direct iteration allocates neither empty fallback arrays nor recursive predicate closures.
-   * Reuses the caller's existing topology; prepared callers do not repeat the traversal in fromPrepared.
-   * Uses only the recursion stack and retains no index, rig, cache or handles after return.
+   * States strict descent, root reachability and unchanged-topology premises. A
+   * depth-first walk of the existing parent-to-children index finds a strict
+   * descendant without assuming direct adjacency. Preparation and standalone
+   * frame recovery use one ancestry owner instead of separate hierarchy
+   * policies. Equal identities are not accepted by themselves and
+   * unreachable/cyclic inputs are excluded by the callers' root-reachability
+   * admission. Visits at most the ancestor's descendant subtree, O(B) time and
+   * O(tree depth) stack, stopping at the first match; direct iteration
+   * allocates neither empty fallback arrays nor recursive predicate closures.
+   * Reuses the caller's existing topology; prepared callers do not repeat the
+   * traversal in fromPrepared. Uses only the recursion stack and retains no
+   * index, rig, cache or handles after return.
    */
   export function isDescendant(
     topology: IAutoMovieSkeletonTopology,
@@ -157,7 +162,6 @@ export namespace resolveChainEffectorBaseRotation {
     // predicate closure at every node of the same ordered traversal.
     const count: number = children.length;
     for (let index: number = 0; index < count; ++index) {
-      if (!(index in children)) continue;
       const child: IAutoMovieBone = children[index]!;
       if (
         child.bone === descendant ||

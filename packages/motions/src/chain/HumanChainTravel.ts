@@ -15,14 +15,9 @@ import type {
 import { HumanChainCore } from "./HumanChainCore";
 
 /**
- * The chain methods of standing and travelling: quiet standing, the gaits
- * over the floor, and travel over stairs, a ladder, an obstacle and the
- * floor itself.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
- * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The travel actions only; the other families extend it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
+ * The chain methods of standing and travelling: quiet standing, the gaits over
+ * the floor, and travel over stairs, a ladder, an obstacle and the floor
+ * itself.
  */
 export class HumanChainTravel extends HumanChainCore {
   /**
@@ -90,8 +85,8 @@ export class HumanChainTravel extends HumanChainCore {
   }
 
   /**
-   * Walk while carrying a load in one hand, a box in both, a child on the
-   * hip, or pushing a cart.
+   * Walk while carrying a load in one hand, a box in both, a child on the hip,
+   * or pushing a cart.
    *
    * @param params Destination, how the load is carried and its mass.
    * @param anchor An optional anchor id.
@@ -108,7 +103,8 @@ export class HumanChainTravel extends HumanChainCore {
    * Move a heavy load by its two handles: push it ahead, pull it walking
    * backward or drag it behind, or press it and not move it.
    *
-   * @param params The load, its handles, the way, where to and the load's level.
+   * @param params The load, its handles, the way, where to and the load's
+   *   level.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
@@ -122,7 +118,8 @@ export class HumanChainTravel extends HumanChainCore {
   /**
    * Climb a flight of stairs up or down, step over step or step by step.
    *
-   * @param params The flight (treads, riser, tread depth, direction), the stepping pattern and the leading foot.
+   * @param params The flight (treads, riser, tread depth, direction), the
+   *   stepping pattern and the leading foot.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
@@ -149,8 +146,8 @@ export class HumanChainTravel extends HumanChainCore {
 
   /**
    * Get down onto hands and knees and crawl in the diagonal pattern, crawl on
-   * the hands and feet with the knees off the floor (`bear`), or walk the
-   * hands out to a plank and the feet in to them (`inchworm`).
+   * the hands and feet with the knees off the floor (`bear`), or walk the hands
+   * out to a plank and the feet in to them (`inchworm`).
    *
    * @param params How many cycles.
    * @param anchor An optional anchor id.
@@ -166,7 +163,8 @@ export class HumanChainTravel extends HumanChainCore {
   /**
    * Climb a fixed ladder in the four-beat pattern, three limbs always on it.
    *
-   * @param params The ladder, a fixture prop of the scene, and the rungs climbed.
+   * @param params The ladder, a fixture prop of the scene, and the rungs
+   *   climbed.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */

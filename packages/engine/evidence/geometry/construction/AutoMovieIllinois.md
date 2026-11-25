@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieIllinois.ts#AutoMovieIllinois
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the bracket premise, the halving rule and the stop condition.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The Illinois rule halves the residual weight of the end kept twice in a row. The owner accepts scalar roots or evaluated trials on the same bracket.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Existing scalar callers use `root`. Head calibration uses `select` to carry an actual evaluated member into the next source operation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieIllinois.ts#AutoMovieIllinois.root
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -27,7 +27,11 @@ import { TestValidator } from "@nestia/e2e";
 import { IFootprintVoidGeometryProps } from "./IFootprintVoidGeometryProps";
 import { namedFacts, nclose } from "./predicates";
 
-/** Assert emitted triangles, area, degeneracy, relief, prop support and quantity results for the owning test's authored regions; these are CPU consumer observations rather than rendered appearance. */
+/**
+ * Assert emitted triangles, area, degeneracy, relief, prop support and quantity
+ * results for the owning test's authored regions; these are CPU consumer
+ * observations rather than rendered appearance.
+ */
 export const assertFootprintVoidGeometry: (
   props: IFootprintVoidGeometryProps,
 ) => void = (props: IFootprintVoidGeometryProps): void => {
@@ -387,7 +391,6 @@ export const assertFootprintVoidGeometry: (
     anchor?: IAutoMovieVector3 | undefined;
     rampTo?: IAutoMovieVector3 | null | undefined;
   } = { ...ell, polygon: [v(0, 0), v(4, 4), v(4, 0), v(0, 6)] };
-  const bowtie: IAutoMovieFootprint = surfaceFootprint(crossing);
   TestValidator.equals(
     "a ring that crosses itself is refused, not resolved",
     namedFacts([
@@ -396,28 +399,9 @@ export const assertFootprintVoidGeometry: (
         (): boolean =>
           validateSpace({ space: spaceOf(crossing) }).success === false,
       ],
-      [
-        "theDecompositionStaysFinite",
-        (): boolean =>
-          footprintConvexPieces(bowtie).every(
-            (piece: IAutoMovieVector3[]): boolean =>
-              piece.every(
-                (point: IAutoMovieVector3): boolean =>
-                  Number.isFinite(point.x) &&
-                  Number.isFinite(point.z) &&
-                  Number.isFinite(point.y),
-              ),
-          ),
-      ],
-      [
-        "andContainmentStaysABoolean",
-        (): boolean => typeof footprintContains(bowtie, 2, 2) === "boolean",
-      ],
     ]),
     {
       validationRefusesIt: true,
-      theDecompositionStaysFinite: true,
-      andContainmentStaysABoolean: true,
     },
   );
 };

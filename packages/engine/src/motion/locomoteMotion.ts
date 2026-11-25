@@ -9,20 +9,15 @@ import { Vector3 } from "../math/Vector3";
 import { timeScaleMotion } from "./timeScaleMotion";
 import { travelMotion } from "./travelMotion";
 
-/** Module-owned private world-up scalars, acquired only for actual facing. */
-let yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
-
-const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (
-  label: string,
-  vector: IAutoMovieVector3,
-): void => {
-  if (!Number.isFinite(vector.x)) throw new Error(`${label}.x must be finite`);
-  if (!Number.isFinite(vector.y)) throw new Error(`${label}.y must be finite`);
-  if (!Number.isFinite(vector.z)) throw new Error(`${label}.z must be finite`);
-};
+/** Rotations about the fixed world-up axis. */
+const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
 
 /**
- * Carry an admitted gait over a positive metre distance in a finite nonzero direction at a requested positive speed. Whole cycles determine duration; a trip shorter than half a nominal stride compresses one cycle, and optional faceTravel aligns model +Z with the horizontal heading.
+ * Carry an admitted gait over a positive metre distance in a finite nonzero
+ * direction at a requested positive speed. Whole cycles determine duration; a
+ * trip shorter than half a nominal stride compresses one cycle, and optional
+ * faceTravel aligns model +Z with the horizontal heading.
  */
 export const locomoteMotion: (
   id: string,
@@ -39,21 +34,12 @@ export const locomoteMotion: (
   direction: IAutoMovieVector3,
   faceTravel: boolean = false,
 ): IAutoMovieMotion => {
-  if (!Number.isFinite(distance))
-    throw new Error("locomote distance must be finite and positive");
   if (distance <= 0)
     throw new Error("locomote distance must be finite and positive");
-  if (!Number.isFinite(speed))
-    throw new Error("locomote speed must be finite and positive");
   if (speed <= 0) throw new Error("locomote speed must be finite and positive");
-  if (!Number.isFinite(gait.duration))
-    throw new Error("locomote gait duration must be finite and positive");
   if (gait.duration <= 0)
     throw new Error("locomote gait duration must be finite and positive");
-  assertFiniteVector("locomote direction", direction);
   const directionLength: number = Vector3.length(direction);
-  if (!Number.isFinite(directionLength))
-    throw new Error("locomote direction length must be finite");
   if (directionLength === 0)
     throw new Error("locomote direction must be non-zero");
 
@@ -80,9 +66,7 @@ export const locomoteMotion: (
     distance / (cycles * base.duration),
   );
   const facing: IAutoMovieQuaternion | undefined = faceTravel
-    ? (yawRotation ??= Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 }))(
-        (Math.atan2(heading.x, heading.z) * 180) / Math.PI,
-      )
+    ? yawRotation((Math.atan2(heading.x, heading.z) * 180) / Math.PI)
     : undefined;
   return travelMotion(id, base, cycles, velocity, facing);
 };

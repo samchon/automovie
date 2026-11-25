@@ -26,9 +26,9 @@ import { triangulateRegion } from "./triangulateRegion";
  * sharp. The atlas is metric: a cap carries its own profile XY, mirrored in V
  * on the bottom cap so it reads the right way round from below, and a side
  * carries the distance travelled along its ring as U against Z as V. Each ring
- * is developed from its canonical first point, from zero to its full
- * perimeter, so the side's texture phases meet at that point only when the
- * declared repeat divides the perimeter. That developed frame differs from
+ * is developed from its canonical first point, from zero to its full perimeter,
+ * so the side's texture phases meet at that point only when the declared repeat
+ * divides the perimeter. That developed frame differs from
  * `buildAutoMoviePolyhedron`'s projected one because a side following an arc is
  * metric only when measured along the arc; both are metres, so one declared
  * scale reads the same on both.

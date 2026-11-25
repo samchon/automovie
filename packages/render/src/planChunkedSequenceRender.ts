@@ -19,13 +19,28 @@ import {
 } from "./guidePasses.js";
 
 /**
- * Split a `planSequenceRender` manifest into `chunkFrames`-sized, independently renderable chunks and the plan to concatenate them.
+ * Split a `planSequenceRender` manifest into `chunkFrames`-sized, independently
+ * renderable chunks and the plan to concatenate them.
  *
- * Chunks are frame-atomic: chunk `i` holds the whole plan's frames `[i * chunkFrames, (i + 1) * chunkFrames)`, the last one clipped to the total. A transition's blend is already baked into each frame's `blend`, so a transition that straddles a boundary is split between frames with each frame keeping its blend, and concatenating the chunks reproduces the whole render frame for frame. Running chunks in parallel or on a farm is a host concern. The plan holds every frame of the render; only capture and encoding are bounded per chunk.
+ * Chunks are frame-atomic: chunk `i` holds the whole plan's frames `[i *
+ * chunkFrames, (i + 1) * chunkFrames)`, the last one clipped to the total. A
+ * transition's blend is already baked into each frame's `blend`, so a
+ * transition that straddles a boundary is split between frames with each frame
+ * keeping its blend, and concatenating the chunks reproduces the whole render
+ * frame for frame. Running chunks in parallel or on a farm is a host concern.
+ * The plan holds every frame of the render; only capture and encoding are
+ * bounded per chunk.
  *
- * When `passes` is given, every chunk also plans its per-pass frame paths through `planGuidePassOutputs`, with chunk-local indices, and the plan gains one {@link IAutoMovieRenderPassManifest} per pass. Omitting `passes` omits every pass field; an empty list plans empty pass sets; an unknown pass name throws before any chunk is built. Throws when `chunkFrames` is not a positive integer.
+ * When `passes` is given, every chunk also plans its per-pass frame paths
+ * through `planGuidePassOutputs`, with chunk-local indices, and the plan gains
+ * one {@link IAutoMovieRenderPassManifest} per pass. Omitting `passes` omits
+ * every pass field; an empty list plans empty pass sets; an unknown pass name
+ * throws before any chunk is built. Throws when `chunkFrames` is not a positive
+ * integer.
  *
- * `planProductionRenderJob` partitions frames with the same arithmetic but a different contract, restarting its index per deliverable and admitting only safe integers, so the two do not share a helper.
+ * `planProductionRenderJob` partitions frames with the same arithmetic but a
+ * different contract, restarting its index per deliverable and admitting only
+ * safe integers, so the two do not share a helper.
  */
 export const planChunkedSequenceRender: (
   props: IAutoMoviePlanChunkedSequenceRenderProps,
@@ -35,7 +50,7 @@ export const planChunkedSequenceRender: (
   const plan: IAutoMovieSequenceRenderPlan = props.plan;
   const spec: IAutoMovieRenderSpec = props.spec;
   const chunkFrames: number = props.chunkFrames;
-  if (!Number.isInteger(chunkFrames) || chunkFrames <= 0)
+  if (chunkFrames <= 0)
     throw new Error(
       `chunkFrames must be a positive integer, but was ${chunkFrames}`,
     );
@@ -158,13 +173,18 @@ const baseName: (path: string) => string = (path: string): string =>
   path.slice(Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")) + 1);
 
 /**
- * Escape one concat-demuxer entry for its single-quoted file line. A quoted string cannot contain `'`, so each apostrophe closes the quote, emits an escaped quote, and reopens it (`'` becomes `'\''`), the grammar ffmpeg's `av_get_token` parses.
+ * Escape one concat-demuxer entry for its single-quoted file line. A quoted
+ * string cannot contain `'`, so each apostrophe closes the quote, emits an
+ * escaped quote, and reopens it (`'` becomes `'\''`), the grammar ffmpeg's
+ * `av_get_token` parses.
  */
 const escapeConcatEntry: (name: string) => string = (name: string): string =>
   name.replace(/'/g, "'\\''");
 
 /**
- * Insert a `.<label>` tag before the output's extension, or append it when the basename has none. The extension dot is searched only within the basename, so a dotted directory such as `out.v2/render` tags the file, not the directory.
+ * Insert a `.<label>` tag before the output's extension, or append it when the
+ * basename has none. The extension dot is searched only within the basename, so
+ * a dotted directory such as `out.v2/render` tags the file, not the directory.
  */
 const taggedOutput: (output: string, label: string) => string = (
   output: string,

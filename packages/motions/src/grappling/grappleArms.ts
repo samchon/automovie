@@ -22,6 +22,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPerception } from "../law/HumanPerception";
@@ -32,38 +33,30 @@ import { clinch } from "./clinch";
 
 /**
  * The initiator's hands of a staged grapple laid on the partner as one arm
- * course (`courseArmGoal`): the reach from the entry's arm angles to the
- * grip, the grip held on the partner's named moving surface, and the
- * return, planned as one trajectory clear of the partner's other segments,
- * both hands together. Both performers play one authored scene on one clock
- * (`HumanCoupled.grappling`), so the initiator's plan reads the partner
- * where the scene puts the partner at each second, a reaction time behind it
- * on the reach and a feedback delay behind it on the hold: an interception
- * is aimed at where the target will be, by an internal model of its motion
- * (Zago, McIntyre, Senot and Lacquaniti 2009, Exp Brain Res 192:571), and
- * a rehearsed scene's partner is known in advance, as
- * the sumo tachiai's mutual start is. A reach planned on the partner frozen
- * as it was when the reach started kept the hold on a charging or driven
- * partner's old place, a belt grip at the tachiai 0.29 m beyond the place
- * the partner had charged to, which no bounded follower can close; the
- * plan reads the scene's partner (`perceived`), so no follower corrects
- * it. The hand lies on the segments of the gripped region's bone
- * and its neighbours (`touchHold.others`). The fingers take the grip's shape
- * on the same envelope. A course per sample was what let an arm flip its
- * branch from one instant to the next (the staged takes' 180-degree upper
- * arm turns).
+ * course (`courseArmGoal`): the reach from the entry's arm angles to the grip,
+ * the grip held on the partner's named moving surface, and the return, planned
+ * as one trajectory clear of the partner's other segments, both hands together.
+ * Both performers play one authored scene on one clock
+ * (`HumanCoupled.grappling`), so the initiator's plan reads the partner where
+ * the scene puts the partner at each second, a reaction time behind it on the
+ * reach and a feedback delay behind it on the hold: an interception is aimed at
+ * where the target will be, by an internal model of its motion (Zago, McIntyre,
+ * Senot and Lacquaniti 2009, Exp Brain Res 192:571), and a rehearsed scene's
+ * partner is known in advance, as the sumo tachiai's mutual start is. A reach
+ * planned on the partner frozen as it was when the reach started kept the hold
+ * on a charging or driven partner's old place, a belt grip at the tachiai 0.29
+ * m beyond the place the partner had charged to, which no bounded follower can
+ * close; the plan reads the scene's partner (`perceived`), so no follower
+ * corrects it. The hand lies on the segments of the gripped region's bone and
+ * its neighbours (`touchHold.others`). The fingers take the grip's shape on the
+ * same envelope. A course per sample was what let an arm flip its branch from
+ * one instant to the next (the staged takes' 180-degree upper arm turns).
  *
- * @param props The scene's context, its floor plan, the gripped regions and the grip's clock.
+ * @param props The scene's context, its floor plan, the gripped regions and the
+ *   grip's clock.
  * @returns The floor plan with the hands laid on the partner.
- * @throws {HumanRefusal} When a gripping wrist would stand beyond the arm's reach on the hold, or no course meets the trajectory's constraints.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is laid, on what, how the partner is read and why the course replaces the per-sample move.
- * @evidence contracts/development/implementation.md#principled-implementation A hand on a moving partner is one trajectory problem with branch continuity and clearance, planned on the scene's own partner at each second through the shared perception delays.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The grip clock, the hand forms on the floor plan, the goals, then one course.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the partner's own surface frame; the perception delays are the shared ones; a wrist beyond reach is refused.
- * @evidence contracts/development/implementation.md#efficient-algorithms One course for both hands; one partner read per goal sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses clinch placement, the hand target, the touch's partner colliders, the hand form and the shared course.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the course until it settles.
+ * @throws {HumanRefusal} When a gripping wrist would stand beyond the arm's
+ *   reach on the hold, or no course meets the trajectory's constraints.
  */
 export function grappleArms(
   props: grappleArms.IProps,
@@ -79,7 +72,7 @@ export function grappleArms(
   const release: number = clock.at("release");
   const rest: number = clock.at("rest");
   // The hold's clock in the touch's names, for the partner's colliders.
-  const held: IAutoMovieMotionClock = AutoMovieMotionClock.of(floor.duration, [
+  const held: IAutoMovieMotionClock = AutoMovieMotionClock(floor.duration, [
     { name: "ready", seconds: take },
     { name: "relax", seconds: release },
   ]);
@@ -261,12 +254,12 @@ export function grappleArms(
 
   // The arms leave the floor's own arms as the reach starts, the angles
   // shown before it; the entry's were not, and the reach jumped from them.
-  let begun: IAutoMoviePose | undefined;
-  const start = (): IAutoMoviePose =>
-    (begun ??= resolveHumanPosture(body, base.posture(reach)));
+  const begun: IAutoMoviePose = resolveHumanPosture(body, base.posture(reach));
+  const start = (): IAutoMoviePose => begun;
   const lay = (end: number): IAutoMovieMotionHumanActionPlan => {
-    const laid: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-      body,
+    // Composition prepares the constrained course before returning it.
+    return courseArmGoal({
+      context,
       plan: goals,
       base,
       side: sides[0]!,
@@ -285,20 +278,15 @@ export function grappleArms(
             ],
           }),
     });
-    // The course is planned as it is first read.
-    laid.posture(take);
-    return laid;
   };
   // The return takes the time the course's own path back around the two
   // bodies needs: where the planner finds the authored return too fast, it
   // states the least seconds the action needs at its pace, and the return,
   // the one phase no partner's beat fixes, is stretched by that ratio within
   // the scene.
-  let coursed: IAutoMovieMotionHumanActionPlan | undefined;
-  const course = (): IAutoMovieMotionHumanActionPlan => {
-    if (coursed !== undefined) return coursed;
+  const laid = (): IAutoMovieMotionHumanActionPlan => {
     try {
-      coursed = lay(rest);
+      return lay(rest);
     } catch (error: unknown) {
       const end: number | undefined = grappleArms.stretched(
         error,
@@ -307,47 +295,43 @@ export function grappleArms(
         rest,
       );
       if (end === undefined) throw error;
-      coursed = lay(end);
+      return lay(end);
     }
-    return coursed;
   };
+  // The course is laid when the plan is prepared; a read before lays it
+  // afresh and keeps nothing.
+  const coursed: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+    AutoMovieMotionPrepared(laid);
   const plan: IAutoMovieMotionHumanActionPlan = {
     ...floor,
     posture: (
       ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
     ): IAutoMovieMotionHumanPosture =>
-      sides.length === 0 ? base.posture(...args) : course().posture(...args),
-    settle: (): void => {
-      coursed = undefined;
-      floor.settle?.();
+      sides.length === 0
+        ? base.posture(...args)
+        : coursed.read().posture(...args),
+    prepare: (): void => {
+      floor.prepare?.();
+      if (sides.length !== 0) coursed.prepare().prepare?.();
     },
+    goals,
   };
-  courseArmGoal.SOURCES.set(plan, goals);
   return plan;
 }
 
-/**
- * Companion types and constants of {@link grappleArms}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
- * @evidence contracts/development/design.md#principled-representation The scene's context, floor plan, regions by hand and the grip's four instants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the grapple law hands its arms.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's context, plan, clock and region types.
- */
+/** Companion types and constants of {@link grappleArms}. */
 export namespace grappleArms {
   /**
-   * The return's end the planner's own answer asks for: when a course
-   * refuses its duration with the least seconds the action needs at its
-   * pace, the return (from `release` to `rest`) stretched by that ratio,
-   * kept within the action; none for any other refusal, or one the
-   * stretch cannot meet.
+   * The return's end the planner's own answer asks for: when a course refuses
+   * its duration with the least seconds the action needs at its pace, the
+   * return (from `release` to `rest`) stretched by that ratio, kept within the
+   * action; none for any other refusal, or one the stretch cannot meet.
    *
    * @param error What the course threw.
    * @param duration The action's seconds.
    * @param release The release, seconds since the start.
    * @param rest The authored rest, seconds since the start.
    * @returns The stretched rest, seconds since the start, or none.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States which refusal is read, the stretch and when none is given.
    * @evidence contracts/development/implementation.md#principled-implementation The planner states the uniform time stretch its path needs; the free phase takes that stretch.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the refusal, one ratio.
@@ -376,7 +360,10 @@ export namespace grappleArms {
       release + ((rest - release) * feasible.minimum) / duration;
     return end <= duration ? end : undefined;
   }
-  /** How far the shoulder throw's sleeve hand stands off the sleeve at the middle of its release, in hand lengths (provisional). */
+  /**
+   * How far the shoulder throw's sleeve hand stands off the sleeve at the
+   * middle of its release, in hand lengths (provisional).
+   */
   export const SEPARATION: number = 0.55;
 
   /** The scene's arms. */
@@ -392,10 +379,16 @@ export namespace grappleArms {
       Partial<Record<AutoMovieHumanSide, AutoMovieHumanoidRegion>>
     >;
 
-    /** The grip's clock: `reach`, `take`, `release` and `rest`, seconds since the start. */
+    /**
+     * The grip's clock: `reach`, `take`, `release` and `rest`, seconds since
+     * the start.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The hand that separates along the sleeve on the release; none when absent. */
+    /**
+     * The hand that separates along the sleeve on the release; none when
+     * absent.
+     */
     sleeve?: AutoMovieHumanSide;
   }
 }

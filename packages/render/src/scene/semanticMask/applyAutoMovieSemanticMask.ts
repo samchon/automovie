@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import {
   applyDualQuaternionSkinning,
   dualQuaternionSkinningOf,
@@ -25,17 +26,28 @@ import { unresolvedOf } from "./unresolvedOf.js";
 /**
  * Paint a built scene with its stable semantic palette.
  *
- * An attached palette assigns stable semantic colours instead of a top-level traversal ramp. The nearest claimed root determines each mesh's identity; a correctly rebuilt design can preserve those palette colours despite changed traversal order. This describes material state rather than independently observed pixels.
+ * An attached palette assigns stable semantic colours instead of a top-level
+ * traversal ramp. The nearest claimed root determines each mesh's identity; a
+ * correctly rebuilt design can preserve those palette colours despite changed
+ * traversal order. This describes material state rather than independently
+ * observed pixels.
  *
  * Resolution walks each mesh up to the nearest ancestor the mask names:
  *
- * - Staged nodes match design.nodes by the buildScene top-level construction order.
+ * - Staged nodes match design.nodes by the buildScene top-level construction
+ *   order.
  * - Named objects match palette roots, including ground and instance-set groups.
- * - Compiled slots use instanceColor so members keep separate identities without separate scene nodes.
+ * - Compiled slots use instanceColor so members keep separate identities without
+ *   separate scene nodes.
  *
- * A mesh no entry claims is painted the reserved background colour rather than left showing its beauty material: a segmentation consumer must never read a lit surface as a class, and an unpainted mesh would be exactly that.
+ * A mesh no entry claims is painted the reserved background colour rather than
+ * left showing its beauty material: a segmentation consumer must never read a
+ * lit surface as a class, and an unpainted mesh would be exactly that.
  *
- * A formation's supplied baked cycle is carried onto each replacement material through the same hook used by beauty. This preserves the requested deformation route; actual shader compilation, frame correspondence and delivered pixels remain rendering observations.
+ * A formation's supplied baked cycle is carried onto each replacement material
+ * through the same hook used by beauty. This preserves the requested
+ * deformation route; actual shader compilation, frame correspondence and
+ * delivered pixels remain rendering observations.
  */
 export const applyAutoMovieSemanticMask: (props: {
   /** The built scene. */
@@ -140,7 +152,7 @@ export const applyAutoMovieSemanticMask: (props: {
           (): void => {
             entry.mesh.instanceColor = entry.attribute;
             if (entry.values !== null && entry.attribute !== null) {
-              (entry.attribute.array as Float32Array).set(entry.values);
+              entry.attribute.copyArray(entry.values);
               entry.attribute.needsUpdate = true;
             }
           },
@@ -173,9 +185,9 @@ export const applyAutoMovieSemanticMask: (props: {
     scene.traverse((object: THREE.Object3D): void => {
       if (!object.visible) return;
       if (
-        (object as THREE.Line).isLine === true ||
-        (object as THREE.Points).isPoints === true ||
-        (object as THREE.Sprite).isSprite === true
+        AutoMovieThreeKind.isLine(object) ||
+        AutoMovieThreeKind.isPoints(object) ||
+        AutoMovieThreeKind.isSprite(object)
       ) {
         hidden.push(object);
         object.visible = false;
@@ -183,8 +195,8 @@ export const applyAutoMovieSemanticMask: (props: {
     });
     scene.background = new THREE.Color(0x000000);
     scene.traverse((object: THREE.Object3D): void => {
-      const mesh: THREE.Mesh = object as THREE.Mesh;
-      if (mesh.isMesh !== true) return;
+      if (!AutoMovieThreeKind.isMesh(object)) return;
+      const mesh: THREE.Mesh = object;
       const entry: IAutoMovieSemanticMaskEntry | undefined = nearest(
         mesh,
         roots,
@@ -206,14 +218,12 @@ export const applyAutoMovieSemanticMask: (props: {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
-      const instanced: THREE.InstancedMesh = mesh as THREE.InstancedMesh;
-      if (instanced.isInstancedMesh !== true) {
+      if (!AutoMovieThreeKind.isInstancedMesh(mesh)) {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
-      const slots: number[] | undefined = instanced.userData.automovieSlots as
-        | number[]
-        | undefined;
+      const instanced: THREE.InstancedMesh = mesh;
+      const slots: number[] | undefined = instanced.userData.automovieSlots;
       if (slots === undefined || slots.length === 0) {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;
@@ -225,8 +235,7 @@ export const applyAutoMovieSemanticMask: (props: {
       colors.push({
         mesh: instanced,
         attribute: previous,
-        values:
-          previous === null ? null : (previous.array as Float32Array).slice(),
+        values: previous === null ? null : Float32Array.from(previous.array),
       });
       const set: string = entry.id.slice(INSTANCE_SET_PREFIX.length);
       const paint: THREE.Color = new THREE.Color();

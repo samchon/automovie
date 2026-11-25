@@ -1,18 +1,18 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
-import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 
 /**
- * Add one weighted row outer product to a banded reduced system. The ADMM
- * and polishing systems both use this operation (Stellato et al. 2020,
- * sections 3.1 and 4). An ordered row begins at its first equal column,
- * retaining earlier duplicate-column products. Unsorted rows may borrow a
- * factor-only stable column/original-position order: every K(i,j) cell sees
- * the same a-at-i/b-at-j sequence, while other cells' writes commute.
- * Original CSR dot products remain untouched, and absent metadata keeps the
- * original unsorted traversal.
+ * Add one weighted row outer product to a banded reduced system. The ADMM and
+ * polishing systems both use this operation (Stellato et al. 2020, sections 3.1
+ * and 4). An ordered row begins at its first equal column, retaining earlier
+ * duplicate-column products. Unsorted rows may borrow a factor-only stable
+ * column/original-position order: every K(i,j) cell sees the same a-at-i/b-at-j
+ * sequence, while other cells' writes commute. Original CSR dot products remain
+ * untouched, and absent metadata keeps the original unsorted traversal.
  *
- * @param s Admitted scaled rows, with ordering metadata for their unchanged CSR sequence.
- * @param k Owned upper-band system, distinct from the read-only scaled matrices.
+ * @param s Admitted scaled rows, with ordering metadata for their unchanged CSR
+ *   sequence.
+ * @param k Owned upper-band system, distinct from the read-only scaled
+ *   matrices.
  * @param r Row index in the scaled problem.
  * @param w Current rho or polishing row weight, multiplied on the left.
  */
@@ -25,12 +25,9 @@ export function HumanQuadraticRow(
   const single: number = s.singleton[r]!;
   if (single >= 0) {
     const coefficient: number = s.vals[single]!;
-    const weighted: number = w * coefficient;
-    if (Number.isFinite(weighted)) {
-      const row: Float64Array = k[s.cols[single]!]!;
-      row[0] = row[0]! + weighted * coefficient;
-      return;
-    }
+    const row: Float64Array = k[s.cols[single]!]!;
+    row[0] = row[0]! + w * coefficient * coefficient;
+    return;
   }
   const begin: number = s.start[r]!;
   let first: number = begin;
@@ -39,20 +36,11 @@ export function HumanQuadraticRow(
   const order: B.IScaled["factorOrder"] = ordered ? undefined : s.factorOrder;
   const orderStart: number = order?.start[r] ?? 0;
   for (let a: number = begin; a < end; ++a) {
-    const position: number = order === undefined ? a : order.entries[orderStart + a - begin]!;
+    const position: number =
+      order === undefined ? a : order.entries[orderStart + a - begin]!;
     const i: number = s.cols[position]!;
     const row: Float64Array = k[i]!;
     const weighted: number = w * s.vals[position]!;
-    if (!Number.isFinite(weighted)) {
-      const original: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
-      for (let b: number = 0; b < original.index.length; ++b) {
-        const j: number = original.index[b]!;
-        if (j < i) continue;
-        const offset: number = j - i;
-        row[offset] = row[offset]! + weighted * original.coef[b]!;
-      }
-      continue;
-    }
     if (order !== undefined) {
       while (s.cols[order.entries[orderStart + first - begin]!]! < i) ++first;
       for (let b: number = first; b < end; ++b) {

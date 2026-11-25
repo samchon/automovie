@@ -1,27 +1,21 @@
 # Testing
 
-Each exported test function answers this checklist and [common](common.md) from its assertions and execution path, including cases registered by a shared harness.
+Judge each test at the entry the runner discovers, including cases registered by a shared harness.
 
 ## Behavioral verification
 
-Exercise the behavior and assert its observable result. For a registered row or law, assert each bound [motion verification](../../motion/laws/verification.md) lists on the displayed result. Delete checks of repository layout or source text and checks that repeat tuned constants, fitted results or implementation output.
+<!-- @source The production test runner in test/index.ts and the displayed bounds in motion/laws/verification.md. -->
 
-State the operation exercised, the defect the assertions catch, and the valid behavior they allow.
+What behavior does the discovered check verify, and what does it need to run?
+
+Use the smallest typed in-memory fixture for a unit test. Test a composition's own decisions with prepared inputs and exercise its parts directly. Identify the discovered entry and who supplies its cases.
+
+For a row or motion law, assert the applicable [motion bounds](../../motion/laws/verification.md) on its displayed result. For a system check, identify the installed package, native build or host boundary it needs to exercise. Review rendered picture and sound in production review.
 
 ## Independent expectations
 
-Derive expected values and tolerances from the study, subject record or screenplay fact the module realizes, or from a specification, physical requirement or other independent reference, never from the implementation under test or a snapshot of its output.
+Would the expected results distinguish correct behavior from a plausible defect?
 
-State that basis, how the assertion would catch a wrong implementation, and any oracle limitation.
+Derive expectations from a specification, closed form, physical requirement or the study, record or screenplay fact the module realizes. Explain the basis and limits of the expectation. Bound numerical error independently of observed output.
 
-## Distinguishing cases
-
-Cover positive, adjacent negative and boundary cases. Identify the input that must change, the meaning to preserve, and any empty, singleton, limit, malformed or failure case the decision requires. For a row or law, cover the bodies, partners and props motion verification requires. Keep the assertions and cases when optimizing runtime.
-
-State this test's contribution and the cases another test owns.
-
-## Execution ownership
-
-A unit test exercises portable behavior with explicit in-memory inputs. Installation, native builds and real hosts belong to other checks. Playback, renders and listening belong to review. Classify a test by what it runs.
-
-State the layer, the discoverable entry, and who owns dynamically registered cases.
+Choose cases that separate positive results, adjacent boundaries and refusals. At a boundary that accepts external inputs, include malformed values the boundary handles. For a row or law, vary bodies, partners and props where they affect the result. Keep every defect-catching assertion when reducing the test's cost.

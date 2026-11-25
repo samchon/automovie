@@ -9,26 +9,28 @@ import type { IAutoMovieSourceOracle } from "./IAutoMovieSourceOracle";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Host-supplied design and compact runtime inputs read by subject render methods; readonly maps are a TypeScript contract, not a deep runtime freeze.
+ * Host-supplied design and compact runtime inputs read by subject render
+ * methods; readonly maps are a TypeScript contract, not a deep runtime freeze.
  */
 export interface IAutoMovieShotBuildContext {
   /** Current shot contract. */
   contract: IAutoMovieShotContract;
 
   /**
-   * Current model groups keyed by the id that populations and LOD tiers name; scene nodes cite each group by its own `id`.
+   * Current model groups keyed by the id that populations and LOD tiers name;
+   * scene nodes cite each group by its own `id`.
    */
   models: Readonly<Record<string, IAutoMovieModel>>;
 
-  /**
-   * Current verified deterministic artifacts keyed by canonical output path.
-   */
+  /** Current verified deterministic artifacts keyed by canonical output path. */
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
 
   /**
    * The production's story-clock light sources, when it declares any.
    *
-   * The shot contract carries the story pin. This optional metadata does not sample lights automatically; the host supplies lighting inputs and shot-local lightMotions explicitly.
+   * The shot contract carries the story pin. This optional metadata does not
+   * sample lights automatically; the host supplies lighting inputs and
+   * shot-local lightMotions explicitly.
    */
   lighting?: IAutoMovieProductionLighting;
 

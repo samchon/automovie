@@ -1,8 +1,9 @@
 /**
  * Trials for an all-inlier, unique-index sample under the ideal independent
  * uniform-trial RANSAC model. Within a trial, sampling is without replacement;
- * across trials, a subset may recur. Deterministic pseudorandom proposals do not
- * turn this conditional stopping calculation into a probability of pose truth.
+ * across trials, a subset may recur. Deterministic pseudorandom proposals do
+ * not turn this conditional stopping calculation into a probability of pose
+ * truth.
  */
 export function requiredRecoveryCameraTrials(
   population: number,
@@ -11,12 +12,10 @@ export function requiredRecoveryCameraTrials(
   confidence: number,
 ): number {
   if (
-    ![population, inliers, sampleSize].every(Number.isSafeInteger) ||
     population < 0 ||
     inliers < 0 ||
     inliers > population ||
     sampleSize < 1 ||
-    !Number.isFinite(confidence) ||
     !(confidence > 0 && confidence < 1)
   )
     throw new Error("camera-sampling: finite counts and confidence required");
@@ -29,5 +28,7 @@ export function requiredRecoveryCameraTrials(
   const required: number = Math.ceil(
     Math.log1p(-confidence) / Math.log1p(-success),
   );
-  return Number.isSafeInteger(required) && required > 0 ? required : Infinity;
+  return required > 0 && required <= Number.MAX_SAFE_INTEGER
+    ? required
+    : Infinity;
 }

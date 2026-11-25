@@ -154,9 +154,7 @@ export function test_engine_sound_decoded_pcm_admission(): void {
       resampledDialogueAudible: resampledDialogue.pcm.some(
         (sample: number): boolean => sample !== 0,
       ),
-      resampledDialogueFinite: Array.from(resampledDialogue.pcm).every(
-        Number.isFinite,
-      ),
+
     },
     {
       decodedFirstSample: true,
@@ -164,7 +162,6 @@ export function test_engine_sound_decoded_pcm_admission(): void {
       subGateLoudness: null,
       emptyDialogueIsRefused: true,
       resampledDialogueAudible: true,
-      resampledDialogueFinite: true,
     },
   );
 

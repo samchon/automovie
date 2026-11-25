@@ -1,21 +1,3 @@
-# src/kinematics/BendClinicalNodes.ts#BendClinicalNodes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the native chart ownership and when it is recorded.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Weak identity admission separates authority from the current, mutable clinical numbers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three chart allocators issue records and the numeric clinical reader checks them. This module is absent from the public barrels.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Foreign nodes cannot acquire the engine chart's authority by matching its shape or values.
-
 # src/kinematics/BendClinicalNodes.ts#BendClinicalNodes.record
 
 ## @evidence contracts/development/common.md#meaningful-documentation

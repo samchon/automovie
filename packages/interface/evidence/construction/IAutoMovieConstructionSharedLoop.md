@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionSharedLoop.ts#IAutoMovieConstructionSharedLoop
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the record becomes, which owners it reads and who consumes the result.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One owner supplies the shared boundary to the host's trim, the blend and the part (construction.md, Connections); nothing here interpolates the loop a second time.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The prepared input, the refusal and one builder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A refused premise returns its name and numbers; no part of the loop falls back to a trace.
-
 # src/construction/IAutoMovieConstructionSharedLoop.ts#IAutoMovieConstructionSharedLoop.IPrepared
 
 ## @evidence contracts/development/design.md#principled-representation

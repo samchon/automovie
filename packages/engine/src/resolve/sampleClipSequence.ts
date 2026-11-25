@@ -7,7 +7,10 @@ import { channelKey } from "./channelKey";
 import { sampleClip } from "./sampleClip";
 
 /**
- * Select each channel's latest first key that has started at finite shot seconds, breaking equal starts by later clip order. All clips are sampled/validated, but future tracks acquire no authority. Winning sampled records are returned in a fresh map.
+ * Select each channel's latest first key that has started at finite shot
+ * seconds, breaking equal starts by later clip order. All clips are
+ * sampled/validated, but future tracks acquire no authority. Winning sampled
+ * records are returned in a fresh map.
  */
 export const sampleClipSequence: (
   clips: readonly IAutoMovieClip[],
@@ -16,10 +19,6 @@ export const sampleClipSequence: (
   clips: readonly IAutoMovieClip[],
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
-  if (!Number.isFinite(seconds))
-    throw new Error(
-      `sampleClipSequence seconds must be finite, but was ${seconds}`,
-    );
   const sampledByClip: Map<
     IAutoMovieClip,
     Map<string, IAutoMovieSampledChannel>

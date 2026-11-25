@@ -19,24 +19,25 @@ import { QuadrupedGaitAdmission } from "./QuadrupedGaitAdmission";
  * camel's lateral walk from its running pace. Here a pace is constructed with
  * simultaneous ipsilateral contacts and opposite sides half a stride apart.
  * Dagg (1967), Gaits and Their Development in the Infraorder Pecora, pp.65–66,
- * observed sika trot and rotary gallop. The trot uses coincident diagonals;
- * the rotary gallop uses authored quarter-stride intervals, with opposite
- * leading fore/hind sides. These fractions are constructions, not measured
- * full-phase statistics. Their durations always come from the caller.
+ * observed sika trot and rotary gallop. The trot uses coincident diagonals; the
+ * rotary gallop uses authored quarter-stride intervals, with opposite leading
+ * fore/hind sides. These fractions are constructions, not measured full-phase
+ * statistics. Their durations always come from the caller.
  *
- * Each faster gait's first authored speed is its automatic change boundary,
- * not a claimed biological transition. Absolute scaling preserves all clocks.
+ * Each faster gait's first authored speed is its automatic change boundary, not
+ * a claimed biological transition. Absolute scaling preserves all clocks.
  * Admission makes a private numerical snapshot for a ride; no species registry,
  * model identity, motion law or foreign function is modified.
  */
 export namespace AutoMovieArchetypeQuadrupedLocomotion {
-  /**
-   * An authored SI clock, with independent fore/hind contact durations.
-   */
+  /** An authored SI clock, with independent fore/hind contact durations. */
   export interface IClock {
     /** Authored speed, metres per second; rows must increase strictly. */
     speed: number;
-    /** Authored complete stride period, seconds, with a finite representable reciprocal frequency. */
+    /**
+     * Authored complete stride period, seconds, with a finite representable
+     * reciprocal frequency.
+     */
     stride: number;
     /** Authored fore-foot ground-contact duration, seconds, below stride. */
     foreStance: number;
@@ -44,17 +45,13 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     hindStance: number;
   }
 
-  /**
-   * Required authored lateral-pace clocks, separate from the measured walk.
-   */
+  /** Required authored lateral-pace clocks, separate from the measured walk. */
   export interface ICamel {
     /** One or more strictly increasing speed points; no clock is defaulted. */
     pace: readonly IClock[];
   }
 
-  /**
-   * Authored sika trot and/or rotary gallop; an absent gait stays unsupported.
-   */
+  /** Authored sika trot and/or rotary gallop; an absent gait stays unsupported. */
   export type IDeer =
     | {
         /** Required authored diagonal-trot clocks in this branch. */
@@ -97,14 +94,16 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   /**
    * The camel's measured walking point plus the caller's running-pace clocks.
    *
-   * @param params Required authored SI clocks; construction pose ranges remain the walk's proxies.
-   * @returns An admitted absolute table, with ipsilateral running-pace contacts.
-   * @throws {AutoMovieArchetypeRefusal} For an empty, unordered, nonfinite or unsupported clock.
+   * @param params Required authored SI clocks; construction pose ranges remain
+   *   the walk's proxies.
+   * @returns An admitted absolute table, with ipsilateral running-pace
+   *   contacts.
+   * @throws {AutoMovieArchetypeRefusal} For an empty, unordered, nonfinite or
+   *   unsupported clock.
    */
   export function camel(
     params: ICamel,
   ): AutoMovieArchetypeQuadrupedGait.ITable {
-    object(params, "camel");
     return admit({
       ...CamelGait.TABLE,
       order: ["walk", "pace"],
@@ -116,14 +115,16 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   }
 
   /**
-   * The sika's measured walk plus explicitly authored trot and/or rotary gallop.
+   * The sika's measured walk plus explicitly authored trot and/or rotary
+   * gallop.
    *
-   * @param params At least one faster gait's SI clocks, in increasing speed order.
+   * @param params At least one faster gait's SI clocks, in increasing speed
+   *   order.
    * @returns An admitted absolute table; absent faster gaits stay unsupported.
-   * @throws {AutoMovieArchetypeRefusal} For no faster gait or any invalid clock/table.
+   * @throws {AutoMovieArchetypeRefusal} For no faster gait or any invalid
+   *   clock/table.
    */
   export function deer(params: IDeer): AutoMovieArchetypeQuadrupedGait.ITable {
-    object(params, "deer");
     if (params.trot === undefined && params.gallop === undefined)
       refuse("deer", params, "supply trot and/or rotary-gallop clocks");
     const order: AutoMovieArchetypeQuadrupedGait.Gait[] = ["walk"];
@@ -149,17 +150,17 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   /**
    * Admit and snapshot a complete caller-supplied table before a ride reads it.
    *
-   * @param table Closed gaits, ordered finite SI rows and normalized touchdown phases.
-   * @returns A new numerical snapshot, without references to mutable caller rows or pose records.
-   * @throws {AutoMovieArchetypeRefusal} For malformed tables, unordered speeds, invalid contact/phase data or an absent transition rule.
+   * @param table Closed gaits, ordered finite SI rows and normalized touchdown
+   *   phases.
+   * @returns A new numerical snapshot, without references to mutable caller
+   *   rows or pose records.
+   * @throws {AutoMovieArchetypeRefusal} For malformed tables, unordered speeds,
+   *   invalid contact/phase data or an absent transition rule.
    */
   export function admit(
     table: AutoMovieArchetypeQuadrupedGait.ITable,
   ): AutoMovieArchetypeQuadrupedGait.ITable {
-    object(table, "table");
-    object(table.gaits, "table.gaits");
-    object(table.follow, "table.follow");
-    if (!Array.isArray(table.order) || table.order.length === 0)
+    if (table.order.length === 0)
       refuse("table.order", table.order, "list at least one supported gait");
     positive(table.reference, "table.reference");
     nonnegative(table.hysteresis, "table.hysteresis");
@@ -167,12 +168,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     unit(table.follow.hind, "table.follow.hind");
     if (table.scaling !== undefined && table.scaling !== "absolute")
       refuse("table.scaling", table.scaling, "use absolute or omit scaling");
-    if (table.explicit !== undefined && !Array.isArray(table.explicit))
-      refuse(
-        "table.explicit",
-        table.explicit,
-        "list the optional explicit gait names",
-      );
     const order: AutoMovieArchetypeQuadrupedGait.Gait[] = [];
     const explicit: AutoMovieArchetypeQuadrupedGait.Gait[] = [];
     const declared: readonly AutoMovieArchetypeQuadrupedGait.Gait[] = [
@@ -203,11 +198,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       const axis: string = `table.gaits.${kind}`;
       if (source === undefined)
         refuse(axis, source, "supply every ordered gait");
-      object(source, axis);
-      object(source.phases, `${axis}.phases`);
-      object(source.nod, `${axis}.nod`);
-      object(source.fold, `${axis}.fold`);
-      object(source.lift, `${axis}.lift`);
       const rows: AutoMovieArchetypeQuadrupedGait.IRow[] = admittedRows(
         source.rows,
         `${axis}.rows`,
@@ -271,7 +261,10 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     if (
       Object.keys(table.gaits).some(
         (key: string): boolean =>
-          !declared.includes(key as AutoMovieArchetypeQuadrupedGait.Gait),
+          !declared.some(
+            (gait: AutoMovieArchetypeQuadrupedGait.Gait): boolean =>
+              gait === key,
+          ),
       )
     )
       refuse(
@@ -291,20 +284,22 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     };
   }
 
-  /** Convert required authored seconds to common gait rows, retaining named walk construction proxies. */
+  /**
+   * Convert required authored seconds to common gait rows, retaining named walk
+   * construction proxies.
+   */
   function authored(
     clocks: readonly IClock[],
     phases: AutoMovieArchetypeQuadrupedGait.IGait["phases"],
     pose: AutoMovieArchetypeQuadrupedGait.IGait,
     gait: AutoMovieArchetypeQuadrupedGait.Gait,
   ): AutoMovieArchetypeQuadrupedGait.IGait {
-    if (!Array.isArray(clocks) || clocks.length === 0)
+    if (clocks.length === 0)
       refuse(`${gait}.rows`, clocks, "supply at least one authored clock");
     const rows: AutoMovieArchetypeQuadrupedGait.IRow[] = Array.from(
       clocks,
       (clock: IClock, index: number): AutoMovieArchetypeQuadrupedGait.IRow => {
         const axis: string = `${gait}.rows[${index}]`;
-        object(clock, axis);
         positive(clock.hindStance, `${axis}.hindStance`);
         return {
           speed: clock.speed,
@@ -323,12 +318,15 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     };
   }
 
-  /** Admit every positive SI clock and copy rows without a caller-owned reference. */
+  /**
+   * Admit every positive SI clock and copy rows without a caller-owned
+   * reference.
+   */
   function admittedRows(
     rows: readonly AutoMovieArchetypeQuadrupedGait.IRow[],
     axis: string,
   ): AutoMovieArchetypeQuadrupedGait.IRow[] {
-    if (!Array.isArray(rows) || rows.length === 0)
+    if (rows.length === 0)
       refuse(axis, rows, "supply a nonempty speed-ordered row table");
     let previous: number = 0;
     return Array.from(
@@ -338,7 +336,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
         index: number,
       ): AutoMovieArchetypeQuadrupedGait.IRow => {
         const at: string = `${axis}[${index}]`;
-        object(row, at);
         positive(row.speed, `${at}.speed`);
         positive(row.stride, `${at}.stride`);
         positive(1 / row.stride, `${at}.frequency`);
@@ -375,7 +372,10 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     );
   }
 
-  /** Admit ordered gait ranges and copy the existing owner's closed change-rule vocabulary. */
+  /**
+   * Admit ordered gait ranges and copy the existing owner's closed change-rule
+   * vocabulary.
+   */
   function transition(
     rule: QuadrupedChange.Rule | undefined,
     previous: AutoMovieArchetypeQuadrupedGait.IGait | undefined,
@@ -402,7 +402,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       );
     if (rule === undefined)
       refuse(`${axis}.change`, rule, "declare the faster gait's change rule");
-    object(rule, `${axis}.change`);
     if (rule.kind === "speed") {
       positive(rule.speed, `${axis}.change.speed`);
       return { kind: "speed", speed: rule.speed };
@@ -414,12 +413,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     if (rule.kind === "mass") {
       positive(rule.speed, `${axis}.change.speed`);
       positive(rule.mass, `${axis}.change.mass`);
-      if (!Number.isFinite(rule.exponent))
-        refuse(
-          `${axis}.change.exponent`,
-          rule.exponent,
-          "use a finite mass exponent",
-        );
       return {
         kind: "mass",
         speed: rule.speed,
@@ -438,27 +431,22 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     return { kind: "overlap" };
   }
 
-  /** Require a record before reading a caller's nested table or clock. */
-  function object(value: unknown, axis: string): void {
-    if (value === null || typeof value !== "object" || Array.isArray(value))
-      refuse(axis, value, "supply the declared record");
-  }
-
   /** A finite positive SI time, reciprocal frequency, speed or reference length. */
   function positive(value: number, axis: string): void {
-    if (!Number.isFinite(value) || value <= 0)
-      refuse(axis, value, "supply a finite positive value");
+    if (value <= 0) refuse(axis, value, "supply a finite positive value");
   }
 
   /** A finite nonnegative range, spread or hysteresis. */
   function nonnegative(value: number, axis: string): void {
-    if (!Number.isFinite(value) || value < 0)
-      refuse(axis, value, "supply a finite nonnegative value");
+    if (value < 0) refuse(axis, value, "supply a finite nonnegative value");
   }
 
-  /** A finite unit fraction; touchdown phases separately exclude the endpoint one. */
+  /**
+   * A finite unit fraction; touchdown phases separately exclude the endpoint
+   * one.
+   */
   function unit(value: number, axis: string): void {
-    if (!Number.isFinite(value) || value < 0 || value > 1)
+    if (value < 0 || value > 1)
       refuse(axis, value, "supply a finite fraction from zero through one");
   }
 

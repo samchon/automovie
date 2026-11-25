@@ -4,22 +4,47 @@ import * as THREE from "three";
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
-/** Distance in metres within which every sample of a trail counts as one place: a micrometre, far below anything a picture shows. */
+/**
+ * Distance in metres within which every sample of a trail counts as one place:
+ * a micrometre, far below anything a picture shows.
+ */
 const STILL: number = 1e-6;
 
 /**
- * Sample where every object a path pattern selects is, at each of a window's seconds, so a still can show the path it travels.
+ * Sample where every object a path pattern selects is, at each of a window's
+ * seconds, so a still can show the path it travels.
  *
- * The objects are the scene's objects of any kind, drawn or not, at the shallowest paths the pattern matches: a matched path whose parent path also matches is part of its parent's object. When several objects share a path, the first in scene order stands for it. For each second in `times`, `seek` places the subject and is awaited, so a subject that becomes ready only after an await, such as one loading a texture or a pose, is read once it is placed; then the world position of each object's origin is read, so any moving object is sampled, whatever its kind: a body's root or bone, a prop, a vehicle, a camera.
+ * The objects are the scene's objects of any kind, drawn or not, at the
+ * shallowest paths the pattern matches: a matched path whose parent path also
+ * matches is part of its parent's object. When several objects share a path,
+ * the first in scene order stands for it. For each second in `times`, `seek`
+ * places the subject and is awaited, so a subject that becomes ready only after
+ * an await, such as one loading a texture or a pose, is read once it is placed;
+ * then the world position of each object's origin is read, so any moving object
+ * is sampled, whatever its kind: a body's root or bone, a prop, a vehicle, a
+ * camera.
  *
- * Seconds are taken in ascending order, one seek at a time. The scene is left as the last `seek` placed it, so the caller seeks the second it draws again and awaits that seek before drawing. A trail whose every sample lies within a micrometre of its first is stationary.
+ * Seconds are taken in ascending order, one seek at a time. The scene is left
+ * as the last `seek` placed it, so the caller seeks the second it draws again
+ * and awaits that seek before drawing. A trail whose every sample lies within a
+ * micrometre of its first is stationary.
  *
- * It rejects when `times` is empty or holds a second that is not finite, when the pattern matches no object, and with the seek's own rejection when a second cannot be placed.
+ * It rejects when `times` is empty or holds a second that is not finite, when
+ * the pattern matches no object, and with the seek's own rejection when a
+ * second cannot be placed.
  *
  * ```ts
- * const trails = await sampleAutoMovieInspectionTrails({ scene, pattern: "hero/*Hand", times, seek: subject.seek });
+ * const trails = await sampleAutoMovieInspectionTrails({
+ *   scene,
+ *   pattern: "hero/*Hand",
+ *   times,
+ *   seek: subject.seek,
+ * });
  * await subject.seek(seconds);
- * inspection.update([...production.marks?.(seconds) ?? [], ...markAutoMovieInspectionTrails(trails, seconds)]);
+ * inspection.update([
+ *   ...(production.marks?.(seconds) ?? []),
+ *   ...markAutoMovieInspectionTrails(trails, seconds),
+ * ]);
  * ```
  */
 export async function sampleAutoMovieInspectionTrails(props: {
@@ -32,10 +57,13 @@ export async function sampleAutoMovieInspectionTrails(props: {
   /** The film seconds to sample. */
   times: readonly number[];
 
-  /** Place the subject at a film second; resolves once the subject is ready to be read there. */
+  /**
+   * Place the subject at a film second; resolves once the subject is ready to
+   * be read there.
+   */
   seek: (seconds: number) => Promise<void>;
 }): Promise<IAutoMovieInspectionTrail[]> {
-  if (props.times.length === 0 || !props.times.every(Number.isFinite))
+  if (props.times.length === 0)
     throw new Error("Trail times must be one or more finite seconds");
   const times: number[] = [...props.times].sort(
     (a: number, b: number): number => a - b,

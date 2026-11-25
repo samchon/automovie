@@ -14,13 +14,19 @@ import {
 /** The capsule's blunt taper and distinct hatch inform the silhouette. */
 const CAPSULE: string =
   "Smithsonian National Air and Space Museum, Apollo 11 Command Module Columbia (https://airandspace.si.edu/collection-media/NASM-A19700102000-NASM2016-04272)";
-/** The crew entrance and flight deck give the set two distinct staging destinations. */
+/**
+ * The crew entrance and flight deck give the set two distinct staging
+ * destinations.
+ */
 const CREW_COMPARTMENT: string =
   "NASA, The Space Shuttle, Flight Deck and Middeck (https://www.nasa.gov/reference/the-space-shuttle/)";
 /** The connecting passage informs the route between the outer walkway and cabin. */
 const PASSAGE: string =
   "Smithsonian National Air and Space Museum, Airlock Module, Skylab (https://airandspace.si.edu/collection-objects/airlock-module-skylab/nasm_A19761035000)";
-/** Identifiable handholds give crew contact points to start and stop translating. */
+/**
+ * Identifiable handholds give crew contact points to start and stop
+ * translating.
+ */
 const MOBILITY_AIDS: string =
   "NASA-STD-3001 Volume 2, sections 8.5.2 and 8.5.5 (https://www.nasa.gov/reference/8-0-architecture-vol-2/#8.5)";
 
@@ -32,28 +38,22 @@ const ALUMINIUM_DENSITY: number = 2700;
 /**
  * A fictional civilian spacecraft set with an occupiable cabin, rear boarding
  * hatch and forward crew station. The cabin floor is at Y=0, the blunt nose
- * faces +Z and boarding proceeds along +Z from the walkway. The hatch is
- * closed at rest and swings 90 degrees out to -Z on its -X jamb.
- * Two starboard handrails stage a clear glide alongside the crew furniture.
- * Their color and function follow the mobility aid guidance in {@link MOBILITY_AIDS}.
+ * faces +Z and boarding proceeds along +Z from the walkway. The hatch is closed
+ * at rest and swings 90 degrees out to -Z on its -X jamb. Two starboard
+ * handrails stage a clear glide alongside the crew furniture. Their color and
+ * function follow the mobility aid guidance in {@link MOBILITY_AIDS}.
  *
  * @param params The model id and any fixed dimensions in metres.
- * @param seed A number or string that draws the remaining dimensions. With
- * no seed, dimensions take the middle of their bands.
- * @returns The set and its local boarding, handrail, seated crew and console contacts.
- * @throws {AutoMovieArchetypeRefusal} For a dimension outside its authored band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the cabin frame, boarding direction, hinge and dimension controls.
- * @evidence contracts/development/implementation.md#principled-implementation Shared station sections generate a hollow tapered shell; the rear wall and deck meet at one threshold, and the hinge owns the leaf and handle. Mass is the nominal scenic material density times the drawn solids' volume.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the wall sections, frame the rear aperture and add crew furniture, then describe the associated contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Historical sources inform visual roles. All dimensions describe a fictional set; no solid spans the cabin cavity and no operating spacecraft systems are represented.
- * @evidence contracts/development/implementation.md#efficient-algorithms Uses a fixed number of boxes, rods and convex panels.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The two adjacent hull segments share their shoulder station; each convex panel is prepared once and its volume is reused for total mass.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The builder hands its model to the caller and retains no external resources.
+ * @param seed A number that draws the remaining dimensions. With no seed,
+ *   dimensions take the middle of their bands.
+ * @returns The set and its local boarding, handrail, seated crew and console
+ *   contacts.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its authored
+ *   band.
  */
 export function createSpacecraft(
   params: createSpacecraft.IParams = {},
-  seed?: string | number,
+  seed?: number,
 ): AutoMovieArchetype<createSpacecraft.Affordance, createSpacecraft.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSpacecraft.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -398,17 +398,11 @@ export function createSpacecraft(
   return builder.build(draw.derive("mass", volume * ALUMINIUM_DENSITY));
 }
 
-/**
- * The spacecraft's typed contacts, dimensions and fictional staging bands.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the boarding and crew contacts and dimensions, their units and the origin of the staging bands.
- * @evidence contracts/development/design.md#principled-representation Semantic contacts distinguish the boarding route, hinge, grip, cabin floor, fixed handrails, seat and console. Independent metre dimensions draw from bands that preserve positive shell and aperture heights.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer owns the authoring parameters and the fixed set of contact ids used to stage boarding and the crew station.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Historical references supply visual analogies. The bands are explicitly fictional set decisions, not inferred spacecraft specifications.
- */
+/** The spacecraft's typed contacts, dimensions and fictional staging bands. */
 export namespace createSpacecraft {
   /**
-   * Contacts for the walking route, hatch articulation, cabin mobility and forward crew station.
+   * Contacts for the walking route, hatch articulation, cabin mobility and
+   * forward crew station.
    */
   export type Affordance =
     | "boardingWalkway"
@@ -421,7 +415,8 @@ export namespace createSpacecraft {
     | "crewSeat"
     | "controlConsole";
   /**
-   * Drawn dimensions, in metres. Length excludes the walkway and width is at the cabin.
+   * Drawn dimensions, in metres. Length excludes the walkway and width is at
+   * the cabin.
    */
   export type DrawnDimension =
     | "length"
@@ -430,21 +425,18 @@ export namespace createSpacecraft {
     | "hatchWidth"
     | "hatchHeight"
     | "walkwayLength";
-  /**
-   * The drawn dimensions plus the derived scenic mass in kilograms.
-   */
+  /** The drawn dimensions plus the derived scenic mass in kilograms. */
   export type Dimension = DrawnDimension | "mass";
   /**
-   * Optional fixed dimensions in metres. Omitted fields are drawn from their bands.
+   * Optional fixed dimensions in metres. Omitted fields are drawn from their
+   * bands.
    */
   export interface IParams extends Partial<Record<DrawnDimension, number>> {
     /** The scene model id, which defaults to spacecraft. */
     id?: string;
   }
 
-  /**
-   * Units of the controlled dimensions and derived mass.
-   */
+  /** Units of the controlled dimensions and derived mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -458,7 +450,8 @@ export namespace createSpacecraft {
   };
 
   /**
-   * Set design bounds. The references identify the visual cue each dimension supports.
+   * Set design bounds. The references identify the visual cue each dimension
+   * supports.
    */
   export const BANDS: Readonly<
     Record<DrawnDimension, IAutoMovieArchetypeBand>

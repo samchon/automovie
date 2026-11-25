@@ -78,7 +78,7 @@ export async function placeAutoMovieDrawLayer(
  * reaches.
  */
 function below(value: number): number {
-  if (!(value > 0) || !Number.isFinite(value)) return value;
+  if (!(value > 0)) return value;
   const view: DataView = new DataView(new ArrayBuffer(8));
   view.setFloat64(0, value);
   view.setBigUint64(0, view.getBigUint64(0) - 1n);

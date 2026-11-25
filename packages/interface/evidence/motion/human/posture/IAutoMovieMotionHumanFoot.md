@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanFoot.ts#IAutoMovieMotionHumanFoot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-ankle: The ankle joint, world metres. point: Where it is, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-ankle: The ankle joint, world metres. point: Where it is, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/jumpLanding.ts (jumpLanding.of.footprint, return); actions/standFeet.ts (standFeet.of.plans, return); actions/walkFoot.ts (walkFoot.prepareStance, flat); actions/walkReach.ts (walkReach.swing.lowest, placement).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanFoot.ts#IAutoMovieMotionHumanFoot.IPlacement
 
 ## @evidence contracts/development/common.md#meaningful-documentation

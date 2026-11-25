@@ -3,8 +3,7 @@ import type { IAutoMovieHumanFootPose } from "./IAutoMovieHumanFootPose";
 import type { IAutoMovieHumanHipPose } from "./IAutoMovieHumanHipPose";
 import type { IAutoMovieHumanKneePose } from "./IAutoMovieHumanKneePose";
 
-/** Hip, knee, ankle, foot and toes of one side, proximal to distal.
- */
+/** Hip, knee, ankle, foot and toes of one side, proximal to distal. */
 export interface IAutoMovieHumanLegPose {
   /** Hip joint. */
   hip?: IAutoMovieHumanHipPose;

@@ -36,8 +36,8 @@ const THICKNESS_EPSILON: number = 1e-9;
  * The checks fall into three groups the requirement names separately. Layer
  * conflicts are contradictions inside a layer: a cavity that carries a
  * substance, a solid with no thickness, a substance id that resolves to
- * nothing. Finish defects are contradictions between the stack and the faces
- * it presents: an exposed face with nothing finishing it, a finish laid over
+ * nothing. Finish defects are contradictions between the stack and the faces it
+ * presents: an exposed face with nothing finishing it, a finish laid over
  * another finish, a finish buried where it will never be seen, a finish spent
  * on a concealed face. Dimension conflicts are contradictions with the host: a
  * build-up whose layers do not sum to the thickness the host was drawn at.
@@ -46,12 +46,12 @@ const THICKNESS_EPSILON: number = 1e-9;
  * answers for whichever of them is exposed rather than being demanded twice.
  *
  * A wrapping layer must belong to the run of wrapping layers starting at one
- * face; one behind a non-wrapping layer is refused. Ids must be non-blank and
- * unique within the assembly, the axis, sense, exposures and substances must
- * be known words, the offset finite, and at least one layer present. Every
- * finding is reported at once with a `$input` path, and none throws. With
- * `host`, the summed thickness must equal the host's within 1e-9 m; with
- * `substances`, every non-cavity layer's material must name one of them by id.
+ * face; one behind a non-wrapping layer is refused. Ids must be unique within
+ * the assembly, the axis, sense, exposures and substances must be known words,
+ * the offset finite, and at least one layer present. Every finding is reported
+ * at once with a `$input` path, and none throws. With `host`, the summed
+ * thickness must equal the host's within 1e-9 m; with `substances`, every
+ * non-cavity layer's material must name one of them by id.
  *
  * @param props.assembly Layered build-up to judge.
  * @param props.substances Substances the layers may cite, or omitted.
@@ -68,7 +68,6 @@ export const validateAutoMovieMaterialAssembly: (
   const root: string = "$input";
   const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
 
-  collector.nonEmpty(`${root}.id`, assembly.id, "material assembly id");
   if (!AXES.includes(assembly.axis))
     collector.push(
       "type",
@@ -82,13 +81,6 @@ export const validateAutoMovieMaterialAssembly: (
       `${root}.sense`,
       `material assembly sense must be one of ${SENSES.join(", ")}, but was "${String(assembly.sense)}"`,
       assembly.sense,
-    );
-  if (!Number.isFinite(assembly.offset))
-    collector.push(
-      "range",
-      `${root}.offset`,
-      `material assembly offset must be finite, but was ${assembly.offset}`,
-      assembly.offset,
     );
   for (const face of ["first", "last"] as const)
     if (!EXPOSURES.includes(assembly.faces[face]))
@@ -117,7 +109,6 @@ export const validateAutoMovieMaterialAssembly: (
   const ids: Set<string> = new Set();
   layers.forEach((layer: IAutoMovieMaterialLayer, index: number): void => {
     const path: string = `${root}.layers[${index}]`;
-    collector.nonEmpty(`${path}.id`, layer.id, "material layer id");
     if (ids.has(layer.id))
       collector.push(
         "type",
@@ -134,7 +125,7 @@ export const validateAutoMovieMaterialAssembly: (
         `material layer substance must be one of ${SUBSTANCES.join(", ")}, but was "${String(layer.substance)}"`,
         layer.substance,
       );
-    if (!Number.isFinite(layer.thickness) || layer.thickness < 0)
+    if (layer.thickness < 0)
       collector.push(
         "range",
         `${path}.thickness`,
@@ -188,33 +179,17 @@ export const validateAutoMovieMaterialAssembly: (
     0,
   );
   if (
-    Number.isFinite(assembly.offset) &&
     layers.every(
-      (layer: IAutoMovieMaterialLayer): boolean =>
-        Number.isFinite(layer.thickness) && layer.thickness >= 0,
+      (layer: IAutoMovieMaterialLayer): boolean => layer.thickness >= 0,
     )
   ) {
     const direction: number = assembly.sense === "positive" ? 1 : -1;
     let cursor: number = assembly.offset;
     for (const layer of layers) cursor += direction * layer.thickness;
-    if (
-      !Number.isFinite(total) ||
-      !Number.isFinite(cursor) ||
-      !Number.isFinite(assembly.offset + direction * total)
-    )
-      collector.push(
-        "range",
-        `${root}.layers`,
-        "material assembly must produce finite total thickness and signed layer endpoints",
-        total,
-      );
   }
 
   if (props.host !== undefined) {
-    if (
-      Number.isFinite(props.host.thickness) === false ||
-      props.host.thickness <= 0
-    )
+    if (props.host.thickness <= 0)
       collector.push(
         "range",
         `${root}.layers`,

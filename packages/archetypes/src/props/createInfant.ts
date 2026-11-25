@@ -14,27 +14,20 @@ const STAGED: string =
   "a swaddled infant: a coarse newborn-sized bundle, its dimensions and mass provisional estimates";
 
 /**
- * A swaddled infant: a coarse bundle with a head, carried as a prop. Its
- * origin is the seat, the bottom of the bundle, with `+Y` along the body
- * toward the head and `+Z` out of the face. `seat` is where a hand takes the
- * bundle from below; `nape` and `back` are the support sites behind the
- * neck and the back, facing `-Z`; `mouth` is the teat's place, facing `+Z`;
- * `head` the head's centre.
+ * A swaddled infant: a coarse bundle with a head, carried as a prop. Its origin
+ * is the seat, the bottom of the bundle, with `+Y` along the body toward the
+ * head and `+Z` out of the face. `seat` is where a hand takes the bundle from
+ * below; `nape` and `back` are the support sites behind the neck and the back,
+ * facing `-Z`; `mouth` is the teat's place, facing `+Z`; `head` the head's
+ * centre.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The bundle with its sites.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame and every site.
- * @evidence contracts/development/implementation.md#principled-implementation A box and a ball sized by the drawn length and head.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the bundle, the head and the sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rigid coarse bundle; limbs are swaddled and not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and five sites.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createInfant(
   params: createInfant.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createInfant.Affordance, createInfant.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createInfant.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -117,14 +110,7 @@ export function createInfant(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and sites of {@link createInfant}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the sites, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sites the infant-care law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
- */
+/** Dimensions and sites of {@link createInfant}. */
 export namespace createInfant {
   /** The seat, the support sites, the mouth and the head. */
   export type Affordance = "seat" | "nape" | "back" | "mouth" | "head";

@@ -18,8 +18,8 @@ import { walk } from "../actions/walk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWater } from "../perform/HumanWater";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
@@ -60,6 +60,8 @@ const EASE: number = 0.1;
 
 /** The trunk's forward lean while wading, degrees (provisional staging). */
 const WADE_LEAN: number = 10;
+/** The alternatives of `TERRAINEntryItem`'s site. */
+type TERRAINEntryItem = "sand" | "mud";
 
 /**
  * Terrain factors of the walking-energy equation (Pandolf, Givoni and Goldman
@@ -67,7 +69,7 @@ const WADE_LEAN: number = 10;
  * for mud, 1.8. Soft snow's factor rises with depth; 1.3 a decimetre of sinking
  * is a provisional reading.
  */
-const TERRAIN: Readonly<Record<"sand" | "mud", number>> = {
+const TERRAIN: Readonly<Record<TERRAINEntryItem, number>> = {
   sand: 2.1,
   mud: 1.8,
 };
@@ -98,13 +100,6 @@ const SNOW_PER_METRE: number = 13;
  * @returns The adapted walk.
  * @throws {HumanRefusal} For water above the chest, a sinking deeper than the
  *   shank, or a wind beyond static balance.
- * @evidence contracts/development/common.md#meaningful-documentation States each medium's rule, its source and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The water speed scales with the drag ratio by quadratic drag; the yielding speed with the energy equation's terrain factor; the wind lean with the static moment balance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the medium and wind, choose the speed, plan the walk, then adapt each sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clearance, arm height, wading lean and snow factor are named provisional values; the speeds follow measured or derived rules.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two drag sums at most once; each sample scans the foot's few plant windows.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk and the immersed body's drag model.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the walk plan and the plant windows for the action.
  */
 export function HumanMediumWalk(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -128,24 +123,10 @@ export function HumanMediumWalk(
   const depth: number = medium?.depth ?? 0;
   let pace: number = 1;
   let sink: number = 0;
+  if (medium !== undefined) HumanMediumWalk.admitDepth(medium, body.measure);
   if (medium?.kind === "water") {
-    if (!(depth > 0 && depth <= body.measure.chestHeight))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "medium.depth",
-        value: depth,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: body.measure.chestHeight,
-          unit: "m",
-        },
-        reason: "water deeper than the chest is swum, not waded",
-        fix: "swim (HumanWater) or wade shallower water",
-      });
     pace = wading(body, context.entry.pose, ground, depth);
   } else if (medium !== undefined) {
-    HumanBound.within("medium.depth", depth, 0, body.measure.shank, "m");
     sink = depth;
     const eta: number =
       medium.kind === "snow"
@@ -251,7 +232,7 @@ export function HumanMediumWalk(
         posture.root,
         // As the wind leans the body.
         Quaternion.rotateVector(
-          resolveHumanPosture.heading({
+          humanPostureHeading({
             ...posture,
             pitch:
               posture.pitch +
@@ -389,6 +370,41 @@ export function HumanMediumWalk(
       };
     },
   };
+}
+
+/** Depth admission for a medium that the walk can still cross on foot. */
+export namespace HumanMediumWalk {
+  /** The two anatomical depths that limit the admitted media. */
+  export type IMeasure = Pick<
+    IAutoMovieMotionHumanBody["measure"],
+    "chestHeight" | "shank"
+  >;
+
+  /** Water is positive up to the chest. A solid layer extends up to the shank. */
+  export function admitDepth(
+    medium: NonNullable<Params["medium"]>,
+    measure: IMeasure,
+  ): void {
+    const { depth } = medium;
+    if (medium.kind !== "water") {
+      HumanBound.within("medium.depth", depth, 0, measure.shank, "m");
+      return;
+    }
+    if (!(depth > 0 && depth <= measure.chestHeight))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "medium.depth",
+        value: depth,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: measure.chestHeight,
+          unit: "m",
+        },
+        reason: "water deeper than the chest is swum, not waded",
+        fix: "swim (HumanWater) or wade shallower water",
+      });
+  }
 }
 
 /**

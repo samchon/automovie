@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentEntry.ts#HumanSegmentEntry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the file owns and what it reads from its siblings.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One entry constructor and one support reader use HumanSegment's existing records; the two rate-reading policies remain private.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the sibling owners; nothing is duplicated between them.
-
 # src/perform/HumanSegmentEntry.ts#HumanSegmentEntry.entry
 
 ## @evidence contracts/development/common.md#meaningful-documentation

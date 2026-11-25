@@ -1,5 +1,7 @@
 /**
- * The durations in seconds of the six movement phases between a phrase's seven synchronization instants. AutoMovieMotionClock.phrase admits and sums these lengths.
+ * The durations in seconds of the six movement phases between a phrase's seven
+ * synchronization instants. AutoMovieMotionClock.phrase admits and sums these
+ * lengths.
  */
 export interface IAutoMovieMotionPhraseDurations {
   /** From `start` to `ready`: the part leaves rest for where its stroke starts. */
@@ -14,7 +16,10 @@ export interface IAutoMovieMotionPhraseDurations {
   /** From `stroke` to `strokeEnd`: the stroke after it; 0 when absent. */
   follow?: number;
 
-  /** From `strokeEnd` to `relax`: the part stays where the stroke left it; 0 when absent. */
+  /**
+   * From `strokeEnd` to `relax`: the part stays where the stroke left it; 0
+   * when absent.
+   */
   hold?: number;
 
   /** From `relax` to `end`: the part returns to rest. */

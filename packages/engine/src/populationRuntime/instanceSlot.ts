@@ -20,29 +20,28 @@ import { selectInstancePrototype } from "./selectInstancePrototype";
  * A grid, lattice, scatter or explicit member is laid out in the set's local
  * frame and turned by the set's heading about its anchor. A route member takes
  * its ground-plan point from the route snapshot, spaced by arc length and
- * pushed sideways by its seeded jitter, and stands at the anchor's height.
- * A scatter disk with a ground rule reads the placed world's height at each
- * slot and adds the authored anchor Y offset.
- * Scale, palette, traits, prototype, rotation and visibility are drawn from the
- * set seed and the slot, each under its own salt, and an explicit block
- * overrides what it states. A set that declares no prototype table, no lattice
- * or explicit layout, no per-axis scale, no rotation range and no visibility
- * probability keeps its original output, which names no prototype.
+ * pushed sideways by its seeded jitter, and stands at the anchor's height. A
+ * scatter disk with a ground rule reads the placed world's height at each slot
+ * and adds the authored anchor Y offset. Scale, palette, traits, prototype,
+ * rotation and visibility are drawn from the set seed and the slot, each under
+ * its own salt, and an explicit block overrides what it states. A set that
+ * declares no prototype table, no lattice or explicit layout, no per-axis
+ * scale, no rotation range and no visibility probability keeps its original
+ * output, which names no prototype.
  *
  * The compiled instance-set kernel measures chunk bounds through this function,
  * the shot-source oracle answers `instanceSlot` through it, and a subject
  * description and the viewer regenerate members through it, so a member asked
  * for while a shot compiles, described in a review, or drawn is the member the
- * compiled set regenerates.
- * The input is the compiled shape for that reason: reading a compiled set as a
- * design once counted its default prototype twice.
+ * compiled set regenerates. The input is the compiled shape for that reason:
+ * reading a compiled set as a design once counted its default prototype twice.
  *
  * It throws for a slot outside the set, a missing or mismatched route snapshot,
  * a route without finite positive length, an explicit block missing the slot,
- * an explicit prototype no choice names, and a non-finite derived value or an
- * empty palette. Compilation regenerates every slot through here; consumers
- * preserving the compiled laws and route snapshot reproduce that admitted state.
- * Route placement uses temporary storage proportional to waypoint count.
+ * an explicit prototype no choice names, or a slot without a palette colour.
+ * Compilation regenerates every slot through here. Consumers preserving the
+ * compiled laws and route snapshot reproduce that admitted state. Route
+ * placement uses temporary storage proportional to waypoint count.
  */
 export const instanceSlot: (
   instanceSet: IAutoMovieInstanceSetPlacement,
@@ -51,11 +50,7 @@ export const instanceSlot: (
   instanceSet: IAutoMovieInstanceSetPlacement,
   slot: number,
 ): IAutoMovieInstanceSlot => {
-  if (
-    Number.isSafeInteger(slot) === false ||
-    slot < 0 ||
-    slot >= instanceSet.count
-  )
+  if (slot < 0 || slot >= instanceSet.count)
     throw new RangeError(
       `Instance set "${instanceSet.id}" slot ${slot} is outside 0..${instanceSet.count - 1}.`,
     );
@@ -119,16 +114,11 @@ export const instanceSlot: (
     instanceSet.layout.kind === "explicit"
       ? instanceSet.layout.transforms[slot]
       : undefined;
-  const palette: string =
+  const palette: string | undefined =
     explicit?.palette ?? instanceSet.variation.palette[paletteIndex];
-  if (
-    [position.x, position.y, position.z, scale, ...Object.values(traits)].some(
-      (value: number): boolean => Number.isFinite(value) === false,
-    ) ||
-    palette === undefined
-  )
+  if (palette === undefined)
     throw new RangeError(
-      `Instance set "${instanceSet.id}" slot ${slot} derived non-finite variation or an empty palette.`,
+      `Instance set "${instanceSet.id}" slot ${slot} has an empty palette.`,
     );
   const legacy: boolean =
     instanceSet.prototypes === undefined &&
@@ -335,7 +325,7 @@ const localInstancePoint: (
     ): number => sum + segment.length,
     0,
   );
-  if (Number.isFinite(total) === false || total <= 0)
+  if (total <= 0)
     throw new RangeError(
       `Instance set "${instanceSet.id}" route "${layout.route}" must have finite non-zero length.`,
     );

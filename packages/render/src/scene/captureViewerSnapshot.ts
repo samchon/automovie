@@ -5,7 +5,11 @@ import type { IAutoMovieViewerSnapshotOptions } from "./IAutoMovieViewerSnapshot
 import type { IAutoMovieViewerSnapshotRenderer } from "./IAutoMovieViewerSnapshotRenderer.js";
 
 /**
- * Render synchronously through the supplied original host and immediately encode its canvas as an inline image. PNG is the default request; actual canvas fallback, taint and empty-canvas behavior remain native. This low-level readout does not independently establish native renderer identity, current-source hardware readiness or valid nonblank pixels.
+ * Render synchronously through the supplied original host and immediately
+ * encode its canvas as an inline image. PNG is the default request; actual
+ * canvas fallback, taint and empty-canvas behavior remain native. This
+ * low-level readout does not independently establish native renderer identity,
+ * current-source hardware readiness or valid nonblank pixels.
  */
 export const captureViewerSnapshot: (
   renderer: IAutoMovieViewerSnapshotRenderer,

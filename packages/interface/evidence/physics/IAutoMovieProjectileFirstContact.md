@@ -1,21 +1,3 @@
-# src/physics/IAutoMovieProjectileFirstContact.ts#IAutoMovieProjectileFirstContact
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Signed collider-surface reading against the projectile's centre segment. A named time-dependent nearest-surface query with optional departure certification.
-
-## @evidence contracts/development/design.md#principled-representation
-
-distance is metres before subtracting projectile radius; point is world metres and normal an outward world unit vector. nearest receives world segment endpoints and seconds since the supplied flight's launch; ids must be unique in the searched collider list.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Collider nearest callbacks produce this reading; projectileFirstContact uses its distance for the sweep and may return point/normal references in the final hit. projectileFirstContact invokes these synchronous callbacks repeatedly and propagates errors; returned hit vectors may borrow the callback's result, so preserve their contents.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The callback's physical model owns correctness and finite readings; a segment entering the solid has negative distance, while a capsule radius is accounted for separately. An absent or undefined departure certificate retains ordinary initial-overlap reporting. A certificate is checked by the shared contact resolver and cannot excuse other colliders or later reentry.
-
 # src/physics/IAutoMovieProjectileFirstContact.ts#IAutoMovieProjectileFirstContact.INearest
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -38,11 +20,11 @@ The callback's physical model owns correctness and finite readings; a segment en
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-A named time-dependent nearest-surface query with optional departure certification.
+A named time-dependent nearest-surface query with an optional surface speed bound and optional departure certification.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-nearest receives world segment endpoints and seconds since the supplied flight's launch; ids must be unique in the searched collider list.
+nearest receives world segment endpoints and seconds since the supplied flight's launch; ids must be unique in the searched collider list. speed bounds any surface point's speed between two launch-relative seconds in metres per second.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -50,7 +32,7 @@ projectileFirstContact invokes these synchronous callbacks repeatedly and propag
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-An absent or undefined departure certificate retains ordinary initial-overlap reporting. A certificate is checked by the shared contact resolver and cannot excuse other colliders or later reentry.
+An absent or undefined departure certificate retains ordinary initial-overlap reporting. A certificate is checked by the shared contact resolver and cannot excuse other colliders or later reentry. An absent speed bound reads the collider at every scan step; only a certified bound may be stated, since one a point exceeds lets a contact be missed.
 
 # src/physics/IAutoMovieProjectileFirstContact.ts#IAutoMovieProjectileFirstContact.IOptions
 

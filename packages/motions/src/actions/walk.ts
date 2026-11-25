@@ -17,6 +17,15 @@ import { walkPlayback } from "./walkPlayback";
 import { walkReach } from "./walkReach";
 import { walkRoot } from "./walkRoot";
 
+/** The record of `IELBOWSRANGEItem`'s site. */
+type IELBOWSRANGEItem = { minimum: number; maximum: number };
+
+/** The record of `IARMSWINGRANGEItem`'s site. */
+type IARMSWINGRANGEItem = { minimum: number; maximum: number };
+
+/** The record of `ISTRIDERANGEItem`'s site. */
+type ISTRIDERANGEItem = { minimum: number; maximum: number };
+
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
  *
@@ -172,7 +181,7 @@ export namespace walk {
    * The admitted step-length scale (`IAutoMovieMotionHumanWalkParams.stride`):
    * inclusive, dimensionless.
    */
-  export const STRIDE_RANGE: Readonly<{ minimum: number; maximum: number }> = {
+  export const STRIDE_RANGE: Readonly<ISTRIDERANGEItem> = {
     minimum: 0.6,
     maximum: 1.3,
   };
@@ -181,14 +190,16 @@ export namespace walk {
    * The admitted arm-swing scale (`IAutoMovieMotionHumanWalkParams.armSwing`):
    * inclusive, dimensionless.
    */
-  export const ARM_SWING_RANGE: Readonly<{ minimum: number; maximum: number }> =
-    { minimum: 0, maximum: 2 };
+  export const ARM_SWING_RANGE: Readonly<IARMSWINGRANGEItem> = {
+    minimum: 0,
+    maximum: 2,
+  };
 
   /**
    * The admitted added shoulder abduction
    * (`IAutoMovieMotionHumanWalkParams.elbows`): inclusive, degrees.
    */
-  export const ELBOWS_RANGE: Readonly<{ minimum: number; maximum: number }> = {
+  export const ELBOWS_RANGE: Readonly<IELBOWSRANGEItem> = {
     minimum: 0,
     maximum: 30,
   };
@@ -210,7 +221,7 @@ export namespace walk {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>,
   ): IAutoMovieMotionHumanActionPlan {
     // On a moving support the walk planned on it as it stood at the start
-    // is carried by its motion, the feet planted on it (#3491).
+    // is carried by its motion, the feet planted on it.
     const on: IAutoMovieMotionHumanWalkParams["on"] = context.params.on;
     const gait: IAutoMovieMotionHumanWalkGait = walking(
       FROUDE[context.params.pace ?? "normal"],

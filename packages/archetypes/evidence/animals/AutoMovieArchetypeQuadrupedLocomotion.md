@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedLocomotion.ts#AutoMovieArchetypeQuadrupedLocomotion
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes observed walk data, explicitly authored SI clocks and phase constructions, borrowed pose ranges, deterministic spread and unmeasured biological transitions.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separate required fore/hind stance times and one period form each authored row; closed species builders add only their declared gait vocabulary to the existing measured walking table.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns the camel/deer authored-clock builders and the admission shared with rideQuadruped; gait schema, species identity, poses and the ride solver remain with their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No default speed or biological clock, encoded provenance, global registry, monkeypatch, fitted response or fixture exception substitutes for the author's required values.
-
 # src/animals/AutoMovieArchetypeQuadrupedLocomotion.ts#AutoMovieArchetypeQuadrupedLocomotion.IClock
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,6 +1,4 @@
-/**
- * Current bounded numerical summary for one deterministic effect cue.
- */
+/** Current bounded numerical summary for one deterministic effect cue. */
 export interface IAutoMovieEffectViewerStats {
   /** Whether the cue is active at the sampled fixed step. */
   active: boolean;

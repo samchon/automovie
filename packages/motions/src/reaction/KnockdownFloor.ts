@@ -11,15 +11,23 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "../striking/StrikingBody";
 
+/** The alternatives of `ANGLESEntry`'s site. */
+type ANGLESEntry =
+  | "recline"
+  | "hip"
+  | "lying"
+  | "neck"
+  | "lift"
+  | "open"
+  | "elbow";
+
 /**
- * The existing knockdown fold and its body's floor fit. The law owns the
- * clock and heading; this owner evaluates the clinical fold, its collision
- * bounds and the unchanged knee, arm and elbow bisections.
+ * The existing knockdown fold and its body's floor fit. The law owns the clock
+ * and heading; this owner evaluates the clinical fold, its collision bounds and
+ * the unchanged knee, arm and elbow bisections.
  */
 export namespace KnockdownFloor {
-  /**
-   * The trunk pitch and clinical joint angles at one phase sample.
-   */
+  /** The trunk pitch and clinical joint angles at one phase sample. */
   export interface IFold {
     /** Trunk pitch, degrees. */
     pitch: number;
@@ -27,9 +35,7 @@ export namespace KnockdownFloor {
     joints: IAutoMovieMotionHumanJoints.Angles;
   }
 
-  /**
-   * The knee, upper arm and elbow angles fitted to this body's floor rest.
-   */
+  /** The knee, upper arm and elbow angles fitted to this body's floor rest. */
   export interface IFit {
     /** Seated knee flexion, degrees. */
     knee: number;
@@ -39,9 +45,7 @@ export namespace KnockdownFloor {
     elbow: number;
   }
 
-  /**
-   * A fold's floor height and ankle/hip offsets at root zero facing +Z.
-   */
+  /** A fold's floor height and ankle/hip offsets at root zero facing +Z. */
   export interface IMeasure {
     /** Root height resting the lowest collider on the floor, metres. */
     floor: number;
@@ -82,29 +86,41 @@ export namespace KnockdownFloor {
   }
 
   /**
-   * Prepare one plan's reader of a fold's floor height and ankle/hip
-   * offsets, for a body that stays unchanged through the plan.
+   * Prepare one plan's reader of a fold's floor height and ankle/hip offsets,
+   * for a body that stays unchanged through the plan.
    *
    * @param body The body.
-   * @returns A reader of an evaluated fold, with an optional exact FK source and same-body ROM projector borrowed from the synchronous caller and never retained; it returns the three measures, metres in the root frame.
+   * @returns A reader of an evaluated fold, with an optional exact FK source
+   *   and same-body ROM projector borrowed from the synchronous caller and
+   *   never retained; it returns the three measures, metres in the root frame.
    */
-  export function prepareMeasure(body: IAutoMovieMotionHumanBody): (
+  export function prepareMeasure(
+    body: IAutoMovieMotionHumanBody,
+  ): (
     folded: IFold,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => IMeasure {
-    const requested: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
+    const requested: Set<AutoMovieHumanoidBone> = new Set(
+      HumanColliders.bones(body),
+    );
     requested.add("hips").add("leftFoot").add("rightFoot");
-    const read: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, requested);
-    const minimum: ReturnType<typeof HumanColliders.prepareMinima> = HumanColliders.prepareMinima(body);
+    const read: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, requested);
+    const minimum: ReturnType<typeof HumanColliders.prepareMinima> =
+      HumanColliders.prepareMinima(body);
     return (
       folded: IFold,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IMeasure => {
-      const bones: ReturnType<typeof StrikingBody.trunk> = read(foldPosture(folded), resolution, projection);
+      const bones: ReturnType<typeof StrikingBody.trunk> = read(
+        foldPosture(folded),
+        resolution,
+        projection,
+      );
       return {
-        floor: -(minimum(bones)[0]!),
+        floor: -minimum(bones)[0]!,
         ankle:
           (bones.get("leftFoot")!.worldPosition.z +
             bones.get("rightFoot")!.worldPosition.z) /
@@ -124,8 +140,15 @@ export namespace KnockdownFloor {
   export function fit(body: IAutoMovieMotionHumanBody, landed: number): IFit {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-    const prepare: (part: (bone: string) => boolean, support: (bone: string) => boolean) => (folded: IFold) => number = (part: (bone: string) => boolean, support: (bone: string) => boolean): (folded: IFold) => number => {
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const prepare: (
+      part: (bone: string) => boolean,
+      support: (bone: string) => boolean,
+    ) => (folded: IFold) => number = (
+      part: (bone: string) => boolean,
+      support: (bone: string) => boolean,
+    ): ((folded: IFold) => number) => {
       const requested: Set<AutoMovieHumanoidBone> = new Set();
       const parts: Set<AutoMovieHumanoidBone> = new Set();
       const supports: Set<AutoMovieHumanoidBone> = new Set();
@@ -134,10 +157,14 @@ export namespace KnockdownFloor {
         if (support(bone)) supports.add(bone);
         if (parts.has(bone) || supports.has(bone)) requested.add(bone);
       }
-      const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, requested);
-      const minimum: ReturnType<typeof HumanColliders.prepareMinima> = HumanColliders.prepareMinima(body, [parts, supports]);
+      const trunk: ReturnType<typeof StrikingBody.prepareTrunk> =
+        StrikingBody.prepareTrunk(body, requested);
+      const minimum: ReturnType<typeof HumanColliders.prepareMinima> =
+        HumanColliders.prepareMinima(body, [parts, supports]);
       return (folded: IFold): number => {
-        const bounds: number[] = minimum(trunk(foldPosture(folded), resolution, projection));
+        const bounds: number[] = minimum(
+          trunk(foldPosture(folded), resolution, projection),
+        );
         return bounds[0]! - bounds[1]!;
       };
     };
@@ -146,7 +173,11 @@ export namespace KnockdownFloor {
     const elbows: ReturnType<typeof prepare> = prepare(FOREARM, BODY);
 
     // Positive at above, falling toward below, as in the original fit.
-    const solve: (above: number, below: number, of: (value: number) => number) => number = (
+    const solve: (
+      above: number,
+      below: number,
+      of: (value: number) => number,
+    ) => number = (
       above: number,
       below: number,
       of: (value: number) => number,
@@ -182,9 +213,9 @@ export namespace KnockdownFloor {
   }
 
   /**
-   * Raise the distal legs in the terminal prone pose until the body can
-   * rest on its own colliders. The original knee angle is retained when
-   * the distal legs already clear that plane.
+   * Raise the distal legs in the terminal prone pose until the body can rest on
+   * its own colliders. The original knee angle is retained when the distal legs
+   * already clear that plane.
    *
    * @param body The unchanging canonical body and its actual colliders.
    * @param folded The forward lie with its original clinical angles.
@@ -202,7 +233,8 @@ export namespace KnockdownFloor {
     );
     const distal: Set<AutoMovieHumanoidBone> = new Set();
     const support: Set<AutoMovieHumanoidBone> = new Set();
-    const bones: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(body);
+    const bones: ReadonlySet<AutoMovieHumanoidBone> =
+      HumanColliders.bones(body);
     for (const bone of bones) (SHANK(bone) ? distal : support).add(bone);
     const read: ReturnType<typeof StrikingBody.prepareTrunk> =
       StrikingBody.prepareTrunk(body, bones);
@@ -250,37 +282,55 @@ export namespace KnockdownFloor {
    *
    * @param body The body.
    * @param posture The posture, with its root Y ignored.
-   * @param resolution Optional exact FK reader or supplier borrowed from this synchronous body's planning operation.
-   * @param projection Optional genuine same-body direct ROM projector borrowed only during this floor reading.
+   * @param resolution Optional exact FK reader or supplier borrowed from this
+   *   synchronous body's planning operation.
+   * @param projection Optional genuine same-body direct ROM projector borrowed
+   *   only during this floor reading.
    * @returns Root height, metres.
    */
-  export function rest(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): number {
+  export function rest(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): number {
     return prepareRest(body)(posture, resolution, projection);
   }
 
   /**
    * Bind one unchanged body's floor readers for repeated current postures.
    *
-   * @param body The canonical body whose rig, rest and profile stay unchanged for the owning plan or interval.
-   * @returns A reader of the actual posture and optional current-call FK/ROM metadata; its root Y is ignored and the result is the original floor height in metres.
+   * @param body The canonical body whose rig, rest and profile stay unchanged
+   *   for the owning plan or interval.
+   * @returns A reader of the actual posture and optional current-call FK/ROM
+   *   metadata; its root Y is ignored and the result is the original floor
+   *   height in metres.
    */
-  export function prepareRest(body: IAutoMovieMotionHumanBody): (
+  export function prepareRest(
+    body: IAutoMovieMotionHumanBody,
+  ): (
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => number {
-    const read: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, HumanColliders.bones(body));
-    const minimum: ReturnType<typeof HumanColliders.prepareMinima> = HumanColliders.prepareMinima(body);
+    const read: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, HumanColliders.bones(body));
+    const minimum: ReturnType<typeof HumanColliders.prepareMinima> =
+      HumanColliders.prepareMinima(body);
     return (
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): number => {
-      const bones: ReturnType<typeof StrikingBody.trunk> = read({
-        ...posture,
-        root: { ...posture.root, y: 0 },
-      }, resolution, projection);
-      return -(minimum(bones)[0]!);
+      const bones: ReturnType<typeof StrikingBody.trunk> = read(
+        {
+          ...posture,
+          root: { ...posture.root, y: 0 },
+        },
+        resolution,
+        projection,
+      );
+      return -minimum(bones)[0]!;
     };
   }
 
@@ -301,35 +351,43 @@ export namespace KnockdownFloor {
     bone === "hips" || bone.endsWith("UpperLeg");
 
   /** Shapes below the knee. */
-  const SHANK: (bone: string) => boolean = (bone: string): boolean => /(LowerLeg|Foot|Toes)$/.test(bone);
+  const SHANK: (bone: string) => boolean = (bone: string): boolean =>
+    /(LowerLeg|Foot|Toes)$/.test(bone);
 
   /** Upper-arm shapes. */
-  const UPPER_ARM: (bone: string) => boolean = (bone: string): boolean => bone.endsWith("UpperArm");
+  const UPPER_ARM: (bone: string) => boolean = (bone: string): boolean =>
+    bone.endsWith("UpperArm");
 
   /** Shapes below the elbow. */
   const FOREARM: (bone: string) => boolean = (bone: string): boolean =>
     /(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(bone);
 
   /** All shapes outside the arms. */
-  const BODY: (bone: string) => boolean = (bone: string): boolean => !UPPER_ARM(bone) && !FOREARM(bone);
+  const BODY: (bone: string) => boolean = (bone: string): boolean =>
+    !UPPER_ARM(bone) && !FOREARM(bone);
 
   /** The law's unchanged provisional clinical angle levels, degrees. */
-  const ANGLES: Record<
-    "recline" | "hip" | "lying" | "neck" | "lift" | "open" | "elbow",
-    number
-  > = {
+  const ANGLES: Record<ANGLESEntry, number> = {
     recline: AutoMovieMotionHumanRange.lean("half"),
     hip: AutoMovieMotionHumanRange.degrees("leftUpperLeg", "flexion", {
       level: "deep",
       scale: 1.1,
     }),
-    lying: AutoMovieMotionHumanRange.degrees("leftLowerLeg", "flexion", "slight"),
+    lying: AutoMovieMotionHumanRange.degrees(
+      "leftLowerLeg",
+      "flexion",
+      "slight",
+    ),
     neck: AutoMovieMotionHumanRange.degrees("neck", "flexion", "half"),
     lift: AutoMovieMotionHumanRange.degrees("leftUpperArm", "flexion", {
       level: "slight",
       scale: 0.5,
     }),
-    open: AutoMovieMotionHumanRange.degrees("leftUpperArm", "abduction", "slight"),
+    open: AutoMovieMotionHumanRange.degrees(
+      "leftUpperArm",
+      "abduction",
+      "slight",
+    ),
     elbow: AutoMovieMotionHumanRange.degrees("leftLowerArm", "flexion", {
       level: "light",
       scale: 0.8,

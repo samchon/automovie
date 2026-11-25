@@ -1,6 +1,4 @@
-/**
- * One inspected animation take addressable inside an external motion asset.
- */
+/** One inspected animation take addressable inside an external motion asset. */
 export interface IAutoMovieExternalMotionTake {
   /** Stable take id within this asset record. */
   id: string;

@@ -10,7 +10,7 @@ A quaternion turned about a fixed axis is a first harmonic of the half angle, so
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The rotation is read at three swivels, each bound gives one sinusoid, the sinusoids their arcs and the arcs one union the test reads.
+The refused arcs are built once (`swingTwistRefusedArcs`) and the test reads their union.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

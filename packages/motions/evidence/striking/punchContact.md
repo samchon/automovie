@@ -1,21 +1,3 @@
-# src/striking/punchContact.ts#punchContact
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the techniques, the body shot's dip and the step-in rule with their source, with provisional values marked.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One solution in world metres and degrees, solved once from the launch's aim and read by the punch's footwork and stroke.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the two contact constants, the solution and its solver, which the punch's geometry reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the tracker, reach solution and resolved bone types; every length comes from the punching body's measure.
-
 # src/striking/punchContact.ts#punchContact.IContact
 
 ## @evidence contracts/development/common.md#meaningful-documentation

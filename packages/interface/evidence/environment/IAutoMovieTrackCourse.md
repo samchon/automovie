@@ -1,21 +1,3 @@
-# src/environment/IAutoMovieTrackCourse.ts#IAutoMovieTrackCourse
-
-## @evidence contracts/development/design.md#principled-representation
-
-Keeps spatial input separate from film timing and exposes admitted distances in metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One prepared spatial course serves every vehicle and timing schedule on the same waypoints.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A course approximates spline arc length from sampled chords; it is neither a physical track design nor a ride simulation.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes the coordinate and timing responsibilities and the distance approximation.
-
 # src/environment/IAutoMovieTrackCourse.ts#IAutoMovieTrackCourse.IInput
 
 ## @evidence contracts/development/design.md#principled-representation

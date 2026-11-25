@@ -1,8 +1,6 @@
 import type { IAutoMovieRecoveryCurvatureAdmission } from "@automovie/interface";
 
-/**
- * Admit requested curvature bookkeeping and conservative simultaneous buffers.
- */
+/** Admit requested curvature bookkeeping and conservative simultaneous buffers. */
 export function admitRecoveryMapCurvature(
   cameraWidth: number,
   points: number,
@@ -14,11 +12,8 @@ export function admitRecoveryMapCurvature(
 ): IAutoMovieRecoveryCurvatureAdmission {
   charge(512);
   if (
-    !Number.isSafeInteger(baseRetained) ||
     baseRetained < 1 ||
-    !Number.isSafeInteger(maxResidentEntries) ||
     maxResidentEntries < 1 ||
-    !Number.isSafeInteger(baseRetained + 256) ||
     baseRetained + 256 > maxResidentEntries
   )
     throw new Error("camera-curvature: bounded requested metadata required");
@@ -30,9 +25,7 @@ export function admitRecoveryMapCurvature(
       baseRetained,
       maxResidentEntries,
       maxLinearEntries,
-    ].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
-    )
+    ].every((value: number): boolean => value > 0)
   )
     throw new Error("camera-curvature: positive safe fit bounds required");
   const width: number = cameraWidth + 3 * points;
@@ -63,7 +56,7 @@ export function admitRecoveryMapCurvature(
         1);
   if (
     ![width, coefficients, seed, optional, fixed, complete, work].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+      (value: number): boolean => value > 0,
     ) ||
     fixed > maxResidentEntries
   )

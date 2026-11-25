@@ -1,11 +1,10 @@
-import type {
-  IAutoMovieDeliveryContentAudit,
-  IAutoMoviePlanVideoFramesProps,
-} from "@automovie/interface";
+import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
+import type * as Render from "@automovie/render";
 import { randomUUID } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
+import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
@@ -361,18 +360,14 @@ async function replay(props: {
       Math.min(frameCount - 1, endFrame),
     ]),
   ];
-  const render: {
-    planAutoMovieVideoFrames: (
-      props: IAutoMoviePlanVideoFramesProps,
-    ) => string[];
-  } = loadAutoMovieProductionModule(root, "@automovie/render") as {
-    planAutoMovieVideoFrames: (
-      props: IAutoMoviePlanVideoFramesProps,
-    ) => string[];
-  };
+  const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
+    root,
+    "@automovie/render",
+  );
   const ffmpeg: string = resolveAutoMovieFfmpeg({
     env: props.env,
-    load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
+    load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
+      loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
   });
   await fs.mkdir(out, { recursive: true });
   const directory: string = await fs.mkdtemp(path.join(out, "frames-"));

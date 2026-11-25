@@ -4,12 +4,12 @@ import type { IAutoMovieMotionHumanHandshake } from "../handling/IAutoMovieMotio
 import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHumanPickUp";
 import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionHumanPutDown";
 import type { IAutoMovieMotionHumanReceive } from "../handling/IAutoMovieMotionHumanReceive";
+import type { IAutoMovieMotionHumanFirefighting } from "../next/IAutoMovieMotionHumanFirefighting";
 import type { IAutoMovieMotionHumanCatchObject } from "../throwing/IAutoMovieMotionHumanCatchObject";
 import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionHumanRelease";
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
 import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
 import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
-import type { IAutoMovieMotionHumanFirefighting } from "../next/IAutoMovieMotionHumanFirefighting";
 import type { IAutoMovieMotionHumanChainStriking } from "./IAutoMovieMotionHumanChainStriking";
 
 /**
@@ -19,8 +19,8 @@ import type { IAutoMovieMotionHumanChainStriking } from "./IAutoMovieMotionHuman
  */
 export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanChainStriking {
   /**
-   * Shake hands with a partner standing within reach; `HumanChain.pair`
-   * appends both partners' handshakes together.
+   * Shake hands with a partner standing within reach; `HumanChain.pair` appends
+   * both partners' handshakes together.
    *
    * @param params The partner, the hand and the pump count.
    * @param anchor An optional anchor id.
@@ -44,8 +44,8 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
   ): this;
 
   /**
-   * Bring the lips to a partner's region by a lean and a neck flexion; the
-   * arms stay free for a layer.
+   * Bring the lips to a partner's region by a lean and a neck flexion; the arms
+   * stay free for a layer.
    *
    * @param params The partner, the region, the side and the hold.
    * @param anchor An optional anchor id.
@@ -72,8 +72,8 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
   putDown(params: IAutoMovieMotionHumanPutDown.IParams, anchor?: string): this;
 
   /**
-   * Hand a held prop to a receiver, letting go only after the receiver's
-   * grip closes; `HumanChain.pair` appends both roles together.
+   * Hand a held prop to a receiver, letting go only after the receiver's grip
+   * closes; `HumanChain.pair` appends both roles together.
    *
    * @param params The prop, the receiver, the grip and the hands.
    * @param anchor An optional anchor id.
@@ -95,8 +95,8 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
   receive(params: IAutoMovieMotionHumanReceive.IParams, anchor?: string): this;
 
   /**
-   * Throw a held object overarm, underarm or as a toss along a ballistic
-   * path to a target.
+   * Throw a held object overarm, underarm or as a toss along a ballistic path
+   * to a target.
    *
    * @param params The target, the style and the hand.
    * @param anchor An optional anchor id.
@@ -121,8 +121,22 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
   ): this;
 
   /**
-   * Open a hand on what it holds: the prop leaves with the hand's velocity,
-   * or a prop on a launcher leaves at the launcher's speed.
+   * Catch a real ball another performer's anchored action launched, at its
+   * realized flight.
+   *
+   * @param params The launching anchor, the ball, the hands and the
+   *   interception's seconds.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  stageCatch(
+    params: IAutoMovieMotionHumanCatchObject.IStageParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Open a hand on what it holds: the prop leaves with the hand's velocity, or
+   * a prop on a launcher leaves at the launcher's speed.
    *
    * @param params The hand, the prop and a launcher's launch.
    * @param anchor An optional anchor id.
@@ -150,8 +164,5 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param anchor An optional anchor id, set on the sweep.
    * @returns The chain.
    */
-  pass(
-    params: IAutoMovieMotionHumanFirefighting.IPass,
-    anchor?: string,
-  ): this;
+  pass(params: IAutoMovieMotionHumanFirefighting.IPass, anchor?: string): this;
 }

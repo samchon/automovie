@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryEventCurveArc } from "../../index";
 
-/** Four oriented cubic boundary paths and optional periodic seam identification.
- */
+/** Four oriented cubic boundary paths and optional periodic seam identification. */
 export interface IAutoMovieRecoveryEventChart {
   /** Boundary at v=0, traversed from u=0 to u=1. */
   bottom: IAutoMovieRecoveryEventCurveArc;

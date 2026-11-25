@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionProfileGrid.ts#AutoMovieConstructionProfileGrid
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States millimetre tolerance, original guide marks, indexed sample layout, the sampled criterion and resource/depth failures.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The create operation derives IAutoMovieConstructionProfileGrid.IGrid records from prepared original Point0 readers under a positive millimetre chord tolerance.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime grid derivation stays here; interface owns the grid consumed by body assembly and Human source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The public surface reuses canonical prepared-profile and grid contracts; tessellation samples do not replace original curves or certify whole-domain geometry.
-
 # src/geometry/construction/AutoMovieConstructionProfileGrid.ts#AutoMovieConstructionProfileGrid.create
 
 ## @evidence contracts/development/common.md#meaningful-documentation

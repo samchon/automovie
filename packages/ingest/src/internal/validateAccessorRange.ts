@@ -4,7 +4,12 @@ import { object } from "./object";
 /**
  * Admit one accessor's dense byte extent using its component shape and stride.
  *
- * The caller has admitted component type, shape, positive count, nonnegative offset and referenced view. Dense storage requires offset + (count - 1) * stride + paddedElementBytes to fit the view and stride to cover one element. Missing dense storage is accepted only when a sparse declaration exists, whose own gate checks its ranges; this gate does not check component alignment or payload values.
+ * The caller has admitted component type, shape, positive count, nonnegative
+ * offset and referenced view. Dense storage requires offset + (count - 1) *
+ * stride + paddedElementBytes to fit the view and stride to cover one element.
+ * Missing dense storage is accepted only when a sparse declaration exists,
+ * whose own gate checks its ranges; this gate does not check component
+ * alignment or payload values.
  */
 export const validateAccessorRange: (
   accessor: Record<string, unknown>,

@@ -11,7 +11,10 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { seededValue } from "../math/seededValue";
 
-/** Domain salts separate the three seeded component samples without retaining a random stream. */
+/**
+ * Domain salts separate the three seeded component samples without retaining a
+ * random stream.
+ */
 const JITTER_X: number = 0x73707278;
 /** Y component salt used with the same emitter seed and spawn index. */
 const JITTER_Y: number = 0x73707279;
@@ -21,15 +24,28 @@ const JITTER_Z: number = 0x7370727a;
 /**
  * Sample the decorative spray of a fluid domain at one solved state.
  *
- * Decorative particles do not change depths or volume ledgers. The supplied state and domain must have matching ids; that check alone does not establish state provenance, array layout or finite fields.
+ * Decorative particles do not change depths or volume ledgers. The supplied
+ * state and domain must have matching ids; that check alone does not establish
+ * state provenance, array layout or finite fields.
  *
- * Particle i has nominal birth i / rate and age time - i / rate. Its position is `p0 + direction * speed * age - gravity * age² / 2 * y`, where p0 is the emitter cell's free surface in the supplied current state, shared by all its particles. Historical spawn heights are not reconstructed. Direction normalizes the axis, adds seeded per-component jitter scaled by spread, then normalizes again.
+ * Particle i has nominal birth i / rate and age time - i / rate. Its position
+ * is `p0 + direction * speed * age - gravity * age² / 2 * y`, where p0 is the
+ * emitter cell's free surface in the supplied current state, shared by all its
+ * particles. Historical spawn heights are not reconstructed. Direction
+ * normalizes the axis, adds seeded per-component jitter scaled by spread, then
+ * normalizes again.
  *
- * LOD keeps spawn indices divisible by `1 + floor(max(cameraDistance, 0) / lodDistance)`; the maxParticles cap then keeps the newest survivors. This assumes representable live-window and stride arithmetic.
+ * LOD keeps spawn indices divisible by `1 + floor(max(cameraDistance, 0) /
+ * lodDistance)`; the maxParticles cap then keeps the newest survivors. This
+ * assumes representable live-window and stride arithmetic.
  *
- * Particles are returned per emitter in declaration order and, for representable indices, in increasing spawn order. LOD and caps are applied in the CPU sample; this does not prove GPU display agreement.
+ * Particles are returned per emitter in declaration order and, for
+ * representable indices, in increasing spawn order. LOD and caps are applied in
+ * the CPU sample; this does not prove GPU display agreement.
  *
- * Throws for a mismatched state domain id or non-finite camera distance. Negative distance uses the nearest LOD, and omitted distance defaults to zero. Caller-run domain admission remains required; finite authored fields do not prove finite/safe spawn indices, finite stride or ballistic arithmetic, or a finite nonzero jitter norm. Those derived values are not checked here.
+ * Throws for a mismatched state domain id or an unrepresentable LOD stride.
+ * Negative distance uses the nearest LOD, and omitted distance defaults to
+ * zero. The caller admits the domain before sampling.
  */
 export const sampleFluidSpray: (
   props: IAutoMovieSampleFluidSpray.IProps,
@@ -43,10 +59,6 @@ export const sampleFluidSpray: (
       `fluid domain "${domain.id}" cannot sample spray from a state of "${state.domain}"`,
     );
   const cameraDistance: number = props.cameraDistance ?? 0;
-  if (!Number.isFinite(cameraDistance))
-    throw new Error(
-      `fluid domain "${domain.id}" cannot sample spray at a non-finite camera distance`,
-    );
   const time: number = state.time;
   const particles: IAutoMovieFluidSprayParticle[] = [];
   for (const spray of domain.sprays)
@@ -55,7 +67,13 @@ export const sampleFluidSpray: (
 };
 
 /**
- * Append one emitter's newest stride-selected survivors, reversing the local list for increasing index order when indices are representable. The nozzle uses the current state's depth; age/window products and ballistic values are not validated. One axis norm/nozzle is shared within the emitter, and admitted maxParticles bounds appends even if unsafe integer subtraction stops advancing. Scratch storage becomes collectible on return; appended particles belong to the caller's output list.
+ * Append one emitter's newest stride-selected survivors, reversing the local
+ * list for increasing index order when indices are representable. The nozzle
+ * uses the current state's depth; age/window products and ballistic values are
+ * not validated. One axis norm/nozzle is shared within the emitter, and
+ * admitted maxParticles bounds appends even if unsafe integer subtraction stops
+ * advancing. Scratch storage becomes collectible on return; appended particles
+ * belong to the caller's output list.
  */
 const emit: (props: {
   domain: IAutoMovieFluidDomain;
@@ -80,10 +98,13 @@ const emit: (props: {
     y: domain.grid.origin.y + domain.bed[cell]! + props.state.depth[cell]!,
     z: domain.grid.origin.z + (spray.row + 0.5) * domain.grid.cellZ,
   };
-  // Negative distance uses the nearest LOD. Without clamping it could produce
-  // a nonpositive stride; the finite quotient can still overflow here.
+  // Reject a stride that cannot select spawn indices before taking a remainder.
   const stride: number =
     1 + Math.floor(Math.max(0, props.cameraDistance) / spray.lodDistance);
+  if (!(stride > 0 && stride < Infinity))
+    throw new Error(
+      `fluid domain "${domain.id}" cannot sample spray at a non-finite camera distance or LOD stride`,
+    );
   const newest: number = Math.floor(props.time * spray.rate);
   const oldest: number = Math.floor((props.time - spray.lifetime) * spray.rate);
   const gravity: number = domain.solver.gravity;
@@ -124,7 +145,11 @@ const emit: (props: {
 };
 
 /**
- * Normalize the axis using the per-emitter borrowed norm, add three domain-salted seeded components, then normalize the result. Constant scalar work allocates one direction with no random-stream state. A finite nonzero axis norm and finite nonzero jitter norm are premises, not checks made here; invalid derived norms can yield nonunit or non-finite directions.
+ * Normalize the axis using the per-emitter borrowed norm, add three
+ * domain-salted seeded components, then normalize the result. Constant scalar
+ * work allocates one direction with no random-stream state. A finite nonzero
+ * axis norm and finite nonzero jitter norm are premises, not checks made here;
+ * invalid derived norms can yield nonunit or non-finite directions.
  */
 const jitter: (
   spray: IAutoMovieFluidSpray,

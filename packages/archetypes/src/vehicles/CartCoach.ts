@@ -10,7 +10,9 @@ import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
 /**
- * The drawn carriers on two axles: a wagon and a closed carriage, each with its rear axle along `X` under the origin and its front axle turning about a pivot `wheelbase` ahead, carrying the pole.
+ * The drawn carriers on two axles: a wagon and a closed carriage, each with its
+ * rear axle along `X` under the origin and its front axle turning about a pivot
+ * `wheelbase` ahead, carrying the pole.
  */
 export namespace CartCoach {
   /**
@@ -81,7 +83,8 @@ export namespace CartCoach {
   }
 
   /**
-   * A brougham: a closed body behind a driver's box, on the running gear with a pole.
+   * A brougham: a closed body behind a driver's box, on the running gear with a
+   * pole.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
@@ -241,7 +244,11 @@ export namespace CartCoach {
   }
 }
 
-/** A box driver's hands, metres: `apart` between the two rein hand stations and `ahead` of the box's front edge; a construction estimate no source read gives. */
+/**
+ * A box driver's hands, metres: `apart` between the two rein hand stations and
+ * `ahead` of the box's front edge; a construction estimate no source read
+ * gives.
+ */
 const BOX_HANDS: Readonly<Record<"apart" | "ahead", number>> = {
   apart: 0.2,
   ahead: 0.3,
@@ -260,11 +267,18 @@ const WOOD: string = "#8b6a43";
 const CLOTH: string = "#6b2f2f";
 
 /**
- * Add the running gear: the rear pair under the origin and a steering front axle wheelbase ahead. The fixed-length pole pitches on the front axle through drawbarPitch, riding frontAxle; its coupling rides that pitch. The ±180 degree travel is a principal-angle representation chart, not a measured mechanical limit or load rating.
+ * Add the running gear: the rear pair under the origin and a steering front
+ * axle wheelbase ahead. The fixed-length pole pitches on the front axle through
+ * drawbarPitch, riding frontAxle; its coupling rides that pitch. The ±180
+ * degree travel is a principal-angle representation chart, not a measured
+ * mechanical limit or load rating.
  *
  * @param builder The carrier under construction.
- * @param d The drawn dimensions: `wheelDiameter`, `frontWheelDiameter` and `wheelbase` are read.
- * @param gear The track, the pole's length and its end's height at rest, the lock, the front and rear spoke counts, and the tyres' material where a source gives it.
+ * @param d The drawn dimensions: `wheelDiameter`, `frontWheelDiameter` and
+ *   `wheelbase` are read.
+ * @param gear The track, the pole's length and its end's height at rest, the
+ *   lock, the front and rear spoke counts, and the tyres' material where a
+ *   source gives it.
  */
 function gear(
   builder: AutoMovieArchetypeBuilder<

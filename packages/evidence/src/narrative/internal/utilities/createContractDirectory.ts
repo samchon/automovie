@@ -15,9 +15,11 @@ import { resolveSkillsDirectory } from "../../../internal/resolveSkillsDirectory
  * production itself adopts, so they always resolve under its own
  * `docs/contracts`, whichever tree holds the shared ones.
  *
- * @param contracts The production location and optional shared tree; read, not retained.
+ * @param contracts The production location and optional shared tree; read, not
+ *   retained.
  * @param scope The contract family whose owner is wanted.
- * @returns The absolute tree holding that family's folder; the family folder is not appended.
+ * @returns The absolute tree holding that family's folder; the family folder is
+ *   not appended.
  */
 export function createContractDirectory(
   contracts: IContractLocation,

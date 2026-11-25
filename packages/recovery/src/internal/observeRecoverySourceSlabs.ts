@@ -12,7 +12,14 @@ import { critical } from "./mesh-observations/critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 
 /**
- * Bind actual cut-emitting faces and published contour identities to clipped source slabs. The same physical scalar chart drives source cells and PL critical classification. All components and issues survive; only actual segment/contact provenance supplies ports, never endpoint-star witnesses. Copy the observed raw-node, alias and halfedge registries with their input ordinal spaces so boundary words remain joinable without parsing IDs. Measured critical brackets do not imply curves fitted at those bracket planes, exact material phase transport or transverse jets.
+ * Bind actual cut-emitting faces and published contour identities to clipped
+ * source slabs. The same physical scalar chart drives source cells and PL
+ * critical classification. All components and issues survive; only actual
+ * segment/contact provenance supplies ports, never endpoint-star witnesses.
+ * Copy the observed raw-node, alias and halfedge registries with their input
+ * ordinal spaces so boundary words remain joinable without parsing IDs.
+ * Measured critical brackets do not imply curves fitted at those bracket
+ * planes, exact material phase transport or transverse jets.
  */
 export function observeRecoverySourceSlabs(
   input: Parameters<IAutoMovieRecoverySourceSlabsObservationOperation.Operation>[0],

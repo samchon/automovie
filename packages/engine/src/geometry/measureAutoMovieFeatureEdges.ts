@@ -54,7 +54,7 @@ export function measureAutoMovieFeatureEdges(
 ): IAutoMovieMeasureFeatureEdges.IResult {
   const { positions, indices, reach }: IAutoMovieMeasureFeatureEdges.IProps =
     props;
-  if (!Number.isFinite(reach) || reach <= 0)
+  if (reach <= 0)
     throw new Error("feature edge reach must be finite and above zero");
   const vertexCount: number = Math.floor(positions.length / 3);
   const triangleCount: number = Math.floor(indices.length / 3);

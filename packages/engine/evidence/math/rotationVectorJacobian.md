@@ -1,21 +1,3 @@
-# src/math/rotationVectorJacobian.ts#rotationVectorJacobian
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the body-frame convention, radian inputs, differential relation, inverse chart and nullable numerical failures.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Three-component tangent vectors use the right differential of the same exponential as the trajectory; a null result reports an unresolved finite value or the inverse chart's first pole.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Trajectory endpoint slopes consume inverse and dense angular-velocity observation consumes apply; both share one scalar cross implementation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No physical tolerance, small-angle cutoff or changed rotation chart is substituted for the analytic Jacobian.
-
 # src/math/rotationVectorJacobian.ts#rotationVectorJacobian.apply
 
 ## @evidence contracts/development/common.md#meaningful-documentation

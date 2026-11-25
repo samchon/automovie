@@ -3,13 +3,17 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieEnvironmentModule } from "./IAutoMovieEnvironmentModule";
 
 /**
- * An occurrence of a named environment definition, with an optional rigid placement.
+ * An occurrence of a named environment definition, with an optional rigid
+ * placement.
  */
 export interface IAutoMovieEnvironmentItem {
   /** Reusable definition instantiated with this occurrence's pose and id. */
   use: IAutoMovieEnvironmentModule;
 
-  /** Position in environment-local metres, or attachment to another item or its anchor. */
+  /**
+   * Position in environment-local metres, or attachment to another item or its
+   * anchor.
+   */
   at?:
     | IAutoMovieVector3
     | {

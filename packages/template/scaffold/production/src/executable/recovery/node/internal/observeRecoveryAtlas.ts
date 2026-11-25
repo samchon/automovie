@@ -7,24 +7,21 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
 import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
 
 /**
- * Publish fitted atlas coefficients and a separate private source-ownership ledger.
- * The observation specification references a fixed registered mesh specification,
- * a fixed curve bundle supplying only automatic station levels, and optionally its
- * fixed open-continuation graph for deterministic unsupported-open-first work order.
- * Every referenced byte hash is verified before observation. This stage refits raw
- * observations in a joint chart; it is not a same-coefficient operator comparison.
- * An explicit stationSpacingMm selects a greedy increasing subsequence of saved
- * levels with the final endpoint retained, and reclassifies every coalesced slab.
- * scalarWindowMm restricts work to complete slabs with positive window overlap;
- * declared bounds and the conservative whole-slab extent are published separately.
+ * Publish fitted atlas coefficients and a separate private source-ownership
+ * ledger. The observation specification references a fixed registered mesh
+ * specification, a fixed curve bundle supplying only automatic station levels,
+ * and optionally its fixed open-continuation graph for deterministic
+ * unsupported-open-first work order. Every referenced byte hash is verified
+ * before observation. This stage refits raw observations in a joint chart; it
+ * is not a same-coefficient operator comparison. An explicit stationSpacingMm
+ * selects a greedy increasing subsequence of saved levels with the final
+ * endpoint retained, and reclassifies every coalesced slab. scalarWindowMm
+ * restricts work to complete slabs with positive window overlap; declared
+ * bounds and the conservative whole-slab extent are published separately.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Hash-admitted observations are clipped at saved automatic levels or an explicitly declared physical-spacing subsequence. Private topology, harmonic mapping and constrained joint Bernstein fitting publish independent coefficients.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed input admission, private ownership publication and public coefficient publication remain separate from engine realization, which opens only atlas.json.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source arrays and incidence remain in this process and the private ledger; neither source triangle arrays, normals nor mesh references enter the public geometry contract.
+ * @evidence contracts/development/implementation.md#principled-implementation Hash-admitted observations are clipped at saved automatic levels or an explicitly declared physical-spacing subsequence. Private topology, harmonic mapping and constrained joint Bernstein fitting publish independent coefficients. Source arrays and incidence remain in this process and the private ledger; neither source triangle arrays, normals nor mesh references enter the public geometry contract.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed input admission, private ownership publication and public coefficient publication remain separate from engine realization, which opens only atlas.json. Each fixed file is read and hashed once; source assembly is linear in bytes and faces. Observation helpers own indexed clipping and bounded chart solves, while publication streams JSON without a whole serialized string. Saved station levels and open-event addresses define one work order; admitted source arrays serve topology and fitting without another extraction or hidden geometry fallback. Source and curve publications remain live for one observation command and are released on return; explicit interval/chart/patch/iteration budgets bound retained fitted output and immutable files belong to the caller.
  * @evidence contracts/development/common.md#meaningful-documentation States fixed-byte admission, new-fit comparison scope, deterministic work priority, incomplete chart coverage and explicit C0/external-jet limitations.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each fixed file is read and hashed once; source assembly is linear in bytes and faces. Observation helpers own indexed clipping and bounded chart solves, while publication streams JSON without a whole serialized string.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved station levels and open-event addresses define one work order; admitted source arrays serve topology and fitting without another extraction or hidden geometry fallback.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source and curve publications remain live for one observation command and are released on return; explicit interval/chart/patch/iteration budgets bound retained fitted output and immutable files belong to the caller.
  */
 export function observeRecoveryAtlas(
   inputFile: string,
@@ -136,10 +133,7 @@ export function observeRecoveryAtlas(
       (section: { coordinateMm: number }): number => section.coordinateMm,
     ),
     levelsMm: number[] = [];
-  if (
-    input.stationSpacingMm !== undefined &&
-    !(input.stationSpacingMm > 0 && Number.isFinite(input.stationSpacingMm))
-  )
+  if (input.stationSpacingMm !== undefined && !(input.stationSpacingMm > 0))
     throw new Error(
       "An explicit positive physical station-coalescing distance is required",
     );
@@ -172,14 +166,12 @@ export function observeRecoveryAtlas(
   }[] = [];
   for (const query of input.privateWitnessQueries ?? []) {
     if (
-      !Number.isSafeInteger(query.face) ||
       query.face < 0 ||
       query.face >= triangles.length ||
       !Array.isArray(query.barycentric) ||
       query.barycentric.length !== 3 ||
       query.barycentric.some(
-        (value: number): boolean =>
-          !Number.isFinite(value) || value < 0 || value > 1,
+        (value: number): boolean => value < 0 || value > 1,
       ) ||
       Math.abs(
         query.barycentric.reduce(
@@ -224,7 +216,7 @@ export function observeRecoveryAtlas(
     });
   }
   for (const face of witnessFaces) {
-    if (!Number.isSafeInteger(face) || face < 0 || face >= triangles.length)
+    if (face < 0 || face >= triangles.length)
       throw new Error(
         "Private diagnostic witness face addresses are outside the fixed source",
       );

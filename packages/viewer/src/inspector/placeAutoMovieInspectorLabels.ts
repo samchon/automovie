@@ -13,7 +13,8 @@ import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHos
  * stamp's font pixel stays at least one CSS pixel, as a capture keeps it at
  * least one sheet pixel.
  *
- * @param props The applied inspection, the camera drawn through, the subject's raster and the canvas size shown.
+ * @param props The applied inspection, the camera drawn through, the subject's
+ *   raster and the canvas size shown.
  * @returns The kept labels, their line height and the number dropped.
  */
 export function placeAutoMovieInspectorLabels(props: {

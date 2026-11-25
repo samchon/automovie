@@ -1,31 +1,23 @@
 import type { IAutoMovieViewerSubjectLens } from "./IAutoMovieViewerSubjectLens.js";
 
 /**
- * Inspection eye and target in world metres, with perspective lens and positive ordered clip distances. Pose application currently requires an unparented camera or an identity parent transform.
+ * Inspection eye and target in world metres, with perspective lens and positive
+ * ordered clip distances. Pose application currently requires an unparented
+ * camera or an identity parent transform.
  */
 export interface IAutoMovieViewerSubjectPose {
-  /**
-   * World position of the eye, in metres.
-   */
+  /** World position of the eye, in metres. */
   position: { x: number; y: number; z: number };
 
-  /**
-   * World point the eye looks at, in metres.
-   */
+  /** World point the eye looks at, in metres. */
   target: { x: number; y: number; z: number };
 
-  /**
-   * Lens this pose was resolved for.
-   */
+  /** Lens this pose was resolved for. */
   lens: IAutoMovieViewerSubjectLens;
 
-  /**
-   * Near clip distance, in metres.
-   */
+  /** Near clip distance, in metres. */
   near: number;
 
-  /**
-   * Far clip distance, in metres.
-   */
+  /** Far clip distance, in metres. */
   far: number;
 }

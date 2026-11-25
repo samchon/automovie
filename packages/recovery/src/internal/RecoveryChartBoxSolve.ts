@@ -3,27 +3,30 @@ import type { IAutoMovieRecoveryChartBoxSolve } from "@automovie/interface";
 /**
  * Minimize sum_axis(0.5*x' H x - rhs' x) on the supplied original control box.
  * H is an exactly symmetric sparse positive-semidefinite Gram matrix supplied
- * by the caller. This helper validates finite entries, distinct sparse addresses,
- * reciprocal symmetry and nonnegative diagonals; it does not certify PSD or rank.
- * An exactly zero diagonal requires an exactly zero row and three zero RHS entries.
- * Such an unseen coordinate uses scale one and retains its feasible initial value.
+ * by the caller. This helper validates finite entries, distinct sparse
+ * addresses, reciprocal symmetry and nonnegative diagonals; it does not certify
+ * PSD or rank. An exactly zero diagonal requires an exactly zero row and three
+ * zero RHS entries. Such an unseen coordinate uses scale one and retains its
+ * feasible initial value.
  *
- * Dii=1/sqrt(Hii), x=Dy, Hs=DHD and bs=Db give the same real-arithmetic objective
- * and box after scaling. FISTA projects in y, with objective-based momentum restarts.
- * Numeric scaling is binary64; failed finite/feasible transformations throw rather
- * than adding a regularizer or perturbing H. Active bounds retain original endpoints.
- * Termination uses the original infinity norm of G_L(x)=L*(x-proj(x-gradient/L)).
- * An equivalent component formula avoids cancellation of two nearly equal x values.
- * The best finite feasible original objective is returned, with its own gradient
- * metric; exhausting the attempt budget is not convergence. Iterations counts all
- * projected proposals, including rejected momentum attempts. Empty systems return empty.
- * The attempt budget is a positive safe integer and gradient tolerance is finite
- * and nonnegative. Reported gradients/objectives are binary64 evaluations, not
- * exact KKT, uniqueness, eigenvalue or geometric accuracy certificates.
- * Optional initialValues are copied original normalized coordinates, interleaved
- * by three axes per control. They must be finite and feasible without clipping;
- * omission starts at projected zero. initialObjective records their original Q,
- * and every invocation starts with fresh momentum and retains that feasible best.
+ * Dii=1/sqrt(Hii), x=Dy, Hs=DHD and bs=Db give the same real-arithmetic
+ * objective and box after scaling. FISTA projects in y, with objective-based
+ * momentum restarts. Numeric scaling is binary64; failed finite/feasible
+ * transformations throw rather than adding a regularizer or perturbing H.
+ * Active bounds retain original endpoints. Termination uses the original
+ * infinity norm of G_L(x)=L*(x-proj(x-gradient/L)). An equivalent component
+ * formula avoids cancellation of two nearly equal x values. The best finite
+ * feasible original objective is returned, with its own gradient metric;
+ * exhausting the attempt budget is not convergence. Iterations counts all
+ * projected proposals, including rejected momentum attempts. Empty systems
+ * return empty. The attempt budget is a positive safe integer and gradient
+ * tolerance is finite and nonnegative. Reported gradients/objectives are
+ * binary64 evaluations, not exact KKT, uniqueness, eigenvalue or geometric
+ * accuracy certificates. Optional initialValues are copied original normalized
+ * coordinates, interleaved by three axes per control. They must be finite and
+ * feasible without clipping; omission starts at projected zero.
+ * initialObjective records their original Q, and every invocation starts with
+ * fresh momentum and retains that feasible best.
  */
 export function RecoveryChartBoxSolve(
   input: Parameters<IAutoMovieRecoveryChartBoxSolve.Operation>[0],
@@ -32,18 +35,13 @@ export function RecoveryChartBoxSolve(
     width: number = 3 * count;
   if (
     input.rhs.length !== width ||
-    input.rhs.some((value: number): boolean => !Number.isFinite(value)) ||
     input.lower.length !== 3 ||
     input.upper.length !== 3 ||
     input.lower.some(
-      (value: number, k: number): boolean =>
-        !Number.isFinite(value) ||
-        !Number.isFinite(input.upper[k]) ||
-        value > input.upper[k]!,
+      (value: number, k: number): boolean => value > input.upper[k]!,
     ) ||
-    !Number.isSafeInteger(input.maxIterations) ||
     input.maxIterations < 1 ||
-    !(input.gradientTolerance >= 0 && Number.isFinite(input.gradientTolerance))
+    !(input.gradientTolerance >= 0)
   )
     throw new Error(
       "Box solve requires finite dimensions, bounds, RHS and explicit iteration/gradient budgets",
@@ -53,9 +51,7 @@ export function RecoveryChartBoxSolve(
     (input.initialValues.length !== width ||
       Array.from(input.initialValues).some(
         (value: number, i: number): boolean =>
-          !Number.isFinite(value) ||
-          value < input.lower[i % 3]! ||
-          value > input.upper[i % 3]!,
+          value < input.lower[i % 3]! || value > input.upper[i % 3]!,
       ))
   )
     throw new Error(
@@ -66,14 +62,7 @@ export function RecoveryChartBoxSolve(
       const row: Map<number, number> = new Map();
       for (const entry of entries) {
         const [j, value]: readonly [number, number] = entry;
-        if (
-          entry.length !== 2 ||
-          !Number.isSafeInteger(j) ||
-          j < 0 ||
-          j >= count ||
-          !Number.isFinite(value) ||
-          row.has(j)
-        )
+        if (entry.length !== 2 || j < 0 || j >= count || row.has(j))
           throw new Error(
             "Sparse Gram entries need unique valid addresses and finite values",
           );
@@ -99,7 +88,7 @@ export function RecoveryChartBoxSolve(
         "A zero Gram diagonal must be an unseen exact zero row with zero RHS",
       );
     scales[i] = diagonal > 0 ? 1 / Math.sqrt(diagonal) : 1;
-    if (!(scales[i]! > 0 && Number.isFinite(scales[i])))
+    if (!(scales[i]! > 0))
       throw new Error("Diagonal congruence scale is unrepresentable");
     if (diagonal > 0)
       minimumPositiveDiagonal =
@@ -115,8 +104,6 @@ export function RecoveryChartBoxSolve(
         );
       sum += Math.abs(value);
     }
-    if (!Number.isFinite(sum))
-      throw new Error("Original absolute Gram row sum is unrepresentable");
     originalLipschitz = Math.max(originalLipschitz, sum);
   }
   const scaled: [number, number][][] = rows.map(
@@ -128,7 +115,11 @@ export function RecoveryChartBoxSolve(
           value *
           Math.max(scales[i]!, scales[j]!) *
           Math.min(scales[i]!, scales[j]!);
-        if (!Number.isFinite(coefficient) || (value !== 0 && coefficient === 0))
+        if (
+          (value !== 0 && coefficient === 0) ||
+          coefficient === Infinity ||
+          coefficient === -Infinity
+        )
           throw new Error("Scaled Gram entry is unrepresentable");
         return [j, coefficient];
       }),
@@ -137,8 +128,6 @@ export function RecoveryChartBoxSolve(
   for (const row of scaled) {
     let sum: number = 0;
     for (const [, value] of row) sum += Math.abs(value);
-    if (!Number.isFinite(sum))
-      throw new Error("Scaled absolute Gram row sum is unrepresentable");
     scaledLipschitz = Math.max(scaledLipschitz, sum);
   }
   const scaledRhs: Float64Array = Float64Array.from(
@@ -157,7 +146,9 @@ export function RecoveryChartBoxSolve(
   );
   if (
     [scaledRhs, lo, hi].some((vector: Float64Array): boolean =>
-      vector.some((value: number): boolean => !Number.isFinite(value)),
+      vector.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ),
     ) ||
     scaledRhs.some(
       (value: number, i: number): boolean => value === 0 && input.rhs[i] !== 0,
@@ -188,8 +179,6 @@ export function RecoveryChartBoxSolve(
         Math.min(Math.abs(g), originalLipschitz * available),
       );
     }
-    if (!Number.isFinite(result))
-      throw new Error("Original projected-gradient metric is unrepresentable");
     return result;
   };
   const evaluate: (values: Float64Array, gradient: Float64Array) => number = (
@@ -206,9 +195,10 @@ export function RecoveryChartBoxSolve(
         gradient[at] = product - input.rhs[at]!;
         objective += values[at]! * (product / 2 - input.rhs[at]!);
         if (
-          !Number.isFinite(product) ||
-          !Number.isFinite(gradient[at]) ||
-          !Number.isFinite(objective)
+          [product, gradient[at]!, objective].some(
+            (value: number): boolean =>
+              value === Infinity || value === -Infinity,
+          )
         )
           throw new Error("Original quadratic evaluation is unrepresentable");
       }
@@ -246,15 +236,11 @@ export function RecoveryChartBoxSolve(
         for (const [j, coefficient] of scaled[i]!)
           product += coefficient * search[3 * j + k]!;
         scaledGradient[3 * i + k] = product - scaledRhs[3 * i + k]!;
-        if (!Number.isFinite(scaledGradient[3 * i + k]))
-          throw new Error("Scaled search gradient is unrepresentable");
       }
     const next: Float64Array = new Float64Array(width),
       nextY: Float64Array = new Float64Array(width);
     for (let i: number = 0; i < width; i++) {
       const raw: number = search[i]! - scaledGradient[i]! / scaledLipschitz;
-      if (!Number.isFinite(raw))
-        throw new Error("Scaled projected proposal is unrepresentable");
       // Projection onto an active scaled bound publishes the original endpoint.
       next[i] =
         raw <= lo[i]!
@@ -262,19 +248,11 @@ export function RecoveryChartBoxSolve(
           : raw >= hi[i]!
             ? input.upper[i % 3]!
             : raw * scales[Math.floor(i / 3)]!;
-      if (
-        !Number.isFinite(next[i]) ||
-        next[i]! < input.lower[i % 3]! ||
-        next[i]! > input.upper[i % 3]!
-      )
+      if (next[i]! < input.lower[i % 3]! || next[i]! > input.upper[i % 3]!)
         throw new Error(
           "Scaled proposal cannot represent a feasible original control",
         );
       nextY[i] = next[i]! / scales[Math.floor(i / 3)]!;
-      if (!Number.isFinite(nextY[i]))
-        throw new Error(
-          "Feasible original proposal cannot be represented in scaled coordinates",
-        );
     }
     const nextObjective: number = evaluate(next, originalGradient),
       nextMetric: number = metric(next, originalGradient);
@@ -300,8 +278,6 @@ export function RecoveryChartBoxSolve(
       nextY,
       (value: number, i: number): number => value + beta * (value - y[i]!),
     );
-    if (search.some((value: number): boolean => !Number.isFinite(value)))
-      throw new Error("Accelerated scaled search is unrepresentable");
     y = nextY;
     objective = nextObjective;
     momentum = nextMomentum;

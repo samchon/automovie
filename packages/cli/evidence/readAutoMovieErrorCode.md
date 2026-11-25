@@ -6,7 +6,7 @@ States what it reads and when it returns undefined.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Reads Node's `code` property of a system error.
+Reads the `code` of Node's declared system error (`NodeJS.ErrnoException`) once the value is an `Error`.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ One expression shared by the reservation and the publish step.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Non-error values yield undefined rather than a guess.
+Non-error values yield undefined; no `in` or shape check stands in for the declared error type.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

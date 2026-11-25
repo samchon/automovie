@@ -80,7 +80,7 @@ export function checkArchetypeAliases(): void {
     assert.deepEqual(request, {
       subject,
       variant: "",
-      seed: "7",
+      seed: 7,
       state: { hinge: 63 },
       affordances: false,
     });
@@ -152,7 +152,7 @@ export function checkArchetypeAliases(): void {
       );
       assert.equal(request.subject, replacement.subject);
       assert.equal(request.variant, replacement.variant);
-      assert.equal(request.seed, "7");
+      assert.equal(request.seed, 7);
       assert.equal(request.affordances, false);
       const original = GalleryArchetype.build({
         ...request,
@@ -189,7 +189,7 @@ export function checkArchetypeAliases(): void {
     const oldRequest = {
       subject: legacy,
       variant: kind,
-      seed: "7",
+      seed: 7,
       state: {},
       affordances: true,
     };
@@ -213,7 +213,7 @@ export function checkArchetypeAliases(): void {
     subject: "map",
     producer: "createPaper",
     kind: "foldedMap",
-    seed: "7",
+    seed: 7,
     x: 0,
     z: 0,
     yaw: 0,
@@ -254,7 +254,7 @@ export function checkArchetypeAliases(): void {
     const request = {
       subject: "createQuadruped",
       variant: kind,
-      seed: "7",
+      seed: 7,
       state: {},
       affordances: true,
     };
@@ -303,7 +303,7 @@ export function checkArchetypeAliases(): void {
       `${kind} forefoot reaches the ground at landing`,
     );
     if (kind === "dog") {
-      // Legacy seed "7" gives this tempo. Light et al. 2010 Table 1
+      // Seed 7 gives this tempo. Light et al. 2010 Table 1
       // supplies the pooled mean and standard deviation in seconds.
       const expected = 1.11 + 0.7686978130595332 * 0.13;
       assert(
@@ -328,16 +328,20 @@ export function checkArchetypeAliases(): void {
   };
   const oldLead = GalleryCatalogue.producer("createQuadruped")!(
     { ...collared, kind: "dog" },
-    dog.seed,
+    dog.seed ?? undefined,
   ).affordance("lead");
   const newLead = GalleryCatalogue.producer(dog.subject)!(
     collared,
-    dog.seed,
+    dog.seed ?? undefined,
   ).affordance("lead");
   assert.deepEqual(newLead, oldLead, "the named dog's lead retains its frame");
 
   const restored = PlaygroundAddress.decode(SAVED_LINK)!;
   assert.equal(restored.version, 2);
+  assert.deepEqual(
+    restored.objects?.map((object) => object.seed),
+    [7, 7, undefined],
+  );
   assert.deepEqual(
     PlaygroundAddress.decode(PlaygroundAddress.encode(restored)),
     restored,

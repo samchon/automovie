@@ -33,9 +33,7 @@ const FIVB: string =
 const ITF: string =
   "ITF Rules of Tennis 2026, Rule 1: doubles court 10.97 m wide; net 1.07 m at the posts and 0.914 m at the centre; posts' centres 0.914 m outside the doubles court, at most 15 cm square and 2.5 cm above the net cord; cord at most 0.8 cm; band 5 to 6.35 cm deep (https://www.world.tennis/media/7221/2026-rules-of-tennis-english.pdf)";
 
-/**
- * The band of each free dimension of {@link createGoal}, by kind.
- */
+/** The band of each free dimension of {@link createGoal}, by kind. */
 export const GOAL_BANDS: Readonly<
   Record<
     createGoal.Kind,

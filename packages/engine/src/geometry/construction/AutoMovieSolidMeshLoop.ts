@@ -12,12 +12,16 @@ type Vec3 = AutoMovieVector3Tuple;
 const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
- * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`): which grid vertices a loop keeps with a local metric margin, how chart-distance scores rank drawn-cell cycles, and the polyline-chord parameter and heuristic alignment the zipper (`AutoMovieSolidZip`) uses for stitching.
+ * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`):
+ * which grid vertices a loop keeps with a local metric margin, how
+ * chart-distance scores rank drawn-cell cycles, and the polyline-chord
+ * parameter and heuristic alignment the zipper (`AutoMovieSolidZip`) uses for
+ * stitching.
  */
 export namespace AutoMovieSolidMeshLoop {
   /**
-   * Whether a grid vertex lies on a loop's kept side, at least `margin` mm
-   * from it.
+   * Whether a grid vertex lies on a loop's kept side, at least `margin` mm from
+   * it.
    *
    * @param loop The loop.
    * @param u The vertex's station.
@@ -232,7 +236,10 @@ export namespace AutoMovieSolidMeshLoop {
     return data;
   }
 
-  /** Copy only own data-valued numerical fields, without invoking ordinary getters. */
+  /**
+   * Copy only own data-valued numerical fields, without invoking ordinary
+   * getters.
+   */
   function snapshot(loop: IAutoMovieSolidMesh.ILoop): Chart | null {
     try {
       const kind: unknown = Object.getOwnPropertyDescriptor(
@@ -298,7 +305,10 @@ export namespace AutoMovieSolidMeshLoop {
     }
   }
 
-  /** Live metric reading after kept-side acceptance, preserving its original operation order. */
+  /**
+   * Live metric reading after kept-side acceptance, preserving its original
+   * operation order.
+   */
   function minimum(
     loop: Pick<IAutoMovieSolidMesh.ILoop, "chart">,
     u: number,
@@ -313,7 +323,10 @@ export namespace AutoMovieSolidMeshLoop {
     return distance(loop, u, v, E, F, G, period) >= margin;
   }
 
-  /** Full segment minimum; optional differences are the same subtractions prepared once. */
+  /**
+   * Full segment minimum; optional differences are the same subtractions
+   * prepared once.
+   */
   function distance(
     loop: Pick<IAutoMovieSolidMesh.ILoop, "chart">,
     u: number,
@@ -369,15 +382,16 @@ export namespace AutoMovieSolidMeshLoop {
   }
 
   /**
-   * The mean chart distance from a cycle's points to a loop, for matching a drawn-cell cycle to its loop.
+   * The mean chart distance from a cycle's points to a loop, for matching a
+   * drawn-cell cycle to its loop.
    *
    * @param loop The loop.
    * @param points The cycle's chart points.
    * @param period The face's phase period, or undefined.
-   * @returns The mean distance.
-   *   Coordinates use their raw chart units, so this ranking is not a
-   *   world-distance or topology certificate. No points gives NaN; no loop
-   *   segments gives infinite distance for each nonempty point query.
+   * @returns The mean distance. Coordinates use their raw chart units, so this
+   *   ranking is not a world-distance or topology certificate. No points gives
+   *   NaN; no loop segments gives infinite distance for each nonempty point
+   *   query.
    */
   export function nearest(
     loop: IAutoMovieSolidMesh.ILoop,
@@ -393,16 +407,16 @@ export namespace AutoMovieSolidMeshLoop {
   /**
    * The zipper's parameter of a closed vertex sequence: its cumulative length
    * between its points from its first, over its whole length, times a turn.
-   * Arclength holds for any simple cycle a clip leaves, where an angle about
-   * a centre turns back on a cycle that is not star-shaped.
+   * Arclength holds for any simple cycle a clip leaves, where an angle about a
+   * centre turns back on a cycle that is not star-shaped.
    *
    * @param mesh The mesh holding the vertices.
    * @param ids The sequence's vertices.
-   * @returns Each vertex's parameter, radians from 0.
-   *   The sequence must be nonempty with valid mesh indices. This is closed
-   *   polyline chord length, not smooth-surface arclength. A total that does
-   *   not compare above zero takes the all-zero branch; positive infinity
-   *   still enters normalization and is not validated here.
+   * @returns Each vertex's parameter, radians from 0. The sequence must be
+   *   nonempty with valid mesh indices. This is closed polyline chord length,
+   *   not smooth-surface arclength. A total that does not compare above zero
+   *   takes the all-zero branch; positive infinity still enters normalization
+   *   and is not validated here.
    */
   export function arc(
     mesh: IAutoMovieSolidMesh.IMesh,
@@ -431,11 +445,11 @@ export namespace AutoMovieSolidMeshLoop {
    * @param mesh The mesh holding the vertices.
    * @param loop The loop's vertices.
    * @param cycle The cycle's vertices.
-   * @returns The cycle, started and turned to run with the loop.
-   *   Both sequences must be nonempty with valid mesh indices. The quarter
-   *   observation is the first existing vertex at or beyond a quarter turn,
-   *   falling back to the first vertex if none reaches it; it is not an
-   *   interpolated quarter point or proof of boundary correspondence.
+   * @returns The cycle, started and turned to run with the loop. Both sequences
+   *   must be nonempty with valid mesh indices. The quarter observation is the
+   *   first existing vertex at or beyond a quarter turn, falling back to the
+   *   first vertex if none reaches it; it is not an interpolated quarter point
+   *   or proof of boundary correspondence.
    */
   export function aligned(
     mesh: IAutoMovieSolidMesh.IMesh,

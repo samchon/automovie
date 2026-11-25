@@ -10,7 +10,6 @@ import {
   IAutoMoviePlanarPoint,
   type IAutoMovieValidateBuiltEnvironment,
   IAutoMovieValidation,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
@@ -49,18 +48,21 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
  * Validate the graph, geometry references, and spatial topology of a building.
  *
  * Checks, in order: schema version 1 and metre units; owned models through
- * `validateModel` and runtime model references; logical spaces with their
- * cells or closed shells; the element and space hierarchies for dangling
- * parents and cycles; populations; ownership by exactly one building unit;
- * boundaries and their faces; openings, their voids inside the host face, their
- * operations, and void overlap on one boundary; connectors, their route shape,
- * landings and operations; and the support surfaces through `validateSpace`.
- * Only when none of that produced an error does it run the staged checks:
- * every closed panel fits its void, every carriage stands inside the stated-volume
- * space its state serves, and no operating state composes shear into the
- * element hierarchy.
+ * `validateModel` and runtime model references; logical spaces with their cells
+ * or closed shells; the element and space hierarchies for dangling parents and
+ * cycles; populations; ownership by exactly one building unit; boundaries and
+ * their faces; openings, their voids inside the host face, their operations,
+ * and void overlap on one boundary; connectors, their route shape, landings and
+ * operations; and the support surfaces through `validateSpace`. Only when none
+ * of that produced an error does it run the staged checks: every closed panel
+ * fits its void, every carriage stands inside the stated-volume space its state
+ * serves, and no operating state composes shear into the element hierarchy.
  *
- * Record defects are collected with `$input` paths, warnings included. Typed containers and executable traversal depth remain premises; this is not a universal non-throw guarantee for arbitrary runtime values or resource exhaustion. Guarded lowering and downstream consumers refuse a rejected record.
+ * Record defects are collected with `$input` paths, warnings included. Typed
+ * containers and executable traversal depth remain premises; this is not a
+ * universal non-throw guarantee for arbitrary runtime values or resource
+ * exhaustion. Guarded lowering and downstream consumers refuse a rejected
+ * record.
  *
  * @param props.environment Building record to validate.
  * @returns Success with any warnings, or every violation found.
@@ -74,7 +76,6 @@ export const validateBuiltEnvironment: (
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  collector.nonEmpty(`${root}.id`, environment.id, "building id");
   if (environment.version !== 1)
     collector.push(
       "type",
@@ -104,7 +105,6 @@ export const validateBuiltEnvironment: (
   const referencedModelIds: Set<string> = new Set();
   environment.modelReferences.forEach((id: string, index: number): void => {
     const path: string = `${root}.modelReferences[${index}]`;
-    collector.nonEmpty(path, id, "runtime model reference");
     if (modelIds.has(id))
       collector.push(
         "type",
@@ -191,7 +191,6 @@ export const validateBuiltEnvironment: (
   (environment.populations ?? []).forEach(
     (population: IAutoMovieBuiltPopulation, index: number): void => {
       const path: string = `${root}.populations[${index}]`;
-      collector.nonEmpty(`${path}.set.id`, population.set.id, "population id");
       if (populationIds.has(population.set.id))
         collector.push(
           "type",
@@ -276,14 +275,6 @@ export const validateBuiltEnvironment: (
           `connector route needs at least 2 points, but had ${connector.route.length}`,
           connector.route.length,
         );
-      connector.route.forEach(
-        (point: IAutoMovieVector3, pointIndex: number): void =>
-          collector.finiteVector(
-            `${path}.route[${pointIndex}]`,
-            point,
-            "connector route point",
-          ),
-      );
       validateBuiltConnectorShape(
         environment,
         connector,

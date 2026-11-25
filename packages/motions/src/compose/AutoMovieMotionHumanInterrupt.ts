@@ -4,15 +4,27 @@ import type {
   IAutoMovieMotionHumanInterruptRow,
 } from "@automovie/interface";
 
+/** The alternatives of `TableItem`'s site. */
+type TableItem = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `OutEntryItem`'s site. */
+type OutEntryItem = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `TableEntryItemResult`'s site. */
+type TableEntryItemResult = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `RowsEntryItem`'s site. */
+type RowsEntryItem = AutoMovieMotionHumanActionKey | "any";
+
 /**
  * Cancel rows by name: when an action may be cancelled, as a window of its
  * phrase, and how fast the next action blends in.
  *
  * A cancel table's row is a window, a kind, an entry share and a blend. Most
- * rows are one of four windows (any time, or from one of the phrase's
- * instants to the end) and one of three blends, entered at the next action's
- * start by inertialization. This owner names both, so a table reads as
- * `guard: ["fromStroke", "smooth"]`.
+ * rows are one of four windows (any time, or from one of the phrase's instants
+ * to the end) and one of three blends, entered at the next action's start by
+ * inertialization. This owner names both, so a table reads as `guard:
+ * ["fromStroke", "smooth"]`.
  */
 export namespace AutoMovieMotionHumanInterrupt {
   /** The windows of {@link IAutoMovieMotionHumanInterrupt.Window}, as data. */
@@ -35,10 +47,10 @@ export namespace AutoMovieMotionHumanInterrupt {
    * The seconds of each blend (the values the reaction and everyday laws
    * shipped with; provisional, no measured blend time of a human transition
    * located): `reflex` 0.08, a blow that overrides what the body was doing;
-   * `quick` 0.1, a defence; `smooth` 0.15, a voluntary change of one
-   * gesture; `deliberate` 0.3, a change of the whole body's action (sitting
-   * down, standing up, setting off, putting a task down), which every
-   * everyday and locomotion cancel row reads here.
+   * `quick` 0.1, a defence; `smooth` 0.15, a voluntary change of one gesture;
+   * `deliberate` 0.3, a change of the whole body's action (sitting down,
+   * standing up, setting off, putting a task down), which every everyday and
+   * locomotion cancel row reads here.
    */
   export const BLENDS: Readonly<
     Record<IAutoMovieMotionHumanInterrupt.Blend, number>
@@ -89,7 +101,7 @@ export namespace AutoMovieMotionHumanInterrupt {
   export function table(
     rows: Partial<
       Record<
-        AutoMovieMotionHumanActionKey | "any",
+        RowsEntryItem,
         readonly [
           IAutoMovieMotionHumanInterrupt.Window,
           IAutoMovieMotionHumanInterrupt.Blend,
@@ -97,19 +109,13 @@ export namespace AutoMovieMotionHumanInterrupt {
       >
     >,
   ): Partial<
-    Record<
-      AutoMovieMotionHumanActionKey | "any",
-      IAutoMovieMotionHumanInterruptRow[]
-    >
+    Record<TableEntryItemResult, IAutoMovieMotionHumanInterruptRow[]>
   > {
     const out: Partial<
-      Record<
-        AutoMovieMotionHumanActionKey | "any",
-        IAutoMovieMotionHumanInterruptRow[]
-      >
+      Record<OutEntryItem, IAutoMovieMotionHumanInterruptRow[]>
     > = {};
     for (const [name, spec] of Object.entries(rows) as [
-      AutoMovieMotionHumanActionKey | "any",
+      TableItem,
       readonly [
         IAutoMovieMotionHumanInterrupt.Window,
         IAutoMovieMotionHumanInterrupt.Blend,

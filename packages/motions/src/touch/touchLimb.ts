@@ -13,11 +13,16 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 
+/** The record of `IPersonTarget`'s site. */
+type IPersonTarget = { kind: "person" };
+
 /** A target on a person: another performer's region. */
-type PersonTarget = Extract<IAutoMovieMotionTarget, { kind: "person" }>;
+type PersonTarget = Extract<IAutoMovieMotionTarget, IPersonTarget>;
+/** The record of `ISelfTarget`'s site. */
+type ISelfTarget = { kind: "self" };
 
 /** A target on the performer's own body. */
-type SelfTarget = Extract<IAutoMovieMotionTarget, { kind: "self" }>;
+type SelfTarget = Extract<IAutoMovieMotionTarget, ISelfTarget>;
 
 /** A target a touch lays its hand on: the performer's own region or another's. */
 type BodyTarget = SelfTarget | PersonTarget;
@@ -27,19 +32,14 @@ type Shape = IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];
 
 /**
  * What a touch reads of the body it lays its hand on: the long axis of a
- * partner's touched limb, along which a flat hand lies (`limb`), and the
- * other parts of that body the hand must not sink into.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two readings and their frames.
- * @evidence contracts/development/design.md#principled-representation The limb's axis is its own capsule collider's, read where the touch starts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `touchHold.lay`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The axis and the parts are the body's own colliders, never a typed direction.
+ * partner's touched limb, along which a flat hand lies (`limb`), and the other
+ * parts of that body the hand must not sink into.
  */
 export namespace touchLimb {
   /**
-   * The long axis of a partner's touched segment where the touch starts:
-   * its capsule collider's, which runs along the segment's local `+Y`. A
-   * segment with no capsule (a box of the trunk) has none.
+   * The long axis of a partner's touched segment where the touch starts: its
+   * capsule collider's, which runs along the segment's local `+Y`. A segment
+   * with no capsule (a box of the trunk) has none.
    */
   export function axis(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -71,9 +71,8 @@ export namespace touchLimb {
 
   /**
    * The parts of the touched body a laid hand must not sink into: on the
-   * performer's own body every part but the touched one and the touching
-   * arm; on a partner every part but the touched one, where the touch
-   * starts.
+   * performer's own body every part but the touched one and the touching arm;
+   * on a partner every part but the touched one, where the touch starts.
    */
   export function others(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,

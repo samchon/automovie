@@ -6,9 +6,7 @@ import type {
   IAutoMovieRecoveryMapJointPreparation,
 } from "@automovie/interface";
 
-/**
- * Prepare original point qualification and one current scaled block design.
- */
+/** Prepare original point qualification and one current scaled block design. */
 export function prepareRecoveryMapJointBlocks(
   blocks: readonly IAutoMovieRecoveryMapJointBlock[],
   minimumRatio: number,
@@ -33,8 +31,6 @@ export function prepareRecoveryMapJointBlocks(
   if (
     blocks.length < 1 ||
     cameraWidth < 1 ||
-    !Number.isSafeInteger(maximumLocalEntries) ||
-    !Number.isSafeInteger(maximumReducedEntries) ||
     maximumLocalEntries > budget.maxLinearEntries ||
     maximumReducedEntries > budget.maxLinearEntries
   )
@@ -48,8 +44,7 @@ export function prepareRecoveryMapJointBlocks(
       block.right.length < 4 ||
       block.right.length % 2 !== 0 ||
       block.pointRows.length !== block.right.length ||
-      block.cameraRows.length !== block.right.length ||
-      !block.right.every(Number.isFinite)
+      block.cameraRows.length !== block.right.length
     )
       throw new Error(
         "camera-map: at least two complete observations per landmark required",
@@ -58,10 +53,7 @@ export function prepareRecoveryMapJointBlocks(
     for (let row: number = 0; row < block.right.length; row++) {
       if (
         block.pointRows[row]!.length !== 3 ||
-        block.cameraRows[row]!.length !== cameraWidth ||
-        ![...block.pointRows[row]!, ...block.cameraRows[row]!].every(
-          Number.isFinite,
-        )
+        block.cameraRows[row]!.length !== cameraWidth
       )
         throw new Error(
           "camera-map: finite point/camera Jacobian blocks required",
@@ -77,11 +69,7 @@ export function prepareRecoveryMapJointBlocks(
           block.cameraRows[row]![column]!,
         );
     }
-    if (
-      scales.some(
-        (value: number): boolean => !(value > 0) || !Number.isFinite(value),
-      )
-    )
+    if (scales.some((value: number): boolean => !(value > 0)))
       throw new Error("camera-map: unresolved landmark direction");
     const pointRows: number[][] = block.pointRows.map(
       (row: number[]): number[] =>
@@ -113,11 +101,7 @@ export function prepareRecoveryMapJointBlocks(
     }
     pointScales.push(scales);
   }
-  if (
-    cameraScales.some(
-      (value: number): boolean => !(value > 0) || !Number.isFinite(value),
-    )
-  )
+  if (cameraScales.some((value: number): boolean => !(value > 0)))
     throw new Error("camera-map: unresolved joint camera direction");
   if (measureGradient) {
     for (let column: number = 0; column < cameraWidth; column++) {
@@ -133,7 +117,7 @@ export function prepareRecoveryMapJointBlocks(
   const eliminate: (amount: number) => IAutoMovieRecoveryMapElimination = (
     amount: number,
   ): IAutoMovieRecoveryMapElimination => {
-    if (!(amount >= 0) || !Number.isFinite(amount))
+    if (!(amount >= 0))
       throw new Error(
         "camera-map: admitted finite elimination damping required",
       );

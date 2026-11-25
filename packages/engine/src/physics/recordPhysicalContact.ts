@@ -6,9 +6,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 
-/**
- * Merge core and compliant-surface impulses into one shape-pair episode.
- */
+/** Merge core and compliant-surface impulses into one shape-pair episode. */
 export function recordPhysicalContact(
   input: IAutoMovieRecordPhysicalContact.IInput,
 ): IAutoMovieContactReceipt {

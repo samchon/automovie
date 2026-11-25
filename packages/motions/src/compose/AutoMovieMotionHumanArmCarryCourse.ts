@@ -20,16 +20,16 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
 
 /**
- * Prepare or evaluate the correction of a joint-space arm carry. The live
- * carry takes the current solved arm and planning pose. A fixed course owns
- * endpoint triples, the arrival clearance geometry and its correction knots.
+ * Prepare or evaluate the correction of a joint-space arm carry. The live carry
+ * takes the current solved arm and planning pose. A fixed course owns endpoint
+ * triples, the arrival clearance geometry and its correction knots.
  */
 export namespace AutoMovieMotionHumanArmCarryCourse {
   /**
    * Prepare a carry whose selected arms are set directly to the same arrival
-   * triples on every source posture and have no limb goals at any share.
-   * The law supplies an invariant arrival posture and still owns the actual
-   * posture at each second, including its changing fingers.
+   * triples on every source posture and have no limb goals at any share. The
+   * law supplies an invariant arrival posture and still owns the actual posture
+   * at each second, including its changing fingers.
    */
   export function fixed(
     body: IAutoMovieMotionHumanBody,
@@ -80,9 +80,9 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
   }
 
   /**
-   * Build the arm courses from the exact goals and plan pose. With fixed
-   * input the plans are compiled before return. Otherwise the readers are
-   * scoped to one current carry evaluation.
+   * Build the arm courses from the exact goals and plan pose. With fixed input
+   * the plans are compiled before return. Otherwise the readers are scoped to
+   * one current carry evaluation.
    */
   export function arms(
     body: IAutoMovieMotionHumanBody,
@@ -254,9 +254,9 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
 type Fingers = IAutoMovieMotionHumanArmAngles.IAngles["fingers"];
 
 /**
- * A pose with one hand's fingers at a share of their way from the held
- * shape to the arrival's, each angle blended by the share as the carry
- * shapes them; the pose unchanged where either shape is not known.
+ * A pose with one hand's fingers at a share of their way from the held shape to
+ * the arrival's, each angle blended by the share as the carry shapes them; the
+ * pose unchanged where either shape is not known.
  */
 function fingersAt(
   pose: IAutoMoviePose,

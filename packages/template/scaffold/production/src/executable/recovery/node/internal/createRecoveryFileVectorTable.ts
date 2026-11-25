@@ -2,26 +2,21 @@ import type { RecoveryFileVectorTable } from "./RecoveryFileVectorTable";
 import type { RecoveryFileVectorTableInput } from "./RecoveryFileVectorTableInput";
 
 /**
- * Keep a private binary64 vector table behind at most three reusable pages.
- * The caller owns its exclusive file and descriptor. Reads return copied triples;
+ * Keep a private binary64 vector table behind at most three reusable pages. The
+ * caller owns its exclusive file and descriptor. Reads return copied triples;
  * writes retain their logical order while private disk flushes may be delayed.
  * Final bytes are meaningful only after finish and successful descriptor close.
  * Failed operations latch their original thrown value and cannot be reused.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Complete three-double rows use the original little-endian binary64 encoding. Logical row admission and full-progress transfers distinguish real values from page padding or truncated input.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A bounded LRU owns storage while the contour sink keeps numerical order and descriptor/publication ownership. Append, read, update and finish have distinct lifetime states.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arithmetic reduction, scalar conversion, new geometry, fabricated row or global cache replaces original logical values. A failed flush cannot recycle its buffer or become a later success.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete three-double rows use little-endian binary64. The contour sink supplies integer row addresses from kernel emission and progress from native fs calls. The table checks address range, vector length and progress bounds. It leaves integer address and count checks and finite scalar admission to callers. A detected transfer failure prevents a later successful flush.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The contour sink owns descriptor and publication lifetime. Each table holds at most three LRU pages of 2730 vectors and 65520 bytes each, derived from the 8192-scalar publication quantum. Reads change LRU order and can flush a dirty victim before reading one valid prefix on a miss. A hit uses that page's current values. Each row encodes or decodes three scalars. The sink closes the descriptors and releases both tables after completion or failure.
  * @evidence contracts/development/common.md#meaningful-documentation States exclusive backing, delayed physical writes, copied triples, terminal failures, idempotent finish and caller close obligations.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each row operation performs constant bounded registry work and three scalar encodings/decodings. A miss transfers at most one complete valid page for reading and one dirty victim for writing; nonlocal workloads can retain worst-case page traffic.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work At most three recent pages reuse their same buffers and headers; repeated logical accesses observe current dirty values without another file transfer. No state escapes into another table or operation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing 8192-scalar publication quantum yields 2730 vectors and 65520 bytes per page. At most three buffers plus three headers/registry entries and one copied triple are retained; eviction flushes before buffer reuse, and the sink releases the owner after finish/failure and independent descriptor close.
  */
 export function createRecoveryFileVectorTable(
   input: RecoveryFileVectorTableInput,
 ): RecoveryFileVectorTable {
   if (
     !input ||
-    !Number.isSafeInteger(input.maxRows) ||
     input.maxRows < 1 ||
     input.maxRows > Math.floor(Number.MAX_SAFE_INTEGER / 24) ||
     typeof input.read !== "function" ||
@@ -72,7 +67,7 @@ export function createRecoveryFileVectorTable(
       const count: number = writing
         ? input.write(page.buffer, done, length - done, page.base * 24 + done)
         : input.read(page.buffer, done, length - done, page.base * 24 + done);
-      if (!Number.isSafeInteger(count) || count <= 0 || count > length - done)
+      if (count <= 0 || count > length - done)
         throw new Error("Vector table transfer made invalid or zero progress");
       done += count;
     }
@@ -115,8 +110,6 @@ export function createRecoveryFileVectorTable(
     if (!Array.isArray(value) || value.length !== 3)
       throw new Error("A complete three-scalar vector is required");
     const copy: [number, number, number] = [value[0]!, value[1]!, value[2]!];
-    if (!copy.every(Number.isFinite))
-      throw new Error("Generated contour table value is not finite");
     return copy;
   };
   const store: (index: number, value: readonly number[]) => void = (
@@ -132,7 +125,7 @@ export function createRecoveryFileVectorTable(
     page.dirty = true;
   };
   const existing: (index: number) => void = (index: number): void => {
-    if (!Number.isSafeInteger(index) || index < 0 || index >= rows)
+    if (index < 0 || index >= rows)
       throw new Error("Vector table address is outside its logical rows");
   };
   return {

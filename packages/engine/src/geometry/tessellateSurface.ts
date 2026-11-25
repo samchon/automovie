@@ -10,7 +10,10 @@ import { footprintConvexPieces } from "../space/footprintConvexPieces";
 import { surfaceFootprint } from "../space/surfaceFootprint";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 
-/** Plan distance, in metres, within which a point counts as on a clip edge or a lattice cut as on the footprint's edge. */
+/**
+ * Plan distance, in metres, within which a point counts as on a clip edge or a
+ * lattice cut as on the footprint's edge.
+ */
 const CLIP_EPSILON: number = 1e-10;
 
 /**
@@ -84,7 +87,10 @@ export const tessellateSurface: (
   return tessellatePolygons(surface, cells);
 };
 
-/** Ascending cut coordinates: the span's two ends and every lattice line strictly inside it. */
+/**
+ * Ascending cut coordinates: the span's two ends and every lattice line
+ * strictly inside it.
+ */
 const latticeCuts: (
   min: number,
   max: number,
@@ -109,7 +115,10 @@ const latticeCuts: (
   );
 };
 
-/** Sutherland-Hodgman clip of a plan polygon against a counter-clockwise convex polygon. */
+/**
+ * Sutherland-Hodgman clip of a plan polygon against a counter-clockwise convex
+ * polygon.
+ */
 const clipConvexPolygon: (
   subject: IAutoMovieVector3[],
   clip: IAutoMovieVector3[],
@@ -147,7 +156,10 @@ const clipConvexPolygon: (
   return output;
 };
 
-/** Plan cross product of the edge and the point: positive on the edge's inner side. */
+/**
+ * Plan cross product of the edge and the point: positive on the edge's inner
+ * side.
+ */
 const edgeDistance: (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
@@ -159,7 +171,10 @@ const edgeDistance: (
 ): number =>
   (to.x - from.x) * (point.z - from.z) - (to.z - from.z) * (point.x - from.x);
 
-/** Fan each convex plan polygon, lifting every shared plan vertex once by the surface's height rule. */
+/**
+ * Fan each convex plan polygon, lifting every shared plan vertex once by the
+ * surface's height rule.
+ */
 const tessellatePolygons: (
   surface: IAutoMovieSurface,
   polygons: IAutoMovieVector3[][],
@@ -193,7 +208,10 @@ const tessellatePolygons: (
   return { positions, normals: vertexNormals(positions, indices), indices };
 };
 
-/** Normalized sum of the area-weighted normals of the triangles around each vertex. */
+/**
+ * Normalized sum of the area-weighted normals of the triangles around each
+ * vertex.
+ */
 const vertexNormals: (positions: number[], indices: number[]) => number[] = (
   positions: number[],
   indices: number[],

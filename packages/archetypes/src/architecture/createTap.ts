@@ -19,24 +19,21 @@ const UNREAD: string = "the listings read do not give it";
 /**
  * A single-lever mixer tap of a sink or a basin.
  *
- * It stands on the counter at the origin, its body rising along `+Y` and its spout reaching out along `+Z` over the basin, toward whoever uses it. `lever` is the lever's hub on the body's top, a knob turned about its upright axis, `+Y` up toward the hand that comes from above; `spout` the spout's mouth, facing down, where the water comes out and a hand or a glass is held under.
+ * It stands on the counter at the origin, its body rising along `+Y` and its
+ * spout reaching out along `+Z` over the basin, toward whoever uses it. `lever`
+ * is the lever's hub on the body's top, a knob turned about its upright axis,
+ * `+Y` up toward the hand that comes from above; `spout` the spout's mouth,
+ * facing down, where the water comes out and a hand or a glass is held under.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The tap.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the tap stands, which way the spout reaches and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A body rod of the drawn height and diameter, a spout rod at the drawn outlet's height out to the drawn reach, and a lever box on its top that turns with the `lever` knob.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the body, the spout, the lever, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lever turns but does not tilt, so the flow is not modelled; the spout's and lever's sizes and the lever's turn are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTap(
   params: createTap.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTap.Affordance, createTap.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTap.Dimension> =
     new AutoMovieArchetypeDrawSession<createTap.Dimension>(
@@ -95,14 +92,7 @@ export function createTap(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createTap}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension a maker varies.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lever a hand turns and the spout a hand is held under.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The height, the outlet's height and the projection are the maker's as read; the body's diameter and the weight are given by none, so they are provisional; the spout's diameter and the lever's turn are named estimates.
- */
+/** Companion types, constants and bands of {@link createTap}. */
 export namespace createTap {
   /** The spout's diameter, metres: an estimate. */
   export const SPOUT: number = 0.02;

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidIntersection.ts#IAutoMovieSolidIntersection
-
-## @evidence contracts/development/design.md#principled-representation
-
-World millimetre values accompany both chart preimages and their derivatives under a phase, angle or approximate arc-guide parameter.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-IntersectionTrace, Walk and TraceSolve share these records; joins consume the same corrected curve.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A finite sampled closed loop does not establish all-parameter regularity, unique branch selection or exact arclength.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names world/chart units, parameter modes and the limits of sampled admission.
-
 # src/construction/IAutoMovieSolidIntersection.ts#IAutoMovieSolidIntersection.IPoint
 
 ## @evidence contracts/development/design.md#principled-representation

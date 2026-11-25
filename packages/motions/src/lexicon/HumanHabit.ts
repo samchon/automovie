@@ -10,19 +10,23 @@ import { HumanActionRow } from "../law/HumanActionRow";
 import { touch } from "../touch/touch";
 
 /**
- * Habits: the small things people do with their hands, each a row of a
- * shipped action. Register the ones a film uses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
+ * Habits: the small things people do with their hands, each a row of a shipped
+ * action. Register the ones a film uses.
  */
 export namespace HumanHabit {
-  /** A draw on a cigarette: held at the lips for a puff's length, drawn by the seed between 1.6 and 2.1 s (#3346: mean puff durations of the Pennsylvania Adult Smoking Study and NCT04844762; a cigarette's dozen puffs, their intervals of 25 to 28 s and the decline of the puff over the cigarette are the composition's), the head level, between fingers that point up and back at the mouth with the palm toward the chin; its end stands 0.15 of a hand off the fingertips' pads (provisional). With `prop`, the held cigarette's `mouth` end meets the lips. */
+  /**
+   * A draw on a cigarette: held at the lips for a puff's length, drawn by the
+   * seed between 1.6 and 2.1 s (mean puff durations of the Pennsylvania Adult
+   * Smoking Study and NCT04844762; a cigarette's dozen puffs, their intervals
+   * of 25 to 28 s and the decline of the puff over the cigarette are the
+   * composition's), the head level, between fingers that point up and back at
+   * the mouth with the palm toward the chin; its end stands 0.15 of a hand off
+   * the fingertips' pads (provisional). With `prop`, the held cigarette's
+   * `mouth` end meets the lips.
+   */
   export const smoke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["smoke"]
-  > = HumanActionRow.of("smoke", handToFace, {
+  > = HumanActionRow("smoke", handToFace, {
     kind: {
       region: "mouth",
       effector: {
@@ -43,27 +47,34 @@ export namespace HumanHabit {
     hold: { between: [1.6, 2.1] },
   });
 
-  /** The walk under a screen read while walking (`handToFace({ task: "read" })` over it): the normal walk slowed by a third (a manner pace of 2/3), the reduction Lamberg and Muratori 2012 report for texting walkers, inside the 20 to 40 per cent band #3338 states (provisional until the paper's table is read). The composition gives where to; a person walking while reading or texting. */
+  /**
+   * The walk under a screen read while walking (`handToFace({ kind: "read" })`
+   * over it): the normal walk slowed by a third (a manner pace of 2/3), the
+   * reduction Lamberg and Muratori 2012 report for texting walkers, inside the
+   * 20 to 40 per cent band the research states (provisional until the paper's
+   * table is read). The composition gives where to; a person walking while
+   * reading or texting.
+   */
   export const readingWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["readingWalk"]
-  > = HumanActionRow.of("readingWalk", walk, {
+  > = HumanActionRow("readingWalk", walk, {
     manner: { pace: 2 / 3 },
   });
 
   /**
    * A photograph through a camera's viewfinder, with the camera in hand: the
    * right hand took it up by its `grip` for this use (`pickUp` with `use: {
-   * tip: "screen", line: "across", at: { region: "noseBridge" } }`), brings
-   * its back to the bridge of the nose as that grasp presents it, and the
-   * left hand takes its `support` end, the device archetype's compact camera
+   * tip: "screen", line: "across", at: { region: "noseBridge" } }`), brings its
+   * back to the bridge of the nose as that grasp presents it, and the left hand
+   * takes its `support` end, the device archetype's compact camera
    * (`createDevice({ kind: "camera" })`) declaring all three. Without the
    * camera in hand the row is refused: no hand holds the attitude an implied
-   * camera would ask at the eye. The camera's own points replace the
-   * task's implied effector.
+   * camera would ask at the eye. The camera's own points replace the task's
+   * implied effector.
    */
   export const photograph: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["photograph"]
-  > = HumanActionRow.of("photograph", handToFace, {
+  > = HumanActionRow("photograph", handToFace, {
     point: "screen",
     grasp: { handle: "grip", line: "across" },
     other: "support",
@@ -86,17 +97,26 @@ export namespace HumanHabit {
     },
   });
 
-  /** A look at a held screen, as a phone read at the reading distance. It holds the screen at the reading distance for the `read` task's 3 s (`handToFaceRows.ROWS`, provisional); glancing at a message. */
+  /**
+   * A look at a held screen, as a phone read at the reading distance. It holds
+   * the screen at the reading distance for the `read` task's 3 s
+   * (`handToFaceRows.ROWS`, provisional); glancing at a message.
+   */
   export const checkPhone: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["checkPhone"]
-  > = HumanActionRow.of("checkPhone", handToFace, {
+  > = HumanActionRow("checkPhone", handToFace, {
     kind: "read",
   });
 
-  /** A look at a wristwatch: the left wrist raised before the eyes at the reading distance (`handToFaceSheet.READING`), its back turned to them and the forearm across the body, the head bowed 20 degrees to it (provisional), held a second and a half (provisional). */
+  /**
+   * A look at a wristwatch: the left wrist raised before the eyes at the
+   * reading distance (`handToFaceSheet.READING`), its back turned to them and
+   * the forearm across the body, the head bowed 20 degrees to it (provisional),
+   * held a second and a half (provisional).
+   */
   export const checkWatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["checkWatch"]
-  > = HumanActionRow.of("checkWatch", handToFace, {
+  > = HumanActionRow("checkWatch", handToFace, {
     kind: {
       region: null,
       effector: {
@@ -115,10 +135,14 @@ export namespace HumanHabit {
     hand: "left",
   });
 
-  /** Lipstick or balm drawn across the lips. Two strokes of 0.5 s and 0.2 s on the lips, about 1.2 s after the reach (`AutoMovieMotionHumanTouchForm.FORMS`, provisional); grooming. */
+  /**
+   * Lipstick or balm drawn across the lips. Two strokes of 0.5 s and 0.2 s on
+   * the lips, about 1.2 s after the reach
+   * (`AutoMovieMotionHumanTouchForm.FORMS`, provisional); grooming.
+   */
   export const applyLipstick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["applyLipstick"]
-  > = HumanActionRow.of("applyLipstick", handToFace, {
+  > = HumanActionRow("applyLipstick", handToFace, {
     kind: {
       region: "mouth",
       effector: {
@@ -137,10 +161,16 @@ export namespace HumanHabit {
     },
   });
 
-  /** A shave: the head of a held razor rubbed up the right jaw three times (`touch` with the held prop's working point). The composition names the razor (`prop`) taken up for its use, and its working point (`point`), the head; without a razor the palm's rub is mimed. Three strokes of 0.5 s and 0.2 s, about 1.7 s after the reach (provisional); grooming. */
+  /**
+   * A shave: the head of a held razor rubbed up the right jaw three times
+   * (`touch` with the held prop's working point). The composition names the
+   * razor (`prop`) taken up for its use, and its working point (`point`), the
+   * head; without a razor the palm's rub is mimed. Three strokes of 0.5 s and
+   * 0.2 s, about 1.7 s after the reach (provisional); grooming.
+   */
   export const shave: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["shave"]
-  > = HumanActionRow.of("shave", touch, {
+  > = HumanActionRow("shave", touch, {
     target: { kind: "self", region: "jawRight" },
     kind: "rub",
     count: 3,
@@ -148,10 +178,13 @@ export namespace HumanHabit {
     tangent: "up",
   });
 
-  /** A rub of tired eyes with the fingertips. Two rubs of 0.5 s and 0.2 s, about 1.2 s after the reach (provisional); tiredness. */
+  /**
+   * A rub of tired eyes with the fingertips. Two rubs of 0.5 s and 0.2 s, about
+   * 1.2 s after the reach (provisional); tiredness.
+   */
   export const rubEyes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["rubEyes"]
-  > = HumanActionRow.of("rubEyes", handToFace, {
+  > = HumanActionRow("rubEyes", handToFace, {
     kind: {
       region: "noseBridge",
       effector: { surface: "indexTip", shape: "flat" },
@@ -164,19 +197,26 @@ export namespace HumanHabit {
     },
   });
 
-  /** A scratch of the nape. Three scratches of 0.2 s, then 0.4 s (`touch`'s defaults), 1.0 s after the reach (provisional); idle, itch, unease. */
+  /**
+   * A scratch of the nape. Three scratches of 0.2 s, then 0.4 s (`touch`'s
+   * defaults), 1.0 s after the reach (provisional); idle, itch, unease.
+   */
   export const scratchNape: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["scratchNape"]
-  > = HumanActionRow.of("scratchNape", touch, {
+  > = HumanActionRow("scratchNape", touch, {
     target: { kind: "self", region: "nape" },
     effector: "fingertips",
     kind: "scratch",
   });
 
-  /** Blowing the nose: the hand, as with a tissue, held over the nose with the head bowed a little (first pass; hold and bow provisional). Held 1 s (provisional). */
+  /**
+   * Blowing the nose: the hand, as with a tissue, held over the nose with the
+   * head bowed a little (first pass; hold and bow provisional). Held 1 s
+   * (provisional).
+   */
   export const blowNose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["blowNose"]
-  > = HumanActionRow.of("blowNose", handToFace, {
+  > = HumanActionRow("blowNose", handToFace, {
     kind: {
       region: "nose",
       effector: { surface: "palm", shape: "flat" },
@@ -189,26 +229,37 @@ export namespace HumanHabit {
     },
   });
 
-  /** Cream rubbed on the face with both palms, twice up the cheeks. Two rubs of 0.5 s then 0.4 s, 1.4 s after the reach (provisional); grooming. */
+  /**
+   * Cream rubbed on the face with both palms, twice up the cheeks. Two rubs of
+   * 0.5 s then 0.4 s, 1.4 s after the reach (provisional); grooming.
+   */
   export const applyCream: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["applyCream"]
-  > = HumanActionRow.of("applyCream", handToFace, {
+  > = HumanActionRow("applyCream", handToFace, {
     kind: "washFace",
     count: 2,
   });
 
-  /** Fanning oneself with a hand: six beats beside the face (first pass on the wave's stroke, provisional). Six beats of 0.4 s, 2.4 s (`AutoMovieMotionHumanTiming.PAUSES`); heat, impatience. */
+  /**
+   * Fanning oneself with a hand: six beats beside the face (first pass on the
+   * wave's stroke, provisional). Six beats of 0.4 s, 2.4 s
+   * (`AutoMovieMotionHumanTiming.PAUSES`); heat, impatience.
+   */
   export const fanSelf: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["fanSelf"]
-  > = HumanActionRow.of("fanSelf", gesture, {
+  > = HumanActionRow("fanSelf", gesture, {
     kind: "wave",
     count: 6,
   });
 
-  /** Smelling a held thing: brought under the nose and held, the head bowed to it (first pass; values provisional). Held 0.6 s (provisional); checking food, a flower, a smell. */
+  /**
+   * Smelling a held thing: brought under the nose and held, the head bowed to
+   * it (first pass; values provisional). Held 0.6 s (provisional); checking
+   * food, a flower, a smell.
+   */
   export const sniff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["sniff"]
-  > = HumanActionRow.of("sniff", handToFace, {
+  > = HumanActionRow("sniff", handToFace, {
     kind: {
       region: "nose",
       effector: {
@@ -227,20 +278,28 @@ export namespace HumanHabit {
     },
   });
 
-  /** Flicking the hair back: the back of the hand stroked up the temple. One stroke lasting a flick's 0.151 s, a proxy from a flick gesture's duration (`touch.FLICK`, Moyle and Cockburn 2003). */
+  /**
+   * Flicking the hair back: the back of the hand stroked up the temple. One
+   * stroke lasting a flick's 0.151 s, a proxy from a flick gesture's duration
+   * (`touch.FLICK`, Moyle and Cockburn 2003).
+   */
   export const flickHair: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["flickHair"]
-  > = HumanActionRow.of("flickHair", touch.stroked(touch.FLICK), {
+  > = HumanActionRow("flickHair", touch.stroked(touch.FLICK), {
     target: { kind: "self", region: "templeRight" },
     effector: "handBack",
     kind: "stroke",
     hand: "right",
   });
 
-  /** A selfie: a phone held out before the eyes at the reading distance, the elbow-bent convention of about 30 cm (#3346), the head level, held a second and a half (provisional). */
+  /**
+   * A selfie: a phone held out before the eyes at the reading distance, the
+   * elbow-bent convention of about 30 cm, the head level, held a second and a
+   * half (provisional).
+   */
   export const selfie: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["selfie"]
-  > = HumanActionRow.of("selfie", handToFace, {
+  > = HumanActionRow("selfie", handToFace, {
     kind: {
       region: null,
       effector: {
@@ -259,10 +318,14 @@ export namespace HumanHabit {
     },
   });
 
-  /** Lighting a cigarette: a flame brought to the cigarette's end before the lips, the head bowed to it (first pass with one hand; the second, cupping hand is not placed). The flame held 0.8 s (provisional). */
+  /**
+   * Lighting a cigarette: a flame brought to the cigarette's end before the
+   * lips, the head bowed to it (first pass with one hand; the second, cupping
+   * hand is not placed). The flame held 0.8 s (provisional).
+   */
   export const lightCigarette: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["lightCigarette"]
-  > = HumanActionRow.of("lightCigarette", handToFace, {
+  > = HumanActionRow("lightCigarette", handToFace, {
     kind: {
       region: "mouth",
       effector: {
@@ -281,19 +344,29 @@ export namespace HumanHabit {
     },
   });
 
-  /** Tapping the ash off a held cigarette: its lit end tapped twice on the place the composition gives, such as an ashtray's surface (`target`); the composition names the cigarette (`prop`). Two taps of 0.3 s, then 0.4 s, 1.0 s after the reach (provisional). */
+  /**
+   * Tapping the ash off a held cigarette: its lit end tapped twice on the place
+   * the composition gives, such as an ashtray's surface (`target`); the
+   * composition names the cigarette (`prop`). Two taps of 0.3 s, then 0.4 s,
+   * 1.0 s after the reach (provisional).
+   */
   export const ashTap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["ashTap"]
-  > = HumanActionRow.of("ashTap", touch, {
+  > = HumanActionRow("ashTap", touch, {
     kind: "tap",
     count: 2,
     point: "flame",
   });
 
-  /** Stubbing a held cigarette out: its lit end pressed on the place the composition gives and held there (the twist of the stub is not moved yet); the composition names the cigarette (`prop`). Pressed and held 1.2 s (`touch`'s default for a press, provisional). */
+  /**
+   * Stubbing a held cigarette out: its lit end pressed on the place the
+   * composition gives and held there (the twist of the stub is not moved yet);
+   * the composition names the cigarette (`prop`). Pressed and held 1.2 s
+   * (`touch`'s default for a press, provisional).
+   */
   export const stubOut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["stubOut"]
-  > = HumanActionRow.of("stubOut", touch, {
+  > = HumanActionRow("stubOut", touch, {
     kind: "press",
     count: 1,
     point: "flame",

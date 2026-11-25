@@ -15,7 +15,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The digits as the regions spell them, with the rig bone of the phalanx before the distal one. */
+/**
+ * The digits as the regions spell them, with the rig bone of the phalanx before
+ * the distal one.
+ */
 const DIGITS: readonly { name: string; bone: string; before: string }[] = [
   { name: "thumb", bone: "Thumb", before: "Proximal" },
   { name: "index", bone: "Index", before: "Intermediate" },
@@ -58,15 +61,15 @@ const shaped = (
  *
  * Scenarios, on every body of `EXTREMES`:
  *
- * 1. Each tip lies beyond the end of its distal phalanx's joint along the
- *    phalanx, farther out than its pad, and each pad faces the palm's side
- *    (its normal's dot with the palm's normal positive), in the flat hand.
- * 2. In the flat hand the tips of the forefinger to the little finger lie in
- *    order across the hand (toward the little finger's side, -Z of the right
- *    hand at rest); in the fist every finger's pad faces into its curl: its
- *    normal points toward the centre of the circle its three joints lie on
- *    (a finger flexes in one plane, its phalanges chords of that circle,
- *    their palmar sides toward its centre).
+ * 1. Each tip lies beyond the end of its distal phalanx's joint along the phalanx,
+ *    farther out than its pad, and each pad faces the palm's side (its normal's
+ *    dot with the palm's normal positive), in the flat hand.
+ * 2. In the flat hand the tips of the forefinger to the little finger lie in order
+ *    across the hand (toward the little finger's side, -Z of the right hand at
+ *    rest); in the fist every finger's pad faces into its curl: its normal
+ *    points toward the centre of the circle its three joints lie on (a finger
+ *    flexes in one plane, its phalanges chords of that circle, their palmar
+ *    sides toward its centre).
  * 3. Both sides are mirror images: each left tip is its right twin with the
  *    lateral coordinate negated.
  *

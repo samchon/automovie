@@ -22,9 +22,9 @@ import { serviceSystemReach } from "./serviceSystemReach";
  * flattened, so a riser does not silently become a point of zero pipe. Demand
  * is the system's own declared load, read in the direction the system flows by
  * {@link serviceSystemLoad}, so a drainage stack reports what it carries rather
- * than the zero a supply-shaped reading would give it.
- * This report has no current product caller. An unknown system throws and a
- * missing endpoint owner remains the authored port id; validation is separate.
+ * than the zero a supply-shaped reading would give it. This report has no
+ * current product caller. An unknown system throws and a missing endpoint owner
+ * remains the authored port id; validation is separate.
  */
 export const serviceNetworkSchematic: (
   props: IAutoMovieServiceNetworkSchematic.IProps,

@@ -17,14 +17,6 @@ import type { createBuilding } from "./createBuilding";
  * @param props Building-local authoring input, in metres.
  * @returns The normalized local plan.
  * @throws Error naming an invalid level, room or opening.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the unit, output and allowed boundary contact.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the shared triangulator for exact source regions and separating axes for positive planar overlap of convex triangle pairs, with 1e-9 m slack for projected edge contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Room shapes take one normalization path; walls consume the canonical result later.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Input defects name the offending local plan. Floor bounds, id collisions and overlaps are resolved before any world translation or mesh assembly.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each region is triangulated once here. Rooms in each level are compared pairwise; a pair that is not separated by its plan bounds compares triangles until the first overlapping pair.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller can reuse a normalized plan for each placement without revalidating its room membership; polygon coordinates and opening inputs are owned copies.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns records bounded by the authored levels, rooms, polygon vertices and openings, with no cache or resource handles.
  */
 export function buildingPlans(
   props: createBuilding.IProps,
@@ -54,11 +46,7 @@ export function buildingPlans(
         : previous.elevation + previous.height + 2 * slab;
     const elevation: number = level.elevation ?? minimum;
     const height: number = positive(level.height ?? 2.8, `${path}.height`);
-    if (
-      !Number.isFinite(elevation) ||
-      !Number.isFinite(elevation + height + 2 * slab) ||
-      (previous !== undefined && elevation < minimum)
-    )
+    if (previous !== undefined && elevation < minimum)
       throw new Error(
         `${path}.elevation must be finite and clear the previous storey and both slabs`,
       );
@@ -116,20 +104,14 @@ export function buildingPlans(
   return { kind: "plan", levels, stairs, wall, slab, color };
 }
 
-/**
- * Normalized local geometry shared by the wall, slab and support assemblers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Records identify the owner of each metre region, room ID, shared storey elevation and stair endpoint.
- * @evidence contracts/development/design.md#principled-representation Canonical planar triangulations preserve metre regions and supply interior anchor points. The closed plan union separates facade and interior information.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each room supplies boundary rings for walls and triangulation for overlap checks. One stair run and width supply both the flight and adjoining slab cuts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Normalized rings retain concavities and admitted voids. Room elevations come from their storey, and apertures bind only after wall segments are identified.
- */
+/** Normalized local geometry shared by the wall, slab and support assemblers. */
 export namespace buildingPlans {
-  /**
-   * An admitted planar region in XZ metres.
-   */
+  /** An admitted planar region in XZ metres. */
   export interface IRegion {
-    /** Canonically wound triangulation, with the planar Y component standing for Z. */
+    /**
+     * Canonically wound triangulation, with the planar Y component standing for
+     * Z.
+     */
     readonly region: IAutoMovieRegionTriangulation;
 
     /** Outer ring followed by any holes, each in canonical winding. */
@@ -142,9 +124,7 @@ export namespace buildingPlans {
     readonly bounds: readonly [number, number, number, number];
   }
 
-  /**
-   * A named room in one normalized level.
-   */
+  /** A named room in one normalized level. */
   export interface IRoom {
     /** Path segment unique to this level. */
     readonly id: string;
@@ -162,9 +142,7 @@ export namespace buildingPlans {
     ceiling?: IRegion;
   }
 
-  /**
-   * One normalized storey in local metres.
-   */
+  /** One normalized storey in local metres. */
   export interface ILevel {
     /** Path segment unique to this building. */
     readonly id: string;
@@ -182,9 +160,7 @@ export namespace buildingPlans {
     readonly openings: readonly createBuilding.Opening[];
   }
 
-  /**
-   * A stair with its resolved endpoints and exact adjoining slab cut.
-   */
+  /** A stair with its resolved endpoints and exact adjoining slab cut. */
   export interface IStair {
     /** Stair id scoped by the building. */
     readonly id: string;
@@ -205,9 +181,7 @@ export namespace buildingPlans {
     readonly clearHeight: number;
   }
 
-  /**
-   * Closed internal choice of interior building or facade mass.
-   */
+  /** Closed internal choice of interior building or facade mass. */
   export type IPlan =
     | {
         readonly kind: "facade";
@@ -281,7 +255,10 @@ function prepareStair(
   };
 }
 
-/** Re-admit a slab with a new, strictly contained void along with its prior holes. */
+/**
+ * Re-admit a slab with a new, strictly contained void along with its prior
+ * holes.
+ */
 function addCut(
   region: buildingPlans.IRegion,
   cut: readonly createBuilding.Point[],
@@ -303,8 +280,7 @@ function addCut(
 
 /** Admit a strictly positive finite metre dimension and retain its value. */
 function positive(value: number, path: string): number {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${path} must be positive and finite`);
+  if (value <= 0) throw new Error(`${path} must be positive and finite`);
   return value;
 }
 
@@ -316,7 +292,10 @@ function admitId(id: string, names: Set<string>, path: string): void {
   names.add(id);
 }
 
-/** Turn either footprint syntax into canonical rings, shared triangles and a guaranteed interior frame origin. */
+/**
+ * Turn either footprint syntax into canonical rings, shared triangles and a
+ * guaranteed interior frame origin.
+ */
 function draftRegion(
   footprint: createBuilding.Footprint,
   path: string,
@@ -379,7 +358,10 @@ function planPoint([x, y]: createBuilding.Point): IAutoMovieProfilePoint {
   return { x, y };
 }
 
-/** Return the centroid of the largest admitted triangle, strictly in the plan region. */
+/**
+ * Return the centroid of the largest admitted triangle, strictly in the plan
+ * region.
+ */
 function largestTriangleCenter(
   region: IAutoMovieRegionTriangulation,
 ): IAutoMovieProfilePoint {

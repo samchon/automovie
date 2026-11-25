@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineTie.ts#AutoMovieArchetypeEquineTie
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the path, who carries it, the tied interval and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in, a ride out on the same clock; the ring is a world point with a bar axis and radius, the phases in film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One layer over `EquineLine`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The lead is the equid's own span; the tether is a bound, not a pull simulated.
-
 # src/animals/AutoMovieArchetypeEquineTie.ts#AutoMovieArchetypeEquineTie.IPhase
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -6,26 +6,21 @@ import type {
 
 import { KneeForm } from "./KneeForm";
 
+/** The record of `IFootResult`'s site. */
+type IFootResult = { toes: IAutoMovieVector3; instep: IAutoMovieVector3 };
+
 /**
  * The knee strike's reach: the thigh carries the knee on a circle about the
- * hip, whose front lies one thigh plus one patella depth from the hip along
- * the thigh. The thigh rises to the elevation whose circle meets the
- * target's height, bounded by the hip's flexion range less the back lean
- * that tips the pelvis; the pelvis then travels horizontally along the line
- * toward the target until the knee's front is on it, forward (the hip thrust
- * of the clinch knee) or back (the hips drawn back to make room when the
- * opponent is chest to chest). The shank folds back under the knee by
- * {@link KneeForm.FLEXION}.
+ * hip, whose front lies one thigh plus one patella depth from the hip along the
+ * thigh. The thigh rises to the elevation whose circle meets the target's
+ * height, bounded by the hip's flexion range less the back lean that tips the
+ * pelvis; the pelvis then travels horizontally along the line toward the target
+ * until the knee's front is on it, forward (the hip thrust of the clinch knee)
+ * or back (the hips drawn back to make room when the opponent is chest to
+ * chest). The shank folds back under the knee by {@link KneeForm.FLEXION}.
  */
 export namespace KneeReach {
-  /**
-   * A solved knee: where its joint, ankle and pelvis go at the contact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation World points for the knee and the ankle, a world displacement for the pelvis, a horizontal unit heading and the shared reach status.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the plan poses and records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the reach status union.
-   */
+  /** A solved knee: where its joint, ankle and pelvis go at the contact. */
   export interface ISolution {
     /** The knee joint, world metres. */
     knee: IAutoMovieVector3;
@@ -52,16 +47,9 @@ export namespace KneeReach {
    * @param patella The knee's front from its joint, metres.
    * @param shank The shank length, metres.
    * @param travel The pelvis's longest travel, metres.
-   * @param fallback A horizontal unit direction for a target straight above or below the hip.
+   * @param fallback A horizontal unit direction for a target straight above or
+   *   below the hip.
    * @returns The solution.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States every input's frame and unit and the fallback's use; the comments derive the elevation and the travel.
-   * @evidence contracts/development/implementation.md#principled-implementation The thigh's elevation from the arcsine of the target's height over the thigh-plus-patella radius, bounded by the hip's flexion range less the lean; then the horizontal travel that closes the remaining distance, bounded by the travel limit; the shank folded by the knee's flexion in the thigh's vertical plane.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Elevation, travel and status, then the joints, in one closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target outside the thigh's range or travel is reported short or jammed rather than reached by a stretched leg; 1e-9 tolerances only absorb rounding at the bounds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function solve(
     hip: IAutoMovieVector3,
@@ -141,7 +129,8 @@ export namespace KneeReach {
    * @param from The direction at share 0, unit.
    * @param to The direction at share 1, unit.
    * @param share How far along the arc, 0 to 1.
-   * @returns The unit direction; `to` when the two are parallel or opposed, where the arc's plane is not defined.
+   * @returns The unit direction; `to` when the two are parallel or opposed,
+   *   where the arc's plane is not defined.
    */
   export function swing(
     from: IAutoMovieVector3,
@@ -166,12 +155,13 @@ export namespace KneeReach {
    *
    * @param shank The unit direction from the knee to the ankle.
    * @param heading The horizontal unit direction the knee faces.
-   * @returns The toes' direction and the instep's, both unit, for `StrikingBody.foot`.
+   * @returns The toes' direction and the instep's, both unit, for
+   *   `StrikingBody.foot`.
    */
   export function foot(
     shank: IAutoMovieVector3,
     heading: IAutoMovieVector3,
-  ): { toes: IAutoMovieVector3; instep: IAutoMovieVector3 } {
+  ): IFootResult {
     const front: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(
         heading,

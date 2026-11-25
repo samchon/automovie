@@ -3,12 +3,11 @@ import type { IAutoMovieConstructionProfilePhase } from "./IAutoMovieConstructio
 import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-/**
- * Source-backed profile queries retained after declaration admission.
- */
+/** Source-backed profile queries retained after declaration admission. */
 export namespace IAutoMoviePreparedConstructionProfile {
   /**
-   * Original section/atlas readers with source identity and no final mesh claim.
+   * Original section/atlas readers with source identity and no final mesh
+   * claim.
    *
    * Treat the definition, maps, surface records and original dependencies as
    * immutable while any reader exists. The declaration was cloned but its
@@ -18,20 +17,29 @@ export namespace IAutoMoviePreparedConstructionProfile {
     /** Detached pure declaration; edits require another preparation. */
     definition: IAutoMovieConstructionProfile;
 
-    /** Piece charts in declared loop/piece order; kept checks finite retained coordinates and across maps an open piece side to the adjacent piece endpoint after checking endpoint agreement. */
+    /**
+     * Piece charts in declared loop/piece order; kept checks finite retained
+     * coordinates and across maps an open piece side to the adjacent piece
+     * endpoint after checking endpoint agreement.
+     */
     atlas: IAutoMovieSolidAtlas;
 
     /** Piece id to the same actual atlas surface identity. */
     surfaces: ReadonlyMap<string, IAutoMovieSolidSurface>;
 
-    /** Piece-keyed wrappers over the same original functions with their full original station domains and supported clock neighborhoods, before retained restrictions. */
+    /**
+     * Piece-keyed wrappers over the same original functions with their full
+     * original station domains and supported clock neighborhoods, before
+     * retained restrictions.
+     */
     originals: ReadonlyMap<string, IAutoMovieSolidSurface>;
 
     /**
-     * Fresh list of active loop IDs in declaration order at station millimetres,
-     * after checking actual adjacent piece endpoints. Throws for a nonfinite or
-     * out-of-family station, no active loop, or an endpoint mismatch. Callback
-     * exceptions propagate; an empty successful result is never returned.
+     * Fresh list of active loop IDs in declaration order at station
+     * millimetres, after checking actual adjacent piece endpoints. Throws for a
+     * nonfinite or out-of-family station, no active loop, or an endpoint
+     * mismatch. Callback exceptions propagate; an empty successful result is
+     * never returned.
      */
     section(station: number): readonly string[];
 

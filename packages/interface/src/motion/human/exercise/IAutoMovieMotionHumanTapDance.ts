@@ -2,16 +2,14 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
- * Tap dance on the beat clock (#3991): the shuffle, the flap, the ball
- * change, the heel drop, the cramp roll and a single time step. Every
- * sounding strike is an event `strike{k}{Side}{Part}` on its beat
- * subdivision, naming the foot and the part (ball, heel or flat) that
- * meets the floor then, so a sound can be placed from it.
+ * Tap dance on the beat clock: the shuffle, the flap, the ball change, the heel
+ * drop, the cramp roll and a single time step. Every sounding strike is an
+ * event `strike{k}{Side}{Part}` on its beat subdivision, naming the foot and
+ * the part (ball, heel or flat) that meets the floor then, so a sound can be
+ * placed from it.
  */
 export namespace IAutoMovieMotionHumanTapDance {
-  /**
-   * The steps.
-   */
+  /** The steps. */
   export type Step =
     | "shuffle"
     | "flap"
@@ -20,14 +18,10 @@ export namespace IAutoMovieMotionHumanTapDance {
     | "crampRoll"
     | "timeStep";
 
-  /**
-   * The part of a shoe that sounds, or how a foot is set down.
-   */
+  /** The part of a shoe that sounds, or how a foot is set down. */
   export type Part = "ball" | "heel" | "flat";
 
-  /**
-   * Parameters.
-   */
+  /** Parameters. */
   export interface IParams {
     /** The step. */
     step: Step;
@@ -35,7 +29,10 @@ export namespace IAutoMovieMotionHumanTapDance {
     /** Beats per minute, positive; the dance law's `BPM` when absent. */
     bpm?: number;
 
-    /** How many times the step is danced, a whole number of at least 1, the leading foot alternating; 1 when absent. */
+    /**
+     * How many times the step is danced, a whole number of at least 1, the
+     * leading foot alternating; 1 when absent.
+     */
     repeats?: number;
 
     /** The foot that leads the first repeat; `right` when absent. */

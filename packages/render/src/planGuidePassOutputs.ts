@@ -9,16 +9,20 @@ import { guidePassFramePattern } from "./guidePassFramePattern.js";
 import { normalizeGuidePasses } from "./normalizeGuidePasses.js";
 
 /**
- * Plan where each requested pass writes its frames inside one frame directory: one capture per pass per frame, at pass-tagged paths.
+ * Plan where each requested pass writes its frames inside one frame directory:
+ * one capture per pass per frame, at pass-tagged paths.
  *
- * Passes are normalized by `normalizeGuidePasses`, so repeats fold and an unknown name throws; an empty request yields an empty plan. Throws when `frameCount` is not a positive integer. Paths use the default `png` extension and five-digit numbering.
+ * Passes are normalized by `normalizeGuidePasses`, so repeats fold and an
+ * unknown name throws; an empty request yields an empty plan. Throws when
+ * `frameCount` is not a positive integer. Paths use the default `png` extension
+ * and five-digit numbering.
  */
 export const planGuidePassOutputs: (
   props: IAutoMoviePlanGuidePassOutputsProps,
 ) => IAutoMovieGuidePassOutput[] = (
   props: IAutoMoviePlanGuidePassOutputsProps,
 ): IAutoMovieGuidePassOutput[] => {
-  if (Number.isInteger(props.frameCount) === false || props.frameCount <= 0)
+  if (props.frameCount <= 0)
     throw new Error(
       `guide pass frameCount must be a positive integer, but was ${props.frameCount}`,
     );

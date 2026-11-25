@@ -1,27 +1,19 @@
 # Testing
 
-Each exported test function answers this checklist and [common](common.md) from its assertions and execution path, including cases registered by a shared harness.
+Use a pure unit test for each independently verifiable contract. Judge it at the entry the test runner discovers.
 
 ## Behavioral verification
 
-Exercise the behavior and assert its observable result. Delete checks of repository layout or source text and checks that repeat tuned constants, fitted results or implementation output.
+Does the test exercise the operation that owns the behavior with direct typed inputs?
 
-State the operation exercised, the defect the assertions catch, and the valid behavior they allow.
+Call the operation on the smallest in-memory fixture that makes the behavior observable. Test a composition's decisions with prepared inputs and exercise its parts directly.
+
+Use the relevant system check when the contract requires physical simulation, a complete scene, rendering or a host process.
 
 ## Independent expectations
 
-Derive expected values and tolerances from the supported contract, a specification, a physical requirement, a study of the real practice, or another independent reference, never from the implementation under test or a snapshot of its output.
+Would the expected results distinguish correct behavior from a plausible defect?
 
-State that basis, how the assertion would catch a wrong implementation, and any oracle limitation.
+Derive expectations from the contract, a closed form, a physical requirement or a cited reference. Bound numerical error independently of observed output.
 
-## Distinguishing cases
-
-Cover positive, adjacent negative and boundary cases. Identify the input that must change, the meaning to preserve, and any empty, singleton, limit, malformed or failure case the decision requires. Keep the assertions and cases when optimizing runtime.
-
-State this test's contribution and the cases another test owns.
-
-## Execution ownership
-
-A unit test exercises portable behavior with explicit in-memory inputs. Installation, native builds and real hosts belong to other checks. Playback, renders and listening belong to review. Classify a test by what it runs.
-
-State the layer, the discoverable entry, and who owns dynamically registered cases.
+Choose cases that expose distinct decisions, including adjacent boundaries or refusals where they matter. Keep the assertion that catches each defect when reducing execution cost.

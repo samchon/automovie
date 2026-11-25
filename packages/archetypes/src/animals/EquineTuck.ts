@@ -7,20 +7,38 @@ import { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLi
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 
 /**
- * The limb tuck of a jump's flight: each fore's carpus folds to the jumping horse's measured maximum, each hind shortens by its measured greatest shortening, and the hoof hangs from the folded limb.
+ * The limb tuck of a jump's flight: each fore's carpus folds to the jumping
+ * horse's measured maximum, each hind shortens by its measured greatest
+ * shortening, and the hoof hangs from the folded limb.
  *
- * St George, Clayton, Sinclair, Richards, Roy and Hobbs 2021, Muscle Function and Kinematics during Submaximal Equine Jumping, Animals 11:414, Table 1 (https://doi.org/10.3390/ani11020414; seventeen horses over a 1.0 m vertical) report the maximum carpus flexion over the jump stride: trailing fore 128.3 ± 7.2 and leading fore 130.7 ± 9.8 degrees in the intermediate-elevation group, reached at 24.8 and 28.2 % of the jump stride, after takeoff. `FOLD` is the mean of those two group means. The same table gives no hock angle; it gives the hindlimb's greatest shortening (`SHORTENING`), from which `hind` finds the hock fold.
+ * St George, Clayton, Sinclair, Richards, Roy and Hobbs 2021, Muscle Function
+ * and Kinematics during Submaximal Equine Jumping, Animals 11:414, Table 1
+ * (https://doi.org/10.3390/ani11020414; seventeen horses over a 1.0 m vertical)
+ * report the maximum carpus flexion over the jump stride: trailing fore 128.3 ±
+ * 7.2 and leading fore 130.7 ± 9.8 degrees in the intermediate-elevation group,
+ * reached at 24.8 and 28.2 % of the jump stride, after takeoff. `FOLD` is the
+ * mean of those two group means. The same table gives no hock angle; it gives
+ * the hindlimb's greatest shortening (`SHORTENING`), from which `hind` finds
+ * the hock fold.
  */
 export namespace EquineTuck {
-  /** The fore's carpal fold at the height of the tuck, degrees: the mean of St George et al. 2021's trailing (128.3) and leading (130.7) fore maxima, intermediate group. */
+  /**
+   * The fore's carpal fold at the height of the tuck, degrees: the mean of St
+   * George et al. 2021's trailing (128.3) and leading (130.7) fore maxima,
+   * intermediate group.
+   */
   export const FOLD: number = (128.3 + 130.7) / 2;
 
-  /** The hindlimb's greatest shortening in the jump's flight, metres at the cohort's height: St George et al. 2021's maximum hindlimb (hip to hoof) shortening, -0.4 +/- 0.1 m for both hinds in the intermediate group, Table 1, over that group's 155.3 cm standing height, so a horse of another height shortens in proportion: a derivation. */
+  /**
+   * The hindlimb's greatest shortening in the jump's flight, metres at the
+   * cohort's height: St George et al. 2021's maximum hindlimb (hip to hoof)
+   * shortening, -0.4 +/- 0.1 m for both hinds in the intermediate group, Table
+   * 1, over that group's 155.3 cm standing height, so a horse of another height
+   * shortens in proportion: a derivation.
+   */
   export const SHORTENING: number = 0.4 / 1.553;
 
-  /**
-   * One limb's prepared tuck.
-   */
+  /** One limb's prepared tuck. */
   export type Tuck = (
     goal: QuadrupedRidePose.IGoal,
     weight: number,
@@ -29,11 +47,13 @@ export namespace EquineTuck {
   /**
    * Prepare one limb's tuck from its neutral chain.
    *
-   * @param chain The limb's neutral joint points, model metres, attachment first and hoof endpoint last.
+   * @param chain The limb's neutral joint points, model metres, attachment
+   *   first and hoof endpoint last.
    * @param fold The tuck's greatest fold, degrees.
    * @param fore Whether the chain is a fore's.
    * @returns The tuck reader.
-   * @throws {RangeError} Through `AutoMovieArchetypeQuadrupedLimb.prepare` for an unsupported chain.
+   * @throws {RangeError} Through `AutoMovieArchetypeQuadrupedLimb.prepare` for
+   *   an unsupported chain.
    */
   export function prepare(
     chain: readonly IAutoMovieVector3[],
@@ -90,7 +110,11 @@ export namespace EquineTuck {
   }
 
   /**
-   * The weight of the tuck through one carried swing. A fore's rises from its liftoff to final hind liftoff and falls from the middle of the flight to its landing. A hind's rises from final hind liftoff to first fore landing and falls to its own landing: St George et al. 2021 put the hinds' greatest shortening at 68.5 to 87 % of the jump stride, late in the flight.
+   * The weight of the tuck through one carried swing. A fore's rises from its
+   * liftoff to final hind liftoff and falls from the middle of the flight to
+   * its landing. A hind's rises from final hind liftoff to first fore landing
+   * and falls to its own landing: St George et al. 2021 put the hinds' greatest
+   * shortening at 68.5 to 87 % of the jump stride, late in the flight.
    *
    * @param seconds The film second.
    * @param lift The swing's liftoff second.
@@ -142,7 +166,8 @@ export namespace EquineTuck {
   }
 
   /**
-   * One hind's tuck: the hock fold at which the hind's greatest reach, hip to hoof, is its standing length less SHORTENING of the withers.
+   * One hind's tuck: the hock fold at which the hind's greatest reach, hip to
+   * hoof, is its standing length less SHORTENING of the withers.
    *
    * @param chain The hind's neutral joint points.
    * @param withers The height at the withers, metres.
@@ -171,9 +196,7 @@ export namespace EquineTuck {
     return prepare(chain, low, false);
   }
 
-  /**
-   * The four limbs' tucks.
-   */
+  /** The four limbs' tucks. */
   export interface IFores {
     /** The left fore's tuck. */
     leftFore: Tuck;

@@ -6,11 +6,11 @@ Canonical clip admission and light-pointer/property owners precede per-key bound
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One light pass joins shared channel/track shape with light-kind/property policy and field-wide channel uniqueness, keeping interpolation arithmetic shared with playback.
+One light pass joins shared track checks with light-kind/property policy and field-wide channel uniqueness, keeping interpolation arithmetic shared with playback.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Absent lightMotions is legacy-valid and malformed tracks retain located findings without fabricated clips. Nonzero derivative coefficients are not discarded by an absolute floor; overflow before coefficient normalization or in playback evaluation remains a numeric limitation rather than a universal range proof.
+Absent lightMotions is legacy-valid and out-of-range tracks retain located findings without fabricated clips. Nonzero derivative coefficients are not discarded by an absolute floor; overflow before coefficient normalization or in playback evaluation remains a numeric limitation rather than a universal range proof.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -12,12 +12,11 @@ import { TIE_SIZES } from "./TIE_SIZES";
 import type { createObstacle } from "./createObstacle";
 
 /**
- * The draw and forward-facing ledge shared by ground obstacles with a rectangular top.
+ * The draw and forward-facing ledge shared by ground obstacles with a
+ * rectangular top.
  */
 export namespace ObstacleDraw {
-  /**
-   * The obstacle's seeded dimensions and its empty builder.
-   */
+  /** The obstacle's seeded dimensions and its empty builder. */
   export interface IObstacle<Id extends string> {
     /** A fresh builder with the drawn identity and physical material. */
     builder: AutoMovieArchetypeBuilder<Id, createObstacle.Dimension>;
@@ -27,22 +26,25 @@ export namespace ObstacleDraw {
   }
 
   /**
-   * Admit a saved obstacle's section and length choices and draw its free measurements.
+   * Admit a saved obstacle's section and length choices and draw its free
+   * measurements.
    *
    * @param kind The fixed profile.
    * @param name The readable display name.
    * @param material The obstacle's physical material.
-   * @param params The scene identifier, dimension overrides and optional crosstie sizes.
+   * @param params The scene identifier, dimension overrides and optional
+   *   crosstie sizes.
    * @param seed The seed for unresolved dimensions and choices.
    * @returns The dimensions and the builder awaiting the selected geometry.
-   * @throws {AutoMovieArchetypeRefusal} For a model or dimension the given profile cannot admit.
+   * @throws {AutoMovieArchetypeRefusal} For a model or dimension the given
+   *   profile cannot admit.
    */
   export function begin<Id extends string>(
     kind: createObstacle.Kind,
     name: string,
     material: AutoMovieArchetypeMaterial.Kind,
     params: Omit<createObstacle.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IObstacle<Id> {
     const draw: AutoMovieArchetypeDrawSession<createObstacle.Dimension> =
       new AutoMovieArchetypeDrawSession(
@@ -70,9 +72,7 @@ export namespace ObstacleDraw {
     return { builder, d };
   }
 
-  /**
-   * The contact ids {@link ledge} builds or reads.
-   */
+  /** The contact ids {@link ledge} builds or reads. */
   export type LedgeContact = "top" | "edge";
 
   /**

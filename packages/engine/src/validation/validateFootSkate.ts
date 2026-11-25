@@ -25,7 +25,8 @@ const DEFAULT_SAMPLE_RATE: number = 24;
 const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
 
 /**
- * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ displacement divided by elapsed seconds exceeds the declared speed.
+ * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ
+ * displacement divided by elapsed seconds exceeds the declared speed.
  */
 export const validateFootSkate: (
   props: IAutoMovieValidateFootSkate.IProps,
@@ -49,7 +50,7 @@ export const validateFootSkate: (
     topology,
   );
 
-  if (!Number.isFinite(sampleRate) || sampleRate <= 0)
+  if (sampleRate <= 0)
     collector.push(
       "range",
       `${path}.sampleRate`,
@@ -62,6 +63,11 @@ export const validateFootSkate: (
       const cp: string = `${path}.contacts[${contactIndex}]`;
       const maxHorizontalSpeed: number =
         contact.maxHorizontalSpeed ?? DEFAULT_MAX_HORIZONTAL_SPEED;
+      const temporalInvalid: boolean = !(
+        contact.start > -Infinity &&
+        contact.end < Infinity &&
+        contact.end > contact.start
+      );
 
       if (!skeletonBones.has(contact.bone))
         collector.push(
@@ -83,18 +89,14 @@ export const validateFootSkate: (
           `contact bone "${contact.bone}" is declared but not reachable from a root bone via forward kinematics`,
           contact.bone,
         );
-      if (
-        !Number.isFinite(contact.start) ||
-        !Number.isFinite(contact.end) ||
-        contact.end <= contact.start
-      )
+      if (temporalInvalid)
         collector.push(
           "temporal",
           cp,
           `contact window must have finite start/end with end > start, but was [${contact.start}, ${contact.end}]`,
           { start: contact.start, end: contact.end },
         );
-      if (!Number.isFinite(maxHorizontalSpeed) || maxHorizontalSpeed < 0)
+      if (maxHorizontalSpeed < 0)
         collector.push(
           "range",
           `${cp}.maxHorizontalSpeed`,
@@ -104,12 +106,8 @@ export const validateFootSkate: (
       if (
         !skeletonBones.has(contact.bone) ||
         boneUnreachable ||
-        !Number.isFinite(contact.start) ||
-        !Number.isFinite(contact.end) ||
-        contact.end <= contact.start ||
-        !Number.isFinite(maxHorizontalSpeed) ||
+        temporalInvalid ||
         maxHorizontalSpeed < 0 ||
-        !Number.isFinite(sampleRate) ||
         sampleRate <= 0
       )
         return;
@@ -146,11 +144,13 @@ export const validateFootSkate: (
 };
 
 /**
- * Use windowSampleTimes to sample motion/FK and select the admitted contact bone's world position.
+ * Use windowSampleTimes to sample motion/FK and select the admitted contact
+ * bone's world position.
  *
  * Clock and rig resolution stay with their canonical owners.
  *
- * Caller reachability/rate/window admission is required before the non-null resolved lookup.
+ * Caller reachability/rate/window admission is required before the non-null
+ * resolved lookup.
  *
  * Output pairs second timestamps with borrowed resolved world-position records.
  *
@@ -158,7 +158,8 @@ export const validateFootSkate: (
  *
  * One supplied topology is reused through all window samples.
  *
- * The caller owns sample wrappers/points; no sampling task or native rig remains.
+ * The caller owns sample wrappers/points; no sampling task or native rig
+ * remains.
  */
 const sampleWindow: (
   motion: IAutoMovieMotion,
@@ -205,7 +206,8 @@ const sampleWindow: (
  *
  * This measures horizontal skating without treating vertical motion as a slide.
  *
- * Strictly increasing sample times are required; this helper does not guard zero dt.
+ * Strictly increasing sample times are required; this helper does not guard
+ * zero dt.
  *
  * Output is model/world units per second.
  *
@@ -228,17 +230,22 @@ const horizontalSpeed: (
 };
 
 /**
- * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ * Round a diagnostic quantity to three decimals with
+ * Math.round(value*1000)/1000.
  *
- * The validateFootSkate owner applies presentation rounding after its actual predicate.
+ * The validateFootSkate owner applies presentation rounding after its actual
+ * predicate.
  *
- * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ * Binary64 rounding is not an exact decimal serialization or decision
+ * tolerance.
  *
- * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ * Only displayed metre/second quantities are rounded, leaving comparison
+ * arithmetic unchanged.
  *
  * Fixed scalar arithmetic takes constant work.
  *
- * Diagnostics reuse the same presentation rule within validateFootSkate, not cached measurements.
+ * Diagnostics reuse the same presentation rule within validateFootSkate, not
+ * cached measurements.
  *
  * Only a number returns and no sampled state is retained.
  */

@@ -14,9 +14,15 @@ import { HumanMountRider } from "./HumanMountRider";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /**
- * Close each holding hand's fingers once on the support's own colliders where the hold begins (`HumanMountRider.closed`), for the ride's hands (`HumanRideHands`).
+ * Close each holding hand's fingers once on the support's own colliders where
+ * the hold begins (`HumanMountRider.closed`), for the ride's hands
+ * (`HumanRideHands`).
  *
- * A round articulated handle measured to the palm, and any rigid handle, is closed on with its grip read from its own model frame under the support's frame, so the hand meets the rest shapes it closes on even when the support was posed away from rest when the hold began, as a surcingle on a cantering horse is.
+ * A round articulated handle measured to the palm, and any rigid handle, is
+ * closed on with its grip read from its own model frame under the support's
+ * frame, so the hand meets the rest shapes it closes on even when the support
+ * was posed away from rest when the hold began, as a surcingle on a cantering
+ * horse is.
  *
  * @param body The body.
  * @param on The support's subject id, for the refusal.
@@ -28,14 +34,6 @@ import type { HumanRideHands } from "./HumanRideHands";
  * @param origin The support's frame where the hold begins.
  * @returns Each holding hand's closed finger joints.
  * @throws {HumanRefusal} When the support declares no colliders.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is closed, on which shapes, when the grip is read from the model frame, and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The grasp closure on the support's colliders at rest under its frame; a rigid handle's grip is that handle's own model frame under the same frame, so the hand and the shapes describe one rigid grasp.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Kept apart from the ride's hands so that owner stays within its size; one refusal check and one closure per hand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fingers with nothing to close on are refused rather than left open.
- * @evidence contracts/development/implementation.md#efficient-algorithms One closure solve per holding hand per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The closures are solved once and blended to at every instant.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function closeRideHandGrips(
   body: IAutoMovieMotionHumanBody,

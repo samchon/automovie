@@ -25,13 +25,9 @@ const UNREAD: string = "the makers' pages read do not give it";
 const HELMET: string =
   "a medium road cycling helmet for heads about 55 to 59 cm round: the shell's across, length, height and weight are provisional estimates, no maker's page was read";
 
-/**
- * The seeded recipes originally published as `createWearable`.
- */
+/** The seeded recipes originally published as `createWearable`. */
 export namespace WornPropDraw {
-  /**
-   * The kinds.
-   */
+  /** The kinds. */
   export type Kind = "watch" | "hat" | "spectacles" | "helmet";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -55,7 +51,8 @@ export namespace WornPropDraw {
    * The affordance ids:
    *
    * - `hold`: where the fingers take it.
-   * - `wear`: the socket the wrist, the head or the nose goes into, `+Y` toward it.
+   * - `wear`: the socket the wrist, the head or the nose goes into, `+Y` toward
+   *   it.
    * - `face`: a watch's dial, facing up.
    */
   export type Affordance = "hold" | "wear" | "face";
@@ -63,7 +60,8 @@ export namespace WornPropDraw {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`: a watch case's across, a brim's diameter, the spectacles' front across.
+   * - `width`: a watch case's across, a brim's diameter, the spectacles' front
+   *   across.
    * - `depth`: a strap's length, a crown's diameter, a temple's length.
    * - `height`: a case's thickness, a hat's height, the front's height.
    * - `mass`: kilograms.
@@ -81,7 +79,8 @@ export namespace WornPropDraw {
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside its band.
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
@@ -156,9 +155,7 @@ export namespace WornPropDraw {
     },
   };
 
-  /**
-   * What {@link prepare} prepares for its caller.
-   */
+  /** What {@link prepare} prepares for its caller. */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
@@ -170,16 +167,19 @@ export namespace WornPropDraw {
   /**
    * Prepare an empty builder and the previously recorded wearable dimensions.
    *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+   * @param params Fixed dimensions in metres or kilograms, an optional scene
+   *   ID, and a model where the saved recipe has one.
+   * @param seed The seed that draws the saved dimensions and model, or
+   *   undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
+   *   lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
     params: Omit<IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IPrepareResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>(

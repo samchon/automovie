@@ -16,7 +16,8 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Check bounded formation cues against participating compiled formations, runtime gait repertoire, finite state, layout and nonoverlapping intervals.
+ * Check bounded formation cues against participating compiled formations,
+ * runtime gait repertoire, finite state, layout and nonoverlapping intervals.
  */
 export const validateAutoMovieFormationMotions: (
   contract: IAutoMovieShotContract,
@@ -89,10 +90,10 @@ export const validateAutoMovieFormationMotions: (
       left.start - right.start ||
       compareCodeUnits(left.id, right.id),
   )) {
-    if (cue.id.trim().length === 0 || ids.has(cue.id))
+    if (ids.has(cue.id))
       fail(
         `formationMotion:${cue.id || "(blank)"}`,
-        "must have one non-blank id unique inside the shot",
+        "must have one id unique inside the shot",
       );
     ids.add(cue.id);
     if (
@@ -123,9 +124,7 @@ export const validateAutoMovieFormationMotions: (
           : null;
       if (
         lattice !== null &&
-        (Number.isSafeInteger(lattice.ranks) === false ||
-          Number.isSafeInteger(lattice.files) === false ||
-          lattice.ranks < 1 ||
+        (lattice.ranks < 1 ||
           lattice.files < 1 ||
           lattice.ranks * lattice.files < unit.count)
       )
@@ -148,8 +147,6 @@ export const validateAutoMovieFormationMotions: (
           .join(", ")}) rather than "${cue.gait}"`,
       );
     if (
-      Number.isFinite(cue.start) === false ||
-      Number.isFinite(cue.end) === false ||
       cue.start < 0 ||
       cue.end <= cue.start ||
       cue.end > contract.durationSeconds
@@ -164,11 +161,8 @@ export const validateAutoMovieFormationMotions: (
     ] as const) {
       if (
         [state.translation.x, state.translation.y, state.translation.z].some(
-          (number: number): boolean =>
-            Number.isFinite(number) === false ||
-            Math.abs(number) > 1_000_000_000,
+          (number: number): boolean => Math.abs(number) > 1_000_000_000,
         ) ||
-        Number.isFinite(state.facingOffsetDeg) === false ||
         Math.abs(state.facingOffsetDeg) > 360_000
       )
         fail(
@@ -177,8 +171,7 @@ export const validateAutoMovieFormationMotions: (
         );
       if (
         [state.spacingScale.lateral, state.spacingScale.depth].some(
-          (number: number): boolean =>
-            Number.isFinite(number) === false || number < 0.25 || number > 4,
+          (number: number): boolean => number < 0.25 || number > 4,
         )
       )
         fail(

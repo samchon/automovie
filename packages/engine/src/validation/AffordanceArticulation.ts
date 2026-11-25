@@ -25,7 +25,9 @@ export namespace AffordanceArticulation {
   ]);
 
   /**
-   * The independent articulation upstream of a coordinate, or null for an unknown, non-articulating or cyclic chain. Reversibility concerns input permission, not which degree of freedom a writer addresses.
+   * The independent articulation upstream of a coordinate, or null for an
+   * unknown, non-articulating or cyclic chain. Reversibility concerns input
+   * permission, not which degree of freedom a writer addresses.
    */
   export function leader(
     byId: ReadonlyMap<string, IAutoMovieAffordance>,
@@ -36,7 +38,10 @@ export namespace AffordanceArticulation {
   }
 
   /**
-   * Admit one authored input and resolve it through explicitly reversible couplings to its independent leader, checking every joint's legal range. Input records remain unchanged; a caller admitting a whole authored state must also refuse duplicate independent inputs.
+   * Admit one authored input and resolve it through explicitly reversible
+   * couplings to its independent leader, checking every joint's legal range.
+   * Input records remain unchanged; a caller admitting a whole authored state
+   * must also refuse duplicate independent inputs.
    */
   export function input(
     byId: ReadonlyMap<string, IAutoMovieAffordance>,
@@ -51,7 +56,6 @@ export namespace AffordanceArticulation {
       const at: IAutoMovieAffordance = path[k]!;
       const { minimum, maximum } = affordanceTravelRange(at);
       if (
-        !Number.isFinite(travel) ||
         (minimum !== null && travel < minimum) ||
         (maximum !== null && travel > maximum)
       )
@@ -84,7 +88,10 @@ export namespace AffordanceArticulation {
   }
 
   /**
-   * A joint's actual travel from a state containing at most one authored input per independent degree of freedom; a degree without an input starts at its leader's zero. Null means the joint, its relevant input or its chain is invalid or duplicated.
+   * A joint's actual travel from a state containing at most one authored input
+   * per independent degree of freedom; a degree without an input starts at its
+   * leader's zero. Null means the joint, its relevant input or its chain is
+   * invalid or duplicated.
    */
   export function travel(
     byId: ReadonlyMap<string, IAutoMovieAffordance>,
@@ -110,10 +117,13 @@ export namespace AffordanceArticulation {
     }
     for (let k: number = path.length - 2; k >= 0; k--)
       value = affordanceFollowedTravel(path[k]!.follows!, value);
-    return Number.isFinite(value) ? value : null;
+    return value;
   }
 
-  /** A coordinate's articulations, upstream through follows, or null for an invalid reference or cycle. */
+  /**
+   * A coordinate's articulations, upstream through follows, or null for an
+   * invalid reference or cycle.
+   */
   function chain(
     byId: ReadonlyMap<string, IAutoMovieAffordance>,
     id: string,

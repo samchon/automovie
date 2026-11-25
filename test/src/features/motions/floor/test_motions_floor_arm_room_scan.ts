@@ -1,0 +1,104 @@
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { floorArmRoom } from "@automovie/motions/internal";
+import { TestValidator } from "@nestia/e2e";
+
+/**
+ * Bound the movement between arm-clearance checks by collider reach and angle.
+ *
+ * Scenarios:
+ *
+ * 1. An otherwise static posture whose entire frame moves still uses the baseline
+ *    count, because no collider moves relative to its neighbours.
+ * 2. The farthest corner around a quarter-metre cubic half extent is √3/4 m from
+ *    the joint. A 120 degree total turn has travel bound (2π/3)(√3/4) m.
+ *    Dividing by twice the 10 mm allowance requires 46 intervals in either
+ *    direction.
+ */
+export function test_motions_floor_arm_room_scan(): void {
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const frame: IAutoMovieRigidTransform = {
+    position: zero,
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
+  const arm: IAutoMoviePhysicalSegment = {
+    bone: "leftLowerArm",
+    neutral: frame,
+    mass: 1,
+    centerOfMass: zero,
+    inertia: { x: 1, y: 1, z: 1 },
+    inertiaRotation: frame.rotation,
+    shapes: [
+      {
+        id: "segment",
+        material: "rigid",
+        transform: frame,
+        kind: "box",
+        halfExtents: { x: 0.25, y: 0.25, z: 0.25 },
+      },
+    ],
+  };
+  const axes: IAutoMoviePhysicalJointAxis["axis"][] = ["x", "y", "z"];
+  const profile: IAutoMoviePhysicalProfile = {
+    id: "clearance-scan",
+    mass: 2,
+    centerOfMass: zero,
+    segments: [{ ...arm, bone: "hips" }, arm],
+    joints: [
+      {
+        id: "elbow",
+        parent: "hips",
+        child: "leftLowerArm",
+        parentFrame: frame,
+        childFrame: frame,
+        axes: axes.map(
+          (axis): IAutoMoviePhysicalJointAxis => ({
+            axis,
+            minimum: -Math.PI,
+            maximum: Math.PI,
+            stiffness: 1,
+            damping: 0,
+            maximumTorque: 1,
+            channel: axis,
+          }),
+        ),
+      },
+    ],
+    materials: [
+      { id: "rigid", friction: 0.5, restitution: 0, compliance: 0, damping: 0 },
+    ],
+    provenance: "Analytic staged cube",
+  };
+  const start: IAutoMovieMotionHumanPosture = {
+    root: zero,
+    yaw: 0,
+    pitch: 0,
+    roll: 0,
+    limbs: {},
+    joints: {},
+  };
+  const placed: IAutoMovieMotionHumanPosture = {
+    ...start,
+    root: { x: 3, y: 2, z: 1 },
+    yaw: 90,
+  };
+  const bent: IAutoMovieMotionHumanPosture = {
+    ...placed,
+    joints: { leftLowerArm: [20, -40, 60] },
+  };
+  TestValidator.equals(
+    "round up the relative-travel bound",
+    [
+      floorArmRoom.count({ profile }, start, placed),
+      floorArmRoom.count({ profile }, start, bent),
+      floorArmRoom.count({ profile }, bent, start),
+    ],
+    [16, 46, 46],
+  );
+}

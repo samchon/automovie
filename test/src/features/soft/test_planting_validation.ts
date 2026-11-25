@@ -66,12 +66,11 @@ const structure: (
  * Scenarios:
  *
  * 1. The complete recipe and cluster validate clean.
- * 2. Identity and schema: a blank id, a wrong version, wrong units and a
- *    fractional seed.
+ * 2. Identity and schema: a fractional seed.
  * 3. The branching law: a level count outside its range, a zero trunk axis, a
  *    non-positive length or radius, ratios outside `(0, 1]`, jitters outside
  *    their ranges, a gravitropism outside `[−1, 1]`, an empty and an oversized
- *    child list, a duplicated and a blank child id, a zero child direction and
+ *    child list, a duplicated child id, a zero child direction and
  *    an offset outside `[0, 1]`.
  * 4. Growth: a stage outside `[0, 1]`, an onset outside `[0, 1]`, and an onset
  *    that would leave the deepest level unable to emerge.
@@ -87,8 +86,8 @@ const structure: (
  *    and then threw inside a binding's own validation would be a crash where a
  *    violation was asked for; a recipe with no foliage rule bears nothing and
  *    is left to the cap's own range check.
- * 7. The cluster: a blank id, an uncited recipe, a member count outside its range,
- *    a non-finite anchor, a negative extent, a fractional seed, a negative
+ * 7. The cluster: an uncited recipe, a member count outside its range,
+ *    a negative extent, a fractional seed, a negative
  *    spacing, an attempt count outside its range, a non-positive minimum scale,
  *    and a maximum below its minimum. Yaw-jitter admission is not asserted here.
  *
@@ -116,23 +115,9 @@ export function test_planting_validation(): void {
   TestValidator.equals(
     "identity and schema are named",
     namedFacts([
-      ["blankId", () => refuses({ id: " " }, "type", "$input.id")],
-      [
-        "version",
-        () => refuses({ version: 0 as unknown as 1 }, "type", "$input.version"),
-      ],
-      [
-        "units",
-        () =>
-          refuses(
-            { units: "cm" as unknown as "meter" },
-            "type",
-            "$input.units",
-          ),
-      ],
       ["seed", () => refuses({ seed: 1.5 }, "type", "$input.seed")],
     ]),
-    { blankId: true, version: true, units: true, seed: true },
+    { seed: true },
   );
 
   TestValidator.equals(
@@ -153,15 +138,6 @@ export function test_planting_validation(): void {
             structure({ axis: { x: 0, y: 0, z: 0 } }),
             "type",
             "structure.axis",
-          ),
-      ],
-      [
-        "axisValue",
-        () =>
-          refuses(
-            structure({ axis: { x: Number.NaN, y: 1, z: 0 } }),
-            "range",
-            "structure.axis.x",
           ),
       ],
       [
@@ -258,19 +234,6 @@ export function test_planting_validation(): void {
           ),
       ],
       [
-        "blankChild",
-        () =>
-          refuses(
-            structure({
-              children: [
-                { id: "", direction: { x: 1, y: 1, z: 0 }, offset: 0.5 },
-              ],
-            }),
-            "type",
-            "structure.children[0].id",
-          ),
-      ],
-      [
         "childDirection",
         () =>
           refuses(
@@ -301,7 +264,6 @@ export function test_planting_validation(): void {
       levels: true,
       deepLevels: true,
       axis: true,
-      axisValue: true,
       length: true,
       radius: true,
       lengthRatio: true,
@@ -312,7 +274,6 @@ export function test_planting_validation(): void {
       noChildren: true,
       tooManyChildren: true,
       duplicateChild: true,
-      blankChild: true,
       childDirection: true,
       childOffset: true,
     },

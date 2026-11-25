@@ -9,12 +9,20 @@ import type {
 } from "@automovie/interface";
 
 /**
+ * Resolution of the sine between normalized camera rays. Each component is
+ * bounded by one. Allow 16 binary64 rounding units for rotation, normalization
+ * and the difference of the two products in each cross-product component.
+ */
+const PARALLEL_RAY_RESOLUTION: number = 16 * Number.EPSILON;
+
+/**
  * Triangulate one observation pair in the first-camera, unit-baseline gauge.
- * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An unresolved
- * third design direction, point at infinity or nonfinite divided coordinate
- * returns null; a finite point behind a camera remains explicitly nonpositive.
- * Invalid or overflowing matrix actions and SVD nonconvergence throw.
- * This algebraic point is fitting evidence, not an independently observed surface.
+ * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An
+ * unresolved third design direction, parallel ray pair, point at infinity or
+ * nonfinite divided coordinate returns null. A finite point behind a camera
+ * remains explicitly nonpositive. Invalid or overflowing matrix actions and SVD
+ * nonconvergence throw. This algebraic point is fitting evidence, not an
+ * independently observed surface.
  */
 export function triangulateRecoveryCameraPoint(
   firstPoint: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[0],
@@ -35,6 +43,12 @@ export function triangulateRecoveryCameraPoint(
   );
   const r: readonly number[] = pose.rotation;
   const t: readonly number[] = pose.translation;
+
+  // Parallel rays do not determine depth. Read the angle before the DLT, whose
+  // rounded null vector can give a point at infinity a tiny nonzero weight.
+  const parallaxRadians: number | null = measureParallax(ray1, ray2, r);
+  if (parallaxRadians === null) return null;
+
   const rows: number[][] = [
     [-1, 0, ray1[0], 0],
     [0, -1, ray1[1], 0],
@@ -58,7 +72,8 @@ export function triangulateRecoveryCameraPoint(
       orthogonalityTolerance: 1e-12,
     });
   const ratio: number = factors.singularValues[2]! / factors.singularValues[0]!;
-  if (!Number.isFinite(ratio) || ratio < minimumDesignRatio) return null;
+  if (factors.singularValues[0] === 0 || ratio < minimumDesignRatio)
+    return null;
   const homogeneous: number[] = factors.rightColumns[3]!;
   if (homogeneous[3] === 0) return null;
   const point: [number, number, number] = [
@@ -66,45 +81,21 @@ export function triangulateRecoveryCameraPoint(
     homogeneous[1]! / homogeneous[3]!,
     homogeneous[2]! / homogeneous[3]!,
   ];
-  if (!point.every(Number.isFinite)) return null;
   const rotated: [number, number, number] = AutoMovieMatrix3.apply(r, point);
   const inSecond: [number, number, number] = [
     rotated[0] + t[0]!,
     rotated[1] + t[1]!,
     rotated[2] + t[2]!,
   ];
-  if (!inSecond.every(Number.isFinite) || point[2] === 0 || inSecond[2] === 0)
-    return null;
-  // Direction comparison requires R-transpose, not a camera-centre displacement;
-  // translation determines triangulation but does not transform a free ray.
-  const backRay: [number, number, number] = AutoMovieMatrix3.apply(
-    AutoMovieMatrix3.transpose(r),
-    ray2,
-  );
-  const norm1: number = Math.hypot(...ray1);
-  const norm2: number = Math.hypot(...backRay);
+  // A near-zero homogeneous weight overflows the point it divides.
   if (
-    !(norm1 > 0) ||
-    !(norm2 > 0) ||
-    !Number.isFinite(norm1) ||
-    !Number.isFinite(norm2)
+    [...point, ...inSecond].some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    ) ||
+    point[2] === 0 ||
+    inSecond[2] === 0
   )
     return null;
-  const unit1: IAutoMovieVector3 = {
-    x: ray1[0] / norm1,
-    y: ray1[1] / norm1,
-    z: ray1[2] / norm1,
-  };
-  const unit2: IAutoMovieVector3 = {
-    x: backRay[0] / norm2,
-    y: backRay[1] / norm2,
-    z: backRay[2] / norm2,
-  };
-  const cross: IAutoMovieVector3 = Vector3.cross(unit1, unit2);
-  const parallaxRadians: number = Math.atan2(
-    Math.hypot(cross.x, cross.y, cross.z),
-    Vector3.dot(unit1, unit2),
-  );
   const projection1: [number, number, number] = AutoMovieMatrix3.apply(
     first.matrix,
     [point[0] / point[2], point[1] / point[2], 1],
@@ -121,11 +112,7 @@ export function triangulateRecoveryCameraPoint(
     projection2[0] - secondPoint[0],
     projection2[1] - secondPoint[1],
   );
-  if (
-    ![parallaxRadians, firstReprojectionPx, secondReprojectionPx].every(
-      Number.isFinite,
-    )
-  )
+  if (firstReprojectionPx === Infinity || secondReprojectionPx === Infinity)
     return null;
   return {
     point,
@@ -136,4 +123,35 @@ export function triangulateRecoveryCameraPoint(
     firstReprojectionPx,
     secondReprojectionPx,
   };
+}
+
+/** Measure the resolved angle between calibrated free rays in the first frame. */
+function measureParallax(
+  first: readonly [number, number, number],
+  second: readonly [number, number, number],
+  rotation: readonly number[],
+): number | null {
+  // A free ray rotates into the first frame without a camera-centre shift.
+  const backward: [number, number, number] = AutoMovieMatrix3.apply(
+    AutoMovieMatrix3.transpose(rotation),
+    second,
+  );
+  const norm1: number = Math.hypot(...first);
+  const norm2: number = Math.hypot(...backward);
+  if (!(norm1 > 0) || !(norm2 > 0) || norm1 === Infinity || norm2 === Infinity)
+    return null;
+  const unit1: IAutoMovieVector3 = {
+    x: first[0] / norm1,
+    y: first[1] / norm1,
+    z: first[2] / norm1,
+  };
+  const unit2: IAutoMovieVector3 = {
+    x: backward[0] / norm2,
+    y: backward[1] / norm2,
+    z: backward[2] / norm2,
+  };
+  const cross: IAutoMovieVector3 = Vector3.cross(unit1, unit2);
+  const sine: number = Math.hypot(cross.x, cross.y, cross.z);
+  if (!(sine > PARALLEL_RAY_RESOLUTION)) return null;
+  return Math.atan2(sine, Vector3.dot(unit1, unit2));
 }

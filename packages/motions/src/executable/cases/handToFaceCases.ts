@@ -22,36 +22,27 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the hand-to-face tasks (#3234) on the polygon man, one
- * per task, standing from quiet standing with the right hand.
+ * Capture cases of the hand-to-face tasks on the polygon man, one per task,
+ * standing from quiet standing with the right hand.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot (`everydayVerdicts.standard`), and the acting forearm never
- * deeper than 10 mm into the rest of the body (decision 11). Beyond that:
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot
+ * (`everydayVerdicts.standard`), and the acting forearm never deeper than 10 mm
+ * into the rest of the body (decision 11). Beyond that:
  *
- * - a task that holds still at the face (drink, sip, eat, bite, phone):
- *   the tool's tip within 15 mm of its region from the arrival to the
- *   leave, the issue's acceptance for the rim at the mouth;
- * - a task that strokes at the face (brushing, combing, washing, wiping):
- *   the tip within 10 mm of the region's surface along its normal over the
- *   strokes;
- * - drinking: the cup's axis (the fist's grasp axis) within 10 degrees of vertical at
- *   `atMouth` (the level container of Mayer and Krechetnikov 2012 before a
- *   sip tilts it);
- * - reading: the sheet between 17.5 and 58 cm from the eyes (Bababekova et
- *   al. 2011's range for text) and the neck's and head's flexion from the
- *   upright entry between 33 and 45 degrees at `atSheet` (Lee et al. 2015).
+ * - A task that holds still at the face (drink, sip, eat, bite, phone): the
+ *   tool's tip within 15 mm of its region from the arrival to the leave, the
+ *   issue's acceptance for the rim at the mouth;
+ * - A task that strokes at the face (brushing, combing, washing, wiping): the tip
+ *   within 10 mm of the region's surface along its normal over the strokes;
+ * - Drinking: the cup's axis (the fist's grasp axis) within 10 degrees of
+ *   vertical at `atMouth` (the level container of Mayer and Krechetnikov 2012
+ *   before a sip tilts it);
+ * - Reading: the sheet between 17.5 and 58 cm from the eyes (Bababekova et al.
+ *   2011's range for text) and the neck's and head's flexion from the upright
+ *   entry between 33 and 45 degrees at `atSheet` (Lee et al. 2015).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures the displayed bones through the touch effector's point and the engine's region placement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per task and body, then one verdict block per task family.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the displayed pose, not the law's goals; a refused plan becomes a failing verdict instead of a crash.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per task and body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function handToFaceCases(
   bodies: readonly string[] = ["m-average"],
@@ -70,6 +61,8 @@ export function handToFaceCases(
       const row: IAutoMovieMotionHumanHandToFaceRows.IRow =
         handToFace.ROWS[task];
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = perform(
           body,

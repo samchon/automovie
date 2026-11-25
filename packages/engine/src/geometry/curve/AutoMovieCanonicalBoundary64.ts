@@ -5,9 +5,10 @@ import type {
 
 /**
  * Exact normalized boundary phases and atomic interval incidence in binary64.
- * Phase keys preserve the exact dyadic affine combination before display rounding.
- * Authority IDs belong to partition and its caller; phase/local carry no such ID.
- * No position, normal, source topology or generated geometry enters this helper.
+ * Phase keys preserve the exact dyadic affine combination before display
+ * rounding. Authority IDs belong to partition and its caller; phase/local carry
+ * no such ID. No position, normal, source topology or generated geometry enters
+ * this helper.
  */
 export namespace AutoMovieCanonicalBoundary64 {
   /**
@@ -19,10 +20,11 @@ export namespace AutoMovieCanonicalBoundary64 {
 
   /**
    * Evaluate (1-t)start+t end exactly for finite normalized binary64 inputs.
-   * The key is `d:<odd hexadecimal numerator>p<binary exponent>`; zero is d:0p0.
-   * The numeric view is rounded once to nearest, ties to even. Endpoints retain
-   * their input value, including signed zero; interior numeric views may round
-   * onto an endpoint while their exact key remains distinct. Inputs are immutable.
+   * The key is `d:<odd hexadecimal numerator>p<binary exponent>`; zero is
+   * d:0p0. The numeric view is rounded once to nearest, ties to even. Endpoints
+   * retain their input value, including signed zero; interior numeric views may
+   * round onto an endpoint while their exact key remains distinct. Inputs are
+   * immutable.
    */
   export function phase(
     start: number,
@@ -47,14 +49,15 @@ export namespace AutoMovieCanonicalBoundary64 {
   }
 
   /**
-   * Invert an exact phase key within a directed normalized interval.
-   * Key/value disagreement, noncanonical keys, phases outside the exact interval
-   * and an interior inverse rounded to 0 or 1 throw. Exact endpoints return 0/1.
+   * Invert an exact phase key within a directed normalized interval. Key/value
+   * disagreement, noncanonical keys, phases outside the exact interval and an
+   * interior inverse rounded to 0 or 1 throw. Exact endpoints return 0/1.
    * Authority IDs are absent from this ABI and must be checked by the caller.
-   * An interior numeric phase coinciding with an endpoint remains valid when its
-   * key distinguishes it and the inverse coordinate is representably interior.
-   * A rounded inverse need not reproduce that key through phase; retain the
-   * canonical input key across restrictions rather than reconstructing identity.
+   * An interior numeric phase coinciding with an endpoint remains valid when
+   * its key distinguishes it and the inverse coordinate is representably
+   * interior. A rounded inverse need not reproduce that key through phase;
+   * retain the canonical input key across restrictions rather than
+   * reconstructing identity.
    */
   export function local(
     start: number,
@@ -90,7 +93,8 @@ export namespace AutoMovieCanonicalBoundary64 {
 
   /**
    * Order admitted exact phase keys without using their rounded numeric views.
-   * Distinct dyadics can have the same view; their identity and order remain distinct.
+   * Distinct dyadics can have the same view; their identity and order remain
+   * distinct.
    */
   export function compare(
     a: IAutoMovieCanonicalBoundaryPhase64,
@@ -107,13 +111,14 @@ export namespace AutoMovieCanonicalBoundary64 {
   /**
    * Invert the supplied finite monotone map between its authored local anchors.
    * Anchors include local 0 and 1 in increasing local order; their exact phases
-   * are strictly directed. Exact authored addresses retain their original local.
-   * Foreign phases are bracketed by those anchors and bisected in ordered positive
-   * binary64 bits until an exact hit or adjacent representable locals remain.
-   * An unattainable phase returns an interior bracketing local, with its original
-   * canonical identity retained by the caller. No continuous inverse is certified.
-   * A reversed map, inconsistent anchor, out-of-range target or unrepresentable
-   * interior inverse throws rather than moving an authored local coordinate.
+   * are strictly directed. Exact authored addresses retain their original
+   * local. Foreign phases are bracketed by those anchors and bisected in
+   * ordered positive binary64 bits until an exact hit or adjacent representable
+   * locals remain. An unattainable phase returns an interior bracketing local,
+   * with its original canonical identity retained by the caller. No continuous
+   * inverse is certified. A reversed map, inconsistent anchor, out-of-range
+   * target or unrepresentable interior inverse throws rather than moving an
+   * authored local coordinate.
    */
   export function inverse(
     forward: (local: number) => IAutoMovieCanonicalBoundaryPhase64,
@@ -195,15 +200,16 @@ export namespace AutoMovieCanonicalBoundary64 {
   }
 
   /**
-   * Partition each named authority at all declared binary64 endpoints.
-   * Returned atoms are increasing open intervals, sorted by authority and start;
-   * IDs within an atom are sorted. Input walk is the patch's coherent boundary
-   * walk relative to increasing local side parameter (+1 bottom/right, -1 top/left).
-   * Output walks multiply that sign by sign(end-start), so all use the increasing
-   * canonical atom direction. Empty coverage and conflicting/overfull incidence
-   * remain explicit diagnostics; they neither throw nor certify source topology.
-   * Three global uses can describe coarse1+fine2 with exactly two uses per atom.
-   * Duplicate IDs, empty authority/ID, invalid walks and invalid intervals throw.
+   * Partition each named authority at all declared binary64 endpoints. Returned
+   * atoms are increasing open intervals, sorted by authority and start; IDs
+   * within an atom are sorted. Input walk is the patch's coherent boundary walk
+   * relative to increasing local side parameter (+1 bottom/right, -1 top/left).
+   * Output walks multiply that sign by sign(end-start), so all use the
+   * increasing canonical atom direction. Empty coverage and
+   * conflicting/overfull incidence remain explicit diagnostics; they neither
+   * throw nor certify source topology. Three global uses can describe
+   * coarse1+fine2 with exactly two uses per atom. Duplicate IDs and invalid
+   * intervals throw.
    */
   export function partition(
     uses: IAutoMovieCanonicalBoundary64.IPartitionUses,
@@ -215,17 +221,7 @@ export namespace AutoMovieCanonicalBoundary64 {
       > = new Map();
     for (const use of uses) {
       admit(use.start, use.end);
-      if (
-        typeof use.id !== "string" ||
-        !use.id ||
-        ids.has(use.id) ||
-        typeof use.authority !== "string" ||
-        !use.authority ||
-        (use.walk !== 1 && use.walk !== -1)
-      )
-        throw new Error(
-          "Boundary uses require unique nonempty IDs, authority and signed walks",
-        );
+      if (ids.has(use.id)) throw new Error("Boundary uses require unique IDs");
       ids.add(use.id);
       const events: Map<
         number,
@@ -285,7 +281,7 @@ export namespace AutoMovieCanonicalBoundary64 {
    * comparisons. Invalid values throw; no clamp or epsilon broadens admission.
    */
   function unit(value: number): void {
-    if (!Number.isFinite(value) || value < 0 || value > 1)
+    if (value < 0 || value > 1)
       throw new Error("Boundary phases must be finite in [0,1]");
   }
 
@@ -357,18 +353,17 @@ export namespace AutoMovieCanonicalBoundary64 {
    * Validate canonical spelling and exact unit range before numeric inversion.
    * Affine products of normalized binary64 inputs have exponent at least -2148;
    * this gives the 550-character/exponent bounds, without a geometry tolerance
-   * or producer-provenance certificate. Bounded parsing, normalization and range
-   * comparison visit O(W) key bits. Invalid keys throw, and only the validated
-   * pair escapes to serve all following local checks.
+   * or producer-provenance certificate. Bounded parsing, normalization and
+   * range comparison visit O(W) key bits. Invalid keys throw, and only the
+   * validated pair escapes to serve all following local checks.
    */
   function parse(key: string): Dyadic {
-    if (typeof key !== "string" || key.length > 550)
-      throw new Error("Invalid canonical dyadic phase key");
+    if (key.length > 550) throw new Error("Invalid canonical dyadic phase key");
     const match: RegExpExecArray | null =
       /^d:([0-9a-f]+)p(-?(?:0|[1-9][0-9]*))$/.exec(key);
     if (!match) throw new Error("Invalid canonical dyadic phase key");
     const exponent: number = Number(match[2]);
-    if (!Number.isSafeInteger(exponent) || exponent < -2148 || exponent > 0)
+    if (exponent < -2148 || exponent > 0)
       throw new Error(
         "Canonical dyadic exponent is outside binary64 affine phase bounds",
       );
@@ -379,12 +374,12 @@ export namespace AutoMovieCanonicalBoundary64 {
   }
 
   /**
-   * Round a private nonnegative rational times a power of two, exactly in [0,1].
-   * Quotient/remainder quantization at the normal 53-bit or subnormal 2^-1074
-   * grid implements nearest-even without intermediate Number division or double
-   * rounding. Bit lengths, fixed shifts/comparisons and one division operate on
-   * O(W)-bit call-local operands; one quotient/remainder resolves both direction
-   * and ties. Underflow returns zero for the caller to qualify.
+   * Round a private nonnegative rational times a power of two, exactly in
+   * [0,1]. Quotient/remainder quantization at the normal 53-bit or subnormal
+   * 2^-1074 grid implements nearest-even without intermediate Number division
+   * or double rounding. Bit lengths, fixed shifts/comparisons and one division
+   * operate on O(W)-bit call-local operands; one quotient/remainder resolves
+   * both direction and ties. Underflow returns zero for the caller to qualify.
    */
   function rounded(n: bigint, d: bigint, e: number): number {
     if (n === 0n) return 0;

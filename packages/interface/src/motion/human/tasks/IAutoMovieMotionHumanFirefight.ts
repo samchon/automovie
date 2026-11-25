@@ -7,16 +7,13 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * The extinguisher follows the PASS sequence (OSHA, Portable fire
  * extinguishers,
  * https://osha.gov/etools/evacuation-plans-procedures/emergency-standards/portable-extinguishers/use):
- * pull the pin, aim the nozzle low at the base of the fire, squeeze the
- * lever and sweep side to side. A hose team of a nozzle operator and a
- * backup member grip one hose line and advance; the operator opens the bail
- * and sweeps. A second person beats flames on a lying body with a held
- * cloth.
+ * pull the pin, aim the nozzle low at the base of the fire, squeeze the lever
+ * and sweep side to side. A hose team of a nozzle operator and a backup member
+ * grip one hose line and advance; the operator opens the bail and sweeps. A
+ * second person beats flames on a lying body with a held cloth.
  */
 export namespace IAutoMovieMotionHumanFirefight {
-  /**
-   * A hose team member's role.
-   */
+  /** A hose team member's role. */
   export type Role = "nozzle" | "backup";
 
   /**
@@ -38,8 +35,8 @@ export namespace IAutoMovieMotionHumanFirefight {
   }
 
   /**
-   * A hose team member's parameters. The hose declares a grip affordance
-   * per member along its line, and its nozzle a `bail` articulation.
+   * A hose team member's parameters. The hose declares a grip affordance per
+   * member along its line, and its nozzle a `bail` articulation.
    */
   export interface IHoseLine {
     /** The hose line's scene subject id. */
@@ -61,9 +58,7 @@ export namespace IAutoMovieMotionHumanFirefight {
     sweeps?: number;
   }
 
-  /**
-   * Beating flames on a lying partner with a held cloth.
-   */
+  /** Beating flames on a lying partner with a held cloth. */
   export interface IBeatFlames {
     /** The held cloth's scene subject id. */
     prop: string;

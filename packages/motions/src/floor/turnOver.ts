@@ -18,16 +18,17 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
 import { lieDownPoses } from "./lieDownPoses";
 import { lyingTurn } from "./lyingTurn";
+import { turnOverToward } from "./turnOverToward";
 
 /** Seconds of each quarter turn (provisional). */
 const QUARTER: number = 1;
@@ -41,159 +42,183 @@ const KEYS: readonly IAutoMovieMotionHumanLieDown.IPose[] = [
 ];
 
 /**
- * Turn over while lying (#3987). The body turns about its own long axis
- * (`lyingTurn`) from the position it lies in to the requested one, a
- * quarter turn at a time, through each side posture between; a turn
- * between the back and the front passes the `via` side. The limbs go from
- * one quarter's posture to the next (`lieDown`'s postures: the arms and
- * the uppermost knee come over first in the side posture, provisional
- * angles), the pelvis keeps its place over the support and the root rests
- * the lowest collision shape on the floor or the named surface at every
- * second (`knockdown.rest`). A body not lying is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the turn, the route, the keys' source, the rest rule and the refusal.
- * @evidence contracts/development/design.md#principled-representation A whole-body row on one clock: a turn about the long axis and the limb keys of each quarter.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses `lieDown`'s postures and the floor rest; adds the long-axis turn.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The support height is the prop's surface; the rest height is the body's own shapes'.
+ * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
+ * from the position it lies in to the requested one, a quarter turn at a time,
+ * through each side posture between; a turn between the back and the front
+ * passes the `via` side. The limbs go from one quarter's posture to the next
+ * (`lieDown`'s postures: the arms and the uppermost knee come over first in the
+ * side posture, provisional angles), the pelvis keeps its place over the
+ * support and the root rests the lowest collision shape on the floor or the
+ * named surface at every second (`knockdown.rest`). A body not lying is
+ * refused.
  */
-export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnOver> = {
-  name: "turnOver",
-  interrupts: {
-    any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
-  },
-  plan: (
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTurnOver>,
-  ): IAutoMovieMotionHumanActionPlan => {
-    const p: IAutoMovieMotionHumanTurnOver = context.params;
-    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const hold: number = p.hold ?? 0;
-    HumanBound.least("hold", hold, 0, "s");
-    if (context.entry.base.kind !== "lying")
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "to",
-        value: p.to,
-        reason: "a body turns over only while lying",
-        fix: "lie down first",
-      });
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const from: lyingTurn.ITurn = lyingTurn.of(entry);
-    const target: number = toward(from.turn, lyingTurn.TURNS[p.to], p.via ?? "left");
-    const quarters: number = Math.max(1, Math.ceil(Math.abs(target - from.turn) / 90 - 1e-6));
-    const support: number = height(context, p.on);
-    const hips: IAutoMovieVector3 = Vector3.add(
-      entry.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(entry), body.rest.get("hips")!),
-    );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.sequence([
-        { name: "turning", seconds: QUARTER * quarters },
-        { name: p.to, seconds: 0 },
-        { name: "settled", seconds: hold },
-      ]),
-      AutoMovieMotionManner.of(context, p.manner),
-      { holds: ["settled"] },
-    );
-    const progress: ReturnType<typeof AutoMovieMotionClock.prepare> =
-      AutoMovieMotionClock.prepare(clock, "turning", p.to);
-    // The limb key at a turn: the entry's joints blended into the quarter
-    // keys on the way, so the body leaves exactly as it lay.
-    const key: (turn: number) => IAutoMovieMotionHumanPosture["joints"] = (turn: number): IAutoMovieMotionHumanPosture["joints"] =>
-      KEYS[(((Math.round(turn / 90) % 4) + 4) % 4)]!.joints;
-    const leave: (w: number) => IAutoMovieMotionHumanPosture["joints"] = prepareHumanShapeBlend(
+function planTurnOver(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTurnOver>,
+): IAutoMovieMotionHumanActionPlan {
+  const p: IAutoMovieMotionHumanTurnOver = context.params;
+  const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+  const hold: number = p.hold ?? 0;
+  HumanBound.least("hold", hold, 0, "s");
+  if (context.entry.base.kind !== "lying")
+    throw new HumanRefusal({
+      kind: "base",
+      axis: "to",
+      value: p.to,
+      reason: "a body turns over only while lying",
+      fix: "lie down first",
+    });
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const from: lyingTurn.ITurn = lyingTurn(entry);
+  const target: number = turnOverToward(
+    from.turn,
+    lyingTurn.TURNS[p.to],
+    p.via ?? "left",
+  );
+  const quarters: number = Math.max(
+    1,
+    Math.ceil(Math.abs(target - from.turn) / 90 - 1e-6),
+  );
+  const support: number = height(context, p.on);
+  const hips: IAutoMovieVector3 = Vector3.add(
+    entry.root,
+    Quaternion.rotateVector(humanPostureHeading(entry), body.rest.get("hips")!),
+  );
+  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+    AutoMovieMotionClock.sequence([
+      { name: "turning", seconds: QUARTER * quarters },
+      { name: p.to, seconds: 0 },
+      { name: "settled", seconds: hold },
+    ]),
+    AutoMovieMotionManner(context, p.manner),
+    { holds: ["settled"] },
+  );
+  const progress: ReturnType<typeof AutoMovieMotionClock.prepare> =
+    AutoMovieMotionClock.prepare(clock, "turning", p.to);
+  // The limb key at a turn: the entry's joints blended into the quarter
+  // keys on the way, so the body leaves exactly as it lay.
+  const key: (turn: number) => IAutoMovieMotionHumanPosture["joints"] = (
+    turn: number,
+  ): IAutoMovieMotionHumanPosture["joints"] =>
+    KEYS[((Math.round(turn / 90) % 4) + 4) % 4]!.joints;
+  const leave: (w: number) => IAutoMovieMotionHumanPosture["joints"] =
+    prepareHumanShapeBlend(
       entry.joints,
-      key(from.turn + Math.sign(target - from.turn) * 90 * Math.min(1, quarters)),
+      key(
+        from.turn + Math.sign(target - from.turn) * 90 * Math.min(1, quarters),
+      ),
     );
-    const rest: ReturnType<typeof knockdown.prepareRest> = knockdown.prepareRest(body);
-    const at: (
-      seconds: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ) => IAutoMovieMotionHumanPosture = (
-      seconds: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
-      const u: number = progress.progress(seconds);
-      const turn: number = from.turn + (target - from.turn) * u;
-      const step: number = (turn - from.turn) / (target - from.turn) * quarters;
-      const quarter: number = Math.min(quarters - 1, Math.floor(step));
-      const w: number = step - quarter;
-      const sign: number = Math.sign(target - from.turn);
-      const joints: IAutoMovieMotionHumanPosture["joints"] =
-        quarter === 0
-          ? leave(w)
-          : prepareHumanShapeBlend(
-              key(from.turn + sign * 90 * quarter),
-              key(from.turn + sign * 90 * (quarter + 1)),
-            )(w);
-      const posture: IAutoMovieMotionHumanPosture = {
-        ...lyingTurn.tilt({ yaw: from.yaw, turn }),
-        root: { x: 0, y: 0, z: 0 },
-        joints,
-        limbs: {},
-      };
-      const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-        resolveHumanPosture.heading(posture),
-        body.rest.get("hips")!,
-      );
-      return {
-        ...posture,
-        root: {
-          x: hips.x - offset.x,
-          y:
-            rest(
-              posture,
-              prepareHumanPoseResolution(resolution),
-              projection ?? prepareHumanPostureProjection(body),
-            ) + support,
-          z: hips.z - offset.z,
-        },
-      };
+  const rest: ReturnType<typeof knockdown.prepareRest> =
+    knockdown.prepareRest(body);
+  const at: (
+    seconds: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => IAutoMovieMotionHumanPosture = (
+    seconds: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): IAutoMovieMotionHumanPosture => {
+    const u: number = progress.progress(seconds);
+    const turn: number = from.turn + (target - from.turn) * u;
+    const step: number = ((turn - from.turn) / (target - from.turn)) * quarters;
+    const quarter: number = Math.min(quarters - 1, Math.floor(step));
+    const w: number = step - quarter;
+    const sign: number = Math.sign(target - from.turn);
+    const joints: IAutoMovieMotionHumanPosture["joints"] =
+      quarter === 0
+        ? leave(w)
+        : prepareHumanShapeBlend(
+            key(from.turn + sign * 90 * quarter),
+            key(from.turn + sign * 90 * (quarter + 1)),
+          )(w);
+    const posture: IAutoMovieMotionHumanPosture = {
+      ...lyingTurn.tilt({ yaw: from.yaw, turn }),
+      root: { x: 0, y: 0, z: 0 },
+      joints,
+      limbs: {},
     };
-    const duration: number = clock.duration;
-    const turning: IAutoMovieMotionHumanPrimitive = {
-      channels: ["root", "trunk", "head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
-      reads: [],
-      from: 0,
-      to: duration,
-      write: (
-        _: IAutoMovieMotionHumanPosture,
-        seconds: number,
-        _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-        projection?: ReturnType<typeof prepareHumanPostureProjection>,
-      ): IAutoMovieMotionHumanPosture => at(seconds, resolution, projection),
-    };
-    // The contact parts have no side or chest; the trunk's window is the back's in every lying position.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      {
-        part: "back",
-        kind: "lie",
-        from: 0,
-        to: 1,
-        support: p.on === undefined ? { kind: "ground" } : { kind: "prop", subject: p.on.prop },
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+      humanPostureHeading(posture),
+      body.rest.get("hips")!,
+    );
+    return {
+      ...posture,
+      root: {
+        x: hips.x - offset.x,
+        y:
+          rest(
+            posture,
+            prepareHumanPoseResolution(resolution),
+            projection ?? prepareHumanPostureProjection(body),
+          ) + support,
+        z: hips.z - offset.z,
       },
-    ];
-    const planned: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+    };
+  };
+  const duration: number = clock.duration;
+  const turning: IAutoMovieMotionHumanPrimitive = {
+    channels: [
+      "root",
+      "trunk",
+      "head",
+      "leftLeg",
+      "rightLeg",
+      "leftArm",
+      "rightArm",
+    ],
+    reads: [],
+    from: 0,
+    to: duration,
+    write: (
+      _: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      _before?: IAutoMovieMotionHumanPrimitive.Reader,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => at(seconds, resolution, projection),
+  };
+  // The contact parts have no side or chest; the trunk's window is the back's in every lying position.
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [
+    {
+      part: "back",
+      kind: "lie",
+      from: 0,
+      to: 1,
+      support:
+        p.on === undefined
+          ? { kind: "ground" }
+          : { kind: "prop", subject: p.on.prop },
+    },
+  ];
+  const planned: IAutoMovieMotionHumanActionPlan =
+    composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
       clock,
       contact: "settled",
       primitives: [turning],
     });
-    return { ...planned, base: { kind: "lying" } };
-  },
-};
-
-/** The target turn nearest the current one, a half turn going over the named side. */
-function toward(current: number, named: number, via: "left" | "right"): number {
-  const options: number[] = [-2, -1, 0, 1, 2].map((k: number): number => named + 360 * k);
-  const nearest: number = options.reduce((a: number, b: number): number =>
-    Math.abs(b - current) < Math.abs(a - current) - 1e-6 ? b : a,
-  );
-  if (Math.abs(Math.abs(nearest - current) - 180) > 1e-6) return nearest;
-  return via === "left" ? current + 180 : current - 180;
+  return { ...planned, base: { kind: "lying" } };
 }
+
+/**
+ * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
+ * from the position it lies in to the requested one, a quarter turn at a time,
+ * through each side posture between; a turn between the back and the front
+ * passes the `via` side. The limbs go from one quarter's posture to the next
+ * (`lieDown`'s postures: the arms and the uppermost knee come over first in the
+ * side posture, provisional angles), the pelvis keeps its place over the
+ * support and the root rests the lowest collision shape on the floor or the
+ * named surface at every second (`knockdown.rest`). A body not lying is
+ * refused.
+ */
+export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnOver> =
+  {
+    name: "turnOver",
+    interrupts: {
+      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planTurnOver,
+  };
 
 /** The support's height: the named prop surface's, or the floor's. */
 function height(
@@ -203,9 +228,10 @@ function height(
   if (on === undefined) return 0;
   const reader: IAutoMovieMotionHumanPropReader = context.prop(on.prop);
   const id: string = on.surface ?? "surface";
-  const surface: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
-    (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === "surface",
-  );
+  const surface: IAutoMovieAffordance | undefined =
+    reader.prop.affordances?.find(
+      (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === "surface",
+    );
   if (surface === undefined)
     throw new HumanRefusal({
       kind: "affordance",

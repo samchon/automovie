@@ -3,11 +3,13 @@ import type { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
 import type { IAutoMovieBuiltOpening } from "./IAutoMovieBuiltOpening";
 
 /**
- * Opening-operation validation context with shared element-drive ownership tracking.
+ * Opening-operation validation context with shared element-drive ownership
+ * tracking.
  */
 export namespace IAutoMovieValidateBuiltOpeningOperation {
   /**
-   * Opening-operation validation context with shared element-drive ownership tracking.
+   * Opening-operation validation context with shared element-drive ownership
+   * tracking.
    *
    * An operated opening must name the element it fills, and declare at least
    * one panel and one state. Each panel needs a unique non-blank id, an element
@@ -25,19 +27,34 @@ export namespace IAutoMovieValidateBuiltOpeningOperation {
     /** Borrowed opening; an omitted operation causes no validation work. */
     opening: IAutoMovieBuiltOpening;
 
-    /** Diagnostic path of the opening, used as the prefix for operation, panel, state and hardware findings. */
+    /**
+     * Diagnostic path of the opening, used as the prefix for operation, panel,
+     * state and hardware findings.
+     */
     path: string;
 
-    /** Borrowed complete building hierarchy used to determine descendants of the filling element. */
+    /**
+     * Borrowed complete building hierarchy used to determine descendants of the
+     * filling element.
+     */
     elements: readonly IAutoMovieBuiltElement[];
 
-    /** Borrowed declared building element ids used to resolve panel and optional hardware elements. */
+    /**
+     * Borrowed declared building element ids used to resolve panel and optional
+     * hardware elements.
+     */
     elementIds: ReadonlySet<string>;
 
-    /** Caller-owned element-id to first-driver description map; first claims remain even for invalid panels and later claims produce conflicts. */
+    /**
+     * Caller-owned element-id to first-driver description map; first claims
+     * remain even for invalid panels and later claims produce conflicts.
+     */
     driven: Map<string, string>;
 
-    /** Synchronous diagnostic sink; appended findings may reference authored records and sink exceptions propagate. */
+    /**
+     * Synchronous diagnostic sink; appended findings may reference authored
+     * records and sink exceptions propagate.
+     */
     collector: IAutoMovieViolationCollector;
   };
 }

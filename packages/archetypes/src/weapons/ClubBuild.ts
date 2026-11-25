@@ -19,7 +19,8 @@ const BATON: string =
   "Monadnock MP straight polycarbonate batons, 24 and 26 in long and 1.25 in across (https://www.defense-technology.com/?p=2138)";
 
 /**
- * The measured club recipes, seed draw and model contacts retained by the bat and screen practice prop.
+ * The measured club recipes, seed draw and model contacts retained by the bat
+ * and screen practice prop.
  */
 export namespace ClubBuild {
   /** The retained barrel length in metres. */
@@ -122,14 +123,10 @@ export namespace ClubBuild {
     },
   };
 
-  /**
-   * The values {@link draw} accepts at this place in its signature.
-   */
+  /** The values {@link draw} accepts at this place in its signature. */
   export type DrawMaterial = "wood" | "plastic";
 
-  /**
-   * What {@link draw} prepares for its caller.
-   */
+  /** What {@link draw} prepares for its caller. */
   export interface IDrawResult {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<
@@ -141,13 +138,11 @@ export namespace ClubBuild {
     d: Partial<Record<createClub.Dimension, number>>;
   }
 
-  /**
-   * Draw the bat or screen practice profile under its original club namespace.
-   */
+  /** Draw the bat or screen practice profile under its original club namespace. */
   export function draw(
     kind: createClub.Kind,
     params: Readonly<Omit<createClub.IParams, "kind">>,
-    seed: number | string | undefined,
+    seed: number | undefined,
     name: string,
     material: DrawMaterial,
   ): IDrawResult {
@@ -168,9 +163,7 @@ export namespace ClubBuild {
     return { builder, d };
   }
 
-  /**
-   * The values {@link contacts} accepts at this place in its signature.
-   */
+  /** The values {@link contacts} accepts at this place in its signature. */
   export type ContactsGrip = "two-hand" | "power";
 
   /**

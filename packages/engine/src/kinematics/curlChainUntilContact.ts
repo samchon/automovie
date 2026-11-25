@@ -11,7 +11,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { bracketedCrossing } from "../math/bracketedCrossing";
-import { physicalHullFaces } from "../physics/physicalHullFaces";
+import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
@@ -20,44 +20,43 @@ import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolut
 import { resolvePose } from "./resolvePose";
 
 /**
- * Close articulated chains (fingers and thumb) around an object: each
- * joint, proximal first, flexes until a capsule of its chain first touches
- * the object's colliders or its flexion reaches the rig's range of motion,
- * and the next joint then continues from there.
+ * Close articulated chains (fingers and thumb) around an object: each joint,
+ * proximal first, flexes until a capsule of its chain first touches the
+ * object's colliders or its flexion reaches the rig's range of motion, and the
+ * next joint then continues from there.
  *
- * This is the closing rule of kinematic grasp execution in grasp planners and
- * game engines: GraspIt!'s auto-grasp closes every joint of a hand at a set
- * rate and stops the joints proximal to a link once that link touches the
- * object, while the distal ones keep closing (Miller and Allen 2004, IEEE
- * Robot. Autom. Mag. 11(4):110); Unity and Unreal hand interaction systems
- * rotate each finger bone until a sweep against the held object hits. Here
- * the joints of a chain close one at a time, proximal to distal, which is the
- * same stopping rule evaluated sequentially: joint `k` turns its phalanx and
- * every phalanx after it as a rigid unit, so it stops at the first contact of
- * any of them, and the joints after it close from that state.
+ * This is the closing rule of kinematic grasp execution in grasp planners: the
+ * auto-grasp of Miller and Allen closes every joint of a hand at a set rate and
+ * stops the joints proximal to a link once that link touches the object, while
+ * the distal ones keep closing (Miller and Allen 2004, IEEE Robot. Autom. Mag.
+ * 11(4):110). Here the
+ * joints of a chain close one at a time, proximal to distal, which is the same
+ * stopping rule evaluated sequentially: joint `k` turns its phalanx and every
+ * phalanx after it as a rigid unit, so it stops at the first contact of any of
+ * them, and the joints after it close from that state.
  *
- * Each phalanx is a capsule of the chain's `radius` from its joint to the
- * next joint of the chain, the last one to `tip` (a point in the distal
- * bone's rest frame relative to its joint). The gap of a phalanx is the exact
- * signed distance from its segment to each collider less the radius: the
+ * Each phalanx is a capsule of the chain's `radius` from its joint to the next
+ * joint of the chain, the last one to `tip` (a point in the distal bone's rest
+ * frame relative to its joint). The gap of a phalanx is the exact signed
+ * distance from its segment to each collider less the radius: the
  * segment-to-segment distance for spheres and capsules
  * (`closestPointsBetweenSegments`), and for boxes the minimum of the box's
  * signed distance along the segment, a convex function of the segment
  * parameter, found by golden-section search to 1e-9 of the segment. Contact is
  * a gap of zero or less.
  *
- * Every joint's flexion is searched from its current value upward in steps
- * of `step` degrees, the first step whose gap is not positive is bracketed
- * and the bracket closed to the width 30 bisections leave (`HALVINGS`), by
- * false position on the gap, which is continuous in the angle
- * (`bracketedCrossing`), and by bisection for whatever width that leaves; the
- * joint keeps the bracket's lower end, the last angle read with a positive
- * gap, so a phalanx stops touching the collider within that resolution and
- * never inside it. A joint already in
- * contact does not move. A joint that meets nothing stops at the flexion the
- * skeleton's range of motion allows (`clampJointToSkeleton`), so the result
- * never needs a later clamp. Forward kinematics is the engine's `resolvePose`
- * with the same axes and rest frames, so the angles read the same everywhere.
+ * Every joint's flexion is searched from its current value upward in steps of
+ * `step` degrees, the first step whose gap is not positive is bracketed and the
+ * bracket closed to the width 30 bisections leave (`HALVINGS`), by false
+ * position on the gap, which is continuous in the angle (`bracketedCrossing`),
+ * and by bisection for whatever width that leaves; the joint keeps the
+ * bracket's lower end, the last angle read with a positive gap, so a phalanx
+ * stops touching the collider within that resolution and never inside it. A
+ * joint already in contact does not move. A joint that meets nothing stops at
+ * the flexion the skeleton's range of motion allows (`clampJointToSkeleton`),
+ * so the result never needs a later clamp. Forward kinematics is the engine's
+ * `resolvePose` with the same axes and rest frames, so the angles read the same
+ * everywhere.
  *
  * The search is deterministic: a fixed step, a fixed bracket resolution and a
  * fixed chain and joint order. A step larger than the thinnest part of an
@@ -66,16 +65,8 @@ import { resolvePose } from "./resolvePose";
  *
  * @param input The rig, the pose to curl, the chains and the colliders.
  * @returns The curled pose and each chain's final angles and gap.
- * @throws {Error} When a chain names a bone the pose cannot resolve, the
- *   radius or step is not positive, or a collider is malformed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the closing rule and its source, the phalanx capsules, the exact distances, the search with its stopping side, the range-of-motion cap, determinism and the step's resolution.
- * @evidence contracts/development/implementation.md#principled-implementation GraspIt!'s auto-grasp stopping rule (Miller and Allen 2004) evaluated proximal to distal, with exact segment distances and a bracketed root search on forward kinematics of the engine's own resolver: the Illinois false position of `bracketedRoot` (Dowell and Jarratt 1971) on the continuous gap, whose readings move the bracket end of their own sign exactly as a bisection's do, completed by bisection to the stated width.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain/joint loop shares one actual gap reader. Raw FK retains its array-to-map adapter; an explicit native overlay writes that same fresh map directly through its private canonical frame-copy owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance counts a gap as contact: a joint stops on the positive side of the first non-positive gap, and an unreached object leaves the joint at its range limit with the positive gap reported.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every original range/step probe remains and the scan's two bracket readings are not read again; the bracket is closed to the width of 30 bisections by false position, superlinear on a smooth gap, in place of 30 forward-kinematics and distance readings a joint (unmeasured). An explicit immutable rig admits each chain's first actual trial once, then its E complete existing edits rather than J rows. Native map output omits each probe's temporary FK array and subsequent indexing pass; fresh frame/Map output and all actual FK/contact work remain. Raw full resolvePose and original map construction are unchanged; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied rig fixes unchanged skeleton/axes/frames/topology. A per-chain source is created only after the original first trial edit, preserving admission order and overwrite behavior; prior-chain commits and fixed root/non-chain records then remain unchanged. Every later complete current-chain edit list is actually admitted, while absent future bones stay absent. Contact queries, brackets, angles and final gaps are never reused as results.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy operation reader and fixed-collider readers live until this closure returns or throws. Each chain releases one fixed-source workspace, demanded set and bounded current-chain order before the next chain; no workspace, FK reader, queried pose/time history or handle escapes in the returned pose/reports.
+ * @throws {Error} When a chain names a bone the pose cannot resolve, the radius
+ *   or step is not positive, or a collider is malformed.
  */
 export function curlChainUntilContact(
   input: IAutoMovieCurlChainUntilContact.IInput,
@@ -84,9 +75,14 @@ export function curlChainUntilContact(
   if (!(step > 0)) throw new Error("A curl step must be positive");
   for (const collider of input.colliders) validate(collider.shape);
   const distances: ReturnType<typeof physicalShapeSegmentDistance.prepare>[] =
-    input.colliders.map((collider: IAutoMovieCurlChainUntilContact.ICollider): ReturnType<typeof physicalShapeSegmentDistance.prepare> =>
-      physicalShapeSegmentDistance.prepare(collider.frame, collider.shape));
-  let operation: ReturnType<typeof preparePoseResolution> | undefined;
+    input.colliders.map(
+      (
+        collider: IAutoMovieCurlChainUntilContact.ICollider,
+      ): ReturnType<typeof physicalShapeSegmentDistance.prepare> =>
+        physicalShapeSegmentDistance.prepare(collider.frame, collider.shape),
+    );
+  const operation: ReturnType<typeof preparePoseResolution> =
+    preparePoseResolution();
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
     input.pose.joints.map(
       (
@@ -105,12 +101,17 @@ export function curlChainUntilContact(
       throw new Error("A curled chain's radius must be positive");
     const flexion: number[] = [];
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(chain.bones);
-    let fixed: ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]> | undefined;
+    let fixed:
+      | ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]>
+      | undefined;
     const edited: AutoMovieHumanoidBone[] = [];
 
     // The gap of the phalanges from the k-th onward under the current angles
     // with joint k at a trial flexion.
-    const gap: (k: number, angle: number) => number = (k: number, angle: number): number => {
+    const gap: (k: number, angle: number) => number = (
+      k: number,
+      angle: number,
+    ): number => {
       const bone: AutoMovieHumanoidBone = chain.bones[k]!;
       const previous: IAutoMovieJointPose | undefined = joints.get(bone);
       joints.set(bone, {
@@ -119,22 +120,26 @@ export function curlChainUntilContact(
         abduction: previous?.abduction ?? 0,
         twist: previous?.twist ?? 0,
       });
-      operation ??= preparePoseResolution();
       let resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
       if (input.resolution === undefined) {
-        const frames: IAutoMovieResolvedBone[] = resolvePose(pose(), input.skeleton, input.jointAxes,
-          input.restFrames, input.topology, operation);
+        const frames: IAutoMovieResolvedBone[] = resolvePose(
+          pose(),
+          input.skeleton,
+          input.jointAxes,
+          input.restFrames,
+          input.topology,
+          operation,
+        );
         resolved = new Map();
         for (const frame of frames) resolved.set(frame.bone, frame);
       } else if (fixed === undefined) {
-
         // Admit the first actual trial, after its original overwrite. Earlier
         // admission could expose an initial record that this trial replaces.
         fixed = input.resolution.preparePose(pose(), requested, operation);
-        for (const name of joints.keys()) if (requested.has(name)) edited.push(name);
+        for (const name of joints.keys())
+          if (requested.has(name)) edited.push(name);
         resolved = fixed.resolveMap([]);
       } else {
-
         // Existing records keep their global map positions; newly encountered
         // chain joints append there. Never manufacture absent future records.
         if (!edited.includes(bone)) edited.push(bone);
@@ -239,25 +244,18 @@ export function curlChainUntilContact(
   return { pose: pose(), chains: reports };
 }
 
-/**
- * Companion types of {@link curlChainUntilContact}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents clinical degrees, world/bone-local metre frames, closing order and optional resolver conventions; IInput.resolution requires an explicitly prepared rig of those same unchanged inputs.
- * @evidence contracts/development/design.md#principled-representation Existing skeleton/pose types, ordered rig-bone chains with a local tip/radius, world-placed physical shapes and per-chain angle/gap reports describe the curl. Positive radius/step, chain ancestry and prepared-rig equivalence remain runtime/caller premises.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Every input drives the actual curl and every result reports it; HumanGrip supplies its existing body-owned immutable rig through resolution to avoid repeated static FK preparation without another rig representation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the physical shape, axes/rest-frame and prepared-rig owners' types; absent resolution keeps full raw FK, and no fitted answer, contact verdict or hand-specific proxy can be injected.
- */
+/** Companion types of {@link curlChainUntilContact}. */
 export namespace curlChainUntilContact {
   /**
    * How far a curled digit's angle may move with the limb that carries it,
    * degrees: a point the limb carries moves by no more than the limb's reach
-   * times the joints' tolerance (`ROM_TOLERANCE`, in radians) when the
-   * limb's chain is resolved to it, and a digit that closes on a contact
-   * follows the hand by about as far at its tip, which at its lever (the
-   * length from the joint to the digit's tip) turns it by this angle. A
-   * curl solves its own contact far finer (a step bisected 30 times); this
-   * is the change a curled digit shows when the limb's resolution moves the
-   * hand, not the curl's precision.
+   * times the joints' tolerance (`ROM_TOLERANCE`, in radians) when the limb's
+   * chain is resolved to it, and a digit that closes on a contact follows the
+   * hand by about as far at its tip, which at its lever (the length from the
+   * joint to the digit's tip) turns it by this angle. A curl solves its own
+   * contact far finer (a step bisected 30 times); this is the change a curled
+   * digit shows when the limb's resolution moves the hand, not the curl's
+   * precision.
    *
    * @param reach The limb's reach, metres: its two segments' lengths.
    * @param lever The joint's lever, metres: its length to the digit's tip.
@@ -280,7 +278,7 @@ function validate(shape: IAutoMoviePhysicalShape): void {
       shape.halfExtents.y > 0 &&
       shape.halfExtents.z > 0;
   else if (shape.kind === "hull")
-    ok = physicalHullFaces(shape.points).faces.length >= 4;
+    ok = physicalShapeHull(shape).faces.length >= 4;
   else {
     shape satisfies never;
     ok = false;
@@ -289,5 +287,9 @@ function validate(shape: IAutoMoviePhysicalShape): void {
     throw new Error(`A collider ${shape.id} has non-positive dimensions`);
 }
 
-/** The bisections whose final bracket width a joint's contact search closes to: a step of one degree to under a billionth of a degree, far finer than a joint's tolerance, so the positive side kept is the contact's own angle. */
+/**
+ * The bisections whose final bracket width a joint's contact search closes to:
+ * a step of one degree to under a billionth of a degree, far finer than a
+ * joint's tolerance, so the positive side kept is the contact's own angle.
+ */
 const HALVINGS: number = 30;

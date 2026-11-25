@@ -12,15 +12,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * Admit initial rigid prop mounts before the performance needs any prop frames.
  *
  * @param props Performance props by subject.
- * @throws {HumanRefusal} An authority conflict, missing carrier or socket, invalid offset or mount cycle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the construction point and every refused mount condition.
- * @evidence contracts/development/implementation.md#principled-implementation Each mounted prop has one parent edge. A walk's ordered Set detects revisits, and walks stop at a verified node or a prop with no mount. Socket references are checked against the declared affordances and rigid offsets use the engine's unit-rotation policy.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One iterative pass follows the canonical mount records. Validation of individual offsets delegates finite position and unit rotation to ViolationCollector.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects competing placement inputs and invalid references before reading any prop callbacks. No missing transform is replaced and no cycle is broken by selecting a fallback parent.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each completed subject is visited once plus the outgoing lookup into a completed chain. Socket checks scan the named parent's affordances. The current path and completed set use linear temporary space.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The completed set lets different chains share their already-verified suffix within this call.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The two temporary sets and scalar validation findings are local and discarded. Only a thrown refusal escapes.
+ * @throws {HumanRefusal} An authority conflict, missing carrier or socket,
+ *   invalid offset or mount cycle.
  */
 export function validateInitialPropMounts(
   props: ReadonlyMap<string, IAutoMovieMotionHumanProp>,
@@ -83,26 +76,11 @@ export function validateInitialPropMounts(
 
       const frame: IAutoMovieRigidTransform = mount.offset;
       const admission: ViolationCollector = new ViolationCollector();
-      admission.finiteVector(
-        `${axis}.offset.position`,
-        frame.position,
-        "position",
+      admission.unitQuaternion(
+        `${axis}.offset.rotation`,
+        frame.rotation,
+        "rotation",
       );
-      const { x, y, z, w }: IAutoMovieRigidTransform["rotation"] =
-        frame.rotation;
-      if ([x, y, z, w].every(Number.isFinite))
-        admission.unitQuaternion(
-          `${axis}.offset.rotation`,
-          frame.rotation,
-          "rotation",
-        );
-      else
-        admission.push(
-          "range",
-          `${axis}.offset.rotation`,
-          "rotation components must be finite numbers",
-          frame.rotation,
-        );
       if (admission.items.length !== 0)
         throw new HumanRefusal({
           kind: "parameter",

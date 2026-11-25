@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePlanPhysicalFloorSupportTargets.ts#IAutoMoviePlanPhysicalFloorSupportTargets
-
-## @evidence contracts/development/design.md#principled-representation
-
-Planted patches use the floor while unplanted patches preserve their requested clearance; endpoint-height constraints and actual shape minima remain separate observations.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-planPhysicalFloorSupportTargets shares the physical chain solver and consumes provider-owned contact geometry. The floor-support planner returns new maps for later motor tracking and diagnostic inspection.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Invalid pass limits, unknown planted endpoints and missing/empty geometry patches refuse; bounded passes can finish with residuals and never change native bodies.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines original horizontal goals, planted patches, explicit endpoint heights and one shared lowering budget. Separates fitted motor poses, requested goals, residual norms, signed floor errors and accumulated root drop.
-
 # src/physics/IAutoMoviePlanPhysicalFloorSupportTargets.ts#IAutoMoviePlanPhysicalFloorSupportTargets.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -13,19 +13,19 @@ import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 /**
  * The station rule along a chain and the copy of a shared layer (rule J3).
  *
- * Ordinary chain coefficients follow the natural cubic spline through
- * their values at the layers: among all twice-differentiable functions through
- * them, the one of least `integral f''^2`, continuous in its second
- * derivative at every layer. Each layer carries the spline's first and
- * second derivatives as its `slopes` and `curvatures`, so its intervals take
- * the quintic Hermite rule, which reproduces the spline's cubic exactly and
- * is C2 at every layer whatever the derivatives a layer carries. Three-point
- * slopes, as `AutoMovieHumanHorizontalChain.build` gives, leave the cubic
- * spans meeting at a corner in curvature, a line at every layer.
- * Native scalar compatibility rows, explicit pole-coordinate coefficients,
- * complete endpoint owners and actual-axis frame data keep their producer's
- * station jets instead. Their source records remain part of
- * the chain's geometry and must remain immutable with the principal values.
+ * Ordinary chain coefficients follow the natural cubic spline through their
+ * values at the layers: among all twice-differentiable functions through them,
+ * the one of least `integral f''^2`, continuous in its second derivative at
+ * every layer. Each layer carries the spline's first and second derivatives as
+ * its `slopes` and `curvatures`, so its intervals take the quintic Hermite
+ * rule, which reproduces the spline's cubic exactly and is C2 at every layer
+ * whatever the derivatives a layer carries. Three-point slopes, as
+ * `AutoMovieHumanHorizontalChain.build` gives, leave the cubic spans meeting at
+ * a corner in curvature, a line at every layer. Native scalar compatibility
+ * rows, explicit pole-coordinate coefficients, complete endpoint owners and
+ * actual-axis frame data keep their producer's station jets instead. Their
+ * source records remain part of the chain's geometry and must remain immutable
+ * with the principal values.
  *
  * A layer shared with another chain is the owner's: the neighbour copies the
  * owner's layer and its derivatives, signed into its own station direction
@@ -33,10 +33,10 @@ import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
  */
 export namespace AutoMovieSeamStation {
   /**
-   * Second derivatives of the natural cubic spline through values at
-   * stations, for every column at once (the tridiagonal system of continuous
-   * first derivatives with zero second derivatives at both ends, solved by
-   * the Thomas algorithm).
+   * Second derivatives of the natural cubic spline through values at stations,
+   * for every column at once (the tridiagonal system of continuous first
+   * derivatives with zero second derivatives at both ends, solved by the Thomas
+   * algorithm).
    *
    * @param t Strictly increasing stations, at least two.
    * @param values Values per station.
@@ -112,13 +112,15 @@ export namespace AutoMovieSeamStation {
   /**
    * The copy of an owner's layer for a neighbour that shares it.
    *
-   * A neighbour whose station runs the same way as the owner's at the ring
-   * (the owner's top is its bottom) takes `factor` 1; one that runs the
-   * other way (both chains end there, or both start) takes -1, which flips
-   * every first derivative and leaves the second ones.
+   * A neighbour whose station runs the same way as the owner's at the ring (the
+   * owner's top is its bottom) takes `factor` 1; one that runs the other way
+   * (both chains end there, or both start) takes -1, which flips every first
+   * derivative and leaves the second ones.
    *
-   * @param owner The owner's layer, carrying its jets (curvatures and plane slopes).
-   * @param factor Station direction of the neighbour relative to the owner, 1 or -1.
+   * @param owner The owner's layer, carrying its jets (curvatures and plane
+   *   slopes).
+   * @param factor Station direction of the neighbour relative to the owner, 1
+   *   or -1.
    */
   export function copy(
     owner: IAutoMovieLoftChain.ILayer,
@@ -149,12 +151,13 @@ export namespace AutoMovieSeamStation {
    * Layers named in `keep` are shared with an owner and keep the slopes and
    * curvatures they carry (their copies); their values enter the spline like
    * any other layer's. The section, plane and lift values are unchanged, so
-   * every principal section stays where it was; only the shape between
-   * layers becomes the spline's.
+   * every principal section stays where it was; only the shape between layers
+   * becomes the spline's.
    *
    * @param chain Chain to solve; not modified.
    * @param keep Indices of layers whose derivatives are owned elsewhere.
-   * @returns A copy whose layers carry slopes and curvatures (and plane jets when framed).
+   * @returns A copy whose layers carry slopes and curvatures (and plane jets
+   *   when framed).
    */
   export function continuous(
     chain: IAutoMovieLoftChain,
@@ -263,15 +266,14 @@ export namespace AutoMovieSeamStation {
     });
   }
 
-  /**
-   * Copy a plane or plane-derivative record to nine numbers `[origin, u, v]`.
-   */
+  /** Copy a plane or plane-derivative record to nine numbers `[origin, u, v]`. */
   export function flat(f: IAutoMovieLoftSectionFrame): number[] {
     return [...f.origin, ...f.u, ...f.v];
   }
 
   /**
-   * Copy nine `[origin, u, v]` components into a frame-shaped record, preserving axes as given.
+   * Copy nine `[origin, u, v]` components into a frame-shaped record,
+   * preserving axes as given.
    */
   export function unflat(x: readonly number[]): IAutoMovieLoftSectionFrame {
     return {

@@ -1,4 +1,7 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** An actual angular RHS reading at a rejected trial's endpoint. */
 interface IEndpoint {
@@ -9,21 +12,36 @@ interface IEndpoint {
 }
 
 /**
- * A trajectory reached its existing time-resolution guard, with its last rejection.
- * The airborne wrapper consumes this numeric context to explain its physical
- * history and target at the failed probe. Foreign model errors keep their own
- * identity and are never converted to this type.
+ * A trajectory reached its existing time-resolution guard, with its last
+ * rejection. The airborne wrapper consumes this numeric context to explain its
+ * physical history and target at the failed probe. Foreign model errors keep
+ * their own identity and are never converted to this type.
  */
 export class MotionTrajectoryFailure extends Error {
-  /** Keep the resolution refusal and numeric record; a supplied scope must be a symbol. */
+  /**
+   * Keep the resolution refusal and numeric record; a supplied scope must be a
+   * symbol.
+   */
   public constructor(
-    /** Start of the interval rejected by the existing time-resolution guard, seconds. */
+    /**
+     * Start of the interval rejected by the existing time-resolution guard,
+     * seconds.
+     */
     public readonly time: number,
-    /** Next attempted step caught by that guard, including its roundoff margin, seconds. */
+    /**
+     * Next attempted step caught by that guard, including its roundoff margin,
+     * seconds.
+     */
     public readonly step: number,
-    /** Last rejection since the preceding accepted step; absent before any rejection. */
+    /**
+     * Last rejection since the preceding accepted step; absent before any
+     * rejection.
+     */
     public readonly rejection?: {
-      /** The rejected trial's duration before the controller reduced it, seconds. */
+      /**
+       * The rejected trial's duration before the controller reduced it,
+       * seconds.
+       */
       step: number;
       /** RMS or explicit-block estimate before dense physical admission. */
       rms: number;
@@ -47,13 +65,18 @@ export class MotionTrajectoryFailure extends Error {
         error: number;
       };
     },
-    /** Optional operation token; only that caller may enrich this numeric failure. */
+    /**
+     * Optional operation token; only that caller may enrich this numeric
+     * failure.
+     */
     public readonly scope?: symbol,
   ) {
-    super(`integrateMotionTrajectory: the step shrank below the resolution of ${time} s`
-      + (rejection === undefined ? "" : `; last rejection ${rejection.kind}, h ${rejection.step} s, RMS ${rejection.rms}, physical ${rejection.physical}, probe ${rejection.probe?.time} s`));
-    if (scope !== undefined && typeof scope !== "symbol")
-      throw new Error("A trajectory failure's scope must be a symbol");
+    super(
+      `integrateMotionTrajectory: the step shrank below the resolution of ${time} s` +
+        (rejection === undefined
+          ? ""
+          : `; last rejection ${rejection.kind}, h ${rejection.step} s, RMS ${rejection.rms}, physical ${rejection.physical}, probe ${rejection.probe?.time} s`),
+    );
     this.name = "MotionTrajectoryFailure";
   }
 }

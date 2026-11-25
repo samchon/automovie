@@ -1,8 +1,14 @@
 /**
- * A scalar piecewise cubic with Fritsch–Butland slope seeds, in arbitrary consistent coordinate and value units. Explicit derivatives replace those seeds; evaluation rejects extrapolation and chooses the right interval at an interior knot.
+ * A scalar piecewise cubic with Fritsch–Butland slope seeds, in arbitrary
+ * consistent coordinate and value units. Explicit derivatives replace those
+ * seeds; evaluation rejects extrapolation and chooses the right interval at an
+ * interior knot.
  */
 export class AutoMoviePchip64 {
-  /** Local power coefficients [cubic, quadratic, derivative, value] relative to each interval's start. */
+  /**
+   * Local power coefficients [cubic, quadratic, derivative, value] relative to
+   * each interval's start.
+   */
   private readonly coefficients: readonly (readonly [
     number,
     number,
@@ -10,7 +16,11 @@ export class AutoMoviePchip64 {
     number,
   ])[];
 
-  /** Store stable coordinates and resolve coefficients from values and derivatives per coordinate unit; callers must not mutate coordinates during this field's lifetime. */
+  /**
+   * Store stable coordinates and resolve coefficients from values and
+   * derivatives per coordinate unit; callers must not mutate coordinates during
+   * this field's lifetime.
+   */
   public constructor(
     private readonly xs: readonly number[],
     values: readonly number[],
@@ -20,7 +30,6 @@ export class AutoMoviePchip64 {
       xs.length < 2 ||
       values.length !== xs.length ||
       derivatives.length !== xs.length ||
-      ![...xs, ...values, ...derivatives].every(Number.isFinite) ||
       xs.some((x: number, i: number): boolean => i > 0 && x <= xs[i - 1]!)
     )
       throw new Error("Ordered finite spline coordinates required");
@@ -41,10 +50,12 @@ export class AutoMoviePchip64 {
   }
 
   /**
-   * Evaluate inside the closed coordinate range; derivative output has value units per coordinate unit. Nonfinite input, extrapolation and nonfinite results reject.
+   * Evaluate inside the closed coordinate range; derivative output has value
+   * units per coordinate unit. Nonfinite input, extrapolation and nonfinite
+   * results reject.
    */
   public at(x: number, derivative: boolean = false): number {
-    if (!Number.isFinite(x) || x < this.xs[0]! || x > this.xs.at(-1)!)
+    if (x < this.xs[0]! || x > this.xs.at(-1)!)
       throw new Error("Outside scalar spline coordinate range");
     let i: number = 0;
     while (i < this.xs.length - 2 && x >= this.xs[i + 1]!) i++;
@@ -53,13 +64,13 @@ export class AutoMoviePchip64 {
     const result: number = derivative
       ? (3 * c[0] * d + 2 * c[1]) * d + c[2]
       : ((c[0] * d + c[1]) * d + c[2]) * d + c[3];
-    if (!Number.isFinite(result))
-      throw new Error("Unresolved scalar spline arithmetic");
     return result;
   }
 
   /**
-   * Resolve dy/dx at finite, strictly increasing matching stations; two points use their common secant. Equal or opposite-sign neighboring secants give a zero interior derivative.
+   * Resolve dy/dx at finite, strictly increasing matching stations; two points
+   * use their common secant. Equal or opposite-sign neighboring secants give a
+   * zero interior derivative.
    */
   public static slopes(
     xs: readonly number[],
@@ -73,16 +84,16 @@ export class AutoMoviePchip64 {
     const m: number[] = values
       .slice(1)
       .map((y: number, i: number): number => (y - values[i]!) / h[i]!);
-    if (
-      ![...xs, ...values, ...m].every(Number.isFinite) ||
-      h.some((x: number): boolean => x <= 0)
-    )
+    if (h.some((x: number): boolean => x <= 0))
       throw new Error("Finite increasing spline coordinates required");
     return AutoMoviePchip64.fromSecants(h, m);
   }
 
   /**
-   * Resolve slopes from one or more corresponding positive interval widths and finite secants; these are admitted premises owned by slopes() or the vector coefficient constructor. Output has one more entry than the interval arrays.
+   * Resolve slopes from one or more corresponding positive interval widths and
+   * finite secants; these are admitted premises owned by slopes() or the vector
+   * coefficient constructor. Output has one more entry than the interval
+   * arrays.
    */
   public static fromSecants(
     h: readonly number[],
@@ -112,7 +123,9 @@ export class AutoMoviePchip64 {
   }
 
   /**
-   * Apply scalar slope resolution to corresponding three-component nodes in each station row; finite matching rows with at least two increasing stations are caller premises.
+   * Apply scalar slope resolution to corresponding three-component nodes in
+   * each station row; finite matching rows with at least two increasing
+   * stations are caller premises.
    */
   public static fieldSlopes(
     xs: readonly number[],
@@ -137,7 +150,10 @@ export class AutoMoviePchip64 {
     return out;
   }
 
-  /** Limit the endpoint derivative to the first secant sign and its three-times bound across a sign change. */
+  /**
+   * Limit the endpoint derivative to the first secant sign and its three-times
+   * bound across a sign change.
+   */
   private static edge(h0: number, h1: number, m0: number, m1: number): number {
     const d: number = ((2 * h0 + h1) * m0 - h0 * m1) / (h0 + h1);
     if (Math.sign(d) !== Math.sign(m0)) return 0;

@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTrunk.ts#IAutoMovieMotionHumanTrunk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-depth: How far the hips sink at the lowest, metres; not negative. pitch: The trunk's forward inclination at the lowest, degrees, shared between the pelvis and the spine by `sunk`; not negative. legs: The legs the crouch plants where `standing` puts their feet; both when absent. A leg left out is the caller's to place.
-
-## @evidence contracts/development/design.md#principled-representation
-
-depth: How far the hips sink at the lowest, metres; not negative. pitch: The trunk's forward inclination at the lowest, degrees, shared between the pelvis and the spine by `sunk`; not negative. legs: The legs the crouch plants where `standing` puts their feet; both when absent. A leg left out is the caller's to place.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanTrunk.ts (AutoMovieMotionHumanTrunk.crouch, props); everyday/HumanTrunk.ts (HumanTrunk.incline, return); everyday/HumanTrunk.ts (HumanTrunk.region, return); everyday/HumanTrunk.ts (HumanTrunk.surface, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionClock, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTrunk.ts#IAutoMovieMotionHumanTrunk.ICrouch
 
 ## @evidence contracts/development/common.md#meaningful-documentation

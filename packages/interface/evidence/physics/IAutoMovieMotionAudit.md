@@ -1,21 +1,3 @@
-# src/physics/IAutoMovieMotionAudit.ts#IAutoMovieMotionAudit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-One body acceptance policy paired with exactly one collision and joint description. Independent speed, support, penetration and joint acceptance limits for one observed body.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The union requires either a physical profile or geometry-only description and excludes supplying both. Speed limits are m/s, angular limits radians and geometric tolerances metres; support windows use inclusive film seconds and world bone-origin points.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieMotionAudit reads the selected description through motionAuditGeometry; frame body identity comes from the inherited policy id. AutoMovieMotionAudit reads these limits independently of the observed frame; absent speed entries are unbounded and absent constraints add no extra checks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-admitPhysicalMotionAudit validates the selected representation before sampling; neither branch makes the audited poses a simulation result. Admission requires finite nonnegative tolerances and valid body-local references. Compression allowance is opt-in; inter-body overlap uses the smaller of the two policies' tolerances.
-
 # src/physics/IAutoMovieMotionAudit.ts#IAutoMovieMotionAudit.IBody
 
 ## @evidence contracts/development/common.md#meaningful-documentation

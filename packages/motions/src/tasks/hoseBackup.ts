@@ -20,6 +20,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanGrasp } from "../handling/HumanGrasp";
@@ -27,40 +28,30 @@ import { HumanGraspRoll } from "../handling/HumanGraspRoll";
 import { heldDigits } from "../handling/heldDigits";
 import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
-
-/** The film rate the backup reads the line's grip at, frames per second. */
-const FRAME: number = 24;
+import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
+import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 
 /** Both hands. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The only entry bones the backup reads: the shoulders that choose the far hand and roll each grip. */
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
-
 /**
- * The backup member of a hose team (`hoseLine`'s `backup` role): both hands
- * on the line's grip without carrying it, each a power grip rolled about
- * the line toward its shoulder (`HumanGraspRoll`), sharing the grip's
- * length, the hand reaching across the body ahead,
- * following the grip where the operator's hold puts the line.
+ * The backup member of a hose team (`hoseLine`'s `backup` role): both hands on
+ * the line's grip without carrying it, each a power grip rolled about the line
+ * toward its shoulder (`HumanGraspRoll`), sharing the grip's length, the hand
+ * reaching across the body ahead, following the grip where the operator's hold
+ * puts the line.
  *
  * @param context The action's context.
  * @param p The hose-line parameters.
  * @param clock The action's clock.
  * @param base The leaning base plan.
  * @returns The backup's plan.
- * @throws {HumanRefusal} When the line declares no such grip, or a hand cannot reach it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two-handed grip, its attitude and spacing, and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The grip is posed through the bends it rides, place and attitude; each hand's goal is the power-grip wrist on it (`HumanGrasp.hand`), carried with the line.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the grip, sample it, place both hands, compose.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grip is read where the operator's hold and the line's bends put it, never at its rest.
- * @evidence contracts/development/implementation.md#efficient-algorithms One carrier read per film frame, interpolated between.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the grasp-hand geometry, the rides chain reader and the carried-arm primitive.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The frame samples live as long as the plan.
+ * @throws {HumanRefusal} When the line declares no such grip, or a hand cannot
+ *   reach it.
  */
 export function hoseBackup(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
@@ -85,67 +76,62 @@ export function hoseBackup(
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
   // Where the line's grip is at a second of this action, as its carrier
-  // holds it, and how the run there is turned: read once per film frame and
-  // interpolated between, since each read resolves the carrier's pose.
-  const sampled: Map<number, IAutoMovieRigidTransform> = new Map();
-  const frameAt: (k: number) => IAutoMovieRigidTransform = (
-    k: number,
-  ): IAutoMovieRigidTransform => {
-    let found: IAutoMovieRigidTransform | undefined = sampled.get(k);
-    if (found === undefined) {
-      const at: number = context.start + Math.min(clock.duration, k / FRAME);
-      const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
-      const frame: IAutoMovieRigidTransform = reader.frame(at);
-      // The grip where the line's bends put it: through each joint it rides,
-      // the nearest first, each turning the grip's place and attitude.
-      const state: Readonly<Record<string, number>> = reader.state?.(at) ?? {};
-      let local: IAutoMovieVector3 = grip.frame.translation;
-      let attitude: IAutoMovieQuaternion = grip.frame.rotation;
-      let rides: string | undefined = grip.rides;
-      while (rides !== undefined) {
-        const joint: IAutoMovieAffordance = sites.find(
-          (a: IAutoMovieAffordance): boolean => a.id === rides,
-        )!;
-        local = heldDigits.posed(
-          joint,
-          { ...grip, frame: { ...grip.frame, translation: local } },
+  // holds it, and how the run there is turned. Its place is solved at knots
+  // AutoKnots places (Vitenti et al. 2024, arXiv:2412.13423;
+  // `prepareHumanAdaptiveKnots`) to the arm plan's own millimetre
+  // (`HumanArmTrajectoryTerms.TOLERANCE`) when the performance is placed
+  // (`prepare`), since each read resolves the carrier's pose; a read before
+  // reads the frame itself.
+  let course: prepareHumanKnotCourse.ICourse | undefined;
+  const solve = (seconds: number): IAutoMovieRigidTransform => {
+    const at: number =
+      context.start + Math.min(clock.duration, Math.max(0, seconds));
+    const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
+    const frame: IAutoMovieRigidTransform = reader.frame(at);
+    // The grip where the line's bends put it: through each joint it rides,
+    // the nearest first, each turning the grip's place and attitude.
+    const state: Readonly<Record<string, number>> = reader.state?.(at) ?? {};
+    let local: IAutoMovieVector3 = grip.frame.translation;
+    let attitude: IAutoMovieQuaternion = grip.frame.rotation;
+    let rides: string | undefined = grip.rides;
+    while (rides !== undefined) {
+      const joint: IAutoMovieAffordance = sites.find(
+        (a: IAutoMovieAffordance): boolean => a.id === rides,
+      )!;
+      local = heldDigits.posed(
+        joint,
+        { ...grip, frame: { ...grip.frame, translation: local } },
+        state[joint.id] ?? 0,
+      );
+      attitude = Quaternion.multiply(
+        Quaternion.fromAxisAngle(
+          Quaternion.rotateVector(joint.frame.rotation, { x: 0, y: 1, z: 0 }),
           state[joint.id] ?? 0,
-        );
-        attitude = Quaternion.multiply(
-          Quaternion.fromAxisAngle(
-            Quaternion.rotateVector(joint.frame.rotation, { x: 0, y: 1, z: 0 }),
-            state[joint.id] ?? 0,
-          ),
-          attitude,
-        );
-        rides = joint.rides;
-      }
-      found = {
-        position: Vector3.add(
-          frame.position,
-          Quaternion.rotateVector(frame.rotation, local),
         ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(frame.rotation, attitude),
-        ),
-      };
-      sampled.set(k, found);
+        attitude,
+      );
+      rides = joint.rides;
     }
-    return found;
+    return {
+      position: Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, local),
+      ),
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(frame.rotation, attitude),
+      ),
+    };
   };
-  const at: (seconds: number) => IAutoMovieVector3 = (
-    seconds: number,
-  ): IAutoMovieVector3 => {
-    const s: number = Math.min(clock.duration, Math.max(0, seconds)) * FRAME;
-    const k: number = Math.floor(s);
-    return Vector3.lerp(frameAt(k).position, frameAt(k + 1).position, s - k);
+  const at = (seconds: number): IAutoMovieVector3 => {
+    if (course === undefined) return solve(seconds).position;
+    const [x, y, z]: number[] = course.position(
+      Math.min(clock.duration, Math.max(0, seconds)),
+    );
+    return { x: x!, y: y!, z: z! };
   };
   // The grip as the stream opens: each hand wraps the line (its `+X`) as a
   // power grip takes any handle, from the grip's `-Y` and then rolled.
-  const set: IAutoMovieRigidTransform = {
-    position: at(ready),
-    rotation: frameAt(Math.round(ready * FRAME)).rotation,
-  };
+  const set: IAutoMovieRigidTransform = solve(ready);
   const approach: IAutoMovieVector3 = Quaternion.rotateVector(set.rotation, {
     x: 0,
     y: -1,
@@ -157,7 +143,12 @@ export function hoseBackup(
     z: 0,
   });
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    poseBones(context.body, context.entry.pose, undefined, SHOULDERS);
+    poseBones(
+      context.body,
+      context.entry.pose,
+      undefined,
+      HumanBoneGroups.SHOULDERS,
+    );
   // The hand whose shoulder lies farther from the grip reaches across the
   // body, so it takes the line ahead, where the trunk leaves it room.
   const far: AutoMovieHumanSide =
@@ -239,6 +230,25 @@ export function hoseBackup(
     });
   return {
     ...composed,
+    // The line's course first, so the arms' courses are solved on the line
+    // as the display reads it.
+    prepare: (): void => {
+      course = prepareHumanAdaptiveKnots({
+        from: 0,
+        to: clock.duration,
+        evaluate: (t: number): readonly number[] => {
+          const p: IAutoMovieVector3 = solve(t).position;
+          return [p.x, p.y, p.z];
+        },
+        tolerance: {
+          kind: "absolute",
+          absolute: HumanArmTrajectoryTerms.TOLERANCE / 1000,
+        },
+        maxKnots:
+          Math.ceil(clock.duration / AutoMovieMotionHumanArmCourse.STEP) + 1,
+      }).course;
+      composed.prepare?.();
+    },
     hands: ["left", "right"],
     contacts: [
       ...composed.contacts,

@@ -22,7 +22,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
@@ -32,6 +31,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
+import { pourClock } from "./pourClock";
 
 /** Upright admission allows five degrees of staged placement error. */
 const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
@@ -39,31 +39,25 @@ const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
 const TIP_ALIGNMENT: number = Math.cos((10 * Math.PI) / 180);
 /** World vertical for the stationary vessel and the gravity cue. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+/** The alternatives of `LiquidPlan`'s site. */
+type LiquidPlan = "duration" | "events";
+
+/** The record of `IPlanOpening`'s site. */
+type IPlanOpening = { center: IAutoMovieVector3; radius: number };
 
 /**
  * A registered, stationary-base pour. Bring the held source above a fixed
  * recipient, tip about its rim lip, transfer, right it and retreat. Register
  * `pour` in `HumanPerformance` and call `registered(pour.name, params)`.
- * `flowStart` and `flowEnd` delimit the authored transfer cue. EPIC-KITCHENS-100
- * provides observational action context (Damen et al., 2021,
+ * `flowStart` and `flowEnd` delimit the authored transfer cue.
+ * EPIC-KITCHENS-100 provides observational action context (Damen et al., 2021,
  * https://arxiv.org/abs/2006.13256). Angles and phase lengths here are staged
  * inputs. The liquid query gives the volume cue for one action instance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the registration path, ordered phases, observed source and role of authored timing.
- * @evidence contracts/development/design.md#principled-representation One arm transports a rigid grip around an authored lip pivot. The flow interval drives a conserved volume balance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the law record and an action-local liquid query.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses scene affordances, the held prop frame and a fixed recipient. Numerical fluid behavior and transfer amounts are not inferred from the archetype's fill mass.
  */
 export namespace pour {
-  /**
-   * Registered action name.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the lookup key used by the chain.
-   */
+  /** Registered action name. */
   export const name: string = "pour";
-  /**
-   * The whole transfer plays together, without an offered cut.
-   * @evidence contracts/development/common.md#meaningful-documentation No authored interruption window is offered during the pour.
-   */
+  /** The whole transfer plays together, without an offered cut. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /**
@@ -71,22 +65,15 @@ export namespace pour {
    *
    * @param context Entry with both feet planted and the named source in hand.
    * @returns The action plan with its original grip retained.
-   * @throws {HumanRefusal} For invalid timing, geometry, volumes, support or grip, and for a pose that misses the sampled mouth or tilt bound.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the entry, retained hold and refusal categories.
-   * @evidence contracts/development/implementation.md#principled-implementation The wrist target is the pivot minus the rotated wrist-to-lip offset. Changing orientation therefore keeps the lip above the opening throughout the tip and righting goals. The lip and a point a hand's length up the vessel's axis are hard task limits within the held-tool bound, so the planned arm holds the lip and the tilt or refuses, instead of trading the attitude away.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits the staging, constructs one arm trajectory, then checks the trajectory at the relevant phase samples.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Derives the opening from the recipient's affordances and refuses sampled loss of alignment instead of moving the receiving vessel or changing the requested transfer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One arm planning call and seven bounded forward pose reads per instance. Posture evaluation reads the prepared trajectory.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the vocabulary's rigid hold, arm carry, key clock, base composition and pose resolver.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains one trajectory and the rigid hold. There is no frame history or resource handle.
+   * @throws {HumanRefusal} For invalid timing, geometry, volumes, support or
+   *   grip, and for a pose that misses the sampled mouth or tilt bound.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPour.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const params: IAutoMovieMotionHumanPour.IParams = context.params;
     validateVolumes(params);
-    const clock: IAutoMovieMotionClock = clockOf(params, context.tempo ?? 1);
+    const clock: IAutoMovieMotionClock = pourClock(params, context.tempo ?? 1);
     if (
       context.carrier !== undefined ||
       context.entry.base.kind !== "standing" ||
@@ -108,7 +95,7 @@ export namespace pour {
       });
 
     const side: AutoMovieHumanSide = params.hand ?? "right";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       params.source,
@@ -128,7 +115,7 @@ export namespace pour {
         source.subject,
         "the source needs a rigid rim lip and a movable body",
       );
-    const opening: { center: IAutoMovieVector3; radius: number } = openingOf(
+    const opening: IPlanOpening = openingOf(
       source.subject,
       target,
       context.start,
@@ -309,26 +296,19 @@ export namespace pour {
   }
 
   /**
-   * Sample the authored liquid balance. Use the pour instance's plan so
-   * the interval follows its clock after any performance tempo scaling.
+   * Sample the authored liquid balance. Use the pour instance's plan so the
+   * interval follows its clock after any performance tempo scaling.
    *
    * @param params The authored amounts used to plan the pour.
    * @param plan The pour instance's duration and events.
    * @param seconds Finite seconds from the plan's start, clamped outside flow.
-   * @returns Volumes remaining in both vessels and cumulative overflow, in millilitres.
+   * @returns Volumes remaining in both vessels and cumulative overflow, in
+   *   millilitres.
    * @throws {HumanRefusal} For invalid volumes, time or flow events.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the plan and time frame, the result's units and all refusal classes.
-   * @evidence contracts/development/implementation.md#principled-implementation Discharge advances linearly within the authored flow interval. The recipient takes up to its remaining capacity, with excess counted as overflow.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read both flow boundaries, clamp progress and distribute the discharged amount.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No liquid is added or removed independently of the source discharge.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two lookups in the plan's events and constant arithmetic.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the same named phase boundaries driving the motion.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure query that retains nothing.
    */
   export function liquid(
     params: IAutoMovieMotionHumanPour.IParams,
-    plan: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events">,
+    plan: Pick<IAutoMovieMotionHumanActionPlan, LiquidPlan>,
     seconds: number,
   ): IAutoMovieMotionHumanPour.ILiquid {
     validateVolumes(params);
@@ -344,8 +324,6 @@ export namespace pour {
       )?.share ?? NaN);
     if (
       !(
-        Number.isFinite(seconds) &&
-        Number.isFinite(end) &&
         start >= 0 &&
         end > start &&
         end <= plan.duration
@@ -373,64 +351,15 @@ export namespace pour {
     };
   }
 }
-/** Admit a bounded, nonempty authored stage sequence and usable tip geometry. */
-function clockOf(
-  params: IAutoMovieMotionHumanPour.IParams,
-  tempo: number,
-): IAutoMovieMotionClock {
-  const { timing, gap, tilt } = params;
-  const phases: { name: string; seconds: number }[] = [
-    { name: "approachStart", seconds: timing?.approach },
-    { name: "tipStart", seconds: timing?.tip },
-    { name: "flowStart", seconds: timing?.flow },
-    { name: "flowEnd", seconds: timing?.right },
-    { name: "retreatStart", seconds: timing?.retreat },
-  ];
-  let duration: number = 0;
-  for (const phase of phases)
-    duration +=
-      typeof phase.seconds === "number" &&
-      phase.seconds >= 0.2 &&
-      phase.seconds <= 3
-        ? phase.seconds
-        : NaN;
-  if (!(duration <= 10 && tempo > 0 && duration * tempo <= 10))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "timing",
-      value: duration,
-      reason:
-        "the five stages need 0.2 to 3 seconds each and at most 10 seconds in all, including tempo scaling",
-      fix: "shorten or lengthen the affected stage lengths",
-    });
-  if (!(tilt >= 35 && tilt <= 90 && gap >= 0.04 && gap <= 0.18))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "tilt/gap",
-      value: params.tilt,
-      reason:
-        "the pour needs a 35 to 90 degree tilt and a 0.04 to 0.18 metre gap",
-      fix: "author a tilt and lip clearance in those ranges",
-    });
-  for (const phase of phases) phase.seconds *= tempo;
-  return AutoMovieMotionClock.sequence(phases);
-}
 /** Admit finite quantities before arithmetic or planning. */
 function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
   if (
-    ![
-      params.sourceMl,
-      params.targetMl,
-      params.capacityMl,
-      params.transferMl,
-    ].every(Number.isFinite) ||
     !(
       params.transferMl > 0 &&
       params.transferMl <= params.sourceMl &&
       params.targetMl >= 0 &&
       params.capacityMl > 0 &&
-      params.targetMl <= params.capacityMl &&
-      Number.isFinite(params.sourceMl + params.targetMl)
+      params.targetMl <= params.capacityMl
     )
   )
     throw new HumanRefusal({
@@ -442,12 +371,18 @@ function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
       fix: "supply the initial fills and capacity in millilitres and discharge at most the available source volume",
     });
 }
-/** Read the stationary recipient's upright circular opening from its centre and rim. */
+/** The record of `IOpeningOfResult`'s site. */
+type IOpeningOfResult = { center: IAutoMovieVector3; radius: number };
+
+/**
+ * Read the stationary recipient's upright circular opening from its centre and
+ * rim.
+ */
 function openingOf(
   source: string,
   receiver: IAutoMovieMotionHumanPropReader,
   seconds: number,
-): { center: IAutoMovieVector3; radius: number } {
+): IOpeningOfResult {
   const target: IAutoMovieMotionHumanProp = receiver.prop;
   const mouth: IAutoMovieAffordance | undefined = target.affordances?.find(
     (site: IAutoMovieAffordance): boolean =>
@@ -510,9 +445,12 @@ function rimOf(
       site.id === "lip" && site.kind === "ledge" && site.rides === undefined,
   );
 }
+/** The alternatives of `VesselRefusalAxis`'s site. */
+type VesselRefusalAxis = "source" | "target";
+
 /** Report the vessel feature that must change. */
 function vesselRefusal(
-  axis: "source" | "target",
+  axis: VesselRefusalAxis,
   value: string,
   reason: string,
 ): HumanRefusal {

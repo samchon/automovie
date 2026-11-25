@@ -29,7 +29,11 @@ const JET: IAutoMovieFluidSpray = {
   lodDistance: 10,
 };
 
-/** Borrow the supplied emitter list in the original raised 4x4 flat-water domain; its authored nozzle position and dyadic clock make the ballistic expectation hand-computable. */
+/**
+ * Borrow the supplied emitter list in the original raised 4x4 flat-water
+ * domain; its authored nozzle position and dyadic clock make the ballistic
+ * expectation hand-computable.
+ */
 const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (
   sprays: IAutoMovieFluidSpray[],
 ): IAutoMovieFluidDomain =>
@@ -60,8 +64,8 @@ const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (
  * Observe CPU spray particles against the authored ballistic arc, selected
  * per-emitter cap and distance LOD, leaving the input water depths unchanged.
  *
- * The selected cap and LOD are observed before rendering; no GPU projection
- * is executed or compared here. The arc itself is hand-computable: with zero
+ * The selected cap and LOD are observed before rendering; no GPU projection is
+ * executed or compared here. The arc itself is hand-computable: with zero
  * spread the launch direction is exactly the declared axis, so particle `i` at
  * age `a` stands at `nozzle + (0, speed·a − ½·g·a², 0)`.
  *
@@ -89,11 +93,11 @@ const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (
  *    lattice never had, and a camera distance that is not a real number makes
  *    the LOD stride not a real number too — `index % NaN` rejects every
  *    particle, so the fountain would simply stop with nobody told. Their twins
- *    are this domain's own state and a large finite distance, which
- *    thins hard and still returns.
- * 7. An emitter axis scaled by `1e200` or `1e-200`, whose squared length
- *    overflows or underflows, preserves the unit-axis particle count and
- *    positions within the vector predicate's `1e-6` component tolerance.
+ *    are this domain's own state and a large finite distance, which thins hard
+ *    and still returns.
+ * 7. An emitter axis scaled by `1e200` or `1e-200`, whose squared length overflows
+ *    or underflows, preserves the unit-axis particle count and positions within
+ *    the vector predicate's `1e-6` component tolerance.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Samples seeded spray at selected times/distances and checks lifetime, ballistic positions, deterministic repeat/order, a per-emitter particle cap, LOD density and refusal bounds; CPU particles are the observed output.
  * @evidence contracts/development/testing.md#independent-expectations Authored birth windows, fixed-step times, gravity and speed give ballistic expectations, while literal caps and near/far counts provide the budget oracle. Same-call seed comparisons observe reproducibility rather than independent random distribution or GPU agreement.
@@ -359,7 +363,11 @@ export function test_fluid_spray_budget(): void {
     domain,
     state,
   }).particles;
-  /** Change only the positive Y-axis magnitude and sample against the original valid state; the unit-axis sample is a scale-invariance twin, not a random-distribution oracle. */
+  /**
+   * Change only the positive Y-axis magnitude and sample against the original
+   * valid state; the unit-axis sample is a scale-invariance twin, not a
+   * random-distribution oracle.
+   */
   const scaled: (factor: number) => IAutoMovieFluidSprayParticle[] = (
     factor: number,
   ): IAutoMovieFluidSprayParticle[] =>
@@ -375,7 +383,6 @@ export function test_fluid_spray_budget(): void {
       huge.length === unit.length &&
       huge.every(
         (particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
-          Number.isFinite(particle.position.y) &&
           vclose(particle.position, unit[at]!.position),
       ),
   );

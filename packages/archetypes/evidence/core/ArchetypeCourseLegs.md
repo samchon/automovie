@@ -1,21 +1,3 @@
-# src/core/ArchetypeCourseLegs.ts#ArchetypeCourseLegs
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it owns and who calls it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The legs as a table of rows, each with its start, its run on the ground and its length along its grade.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One internal planner pairs the course plan with its distance reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/core/ArchetypeCourseLegs.ts#ArchetypeCourseLegs.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

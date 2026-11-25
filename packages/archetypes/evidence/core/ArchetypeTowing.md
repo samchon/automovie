@@ -1,21 +1,3 @@
-# src/core/ArchetypeTowing.ts#ArchetypeTowing
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes axle-body pitch, level four-wheel support with an optional real drawbar hinge, and unsupported legacy height changes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Model-space wheel/pivot points and an existing articulation id describe mechanical freedoms; no vehicle kind or guessed part name enters the law.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Producer readers supply Support, and AutoMovieArchetypeRide.towed consumes the prepared projected reach and rigid placement.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No contact tolerance, vehicle-specific height offset, synthetic suspension or invented shaft flexibility replaces declared geometry.
-
 # src/core/ArchetypeTowing.ts#ArchetypeTowing.IFront
 
 ## @evidence contracts/development/common.md#meaningful-documentation

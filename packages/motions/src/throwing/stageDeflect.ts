@@ -1,4 +1,3 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -14,104 +13,102 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { stageCatch } from "./stageCatch";
+import { stageDeflectRebound } from "./stageDeflectRebound";
 
 /**
  * A deliberate deflection of an incoming ball: the staged interception of
- * `stageCatch`, whose hand meets the ball on its actual flight at the
- * authored instant, hands the same ball straight back instead of closing on
- * it. The deflection is the outcome the caller decides, so it is published
- * as a launch at the touch, and the incoming flight's sweep leaves the
- * touching hands to that launch as a staged catch's hands are left to it.
+ * `stageCatch`, whose hand meets the ball on its actual flight at the authored
+ * instant, hands the same ball straight back instead of closing on it. The
+ * deflection is the outcome the caller decides, so it is published as a launch
+ * at the touch, and the incoming flight's sweep leaves the touching hands to
+ * that launch as a staged catch's hands are left to it.
  *
  * The rebound is the ball's own restitution off a palm facing the incoming
  * ball: with the palm's normal `n` against the incoming velocity `v`, the
  * outgoing velocity is `v - (1 + e)(v . n) n = -e v`, the normal impact of a
  * sphere on a surface held still through the touch (no tangential friction
  * along a head-on normal).
+ */
+function planStageDeflect(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,
+): IAutoMovieMotionHumanCatchObject.IPlan {
+  const caught: IAutoMovieMotionHumanCatchObject.IPlan =
+    stageCatch.plan(context);
+  const { ball, partner: from }: IAutoMovieMotionHumanCatchObject.IStageParams =
+    context.params;
+  const contact: number = caught.contact!;
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(ball);
+  const restitution: number | undefined = reader.prop.body?.restitution;
+  if (restitution === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "ball",
+      value: ball,
+      reason: "a deflection needs the ball's restitution",
+      fix: "give the ball's physical body a restitution",
+    });
+
+  const velocity: IAutoMovieVector3 = stageDeflectRebound(
+    caught.object,
+    contact,
+    restitution,
+    context.params.intercept ?? contact,
+  );
+  const source: IAutoMovieMotionHumanPlacedAction = context.action(from);
+  const sphere: IAutoMovieMotionPropLaunch["sphere"] =
+    source.plan.launches?.find(
+      (launch: IAutoMovieMotionPropLaunch): boolean => launch.prop === ball,
+    )?.sphere;
+  const frame: IAutoMovieRigidTransform = reader.frame(context.start + contact);
+  const hands: readonly AutoMovieHumanSide[] =
+    context.params.hands === "one"
+      ? [context.params.hand ?? "right"]
+      : ["left", "right"];
+  const launch: IAutoMovieMotionPropLaunch = {
+    prop: ball,
+    seconds: contact,
+    point: frame.position,
+    rotation: frame.rotation,
+    velocity,
+    ...(sphere === undefined ? {} : { sphere }),
+    touching: hands,
+  };
+
+  // The hands meet the ball and let it go at once: no hold, and no
+  // support window on the ball from the touch on.
+  const share: number = contact / caught.duration;
+  return {
+    ...caught,
+    holds: (caught.holds ?? []).filter((hold): boolean => hold.prop !== ball),
+    contacts: caught.contacts.filter(
+      (window: IAutoMovieMotionHumanContactWindow): boolean =>
+        !(
+          window.support.kind === "prop" &&
+          window.support.subject === ball &&
+          window.from >= share - 1e-9
+        ),
+    ),
+    launches: [...(caught.launches ?? []), launch],
+  };
+}
+
+/**
+ * A deliberate deflection of an incoming ball: the staged interception of
+ * `stageCatch`, whose hand meets the ball on its actual flight at the authored
+ * instant, hands the same ball straight back instead of closing on it. The
+ * deflection is the outcome the caller decides, so it is published as a launch
+ * at the touch, and the incoming flight's sweep leaves the touching hands to
+ * that launch as a staged catch's hands are left to it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the registered use, the shared interception, the published launch, the hand handback and the rebound rule with its premise.
- * @evidence contracts/development/design.md#principled-representation Reuses the catch's staged parameters; the outcome is one launch of the same prop at the touch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Wraps stageCatch's plan, which owns the interception, the arm fit and its refusals; adds only the launch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No second interception or trajectory: the touch, the incoming velocity and the ball frame are read off the actual flight the catch plan meets.
+ * The rebound is the ball's own restitution off a palm facing the incoming
+ * ball: with the palm's normal `n` against the incoming velocity `v`, the
+ * outgoing velocity is `v - (1 + e)(v . n) n = -e v`, the normal impact of a
+ * sphere on a surface held still through the touch (no tangential friction
+ * along a head-on normal).
  */
 export const stageDeflect: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCatchObject.IStageParams> =
   {
     ...stageCatch,
     name: "stageDeflect",
-    plan: (
-      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,
-    ): IAutoMovieMotionHumanCatchObject.IPlan => {
-      const caught: IAutoMovieMotionHumanCatchObject.IPlan =
-        stageCatch.plan(context);
-      const { ball, partner: from }: IAutoMovieMotionHumanCatchObject.IStageParams =
-        context.params;
-      const contact: number = caught.contact!;
-      const reader: IAutoMovieMotionHumanPropReader = context.prop(ball);
-      const restitution: number | undefined = reader.prop.body?.restitution;
-      if (restitution === undefined)
-        throw new HumanRefusal({
-          kind: "affordance",
-          axis: "ball",
-          value: ball,
-          reason: "a deflection needs the ball's restitution",
-          fix: "give the ball's physical body a restitution",
-        });
-
-      // The incoming velocity at the touch, from the actual flight the catch
-      // plan reads before its contact, over the same short span stageCatch
-      // samples its approach.
-      const span: number = Math.min(contact / 2, 1e-4);
-      const incoming: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(caught.object(contact), caught.object(contact - span)),
-        1 / span,
-      );
-      if (!(Vector3.length(incoming) > 0))
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "intercept",
-          value: context.params.intercept ?? contact,
-          reason: "the ball is not moving at the touch",
-          fix: "deflect the ball in flight",
-        });
-      const source: IAutoMovieMotionHumanPlacedAction = context.action(from);
-      const sphere: IAutoMovieMotionPropLaunch["sphere"] =
-        source.plan.launches?.find(
-          (launch: IAutoMovieMotionPropLaunch): boolean => launch.prop === ball,
-        )?.sphere;
-      const frame: IAutoMovieRigidTransform = reader.frame(
-        context.start + contact,
-      );
-      const hands: readonly AutoMovieHumanSide[] =
-        context.params.hands === "one"
-          ? [context.params.hand ?? "right"]
-          : ["left", "right"];
-      const launch: IAutoMovieMotionPropLaunch = {
-        prop: ball,
-        seconds: contact,
-        point: frame.position,
-        rotation: frame.rotation,
-        velocity: Vector3.scale(incoming, -restitution),
-        ...(sphere === undefined ? {} : { sphere }),
-        touching: hands,
-      };
-
-      // The hands meet the ball and let it go at once: no hold, and no
-      // support window on the ball from the touch on.
-      const share: number = contact / caught.duration;
-      return {
-        ...caught,
-        holds: (caught.holds ?? []).filter(
-          (hold): boolean => hold.prop !== ball,
-        ),
-        contacts: caught.contacts.filter(
-          (window: IAutoMovieMotionHumanContactWindow): boolean =>
-            !(
-              window.support.kind === "prop" &&
-              window.support.subject === ball &&
-              window.from >= share - 1e-9
-            ),
-        ),
-        launches: [...(caught.launches ?? []), launch],
-      };
-    },
+    plan: planStageDeflect,
   };

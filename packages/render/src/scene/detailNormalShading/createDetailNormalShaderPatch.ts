@@ -1,5 +1,6 @@
 import type * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { detailNormalFragment } from "./detailNormalFragment.js";
 import { detailNormalVertex } from "./detailNormalVertex.js";
 
@@ -18,7 +19,7 @@ export const createDetailNormalShaderPatch: (
   key: string;
   apply: (
     shader: Pick<
-      THREE.WebGLProgramParametersWithUniforms,
+      IMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -32,7 +33,7 @@ export const createDetailNormalShaderPatch: (
   /** Edits the shader source and attaches the captured detail uniforms. */
   apply: (
     shader: Pick<
-      THREE.WebGLProgramParametersWithUniforms,
+      IMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -51,7 +52,7 @@ export const createDetailNormalShaderPatch: (
     key: "automovie-detail-normal",
     apply: (
       shader: Pick<
-        THREE.WebGLProgramParametersWithUniforms,
+        IMaterialShaderSource,
         "vertexShader" | "fragmentShader" | "uniforms"
       >,
     ): void => {

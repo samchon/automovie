@@ -18,7 +18,10 @@ const LINE: string =
 const ROSSIGNOL: string =
   "Skis Rossignol patent EP0806228A1: an alpine ski's central zone between fifteen millimeters (15 mm) and thirty millimeters (30 mm) thick (https://patents.google.com/patent/EP0806228A1/en)";
 
-/** The shape's widths, metres: LINE Blend's 129 mm tip, 98 mm waist and 120 mm tail. */
+/**
+ * The shape's widths, metres: LINE Blend's 129 mm tip, 98 mm waist and 120 mm
+ * tail.
+ */
 const WIDTH: Readonly<{ tip: number; waist: number; tail: number }> = {
   tip: 0.129,
   waist: 0.098,
@@ -31,24 +34,25 @@ const STANCE: number = 0.02;
 /**
  * An alpine ski lying flat on the snow, its tip toward `-Z`.
  *
- * Its length is one of LINE Blend's four, given or drawn from the seed, and its outline is LINE Blend's shape at that length, as a forebody from the tip's width to the waist's and an afterbody from the waist's to the tail's, at the thickness Rossignol's patent claims for an alpine ski's middle. `stance` marks the top under the boot. `base` marks the underside at the stance with the two local edge positions, for a staged snow contact. The binding is represented by its stance anchor.
+ * Its length is one of LINE Blend's four, given or drawn from the seed, and its
+ * outline is LINE Blend's shape at that length, as a forebody from the tip's
+ * width to the waist's and an afterbody from the waist's to the tail's, at the
+ * thickness Rossignol's patent claims for an alpine ski's middle. `stance`
+ * marks the top under the boot. `base` marks the underside at the stance with
+ * the two local edge positions, for a staged snow contact. The binding is
+ * represented by its stance anchor.
  *
  * @param params The length LINE lists and any dimension the author fixes.
- * @param seed The seed that draws the length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
+ * @param seed The seed that draws the length when it is not given and every
+ *   dimension left free inside its band; absent, the first length and the
+ *   middle of each band.
  * @returns The ski.
- * @throws {AutoMovieArchetypeRefusal} For a length LINE does not list or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the ski lies, its outline, boot anchor and lower contact readings.
- * @evidence contracts/development/implementation.md#principled-implementation LINE's widths and one of its lengths whole, with the stance behind the centre by its 20 mm, Rossignol's patented thickness range for the middle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the length, draw the dimensions, the two halves, then the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each half is a box at its two ends' mean width; no sidecut curve, rocker, camber or binding.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a length LINE does not list or a
+ *   fixed dimension outside its band.
  */
 export function createSki(
   params: createSki.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSki.Affordance, createSki.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSki.Dimension> =
     new AutoMovieArchetypeDrawSession<createSki.Dimension>(
@@ -124,16 +128,12 @@ export function createSki(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createSki}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation LINE's lengths picked whole, one cited band per remaining dimension; the shape's widths and the stance are the maker's constants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The place the boot stands (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The thickness is a patent's claimed range, not one model's, and says so.
- */
+/** Companion types and bands of {@link createSki}. */
 export namespace createSki {
-  /** The boot stance, lower contact strip and its left and right boundaries near the stance. */
+  /**
+   * The boot stance, lower contact strip and its left and right boundaries near
+   * the stance.
+   */
   export type Affordance = "stance" | "base" | "leftEdge" | "rightEdge";
 
   /**
@@ -167,7 +167,10 @@ export namespace createSki {
     "180cm": { length: 180 * AutoMovieArchetypeUnits.CENTIMETRE },
   };
 
-  /** The parameters: the length, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the length, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "length">, number>
   > {

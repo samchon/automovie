@@ -16,7 +16,6 @@ import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "./AUTOMOVIE_PLACED_FRAME_TOLER
 import type { IAutoMoviePlacedObligation } from "./IAutoMoviePlacedObligation.js";
 import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
-import { isAutoMovieFiniteVector } from "./isAutoMovieFiniteVector.js";
 import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.js";
 
 type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
@@ -34,7 +33,8 @@ type IInput = IObserveAutoMoviePlacedScene.ICheck["input"];
  * carries its film interval.
  *
  * @param scene The settled scene that owns the native nodes.
- * @param matrices A request-local index of displayed matrices, shared across obligations.
+ * @param matrices A request-local index of displayed matrices, shared across
+ *   obligations.
  * @param input The obligation's observations and limits.
  * @returns The measured violations and witness, or the coverage reason.
  */
@@ -57,9 +57,7 @@ export function measureAutoMoviePlacedObligation(
   return measureContinuity(input);
 }
 
-/**
- * A checked outcome without a witness.
- */
+/** A checked outcome without a witness. */
 function checked(
   violations: readonly IAutoMovieConstraintViolation[],
 ): IAutoMoviePlacedObligation {
@@ -129,8 +127,8 @@ function nativeContact(
 }
 
 /**
- * The displayed world matrix of a node beneath `scene`, as the host settled
- * it, or undefined when the node is elsewhere or its matrix is not affine.
+ * The displayed world matrix of a node beneath `scene`, as the host settled it,
+ * or undefined when the node is elsewhere or its matrix is not affine.
  */
 function placedMatrix(
   scene: Object3D,
@@ -171,7 +169,7 @@ function measureContact(
       ? input.sample?.point
       : input.sample?.prop?.position;
   const witness: IWitness =
-    point !== undefined && point !== null && isAutoMovieFiniteVector(point)
+    point !== undefined && point !== null
       ? { point: { x: point.x, y: point.y, z: point.z } }
       : {};
   if (result.status === "invalid")

@@ -15,7 +15,8 @@ import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 /**
  * Triangulate one new track using only already registered camera observations.
  * The original 2k-by-4 homogeneous design uses calibrated world-to-camera rows;
- * its finite point remains in the common seed gauge, not a new pair unit gauge.
+ * its finite point remains in the common seed gauge, not a new pair unit
+ * gauge.
  */
 export function triangulateRecoverySceneTrack(
   observations: Parameters<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation>[0],
@@ -97,7 +98,12 @@ export function triangulateRecoverySceneTrack(
     homogeneous[1]! / homogeneous[3]!,
     homogeneous[2]! / homogeneous[3]!,
   ];
-  if (!point.every(Number.isFinite))
+  // A near-zero homogeneous weight overflows the point it divides.
+  if (
+    point.some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    )
+  )
     return { point: null, reasons: ["nonfinite-point"] };
   const measured: ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> =
     evaluateRecoveryScenePoint(point, observations, poses, charts, policy);

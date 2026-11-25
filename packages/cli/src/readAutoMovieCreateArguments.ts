@@ -2,13 +2,17 @@ import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { readAutoMovieNameOption } from "./readAutoMovieNameOption";
 
 /**
- * Admit one `create` request: exactly one non-blank target directory with optional single `--workspace`, `--force` and `--name <name>`, in any order.
+ * Admit one `create` request: exactly one non-blank target directory with
+ * optional single `--workspace`, `--force` and `--name <name>`, in any order.
  *
- * There is no `--` terminator, so a directory beginning with `-` must be spelled `./-name`. Every refusal throws an `Error` whose message names the correction.
+ * There is no `--` terminator, so a directory beginning with `-` must be
+ * spelled `./-name`. Every refusal throws an `Error` whose message names the
+ * correction.
  *
  * @param args The tokens after `create`.
  * @returns The admitted request.
- * @throws On an unknown or repeated option, a missing name value, or anything other than one non-blank directory.
+ * @throws On an unknown or repeated option, a missing name value, or anything
+ *   other than one non-blank directory.
  */
 export function readAutoMovieCreateArguments(
   args: readonly string[],

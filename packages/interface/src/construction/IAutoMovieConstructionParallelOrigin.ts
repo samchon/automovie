@@ -1,7 +1,8 @@
 import type { IAutoMovieConstructionOutline } from "./IAutoMovieConstructionOutline";
 
 /**
- * The world coordinates of a parallel-plane course's origin, each a source curve in the same authored station parameter, in metres.
+ * The world coordinates of a parallel-plane course's origin, each a source
+ * curve in the same authored station parameter, in metres.
  */
 export interface IAutoMovieConstructionParallelOrigin {
   /** World X in metres as a function of station in metres. */

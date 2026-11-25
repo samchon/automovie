@@ -10,6 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createTree } from "../../nature/createTree";
 
 /**
@@ -42,10 +43,8 @@ export function terrainTrees(
     const scale: number = trees.scale ?? 1;
     const [x, z]: IAutoMovieTerrainRecipe.Point = trees.center;
     if (
-      ![x, z, trees.radius, scale].every(Number.isFinite) ||
       trees.radius <= 0 ||
       scale <= 0 ||
-      !Number.isInteger(trees.count) ||
       trees.count < 1 ||
       trees.count > 100_000
     )
@@ -53,14 +52,14 @@ export function terrainTrees(
         `Terrain trees "${id}" need finite geometry, positive radius and scale, and a count from one to 100,000.`,
       );
     const seed: string = deriveAutoMovieSeed(
-      context.seed ?? "0000000000000000",
+      String(context.seed ?? 0),
       "trees",
       name,
     );
     const modelId: string = `${id}/prototype`;
     const prototype: ReturnType<typeof createTree> = createTree(
       { id: modelId, kind: "whiteOak" },
-      seed,
+      deriveArchetypeSeed(context.seed ?? 0, "trees", name),
     );
     const radius: number =
       trees.radius + (prototype.dimensions.dbh! * scale) / 2;

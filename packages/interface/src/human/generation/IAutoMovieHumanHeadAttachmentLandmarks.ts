@@ -1,4 +1,7 @@
-/** Head-owned attachment sites from its generating profile and eye margins, `[x, y, z]` calibration millimetres; these sites alone do not certify the realized skin.
+/**
+ * Head-owned attachment sites from its generating profile and eye margins, `[x,
+ * y, z]` calibration millimetres; these sites alone do not certify the realized
+ * skin.
  */
 export interface IAutoMovieHumanHeadAttachmentLandmarks {
   /** Vertex, the crown's highest point on the midline. */
@@ -13,7 +16,10 @@ export interface IAutoMovieHumanHeadAttachmentLandmarks {
   /** Lateral extreme of each eye's own planned margin, using that side's inputs. */
   exocanthion: Record<"left" | "right", [number, number, number]>;
 
-  /** Actual ear roots, otobasion superius and inferius; absent until the realized ear module publishes its shared attachment boundary. */
+  /**
+   * Actual ear roots, otobasion superius and inferius; absent until the
+   * realized ear module publishes its shared attachment boundary.
+   */
   otobasion?: Record<
     "left" | "right",
     {

@@ -1,21 +1,3 @@
-# src/posture/HumanHandAttitude.ts#HumanHandAttitude
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what stays, what moves first, what the forearm takes and why from its current twist.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An attitude is a world rotation of the hand; the arm as placed is the frame it is solved in.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One solve, read by the arm's carry and by a pick-up's lift, so both hold an object's attitude the same way.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The decomposition and the clamps are the engine's; no angle is set past the rig's range.
-
 # src/posture/HumanHandAttitude.ts#HumanHandAttitude.held
 
 ## @evidence contracts/development/common.md#meaningful-documentation

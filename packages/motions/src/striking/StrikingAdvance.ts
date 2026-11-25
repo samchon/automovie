@@ -1,8 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -13,28 +15,28 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
+/** The alternatives of `StoodContext`'s site. */
+type StoodContext = "body" | "entry";
+
+/** The alternatives of `BasePlantPart`'s site. */
+type BasePlantPart = "leftFoot" | "rightFoot";
+
 /**
- * The advance of a stroke: how the body goes with a held tool's cut, thrust
- * or presentation. The leading foot, the one on the tool's side, leaves the
- * floor, lands its travel ahead along a line and comes back; the pelvis is
- * carried a share of that travel and lowered until both legs reach their
- * feet. A lunge's full travel is `LUNGE` of the stature and a step's `STEP`
- * (both provisional: fencing studies report lunge lengths, and none was
- * read for this pass); a stroke takes less when its target needs less, as
- * fencing measure works (`HumanSword.aim`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what moves, by how much and that the lengths are provisional.
- * @evidence contracts/development/design.md#principled-representation The root decided once from the advance: one posture function of the foot's travel, and a base plan that runs it on a phrase clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The closed union of advances, their lengths, the posture of an advance and the base plan; read by the stroke planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are shares of the stature; no tool is named.
+ * The advance of a stroke: how the body goes with a held tool's cut, thrust or
+ * presentation. The leading foot, the one on the tool's side, leaves the floor,
+ * lands its travel ahead along a line and comes back; the pelvis is carried a
+ * share of that travel and lowered until both legs reach their feet. A lunge's
+ * full travel is `LUNGE` of the stature and a step's `STEP` (both provisional:
+ * fencing studies report lunge lengths, and none was read for this pass); a
+ * stroke takes less when its target needs less, as fencing measure works
+ * (`HumanSword.aim`).
  */
 export namespace StrikingAdvance {
-
   /** The leading foot's travel in a lunge, a share of the stature (provisional). */
   export const LUNGE: number = 0.45;
 
@@ -46,7 +48,9 @@ export namespace StrikingAdvance {
 
   /** The leading foot's full travel of an advance, metres. */
   export const travel = (
-    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    context: {
+      body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], "stature"> };
+    },
     advance: IAutoMovieMotionHumanStrikingAdvance.Advance,
   ): number =>
     advance === "none"
@@ -54,17 +58,43 @@ export namespace StrikingAdvance {
       : (advance === "lunge" ? LUNGE : STEP) * context.body.measure.stature;
 
   /**
+   * An advancing stroke's foot plants: the rear foot throughout; the lead foot
+   * until the stroke starts and again from the stroke, to the relax unless the
+   * striker stays forward.
+   *
+   * @param lead The lead side, the advancing foot's.
+   * @param clock The stroke's phrase clock.
+   * @param stay Whether the striker stays forward.
+   * @returns The plants, shares of the stroke.
+   */
+  export const plants = (
+    lead: AutoMovieHumanSide,
+    clock: IAutoMovieMotionClock,
+    stay: boolean,
+  ): IAutoMovieMotionHumanContactWindow[] => {
+    const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
+    const share = (at: string): number => clock.at(at) / clock.duration;
+    const plant = (
+      part: BasePlantPart,
+      from: number,
+      to: number,
+    ): IAutoMovieMotionHumanContactWindow => ({
+      part,
+      kind: "plant",
+      from,
+      to,
+      support: { kind: "ground" },
+    });
+    return [
+      plant(`${rear}Foot`, 0, 1),
+      plant(`${lead}Foot`, 0, share("strokeStart")),
+      plant(`${lead}Foot`, share("stroke"), stay ? 1 : share("relax")),
+    ];
+  };
+  /**
    * The entry base, or the lead foot's advance on the stroke's phrase clock.
    * Travel is metres from strokeStart to stroke, followed by the original
    * relax-to-end recovery unless stay keeps the landed foot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the original phrase marks, world-metre travel, planted/recovery policy and synchronous exact-FK loan consumed by the returned posture reader.
-   * @evidence contracts/development/implementation.md#principled-implementation The original clock shares move the lead foot and carry/lower the pelvis; a non-advance delegates the existing underlying base unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction declares the original foot windows; every query reads its original out/back envelope and delegates current geometry to stood.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original foot lift, travel, clock ordering, all carried limb goals, floor lowering and planted windows; a borrowed reader changes no fit, range or target.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each query keeps its original constant envelope/rigid geometry and native lowering cost; exact FK prerequisites can be shared with this same posture query's blade shoulder/chest reads instead of creating an independent workspace. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual StrikingBlade runtime passes one exact native workspace through base lowering and current trunk observation. Scalar dependency checks still evaluate every changing source, and no other time's posture or lowering answer is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains only its original context, stroke and clock scalars. Query FK loans pass directly to stood/lower and end on return or failure; no borrowed reader, pose, map or projector enters the retained plan/output.
    */
   export const base = (
     context: IAutoMovieMotionHumanActionContext,
@@ -75,35 +105,16 @@ export namespace StrikingAdvance {
     if (stroke.advance === "none")
       return AutoMovieMotionHumanBase.under(context, duration);
     const length: number = stroke.travel ?? travel(context, stroke.advance);
-    const lead: "left" | "right" = stroke.tool.side;
-    const rear: "left" | "right" = lead === "left" ? "right" : "left";
+    const lead: AutoMovieHumanSide = stroke.tool.side;
     const lift: number = 0.02 * context.body.measure.stature;
     const out = (seconds: number): number =>
       clock.progress("strokeStart", "stroke", seconds);
     const back = (seconds: number): number =>
       stroke.stay ? 0 : clock.progress("relax", "end", seconds);
-    const share = (at: string): number => clock.at(at) / duration;
-    const plant = (
-      part: "leftFoot" | "rightFoot",
-      from: number,
-      to: number,
-    ): IAutoMovieMotionHumanContactWindow => ({
-      part,
-      kind: "plant",
-      from,
-      to,
-      support: { kind: "ground" },
-    });
     return {
       duration,
       events: [],
-      contacts: [
-        plant(`${rear}Foot`, 0, 1),
-        plant(`${lead}Foot`, 0, share("strokeStart")),
-        ...(stroke.stay
-          ? [plant(`${lead}Foot`, share("stroke"), 1)]
-          : [plant(`${lead}Foot`, share("stroke"), share("relax"))]),
-      ],
+      contacts: plants(lead, clock, stroke.stay),
       posture: (
         seconds: number,
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -128,39 +139,38 @@ export namespace StrikingAdvance {
   };
 
   /**
-   * The body with its lead foot advanced along the given world line.
-   * The pelvis follows CARRY of the foot's travel and the original native
-   * lower keeps both legs in reach; raised is metres or null for planting.
+   * The body with its lead foot advanced along the given world line. The pelvis
+   * follows CARRY of the foot's travel and the original native lower keeps both
+   * legs in reach; raised is metres or null for planting.
    *
    * @param context The current native body and entry posture/feet.
    * @param lead The advancing foot.
    * @param line The world horizontal travel direction.
    * @param along Metres of lead-foot travel.
    * @param raised Swinging foot height in metres, or null when planted.
-   * @param resolution Optional exact FK source borrowed only for this synchronous same-body evaluation.
-   * @returns The original carried and lowered posture with both actual leg goals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines each world-metre displacement, lead/support foot, planting and synchronous reader ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Moves the lead ankle, carries the entry rigidly by CARRY of the travel, writes the original toe/knee/MTP goals and lowers the root with the existing five-degree knee allowance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Current foot placements feed the original carry, stance goal builder and native lower in that order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every entry limb, rigid carry, knee hint, foot rotation, contact and lowering bound. Lower performs its original geometry without adding a ROM projection or substituting a solved pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains original vector/carry work and native hip FK; an explicit parent workspace shares equal FK prerequisites with the same current blade trunk observation. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The exact reader is an explicit operation loan checked by native scalar dependencies, while every actual current placement/carry/lowering still executes. One-shot callers without a reader retain ordinary independent resolution.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result. The lower borrows its optional reader only through synchronous return/failure, and fresh authored posture/goals contain no workspace or query history.
+   * @param resolution Optional exact FK source borrowed only for this
+   *   synchronous same-body evaluation.
+   * @returns The original carried and lowered posture with both actual leg
+   *   goals.
    */
   export const stood = (
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
-    lead: "left" | "right",
+    context: Pick<IAutoMovieMotionHumanActionContext, StoodContext>,
+    lead: AutoMovieHumanSide,
     line: IAutoMovieVector3,
     along: number,
     raised: number | null,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture => {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const rear: "left" | "right" = lead === "left" ? "right" : "left";
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
-    const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
+    const placed: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       ...feet,
       [lead]: {
         ankle: Vector3.add(feet[lead].ankle, {
@@ -180,7 +190,7 @@ export namespace StrikingAdvance {
         rotation: identity,
       },
     );
-    return resolveHumanPosture.lower(
+    return lowerHumanPosture(
       context.body,
       {
         ...carried,
@@ -189,10 +199,10 @@ export namespace StrikingAdvance {
           ...StrikingStance.legs(context.body, placed, {
             [lead]: raised === null,
             [rear]: true,
-          } as Record<"left" | "right", boolean>),
+          } as Record<AutoMovieHumanSide, boolean>),
         },
       },
-      resolveHumanPosture.KNEE,
+      lowerHumanPosture.KNEE,
       resolution,
     );
   };

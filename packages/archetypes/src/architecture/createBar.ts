@@ -18,26 +18,24 @@ const FIG: string =
 const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
 
 /**
- * A horizontal bar a person holds or hangs from: a high bar on two posts, a grab bar on a wall, or a level rail on posts.
+ * A horizontal bar a person holds or hangs from: a high bar on two posts, a
+ * grab bar on a wall, or a level rail on posts.
  *
- * The bar runs along `+X`, centred above the origin on the floor, and is gripped from above. A grab bar stands off a wall behind it by the clearance the standard fixes; the wall is not part of the model.
+ * The bar runs along `+X`, centred above the origin on the floor, and is
+ * gripped from above. A grab bar stands off a wall behind it by the clearance
+ * the standard fixes; the wall is not part of the model.
  *
  * @param params The kind, a grab bar's wall and any dimension the author fixes.
- * @param seed The seed that draws a grab bar's wall when it is not given and every dimension left free inside its band; absent, the rear wall and the middle of each band.
+ * @param seed The seed that draws a grab bar's wall when it is not given and
+ *   every dimension left free inside its band; absent, the rear wall and the
+ *   middle of each band.
  * @returns The bar.
- * @throws {AutoMovieArchetypeRefusal} For a wall named for a bar that has none, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bar's direction, how it is gripped and what is left out.
- * @evidence contracts/development/implementation.md#principled-implementation One rod at the drawn height with two supports; the `bar` frame lies on the rod's axis with the rod's diameter as its `aperture`, and a rail's or a grab bar's height is the top of its gripping surface, as the standard measures it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a grab bar's wall, draw the dimensions with its length over them, then the bar, its two supports, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bracket, flange or footing detail.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a wall named for a bar that has none,
+ *   or a fixed dimension outside its band.
  */
 export function createBar(
   params: createBar.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBar.Affordance, createBar.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBar.Dimension> =
     new AutoMovieArchetypeDrawSession<createBar.Dimension>(
@@ -107,14 +105,7 @@ export function createBar(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createBar}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The diameter a hand wraps, the height it reaches and the length it may travel along (#3371, #3363).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One affordance for every kind: a bar is a bar.
- */
+/** Companion types and bands of {@link createBar}. */
 export namespace createBar {
   /** The kinds of bar: a gymnastics high bar, a wall grab bar, a level handrail. */
   export type Kind = "high" | "grab" | "rail";
@@ -122,10 +113,16 @@ export namespace createBar {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["high", "grab", "rail"];
 
-  /** A grab bar's gap to the wall behind it, metres: the 1-1/2 in (38 mm) of 2010 ADA Standards 609.3. */
+  /**
+   * A grab bar's gap to the wall behind it, metres: the 1-1/2 in (38 mm) of
+   * 2010 ADA Standards 609.3.
+   */
   export const GAP: number = 0.038;
 
-  /** The affordance id: `bar`, the whole bar, gripped from above at any site along it. */
+  /**
+   * The affordance id: `bar`, the whole bar, gripped from above at any site
+   * along it.
+   */
   export type Affordance = "bar";
 
   /**
@@ -151,7 +148,12 @@ export namespace createBar {
   /** The walls a grab bar is on: the rear wall and the side wall. */
   export type Wall = "rear" | "side";
 
-  /** Each kind's walls with the least length each takes, metres, the default first: 2010 ADA Standards 604.5, the rear wall bar "at least 36 in (915 mm)" and the side wall bar "at least 42 in (1065 mm)" long; the other bars have none. */
+  /**
+   * Each kind's walls with the least length each takes, metres, the default
+   * first: 2010 ADA Standards 604.5, the rear wall bar "at least 36 in (915
+   * mm)" and the side wall bar "at least 42 in (1065 mm)" long; the other bars
+   * have none.
+   */
   export const WALLS: Readonly<
     Partial<
       Record<
@@ -163,12 +165,18 @@ export namespace createBar {
     grab: { rear: { length: 0.915 }, side: { length: 1.065 } },
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bar. */
     kind: Kind;
 
-    /** The wall a grab bar is on, whose least length it takes; drawn from the seed when absent. Other bars have none. */
+    /**
+     * The wall a grab bar is on, whose least length it takes; drawn from the
+     * seed when absent. Other bars have none.
+     */
     wall?: Wall;
 
     /** The model's id, unique in a scene; `bar` when absent. */

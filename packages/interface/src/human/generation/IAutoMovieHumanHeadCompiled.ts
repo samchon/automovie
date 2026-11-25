@@ -1,8 +1,7 @@
 import type { IAutoMovieNaturalCubicSpline } from "../../construction/IAutoMovieNaturalCubicSpline";
 import type { IAutoMovieHumanHeadPrior } from "./IAutoMovieHumanHeadPrior";
 
-/** The prior's curves prepared.
- */
+/** The prior's curves prepared. */
 export interface IAutoMovieHumanHeadCompiled {
   /** The prior they come from. */
   prior: IAutoMovieHumanHeadPrior.IPrior;

@@ -33,7 +33,10 @@ const LEG: number = 0.02;
 /** Width of an armrest pad, metres: the 50 mm minimum of EN 1335-1:2020 Table 2. */
 const ARM: number = 0.05;
 
-/** Reach of an office chair's five-star base from its column, metres: inside the 415 mm underframe limit of EN 1335-1:2020 Table 2. */
+/**
+ * Reach of an office chair's five-star base from its column, metres: inside the
+ * 415 mm underframe limit of EN 1335-1:2020 Table 2.
+ */
 const BASE_RADIUS: number = 0.3;
 
 /** Flat colours, sRGB. */
@@ -46,28 +49,30 @@ const CLOTH: string = "#6f7f93";
 const METAL: string = "#5b5f66";
 
 /**
- * A seat: a dining chair, an office chair, an armchair, a stool, a bar stool, a bench or a sofa.
+ * A seat: a dining chair, an office chair, an armchair, a stool, a bar stool, a
+ * bench or a sofa.
  *
- * The model is a seat slab on legs, a column or a plinth, with a back and arms where the kind has them: enough to tell a chair from a stool from a sofa and nothing more. What a sitter reads is exact: the `seat` frame stands at the seat height on the middle of the front edge, facing `+Z`, with the depth, the width and the back's height the bands below give. A bench or a sofa has one `seat` as wide as all its places; place `k` of `n` is the site `seat` at `u = (k + 0.5) / n`, counted from the sitter's right.
+ * The model is a seat slab on legs, a column or a plinth, with a back and arms
+ * where the kind has them: enough to tell a chair from a stool from a sofa and
+ * nothing more. What a sitter reads is exact: the `seat` frame stands at the
+ * seat height on the middle of the front edge, facing `+Z`, with the depth, the
+ * width and the back's height the bands below give. A bench or a sofa has one
+ * `seat` as wide as all its places; place `k` of `n` is the site `seat` at `u =
+ * (k + 0.5) / n`, counted from the sitter's right.
  *
  * The origin is on the floor under the middle of the seat.
  *
- * @param params The kind, the number of places and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the number of places and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The seat.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a number of places the kind does not have.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the seat frame stands, how places are addressed and where the origin is.
- * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and rods placed from the drawn seat height, depth, width and back height; the seat affordance follows the `seat` convention of `AutoMovieAffordanceKind`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the seat, then the support, back and arms each under the kinds that have them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sat-on dimensions come only from `BANDS`. Uncited and stated on their constants or here: leg and slab thickness, which shape the picture only; the back panel's thickness, which is the `grip`'s aperture; the footrest's 24 mm bar; and an arm pad's length of 0.7 of the seat depth.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of parts per kind.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or a number of places the kind does not have.
  */
 export function createSeat(
   params: createSeat.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSeat.Affordance, createSeat.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSeat.Dimension> =
     new AutoMovieArchetypeDrawSession<createSeat.Dimension>(
@@ -83,17 +88,21 @@ export function createSeat(
     createSeat.KINDS,
   );
   const shared: boolean = kind === "bench" || kind === "sofa";
-  const places: number = params.places ?? (shared ? 2 : 1);
-  if (!Number.isInteger(places) || places < 1 || places > (shared ? 4 : 1))
+  const layouts: readonly number[] = shared ? [1, 2, 3, 4] : [1];
+  const requested: number = params.places ?? (shared ? 2 : 1);
+  const places: number | undefined = layouts.find(
+    (count: number): boolean => count === requested,
+  );
+  if (places === undefined)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "seat",
       axis: "places",
-      value: places,
+      value: requested,
       feasible: {
         kind: "range",
         minimum: 1,
-        maximum: shared ? 4 : 1,
+        maximum: layouts.at(-1)!,
         unit: "",
       },
       reason: `a ${kind} seats ${shared ? "one to four" : "one"}`,
@@ -306,14 +315,7 @@ export function createSeat(
   return builder.build(d.mass! * places);
 }
 
-/**
- * Companion types and bands of {@link createSeat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions for the kind, the affordance ids and the free dimensions, and one cited band per dimension per kind, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions are those a sitter's act reads (#3370): seat height, depth and width, back and arm height; mass is there because a model's body needs one.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A kind without a dimension has no band for it, so a stool cannot be given a back height.
- */
+/** Companion types and bands of {@link createSeat}. */
 export namespace createSeat {
   /** The kinds of seat. */
   export type Kind =
@@ -341,8 +343,10 @@ export namespace createSeat {
    *
    * - `seat`: where a person sits; every kind.
    * - `back`: the backrest's front face, leaned on; kinds with a back.
-   * - `grip`: the top of the backrest, taken from behind to pull the seat out or to steady oneself; kinds with a back.
-   * - `leftArm`, `rightArm`: the armrest pads, on the sitter's left (`+X`) and right; the office chair, the armchair and the sofa.
+   * - `grip`: the top of the backrest, taken from behind to pull the seat out or
+   *   to steady oneself; kinds with a back.
+   * - `leftArm`, `rightArm`: the armrest pads, on the sitter's left (`+X`) and
+   *   right; the office chair, the armchair and the sofa.
    * - `footrest`: the bar a bar stool's sitter puts the feet on.
    * - `lie`: the whole sitting surface as a place to lie; the bench and the sofa.
    */
@@ -359,8 +363,10 @@ export namespace createSeat {
    * The free dimensions, metres unless stated:
    *
    * - `seatHeight`: the sitting surface above the floor.
-   * - `seatDepth`: the sitting surface from its front edge to the back; a round stool has none, its depth being its diameter.
-   * - `seatWidth`: the sitting surface's width per place; a stool's diameter, so the `seat` contact of a stool is the square about its disc.
+   * - `seatDepth`: the sitting surface from its front edge to the back; a round
+   *   stool has none, its depth being its diameter.
+   * - `seatWidth`: the sitting surface's width per place; a stool's diameter, so
+   *   the `seat` contact of a stool is the square about its disc.
    * - `backHeight`: the top of the backrest above the sitting surface.
    * - `armHeight`: the armrest pads above the sitting surface.
    * - `footrestDrop`: a bar stool's footrest below the sitting surface.
@@ -388,7 +394,10 @@ export namespace createSeat {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which seat. */
     kind: Kind;
@@ -396,7 +405,10 @@ export namespace createSeat {
     /** The model's id, unique in a scene; `seat` when absent. */
     id?: string;
 
-    /** How many sit side by side on a bench or a sofa, 1 to 4; 2 when absent. Other kinds seat one. */
+    /**
+     * How many sit side by side on a bench or a sofa, 1 to 4; 2 when absent.
+     * Other kinds seat one.
+     */
     places?: number;
   }
 

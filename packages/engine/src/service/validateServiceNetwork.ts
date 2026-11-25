@@ -29,14 +29,16 @@ const ENDPOINT_EPSILON: number = 1e-6;
  * Admit a typed distribution network against its served built environment.
  * Vocabulary, references, units, port directions, declared capacity and root
  * reach are checked before conservative run/maintenance interference. Findings
- * retain declaration order and authored values; success is structural admission,
- * not hydraulic pressure, electrical loss or discipline-performance proof.
+ * retain declaration order and authored values; success is structural
+ * admission, not hydraulic pressure, electrical loss or discipline-performance
+ * proof.
  *
- * Logical-space containment is sampled at route vertices rather than continuously
- * along each leg. Shared-endpoint run pairs are entirely exempt from clash
- * comparison, so a second overlap along those same runs is currently omitted.
- * Sleeve fit uses the authored boundary face when present; missing geometry is
- * outside that fit check's applicability rather than a reconstructed wall.
+ * Logical-space containment is sampled at route vertices rather than
+ * continuously along each leg. Shared-endpoint run pairs are entirely exempt
+ * from clash comparison, so a second overlap along those same runs is currently
+ * omitted. Sleeve fit uses the authored boundary face when present; missing
+ * geometry is outside that fit check's applicability rather than a
+ * reconstructed wall.
  */
 export const validateServiceNetwork: (
   props: IAutoMovieValidateServiceNetwork.IProps,
@@ -47,7 +49,6 @@ export const validateServiceNetwork: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  out.nonEmpty(`${root}.id`, network.id, "service network id");
   if (network.version !== 1)
     out.push(
       "type",
@@ -183,11 +184,6 @@ export const validateServiceNetwork: (
             sleeve.opening,
           );
       }
-      out.finiteVector(
-        `${path}.position`,
-        sleeve.position,
-        "penetration position",
-      );
       positive(sleeve.radius, `${path}.radius`, "penetration radius", out);
       appendServiceSleeveOnFace(environment, sleeve, path, out);
       if (!citedPenetrations.has(sleeve.id))
@@ -219,7 +215,10 @@ export const validateServiceNetwork: (
   return out.toValidation();
 };
 
-/** Preserve the first id set while collecting every duplicate and blank-id finding in source order. */
+/**
+ * Preserve the first id set while collecting every duplicate-id finding in
+ * source order.
+ */
 const collectIds: <T extends { id: string }>(
   records: readonly T[],
   path: string,
@@ -233,7 +232,6 @@ const collectIds: <T extends { id: string }>(
 ): Set<string> => {
   const ids: Set<string> = new Set<string>();
   records.forEach((record: T, index: number): void => {
-    out.nonEmpty(`${path}[${index}].id`, record.id, `${label} id`);
     if (ids.has(record.id))
       out.push(
         "type",
@@ -246,7 +244,10 @@ const collectIds: <T extends { id: string }>(
   return ids;
 };
 
-/** Compare a route endpoint with its port using the declared micrometre tolerance, retaining the original measured gap in the finding. */
+/**
+ * Compare a route endpoint with its port using the declared micrometre
+ * tolerance, retaining the original measured gap in the finding.
+ */
 const coincident: (
   point: IAutoMovieVector3,
   target: IAutoMovieVector3,
@@ -271,7 +272,10 @@ const coincident: (
     );
 };
 
-/** Three-dimensional metre distance with hypot's scaled norm; overflowed endpoint subtraction remains nonfinite. */
+/**
+ * Three-dimensional metre distance with hypot's scaled norm; overflowed
+ * endpoint subtraction remains nonfinite.
+ */
 const distance: (one: IAutoMovieVector3, other: IAutoMovieVector3) => number = (
   one: IAutoMovieVector3,
   other: IAutoMovieVector3,
@@ -289,7 +293,7 @@ const positive: (
   label: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isFinite(value) || value <= 0)
+  if (!(value > 0 && value < Infinity))
     out.push(
       "range",
       path,
@@ -310,7 +314,7 @@ const nonNegative: (
   label: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isFinite(value) || value < 0)
+  if (value < 0)
     out.push(
       "range",
       path,

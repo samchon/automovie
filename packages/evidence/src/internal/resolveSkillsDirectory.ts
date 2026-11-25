@@ -11,7 +11,8 @@ import { SKILLS_ROOT } from "./SKILLS_ROOT";
  * the working directory, so a workspace production can write
  * `"../../../.agents/skills"` and get the same tree from any process.
  *
- * @param contracts The production location and optional shared tree; read, not retained.
+ * @param contracts The production location and optional shared tree; read, not
+ *   retained.
  * @returns The absolute shared skills directory.
  */
 export function resolveSkillsDirectory(contracts: IContractLocation): string {

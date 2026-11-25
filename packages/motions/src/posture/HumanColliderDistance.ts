@@ -10,18 +10,9 @@ import type {
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
- * Ordered signed-distance reduction over one actual collider placement.
- * The first strict minimum wins; conservative world spheres screen only
- * shapes unable to improve it. Optional scratch belongs to this unchanged
- * placement's synchronous query operation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines signs, world metres, strict first winner, conservative screening, unchanged placement and the prepared segment/taper reader's operation-owned lifetime.
- * @evidence contracts/development/implementation.md#principled-implementation Reduces actual engine signed shape distances, less the supplied segment taper; a containing sphere provides a lower bound and retains the original greater-or-equal rejection.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The single ordered reducer serves cold calls and prepare's closure; that closure owns only world-sphere and opaque shape-reader scratch, while bounds and exact proximity mathematics retain their owners.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps shape order, strict minima, taper arithmetic and empty-body refusal; a screen never substitutes for an actual winning distance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Scans F ordered shapes and pays exact query cost only where original screens permit; prepared operations compute at most F world spheres and opaque engine readers, without a measured speedup claim.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Optional bounds/readers are valid only for this exact unchanged ordered placement; every segment and taper still runs its actual query and comparison.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold calls retain no placement/scratch; an explicit synchronous prepared operation owns one closure, its borrowed unchanged placement and at most F lazy world spheres/shape readers until release or throw. No queried point, result, global map, task or handle is retained.
+ * Ordered signed-distance reduction over one actual collider placement. The
+ * first strict minimum wins; conservative world spheres screen only shapes
+ * unable to improve it. Fixed geometry can be supplied by the preparation.
  */
 export function HumanColliderDistance(
   placements: readonly IAutoMovieMotionHumanColliders.IPlaced[],
@@ -29,22 +20,18 @@ export function HumanColliderDistance(
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
   widest: number,
-  bounds?: IWorldBall[],
-  readers?: IDistanceReader[],
+  prepared?: readonly IShapeReading[],
 ): IAutoMovieMotionHumanColliders.IDistance {
   let best: IAutoMovieMotionHumanColliders.IDistance | undefined;
   let cursor: number = 0;
   for (const { bone, pose, shapes } of placements)
     for (const shape of shapes) {
-      const slot: number = cursor++;
+      const reading: IShapeReading | undefined = prepared?.[cursor++];
 
       // A containing sphere cannot improve a distance it already lies beyond.
       if (best !== undefined) {
-        let ball: IWorldBall | undefined = bounds?.[slot];
-        if (ball === undefined) {
-          ball = HumanShapeFraming.sphere(pose, shape);
-          if (bounds !== undefined) bounds[slot] = ball;
-        }
+        const ball: IWorldBall =
+          reading?.bound ?? HumanShapeFraming.sphere(pose, shape);
         if (
           closestPointsBetweenSegments(a, b, ball.centre, ball.centre)
             .distance -
@@ -55,12 +42,9 @@ export function HumanColliderDistance(
           continue;
       }
       const d: number =
-        readers === undefined
+        reading === undefined
           ? physicalShapeSegmentDistance(pose, shape, a, b, taper)
-          : (readers[slot] ??= physicalShapeSegmentDistance.prepare(
-              pose,
-              shape,
-            ))(a, b, taper);
+          : reading.distance(a, b, taper);
       if (best === undefined || d < best.distance) best = { distance: d, bone };
     }
   if (best === undefined)
@@ -68,26 +52,12 @@ export function HumanColliderDistance(
   return best;
 }
 
-/**
- * Operation-scoped fixed-geometry preparation for the same distance owner.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged placement scope and varying-query purpose.
- * @evidence contracts/development/design.md#principled-representation An opaque segment reader captures actual placed geometry and bounded scratch, without retaining any segment or answer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves existing ray probes and StrikingRide's repeated same-body contact probes through HumanColliders.reading.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No body identity cache or caller-supplied result certifies reuse; only explicit unchanged-placement lifetime permits shared geometry.
- */
+/** Operation-scoped fixed-geometry preparation for the same distance owner. */
 export namespace HumanColliderDistance {
   /**
-   * Query varying segments during one unchanged placement operation. World
-   * spheres and opaque shape readers are prepared lazily at original use sites.
-   *
-   * States varying world segments, fixed geometry, lazy preparation and operation release.
-   * A shape's world sphere and local query frame depend only on its unchanged placement, so the existing ordered reducer can share them across actual segment queries.
-   * One closure owns bounds/readers and delegates all numeric query policy to HumanColliderDistance.
-   * Every new segment/taper runs original proximity math and first-minimum rules; no distance, query point or verdict is stored.
-   * At most F world spheres and F fixed shape readers are prepared across K queries on F shapes, while screening and exact query costs remain per segment.
-   * The caller keeps actual ordered placement, shape definitions and transforms unchanged through this synchronous operation; changed geometry requires another reader.
-   * The operation owns one closure, borrowed placement and at most F spheres/readers until return or throw; no global map, point/result history, task or handle is added.
+   * Prepare world bounds and shape readers for an unchanged set of posed
+   * colliders. Each segment uses the same ordered minimum rule and tests only
+   * the exact shapes whose bounds could improve the current best distance.
    */
   export function prepare(
     placements: readonly IAutoMovieMotionHumanColliders.IPlaced[],
@@ -96,8 +66,13 @@ export namespace HumanColliderDistance {
     b: IAutoMovieVector3,
     taper?: readonly [number, number],
   ) => IAutoMovieMotionHumanColliders.IDistance {
-    const bounds: IWorldBall[] = [];
-    const readers: IDistanceReader[] = [];
+    const prepared: IShapeReading[] = [];
+    for (const { pose, shapes } of placements)
+      for (const shape of shapes)
+        prepared.push({
+          bound: HumanShapeFraming.sphere(pose, shape),
+          distance: physicalShapeSegmentDistance.prepare(pose, shape),
+        });
     return (
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
@@ -109,8 +84,7 @@ export namespace HumanColliderDistance {
         b,
         taper,
         taper === undefined ? 0 : Math.max(taper[0], taper[1]),
-        bounds,
-        readers,
+        prepared,
       );
   }
 }
@@ -123,3 +97,12 @@ interface IWorldBall {
 
 /** Engine-owned fixed shape geometry with no retained point or result. */
 type IDistanceReader = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
+
+/** Fixed world screening and exact local-frame distance for one shape. */
+interface IShapeReading {
+  /** Conservative world sphere for the shape. */
+  bound: IWorldBall;
+
+  /** Signed distance to each current world segment. */
+  distance: IDistanceReader;
+}

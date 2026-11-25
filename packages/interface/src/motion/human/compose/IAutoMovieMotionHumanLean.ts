@@ -4,18 +4,16 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
- * Trunk lean primitives: the whole body above the feet tipped about the
- * hips, with the hips moved back so the centre of mass stays over the feet.
+ * Trunk lean primitives: the whole body above the feet tipped about the hips,
+ * with the hips moved back so the centre of mass stays over the feet.
  *
- * A standing person who tips the trunk forward moves the hips back by the
- * same movement, or falls forward (the counter-movement of a bow, a reach to
- * the floor, a look under a table). The planted legs keep their goals and are
+ * A standing person who tips the trunk forward moves the hips back by the same
+ * movement, or falls forward (the counter-movement of a bow, a reach to the
+ * floor, a look under a table). The planted legs keep their goals and are
  * solved again when the posture is resolved.
  */
 export namespace IAutoMovieMotionHumanLean {
-  /**
-   * A lean over a window.
-   */
+  /** A lean over a window. */
   export interface IBow {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -26,7 +24,10 @@ export namespace IAutoMovieMotionHumanLean {
     /** The deepest forward pitch, degrees; positive. */
     peak: number;
 
-    /** The physical terms asked (`IAutoMovieMotionHumanBalance`): absent, the hips are not shifted back and no centre of mass is read. */
+    /**
+     * The physical terms asked (`IAutoMovieMotionHumanBalance`): absent, the
+     * hips are not shifted back and no centre of mass is read.
+     */
     balance?: IAutoMovieMotionHumanBalance;
 
     /** Seconds since the action's start from which the trunk is written. */
@@ -44,9 +45,7 @@ export namespace IAutoMovieMotionHumanLean {
     weight(seconds: number): number;
   }
 
-  /**
-   * A tilt of the whole body about the root, degrees added to the posture.
-   */
+  /** A tilt of the whole body about the root, degrees added to the posture. */
   export interface IAngles {
     /** Forward pitch added, degrees. */
     pitch: number;
@@ -55,9 +54,7 @@ export namespace IAutoMovieMotionHumanLean {
     roll: number;
   }
 
-  /**
-   * A tilt over a window.
-   */
+  /** A tilt over a window. */
   export interface ITilt {
     /** Seconds since the action's start from which the trunk is written. */
     from: number;
@@ -74,17 +71,21 @@ export namespace IAutoMovieMotionHumanLean {
     angles(seconds: number): IAutoMovieMotionHumanLean.IAngles;
   }
 
-  /**
-   * A sway over a window.
-   */
+  /** A sway over a window. */
   export interface ISway {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** Seconds since the action's start from which the root and the trunk are written. */
+    /**
+     * Seconds since the action's start from which the root and the trunk are
+     * written.
+     */
     from: number;
 
-    /** Seconds since the action's start until which the root and the trunk are written. */
+    /**
+     * Seconds since the action's start until which the root and the trunk are
+     * written.
+     */
     to: number;
 
     /**
@@ -96,17 +97,18 @@ export namespace IAutoMovieMotionHumanLean {
     angles(seconds: number): IAutoMovieMotionHumanLean.IAngles;
 
     /**
-     * The hips' travel over the floor from where the posture holds them;
-     * none when absent.
+     * The hips' travel over the floor from where the posture holds them; none
+     * when absent.
      *
      * @param seconds Seconds since the action's start.
-     * @returns Metres in the performer's floor frame: `x` left, `z` forward; `y` is not read.
+     * @returns Metres in the performer's floor frame: `x` left, `z` forward;
+     *   `y` is not read.
      */
     shift?(seconds: number): IAutoMovieVector3;
 
     /**
-     * The leg goals the hips' height is solved against; the posture's own
-     * leg goals when absent.
+     * The leg goals the hips' height is solved against; the posture's own leg
+     * goals when absent.
      *
      * @param seconds Seconds since the action's start.
      * @returns The two leg goals at that second.

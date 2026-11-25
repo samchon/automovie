@@ -5,10 +5,11 @@ import type {
 
 /**
  * Cut a private oriented annular triangle chart along an observed edge path.
- * Two coherent boundary cycles become bottom/top and the duplicated seam becomes
- * left/right. Original positions and faces stay private observations for fitting.
- * The caller establishes genus zero and exactly two boundary cycles beforehand.
- * A seam touching another boundary vertex is refused rather than changing topology.
+ * Two coherent boundary cycles become bottom/top and the duplicated seam
+ * becomes left/right. Original positions and faces stay private observations
+ * for fitting. The caller establishes genus zero and exactly two boundary
+ * cycles beforehand. A seam touching another boundary vertex is refused rather
+ * than changing topology.
  */
 export function RecoveryAnnularChart(
   input: Parameters<IAutoMovieRecoveryAnnularChartPreparation.Operation>[0],
@@ -40,10 +41,7 @@ export function RecoveryAnnularChart(
       if (
         new Set(triangle).size !== 3 ||
         triangle.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) ||
-            id < 0 ||
-            id >= input.verticesMm.length,
+          (id: number): boolean => id < 0 || id >= input.verticesMm.length,
         )
       )
         throw new Error("Private annular triangle addresses are invalid");
@@ -59,7 +57,7 @@ export function RecoveryAnnularChart(
           p[1] - q[1],
           p[2] - q[2],
         );
-        if (!(distance > 0 && Number.isFinite(distance)))
+        if (!(distance > 0) || distance === Infinity)
           throw new Error("A private annular chart edge is collapsed");
         adjacency[a]!.set(b, distance);
         adjacency[b]!.set(a, distance);
@@ -161,7 +159,7 @@ export function RecoveryAnnularChart(
       }
     }
   }
-  if (!Number.isFinite(distance[target]))
+  if (distance[target] === Infinity)
     throw new Error(
       "No simple interior edge seam joins the deterministic annulus anchors",
     );
@@ -248,16 +246,20 @@ export function RecoveryAnnularChart(
     verticesMm.push(input.verticesMm[vertex]!);
     vertexKeys.push(input.vertexKeys[vertex]!);
   }
+  const relabel = (vertex: number, face: number): number =>
+    labels.has(vertex) && labels.get(vertex)!.get(face) !== left
+      ? duplicate.get(vertex)!
+      : vertex;
   const triangles: [number, number, number][] = input.triangles.map(
     (
       triangle: readonly [number, number, number],
       face: number,
     ): [number, number, number] =>
-      triangle.map((vertex: number): number =>
-        labels.has(vertex) && labels.get(vertex)!.get(face) !== left
-          ? duplicate.get(vertex)!
-          : vertex,
-      ) as [number, number, number],
+      [
+        relabel(triangle[0], face),
+        relabel(triangle[1], face),
+        relabel(triangle[2], face),
+      ],
   );
   const sides: [number[], number[], number[], number[]] = [
     [...bottom, duplicate.get(start)!],

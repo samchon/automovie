@@ -72,7 +72,11 @@ export type IAutoMovieCaptureRecord =
       /** The video file the stills were taken from, with its detected cuts, or null for a drawn subject. */
       video: IAutoMovieCaptureVideoSource | null;
 
-      /** Findings and coverage for captured samples that supplied diagnostics, without a full delivery schedule. */
+      /**
+       * Findings and coverage for captured samples that supplied diagnostics, without a full delivery schedule.
+       *
+       * A scaffolded film that supplies its human performance carries the physical bounds of the whole performance in every sampled packet, so each sampled cell adds one coverage row per bound and performer and one per pair: with P performers up to 16P + P(P - 1) / 2 rows, 33 with two. A verdict is then compared between rounds only at instants both rounds sampled.
+       */
       diagnostics?: IAutoMovieInspectionDiagnostics.IAudit;
 
       /** The subject owner's own section, such as a motion case's verdicts and metrics, as the host handed it over, or null when the owner has none. */

@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
@@ -27,14 +27,12 @@ import { heelMountedFoot } from "./heelMountedFoot";
  * postures: where the hips are, how far the carrier strays from its
  * stride-averaged path while the performance is out of the saddle, and which
  * feet must swing over the carrier on their way to the next figure.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three prepared paths.
- * @evidence contracts/development/design.md#principled-representation World or carrier-frame points and metres, prepared once per plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hips, their pivot and swing, the slack and the feet's arcs with their rise, read by the mounted law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No carrier is named; its frame and colliders are read through the plan's readers.
  */
 export namespace HumanMountedPaths {
-  /** How far above the higher end of its way a foot that must swing over the carrier passes, thigh lengths (provisional). */
+  /**
+   * How far above the higher end of its way a foot that must swing over the
+   * carrier passes, thigh lengths (provisional).
+   */
   export const RISE: number = 0.25;
 
   /**
@@ -43,14 +41,6 @@ export namespace HumanMountedPaths {
    * @param body The body.
    * @param posture The posture.
    * @returns The point, in the posture's frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the point.
-   * @evidence contracts/development/implementation.md#principled-implementation The two hip joints the root and attitude place (`hipJoints`), averaged.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hips(
     body: IAutoMovieMotionHumanBody,
@@ -59,26 +49,20 @@ export namespace HumanMountedPaths {
     const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       posture.root,
-      resolveHumanPosture.heading(posture),
+      humanPostureHeading(posture),
       posture.joints.hips,
     );
     return Vector3.lerp(joints.left, joints.right, 0.5);
   }
 
   /**
-   * The point the hips swing about between two keys: the middle of the ankles when both feet stay planted where they are in both keys, as on their stirrups; none otherwise.
+   * The point the hips swing about between two keys: the middle of the ankles
+   * when both feet stay planted where they are in both keys, as on their
+   * stirrups; none otherwise.
    *
    * @param from The earlier key.
    * @param to The later key.
    * @returns The pivot, or none.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when a pivot exists.
-   * @evidence contracts/development/implementation.md#principled-implementation Both legs planted in both keys with their ankles within a millimetre.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One check per leg.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pivot(
     from: IAutoMovieMotionHumanPosture,
@@ -100,21 +84,15 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The hips a share of the way between two keys: straight, or about a pivot, the direction turned and the distance from the pivot blended, so the hips never come nearer to or further from the feet than at both ends.
+   * The hips a share of the way between two keys: straight, or about a pivot,
+   * the direction turned and the distance from the pivot blended, so the hips
+   * never come nearer to or further from the feet than at both ends.
    *
    * @param from The earlier hips.
    * @param to The later hips.
    * @param about The pivot, or none for a straight way.
    * @param share 0 to 1.
    * @returns The hips.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both ways and what the swing preserves.
-   * @evidence contracts/development/implementation.md#principled-implementation Polar interpolation about the pivot: the unit directions blended and renormalised, the radii blended linearly.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One branch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Opposite directions fall back to the straight way.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function swing(
     from: IAutoMovieVector3,
@@ -141,19 +119,12 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * A posture whose planted feet bearing on their balls are turned toes-down where the shank would lean past the ankle's range (`heelMountedFoot`).
+   * A posture whose planted feet bearing on their balls are turned toes-down
+   * where the shank would lean past the ankle's range (`heelMountedFoot`).
    *
    * @param body The body.
    * @param posture The posture, in any frame.
    * @returns The posture, its planted leg goals turned where needed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which legs are turned.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture's own hip joints (`hipJoints`) and each planted leg through `heelMountedFoot`.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pass over two legs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leg goal attached to a bone or not planted is left as it is.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per sample.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function heels(
     body: IAutoMovieMotionHumanBody,
@@ -162,7 +133,7 @@ export namespace HumanMountedPaths {
     const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       posture.root,
-      resolveHumanPosture.heading(posture),
+      humanPostureHeading(posture),
       posture.joints.hips,
     );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
@@ -175,18 +146,11 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * A posture without arm goals: the arms posed by their joints, so a hand's hold blends from where those joints put it.
+   * A posture without arm goals: the arms posed by their joints, so a hand's
+   * hold blends from where those joints put it.
    *
    * @param posture The posture.
    * @returns The posture without its arm goals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped and why.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Two deletions.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One copy.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function unarmed(
     posture: IAutoMovieMotionHumanPosture,
@@ -198,21 +162,14 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * Where a figure's held contacts are at a film second, in the carrier frame then: the points the hands must keep in reach.
+   * Where a figure's held contacts are at a film second, in the carrier frame
+   * then: the points the hands must keep in reach.
    *
    * @param support The carrier.
    * @param figure The figure.
    * @param now The carrier frame at the second.
    * @param film Film seconds.
    * @returns Each holding hand's contact point, in the carrier frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the points and their frame.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation One inverse transform per hand.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop over two hands.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function grips(
     support: IAutoMovieMotionHumanPropReader,
@@ -236,18 +193,13 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * Whether a figure names its supports: a figure that names any is held by those alone, so a foot it does not name leaves its stirrup in the figure's transfer (its window closes where the transfer starts) and hangs; a figure that names none keeps the entry's feet as they were.
+   * Whether a figure names its supports: a figure that names any is held by
+   * those alone, so a foot it does not name leaves its stirrup in the figure's
+   * transfer (its window closes where the transfer starts) and hangs; a figure
+   * that names none keeps the entry's feet as they were.
    *
    * @param figure The figure.
    * @returns True when it names any support.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the test.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation One read.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function names(figure: IAutoMovieMotionHumanMounted.IFigure): boolean {
     return (
@@ -256,21 +208,15 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The entered seat for a figure: the entry as it was, or, where the figure names the stirrups it keeps, the entry with each planted foot it does not name hanging free (`hangMountedLeg`), a stirrup lost.
+   * The entered seat for a figure: the entry as it was, or, where the figure
+   * names the stirrups it keeps, the entry with each planted foot it does not
+   * name hanging free (`hangMountedLeg`), a stirrup lost.
    *
    * @param body The body.
    * @param entry The entered posture, in the carrier frame.
    * @param figure The entered figure.
    * @param planted Whether each entry foot stands on something.
    * @returns The figure's key posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when a foot hangs.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation One choice per leg.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop over two legs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A figure that names no stirrup keeps the entry's feet as they were.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function entered(
     body: IAutoMovieMotionHumanBody,
@@ -287,20 +233,16 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The contact window a figure's supporting part holds on the carrier: a grip for a hand, a plant for a sole (on its stirrup's own frame when one is named), a knee bearing on its region, the right thigh bearing over its bar.
+   * The contact window a figure's supporting part holds on the carrier: a grip
+   * for a hand, a plant for a sole (on its stirrup's own frame when one is
+   * named), a knee bearing on its region, the right thigh bearing over its
+   * bar.
    *
    * @param part The supporting part.
    * @param on The carrier's subject id.
-   * @param point The carrier's point the part rests on, when the figure names one.
+   * @param point The carrier's point the part rests on, when the figure names
+   *   one.
    * @returns The window over the whole performance, which the clock then cuts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each part's window.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A table read.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per part.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new window.
    */
   export function window(
     part: HumanMountedSeats.Part,
@@ -348,7 +290,9 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * How far the carrier contact rises or falls from its stride-averaged path while the performance is out of the saddle, read in world height so the course's own travel does not count.
+   * How far the carrier contact rises or falls from its stride-averaged path
+   * while the performance is out of the saddle, read in world height so the
+   * course's own travel does not count.
    *
    * @param carrier The carrier frame reader.
    * @param start The performance's start, film seconds.
@@ -356,14 +300,6 @@ export namespace HumanMountedPaths {
    * @param figures The figures.
    * @param stride The stride, seconds; none gives 0.
    * @returns The greatest departure, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, over which spans and in which direction.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact's height against `HumanMountedStride.level`'s average, sampled `2 SAMPLES` times a stride over each out-of-saddle figure's transfer and hold.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop per figure.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Seated figures are not read; a performance with no stride has no slack.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen samples a stride, each `SAMPLES` plus one carrier readings.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function slack(
     carrier: HumanMountedFrame.Reader,
@@ -399,20 +335,15 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The ball a foot pivots about between two keys: the foot planted on its ball in both, the ball on the same place within the campaign's 5 mm contact bound (`HumanMount.ON`), as a foot kept in its stirrup while the seat turns; none otherwise.
+   * The ball a foot pivots about between two keys: the foot planted on its ball
+   * in both, the ball on the same place within the campaign's 5 mm contact
+   * bound (`HumanMount.ON`), as a foot kept in its stirrup while the seat
+   * turns; none otherwise.
    *
    * @param from The earlier key.
    * @param to The later key.
    * @param side The foot.
    * @returns The ball, in the keys' frame, or none.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when a foot pivots and about what.
-   * @evidence contracts/development/implementation.md#principled-implementation A planted goal's contact is its sole socket in the foot's frame, so the ball is the ankle plus the foot's rotation of it; equal balls at both ends mean the foot stays on its rest.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound is the campaign's contact bound, not a tuned one.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rested(
     from: IAutoMovieMotionHumanPosture,
@@ -441,7 +372,11 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The feet that swing over the carrier into each figure: a foot whose straight way to its next place would pass through the carrier's colliders passes instead through a point above the higher end, `RISE` thighs up, midway along; a foot kept on the same stirrup, or planted on its ball at the same place at both ends (`rested`), stays on it.
+   * The feet that swing over the carrier into each figure: a foot whose
+   * straight way to its next place would pass through the carrier's colliders
+   * passes instead through a point above the higher end, `RISE` thighs up,
+   * midway along; a foot kept on the same stirrup, or planted on its ball at
+   * the same place at both ends (`rested`), stays on it.
    *
    * @param seats The seats' context, for the body and the colliders.
    * @param entry The entered posture in the carrier frame.
@@ -449,14 +384,6 @@ export namespace HumanMountedPaths {
    * @param figures The figures.
    * @param planted Whether each entry foot stands on something.
    * @returns For each figure, the waypoint of each foot that swings.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when a foot swings and through which point.
-   * @evidence contracts/development/implementation.md#principled-implementation Four collider distance queries along the straight way against the shank's radius; the waypoint is the middle of a quadratic arc the law adds to the blended ankle.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop per figure and side.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot kept on its stirrup never leaves it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most four collider queries per foot per figure.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one small record per figure.
    */
   export function arcs(
     seats: HumanMountedSeats.IContext,

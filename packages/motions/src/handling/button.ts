@@ -32,26 +32,16 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { admitButtonMotion } from "./admitButtonMotion";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateShape } from "./manipulateShape";
 
 /**
  * Brace a fixed garment's rim with the index finger while the opposite thumb
- * pushes its button through the opening. Register as `button`. The same
- * stroke clock moves the button mesh and places the thumb; the drive leaves
- * the button through the panel when the hands leave. A rigid straight slider
- * and authored bounding sphere approximate the closure without cloth dynamics.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the authoring entry, two hands, persistent outcome and geometric premise.
- * @evidence contracts/development/design.md#principled-representation A planar rectangular passage and sphere enclosure admit a linear translation; arm and digit goals then follow two model contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Registers one law over named model features, the existing articulation writer and the shared body planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The author's assembled garment provides the opening, button geometry and its two moving sites; a press at a fixed point cannot supply the closure.
- * @evidence contracts/development/implementation.md#principled-implementation Checks the button's enclosing sphere against both sides of the panel and both ends of the passage interval in the aperture plane, then runs the hand goals on the articulation's stroke clock.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks prop and slider, admits geometric passage, sets the clock, then composes the two arms and digits.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the shared writer and planner, and refuses incomplete geometry, inadequate passage or an inadmissible slider trajectory.
- * @evidence contracts/development/implementation.md#efficient-algorithms Admits a straight passage with endpoint checks, then samples it with two existing arm trajectories and their fingertip corrections.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Arm and fingertip targets use the same part reader and progress as the drive.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds only the prop readers and the two arm trajectories, and acquires no external resources.
+ * pushes its button through the opening. Register as `button`. The same stroke
+ * clock moves the button mesh and places the thumb; the drive leaves the button
+ * through the panel when the hands leave. A rigid straight slider and authored
+ * bounding sphere approximate the closure without cloth dynamics.
  */
 export const button: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanButton> =
   {
@@ -62,26 +52,14 @@ export const button: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanButton>
     plan,
   };
 
-/** Admit the model and its passage, then plan the two reaching hands together. */
+/**
+ * Admit the model and its passage, then plan the two reaching hands together.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanButton>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanButton = context.params;
-  if (
-    !Number.isFinite(p.travel) ||
-    p.travel === 0 ||
-    ![p.radius, p.thickness, p.duration].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "travel",
-      value: p.travel,
-      reason:
-        "buttoning needs a finite nonzero travel and positive finite dimensions and duration",
-      fix: "give the measured slider travel, sphere radius, panel thickness and push duration",
-    });
+  admitButtonMotion(p);
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.garment);
   const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
   if (
@@ -272,13 +250,18 @@ function part(
     );
   return result;
 }
+/** The alternatives of `FingersDigit`'s site. */
+type FingersDigit = "thumb" | "index";
 
-/** The arm seeds a flexed fingertip; the independent digit fit closes the remaining contact error. */
+/**
+ * The arm seeds a flexed fingertip; the independent digit fit closes the
+ * remaining contact error.
+ */
 function fingers(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanButton>,
   clock: IAutoMovieMotionClock,
   side: AutoMovieHumanSide,
-  digit: "thumb" | "index",
+  digit: FingersDigit,
   target: (seconds: number) => IAutoMovieMotionHumanOperateDrive.IPlace,
   together: IAutoMovieMotionHumanArmPlanned.ITogether,
 ): readonly IAutoMovieMotionHumanPrimitive[] {
@@ -416,7 +399,7 @@ function place(
 
 /** A finite aperture dimension stated in metres. */
 function positive(value: number | undefined): value is number {
-  return value !== undefined && Number.isFinite(value) && value > 0;
+  return value !== undefined && value > 0;
 }
 
 /** A garment model or closure the law cannot stage. */

@@ -8,20 +8,19 @@ import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 
 /**
  * Apply one Catmull-Clark step to face-varying UVs with every UV boundary
- * pinned, OpenSubdiv's `FVAR_LINEAR_BOUNDARIES` and Blender's "Keep
- * Boundaries".
+ * pinned, OpenSubdiv's `FVAR_LINEAR_BOUNDARIES`.
  *
  * An edge is UV-continuous when it has two faces that name the same UV values
- * at both ends; a mesh boundary edge or a seam is a UV boundary. A UV value at a
- * vertex touching any UV boundary keeps its value, a UV boundary edge gives each
- * side the midpoint of that side's two values, and everything else follows the
- * same rules and masks as the positions, so creases sharpen UVs alike. Each
- * chart's boundary therefore stays the piecewise-linear polygon of its cage
- * UVs at every level while its interior smooths with the surface.
+ * at both ends; a mesh boundary edge or a seam is a UV boundary. A UV value at
+ * a vertex touching any UV boundary keeps its value, a UV boundary edge gives
+ * each side the midpoint of that side's two values, and everything else follows
+ * the same rules and masks as the positions, so creases sharpen UVs alike. Each
+ * chart's boundary therefore stays the piecewise-linear polygon of its cage UVs
+ * at every level while its interior smooths with the surface.
  *
- * Child values are numbered as positions are: one per parent UV value, then
- * one per continuous edge or one per side of a UV boundary edge in edge order,
- * then one per face. Child corner `4 c + j` belongs to the child quad of parent
+ * Child values are numbered as positions are: one per parent UV value, then one
+ * per continuous edge or one per side of a UV boundary edge in edge order, then
+ * one per face. Child corner `4 c + j` belongs to the child quad of parent
  * corner `c`, in the order vertex, out-edge, face, in-edge.
  *
  * @param topology Connectivity of the current level.

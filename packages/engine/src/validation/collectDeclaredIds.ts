@@ -1,13 +1,12 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
- * Collect the ids a list of records declares, reporting each blank or
- * repeated one.
+ * Collect the ids a list of records declares, reporting each repeated one.
  *
- * Each record's id is checked at `<path>[<index>].id`: a blank id gets a `type`
- * violation `<label> id must be non-empty`, and an id already seen earlier in
- * the list gets a `type` violation `<label> id "<id>" must be unique` on the
- * later record. Every id, blank or repeated included, is in the returned set,
+ * Each record's id is checked at `<path>[<index>].id`: an id already seen
+ * earlier in the list gets a `type` violation `<label> id "<id>" must be
+ * unique` on the later record. Every id, repeated included, is in the returned
+ * set,
  * so references to it resolve and the one defect is reported once, on the
  * declaration.
  *
@@ -25,7 +24,6 @@ export const collectDeclaredIds = <Declared extends { id: string }>(
 ): Set<string> => {
   const ids: Set<string> = new Set();
   records.forEach((record: Declared, index: number): void => {
-    collector.nonEmpty(`${path}[${index}].id`, record.id, `${label} id`);
     if (ids.has(record.id))
       collector.push(
         "type",

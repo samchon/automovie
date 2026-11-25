@@ -15,8 +15,10 @@ import type {
 import * as THREE from "three";
 
 import { decodeAutoMovieFontSources } from "../../typography/decodeAutoMovieFontSources.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { decodeAutoMovieImage } from "../decodeAutoMovieImage.js";
 import { AutoMovieFilmResponseStage } from "../filmResponse/AutoMovieFilmResponseStage.js";
@@ -155,7 +157,7 @@ export async function prepareAutoMovieSurfaceGraphics(
       const groups: THREE.Group[] = track.keys.map(
         (key: IAutoMovieSurfaceGraphicTrack["keys"][number]): THREE.Group => {
           const made: IFeed[] = [];
-          const meshes: THREE.Mesh[] = [];
+          const meshes: THREE.Mesh<THREE.BufferGeometry, THREE.Material>[] = [];
           const group: THREE.Group = buildAutoMovieSurfaceGraphicKey({
             graphic: key.graphic,
             feed: (
@@ -216,7 +218,7 @@ export async function prepareAutoMovieSurfaceGraphics(
             feed.mesh = meshes[index]!;
             feed.group = group;
             addMaterialShaderPatch(
-              feed.mesh.material as THREE.Material,
+              feed.mesh.material,
               decodeFeedPatch(encoded),
             );
           });
@@ -237,11 +239,7 @@ export async function prepareAutoMovieSurfaceGraphics(
   let disposed: boolean = false;
   return {
     apply: (seconds: number): void => {
-      if (
-        !Number.isFinite(seconds) ||
-        seconds < 0 ||
-        seconds >= props.shot.duration
-      )
+      if (seconds < 0 || seconds >= props.shot.duration)
         throw new RangeError(
           `Surface graphics sample ${seconds} s must be inside the shot`,
         );
@@ -270,7 +268,7 @@ export async function prepareAutoMovieSurfaceGraphics(
       // Every feed draws as its background inside a feed, so no screen shows
       // a view of itself and the feed stays one level deep.
       const materials: THREE.Material[] = feeds.map(
-        (feed: IFeed): THREE.Material => feed.mesh.material as THREE.Material,
+        (feed: IFeed): THREE.Material => feed.mesh.material,
       );
       for (const feed of feeds) feed.mesh.material = feed.standIn;
       const previous: THREE.WebGLRenderTarget | null =
@@ -283,9 +281,7 @@ export async function prepareAutoMovieSurfaceGraphics(
               `Surface feed camera "${feed.camera}" is not built`,
             );
           const perspective: THREE.PerspectiveCamera | null =
-            (view as THREE.PerspectiveCamera).isPerspectiveCamera === true
-              ? (view as THREE.PerspectiveCamera)
-              : null;
+            AutoMovieThreeKind.isPerspectiveCamera(view) ? view : null;
           const aspect: number | undefined = perspective?.aspect;
           if (perspective !== null) {
             perspective.aspect = feed.target.width / feed.target.height;
@@ -383,8 +379,8 @@ interface IFeed {
   /** Id of the camera the feed shows. */
   camera: string;
 
-  /** The feed layer's mesh. */
-  mesh: THREE.Mesh;
+  /** The feed layer's mesh, wearing one material at a time. */
+  mesh: THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
 
   /** The key group holding the mesh, visible while its key is in force. */
   group: THREE.Group;
@@ -402,7 +398,7 @@ interface IFeed {
 function decodeFeedPatch(encoded: { value: number }): IMaterialShaderPatch {
   return {
     key: "automovie-surface-feed-decode",
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       shader.uniforms.automovieFeedEncoded = encoded;
       shader.fragmentShader = shader.fragmentShader
         .replace(

@@ -3,7 +3,8 @@ import type { IAutoMovieMotionHumanSelfAction } from "../touch/IAutoMovieMotionH
 import type { AutoMovieMotionHumanTuckHairParams } from "./AutoMovieMotionHumanTuckHairParams";
 
 /**
- * Open parameters of the upperTouch lexicon family, keyed by each runtime export name.
+ * Open parameters of the upperTouch lexicon family, keyed by each runtime
+ * export name.
  */
 export interface IAutoMovieMotionHumanLexiconUpperTouchParams {
   /** `touch` of kind `tap`. */

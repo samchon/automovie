@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Members distinguish the achieved world root, clinical joints and root-local leg geometry with their units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A canonical pose and small achieved-leg records preserve the state actually fitted, independently of raw goal requests.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The jump retains only its achieved endpoints; no alternate pose solver or transition representation is introduced.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses canonical pose, posture joints and interface vectors/quaternions without a body-specific flag or sampled-frame cache.
-
-# src/actions/jumpState.ts#jumpState.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 Separates raw endpoint demand, achieved canonical shape and root-local geometry; limits the scope to the action's own posture.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -4,7 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Serialize one collision observation under the shared confidence, depth and path rules.
+ * Serialize one collision observation under the shared confidence, depth and
+ * path rules.
  *
  * @param key The coverage key the finding answers.
  * @param paths The ordered part paths.

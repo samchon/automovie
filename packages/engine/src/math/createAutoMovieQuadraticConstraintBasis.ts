@@ -4,15 +4,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Factor a working transpose by column-pivoted Householder QR, without A*A'.
- * Only structural identities reduce rows: a nonzero free a*x_j=0 fixes x_j=0,
- * irrespective of a's magnitude/sign, and an all-zero zero endpoint is tautological.
- * Every other numerical rank ambiguity refuses rather than discarding a row.
- * Original coefficients/bounds are borrowed read-only; all factors are owned.
- * Gill and Wong (2014), sections 2-3, require an independent working basis:
- * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf
- * Binary64 rank readings and affine reconstruction remain separate from the
- * refinement caller's unchanged full original-row KKT and geometry admission.
+ * Factor a working transpose by column-pivoted Householder QR, without A_A'.
+ * Only structural identities reduce rows: a nonzero free a_x_j=0 fixes x_j=0,
+ * irrespective of a's magnitude/sign, and an all-zero zero endpoint is
+ * tautological. Every other numerical rank ambiguity refuses rather than
+ * discarding a row. Original coefficients/bounds are borrowed read-only; all
+ * factors are owned. Gill and Wong (2014), sections 2-3, require an independent
+ * working basis: https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf Binary64 rank
+ * readings and affine reconstruction remain separate from the refinement
+ * caller's unchanged full original-row KKT and geometry admission.
  */
 export function createAutoMovieQuadraticConstraintBasis(
   rows: readonly IAutoMovieQuadraticRow[],
@@ -39,14 +39,9 @@ export function createAutoMovieQuadraticConstraintBasis(
     result.refusal = reason;
     return result;
   };
-  if (
-    bounds.length !== rows.length ||
-    free.length !== rows.length ||
-    !bounds.every(Number.isFinite)
-  )
+  if (bounds.length !== rows.length || free.length !== rows.length)
     return fail("working-basis-endpoints-incomplete");
-  if (!Number.isSafeInteger(variables) || variables < 0)
-    return fail("working-basis-dimension-not-representable");
+  if (variables < 0) return fail("working-basis-dimension-not-representable");
   try {
     result.particular = new Array<number>(variables).fill(0);
     const columns: number[][] = [],
@@ -95,11 +90,7 @@ export function createAutoMovieQuadraticConstraintBasis(
           );
       }
       const endpoint: number = bounds[at] / divisor;
-      if (
-        !column.every(Number.isFinite) ||
-        !Number.isFinite(endpoint) ||
-        (bounds[at] !== 0 && endpoint === 0)
-      )
+      if (bounds[at] !== 0 && endpoint === 0)
         return fail("working-normal-normalization-not-representable");
       columns.push(column);
       ordinals.push(at);
@@ -193,13 +184,7 @@ export function createAutoMovieQuadraticConstraintBasis(
       vector[column] = 1;
       (column < count ? result.range : result.nullspace).push(apply(vector));
     }
-    if (
-      !result.particular.every(Number.isFinite) ||
-      [...result.range, ...result.nullspace].some(
-        (column: number[]): boolean => !column.every(Number.isFinite),
-      )
-    )
-      return fail("working-basis-orthogonal-reconstruction-not-representable");
+
     return result;
   } catch (error: unknown) {
     return fail(

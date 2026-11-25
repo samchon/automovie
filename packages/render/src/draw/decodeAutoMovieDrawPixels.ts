@@ -4,9 +4,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Turn a draw page's picture back into the raster the capture core reads: the base64 RGBA bytes of an `IAutoMovieDrawResult`, rows from the top, at the size it states.
+ * Turn a draw page's picture back into the raster the capture core reads: the
+ * base64 RGBA bytes of an `IAutoMovieDrawResult`, rows from the top, at the
+ * size it states.
  *
- * It throws when the stated size is not the expected raster, or the bytes are not that size's, naming both.
+ * It throws when the stated size is not the expected raster, or the bytes are
+ * not that size's, naming both.
  */
 export function decodeAutoMovieDrawPixels(
   result: Pick<IAutoMovieDrawResult, "pixels" | "width" | "height">,

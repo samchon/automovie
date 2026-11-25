@@ -25,7 +25,10 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  *
  * The settings text is kept only as its SHA-256 digest. The returned run holds
  * the caller's `solver` and `outcome` objects by reference rather than copying
- * them, so editing a covered field after sealing generally breaks digest agreement; unencoded extra fields and numerically equivalent signed zeros do not change the canonical text, and a digest is not a collision-free identity proof.
+ * them, so editing a covered field after sealing generally breaks digest
+ * agreement; unencoded extra fields and numerically equivalent signed zeros do
+ * not change the canonical text, and a digest is not a collision-free identity
+ * proof.
  */
 export const sealAutoMovieAnalysisRun: (
   props: IAutoMovieSealAnalysisRun.IProps,

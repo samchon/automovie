@@ -11,13 +11,13 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 
 /**
- * Both relationship populations share identities, residual rows and articulated coordinate budgets before solver allocation.
+ * Both relationship populations share identities, residual rows and articulated
+ * coordinate budgets before solver allocation.
  */
 export function admitPhysicalContactBindings(
   input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -26,24 +26,21 @@ export function admitPhysicalContactBindings(
   pointBounds?: IAutoMoviePhysicalPointBound[],
 ): void {
   if (
-    (bindings !== undefined && !Array.isArray(bindings)) ||
-    (pointBounds !== undefined && !Array.isArray(pointBounds)) ||
     (bindings?.length ?? 0) + (pointBounds?.length ?? 0) >
-      (body.maximumBindings ?? 16)
+    (body.maximumBindings ?? 16)
   )
     throw new Error(body.id + ": invalid contact binding budget");
   const ids: Set<string> = new Set();
   for (const binding of bindings ?? []) {
-    if (!binding) throw new Error(body.id + ": invalid contact binding");
     const receiver: IAutoMoviePhysicalSimulationInput.IBody | undefined =
       input.bodies.find(
         (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
-          candidate.id === binding.target?.body,
+          candidate.id === binding.target.body,
       );
     const source: IAutoMoviePhysicalShape | undefined = body.profile.segments
       .find(
         (segment: IAutoMoviePhysicalSegment): boolean =>
-          segment.bone === binding.source?.bone,
+          segment.bone === binding.source.bone,
       )
       ?.shapes.find(
         (shape: IAutoMoviePhysicalShape): boolean =>
@@ -79,25 +76,19 @@ export function admitPhysicalContactBindings(
       allowance(body.profile, source) +
       (receiver ? allowance(receiver.profile, target) : 0);
     if (
-      typeof binding.id !== "string" ||
       !binding.id.trim() ||
       ids.has(binding.id) ||
-      !["contact", "separate"].includes(binding.kind) ||
       !receiver ||
       !source ||
       !target ||
-      !Number.isFinite(binding.weight) ||
       binding.weight < 0 ||
       binding.weight > 1 ||
-      !Number.isFinite(binding.compression) ||
       binding.compression < 0 ||
       binding.compression > compression ||
       (binding.kind === "separate" && binding.compression !== 0) ||
-      !Number.isSafeInteger(binding.iterations) ||
       binding.iterations < 1 ||
       binding.iterations > 32 ||
-      !(binding.tolerance > 0) ||
-      !Number.isFinite(binding.tolerance) ||
+      binding.tolerance <= 0 ||
       !isPhysicalActuatorChain(
         body.profile,
         binding.chain,
@@ -109,19 +100,11 @@ export function admitPhysicalContactBindings(
     ids.add(binding.id);
     if (
       binding.target.normal !== undefined &&
-      (!isAutoMovieRecord(binding.target.normal) ||
-        ![
-          binding.target.normal.x,
-          binding.target.normal.y,
-          binding.target.normal.z,
-        ].every(Number.isFinite) ||
-        !(
-          Math.hypot(
-            binding.target.normal.x,
-            binding.target.normal.y,
-            binding.target.normal.z,
-          ) > 0
-        ) ||
+      (Math.hypot(
+        binding.target.normal.x,
+        binding.target.normal.y,
+        binding.target.normal.z,
+      ) === 0 ||
         binding.kind !== "contact")
     )
       throw new Error(body.id + ": invalid contact binding surface normal");
@@ -155,10 +138,11 @@ export function admitPhysicalContactBindings(
   const supportRows: Map<string, IAutoMovieFootfallPattern["limbs"][number]> =
     new Map(
       [body.balance?.pattern, body.supportTracking?.pattern]
-        .filter(
+        .flatMap(
           (
             pattern: IAutoMovieFootfallPattern | undefined,
-          ): pattern is IAutoMovieFootfallPattern => pattern !== undefined,
+          ): IAutoMovieFootfallPattern[] =>
+            pattern === undefined ? [] : [pattern],
         )
         .flatMap(
           (

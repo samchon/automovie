@@ -16,13 +16,13 @@ import { unionSubjectBoxes } from "./film/unionSubjectBoxes";
  *
  * The unit's content box, in world metres, unions the part boxes of every
  * element its root element owns at any depth, because a room-by-room union
- * would leave out the envelope that makes a building readable from outside,
- * and the placement bounds of every population in its root space or below,
- * because a unit whose only content is a population would otherwise measure
- * nothing. A transform-only element contributes no box, and the content is
- * null when nothing contributes. Its members are the two roots a walk starts
- * from, the root element and the root space. It has no owner, model,
- * transform or materials.
+ * would leave out the envelope that makes a building readable from outside, and
+ * the placement bounds of every population in its root space or below, because
+ * a unit whose only content is a population would otherwise measure nothing. A
+ * transform-only element contributes no box, and the content is null when
+ * nothing contributes. Its members are the two roots a walk starts from, the
+ * root element and the root space. It has no owner, model, transform or
+ * materials.
  *
  * @param environment Environment the unit belongs to.
  * @param building Unit to describe.

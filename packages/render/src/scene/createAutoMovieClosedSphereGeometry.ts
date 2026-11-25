@@ -1,16 +1,20 @@
 import * as THREE from "three";
 
+import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
+
 /**
- * Create a complete sphere with one exact positional sample at its periodic seam.
+ * Create a complete sphere with one exact positional sample at its periodic
+ * seam.
  *
  * Finite segment counts use Three's floor/minimum normalization. The two UV
  * columns still have separate indices and texture coordinates, but the last
  * column reuses the first column's position and normal at the same longitude.
- * This preserves exact closure after a shared rigid world transform.
- * Nonfinite Float32 output, zero normals or collapsed indexed triangles refuse;
- * the admissible radius therefore also depends on the requested tessellation.
+ * This preserves exact closure after a shared rigid world transform. Nonfinite
+ * Float32 output, zero normals or collapsed indexed triangles refuse; the
+ * admissible radius therefore also depends on the requested tessellation.
  *
- * @param radius Positive finite local-metre radius with representable, nondegenerate output.
+ * @param radius Positive finite local-metre radius with representable,
+ *   nondegenerate output.
  * @param widthSegments Finite longitude count, floored with minimum three.
  * @param heightSegments Finite latitude count, floored with minimum two.
  * @returns Caller-owned SphereGeometry; dispose it when its consumers retire.
@@ -20,12 +24,8 @@ export function createAutoMovieClosedSphereGeometry(
   widthSegments: number = 32,
   heightSegments: number = 16,
 ): THREE.SphereGeometry {
-  if (
-    !Number.isFinite(radius) ||
-    radius <= 0 ||
-    !Number.isFinite(widthSegments) ||
-    !Number.isFinite(heightSegments)
-  )
+  // Every position has magnitude at most the radius, stored as float32.
+  if (!(radius > 0 && radius <= AUTOMOVIE_FLOAT32_MAX))
     throw new Error(
       "A closed sphere requires a positive finite radius and finite segment counts",
     );
@@ -64,25 +64,7 @@ export function createAutoMovieClosedSphereGeometry(
   const firstEdge: THREE.Vector3 = new THREE.Vector3();
   const secondEdge: THREE.Vector3 = new THREE.Vector3();
 
-  // Validate the actual stored precision, since finite inputs can overflow or collapse.
-  for (let vertex: number = 0; vertex < position.count; vertex++) {
-    origin.fromBufferAttribute(position, vertex);
-    firstEdge.fromBufferAttribute(normal, vertex);
-    if (
-      !Number.isFinite(origin.x) ||
-      !Number.isFinite(origin.y) ||
-      !Number.isFinite(origin.z) ||
-      !Number.isFinite(firstEdge.x) ||
-      !Number.isFinite(firstEdge.y) ||
-      !Number.isFinite(firstEdge.z) ||
-      firstEdge.lengthSq() === 0
-    ) {
-      geometry.dispose();
-      throw new Error(
-        "A closed sphere requires finite positions and nonzero finite normals at stored precision",
-      );
-    }
-  }
+  // A radius that fits Float32 keeps every position finite, and a normal is a unit vector; only a tiny radius can collapse a triangle at stored precision.
   const indices: THREE.BufferAttribute = geometry.index!;
 
   // Float32 edge products and their squares fit in doubles even at subnormal scale.

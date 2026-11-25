@@ -1,5 +1,6 @@
 /**
- * Paired surface-chart coordinates in solver order `[part.u, part.v, host.u, host.v]`.
+ * Paired surface-chart coordinates in solver order `[part.u, part.v, host.u,
+ * host.v]`.
  *
  * A coordinate, first-rate or second-rate vector uses the same four slots;
  * coordinate units belong to each source chart, and rates divide them by the

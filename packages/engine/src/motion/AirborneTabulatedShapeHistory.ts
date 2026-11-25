@@ -27,14 +27,14 @@ type IStencil = readonly (readonly [number, number])[];
 /** The public query signature. */
 type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
 
-/** Scalars tabulated a knot: six of the symmetric tensor, three of the relative momentum. */
+/**
+ * Scalars tabulated a knot: six of the symmetric tensor, three of the relative
+ * momentum.
+ */
 const WIDTH: number = 9;
 
 /** Maximum knot count within the portable 32-bit packed array length. */
 const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
-
-/** Only readers issued by this producer are recognised as native. */
-const HISTORIES: WeakSet<IHistory> = new WeakSet();
 
 /**
  * A shape history tabulated once on uniform knots and interpolated: the
@@ -42,89 +42,103 @@ const HISTORIES: WeakSet<IHistory> = new WeakSet();
  * which depend on time alone and not on the flight's unknown momentum or
  * attitude, read from the shape at the knots only.
  *
- * The span first receives uniform knots at approximately the requested
- * maximum step, allowing for floating-point rounding. With at least four
- * uniform intervals and a finite turn bound, intervals whose sampled endpoint
- * frames exceed that bound are subdivided until each adjacent sampled pair
- * meets it. Rotation hidden between accepted samples is outside this bound.
- * The shape is read once per knot. Inertia is computed about each shape's
- * centre of mass. Relative momentum uses orbital and spin rates from the
- * five-point Fornberg derivative on the final grid, with second-order
- * two-pose differences and extrapolation for a short uniform grid.
+ * The span first receives uniform knots at approximately the requested maximum
+ * step, allowing for floating-point rounding. With at least four uniform
+ * intervals and a finite turn bound, intervals whose sampled endpoint frames
+ * exceed that bound are subdivided until each adjacent sampled pair meets it.
+ * Rotation hidden between accepted samples is outside this bound. The shape is
+ * read once per knot. Inertia is computed about each shape's centre of mass.
+ * Relative momentum uses orbital and spin rates from the five-point Fornberg
+ * derivative on the final grid, with second-order two-pose differences and
+ * extrapolation for a short uniform grid.
  *
- * Hermite interpolation uses derivatives from the same grid. If either
- * Bézier control attached to a knot is unsuitable for positive-definite
- * interpolation, the tensor's slope at that knot becomes zero on both
- * sides. This preserves a continuous first derivative. Relative momentum
- * keeps its original slopes. Queries outside the span hold an endpoint.
+ * Hermite interpolation uses derivatives from the same grid. If either Bézier
+ * control attached to a knot is unsuitable for positive-definite interpolation,
+ * the tensor's slope at that knot becomes zero on both sides. This preserves a
+ * continuous first derivative. Relative momentum keeps its original slopes.
+ * Queries outside the span hold an endpoint.
  *
- * The table is built at the first query, not at construction, so a history
- * that is never read costs nothing and counts nothing. A shape whose own
- * period is the step (a pose track on that grid) loses nothing finer than
- * its knots; a shape with detail between knots is smoothed to them, which is
- * the caller's choice of `step`.
+ * The table is built at the first query, not at construction, so a history that
+ * is never read costs nothing and counts nothing. A shape whose own period is
+ * the step (a pose track on that grid) loses nothing finer than its knots; a
+ * shape with detail between knots is smoothed to them, which is the caller's
+ * choice of `step`.
  *
  * The statistics keep the meaning the stencil history gives them: `queries`
- * every call of the reader, `memoHits` the calls answered from the
- * exact-second memo, `uniqueNumericNodes` the shapes actually read and
- * reduced (here the knots, once per table), and the factor and Jacobi counts
- * the issued instants' own work.
+ * every call of the reader, `memoHits` the calls answered from the exact-second
+ * memo, `uniqueNumericNodes` the shapes actually read and reduced (here the
+ * knots, once per table), and the factor and Jacobi counts the issued instants'
+ * own work.
  *
- * @param model The body's unchanged mass model for this history's lifetime, or a prepared token released by its caller after this history is cleared.
- * @param shape The posed bones at a second, in the root's own frame (the root at the origin, unturned). Pure; read at the knots only, all inside the span.
- * @param span The flight's take-off and touchdown, seconds, the greatest uniform knot spacing, seconds, and optionally the sampled shortest-arc turn limit in radians for grids with at least four uniform intervals (omitted, no refinement).
- * @param uniformCentre Optional consumer of each uniform knot index and a fresh copy of its reduced root-frame centre in metres. Refined knots do not supply playback centres.
- * @param observation Optional native work counter (`integrateAirborneRotation.observe`); omitted, nothing is counted.
- * @returns The history, with `clear` releasing the table and the issued instants; a later query builds the table again.
- * @throws {Error} For a span that is not finite and increasing, a step that is not positive and finite, a turn bound that is not positive, a released prepared model, or a knot whose tensor has no positive scale, or a grid that exceeds timestamp precision or table capacity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is tabulated and why it may be, the knots, each knot's two readings with their order, the interpolant and its sources, the lazy build, the statistics' meaning, every input's frame and unit and every refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Fornberg derivatives estimate part centre velocity and spin from the sampled knots. A cubic Hermite tensor is a convex combination of four Bézier controls, so SPD endpoints and controls preserve SPD in exact arithmetic. One zero slope per unsuitable knot preserves continuity on both sides. Knots with a non-SPD tensor retain existing principal-axis admission.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy build samples the grid, reduces its poses and limits the tensor slopes. Query interpolation finds its interval by binary search, and the memo owns exact-second readings.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rounded query time, no nearest-knot answer and no changed physical bound: every query interpolates at its own second, and the knots' tensors pass the stencil history's own admission.
- * @evidence contracts/development/implementation.md#efficient-algorithms For K final knots and S mass parts the build reads K shapes and does O(K S) work, with fixed-width derivatives. A fresh query takes O(log K) search time and evaluates nine cubics with no shape read.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One table serves every stage, defect probe and shooting trial of the history's lifetime, since none of them changes the shape; an exact second's issued instant, with its tensor factor, is shared by the memo, and a defect's reading of a second with no instant keeps its numbers and factorisation for the instant a later query issues there, counted as the query and factorisation that instant would have made. No attitude, momentum or flight answer is kept.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns two arrays of nine scalars a knot, the knots' seconds and one issued instant or numeric reading (nine scalars and a factor) per distinct queried second, unbounded in the number of distinct seconds; posed shapes are dropped when the build ends. `clear` releases the arrays, both memos and each instant's factor; the caller releases a prepared model.
+ * @param model The body's unchanged mass model for this history's lifetime, or
+ *   a prepared token released by its caller after this history is cleared.
+ * @param shape The posed bones at a second, in the root's own frame (the root
+ *   at the origin, unturned). Pure; read at the knots only, all inside the
+ *   span.
+ * @param span The flight's take-off and touchdown, seconds, the greatest
+ *   uniform knot spacing, seconds, and optionally the sampled shortest-arc turn
+ *   limit in radians for grids with at least four uniform intervals (omitted,
+ *   no refinement).
+ * @param uniformCentre Optional consumer of each uniform knot index and a fresh
+ *   copy of its reduced root-frame centre in metres. Refined knots do not
+ *   supply playback centres.
+ * @param observation Optional native work counter
+ *   (`integrateAirborneRotation.observe`); omitted, nothing is counted.
+ * @returns The history, with `clear` releasing the table and the issued
+ *   instants; a later query builds the table again.
+ * @throws {Error} For a span that is not finite and increasing, a step that is
+ *   not positive and finite, a turn bound that is not positive, a released
+ *   prepared model, or a knot whose tensor has no positive scale, or a grid
+ *   that exceeds timestamp precision or table capacity.
  */
 export function AirborneTabulatedShapeHistory(
-  model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+  model:
+    | IAutoMovieResolveCenterOfMass.IModel
+    | prepareAutoMovieMassModel.IPrepared,
   shape: (seconds: number) => AirborneShapeReduction.IBones,
   span: { from: number; to: number; step: number; turn?: number },
   observation?: AirborneShapeStatistics.IObserver,
   uniformCentre?: (index: number, centre: IAutoMovieVector3) => void,
 ): integrateAirborneRotation.ICachedHistory {
   const { from, to, step }: { from: number; to: number; step: number } = span;
-  if (!Number.isFinite(from) || !Number.isFinite(to) || !(to > from))
+  if (!(to > from))
     throw new Error("A tabulated shape history needs a finite increasing span");
-  if (!Number.isFinite(step) || !(step > 0))
+  if (!(step > 0))
     throw new Error("A tabulated shape history needs a positive finite step");
   const statistics: AirborneShapeStatistics.IStatistics | undefined =
     AirborneShapeStatistics.borrow(observation);
-  const reduction: AirborneShapeReduction.IReduction = AirborneShapeReduction(model);
+  const reduction: AirborneShapeReduction.IReduction =
+    AirborneShapeReduction(model);
 
   // The fewest equal intervals no longer than the step; the subtraction
   // keeps a span that is a whole number of steps, up to the rounding of the
   // division, at that number.
   const intervals: number = Math.max(1, Math.ceil((to - from) / step - 1e-9));
-  if (!Number.isSafeInteger(intervals) || intervals >= MAX_KNOTS)
+  if (intervals >= MAX_KNOTS)
     throw new Error("A tabulated shape history step needs too many knots");
   const turn: number = span.turn ?? Infinity;
   if (!(turn > 0))
     throw new Error("A tabulated shape history needs a positive turn bound");
   const instants: Map<number, IInstant> = new Map();
-  let table: ITable | undefined;
 
   const build = (): ITable => {
-    const { times, knots }: ReturnType<typeof tabulateAirborneShapeKnots> = tabulateAirborneShapeKnots(
-      { from, to, intervals, turn },
-      MAX_KNOTS,
-      (seconds: number, uniformIndex?: number): resolveAutoMovieMomentum.IPosed => {
-        if (statistics !== undefined) statistics.uniqueNumericNodes++;
-        const posed: resolveAutoMovieMomentum.IPosed = reduction.pose(shape(seconds));
-        if (uniformCentre !== undefined && uniformIndex !== undefined) uniformCentre(uniformIndex, { ...posed.centre });
-        return posed;
-      },
-    );
+    const { times, knots }: ReturnType<typeof tabulateAirborneShapeKnots> =
+      tabulateAirborneShapeKnots(
+        { from, to, intervals, turn },
+        MAX_KNOTS,
+        (
+          seconds: number,
+          uniformIndex?: number,
+        ): resolveAutoMovieMomentum.IPosed => {
+          if (statistics !== undefined) statistics.uniqueNumericNodes++;
+          const posed: resolveAutoMovieMomentum.IPosed = reduction.pose(
+            shape(seconds),
+          );
+          if (uniformCentre !== undefined && uniformIndex !== undefined)
+            uniformCentre(uniformIndex, { ...posed.centre });
+          return posed;
+        },
+      );
     const last: number = knots.length - 1;
 
     const values: Float64Array = new Float64Array(WIDTH * knots.length);
@@ -150,12 +164,19 @@ export function AirborneTabulatedShapeHistory(
     const mids: IAutoMovieVector3[] = [];
     if (last < 4)
       for (let k: number = 1; k <= last; ++k)
-        mids.push(reduction.between(knots[k - 1]!, knots[k]!, times[k]! - times[k - 1]!).angular);
-    const stencils: IStencil[] = last < 4 ? [] : times.map((_: number, k: number): IStencil => derivative(times, k));
+        mids.push(
+          reduction.between(knots[k - 1]!, knots[k]!, times[k]! - times[k - 1]!)
+            .angular,
+        );
+    const stencils: IStencil[] =
+      last < 4
+        ? []
+        : times.map((_: number, k: number): IStencil => derivative(times, k));
     for (let k: number = 0; k <= last; ++k) {
-      const momentum: IAutoMovieVector3 = last < 4
-        ? meanMomentum(mids, k, last)
-        : pointMomentum(knots, stencils[k]!, k);
+      const momentum: IAutoMovieVector3 =
+        last < 4
+          ? meanMomentum(mids, k, last)
+          : pointMomentum(knots, stencils[k]!, k);
       const at: number = WIDTH * k + 6;
       values[at] = momentum.x;
       values[at + 1] = momentum.y;
@@ -196,7 +217,9 @@ export function AirborneTabulatedShapeHistory(
       const before: number = k === 0 ? 0 : (times[k - 1]! - times[k]!) / 3;
       const after: number = k === last ? 0 : (times[k + 1]! - times[k]!) / 3;
       const control = (width: number): number[][] =>
-        symmetricTensor((i: number): number => values[at + i]! + width * slopes[at + i]!);
+        symmetricTensor(
+          (i: number): number => values[at + i]! + width * slopes[at + i]!,
+        );
       if (
         (k > 0 && physicalInertiaFactor(control(before)) === null) ||
         (k < last && physicalInertiaFactor(control(after)) === null)
@@ -205,9 +228,11 @@ export function AirborneTabulatedShapeHistory(
     }
     return { values, slopes, times };
   };
+  const built: ITable = build();
 
-  const numbers = (seconds: number): { matrix: number[][]; relative: IAutoMovieVector3 } => {
-    const built: ITable = (table ??= build());
+  const numbers = (
+    seconds: number,
+  ): { matrix: number[][]; relative: IAutoMovieVector3 } => {
     const held: number = Math.min(to, Math.max(from, seconds));
 
     let index: number = 0;
@@ -239,7 +264,8 @@ export function AirborneTabulatedShapeHistory(
     };
   };
   const evaluate = (seconds: number): IInstant => {
-    const read: { matrix: number[][]; relative: IAutoMovieVector3 } = numbers(seconds);
+    const read: { matrix: number[][]; relative: IAutoMovieVector3 } =
+      numbers(seconds);
     return AirborneShapeInertia(read.matrix, read.relative, statistics);
   };
   const query: IHistory = (seconds: number): IInstant => {
@@ -253,8 +279,15 @@ export function AirborneTabulatedShapeHistory(
     // the instant, a memo hit as the instant the defect once made was.
     const held: INumeric | undefined = numerics.get(seconds);
     if (held !== undefined && statistics !== undefined) statistics.memoHits++;
-    const instant: IInstant = held === undefined ? evaluate(seconds)
-      : AirborneShapeInertia(held.matrix, held.relative, statistics, held.factor);
+    const instant: IInstant =
+      held === undefined
+        ? evaluate(seconds)
+        : AirborneShapeInertia(
+            held.matrix,
+            held.relative,
+            statistics,
+            held.factor,
+          );
     if (held !== undefined) numerics.delete(seconds);
     instants.set(seconds, instant);
     return instant;
@@ -279,49 +312,56 @@ export function AirborneTabulatedShapeHistory(
       if (statistics !== undefined) statistics.memoHits++;
       return kept;
     }
-    const read: { matrix: number[][]; relative: IAutoMovieVector3 } = numbers(seconds);
+    const read: { matrix: number[][]; relative: IAutoMovieVector3 } =
+      numbers(seconds);
     if (statistics !== undefined) statistics.factorizations++;
-    const factor: physicalInertiaFactor.IPrepared | null = physicalInertiaFactor(read.matrix);
+    const factor: physicalInertiaFactor.IPrepared | null =
+      physicalInertiaFactor(read.matrix);
     // A tensor that is not positive definite reads its principal axes, an
     // instant's own path: the instant is issued, holding the failed factor.
     if (factor === null) {
-      const instant: IInstant = AirborneShapeInertia(read.matrix, read.relative, statistics, null);
+      const instant: IInstant = AirborneShapeInertia(
+        read.matrix,
+        read.relative,
+        statistics,
+        null,
+      );
       instants.set(seconds, instant);
       return instant;
     }
-    const made: INumeric = { matrix: read.matrix, relative: read.relative, factor };
+    const made: INumeric = {
+      matrix: read.matrix,
+      relative: read.relative,
+      factor,
+    };
     numerics.set(seconds, made);
     return made;
   };
-  HISTORIES.add(query);
-  // The history's own numeric reader, a non-enumerable member under a
-  // private key, so the history's enumerable surface stays `clear`.
-  Object.defineProperty(query, READING, { value: numeric });
   return Object.assign(query, {
+    native: true as const,
+    numericReading: numeric,
     clear: (): void => {
-      for (const instant of instants.values()) AirborneShapeInertia.release(instant);
+      for (const instant of instants.values())
+        AirborneShapeInertia.release(instant);
       instants.clear();
       numerics.clear();
-      table = undefined;
     },
   });
 }
 
-/** A defect's numeric reading at a second, with the tensor an instant made from it would own. */
+/**
+ * A defect's numeric reading at a second, with the tensor an instant made from
+ * it would own.
+ */
 interface INumeric extends AirborneTabulatedShapeHistory.IReading {
   /** The interpolated root-frame tensor rows. */
   matrix: number[][];
 }
 
-/** The private key of an issued history's numeric reader. */
-const READING: unique symbol = Symbol("AirborneTabulatedShapeHistory.reading");
-
-/** An issued history, carrying its numeric reader. */
-interface IReadable {
-  [READING]?: (seconds: number) => INumeric | IInstant;
-}
-
-/** A built table: nine scalars and their slopes a knot, the knots' seconds in increasing order. */
+/**
+ * A built table: nine scalars and their slopes a knot, the knots' seconds in
+ * increasing order.
+ */
 interface ITable {
   /** Six tensor and three momentum scalars a knot, in knot order. */
   values: Float64Array;
@@ -338,18 +378,25 @@ function symmetricTensor(y: (i: number) => number): number[][] {
   const xy: number = y(3);
   const xz: number = y(4);
   const yz: number = y(5);
-  return [[y(0), xy, xz], [xy, y(1), yz], [xz, yz, y(2)]];
+  return [
+    [y(0), xy, xz],
+    [xy, y(1), yz],
+    [xz, yz, y(2)],
+  ];
 }
 
 /**
  * The fourth-order first-derivative weights at knot `k` over the five knots
- * nearest it (two either side inside, one-sided at the two knots nearest
- * each end), as pairs of a knot index and its weight per second, for knots
- * at any seconds: the weights of Fornberg's recursion for arbitrary grids
- * (Fornberg 1988, Mathematics of Computation 51:699-706), which on uniform
- * knots are the classical five-point ones.
+ * nearest it (two either side inside, one-sided at the two knots nearest each
+ * end), as pairs of a knot index and its weight per second, for knots at any
+ * seconds: the weights of Fornberg's recursion for arbitrary grids (Fornberg
+ * 1988, Mathematics of Computation 51:699-706), which on uniform knots are the
+ * classical five-point ones.
  */
-function derivative(times: readonly number[], k: number): readonly (readonly [number, number])[] {
+function derivative(
+  times: readonly number[],
+  k: number,
+): readonly (readonly [number, number])[] {
   const last: number = times.length - 1;
   const start: number = Math.min(Math.max(0, k - 2), last - 4);
   const nodes: number[] = [];
@@ -380,20 +427,22 @@ function derivative(times: readonly number[], k: number): readonly (readonly [nu
     }
     c1 = c2;
   }
-  return c.map((row: number[], j: number): readonly [number, number] => [start + j, row[1]!]);
+  return c.map((row: number[], j: number): readonly [number, number] => [
+    start + j,
+    row[1]!,
+  ]);
 }
 
 /**
- * The relative angular momentum about the centre at knot `k`, as a point
- * value of the fourth order in the step: each part's orbital momentum
- * `m (c - C) x c'` with its centre's velocity from the knots' derivative
- * stencil (`derivative`), and its spin `I w` with `w` the stencil applied to
- * the rotation vectors that carry the part's principal frame at the knot to
- * its frame at each neighbouring knot (`samplePoseVelocity.rotationVector`
- * of `q_j q_k^-1`): that vector is a smooth function of time whose
- * derivative at the knot is the angular velocity, so the stencil reads it to
- * the same order. The velocity of the centre drops out, as the parts'
- * offsets from it sum to zero.
+ * The relative angular momentum about the centre at knot `k`, as a point value
+ * of the fourth order in the step: each part's orbital momentum `m (c - C) x
+ * c'` with its centre's velocity from the knots' derivative stencil
+ * (`derivative`), and its spin `I w` with `w` the stencil applied to the
+ * rotation vectors that carry the part's principal frame at the knot to its
+ * frame at each neighbouring knot (`samplePoseVelocity.rotationVector` of `q_j
+ * q_k^-1`): that vector is a smooth function of time whose derivative at the
+ * knot is the angular velocity, so the stencil reads it to the same order. The
+ * velocity of the centre drops out, as the parts' offsets from it sum to zero.
  */
 function pointMomentum(
   knots: readonly resolveAutoMovieMomentum.IPosed[],
@@ -406,7 +455,9 @@ function pointMomentum(
   let z: number = 0;
   for (let i: number = 0; i < at.parts.length; i++) {
     const part: IAutoMovieCombinePhysicalMassProperties.IPart = at.parts[i]!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(part.inertiaRotation);
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      part.inertiaRotation,
+    );
     let vx: number = 0;
     let vy: number = 0;
     let vz: number = 0;
@@ -414,7 +465,8 @@ function pointMomentum(
     let wy: number = 0;
     let wz: number = 0;
     for (const [knot, weight] of stencil) {
-      const other: IAutoMovieCombinePhysicalMassProperties.IPart = knots[knot]!.parts[i]!;
+      const other: IAutoMovieCombinePhysicalMassProperties.IPart =
+        knots[knot]!.parts[i]!;
       vx += weight * other.centerOfMass.x;
       vy += weight * other.centerOfMass.y;
       vz += weight * other.centerOfMass.z;
@@ -429,11 +481,15 @@ function pointMomentum(
     const rx: number = part.centerOfMass.x - at.centre.x;
     const ry: number = part.centerOfMass.y - at.centre.y;
     const rz: number = part.centerOfMass.z - at.centre.z;
-    const spin: IAutoMovieVector3 = physicalInertiaTensor.spin(part, part.inertiaRotation, {
-      x: wx,
-      y: wy,
-      z: wz,
-    });
+    const spin: IAutoMovieVector3 = physicalInertiaTensor.spin(
+      part,
+      part.inertiaRotation,
+      {
+        x: wx,
+        y: wy,
+        z: wz,
+      },
+    );
     x += (ry * vz - rz * vy) * part.mass + spin.x;
     y += (rz * vx - rx * vz) * part.mass + spin.y;
     z += (rx * vy - ry * vx) * part.mass + spin.z;
@@ -442,10 +498,10 @@ function pointMomentum(
 }
 
 /**
- * A knot's relative momentum from the interval readings (`mids[c]` runs
- * from knot `c` to knot `c + 1`), second order, for fewer than four
- * intervals: the mean of the two either side inside, the linear
- * extrapolation of the two nearest at an end, or the one reading.
+ * A knot's relative momentum from the interval readings (`mids[c]` runs from
+ * knot `c` to knot `c + 1`), second order, for fewer than four intervals: the
+ * mean of the two either side inside, the linear extrapolation of the two
+ * nearest at an end, or the one reading.
  */
 function meanMomentum(
   mids: readonly IAutoMovieVector3[],
@@ -467,21 +523,30 @@ function meanMomentum(
   };
 }
 
-/**
- * Provenance of the tabulated reader.
- *
- * @evidence contracts/development/common.md#meaningful-documentation `owned` states what it recognises and what that does not prove.
- * @evidence contracts/development/design.md#principled-representation A private weak set of issued readers; membership is construction, nothing more.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One predicate, read by `AirborneShapeHistory.owned`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller flag or wrapper can join the set.
- */
+/** Provenance of the tabulated reader. */
 export namespace AirborneTabulatedShapeHistory {
-  /** Whether a reader was issued by this producer: a pure function of time whose instants may be shared between an operation's stages. It proves construction, not a constant shape. */
-  export function owned(history: IHistory): boolean {
-    return HISTORIES.has(history);
+  /**
+   * Whether a reader was issued by this producer: a pure function of time whose
+   * instants may be shared between an operation's stages. It proves
+   * construction, not a constant shape.
+   */
+  export function owned(history: IHistory & IReadable): boolean {
+    return history.native === true;
   }
 
-  /** A second's relative momentum and positive-definite tensor factorisation, read without issuing an instant. */
+  /** An issued history, carrying its numeric reader. */
+  export interface IReadable {
+    /** Set by the factory. */
+    readonly native?: true;
+
+    /** The history's numeric reader; absent on any other reader. */
+    readonly numericReading?: (seconds: number) => IReading | IInstant;
+  }
+
+  /**
+   * A second's relative momentum and positive-definite tensor factorisation,
+   * read without issuing an instant.
+   */
   export interface IReading {
     /** The relative angular momentum in the root frame, kg m²/s. */
     relative: IAutoMovieVector3;
@@ -498,7 +563,9 @@ export namespace AirborneTabulatedShapeHistory {
    * tensor is not positive definite. Counted as the query and factorisation an
    * instant would make. Undefined for a reader this producer did not issue.
    */
-  export function reading(history: IHistory): ((seconds: number) => IReading | IInstant) | undefined {
-    return (history as IHistory & IReadable)[READING];
+  export function reading(
+    history: IHistory & IReadable,
+  ): ((seconds: number) => IReading | IInstant) | undefined {
+    return history.numericReading;
   }
 }

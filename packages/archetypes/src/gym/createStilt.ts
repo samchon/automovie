@@ -10,29 +10,22 @@ import {
 } from "../core";
 
 /**
- * A walking stilt: a foot platform strapped under the foot on an upright
- * pole that ends in a rubber tip.
+ * A walking stilt: a foot platform strapped under the foot on an upright pole
+ * that ends in a rubber tip.
  *
  * It stands on its tip at the origin, the pole along `Y`. `foot` is the
  * platform's top at the pole's head, `+Y` up, `+Z` the toes' way: the sole
  * stands there. `tip` is the pole's foot on the floor.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The stilt.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One pole and one platform at its height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, a rod and a box, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No straps or springs are modelled; the sizes are estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two primitives.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createStilt(
   params: createStilt.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createStilt.Affordance, createStilt.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createStilt.Dimension> =
     new AutoMovieArchetypeDrawSession<createStilt.Dimension>(
@@ -85,14 +78,7 @@ export function createStilt(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createStilt}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, marked estimates.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height and platform a walker reads, and the two contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No inertia beyond the mass the builder spreads.
- */
+/** Companion types and bands of {@link createStilt}. */
 export namespace createStilt {
   /** The pole's radius, metres. An estimate, not read at a source. */
   export const POLE: number = 0.025;
@@ -100,7 +86,10 @@ export namespace createStilt {
   /** The platform's thickness, metres. An estimate. */
   export const PLATFORM: number = 0.03;
 
-  /** The affordance ids: `foot`, the platform's top; `tip`, the pole's foot on the floor. */
+  /**
+   * The affordance ids: `foot`, the platform's top; `tip`, the pole's foot on
+   * the floor.
+   */
   export type Affordance = "foot" | "tip";
 
   /**

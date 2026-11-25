@@ -17,7 +17,8 @@ type Component = ReturnType<
 >["components"][number];
 
 /**
- * Observe component incidence, orientation parity, links and boundary cycles in one query.
+ * Observe component incidence, orientation parity, links and boundary cycles in
+ * one query.
  */
 export function RecoveryEventRegionTopology(
   _source: Parameters<IAutoMovieRecoveryEventRegionTopology.Operation>[0],
@@ -351,10 +352,13 @@ export function RecoveryEventRegionTopology(
       ? vertices.size - byEdge.size + component.cells.length
       : null;
     const closedBoundary: boolean = component.unresolvedBoundary.length === 0;
-    const genus: number | null =
+    // Twice the genus is an integer count; an odd one names no surface.
+    const twiceGenus: number | null =
       manifold && orientable && closedBoundary && euler !== null
-        ? (2 - component.cycles.length - euler) / 2
+        ? 2 - component.cycles.length - euler
         : null;
+    const genus: number | null =
+      twiceGenus !== null && twiceGenus % 2 === 0 ? twiceGenus / 2 : null;
     component.topology = {
       vertices: vertices.size,
       edges: byEdge.size,
@@ -364,8 +368,7 @@ export function RecoveryEventRegionTopology(
       orientable: manifold ? orientable : null,
       inputOrientationConsistent: component.topology.inputOrientationConsistent,
       boundaryCycles: component.cycles.length,
-      genus:
-        genus !== null && Number.isInteger(genus) && genus >= 0 ? genus : null,
+      genus: genus !== null && genus >= 0 ? genus : null,
     };
     for (const cell of component.cells)
       result.cells[cell].orientationFlip =

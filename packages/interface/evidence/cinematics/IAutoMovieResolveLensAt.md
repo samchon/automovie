@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieResolveLensAt.ts#IAutoMovieResolveLensAt
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the operation; its member documents the intents, the second and the camera placement.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace holding the input of `resolveAutoMovieLensAt`, whose result reuses `IAutoMovieFilmOptics.ILens`.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-interface owns it for `resolveAutoMovieLensAt`, which a film's `optics` calls per second.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None present.
-
 # src/cinematics/IAutoMovieResolveLensAt.ts#IAutoMovieResolveLensAt.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

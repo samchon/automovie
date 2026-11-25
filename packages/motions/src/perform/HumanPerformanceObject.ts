@@ -10,37 +10,38 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
+/** The record of `IPointResult`'s site. */
+type IPointResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * The state of the props' articulations over the film: what the acts drive
  * (`IHumanActionPlan.drives`) and what the props run themselves
- * (`IHumanProp.tracks`), as one input per coupled degree at each second, and
- * a prop's contacts posed at that state.
+ * (`IHumanProp.tracks`), as one input per coupled degree at each second, and a
+ * prop's contacts posed at that state.
  *
  * At a second, a coupled degree of freedom is set by the latest drive or track
  * that has begun: inside its window it gives its own travel, after the window
  * its last travel holds, as a released prop stays where it was released; one
  * nothing has begun to move stays at rest. Its state keeps that writer's own
  * coordinate, replacing an earlier writer of another coordinate of the same
- * degree. Two drives of one independent degree of freedom
- * that overlap in time are refused, naming both actions, because no rule
- * says which hand wins. This is the smart-object coupling of Kallmann and
- * Thalmann (1999, Modeling Objects for Interaction Tasks): the object
- * declares how it moves, the act drives it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what sets a travel, what holds after a drive, what is refused and the pattern's source.
- * @evidence contracts/development/design.md#principled-representation Timed writers name their authored coordinate and its independent degree of freedom; the latest begun writer of each degree supplies one input to the prop's own articulate function.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The state, the posed point, the admission and the writers' list.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A drive never moves the prop's frame; the travel is the act's own function.
+ * degree. Two drives of one independent degree of freedom that overlap in time
+ * are refused, naming both actions, because no rule says which hand wins. This
+ * is the smart-object coupling of Kallmann and Thalmann (1999, Modeling Objects
+ * for Interaction Tasks): the object declares how it moves, the act drives it.
  */
 export namespace HumanPerformanceObject {
-  /** One timed writer of an articulation's travel, the performance's record (`IAutoMovieMotionHumanPerformanceState.IWriter`). */
+  /**
+   * One timed writer of an articulation's travel, the performance's record
+   * (`IAutoMovieMotionHumanPerformanceState.IWriter`).
+   */
   export type IWriter = IAutoMovieMotionHumanPerformanceState.IWriter;
 
   /**
    * Every writer of a prop's articulations in film order, with its independent
    * degree resolved once: each placed action's drives, clipped to its active
-   * span, and the prop's own tracks from their instants. Kept only after all
-   * actions and their final clipped ends have been placed.
+   * span, and the prop's own tracks from their instants: those the performance
+   * prepared once every action and its final clipped end was placed, or, while
+   * the schedule is resolved, those placed now.
    *
    * @param self The performance.
    * @param prop The prop.
@@ -50,8 +51,21 @@ export namespace HumanPerformanceObject {
     self: IAutoMovieMotionHumanPerformanceState,
     prop: IAutoMovieMotionHumanProp,
   ): readonly IWriter[] {
-    const known: readonly IWriter[] | undefined = self.writers.get(prop.subject);
-    if (known !== undefined) return known;
+    return self.writers.get(prop.subject) ?? collect(self, prop);
+  }
+
+  /**
+   * Collect a prop's writers from the placed actions and its tracks
+   * ({@link writers}): what the performance prepares.
+   *
+   * @param self The performance.
+   * @param prop The prop.
+   * @returns The writers, by their start.
+   */
+  export function collect(
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
+  ): IWriter[] {
     const out: IWriter[] = [];
     const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
       (prop.affordances ?? []).map(
@@ -98,15 +112,13 @@ export namespace HumanPerformanceObject {
       });
     }
     out.sort((a: IWriter, b: IWriter): number => a.from - b.from);
-    if (!self.resolving) self.writers.set(prop.subject, out);
-
     return out;
   }
 
   /**
    * One input per coupled degree of freedom moved by a film second, in its
-   * latest writer's coordinate. A new writer replaces the old coordinate;
-   * after its end its last travel holds. Other degrees start at rest.
+   * latest writer's coordinate. A new writer replaces the old coordinate; after
+   * its end its last travel holds. Other degrees start at rest.
    *
    * @param self The performance.
    * @param prop The prop.
@@ -118,9 +130,25 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): Record<string, number> {
+    return travel(writers(self, prop), seconds);
+  }
+
+  /**
+   * The travel a prop's writers in film order give at a film second
+   * ({@link state}): each independent degree in its latest begun writer's
+   * coordinate, read within that writer's window and held at its end.
+   *
+   * @param ordered The writers, by their start.
+   * @param seconds Film seconds.
+   * @returns Travel by articulation id.
+   */
+  export function travel(
+    ordered: readonly IWriter[],
+    seconds: number,
+  ): Record<string, number> {
     const out: Record<string, number> = {};
     const latest: Map<string, IWriter> = new Map();
-    for (const w of writers(self, prop)) {
+    for (const w of ordered) {
       if (w.from > seconds) break;
       latest.set(w.leader, w);
     }
@@ -130,22 +158,23 @@ export namespace HumanPerformanceObject {
   }
 
   /**
-   * A named point of a prop in the prop's own frame at a film second: where
-   * its posed contact is when something has moved the prop's parts, its rest
-   * place otherwise.
+   * A named point of a prop in the prop's own frame at a film second: where its
+   * posed contact is when something has moved the prop's parts, its rest place
+   * otherwise.
    *
    * @param self The performance.
    * @param prop The prop.
    * @param id The point's name.
    * @param seconds Film seconds.
-   * @returns The point and its outward normal in the prop's frame, or undefined when the prop has no such point.
+   * @returns The point and its outward normal in the prop's frame, or undefined
+   *   when the prop has no such point.
    */
   export function point(
     self: IAutoMovieMotionHumanPerformanceState,
     prop: IAutoMovieMotionHumanProp,
     id: string,
     seconds: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } | undefined {
+  ): IPointResult | undefined {
     const rest = prop.points[id];
     if (rest === undefined || prop.articulate === undefined) return rest;
     if (writers(self, prop).length === 0) return rest;
@@ -165,9 +194,7 @@ export namespace HumanPerformanceObject {
   }
 
   /**
-   * A prop posed at its state at a film second, the last one read kept per
-   * prop, so the many reads of one instant (every contact of every hand at a
-   * frame) pose it once.
+   * A prop posed at its state at a film second.
    *
    * @param self The performance.
    * @param prop The prop, which articulates.
@@ -179,25 +206,18 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): IAutoMovieMotionHumanProp.IPosed {
-    const last: { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed } | undefined =
-      self.posed.get(prop.subject);
-    if (last !== undefined && last.seconds === seconds && !self.resolving)
-      return last.posed;
-    const posed: IAutoMovieMotionHumanProp.IPosed = prop.articulate!(
-      state(self, prop, seconds),
-    );
-    if (!self.resolving) self.posed.set(prop.subject, { seconds, posed });
-    return posed;
+    return prop.articulate!(state(self, prop, seconds));
   }
 
   /**
    * Admit the placed performance's drives: two drives of one independent degree
-   * of freedom of one prop that overlap in time are refused, naming both actions, and a
-   * drive whose travel leaves its articulation's range is refused where the
-   * prop poses it, with the action and the second.
+   * of freedom of one prop that overlap in time are refused, naming both
+   * actions, and a drive whose travel leaves its articulation's range is
+   * refused where the prop poses it, with the action and the second.
    *
    * @param self The placed performance.
-   * @throws {HumanRefusal} A `cut` refusal for overlapping drives; a `parameter` refusal for a travel out of range.
+   * @throws {HumanRefusal} A `cut` refusal for overlapping drives; a
+   *   `parameter` refusal for a travel out of range.
    */
   export function admit(self: IAutoMovieMotionHumanPerformanceState): void {
     for (const prop of self.props.values()) {
@@ -245,4 +265,3 @@ export namespace HumanPerformanceObject {
     }
   }
 }
-

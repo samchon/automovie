@@ -1,6 +1,6 @@
 /**
- * Whether a string can be written verbatim as a WebVTT cue identifier or
- * header text.
+ * Whether a string can be written verbatim as a WebVTT cue identifier or header
+ * text.
  *
  * WebVTT defines no escape for these lines, so a usable value is one or more
  * characters with no CR, no LF, and no `-->`, which a parser would read as a

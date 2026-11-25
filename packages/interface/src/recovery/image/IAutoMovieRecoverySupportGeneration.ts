@@ -1,4 +1,6 @@
-/** Generation counts and a numerical boundary defect, without hidden-surface qualification.
+/**
+ * Generation counts and a numerical boundary defect, without hidden-surface
+ * qualification.
  */
 export interface IAutoMovieRecoverySupportGeneration {
   /** Number of generated support-envelope events. */

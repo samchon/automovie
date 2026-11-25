@@ -1,5 +1,6 @@
 /**
- * Caller-supplied corrected pinhole intrinsics in one integer-centre pixel chart.
+ * Caller-supplied corrected pinhole intrinsics in one integer-centre pixel
+ * chart.
  */
 export interface IAutoMovieRecoveryCameraCalibration {
   /** Perspective pinhole model; distortion parameters are not estimated. */
@@ -8,7 +9,10 @@ export interface IAutoMovieRecoveryCameraCalibration {
   /** Intrinsics are given independently of the estimated relative pose. */
   calibration: "supplied-intrinsics";
 
-  /** Caller assertion that radial/tangential distortion has already been corrected. */
+  /**
+   * Caller assertion that radial/tangential distortion has already been
+   * corrected.
+   */
   distortion: "caller-corrected";
 
   /** Positive [fx,fy] in pixels, permitting unequal pixel-axis scales. */
@@ -20,6 +24,9 @@ export interface IAutoMovieRecoveryCameraCalibration {
   /** Finite [cx,cy] in the same integer-pixel-centre chart. */
   principalPointPx: [number, number];
 
-  /** Supplied calibration uncertainty in pixels, or null when unknown; not estimated covariance. */
+  /**
+   * Supplied calibration uncertainty in pixels, or null when unknown; not
+   * estimated covariance.
+   */
   uncertaintyPx: number | null;
 }

@@ -4,7 +4,8 @@ import type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly.js
 import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
 
 /**
- * A long sequence render split into independently renderable chunks plus the plan to reassemble them.
+ * A long sequence render split into independently renderable chunks plus the
+ * plan to reassemble them.
  */
 export interface IAutoMovieRenderChunkPlan {
   /** Render target identity, copied from the whole plan. */
@@ -29,7 +30,10 @@ export interface IAutoMovieRenderChunkPlan {
   reassembly: IAutoMovieRenderReassembly;
 
   /**
-   * Per-pass whole-timeline walk orders, present only when guide passes were requested. The `beauty` pass has a video-concatenation plan through {@link reassembly}; tagged passes remain frame sequences whose walk order describes their reassembly for a consuming host.
+   * Per-pass whole-timeline walk orders, present only when guide passes were
+   * requested. The `beauty` pass has a video-concatenation plan through
+   * {@link reassembly}; tagged passes remain frame sequences whose walk order
+   * describes their reassembly for a consuming host.
    */
   passManifests?: IAutoMovieRenderPassManifest[];
 }

@@ -9,48 +9,39 @@ import type {
 import { HumanForce } from "./HumanForce";
 
 /**
- * Loads, a moving support and slips (#3431): the one owner of a carried
- * mass leaning a body, of a support's acceleration acting on its rider, and
- * of a planted foot's required friction.
+ * Loads, a moving support and slips: the one owner of a carried mass leaning a
+ * body, of a support's acceleration acting on its rider, and of a planted
+ * foot's required friction.
  *
  * - **Load.** A mass `m` carried `d` ahead of the body's centre, along its
  *   facing, moves the combined centre `m d / (M + m)` ahead. The body leans
  *   back about its base as an inverted pendulum of its own mass `M` at its
  *   centre's height `h` until the moments balance, `M h sin θ = m d`, which
  *   puts the combined centre back over the base (static moment balance).
- * - **Moving support.** A support accelerating at `a` acts on its rider as
- *   the inertial force `-M a` at the centre of mass, a sustained force of
- *   the force input (`HumanForce.ISustained`). Held still, the force shifts
- *   the centre of pressure by `h a / g`; the rider tips over the base's edge
- *   when that shift passes the base's half-length along it, the static
- *   tipping bound.
- * - **Slip.** A planted foot holds while the friction it needs, the
- *   horizontal over the vertical ground reaction, stays within the
- *   surface's coefficient (Coulomb). The reactions of the bearing feet sum
- *   to `M (a + g)` with `a` the centre's acceleration, so the ratio is
- *   `|a_h| / (g + a_y)` whatever their share: the required coefficient of
- *   friction, as #3431 defines it after Redfern et al. 2001 (not yet read at
- *   the source).
+ * - **Moving support.** A support accelerating at `a` acts on its rider as the
+ *   inertial force `-M a` at the centre of mass, a sustained force of the force
+ *   input (`HumanForce.ISustained`). Held still, the force shifts the centre of
+ *   pressure by `h a / g`; the rider tips over the base's edge when that shift
+ *   passes the base's half-length along it, the static tipping bound.
+ * - **Slip.** A planted foot holds while the friction it needs, the horizontal
+ *   over the vertical ground reaction, stays within the surface's coefficient
+ *   (Coulomb). The reactions of the bearing feet sum to `M (a + g)` with `a`
+ *   the centre's acceleration, so the ratio is `|a_h| / (g + a_y)` whatever
+ *   their share: the required coefficient of friction, as the research defines
+ *   it after Redfern et al. 2001 (not yet read at the source).
  *
- * First pass: the lean is the whole body's about its base, not split
- * between the trunk and the ankles; the required friction ignores the
- * swing leg's own dynamics, as the definition does.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three laws, their units and frames, their sources and the first pass's limits.
- * @evidence contracts/development/implementation.md#principled-implementation Static moment balance of an inverted pendulum for the lean, d'Alembert's inertial force for an accelerating support with the centre-of-pressure shift `h a / g`, and Coulomb's law with the required coefficient of friction for the slip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form per law, plus the sum of sustained forces at a second.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A load whose moment the body's own cannot balance is reported, never clamped to a lean.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per law; the sum is linear in the forces.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * First pass: the lean is the whole body's about its base, not split between
+ * the trunk and the ankles; the required friction ignores the swing leg's own
+ * dynamics, as the definition does.
  */
 export namespace HumanLoad {
   /**
    * The backward lean that balances a carried load, degrees about the base,
-   * positive forward; null when the load's moment exceeds the body's own at
-   * a right angle, which no lean balances.
+   * positive forward; null when the load's moment exceeds the body's own at a
+   * right angle, which no lean balances.
    *
-   * @param props The body's mass and centre height, and the load's mass and its distance ahead of the centre.
+   * @param props The body's mass and centre height, and the load's mass and its
+   *   distance ahead of the centre.
    * @returns Degrees, or null.
    */
   export function lean(
@@ -68,7 +59,8 @@ export namespace HumanLoad {
    *
    * @param subject The rider.
    * @param mass The rider's mass, kilograms.
-   * @param acceleration The support's acceleration at a film second, world m/s².
+   * @param acceleration The support's acceleration at a film second, world
+   *   m/s².
    * @param from Film seconds, start.
    * @param to Film seconds, end.
    * @returns The force, `-M a`.
@@ -92,9 +84,9 @@ export namespace HumanLoad {
   }
 
   /**
-   * Whether a rider held still on a support accelerating horizontally tips
-   * over the base's edge: the centre of pressure's shift `h |a| / g` past the
-   * base's half-length along the acceleration.
+   * Whether a rider held still on a support accelerating horizontally tips over
+   * the base's edge: the centre of pressure's shift `h |a| / g` past the base's
+   * half-length along the acceleration.
    *
    * @param acceleration The support's horizontal acceleration, m/s².
    * @param height The rider's centre-of-mass height, metres.
@@ -117,7 +109,8 @@ export namespace HumanLoad {
    *
    * @param acceleration The centre of mass's acceleration, world m/s².
    * @param gravity Gravitational acceleration, m/s²; standard when absent.
-   * @returns The required coefficient; infinite when the body is not pressed onto the floor.
+   * @returns The required coefficient; infinite when the body is not pressed
+   *   onto the floor.
    */
   export function required(
     acceleration: IAutoMovieVector3,

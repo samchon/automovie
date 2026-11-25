@@ -1,13 +1,15 @@
 import * as THREE from "three";
 
+import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
+
 /**
- * Construct a native camera for a supplied horizontal metric pixel chart.
- * Pixel centres use column+0.5,row+0.5. Image U projects cos(a) X + sin(a) Z;
- * image V projects negative Y, with pitch in metres per pixel and principal
- * point in pixel-edge coordinates. No image distortion, pose estimation or
- * resizing is performed. Distance and near/far only select orthographic depth
- * admission; image scale is supplied independently by pitch. Native projection
- * and inverse matrices must remain finite and nonsingular at the supplied gauge.
+ * Construct a native camera for a supplied horizontal metric pixel chart. Pixel
+ * centres use column+0.5,row+0.5. Image U projects cos(a) X + sin(a) Z; image V
+ * projects negative Y, with pitch in metres per pixel and principal point in
+ * pixel-edge coordinates. No image distortion, pose estimation or resizing is
+ * performed. Distance and near/far only select orthographic depth admission;
+ * image scale is supplied independently by pitch. Native projection and inverse
+ * matrices must remain finite and nonsingular at the supplied gauge.
  */
 export function createAutoMovieMetricOrthographicCamera(input: {
   width: number;
@@ -20,22 +22,10 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   farMeters: number;
 }): THREE.OrthographicCamera {
   if (
-    !input ||
-    !Number.isSafeInteger(input.width) ||
     input.width < 1 ||
-    !Number.isSafeInteger(input.height) ||
     input.height < 1 ||
-    !Number.isFinite(input.pixelPitchMeters) ||
     input.pixelPitchMeters <= 0 ||
-    !Array.isArray(input.principalPointPx) ||
-    input.principalPointPx.length !== 2 ||
-    !Number.isFinite(input.principalPointPx[0]) ||
-    !Number.isFinite(input.principalPointPx[1]) ||
-    !Number.isFinite(input.azimuthRadians) ||
-    !Number.isFinite(input.distanceMeters) ||
     input.distanceMeters <= 0 ||
-    !Number.isFinite(input.nearMeters) ||
-    !Number.isFinite(input.farMeters) ||
     input.nearMeters <= 0 ||
     input.farMeters <= input.nearMeters
   )
@@ -48,11 +38,7 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   const top: number = input.principalPointPx[1] * input.pixelPitchMeters;
   const bottom: number =
     (input.principalPointPx[1] - input.height) * input.pixelPitchMeters;
-  if (
-    ![left, right, top, bottom].every(Number.isFinite) ||
-    !(left < right) ||
-    !(bottom < top)
-  )
+  if (!(left < right) || !(bottom < top))
     throw new Error(
       "Metric orthographic frustum exceeds finite representable chart limits",
     );
@@ -74,14 +60,19 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   camera.updateMatrixWorld(true);
   camera.updateProjectionMatrix();
   if (
-    !camera.projectionMatrix.elements.every(Number.isFinite) ||
-    !camera.matrixWorld.elements.every(Number.isFinite) ||
-    !camera.matrixWorldInverse.elements.every(Number.isFinite) ||
-    !camera.projectionMatrixInverse.elements.every(Number.isFinite) ||
+    [
+      ...camera.projectionMatrix.elements,
+      ...camera.matrixWorld.elements,
+      ...camera.matrixWorldInverse.elements,
+      ...camera.projectionMatrixInverse.elements,
+    ].some(
+      (value: number): boolean =>
+        !(Math.abs(value) <= AUTOMOVIE_MATRIX_ELEMENT_LIMIT),
+    ) ||
     camera.projectionMatrix.determinant() === 0
   )
     throw new Error(
-      "Metric orthographic native projection or inverse is nonfinite or singular",
+      "Metric orthographic native projection or inverse exceeds the matrix element limit or is singular",
     );
   return camera;
 }

@@ -14,6 +14,7 @@ import {
  *    complete request; every blank, valueless, unknown, or positional token fails.
  * 2. Include and exclude terms each match a synthetic basename, and their final
  *    intersection must retain a scenario without changing substring semantics.
+ *    Default candidates apply before sharding and yield to an explicit include.
  * 3. Invalid argv never reaches discovery; valid discovery admits no module and
  *    returns an execution filter for exactly the frozen selected basenames.
  * 4. Empty discovery and discovery failure cannot produce an execution filter.
@@ -107,6 +108,29 @@ export async function test_workspace_scenario_selection(): Promise<void> {
       ...selectScenarioNames(
         parseScenarioSelection(["--include", "alpha", "--exclude", "slow"]),
         names,
+      ),
+    ],
+    [names[0]],
+  );
+  const defaultCandidate = (name: string): boolean => name === names[1];
+  TestValidator.equals(
+    "default candidates precede sharding and accept exclusions of other names",
+    [
+      ...selectScenarioNames(
+        parseScenarioSelection(["--exclude=test_beta.ts", "--shard=0/2"]),
+        names,
+        defaultCandidate,
+      ),
+    ],
+    [names[1]],
+  );
+  TestValidator.equals(
+    "explicit include can select a name outside the default candidates",
+    [
+      ...selectScenarioNames(
+        parseScenarioSelection(["--include=test_alpha.ts"]),
+        names,
+        defaultCandidate,
       ),
     ],
     [names[0]],

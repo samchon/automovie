@@ -7,29 +7,21 @@ import { Vector3 } from "./Vector3";
 import { seededValue } from "./seededValue";
 
 /**
- * The Delaunay tetrahedralization of points by Bowyer-Watson insertion
- * in their given order.
+ * The Delaunay tetrahedralization of points by Bowyer-Watson insertion in their
+ * given order.
  *
- * Coplanar and cospherical points, which a body's symmetric joints always
- * hold, leave the floating-point predicates undecided and the insertion
- * with flat or non-Delaunay tetrahedra. The input is therefore joggled as
- * Qhull's `QJ` joggles it (Barber, Dobkin and Huhdanpaa 1996, "The
- * quickhull algorithm for convex hulls", ACM TOMS 22(4); Qhull `user.h`
- * `qh_JOGGLEdefault` and `geom2.c` `qh_detjoggle`): each coordinate moves
- * by a deterministic amount within `JOGGLE` machine epsilons of the
- * points' largest coordinate, and the mesh is the Delaunay mesh of the
- * joggled points it returns.
+ * Coplanar and cospherical points, which a body's symmetric joints always hold,
+ * leave the floating-point predicates undecided and the insertion with flat or
+ * non-Delaunay tetrahedra. The input is therefore joggled as Qhull's `QJ`
+ * joggles it (Barber, Dobkin and Huhdanpaa 1996, "The quickhull algorithm for
+ * convex hulls", ACM TOMS 22(4); Qhull `user.h` `qh_JOGGLEdefault` and
+ * `geom2.c` `qh_detjoggle`): each coordinate moves by a deterministic amount
+ * within `JOGGLE` machine epsilons of the points' largest coordinate, and the
+ * mesh is the Delaunay mesh of the joggled points it returns.
  *
  * @param points The points.
- * @returns The mesh, each tetrahedron positively oriented on the joggled points.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the method, the order, the joggle with its source and the orientation.
- * @evidence contracts/development/implementation.md#principled-implementation Each joggled point removes the tetrahedra whose circumsphere strictly contains it and fans the cavity's boundary faces to it; the enclosing tetrahedron's corners are dropped at the end. The joggle is Qhull's, the default multiple of the round-off, drawn per coordinate from the point's index so the mesh is the same every time.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Enclose, insert, drop.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point on a circumsphere is left outside it by the strict test, so cospherical points resolve the same way every time.
- * @evidence contracts/development/implementation.md#efficient-algorithms Quadratic in the points at worst: each insertion scans the current tetrahedra.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the points.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @returns The mesh, each tetrahedron positively oriented on the joggled
+ *   points.
  */
 export function tetrahedralizeAutoMovieDelaunay(
   points: readonly IAutoMovieVector3[],
@@ -134,16 +126,12 @@ export function tetrahedralizeAutoMovieDelaunay(
   };
 }
 
-/**
- * Companion types and predicates of {@link tetrahedralizeAutoMovieDelaunay}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and convention.
- * @evidence contracts/development/design.md#principled-representation A mesh as its tetrahedra by point index, positively oriented.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The joggle's constants, the mesh, its neighbourhoods, the signed volume and the two predicates the insertion uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Indices into the caller's points, with the joggled copies the mesh is built on returned beside them.
- */
+/** Companion types and predicates of {@link tetrahedralizeAutoMovieDelaunay}. */
 export namespace tetrahedralizeAutoMovieDelaunay {
-  /** Qhull's default joggle, in machine epsilons of the largest coordinate (`qh_JOGGLEdefault`). */
+  /**
+   * Qhull's default joggle, in machine epsilons of the largest coordinate
+   * (`qh_JOGGLEdefault`).
+   */
   export const JOGGLE: number = 30000;
 
   /** The seed domain of the joggle's draws, so no other draw shares them. */
@@ -173,8 +161,8 @@ export namespace tetrahedralizeAutoMovieDelaunay {
   }
 
   /**
-   * A tetrahedron's signed volume times six: positive when its fourth
-   * point lies on the side the first three's right-hand normal faces.
+   * A tetrahedron's signed volume times six: positive when its fourth point
+   * lies on the side the first three's right-hand normal faces.
    *
    * @param points The points.
    * @param t The tetrahedron.
@@ -199,7 +187,8 @@ export namespace tetrahedralizeAutoMovieDelaunay {
    *
    * @param points The points.
    * @param t The tetrahedron.
-   * @returns The same corners, the first two swapped when the volume is negative.
+   * @returns The same corners, the first two swapped when the volume is
+   *   negative.
    */
   export function oriented(
     points: readonly IAutoMovieVector3[],

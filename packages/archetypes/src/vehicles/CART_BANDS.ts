@@ -44,7 +44,8 @@ const BROUGHAM: string =
   "the Brewster brougham of 1893 (H 78.5 in, W 68 in, L 145.5 in, wheelbase 91.5 in, wheels 36.5 and 48.25 in) and the Miner, Stevens brougham of 1840-1860 (H 79 in, W 69 in, L 153 in, wheels 42 and 50 in, wheelbase 105 in) at The Henry Ford (https://www.thehenryford.org/collections/explore/artifact/33937, https://www.thehenryford.org/collections/explore/artifact/7881), and the Peters bow-fronted double brougham of 1880 at York Castle Museum (H 6 ft 2 in, L 11 ft 7 in, W 5 ft 5 in, wheels 3 ft and 3 ft 8 in) (https://thecarriagefoundation.org.uk/item/bow-fronted-double-brougham)";
 
 /**
- * The read models' figures of one dimension, for a band a model without that figure borrows from the models with it.
+ * The read models' figures of one dimension, for a band a model without that
+ * figure borrows from the models with it.
  *
  * @param kind The kind.
  * @param dimension The dimension.
@@ -73,7 +74,12 @@ const WRIST: string =
   "the wrist centre's height above the floor, ANSUR II stylion height less 1.5 mm: women's mean 793 mm, men's 846 mm (packages/human/docs/anatomy/skeleton.md, after the ANSUR II working databases)";
 
 /**
- * The band of each free dimension of a cart, by kind, with the source it was read at, a read model's own figures being `CART_MODELS`'s and not bands; `createCart.BANDS` is this table. A drawn vehicle sized for a horse draws the horse's withers height from the saddle horse's own band, and a cart takes the girth that height gives the horse (`createCart`), so the cart fits the horse `createHorse` builds.
+ * The band of each free dimension of a cart, by kind, with the source it was
+ * read at, a read model's own figures being `CART_MODELS`'s and not bands;
+ * `createCart.BANDS` is this table. A drawn vehicle sized for a horse draws the
+ * horse's withers height from the saddle horse's own band, and a cart takes the
+ * girth that height gives the horse (`createCart`), so the cart fits the horse
+ * `createHorse` builds.
  */
 export const CART_BANDS: Readonly<
   Record<

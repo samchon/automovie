@@ -11,11 +11,19 @@ import * as THREE from "three";
 import { namedFacts, nclose } from "./predicates";
 
 /**
- * Exercise the PBR unit's existing scene-image, reversible renderer-policy and native light-field cases.
+ * Exercise the PBR unit's existing scene-image, reversible renderer-policy and
+ * native light-field cases.
  *
- * The PBR scenario calls this helper to apply/clear environment objects, suspend guides, restore policy and build light shadow fields, detecting lost authored state or incorrect policy precedence.
- * Literal linear color/exposure/shadow-camera values and original object identities define expected output; Texture version increments request native refresh but do not establish uploads or pixels, and the local renderer policy record owns no GPU context.
- * Covers LDR/HDR metadata, solid/unresolved/null images, structural/beauty policy, scene/delivery precedence, PCF/VSM/disabled shadows and legacy light defaults; sharing and failed texture handoffs belong to the ownership helper.
+ * The PBR scenario calls this helper to apply/clear environment objects,
+ * suspend guides, restore policy and build light shadow fields, detecting lost
+ * authored state or incorrect policy precedence. Literal linear
+ * color/exposure/shadow-camera values and original object identities define
+ * expected output; Texture version increments request native refresh but do not
+ * establish uploads or pixels, and the local renderer policy record owns no GPU
+ * context. Covers LDR/HDR metadata, solid/unresolved/null images,
+ * structural/beauty policy, scene/delivery precedence, PCF/VSM/disabled shadows
+ * and legacy light defaults; sharing and failed texture handoffs belong to the
+ * ownership helper.
  */
 export const assertViewerEnvironmentState: (
   ENVIRONMENT: IAutoMovieSceneEnvironment,
@@ -147,11 +155,20 @@ export const assertViewerEnvironmentState: (
     { environmentCleared: true, backgroundCleared: true },
   );
 
-  const renderer: THREE.WebGLRenderer = {
+  const renderer: Pick<
+    THREE.WebGLRenderer,
+    "shadowMap" | "toneMapping" | "toneMappingExposure"
+  > = {
     toneMapping: THREE.LinearToneMapping,
     toneMappingExposure: 3,
-    shadowMap: { enabled: false, type: THREE.BasicShadowMap },
-  } as unknown as THREE.WebGLRenderer;
+    shadowMap: {
+      enabled: false,
+      autoUpdate: true,
+      needsUpdate: false,
+      type: THREE.BasicShadowMap,
+      render: (): void => {},
+    },
+  };
   /** Read the four renderer policy fields written by the product. */
   const policy: () => {
     toneMapping: THREE.ToneMapping;

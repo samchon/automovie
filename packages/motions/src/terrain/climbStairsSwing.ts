@@ -11,11 +11,11 @@ import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanCl
 import type { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * Prepare a stair climb's swings (`climbStairs`): each swinging foot takes
- * the shortest path over the flight's profile (`AutoMovieMotionHumanClearance`),
- * travelled on minimum-jerk progress, and lifts before it travels, as a
- * walking foot does (`walkFoot`): its travel along the flight is held until
- * the path has lifted it over the floor's contact height
+ * Prepare a stair climb's swings (`climbStairs`): each swinging foot takes the
+ * shortest path over the flight's profile (`AutoMovieMotionHumanClearance`),
+ * travelled on minimum-jerk progress, and lifts before it travels, as a walking
+ * foot does (`walkFoot`): its travel along the flight is held until the path
+ * has lifted it over the floor's contact height
  * (`AutoMovieMotionHumanAuditContact.HEIGHT`) and released over as much arc
  * again on a minimum-jerk weight, so no sole slides while it is still on the
  * floor. Holding the foot back only keeps it farther from the riser it must
@@ -23,26 +23,19 @@ import type { HumanFrame } from "../posture/HumanFrame";
  *
  * @param framed The flight's frame, its local +Z along the climb.
  * @param required The least ankle height along the flight for a foot.
- * @returns The swing between a foot's two placements, read at its share in [0, 1].
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, the progress, the departure hold and each input.
- * @evidence contracts/development/implementation.md#principled-implementation The taut path over the profile with walkFoot's lift-before-travel departure read off the path's own first rise to the contact height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One path and one lift share per swing, then a reader of its share.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contact height is the audit's own; the hold only moves the foot back from the riser.
- * @evidence contracts/development/implementation.md#efficient-algorithms One path build and one walk along it per swing; constant work per read beyond the path's lookup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each swing's path is built once and read at every instant of it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader retains its path and three scalars.
+ * @returns The swing between a foot's two placements, read at its share in [0,
+ *   1].
  */
 export function climbStairsSwing(
   framed: HumanFrame.IPrepared,
   required: (side: AutoMovieHumanSide) => (z: number) => number,
 ): (
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   a: IAutoMovieMotionHumanFoot.IPlacement,
   b: IAutoMovieMotionHumanFoot.IPlacement,
 ) => (s: number) => IAutoMovieMotionHumanFoot.IPlacement {
   return (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     a: IAutoMovieMotionHumanFoot.IPlacement,
     b: IAutoMovieMotionHumanFoot.IPlacement,
   ): ((s: number) => IAutoMovieMotionHumanFoot.IPlacement) => {
@@ -64,7 +57,9 @@ export function climbStairsSwing(
       const released: number =
         lifted >= 1
           ? 1
-          : minimumJerk.share(Math.min(1, Math.max(0, (share - lifted) / span)));
+          : minimumJerk.share(
+              Math.min(1, Math.max(0, (share - lifted) / span)),
+            );
       const z: number = from.z + (at.z - from.z) * released;
       return {
         ankle: framed.point({

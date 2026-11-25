@@ -1,8 +1,8 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
 /**
- * Whether a point lies inside a closed ring by the even-odd rule, casting a
- * ray along +X.
+ * Whether a point lies inside a closed ring by the even-odd rule, casting a ray
+ * along +X.
  *
  * The answer is defined only for a point off the ring: both callers have
  * already refused ring contact, so the point they probe never lies on an edge.

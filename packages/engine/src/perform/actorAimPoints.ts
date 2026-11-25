@@ -4,7 +4,10 @@ import {
 } from "@automovie/interface";
 
 /**
- * Lift known actors' placement points by their context eye height for lookAt targets, preserving the table's exact key set. Other staged nodes and cameras keep their borrowed placement points. Arm and locomotion targets use the unlifted table.
+ * Lift known actors' placement points by their context eye height for lookAt
+ * targets, preserving the table's exact key set. Other staged nodes and cameras
+ * keep their borrowed placement points. Arm and locomotion targets use the
+ * unlifted table.
  */
 export const actorAimPoints: (
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,

@@ -12,27 +12,22 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { HumanTrunk } from "../everyday/HumanTrunk";
 
 /**
- * The curl of a spooning body onto its partner's back (#4012): the lumbar
- * spine flexes so the chest's sternum region comes onto the back where the
- * slide stopped short of it, because the pelvis meets the partner's before
- * the chest does. A body spooning curls into the partner and does not lift
- * off the floor. It does not bend sideways either: it lies on its lower
- * shoulder, which a bend toward the floor would drive into it, so each
- * midline keeps the height its own lying width gives it.
+ * The curl of a spooning body onto its partner's back: the lumbar spine flexes
+ * so the chest's sternum region comes onto the back where the slide stopped
+ * short of it, because the pelvis meets the partner's before the chest does. A
+ * body spooning curls into the partner and does not lift off the floor. It does
+ * not bend sideways either: it lies on its lower shoulder, which a bend toward
+ * the floor would drive into it, so each midline keeps the height its own lying
+ * width gives it.
  *
  * The flexion is the closed-form rotation about the lumbar joint that brings
  * the sternum's reach toward the back, in the plane of the trunk's long axis
- * and its front, to the target's: an arcsine less its present angle, within
- * the lumbar range. It shrinks where it would carry the head into the
- * partner's head, by the share of the head's approach that leaves the two
- * heads' radii apart. The curl also draws the sternum along the trunk, so
- * the body slides back that much across the floor along the partner's back
- * (never along the back's normal, which the hips hold).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the curl closes, why it is needed, why there is no side bend, how the angle is found, what bounds it and the slide it adds.
- * @evidence contracts/development/design.md#principled-representation One lumbar angle of the posture's own clinical joints and one slide, solved once on the slid posture.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The curl, its solve and its application; the slide and the lying posture are the law's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is the partner's displayed region and the limit is the joint's own range.
+ * and its front, to the target's: an arcsine less its present angle, within the
+ * lumbar range. It shrinks where it would carry the head into the partner's
+ * head, by the share of the head's approach that leaves the two heads' radii
+ * apart. The curl also draws the sternum along the trunk, so the body slides
+ * back that much across the floor along the partner's back (never along the
+ * back's normal, which the hips hold).
  */
 export namespace lieTogetherCurl {
   /** The curl and the slide it adds. */
@@ -40,7 +35,10 @@ export namespace lieTogetherCurl {
     /** Forward flexion of the lumbar joint, clinical degrees. */
     flexion: number;
 
-    /** The slide's correction across the floor along the partner's back, world metres. */
+    /**
+     * The slide's correction across the floor along the partner's back, world
+     * metres.
+     */
     shift: IAutoMovieVector3;
   }
 
@@ -57,14 +55,6 @@ export namespace lieTogetherCurl {
    * @param partner The partner's body.
    * @param bones The partner's world bones.
    * @returns The curl.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and its bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation A rotation about the lumbar joint moves the sternum on a circle of its distance from the joint, so the angle that brings its component toward the back to the target's is an arcsine less its present angle; the head check and the slide rotate the head's centre and the sternum by the same turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk's frame, the angle, the range, the head's share, the slide.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target the circle cannot reach takes the circle's nearest point; no angle is searched or tuned, and the range and the heads bound it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolve and constant arithmetic.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solved once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one angle and one vector and retains nothing.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -93,10 +83,7 @@ export namespace lieTogetherCurl {
     );
     const toward: IAutoMovieVector3 = { x: -normal.x, y: 0, z: -normal.z };
     const front: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
-        toward,
-        Vector3.scale(axis, Vector3.dot(toward, axis)),
-      ),
+      Vector3.subtract(toward, Vector3.scale(axis, Vector3.dot(toward, axis))),
     );
     const left: IAutoMovieVector3 = Vector3.cross(axis, front);
 
@@ -137,8 +124,14 @@ export namespace lieTogetherCurl {
         head,
         Vector3.scale(Vector3.normalize(Vector3.subtract(head, neck)), radius),
       );
-    const turned = (degrees: number, point: IAutoMovieVector3): IAutoMovieVector3 => {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(left, degrees);
+    const turned = (
+      degrees: number,
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 => {
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        left,
+        degrees,
+      );
       return Vector3.add(
         pivot,
         Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
@@ -189,14 +182,6 @@ export namespace lieTogetherCurl {
    * @param curl The curl.
    * @param share Its share, 0 to 1.
    * @returns The curled posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Adds the shared angle to the lumbar joint's flexion.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint write.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The joint's side bend and twist and every other joint are kept.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A fresh posture per call.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function apply(
     posture: IAutoMovieMotionHumanPosture,

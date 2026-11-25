@@ -1,4 +1,8 @@
-import { DEFAULT_HUMANOID_ROM, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  ROM_TOLERANCE,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -11,8 +15,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { fixedSeatHarmonic } from "./fixedSeatHarmonic";
 
 type Joints = IAutoMovieMotionHumanPosture["joints"];
 type Angles = readonly [number, number, number];
@@ -20,7 +26,10 @@ type Pair = readonly [number, number];
 type Points = Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 type OptionalRange = IAutoMovieAngleRange | null | undefined;
 type OptionalLimit = IAutoMovieJointConstraint | undefined;
-/** A stationary upper body and the distance used to rank it for actual admission. */
+/**
+ * A stationary upper body and the distance used to rank it for actual
+ * admission.
+ */
 interface ICandidate {
   joints: Joints;
   squared: number;
@@ -35,18 +44,15 @@ interface IVariable {
   range: IAutoMovieAngleRange;
 }
 
-/** A squared distance to a fixed target as the joint turns from the centre of its range. */
-interface IHarmonic {
-  constant: number;
-  cosine: number;
-  sine: number;
-}
-
 const RAD: number = Math.PI / 180;
 const ZERO: Angles = [0, 0, 0];
-const TRUNK: readonly Trunk[] = ["spine", "chest", "leftShoulder", "rightShoulder"];
+const TRUNK: readonly Trunk[] = [
+  "spine",
+  "chest",
+  "leftShoulder",
+  "rightShoulder",
+];
 const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
 
 /** The greater of the two shoulder-to-site distances squared. */
 function maximum(reading: Pair): number {
@@ -60,51 +66,11 @@ function turn(joints: Joints, variable: IVariable, degrees: number): void {
   joints[variable.bone] = row;
 }
 
-/** Recover A+B cos(t)+C sin(t) from the ends and midpoint of a legal angular range. */
-function harmonic(low: number, middle: number, high: number, half: number): IHarmonic {
-  const cosine: number = Math.cos(half);
-  const constant: number = ((low + high) / 2 - middle * cosine) / (1 - cosine);
-  return { constant, cosine: middle - constant, sine: (high - low) / (2 * Math.sin(half)) };
-}
-
-/** On one rigid ancestor axis the maximum of two sinusoids can attain a minimum at an endpoint, a single-arm extremum or a crossing. */
-function bestAngle(left: IHarmonic, right: IHarmonic, half: number, incoming: number): number {
-  const candidates: number[] = [incoming, -half, half];
-  for (const f of [left, right]) candidates.push(Math.atan2(-f.sine, -f.cosine));
-  const a: number = left.constant - right.constant;
-  const b: number = left.cosine - right.cosine;
-  const c: number = left.sine - right.sine;
-  const radius: number = Math.hypot(b, c);
-  if (radius > 0 && Math.abs(a) <= radius) {
-    const phase: number = Math.atan2(c, b);
-    const separation: number = Math.acos(-a / radius);
-    for (const angle of [phase - separation, phase + separation])
-      candidates.push(Math.atan2(Math.sin(angle), Math.cos(angle)));
-  }
-  let best: number = incoming;
-  let least: number = Infinity;
-  for (const angle of candidates) {
-    if (angle < -half || angle > half) continue;
-    const x: number = Math.cos(angle);
-    const y: number = Math.sin(angle);
-    const score: number = Math.max(
-      left.constant + left.cosine * x + left.sine * y,
-      right.constant + right.cosine * x + right.sine * y,
-    );
-    if (score < least) { least = score; best = angle; }
-  }
-  return best;
-}
-
 /**
- * Asymmetric upper-body articulation for two fixed working sites. Both shoulders
- * and the torso move within the rig's independent clinical intervals. The
- * caller owns the pelvis and both foot goals, and admits the resulting arm
+ * Asymmetric upper-body articulation for two fixed working sites. Both
+ * shoulders and the torso move within the rig's independent clinical intervals.
+ * The caller owns the pelvis and both foot goals, and admits the resulting arm
  * configuration with the ordinary contact and collision criteria.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Rotation about one fixed clinical axis gives two distance-squared sinusoids. Ends, stationary points and equal-distance crossings minimize their maximum on that coordinate. The two signs of trunk turn allow either arm above the other.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only independent clinical axis ranges are admitted. No phase, handle dimensions, stored pose or actor-specific angles enter the fit.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads the two shoulders and their ancestors only. Coordinates stop improving to the rig's angular resolution. This coordinate minimum is a candidate and does not certify global feasibility or contact.
  */
 export function fixedSeatTrunk(
   body: IAutoMovieMotionHumanBody,
@@ -114,8 +80,14 @@ export function fixedSeatTrunk(
   const variables: IVariable[] = [];
   const twists: IVariable[] = [];
   for (const bone of TRUNK) {
-    const limit: OptionalLimit = body.bones.get(bone)?.constraint ?? DEFAULT_HUMANOID_ROM[bone];
-    if (!limit || limit.swingTwist || (limit.swingDeg !== undefined && limit.swingDeg !== null)) return [];
+    const limit: OptionalLimit =
+      body.bones.get(bone)?.constraint ?? DEFAULT_HUMANOID_ROM[bone];
+    if (
+      !limit ||
+      limit.swingTwist ||
+      (limit.swingDeg !== undefined && limit.swingDeg !== null)
+    )
+      return [];
     for (let index: number = 0; index < AXES.length; ++index) {
       const axis: Axis = AXES[index]!;
       const range: OptionalRange = limit[axis];
@@ -123,35 +95,55 @@ export function fixedSeatTrunk(
       if (range.max - range.min >= 360) return [];
       const variable: IVariable = { bone, index, range };
       variables.push(variable);
-      if ((bone === "spine" || bone === "chest") && axis === "twist") twists.push(variable);
+      if ((bone === "spine" || bone === "chest") && axis === "twist")
+        twists.push(variable);
     }
   }
   if (!variables.length) return [];
   // Shoulder origins read only their direct ancestors. Finger, wrist and leg
   // records never enter this planning workspace; all remain on the raw action.
   const entry: Joints = {};
-  for (const shoulder of SHOULDERS) {
-    let ancestor: AutoMovieHumanoidBone | null | undefined = body.bones.get(shoulder)?.parent;
+  for (const shoulder of HumanBoneGroups.SHOULDERS) {
+    let ancestor: AutoMovieHumanoidBone | null | undefined =
+      body.bones.get(shoulder)?.parent;
     while (ancestor) {
       const row: Angles | undefined = posture.joints[ancestor];
       if (row !== undefined) entry[ancestor] = row;
       ancestor = body.bones.get(ancestor)?.parent;
     }
   }
-  const read: ReturnType<typeof poseBones.prepareTuples> = poseBones.prepareTuples(body, SHOULDERS);
-  const root: IAutoMoviePose = resolveHumanPosture(body, { ...posture, limbs: {}, joints: {} });
-  const source: IAutoMovieMotionHumanPosture = { ...posture, limbs: {}, joints: {} };
+  const read: ReturnType<typeof poseBones.prepareTuples> =
+    poseBones.prepareTuples(body, HumanBoneGroups.SHOULDERS);
+  const root: IAutoMoviePose = resolveHumanPosture(body, {
+    ...posture,
+    limbs: {},
+    joints: {},
+  });
+  const source: IAutoMovieMotionHumanPosture = {
+    ...posture,
+    limbs: {},
+    joints: {},
+  };
   const squared = (): Pair => {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read(source.joints)(root);
-    const left: IAutoMovieVector3 = Vector3.subtract(bones.get("leftUpperArm")!.worldPosition, sites.left);
-    const right: IAutoMovieVector3 = Vector3.subtract(bones.get("rightUpperArm")!.worldPosition, sites.right);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read(
+      source.joints,
+    )(root);
+    const left: IAutoMovieVector3 = Vector3.subtract(
+      bones.get("leftUpperArm")!.worldPosition,
+      sites.left,
+    );
+    const right: IAutoMovieVector3 = Vector3.subtract(
+      bones.get("rightUpperArm")!.worldPosition,
+      sites.right,
+    );
     return [Vector3.dot(left, left), Vector3.dot(right, right)];
   };
   const candidates: ICandidate[] = [];
   for (const initial of ["min", "entry", "max"] as const) {
     source.joints = { ...entry };
     if (initial !== "entry")
-      for (const variable of twists) turn(source.joints, variable, variable.range[initial]);
+      for (const variable of twists)
+        turn(source.joints, variable, variable.range[initial]);
     let score: number = maximum(squared());
     for (;;) {
       const previous: number = score;
@@ -159,19 +151,25 @@ export function fixedSeatTrunk(
       for (const variable of variables) {
         const { min, max }: IAutoMovieAngleRange = variable.range;
         const middle: number = (min + max) / 2;
-        const half: number = (max - min) * RAD / 2;
-        const before: number = (source.joints[variable.bone] ?? ZERO)[variable.index]!;
+        const half: number = ((max - min) * RAD) / 2;
+        const before: number = (source.joints[variable.bone] ?? ZERO)[
+          variable.index
+        ]!;
         turn(source.joints, variable, min);
         const low: Pair = squared();
         turn(source.joints, variable, middle);
         const centre: Pair = squared();
         turn(source.joints, variable, max);
         const high: Pair = squared();
-        const angle: number = middle + bestAngle(
-          harmonic(low[0], centre[0], high[0], half),
-          harmonic(low[1], centre[1], high[1], half),
-          half, (before - middle) * RAD,
-        ) / RAD;
+        const angle: number =
+          middle +
+          fixedSeatHarmonic.best(
+            fixedSeatHarmonic(low[0], centre[0], high[0], half),
+            fixedSeatHarmonic(low[1], centre[1], high[1], half),
+            half,
+            (before - middle) * RAD,
+          ) /
+            RAD;
         moved = Math.max(moved, Math.abs(angle - before));
         turn(source.joints, variable, angle);
       }
@@ -180,5 +178,7 @@ export function fixedSeatTrunk(
     }
     candidates.push({ joints: source.joints, squared: score });
   }
-  return candidates.sort((a: ICandidate, b: ICandidate): number => a.squared - b.squared).map((candidate: ICandidate): Joints => candidate.joints);
+  return candidates
+    .sort((a: ICandidate, b: ICandidate): number => a.squared - b.squared)
+    .map((candidate: ICandidate): Joints => candidate.joints);
 }

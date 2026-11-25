@@ -15,22 +15,26 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
-/**
- * The ordered additive layers of one person's posture at a film second.
- */
+/** The alternatives of `ApplyPhase`'s site. */
+type ApplyPhase = "display" | "entry";
+
+/** The ordered additive layers of one person's posture at a film second. */
 export namespace HumanSegmentLayer {
   /**
-   * Add the person's active layers in order, fading each contribution by
-   * its window's minimum-jerk ramp. Without layers, return the given posture.
-   * A retained action reader still reads current placed actions. When an
-   * action is present, each query returns fresh records and borrowed contacts.
+   * Add the person's active layers in order, fading each contribution by its
+   * window's minimum-jerk ramp. Without layers, return the given posture. A
+   * retained action reader still reads current placed actions. When an action
+   * is present, each query returns fresh records and borrowed contacts.
    *
    * @param person The person whose layer windows and draw keys are read.
    * @param posture The posture before the layers.
    * @param seconds Film seconds.
-   * @param resolution Optional same-body exact FK getter borrowed for this call; each layer receives a revocable synchronous loan.
-   * @param projection Optional genuine same-body ROM projection, lent only through a revocable lazy layer getter.
-   * @param phase Display evaluates all active layers. Entry leaves native breath for that display evaluation.
+   * @param resolution Optional same-body exact FK getter borrowed for this
+   *   call; each layer receives a revocable synchronous loan.
+   * @param projection Optional genuine same-body ROM projection, lent only
+   *   through a revocable lazy layer getter.
+   * @param phase Display evaluates all active layers. Entry leaves native
+   *   breath for that display evaluation.
    * @returns The mixed posture, preserving the existing endpoint identities.
    */
   export function apply(
@@ -40,7 +44,7 @@ export namespace HumanSegmentLayer {
     resolution?: Resolution,
     projection?: Projection,
     assembly?: HumanAirborneShape.Assembly,
-    phase: "display" | "entry" = "display",
+    phase: ApplyPhase = "display",
   ): IAutoMovieMotionHumanPosture {
     if (person.layers.length === 0) return posture;
 
@@ -103,15 +107,10 @@ export namespace HumanSegmentLayer {
                   channel,
                 ),
             };
-            if (layer.blend !== undefined) {
-              const native: HumanAirborneShape.ShapeBlend | undefined =
-                assembly === undefined
-                  ? undefined
-                  : HumanAirborneShape.prepared(layer);
-              return native === undefined
-                ? layer.blend(current, seconds, context, weight)
-                : native(current, seconds, context, weight, assembly);
-            }
+            if (assembly !== undefined && layer.lend !== undefined)
+              return layer.lend(current, seconds, context, weight, assembly);
+            if (layer.blend !== undefined)
+              return layer.blend(current, seconds, context, weight);
             return mixHumanPosture(
               current,
               layer.apply(current, seconds, context),
@@ -138,15 +137,17 @@ type Resolution = NonNullable<
 
 /** A genuine direct-joint projector borrowed within this layer application. */
 type Projection = ReturnType<typeof prepareHumanPostureProjection>;
+/** The record of `IBorrowProjectionResult`'s site. */
+type IBorrowProjectionResult = {
+  read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>;
+  release: () => void;
+};
 
 /** A retained getter cannot retain the parent operation's ROM preparation. */
 function borrowProjection(
   body: IAutoMovieMotionHumanBody,
   source: Projection | undefined,
-): {
-  read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>;
-  release: () => void;
-} {
+): IBorrowProjectionResult {
   let borrowed: Projection | undefined = source;
   source = undefined;
   return {
@@ -156,12 +157,16 @@ function borrowProjection(
     },
   };
 }
-
-/** Revoke a synchronous loan even if a layer retains its context or getter. */
-function borrowResolution(source: Resolution | undefined): {
+/** The record of `IBorrowResolutionResult`'s site. */
+type IBorrowResolutionResult = {
   read: Resolution;
   release: () => void;
-} {
+};
+
+/** Revoke a synchronous loan even if a layer retains its context or getter. */
+function borrowResolution(
+  source: Resolution | undefined,
+): IBorrowResolutionResult {
   let borrowed: Resolution | undefined = source;
   source = undefined;
   return {

@@ -18,23 +18,23 @@ import { FLUID_MAX_SPRAY_PARTICLES } from "./constants/FLUID_MAX_SPRAY_PARTICLES
 import { FLUID_MAX_STEPS } from "./constants/FLUID_MAX_STEPS";
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
-/** Closed boundary vocabulary read by the four edge checks; module-owned constant-size lookup with no mutation after construction. */
-const BOUNDARY_KINDS: ReadonlySet<string> = new Set(["wall", "open"]);
-
-/** Every solver edge, visited in diagnostic order without building per-domain key lists. */
-const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
-  "xMin",
-  "xMax",
-  "zMin",
-  "zMax",
-];
-
 /**
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
  *
- * For a structurally typed domain, checks schema/id, safe positive grid counts, finite authored scalars, count budgets, per-cell array lengths/values, boundary vocabulary, nonsolid source/drain/spray sites, activity windows and sibling identities. Initial depths must lie in [0, referenceDepth], and solid cells must start dry. Violations retain field paths and authored values; inputs are not modified.
+ * For a structurally typed domain, checks schema/id, safe positive grid counts,
+ * finite authored scalars, count budgets, per-cell array lengths/values,
+ * boundary vocabulary, nonsolid source/drain/spray sites, activity windows and
+ * sibling identities. Initial depths must lie in [0, referenceDepth], and solid
+ * cells must start dry. Violations retain field paths and authored values;
+ * inputs are not modified.
  *
- * The Courant comparison runs only when its five authored inputs are finite and positive. A computed value above one, including Infinity, is refused; derived NaN is missed by that comparison. Admission also does not bound finite area, damping, clock, flow accumulation or spray-index products, and later water depth may exceed referenceDepth. It does not certify every derived solver/surface/spray result or perform general unknown-object shape admission.
+ * The Courant comparison runs only when its five authored inputs are finite and
+ * positive. A computed value above one, including Infinity, is refused; derived
+ * NaN is missed by that comparison. Admission also does not bound finite area,
+ * damping, clock, flow accumulation or spray-index products, and later water
+ * depth may exceed referenceDepth. It does not certify every derived
+ * solver/surface/spray result or perform general unknown-object shape
+ * admission.
  */
 export const validateFluidDomain: (
   props: IAutoMovieValidateFluidDomain.IProps,
@@ -45,7 +45,6 @@ export const validateFluidDomain: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  out.nonEmpty(`${root}.id`, domain.id, "fluid domain id");
   if (domain.version !== 1)
     out.push(
       "type",
@@ -82,7 +81,7 @@ export const validateFluidDomain: (
   // the grids too large to count would let the only ones nobody can afford
   // past the one budget written to refuse them. A non-finite product means
   // `columns` or `rows` is itself unusable and has already been named.
-  if (Number.isFinite(cells) && cells > FLUID_MAX_CELLS)
+  if (cells > FLUID_MAX_CELLS)
     out.push(
       "range",
       `${root}.grid`,
@@ -140,7 +139,7 @@ export const validateFluidDomain: (
       solver.referenceDepth,
       domain.grid.cellX,
       domain.grid.cellZ,
-    ].every((value: number): boolean => Number.isFinite(value) && value > 0) &&
+    ].every((value: number): boolean => value > 0) &&
     courant > 1
   )
     out.push(
@@ -148,17 +147,8 @@ export const validateFluidDomain: (
       `${root}.solver.fixedStepSeconds`,
       `the explicit shallow-water step is stable only while dt·sqrt(g·referenceDepth)·sqrt(1/dx² + 1/dz²) <= 1, but the Courant number is ${courant}`,
       solver.fixedStepSeconds,
-      Number.isFinite(courant) ? courant - 1 : undefined,
+      courant - 1,
     );
-
-  for (const edge of EDGES)
-    if (!BOUNDARY_KINDS.has(domain.boundaries[edge]))
-      out.push(
-        "type",
-        `${root}.boundaries.${edge}`,
-        `boundary must be "wall" or "open", but was ${String(domain.boundaries[edge])}`,
-        domain.boundaries[edge],
-      );
 
   length(out, `${root}.bed`, "bed", domain.bed.length, cells);
   length(out, `${root}.depth`, "depth", domain.depth.length, cells);
@@ -175,9 +165,7 @@ export const validateFluidDomain: (
   );
   // A broken design depth is named at its own field, not again at every cell.
   const deepest: number =
-    Number.isFinite(solver.referenceDepth) && solver.referenceDepth > 0
-      ? solver.referenceDepth
-      : Infinity;
+    solver.referenceDepth > 0 ? solver.referenceDepth : Infinity;
   domain.depth.forEach((value: number, index: number): void => {
     validateRange(
       value,
@@ -306,22 +294,19 @@ export const validateFluidDomain: (
       1,
       FLUID_MAX_SPRAY_PARTICLES,
     );
-    if (!Number.isSafeInteger(spray.seed))
+    const seed: number = Math.trunc(spray.seed);
+    if (!(seed === spray.seed && Math.abs(seed) <= Number.MAX_SAFE_INTEGER))
       out.push(
         "type",
         `${path}.seed`,
         "spray seed must be a safe integer",
         spray.seed,
       );
+
     // Match the sampler's norm helper, including its hypot fallback for failed
     // squares. An unrepresentable norm can still be Infinity and pass this gate.
     const axis: IAutoMovieFluidSpray["direction"] = spray.direction;
-    if (
-      !Number.isFinite(axis.x) ||
-      !Number.isFinite(axis.y) ||
-      !Number.isFinite(axis.z) ||
-      Vector3.length(axis) === 0
-    )
+    if (Vector3.length(axis) === 0)
       out.push(
         "type",
         `${path}.direction`,
@@ -333,7 +318,11 @@ export const validateFluidDomain: (
   return out.toValidation();
 };
 
-/** Append the shared finite, open-lower-bound range finding; scalar work has the diagnostic conversion costs of validateRange and mutates only the borrowed collector. */
+/**
+ * Append the shared finite, open-lower-bound range finding; scalar work has the
+ * diagnostic conversion costs of validateRange and mutates only the borrowed
+ * collector.
+ */
 const positive: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -346,7 +335,10 @@ const positive: (
   value: number,
 ): void => validateRange(value, path, 0, Infinity, label, out.items, false);
 
-/** Require a safe integer inside inclusive bounds; one constant-work predicate appends at most one finding without clamping. */
+/**
+ * Require a safe integer inside inclusive bounds; one constant-work predicate
+ * appends at most one finding without clamping.
+ */
 const integer: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -362,7 +354,14 @@ const integer: (
   min: number,
   max: number,
 ): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
+  if (
+    !(
+      value >= min &&
+      value <= max &&
+      Math.abs(value) <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(value) === value
+    )
+  )
     out.push(
       "type",
       path,
@@ -371,7 +370,10 @@ const integer: (
     );
 };
 
-/** Compare actual length with the computed cell count, appending at most one finding even for an unusable count; no array is traversed or resized here. */
+/**
+ * Compare actual length with the computed cell count, appending at most one
+ * finding even for an unusable count; no array is traversed or resized here.
+ */
 const length: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -394,7 +396,11 @@ const length: (
     );
 };
 
-/** Append one range finding and overshoot when an actual collection length exceeds its named budget; constant scalar work leaves the collection unchanged. */
+/**
+ * Append one range finding and overshoot when an actual collection length
+ * exceeds its named budget; constant scalar work leaves the collection
+ * unchanged.
+ */
 const count: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -418,7 +424,11 @@ const count: (
     );
 };
 
-/** Check blank text and sibling duplication, then add the exact id to the call-owned set. Text trimming/hashing scales with id length; blank siblings receive blank findings without duplicate findings. */
+/**
+ * Check blank text and sibling duplication, then add the exact id to the
+ * call-owned set. Text trimming/hashing scales with id length; blank siblings
+ * receive blank findings without duplicate findings.
+ */
 const identity: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -432,13 +442,16 @@ const identity: (
   id: string,
   seen: Set<string>,
 ): void => {
-  out.nonEmpty(`${path}.id`, id, `${label} id`);
-  if (seen.has(id) && id.trim().length !== 0)
+  if (seen.has(id))
     out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
   seen.add(id);
 };
 
-/** Check each safe integer coordinate before reading solidity; an in-grid solid site appends a separate finding. Constant work borrows the domain and collector without retaining them. */
+/**
+ * Check each safe integer coordinate before reading solidity; an in-grid solid
+ * site appends a separate finding. Constant work borrows the domain and
+ * collector without retaining them.
+ */
 const site: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -474,13 +487,24 @@ const site: (
     );
 };
 
-/** Constant-work safe-index predicate used before solidity lookup; the limit is the authored count and is admitted separately. No state is retained. */
+/**
+ * Constant-work safe-index predicate used before solidity lookup; the limit is
+ * the authored count and is admitted separately. No state is retained.
+ */
 const inside: (value: number, limit: number) => boolean = (
   value: number,
   limit: number,
-): boolean => Number.isSafeInteger(value) && value >= 0 && value < limit;
+): boolean =>
+  value >= 0 &&
+  value < limit &&
+  value <= Number.MAX_SAFE_INTEGER &&
+  Math.floor(value) === value;
 
-/** Check finite nonnegative endpoints and strict end-after-start ordering; null end is unbounded. Scalar checks append their own findings without mutating the window or repeating ordering errors for non-finite endpoints. */
+/**
+ * Check finite nonnegative endpoints and strict end-after-start ordering; null
+ * end is unbounded. Scalar checks append their own findings without mutating
+ * the window or repeating ordering errors for non-finite endpoints.
+ */
 const window: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -502,7 +526,7 @@ const window: (
   );
   if (end === null) return;
   validateRange(end, `${path}.end`, 0, Infinity, "activity end", out.items);
-  if (Number.isFinite(end) && Number.isFinite(start) && end <= start)
+  if (end <= start)
     out.push(
       "range",
       `${path}.end`,

@@ -5,9 +5,9 @@ import type { IGalleryCard } from "../structures/IGalleryCard";
 import { GalleryArchetype } from "./GalleryArchetype";
 
 /**
- * One archetype as a card of the object gallery draws it: its first kind at
- * the middle of every band, on the viewport ground, seen from the
- * three-quarter view and framed to its size, turning on request.
+ * One archetype as a card of the object gallery draws it: its first kind at the
+ * middle of every band, on the viewport ground, seen from the three-quarter
+ * view and framed to its size, turning on request.
  */
 export namespace GalleryCard {
   /**
@@ -21,7 +21,7 @@ export namespace GalleryCard {
     const built: GalleryArchetype.IBuilt = GalleryArchetype.build({
       subject,
       variant,
-      seed: "",
+      seed: null,
       state: {},
       affordances: false,
     });

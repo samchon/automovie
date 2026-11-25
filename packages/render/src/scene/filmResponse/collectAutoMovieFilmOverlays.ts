@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+
 /**
  * The drawn objects whose every material states a display colour (`toneMapped:
  * false`), each with its layer mask, so the film response stage draws them
@@ -10,17 +12,12 @@ export function collectAutoMovieFilmOverlays(
 ): Map<THREE.Object3D, number> {
   const overlays: Map<THREE.Object3D, number> = new Map();
   scene.traverse((object: THREE.Object3D): void => {
-    const material: unknown =
-      "material" in object ? object.material : undefined;
-    if (material === undefined || object.layers.mask === 0) return;
-    const materials: unknown[] = Array.isArray(material)
-      ? material
-      : [material];
+    if (!AutoMovieThreeKind.isDrawn(object) || object.layers.mask === 0) return;
+    const materials: THREE.Material[] = [object.material].flat();
     if (
       materials.length !== 0 &&
       materials.every(
-        (entry: unknown): boolean =>
-          entry instanceof THREE.Material && entry.toneMapped === false,
+        (entry: THREE.Material): boolean => entry.toneMapped === false,
       )
     )
       overlays.set(object, object.layers.mask);

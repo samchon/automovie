@@ -14,29 +14,31 @@ import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
  * cusp or self-intersection within a segment and follows a bent chain closely;
  * the ends continue straight through phantom points reflected from the second
  * and second-last points. Each segment is evaluated in its equivalent cubic
- * Hermite form, its end derivatives the spline's knot tangents
- * `(P_k - P_k-1) / d_k-1 - (P_k+1 - P_k-1) / (d_k-1 + d_k) + (P_k+1 - P_k) / d_k`
- * over the centripetal spacings `d`, so positions and tangents are closed
- * forms with no difference step and scale with the points exactly. A
- * per-coordinate monotone interpolant would stop each coordinate flat at a
- * bent joint and leave a corner there. A declared end tangent replaces the
- * first or last derivative's direction and keeps its length, so the end
- * segment stays a cubic of the same speed that leaves or reaches its point
- * along the declared direction. Within each segment the parameter
- * runs linearly from its start point's chord-length share to its end
- * point's, so stations at those shares sit on the points. Frames are
- * transported by the double reflection method of Wang, Juttler, Zheng and Liu
- * (2008, ACM Trans. Graph. 27(1):2): the first axis starts as `spine.normal`
- * made perpendicular to the first tangent, and each step reflects it across
- * the bisector plane of the step's chord and then across the plane that maps
- * the reflected tangent onto the next tangent, which approximates the
- * rotation-minimizing frame to fourth order in the step. The table holds 64
- * steps per spine segment; a query between two entries reflects once more
- * from the entry below it.
+ * Hermite form, its end derivatives the spline's knot tangents `(P_k - P_k-1) /
+ * d_k-1 - (P_k+1 - P_k-1) / (d_k-1 + d_k) + (P_k+1 - P_k) / d_k` over the
+ * centripetal spacings `d`, so positions and tangents are closed forms with no
+ * difference step and scale with the points exactly. A per-coordinate monotone
+ * interpolant would stop each coordinate flat at a bent joint and leave a
+ * corner there. A declared end tangent replaces the first or last derivative's
+ * direction and keeps its length, so the end segment stays a cubic of the same
+ * speed that leaves or reaches its point along the declared direction. Within
+ * each segment the parameter runs linearly from its start point's chord-length
+ * share to its end point's, so stations at those shares sit on the points.
+ * Frames are transported by the double reflection method of Wang, Juttler,
+ * Zheng and Liu (2008, ACM Trans. Graph. 27(1):2): the first axis starts as
+ * `spine.normal` made perpendicular to the first tangent, and each step
+ * reflects it across the bisector plane of the step's chord and then across the
+ * plane that maps the reflected tangent onto the next tangent, which
+ * approximates the rotation-minimizing frame to fourth order in the step. The
+ * table holds 64 steps per spine segment; a query between two entries reflects
+ * once more from the entry below it.
  *
  * @param spine The spine, only read.
  * @returns The compiled path.
- * @throws Error when the spine has fewer than two points, a point, the normal or an end tangent is not finite or an end tangent is zero, two consecutive points coincide, the path reverses at a point, the normal is parallel to the first tangent, or the tangent vanishes somewhere on the path.
+ * @throws Error when the spine has fewer than two points, a point, the normal
+ *   or an end tangent is not finite or an end tangent is zero, two consecutive
+ *   points coincide, the path reverses at a point, the normal is parallel to
+ *   the first tangent, or the tangent vanishes somewhere on the path.
  */
 export const frameAutoMovieSweepSpine: (
   spine: IAutoMovieSweepSpine,

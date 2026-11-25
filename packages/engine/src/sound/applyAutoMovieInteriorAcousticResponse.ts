@@ -3,30 +3,33 @@ import type { IAutoMovieApplyInteriorAcousticResponse } from "@automovie/interfa
 /** Fixed internal diffuse-response tier: 20 ms taps, at most 32 and 2 s. */
 const TAP_INTERVAL_SECONDS: number = 0.02;
 
-/** Maximum delayed contributions in this sparse tier; a module scalar, not a retained impulse-response buffer. */
+/**
+ * Maximum delayed contributions in this sparse tier; a module scalar, not a
+ * retained impulse-response buffer.
+ */
 const MAX_TAPS: number = 32;
 
-/** Tail ceiling in seconds; caller PCM length still controls the main output allocation. */
+/**
+ * Tail ceiling in seconds; caller PCM length still controls the main output
+ * allocation.
+ */
 const MAX_TAIL_SECONDS: number = 2;
 
-/**
- * Apply an available declared room-path response to finite interleaved PCM.
- */
+/** Apply an available declared room-path response to finite interleaved PCM. */
 export const applyAutoMovieInteriorAcousticResponse: (
   props: IAutoMovieApplyInteriorAcousticResponse.IProps,
 ) => Float32Array<ArrayBufferLike> = (
   props: IAutoMovieApplyInteriorAcousticResponse.IProps,
 ): Float32Array => {
-  if (!Number.isSafeInteger(props.channels) || props.channels <= 0)
+  if (props.channels <= 0)
     throw new Error("acoustic response channels must be a positive integer");
-  if (!Number.isSafeInteger(props.sampleRate) || props.sampleRate <= 0)
+  if (props.sampleRate <= 0)
     throw new Error("acoustic response sample rate must be a positive integer");
   if (props.samples.length % props.channels !== 0)
     throw new Error("acoustic response PCM must contain complete frames");
   if (props.samples.length === 0)
     throw new Error("acoustic response PCM must not be empty");
-  if (props.samples.some((sample: number): boolean => !Number.isFinite(sample)))
-    throw new Error("acoustic response PCM samples must be finite");
+
   if (props.response.status !== "available")
     throw new Error(
       `cannot mix ${props.response.status} room response: ${props.response.reason}`,
@@ -35,7 +38,7 @@ export const applyAutoMovieInteriorAcousticResponse: (
     return Float32Array.from(props.samples);
   if (props.response.path === "different-room") {
     const gain: number | null = props.response.transmissionGain;
-    if (!Number.isFinite(gain) || gain === null || gain < 0 || gain > 1)
+    if (gain === null || gain < 0 || gain > 1)
       throw new Error(
         "different-room response needs a transmission gain in [0, 1]",
       );
@@ -47,13 +50,9 @@ export const applyAutoMovieInteriorAcousticResponse: (
 
   const reverberation: number | null = props.response.reverberationTimeSeconds;
   const ratio: number | null = props.response.directToDiffuseRatio;
-  if (
-    !Number.isFinite(reverberation) ||
-    reverberation === null ||
-    reverberation <= 0
-  )
+  if (reverberation === null || reverberation <= 0)
     throw new Error("same-room response needs a positive reverberation time");
-  if (!Number.isFinite(ratio) || ratio === null || ratio <= 0)
+  if (ratio === null || ratio <= 0)
     throw new Error(
       "same-room response needs a positive direct-to-diffuse ratio",
     );

@@ -3,7 +3,8 @@ import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieL
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
 /**
- * Type contracts exchanged by AutoMovieHumanHeadDomeHost; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanHeadDomeHost; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanHeadDomeHost {
   /**
@@ -16,13 +17,19 @@ export namespace IAutoMovieHumanHeadDomeHost {
     part: IAutoMovieViewPart;
     /** Complete original signed-support/fullness/cap family. */
     source: IAutoMovieLoftViewSource.ISource;
-    /** World query point; only a non-null parameter certifies a bracketed native surface contact. */
+    /**
+     * World query point; only a non-null parameter certifies a bracketed native
+     * surface contact.
+     */
     point: [number, number, number];
     /** Actual parent source station whose plane contains that attachment. */
     station: number;
     /** The actual parent plane at that station. */
     frame: IAutoMovieLoftSectionFrame;
-    /** Distance along the unchanged nominal child axis, mm; null for a plane-only query. */
+    /**
+     * Distance along the unchanged nominal child axis, mm; null for a
+     * plane-only query.
+     */
     parameter: number | null;
   }
 }

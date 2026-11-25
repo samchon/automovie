@@ -85,7 +85,7 @@ export function buildHumanUpperArmStudy(
   const pieces: IAutoMovieMeshPiece[] = measureAutoMovieMeshPieces(mesh);
   if (
     !topology.watertight ||
-    topology.nonFinite !== 0 ||
+    mesh.positions.some((value: number): boolean => !Number.isFinite(value)) ||
     topology.volume <= 0 ||
     pieces.length !== 1 ||
     !pieces[0]!.manifold ||

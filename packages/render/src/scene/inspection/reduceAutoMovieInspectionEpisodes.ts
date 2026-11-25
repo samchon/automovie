@@ -45,10 +45,7 @@ export function reduceAutoMovieInspectionEpisodes(
   packets: Iterable<IAutoMovieInspectionDiagnostics>,
   expectedOutputFrames?: number,
 ): IAutoMovieInspectionDiagnostics.IAudit {
-  if (
-    expectedOutputFrames !== undefined &&
-    (!Number.isSafeInteger(expectedOutputFrames) || expectedOutputFrames < 1)
-  )
+  if (expectedOutputFrames !== undefined && expectedOutputFrames < 1)
     throw new Error(
       "Expected inspection output frames must be a positive integer.",
     );
@@ -62,11 +59,7 @@ export function reduceAutoMovieInspectionEpisodes(
   let observedOutputFrames: number = 0;
   for (const packet of packets) {
     const { time } = packet;
-    if (
-      !Number.isFinite(time.filmSeconds) ||
-      time.filmSeconds < 0 ||
-      time.filmSeconds < filmSeconds
-    )
+    if (time.filmSeconds < 0 || time.filmSeconds < filmSeconds)
       throw new Error(
         "Inspection samples must be ordered by finite film seconds.",
       );
@@ -75,7 +68,6 @@ export function reduceAutoMovieInspectionEpisodes(
     const frame: number | undefined = time.outputFrame;
     if (frame !== undefined) {
       if (
-        !Number.isSafeInteger(frame) ||
         frame < 0 ||
         (expectedOutputFrames !== undefined && frame >= expectedOutputFrames)
       )
@@ -215,11 +207,6 @@ function appendEpisodes(
         "Inspection sample has duplicate evidence for one finding.",
       );
     found.add(key);
-    if (
-      finding.witness.rank !== undefined &&
-      !Number.isFinite(finding.witness.rank)
-    )
-      throw new Error("Inspection witness rank must be finite.");
 
     const observation: IAutoMovieInspectionDiagnostics.IObservation = {
       time: finding.witness.time ?? packet.time,

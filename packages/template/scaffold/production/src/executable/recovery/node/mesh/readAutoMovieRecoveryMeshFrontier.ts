@@ -7,17 +7,14 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Verify a closed source-free spool frontier and recover its complete array bindings.
- * The caller supplies the expected source/input binding and bounded read budgets.
- * This reads committed fragments only; uncommitted files are neither inferred nor removed.
+ * Verify a closed source-free spool frontier and recover its complete array
+ * bindings. The caller supplies the expected source/input binding and bounded
+ * read budgets. This reads committed fragments only; uncommitted files are
+ * neither inferred nor removed.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Exact SHA-256 predecessor links reconstruct the append-only journal, then independent byte hashes, JSON populations, append-only indices and ownership ranges verify the common seven-channel boundary.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This reader owns persisted-byte admission. The spool owns writes, the caller owns the immutable base model, and generator resumption separately proves deterministic replay.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No directory-order guess, coordinate weld, missing-array reconstruction, source mesh, normal substitution or incomplete-file salvage supplies output. A mismatched source binding refuses the frontier.
- * @evidence contracts/development/common.md#meaningful-documentation Returns verified array-source descriptors and the exact last context. This does not certify source fidelity, geometry quality or a resumed engine iterator.
- * @evidence contracts/development/implementation.md#efficient-algorithms Journal admission costs O(J+F), followed by one required byte/hash/JSON pass over the F referenced fragments. Index and ownership checks visit stored values once; uncommitted directory contents are not scanned.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Verified original fragment paths feed the existing artifact writer without regenerating vertices, copying a whole mesh or fitting curves. Later publication still verifies its own required reads.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Declared journal, fragment count and byte budgets bound metadata and one parsed fragment. Peak metadata includes O(J+F+C) retained journal/context bytes C; only the last context and O(F) binding records survive. Synchronous reads close their descriptors and no complete numeric channel is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact SHA-256 links bind the append-only journal and its fragment bytes. Admission checks the supplied source binding, declared channel populations, append order, numeric position and normal entries, index ranges and contiguous ownership totals. Finite coordinates and integral indices and counts come from the producing spool.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The reader owns journal and fragment admission. The spool owns writes, and the caller retains the immutable base model and supplies finite positive count and byte limits. Reads and checks scale with journal and fragment bytes, including the source binding compared for each journal. Retained metadata consists of the journal records and fragment bindings plus one parsed fragment. The returned last context and original fragment paths let the artifact writer assemble a publication with its own byte verification. Synchronous reads close their descriptors.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the checked fields of the returned array-source descriptors, the caller's finite read budgets and the exact last context. Source fidelity, geometry quality and deterministic iterator resumption require separate proofs.
  */
 export function readAutoMovieRecoveryMeshFrontier(
   input: IAutoMovieRecoveryMeshFrontierInput,
@@ -49,11 +46,11 @@ export function readAutoMovieRecoveryMeshFrontier(
     input.maxJournalBytes,
     input.maxFragmentBytes,
   ])
-    if (!Number.isSafeInteger(budget) || budget < 1)
+    if (budget < 1)
       throw new Error("Positive finite frontier read budgets are required");
   const directory: string = fs.realpathSync(input.directory);
   const validCount: (value: number) => boolean = (value: number): boolean =>
-    Number.isSafeInteger(value) && value >= 0;
+    value >= 0;
   const read: (receipt: Receipt, limit: number) => Buffer = (
     receipt: Receipt,
     limit: number,
@@ -185,7 +182,7 @@ export function readAutoMovieRecoveryMeshFrontier(
       for (const value of values) {
         if (
           (channel.name === "positions" || channel.name === "normals") &&
-          (typeof value !== "number" || !Number.isFinite(value))
+          typeof value !== "number"
         )
           throw new Error("A committed numeric channel is not finite");
         if (

@@ -7,44 +7,30 @@ import type {
 import { HumanSkill } from "../skill/HumanSkill";
 
 /**
- * Where a strike lands relative to its aim: the author's declared accuracy
- * plus the performer's seeded endpoint scatter.
+ * Where a strike lands relative to its aim: the author's declared accuracy plus
+ * the performer's seeded endpoint scatter.
  *
  * - `hit`: on the aim point; the weapon stops on the first surface it meets.
- * - `graze`: one weapon width beside it; the weapon glances and follows
- *   through.
+ * - `graze`: one weapon width beside it; the weapon glances and follows through.
  * - `miss`: clear of it by two weapon widths and 5 cm; the weapon follows
  *   through.
- * - a vector: that world offset, stopping on whatever it meets.
+ * - A vector: that world offset, stopping on whatever it meets.
  *
- * The scatter is impulse variability, a normal draw with the standard
- * deviation `k D / T` of `HumanSkill.scatter` (Schmidt et al. 1979), shaped
- * by skill: a novice scatters isotropically, an expert keeps the error out
- * of the directions that decide the hit, the lateral share falling to 0.3 of
- * the along-line share on the `path` axis (minimal intervention, Todorov and
- * Jordan 2002; provisional share).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each accuracy's offset and effect and the scatter model with its sources.
- * @evidence contracts/development/design.md#principled-representation The accuracy as a closed union of three named cases or a world offset; offsets in world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The accuracy type and the fist width, stop rule and offset the strike laws read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the skill and random types and the interface vector.
+ * The scatter is impulse variability, a normal draw with the standard deviation
+ * `k D / T` of `HumanSkill.scatter` (Schmidt et al. 1979), shaped by skill: a
+ * novice scatters isotropically, an expert keeps the error out of the
+ * directions that decide the hit, the lateral share falling to 0.3 of the
+ * along-line share on the `path` axis (minimal intervention, Todorov and Jordan
+ * 2002; provisional share).
  */
 export namespace StrikingQuality {
   /**
-   * Half the width of a closed fist, metres: hand breadth is about 0.46 of
-   * hand length in adults (Pheasant and Haslegrave, Bodyspace, 3rd ed., hand
+   * Half the width of a closed fist, metres: hand breadth is about 0.46 of hand
+   * length in adults (Pheasant and Haslegrave, Bodyspace, 3rd ed., hand
    * dimensions: 87 against 189 mm), and the fist is as wide as the hand.
    *
    * @param hand The hand's length, wrist to fingertip, metres.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the ratio's source and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Half the anthropometric breadth-to-length ratio (87/189, about 0.46) times the hand's length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fist(hand: number): number {
     return 0.23 * hand;
@@ -55,14 +41,6 @@ export namespace StrikingQuality {
    *
    * @param accuracy The declared accuracy.
    * @returns False for a graze or a miss, which pass the surface.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which accuracies pass.
-   * @evidence contracts/development/implementation.md#principled-implementation A graze and a miss follow through; a hit or an explicit offset stops on what it meets.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function stops(
     accuracy: IAutoMovieMotionHumanStrikingQuality.Accuracy | undefined,
@@ -75,14 +53,6 @@ export namespace StrikingQuality {
    *
    * @param input What the offset depends on.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each input member states its unit; the namespace states the model.
-   * @evidence contracts/development/implementation.md#principled-implementation The declared offset along the lift axis (one weapon width for a graze, two and 5 cm for a miss) plus a normal scatter of impulse variability's sigma along the travel and the skill-shaped lateral share across it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A travel frame, the declared offset, then the scatter.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A travel within about 18 degrees of vertical takes +X as its sideways axis, a stated degeneracy guard; the lateral share is a named provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs and the given stream.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function offset(
     input: IAutoMovieMotionHumanStrikingQuality.IOffsetInput,

@@ -4,7 +4,8 @@ import {
 } from "@automovie/interface";
 
 /**
- * Derive distance gain, one film-clock arrival and the selected segment/spectral outcome.
+ * Derive distance gain, one film-clock arrival and the selected
+ * segment/spectral outcome.
  */
 export const deriveAutoMovieSoundPropagation: (
   props: IAutoMovieDeriveSoundPropagation.IProps,
@@ -31,8 +32,6 @@ export const deriveAutoMovieSoundPropagation: (
     throw new Error("sound propagation emission frame lies outside the film");
   if (props.segmentEndFrame > props.totalFrames)
     throw new Error("sound propagation segment end lies outside the film");
-  if (props.profile.id.trim().length === 0)
-    throw new Error("sound propagation profile id must not be blank");
   assertFinitePositive(
     props.profile.speedOfSoundMetersPerSecond,
     "sound propagation speed",
@@ -104,30 +103,37 @@ export const deriveAutoMovieSoundPropagation: (
   };
 };
 
-/** Refuse a non-finite or nonpositive speed/frame-rate scalar before delay arithmetic; the caller supplies its diagnostic label. */
+/**
+ * Refuse a non-finite or nonpositive speed/frame-rate scalar before delay
+ * arithmetic; the caller supplies its diagnostic label.
+ */
 const assertFinitePositive: (value: number, label: string) => void = (
   value: number,
   label: string,
 ): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be finite and positive`);
+  if (value <= 0) throw new Error(`${label} must be finite and positive`);
 };
 
-/** Refuse a non-finite or negative distance/absorption/coefficient scalar while preserving admitted zero. */
+/**
+ * Refuse a non-finite or negative distance/absorption/coefficient scalar while
+ * preserving admitted zero.
+ */
 const assertFiniteNonnegative: (value: number, label: string) => void = (
   value: number,
   label: string,
 ): void => {
-  if (!Number.isFinite(value) || value < 0)
-    throw new Error(`${label} must be finite and non-negative`);
+  if (value < 0) throw new Error(`${label} must be finite and non-negative`);
 };
 
-/** Require a safe whole frame value at or above the caller's bound, without rounding fractional or unsafe input. */
+/**
+ * Require a safe whole frame value at or above the caller's bound, without
+ * rounding fractional or unsafe input.
+ */
 const assertInteger: (value: number, label: string, minimum: number) => void = (
   value: number,
   label: string,
   minimum: number,
 ): void => {
-  if (!Number.isSafeInteger(value) || value < minimum)
+  if (value < minimum)
     throw new Error(`${label} must be an integer at least ${minimum}`);
 };

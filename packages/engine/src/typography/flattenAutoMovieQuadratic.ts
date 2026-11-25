@@ -26,12 +26,10 @@ export function flattenAutoMovieQuadratic(
   end: Readonly<AutoMovieVector2Tuple>,
   tolerance: number,
 ): AutoMovieVector2Tuple[] {
-  if (!Number.isFinite(tolerance) || tolerance <= 0)
+  if (tolerance <= 0)
     throw new Error(
       `Curve flattening tolerance must be finite and positive, not ${tolerance}`,
     );
-  if (![...start, ...control, ...end].every(Number.isFinite))
-    throw new Error("A quadratic segment has a non-finite point");
   const bend: number = Math.hypot(
     start[0] - 2 * control[0] + end[0],
     start[1] - 2 * control[1] + end[1],

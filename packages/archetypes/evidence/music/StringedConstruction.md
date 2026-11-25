@@ -1,21 +1,3 @@
-# src/music/StringedConstruction.ts#StringedConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is built, how it lies, the rule that places the frets and what the estimates may size.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Code CAD over the builder's primitives from named dimensions; the frets and strings are contacts whose places follow from the scale, not a table.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two constructions, the fret count and the estimates they read; read only by `createInstrument`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Strings are contacts, not parts, since a string is thinner than any view resolves; every size no source gives is a named construction estimate here, none placing a contact.
-
 # src/music/StringedConstruction.ts#StringedConstruction.fret
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanCrossing,
   IAutoMovieMotionHumanStepOver,
@@ -9,31 +10,25 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { crossingSurface } from "../terrain/crossingSurface";
 
 /**
- * Where a step over's feet land: on the floor the step leaves at the
- * stride's landing, or on the named landing surface (`onto`), drawn back
- * from the stride's landing so the toes stay on it but never nearer than
- * the obstacle allows.
+ * Where a step over's feet land: on the floor the step leaves at the stride's
+ * landing, or on the named landing surface (`onto`), drawn back from the
+ * stride's landing so the toes stay on it but never nearer than the obstacle
+ * allows.
  *
  * @param context The action's context, whose `onto` names the surface.
  * @param framed The crossing frame on the starting floor.
  * @param rest Each foot's lateral rest coordinate in that frame, metres.
- * @param nearest The nearest landing the obstacle allows, metres along the path.
+ * @param nearest The nearest landing the obstacle allows, metres along the
+ *   path.
  * @param stride The stride's own landing, metres along the path.
  * @returns The landing's height and place.
- * @throws {HumanRefusal} When the surface is not fixed, level and square to the path, or a landing foot cannot lie on it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the result, its frame and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The surface's own placed extent bounds each landing footprint from heel to toe.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The absent case first, then one extent read, the drawn-back landing and one check per foot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot off the surface refuses instead of landing in the air.
- * @evidence contracts/development/implementation.md#efficient-algorithms One extent read and two constant checks per step.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {HumanRefusal} When the surface is not fixed, level and square to the
+ *   path, or a landing foot cannot lie on it.
  */
 export function stepOverLanding(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
   framed: HumanFrame.IPrepared,
-  rest: Record<"left" | "right", number>,
+  rest: Record<AutoMovieHumanSide, number>,
   nearest: number,
   stride: number,
 ): stepOverLanding.ILanding {
@@ -72,16 +67,12 @@ export function stepOverLanding(
   return { height: extent.height, z: landing };
 }
 
-/**
- * Companion types of {@link stepOverLanding}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the record's frame and units.
- * @evidence contracts/development/design.md#principled-representation A height and a coordinate in the crossing frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two values `stepOverPath` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Read from the placed surface, never authored.
- */
+/** Companion types of {@link stepOverLanding}. */
 export namespace stepOverLanding {
-  /** Where the ankles land along the path and the height they land on, metres in the crossing frame. */
+  /**
+   * Where the ankles land along the path and the height they land on, metres in
+   * the crossing frame.
+   */
   export interface ILanding {
     /** The landing floor's height over the floor the step leaves. */
     height: number;

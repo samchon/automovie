@@ -20,6 +20,18 @@ import {
 } from "../core";
 import type { createArmour } from "./createArmour";
 
+/** Every wearer socket a costume piece can occupy, in declaration order. */
+const SLOTS: readonly assembleCostumeArmour.Slot[] = [
+  "head",
+  "chest",
+  "leftHand",
+  "rightHand",
+  "leftLowerArm",
+  "rightLowerArm",
+  "leftLowerLeg",
+  "rightLowerLeg",
+];
+
 /** The piece names each existing wearer socket can carry. */
 const PIECES: Readonly<
   Record<assembleCostumeArmour.Slot, readonly createArmour.Kind[]>
@@ -49,34 +61,27 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * that placement expressed in the slot bone's rest frame, so the piece rides
  * the bone through every pose:
  *
- * - a forearm or shank piece centres between the slot joint and the next
- *   joint down the limb (elbow and wrist, knee and ankle), `+Y` toward the
- *   upper joint;
- * - a gauntlet centres half the measured hand length from the wrist toward
- *   the middle finger's base, `+Y` toward the wrist;
- * - a helmet centres midway between the head joint and the vertex at stature;
- * - a cuirass or mail shirt hangs from the shoulder height, its centre half
- *   the piece's own height below it, over the chest joint.
+ * - A forearm or shank piece centres between the slot joint and the next joint
+ *   down the limb (elbow and wrist, knee and ankle), `+Y` toward the upper
+ *   joint;
+ * - A gauntlet centres half the measured hand length from the wrist toward the
+ *   middle finger's base, `+Y` toward the wrist;
+ * - A helmet centres midway between the head joint and the vertex at stature;
+ * - A cuirass or mail shirt hangs from the shoulder height, its centre half the
+ *   piece's own height below it, over the chest joint.
  *
- * @param params The performer id and body, and up to one distinct costume model per slot.
+ * @param params The performer id and body, and up to one distinct costume model
+ *   per slot.
  * @returns The models and their initial worn bindings for the scene.
- * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id, missing piece, a body without the slot's joints or a trunk piece without its height.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the slots, the segment each piece covers and how its centre and axes are placed.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the body's own rest joint positions and anthropometric measure to place each piece's documented wear centre on the segment it covers, then expresses that frame in the slot bone's chained rest rotation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit one piece per named slot, preserve its id, locate its segment on the rest body, then compute its worn binding.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No detached layer, duplicate geometry, baked actor mesh or fixed offset. Mismatched or reused pieces and bodies without the slot's joints refuse.
- * @evidence contracts/development/implementation.md#efficient-algorithms Processes at most eight pieces, each with one bone-chain walk of at most the rig's depth.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses canonical wear contacts, the body's rest record and the shared prop binding contract.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned bindings reference only the caller's models and independently owned offset records.
+ * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id,
+ *   missing piece, a body without the slot's joints or a trunk piece without
+ *   its height.
  */
 export function assembleCostumeArmour(
   params: assembleCostumeArmour.IParams,
 ): readonly assembleCostumeArmour.IPiece[] {
-  const slots: assembleCostumeArmour.Slot[] = Object.keys(
-    PIECES,
-  ) as assembleCostumeArmour.Slot[];
-  if (typeof params.subject !== "string" || params.subject.trim().length === 0)
+  const slots: readonly assembleCostumeArmour.Slot[] = SLOTS;
+  if (params.subject.trim().length === 0)
     throw refuse(
       "subject",
       params.subject,
@@ -90,14 +95,16 @@ export function assembleCostumeArmour(
 
   const ids: Set<string> = new Set();
   return entries.map(([name, model]): assembleCostumeArmour.IPiece => {
-    const bone: assembleCostumeArmour.Slot = ArchetypeDraw.choice(
+    const named: string = ArchetypeDraw.choice(
       "costumeArmour",
       "slot",
-      name as assembleCostumeArmour.Slot,
+      name,
       slots,
     );
+    const bone: assembleCostumeArmour.Slot = slots.find(
+      (slot: assembleCostumeArmour.Slot): boolean => slot === named,
+    )!;
     if (
-      !(model instanceof AutoMovieArchetype) ||
       model.archetype !== "armour" ||
       !PIECES[bone].some(
         (kind: createArmour.Kind): boolean => kind === model.name,
@@ -135,14 +142,7 @@ export function assembleCostumeArmour(
   });
 }
 
-/**
- * Costume piece selection and the binding consumed by a scene.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene identity, the wearer's rest body, accepted costume slots and separate worn models.
- * @evidence contracts/development/design.md#principled-representation Uses closed costume slots, the interface's own body record and canonical motion-prop worn records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each slot identifies one existing renderable model and one bone. The body exposes only the rest joints, bone records and measure the placement reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Duplicate ids, incompatible types and bodies without the slot's joints are refused during assembly.
- */
+/** Costume piece selection and the binding consumed by a scene. */
 export namespace assembleCostumeArmour {
   /** Bones supported by the existing head, chest, hand and limb costume pieces. */
   export type Slot =
@@ -161,7 +161,10 @@ export namespace assembleCostumeArmour {
     createArmour.Dimension
   >;
 
-  /** The wearer's T-pose rest joints in canonical world metres, its bone records and its anthropometric measure. */
+  /**
+   * The wearer's T-pose rest joints in canonical world metres, its bone records
+   * and its anthropometric measure.
+   */
   export type IWearer = Pick<
     IAutoMovieMotionHumanBody,
     "rest" | "bones" | "measure"
@@ -189,7 +192,10 @@ export namespace assembleCostumeArmour {
   }
 }
 
-/** The covered segment's centre frame on the rest body, world: `+Y` up the segment, `+Z` toward the front. */
+/**
+ * The covered segment's centre frame on the rest body, world: `+Y` up the
+ * segment, `+Z` toward the front.
+ */
 function segment(
   slot: assembleCostumeArmour.Slot,
   body: assembleCostumeArmour.IWearer,
@@ -232,7 +238,10 @@ function segment(
   );
 }
 
-/** A frame at a point with `+Y` along `up` and `+Z` as near the body's front as `up` allows. */
+/**
+ * A frame at a point with `+Y` along `up` and `+Z` as near the body's front as
+ * `up` allows.
+ */
 function frameAt(
   at: IAutoMovieVector3,
   up: IAutoMovieVector3,
@@ -240,7 +249,10 @@ function frameAt(
   return AutoMovieArchetypeFrame.facing(at, up, Vector3.cross(up, FORWARD));
 }
 
-/** A bone's rest frame in the world: its rest joint and its rotation chained from the root. */
+/**
+ * A bone's rest frame in the world: its rest joint and its rotation chained
+ * from the root.
+ */
 function restFrame(
   body: assembleCostumeArmour.IWearer,
   bone: AutoMovieHumanoidBone,

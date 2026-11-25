@@ -7,13 +7,15 @@ import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
 /**
  * Stations and sizes of one person, calibration millimetres.
  *
- * Keeps public chords, shared datums, original neck sources and explicitly separate shape priors available to actual source authors.
- * One layout feeds head mass and regional builders before any tree realization.
- * Data does not certify reference fit, actual tape closure, internal overlap or final join success.
- * Fields state calibration units and distinguish border direction, bulk relief, measurements and retained conventions.
- * A data interface performs no calculation.
- * Producers own each original preparation.
- * The caller owns numeric records and call-owned source closures; no global figure is retained.
+ * Keeps public chords, shared datums, original neck sources and explicitly
+ * separate shape priors available to actual source authors. One layout feeds
+ * head mass and regional builders before any tree realization. Data does not
+ * certify reference fit, actual tape closure, internal overlap or final join
+ * success. Fields state calibration units and distinguish border direction,
+ * bulk relief, measurements and retained conventions. A data interface performs
+ * no calculation. Producers own each original preparation. The caller owns
+ * numeric records and call-owned source closures; no global figure is
+ * retained.
  */
 export interface IAutoMovieHumanHeadLayout {
   /** Calibration millimetres per world millimetre. */
@@ -52,7 +54,10 @@ export interface IAutoMovieHumanHeadLayout {
   /** Vertex. */
   vertex: number;
 
-  /** Retained cranial axis ahead of the origin; the chosen g/op chord need not place it at their midpoint. */
+  /**
+   * Retained cranial axis ahead of the origin; the chosen g/op chord need not
+   * place it at their midpoint.
+   */
   centre: number;
 
   /** Head length, glabella to opisthocranion. */
@@ -64,10 +69,16 @@ export interface IAutoMovieHumanHeadLayout {
   /** Face height. */
   faceHeight: number;
 
-  /** Target half face width at the generating zygion, resolved from the public zy-zy caliper. */
+  /**
+   * Target half face width at the generating zygion, resolved from the public
+   * zy-zy caliper.
+   */
   faceWidth: number;
 
-  /** Target half mandibular width at the generating gonion; source emission is checked independently. */
+  /**
+   * Target half mandibular width at the generating gonion; source emission is
+   * checked independently.
+   */
   mandibularWidth: number;
 
   /** Half the minimum frontal width. */
@@ -80,13 +91,19 @@ export interface IAutoMovieHumanHeadLayout {
    */
   vault: number;
 
-  /** Actual-tape cranial diagonal-transfer power; affects native fullness above nasion only, preserving lower face/neck and all four original guides. */
+  /**
+   * Actual-tape cranial diagonal-transfer power; affects native fullness above
+   * nasion only, preserving lower face/neck and all four original guides.
+   */
   cranialTapePower?: number;
 
   /** Public head-tape target, calibration mm, with the retired correction. */
   tape: number;
 
-  /** Retained posterior reach; chosen-point chord closure is not a maximum-caliper certificate. */
+  /**
+   * Retained posterior reach; chosen-point chord closure is not a
+   * maximum-caliper certificate.
+   */
   reach: number;
 
   /** Half nose width: the alar lobules' half span. */
@@ -95,7 +112,10 @@ export interface IAutoMovieHumanHeadLayout {
   /** Tip's lead past the face. */
   noseLead: number;
 
-  /** Height of the jaw's border at the midline, solved so the skin's lowest chin point is the menton. */
+  /**
+   * Height of the jaw's border at the midline, solved so the skin's lowest chin
+   * point is the menton.
+   */
   border: number;
 
   /** Half mouth width. */
@@ -107,13 +127,22 @@ export interface IAutoMovieHumanHeadLayout {
   /** Lower vermilion height. */
   lowerLip: number;
 
-  /** Separate normal bulk shape priors, calibration mm; neither chord directions nor individual peak targets. */
+  /**
+   * Separate normal bulk shape priors, calibration mm; neither chord directions
+   * nor individual peak targets.
+   */
   lips: [number, number];
 
-  /** Retained multiple of maximum incisal mouth-opening capacity; unused by the resting source, not a rest lip gap. */
+  /**
+   * Retained multiple of maximum incisal mouth-opening capacity; unused by the
+   * resting source, not a rest lip gap.
+   */
   gap: number;
 
-  /** Retained multiple of lateral incisal excursion capacity; unused by the resting source, not measured joint fullness. */
+  /**
+   * Retained multiple of lateral incisal excursion capacity; unused by the
+   * resting source, not measured joint fullness.
+   */
   joint: number;
 
   /** Left eye. */
@@ -128,7 +157,10 @@ export interface IAutoMovieHumanHeadLayout {
   /** Columella's rise above the horizontal, radians. */
   columella: number;
 
-  /** Rounding radius of the nose's base into the lip, mm: the nose's own blend width (`AutoMovieHumanSeamUnion.width`). */
+  /**
+   * Rounding radius of the nose's base into the lip, mm: the nose's own blend
+   * width (`AutoMovieHumanSeamUnion.width`).
+   */
   round: number;
 
   /** The landmarks. */

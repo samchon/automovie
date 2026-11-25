@@ -5,7 +5,6 @@ import {
 } from "@automovie/interface";
 
 import { countAtLeast } from "./countAtLeast";
-import { finitePoint } from "./finitePoint";
 import { meshOf } from "./meshOf";
 
 /**
@@ -44,31 +43,33 @@ import { meshOf } from "./meshOf";
  *
  * The lattice carries a duplicate ring at `theta = 2 * pi`, which is what makes
  * the seam an honest cut: one edge of the seam reads zero and the other reads
- * the full circumference at that radius, so the closing quad never
- * interpolates backwards through the atlas. Those two phases coincide only
- * when the declared texture repeat divides that circumference; the kernel does
- * not stretch a finish to hide a mismatched seam. A changing radius also makes
- * the surface non-developable in general. Scaling by radius preserves local
- * circumference scale on every parallel and therefore shears the flat atlas
- * between unequal parallels instead of pretending one global isometry exists.
- * A meridian point on the axis is a pole, and its whole ring reads zero around,
- * because a circle of no radius has no arc to travel. Its collapsed triangles
- * remain the topology this operator declares; their UVs stay finite, and they
- * are the one place the atlas has no handedness to report. The duplicate seam
- * vertices share their accumulated face normals before normalization, and every
+ * the full circumference at that radius, so the closing quad never interpolates
+ * backwards through the atlas. Those two phases coincide only when the declared
+ * texture repeat divides that circumference; the kernel does not stretch a
+ * finish to hide a mismatched seam. A changing radius also makes the surface
+ * non-developable in general. Scaling by radius preserves local circumference
+ * scale on every parallel and therefore shears the flat atlas between unequal
+ * parallels instead of pretending one global isometry exists. A meridian point
+ * on the axis is a pole, and its whole ring reads zero around, because a circle
+ * of no radius has no arc to travel. Its collapsed triangles remain the
+ * topology this operator declares; their UVs stay finite, and they are the one
+ * place the atlas has no handedness to report. The duplicate seam vertices
+ * share their accumulated face normals before normalization, and every
  * duplicate of an axis pole shares that pole's normal as well, so the UV cut
  * does not introduce a lighting discontinuity.
  *
- * How far that shear goes decides what finish the surface can carry. The map
- * is exactly equiareal, its Jacobian determinant one everywhere, so the whole
+ * How far that shear goes decides what finish the surface can carry. The map is
+ * exactly equiareal, its Jacobian determinant one everywhere, so the whole
  * distortion is pure shear of `2 * pi - theta` times `dr / ds`. Worst
- * anisotropy over a full turn is therefore
- * `(sqrt(k * k + 4) + k) / (sqrt(k * k + 4) - k)` at `k = 2 * pi * |dr / ds|`:
- * 1.0 on a cylinder, 2.0 at 6.5 degrees off the axis, 4.0 at 13.8 degrees, 21.5
- * on a 45-degree cone, and 41 where the meridian runs level, which is what a
- * dome's pole and a cone's tip approach. A tile that reads square beside the
- * seam is drawn into a ribbon a quarter turn away, and the curve of constant
- * `u` spirals instead of following a meridian.
+ * anisotropy over a full turn is therefore `(sqrt(k * k + 4) + k) / (sqrt(k *
+ * k
+ *
+ * - 4) - k)`at`k = 2 * pi * |dr / ds|`: 1.0 on a cylinder, 2.0 at 6.5 degrees off
+ *   the axis, 4.0 at 13.8 degrees, 21.5 on a 45-degree cone, and 41 where the
+ *   meridian runs level, which is what a dome's pole and a cone's tip approach.
+ *   A tile that reads square beside the seam is drawn into a ribbon a quarter
+ *   turn away, and the curve of constant `u` spirals instead of following a
+ *   meridian.
  *
  * That is the price of the metric statement rather than a defect awaiting
  * repair. Measuring true arc around forces `u` to be `theta * r` plus some
@@ -85,18 +86,24 @@ import { meshOf } from "./meshOf";
  * must carry one is authored as flat faces through
  * {@link buildAutoMoviePolyhedron}, whose per-face frame is isometric, or as a
  * flat cap through {@link extrudeAutoMovieRegion}, and a spire built as facets
- * is how a spire is built anyway. {@link meshAutoMovieSweep} is not the
- * escape here that it is for the coordinate-less builders. It measures this
- * same pair, a tapered loft shears the same way, and it gives up something this
- * one keeps: the map here is exactly equiareal, while a loft's `v` is path
- * distance rather than surface distance, so a taper or a bend costs it texel
- * density on top of the angle. Where the form has to stay a true surface of
- * revolution, the finish on it stays non-directional.
+ * is how a spire is built anyway. {@link meshAutoMovieSweep} is not the escape
+ * here that it is for the coordinate-less builders. It measures this same pair,
+ * a tapered loft shears the same way, and it gives up something this one keeps:
+ * the map here is exactly equiareal, while a loft's `v` is path distance rather
+ * than surface distance, so a taper or a bend costs it texel density on top of
+ * the angle. Where the form has to stay a true surface of revolution, the
+ * finish on it stays non-directional.
  *
- * @param props.profile Meridian points from one end to the other, at least two, with finite coordinates and `x >= 0`.
- * @param props.segments Angular divisions of the full turn, a safe integer of at least 3.
- * @returns A new unskinned mesh of `(segments + 1) * profile.length` vertices and `2 * segments * (profile.length - 1)` triangles, with smooth normals and the metric atlas above.
- * @throws Error when the profile has fewer than two points, a coordinate is not finite, a radius is negative, or `segments` is not a safe integer of at least 3.
+ * @param props.profile Meridian points from one end to the other, at least two,
+ *   with finite coordinates and `x >= 0`.
+ * @param props.segments Angular divisions of the full turn, a safe integer of
+ *   at least 3.
+ * @returns A new unskinned mesh of `(segments + 1) * profile.length` vertices
+ *   and `2 * segments * (profile.length - 1)` triangles, with smooth normals
+ *   and the metric atlas above.
+ * @throws Error when the profile has fewer than two points, a coordinate is not
+ *   finite, a radius is negative, or `segments` is not a safe integer of at
+ *   least 3.
  */
 export const revolveAutoMovieProfile: (
   props: IAutoMovieRevolveProfile.IProps,
@@ -108,7 +115,6 @@ export const revolveAutoMovieProfile: (
   countAtLeast(props.segments, 3, "revolve segments");
   props.profile.forEach(
     (point: IAutoMovieProfilePoint, index: number): void => {
-      finitePoint(point, `revolve profile[${index}]`);
       if (point.x < 0)
         throw new Error(`revolve profile[${index}] radius must be >= 0`);
     },

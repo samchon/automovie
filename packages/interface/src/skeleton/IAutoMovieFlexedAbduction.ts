@@ -14,6 +14,9 @@ export interface IAutoMovieFlexedAbduction {
   /** The flexion at which the ceiling reaches `max`, degrees, above zero. */
   flexion: number;
 
-  /** The abduction ceiling at and beyond that flexion, degrees, at least the interval's own `max`. */
+  /**
+   * The abduction ceiling at and beyond that flexion, degrees, at least the
+   * interval's own `max`.
+   */
   max: number;
 }

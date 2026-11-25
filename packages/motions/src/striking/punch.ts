@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanoidSurfaces,
@@ -21,6 +22,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
@@ -28,63 +30,68 @@ import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRide } from "./StrikingRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
+import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { punchGeometry } from "./punchGeometry";
 import { punchLaunch } from "./punchLaunch";
+import { strikingReadBack } from "./strikingReadBack";
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftArm" | "rightArm";
+
+/** The alternatives of `PlanWhich`'s site. */
+type PlanWhich = "lead" | "rear";
+
+/** The alternatives of `HandResult`'s site. */
+type HandResult = "lead" | "rear";
 
 /**
  * A punch: the fist's knuckles brought onto the target along a measured path
  * and returned to the guard, with the trunk turning and the feet stepping or
  * pivoting to carry the shoulder.
  *
- * The law writes effector goals, not joint angles. The fist socket is
- * brought from where it is at the launch onto the target region's point
- * (another person's actual region, a prop point, a free point, or a virtual
- * opponent at range) on a minimum-jerk delivery that aims through the target
- * so the fist lands at 0.78 of its peak speed (Liu et al. 2022); the wrist
- * goal is the fist point less the hand-rotated socket offset, the elbow bend
- * hint and the shoulder carried by the trunk turn shape the arm, and the
- * engine's limb fit solves the joints. The target is tracked online with the
- * visuomotor latency ({@link StrikingAim}); the fist stops on the first
- * surface of the struck body it meets ({@link StrikingStroke}), so a guard on
- * the line is struck instead of the face it covers, and two punches thrown at
- * once meet whichever arm or head is in the way.
+ * The law writes effector goals, not joint angles. The fist socket is brought
+ * from where it is at the launch onto the target region's point (another
+ * person's actual region, a prop point, a free point, or a virtual opponent at
+ * range) on a minimum-jerk delivery that aims through the target so the fist
+ * lands at 0.78 of its peak speed (Liu et al. 2022); the wrist goal is the fist
+ * point less the hand-rotated socket offset, the elbow bend hint and the
+ * shoulder carried by the trunk turn shape the arm, and the engine's limb fit
+ * solves the joints. The target is tracked online with the visuomotor latency
+ * ({@link StrikingAim}); the fist stops on the first surface of the struck body
+ * it meets ({@link StrikingStroke}), so a guard on the line is struck instead of
+ * the face it covers, and two punches thrown at once meet whichever arm or head
+ * is in the way.
  *
- * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research
- * of #3201): `straight` lands nearly extended (elbow 5 to 25 degrees) along the
- * line, palm down; `hook` lands with the elbow near a right angle (70 to 100
- * degrees), arriving across the line, palm down; `uppercut` rises from below
- * with the elbow at 60 to 100 degrees, palm toward the puncher. A rear-hand
- * punch turns the trunk through to bring the rear shoulder forward and
- * pivots the rear foot on its ball; a lead hook turns the other way. A body
- * punch lowers the root through the knees. When the arm's band falls short,
- * the lead foot steps in by up to one stance length, never past the room in
- * front of the arms ({@link StrikingRoom}) and never toward a target that no
- * place on the line brings within the band, and the rear foot drags
- * from mid-delivery to mid-return (the IBA stepping jab), so no planted foot
- * is left behind a travelling hip; the trunk's turn is shared by the pelvis
- * and the lumbar and thoracic spine. Beyond that the fist extends
- * along the line at the band's reach and falls short, the declared
- * miss-at-maximum-reach rule.
+ * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research of
+ * the research): `straight` lands nearly extended (elbow 5 to 25 degrees) along
+ * the line, palm down; `hook` lands with the elbow near a right angle (70 to
+ * 100 degrees), arriving across the line, palm down; `uppercut` rises from
+ * below with the elbow at 60 to 100 degrees, palm toward the puncher. A
+ * rear-hand punch turns the trunk through to bring the rear shoulder forward
+ * and pivots the rear foot on its ball; a lead hook turns the other way. A body
+ * punch lowers the root through the knees. When the arm's band falls short, the
+ * lead foot steps in by up to one stance length, never past the room in front
+ * of the arms ({@link StrikingRoom}) and never toward a target that no place on
+ * the line brings within the band, and the rear foot drags from mid-delivery to
+ * mid-return (the IBA stepping jab), so no planted foot is left behind a
+ * travelling hip; the trunk's turn is shared by the pelvis and the lumbar and
+ * thoracic spine. Beyond that the fist extends along the line at the band's
+ * reach and falls short, the declared miss-at-maximum-reach rule.
  *
- * Timing: a lone punch takes the elite cross's 0.310 s (Cheraghi et al.
- * 2014) scaled by its own path to the target over the rear hand's, so a jab
- * is faster (`StrikingSkill.lone`, derived and provisional); a punch that follows another punch's contact keeps the measured
- * combination intervals, 0.35 s between alternating hands and 0.45 s for the
- * same hand at elite skill (Piorkowski et al. 2011), counted from that
- * contact. The return to the guard takes one alternating interval. Skill
- * scales them ({@link StrikingSkill}): the delivery and both intervals by the
- * strike phase's factor, the intervals' scaling derived and provisional
- * (`StrikingSkill.interval`), and a seeded guard drop may hold the returning
- * glove low before it reaches the guard. A feint shows a share of the
- * delivery without contact and returns in the same time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, the reach and step-in rule, the timing with sources, the guard drop and the feint, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table chaining punches from contact, parameters with closed technique and hand unions, and a pure plan of postures in world metres and seconds with capsule weapons.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the hand resolution and the plan the law table, the defence and the rules read; the contact, the footwork and the stroke are built by {@link punchGeometry}.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target, accuracy, posture, plan and weapon types; every length comes from the punching body's measure.
+ * Timing: a lone punch takes the elite cross's 0.310 s (Cheraghi et al. 2014)
+ * scaled by its own path to the target over the rear hand's, so a jab is faster
+ * (`StrikingSkill.lone`, derived and provisional); a punch that follows another
+ * punch's contact keeps the measured combination intervals, 0.35 s between
+ * alternating hands and 0.45 s for the same hand at elite skill (Piorkowski et
+ * al. 2011), counted from that contact. The return to the guard takes one
+ * alternating interval. Skill scales them ({@link StrikingSkill}): the delivery
+ * and both intervals by the strike phase's factor, the intervals' scaling
+ * derived and provisional (`StrikingSkill.interval`), and a seeded guard drop
+ * may hold the returning glove low before it reaches the guard. A feint shows a
+ * share of the delivery without contact and returns in the same time.
  */
 export namespace punch {
   /** The action's name. */
@@ -108,18 +115,8 @@ export namespace punch {
    *
    * @param params The parameters.
    * @returns The lead or the rear hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The parameter's own documentation states the defaults this resolves.
-   * @evidence contracts/development/implementation.md#principled-implementation The declared hand, else the rear for an uppercut and the lead otherwise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function hand(
-    params: IAutoMovieMotionHumanPunch.IParams,
-  ): "lead" | "rear" {
+  export function hand(params: IAutoMovieMotionHumanPunch.IParams): HandResult {
     return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
   }
 
@@ -128,15 +125,8 @@ export namespace punch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When a feint's share lies outside (0, 1), or the plan is read back while it is being built.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the wrist through the contact point solved by the two-segment reach with the target tracked online; the performance's joint contact resolution stops the arm's capsules, after which the arm and trunk retrace the approach to the guard.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing first, the geometry built on first use, and every posture, contact window, weapon and record read from it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the step-in and the arm's band is the declared miss at maximum reach, not a stretched arm; provisional constants are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the display's limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and one stop second until plan release. Optional FK/ROM loans are borrowed only by the current full posture/weapon observation and never retained in the plan or goal.
+   * @throws {Error} When a feint's share lies outside (0, 1), or the plan is
+   *   read back while it is being built.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
@@ -144,9 +134,9 @@ export namespace punch {
     const p: IAutoMovieMotionHumanPunch.IParams = context.params;
     if (p.feint !== undefined && !(p.feint > 0 && p.feint < 1))
       throw new Error("A feint shows a share of the delivery in (0, 1)");
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const which: "lead" | "rear" = hand(p);
-    const side: "left" | "right" =
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
+    const which: PlanWhich = hand(p);
+    const side: AutoMovieHumanSide =
       which === "lead" ? lead : StrikingStance.rear({ lead });
 
     // Delivery: from the previous punch's contact at the combination
@@ -164,7 +154,7 @@ export namespace punch {
         0.9 * (measure.upperArm + measure.forearm) +
         0.5 * measure.shoulderHalfWidth,
     );
-    const rearSide: "left" | "right" = StrikingStance.rear({ lead });
+    const rearSide: AutoMovieHumanSide = StrikingStance.rear({ lead });
     const fists: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
@@ -224,8 +214,6 @@ export namespace punch {
       { name: "recovered", share: 1 },
     ];
 
-    // Geometry reads the target, which may only be read from postures: it is
-    // built on first use and dropped when the performance settles.
     // A contact resolved jointly by the performance (null: it met nothing).
     // A punch that offers its arm as a weapon is shown on its free path until
     // the performance commits its stop, as the joint resolution assumes of
@@ -245,8 +233,7 @@ export namespace punch {
     // anywhere along it (as when two crosses cross), and the resolution meets
     // the arm the figure shows, the upper arm tapered from the shoulder's
     // girth to the elbow's.
-    const limb: "leftArm" | "rightArm" =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: PlanLimb = side === "left" ? "leftArm" : "rightArm";
     const course: StrikingWeapon.Course = (
       at: number,
       _channels?: Parameters<StrikingWeapon.Course>[1],
@@ -296,26 +283,25 @@ export namespace punch {
     };
 
     // The contact the performance committed, and the stopped arm's ride on
-    // the body it met ({@link StrikingRide}), built on first use.
-    let met: IAutoMovieMotionWeaponContact | null = null;
-    let ride: StrikingRide.IRide | undefined;
+    // the body it met ({@link StrikingRide}), solved when the plan is
+    // prepared; none before.
+    const stops: StrikingStopRide.IStop = StrikingStopRide(
+      (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
+        StrikingRide.create({
+          other: (): IAutoMovieMotionHumanPerformerReader =>
+            context.performer(event.against),
+          stop: event.seconds,
+          goal: (at: number): IAutoMovieVector3 =>
+            geometry().posture(at - context.start).limbs[limb]!.point,
+          axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+            StrikingWeapon.axis(chain, event.weapon, at),
+        }),
+    );
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture => {
-      if (met === null) return posture;
-      const event: IAutoMovieMotionWeaponContact = met;
-      ride ??= StrikingRide.create({
-        other: (): IAutoMovieMotionHumanPerformerReader =>
-          context.performer(event.against),
-        stop: event.seconds,
-        goal: (at: number): IAutoMovieVector3 =>
-          geometry().posture(at - context.start).limbs[limb]!.point,
-        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
-          StrikingWeapon.axis(chain, event.weapon, at),
-      });
-      return ride.carry(posture, limb, context.start + seconds);
-    };
+    ): IAutoMovieMotionHumanPosture =>
+      stops.carry(posture, limb, context.start + seconds);
     // The point aimed at within a person's region, varied per repeat: one
     // offset on the region's tangent plane, read by the aim, by the defence
     // that answers this punch and so by the record. The region's radius comes
@@ -325,7 +311,7 @@ export namespace punch {
     // The punch's aim skill is the manner's consistency for this spread only.
     const manner: IAutoMovieMotionHumanPunch.IManner | undefined = p.manner;
     const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-      AutoMovieMotionHumanVariation.of(
+      AutoMovieMotionHumanVariation(
         context,
         manner === undefined
           ? undefined
@@ -338,50 +324,33 @@ export namespace punch {
                 : { consistency: manner.aimSkill }),
             },
       );
-    let tangent: IAutoMovieHumanoidSurfaces.ITangent | undefined;
-    const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined => {
-      if (
-        source === undefined ||
-        p.at.kind !== "person" ||
-        !resolveAutoMovieHumanoidSurfaces.rayed(p.at.region)
-      )
-        return undefined;
-      tangent ??= AutoMovieMotionHumanVariation.strike(source, "point", {
-        radius: StrikingBody.radius(
-          context.performer(p.at.subject).body,
-          p.at.region,
-        ),
-        scatter: 0,
-      });
-      return tangent;
-    };
-    let built: punchGeometry.IGeometry | undefined;
-    let building: boolean = false;
+    // A closed form of the struck body's region and the seeded stream, so it
+    // is drawn again wherever it is read.
+    const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined =>
+      source === undefined ||
+      p.at.kind !== "person" ||
+      !resolveAutoMovieHumanoidSurfaces.rayed(p.at.region)
+        ? undefined
+        : AutoMovieMotionHumanVariation.strike(source, "point", {
+            radius: StrikingBody.radius(
+              context.performer(p.at.subject).body,
+              p.at.region,
+            ),
+            scatter: 0,
+          });
 
-    // What the punch reads of its own entry alone, made once for the plan;
-    // the geometry, which follows the target and the committed stop, is
-    // built on it at every settle.
-    let launched: punchLaunch.ILaunch | undefined;
-    const geometry = (): punchGeometry.IGeometry => {
-      if (built !== undefined) return built;
-      if (building)
-        throw new Error(
-          `${context.subject}: the punch was read back while it was being planned`,
-        );
-      building = true;
-      try {
-        built = punchGeometry.build(
-          context,
-          timing,
-          fixed,
-          aimed(),
-          (launched ??= punchLaunch(context, timing)),
-        );
-      } finally {
-        building = false;
-      }
-      return built;
-    };
+    // The geometry the plan solved when it was prepared, on the target and
+    // the committed stop as the placed performance shows them; before that,
+    // each read builds it cold on the performance as placed so far.
+    // What the punch reads of its own entry alone, made once for the plan.
+    const launched: punchLaunch.ILaunch = punchLaunch(context, timing);
+    const shape: AutoMovieMotionPrepared.IValue<punchGeometry.IGeometry> =
+      AutoMovieMotionPrepared(
+        (): punchGeometry.IGeometry =>
+          punchGeometry.build(context, timing, fixed, aimed(), launched),
+        (): Error => strikingReadBack("punch", context.subject),
+      );
+    const geometry = (): punchGeometry.IGeometry => shape.read();
     const out: IAutoMovieMotionHumanStrikingRecord.IPlan = {
       duration,
       events,
@@ -402,21 +371,20 @@ export namespace punch {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return carried(geometry().posture(t, source, projection), t);
       },
-      settle: (): void => {
-        built = undefined;
-        ride = undefined;
+      prepare: (): void => {
+        shape.prepare();
+        stops.prepare();
       },
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
             stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
-              met = StrikingWeapon.first(found);
-              fixed = met === null ? null : met.seconds;
-              ride = undefined;
+              fixed = stops.stop(found);
 
-              // The geometry is built on the stop it was given: a stop
-              // committed now makes it another, whoever settles after.
-              built = undefined;
+              // The geometry is solved on the stop it was given: a stop
+              // committed now makes it another, which the next preparation
+              // solves.
+              shape.clear();
             },
           }
         : {}),

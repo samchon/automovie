@@ -17,18 +17,23 @@ import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 
+/** The alternatives of `BendPreset`'s site. */
+type BendPreset =
+  | IAutoMovieMotionHumanBend.Arm
+  | IAutoMovieMotionHumanBend.IShares;
+
 /**
  * What an authoring spec is on a body: a place in shares and in metres, an
  * elbow preset in shares and in metres, an amount as a share and in degrees,
- * the inverse from metres to shares, and a table of every name across a set
- * of bodies.
+ * the inverse from metres to shares, and a table of every name across a set of
+ * bodies.
  *
  * A law is written in names and shares, and a correction is asked for in
  * centimetres ("3 cm further forward"). This owner shows both sides, so an
- * author reads what a spec is on a body before a capture and turns a
- * requested distance into the nudge that states it. Metres are in the
- * performer's floor frame: the origin on the floor under the root, `x` to
- * the performer's left, `y` up, `z` forward.
+ * author reads what a spec is on a body before a capture and turns a requested
+ * distance into the nudge that states it. Metres are in the performer's floor
+ * frame: the origin on the floor under the root, `x` to the performer's left,
+ * `y` up, `z` forward.
  */
 export namespace AutoMovieMotionHumanResolve {
   /**
@@ -38,7 +43,8 @@ export namespace AutoMovieMotionHumanResolve {
    * @param side The acting hand.
    * @param place The place, on any rung.
    * @returns Both readings.
-   * @throws {Error} When the place is refused by `AutoMovieMotionHumanTargetGrid.place`.
+   * @throws {Error} When the place is refused by
+   *   `AutoMovieMotionHumanTargetGrid.place`.
    */
   export function place(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -93,7 +99,7 @@ export namespace AutoMovieMotionHumanResolve {
    */
   export function bend(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
-    preset: IAutoMovieMotionHumanBend.Arm | IAutoMovieMotionHumanBend.IShares,
+    preset: BendPreset,
     out: number = 0,
   ): IAutoMovieMotionHumanResolve.IBend {
     const base: IAutoMovieMotionHumanBend.IShares =
@@ -122,7 +128,8 @@ export namespace AutoMovieMotionHumanResolve {
    * @param motion The motion.
    * @param amount The amount, on any rung.
    * @returns Both readings.
-   * @throws {Error} When the amount is refused by `AutoMovieMotionHumanRange.degrees`.
+   * @throws {Error} When the amount is refused by
+   *   `AutoMovieMotionHumanRange.degrees`.
    */
   export function amount(
     bone: AutoMovieHumanoidBone,
@@ -146,7 +153,8 @@ export namespace AutoMovieMotionHumanResolve {
    * per joint motion with one column per level.
    *
    * @param bodies The bodies, in column order.
-   * @returns The table, lines joined by a line feed; lengths in metres to three decimals, angles in degrees to two.
+   * @returns The table, lines joined by a line feed; lengths in metres to three
+   *   decimals, angles in degrees to two.
    */
   export function table(
     bodies: readonly IAutoMovieMotionHumanResolve.IBody[],
@@ -237,17 +245,18 @@ export namespace AutoMovieMotionHumanResolve {
   }
 
   /**
-   * The solved elbow beside the `hang` preset on a set of bodies, as text:
-   * one row per place with one column per body.
+   * The solved elbow beside the `hang` preset on a set of bodies, as text: one
+   * row per place with one column per body.
    *
-   * Each body stands at rest heading +Z, and the left wrist is put on the
-   * place with no hand rotation. A cell gives the angle from the preset's
-   * elbow to the solved one about the line from the shoulder to the wrist,
-   * then the strain of the solved elbow and the strain of the preset's. A
-   * place the arm cannot reach reads `out of reach`.
+   * Each body stands at rest heading +Z, and the left wrist is put on the place
+   * with no hand rotation. A cell gives the angle from the preset's elbow to
+   * the solved one about the line from the shoulder to the wrist, then the
+   * strain of the solved elbow and the strain of the preset's. A place the arm
+   * cannot reach reads `out of reach`.
    *
    * @param bodies The bodies, in column order.
-   * @returns The table, lines joined by a line feed; angles in whole degrees, strains to three decimals.
+   * @returns The table, lines joined by a line feed; angles in whole degrees,
+   *   strains to three decimals.
    */
   export function swivel(
     bodies: IAutoMovieMotionHumanResolve.ISwivelBodies,
@@ -336,7 +345,10 @@ export namespace AutoMovieMotionHumanResolve {
   }
 }
 
-/** The grid places the swivel table lists beside the named ones: the places of `stopPalm`, `wave` and `raiseHand`, and a hand at the hip. */
+/**
+ * The grid places the swivel table lists beside the named ones: the places of
+ * `stopPalm`, `wave` and `raiseHand`, and a hand at the hip.
+ */
 const SWIVEL_GRIDS: readonly IAutoMovieMotionHumanTargetGrid.IGrid[] = [
   { height: "shoulder", lateral: "inside", distance: "far" },
   { height: "eye", lateral: "outside", distance: "near" },
@@ -344,7 +356,10 @@ const SWIVEL_GRIDS: readonly IAutoMovieMotionHumanTargetGrid.IGrid[] = [
   { height: "hip", lateral: "outside", distance: "close" },
 ];
 
-/** The joints the table lists: the trunk and the head, and the left limbs, which the right mirror. */
+/**
+ * The joints the table lists: the trunk and the head, and the left limbs, which
+ * the right mirror.
+ */
 const BONES: readonly AutoMovieHumanoidBone[] = [
   "spine",
   "chest",
@@ -360,4 +375,3 @@ const BONES: readonly AutoMovieHumanoidBone[] = [
   "leftLowerLeg",
   "leftFoot",
 ];
-

@@ -10,6 +10,7 @@ import {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
@@ -32,8 +33,8 @@ import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
  *
  * Morph targets that `buildModel` recorded as pose-driven take the weights
  * `resolveMorphTargetWeights` computes from the same pose, so a corrective
- * follows every applied pose; expression-written targets are left alone.
- * Every skinned mesh then starts a new pose revision
+ * follows every applied pose; expression-written targets are left alone. Every
+ * skinned mesh then starts a new pose revision
  * ({@link invalidateAutoMovieSkinnedPose}), so its bounds and vertex queries
  * follow the pose the shader draws.
  *
@@ -75,9 +76,9 @@ export const applyPose: (
     const drivers:
       | readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[]
       | null = morphTargetDriversOf(object);
-    const mesh: THREE.Mesh = object as THREE.Mesh;
+    if (drivers === null || !AutoMovieThreeKind.isMesh(object)) return;
+    const mesh: THREE.Mesh = object;
     if (
-      drivers === null ||
       mesh.morphTargetDictionary === undefined ||
       mesh.morphTargetInfluences === undefined
     )

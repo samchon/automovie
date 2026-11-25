@@ -33,26 +33,18 @@ const GEOMETRY: Readonly<{
 };
 
 /**
- * One coarse hockey skate, resting on the runner with the toe toward +Z.
- * Its intended foot length and runner length are from the CCM 2016 size guide.
- * The boot, holder and steel cross section use provisional outer dimensions.
+ * One coarse hockey skate, resting on the runner with the toe toward +Z. Its
+ * intended foot length and runner length are from the CCM 2016 size guide. The
+ * boot, holder and steel cross section use provisional outer dimensions.
  * https://www.iceglace.com/catalogues/Catalogue_ICE_CCM_2016.pdf
  *
  * @param params The scene id and optional mass in kilograms.
  * @param seed Draws the mass if the author leaves it open.
  * @returns A skate with a boot socket and three runner contact sites.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the part, geometry, measured dimensions, contacts and provisional inputs.
- * @evidence contracts/development/implementation.md#principled-implementation Places the collar above the boot and builds the runner and both holder posts from the same dimensions as their contact sites.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass draw, dimensions for the boot and runner, two holder placements and four contact sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts References the published size without presenting the straight steel strip or boot-shell approximation as a replica.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed part and contact count.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call draws and constructs its own object.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no work after publishing the archetype.
  */
 export function createIceSkate(
   params: createIceSkate.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createIceSkate.Affordance, "mass"> {
   const draw: AutoMovieArchetypeDrawSession<"mass"> =
     new AutoMovieArchetypeDrawSession("iceSkate", { mass: "kg" }, seed, params);
@@ -125,14 +117,7 @@ export function createIceSkate(
   return builder.build(mass);
 }
 
-/**
- * Scene inputs and named positions of the skate.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the boot and runner locations and the input units.
- * @evidence contracts/development/design.md#principled-representation One mass input and four physical alignment sites.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Gives scene placement one boot socket and measurable runner positions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the part coordinates for every contact.
- */
+/** Scene inputs and named positions of the skate. */
 export namespace createIceSkate {
   /** The boot socket, runner centerline and its two lower edges. */
   export type Affordance = "boot" | "blade" | "leftEdge" | "rightEdge";
@@ -142,7 +127,10 @@ export namespace createIceSkate {
     /** Scene id, unique when staging more than one skate. */
     id?: string;
 
-    /** Mass in kilograms, drawn from the documented provisional band when absent. */
+    /**
+     * Mass in kilograms, drawn from the documented provisional band when
+     * absent.
+     */
     mass?: number;
   }
 }

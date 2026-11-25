@@ -3,9 +3,7 @@ import {
   type IAutoMovieWorldTerrain,
 } from "@automovie/interface";
 
-/**
- * Construct a flat world surface from an authored XZ footprint and height.
- */
+/** Construct a flat world surface from an authored XZ footprint and height. */
 export const worldTerrain: (
   input: IAutoMovieWorldTerrain.IInput,
 ) => IAutoMovieWorldSurface = (

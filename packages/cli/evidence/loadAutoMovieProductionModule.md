@@ -8,7 +8,7 @@ States which packages it serves, why they come from the production, and the refu
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One anchored require.
+One anchored require, its exports typed by the caller's declared module type `T`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

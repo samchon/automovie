@@ -7,16 +7,29 @@ import type {
 import type { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 
 /**
- * A world-anchored swing's path between its footholds, the same path the one-dimensional track gives a straight course.
+ * A world-anchored swing's path between its footholds, the same path the
+ * one-dimensional track gives a straight course.
  *
- * The lifting foothold is read in the body frame of its release and the landing foothold in the body frame of its touchdown; the swing blends the two there by its eased share and the current body carries the blend, so the hoof moves under the body as the body moves on, not along a world chord the body outruns. On a straight course both footholds sit at fixed offsets in the body frame, so this is exactly the one-dimensional track's swing. Its height follows the world chord between the footholds, so ground it rises over keeps its world height. At both ends the hoof is on the ground and at rest in the world: the world chord between the footholds gives way to the body-carried path by weight, nil at both ends, as the one-dimensional track's does, so a hoof never drags on the ground it leaves or meets.
+ * The lifting foothold is read in the body frame of its release and the landing
+ * foothold in the body frame of its touchdown; the swing blends the two there
+ * by its eased share and the current body carries the blend, so the hoof moves
+ * under the body as the body moves on, not along a world chord the body
+ * outruns. On a straight course both footholds sit at fixed offsets in the body
+ * frame, so this is exactly the one-dimensional track's swing. Its height
+ * follows the world chord between the footholds, so ground it rises over keeps
+ * its world height. At both ends the hoof is on the ground and at rest in the
+ * world: the world chord between the footholds gives way to the body-carried
+ * path by weight, nil at both ends, as the one-dimensional track's does, so a
+ * hoof never drags on the ground it leaves or meets.
  */
 export namespace QuadrupedSwingChord {
   /**
    * The body's placement when a stance releases its hoof.
    *
    * @param stance The stance.
-   * @returns Its release placement: read at release when the stance has it, else its touchdown placement carried along its own heading by the stance's travel, as a straight stance moves.
+   * @returns Its release placement: read at release when the stance has it,
+   *   else its touchdown placement carried along its own heading by the
+   *   stance's travel, as a straight stance moves.
    */
   export function release(
     stance: QuadrupedHoofTrack.IStance,
@@ -37,7 +50,10 @@ export namespace QuadrupedSwingChord {
   }
 
   /**
-   * The body path's share of a swing at its eased share: 1 - (1 - sin(pi s))^2, nil at both ends and one mid-swing, rising fast after liftoff and falling late before touchdown. The hoof's end velocity is nil with the ends alone: there the ground path and the body path meet at the foothold.
+   * The body path's share of a swing at its eased share: 1 - (1 - sin(pi s))^2,
+   * nil at both ends and one mid-swing, rising fast after liftoff and falling
+   * late before touchdown. The hoof's end velocity is nil with the ends alone:
+   * there the ground path and the body path meet at the foothold.
    *
    * @param amount The swing's eased share, 0 to 1.
    * @returns The weight.
@@ -48,7 +64,8 @@ export namespace QuadrupedSwingChord {
   }
 
   /**
-   * One coordinate of a swing: the ground path's and the body path's, blended by `weight`.
+   * One coordinate of a swing: the ground path's and the body path's, blended
+   * by `weight`.
    *
    * @param ground The ground path's coordinate.
    * @param body The body path's coordinate.

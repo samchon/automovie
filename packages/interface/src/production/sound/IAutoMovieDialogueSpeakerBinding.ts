@@ -1,6 +1,4 @@
-/**
- * An explicit speaker-to-actor identity pair supplied to the viseme join.
- */
+/** An explicit speaker-to-actor identity pair supplied to the viseme join. */
 export interface IAutoMovieDialogueSpeakerBinding {
   /** Authored speaker identity carried by the dialogue line. */
   speaker: string;

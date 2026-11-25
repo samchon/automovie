@@ -8,14 +8,14 @@ import {
 import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
- * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century
- * and later, steel, wood, staghorn and pigment: "Overall: 5 9/16 × 2 13/16 ×
- * 44 7/8 inches (14.2 × 7.1 × 114 cm) Overall (barrel): 31 15/16 inches
- * (81.1 cm)", photographed in seven gallery views, reproduction credited to
- * the Gift of the William Randolph Hearst Foundation
- * (https://dia.org/collection/matchlock-gun/31695, read 2026-11-21). The
- * record gives no mass, barrel radius or length of pull, so those are
- * provisional estimates.
+ * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century and
+ * later, steel, wood, staghorn and pigment: "Overall: 5 9/16 × 2 13/16 × 44 7/8
+ * inches (14.2 × 7.1 × 114 cm) Overall (barrel): 31 15/16 inches (81.1 cm)",
+ * photographed in seven gallery views, reproduction credited to the Gift of the
+ * William Randolph Hearst Foundation
+ * (https://dia.org/collection/matchlock-gun/31695, read 2026-11-21). The record
+ * gives no mass, barrel radius or length of pull, so those are provisional
+ * estimates.
  */
 const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
   name: "stage matchlock",
@@ -34,22 +34,14 @@ const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
  * An inert matchlock silhouette for the screen.
  *
  * The gun lies along `+Z` from its butt plate to its muzzle, as
- * `StagePeriodGunConstruction` lays it. Its lock is a serpentine, the
- * S-shaped arm that lowers the glowing match into the pan, on the right of
- * the breech, and a coil of match cord hangs from it. The `serpentine` is the
- * thumb's place on the arm and the `match` the cord's burning end over the
- * `pan`. No mechanism moves: the prop is exterior geometry for the camera.
+ * `StagePeriodGunConstruction` lays it. Its lock is a serpentine, the S-shaped
+ * arm that lowers the glowing match into the pan, on the right of the breech,
+ * and a coil of match cord hangs from it. The `serpentine` is the thumb's place
+ * on the arm and the `match` the cord's burning end over the `pan`. No
+ * mechanism moves: the prop is exterior geometry for the camera.
  *
  * @param params The optional scene id.
  * @returns The inert model and its contact frames, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the record, the frame and the lock's contacts, and that nothing moves.
- * @evidence contracts/development/implementation.md#principled-implementation Lays the shared stock and barrel at the DIA record's overall and barrel lengths, then the serpentine, pan and match at the breech.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared stock and contacts first, then this lock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Mass, barrel radius and pull are named provisional estimates in the record string.
- * @evidence contracts/development/implementation.md#efficient-algorithms Nine parts and ten contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stock construction with the percussion rifle.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createStageMatchlock(
   params: createStageMatchlock.IParams = {},
@@ -114,16 +106,12 @@ export function createStageMatchlock(
   return StagePeriodGunConstruction.build(builder, PROFILE);
 }
 
-/**
- * The inputs and contacts of {@link createStageMatchlock}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the lock contacts and the recorded dimensions.
- * @evidence contracts/development/design.md#principled-representation The shared handling contacts plus this lock's three, and the read lengths and mass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the matchlock's own lock contacts beside the shared ones.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The record fixes the silhouette, so no dimension is authorable.
- */
+/** The inputs and contacts of {@link createStageMatchlock}. */
 export namespace createStageMatchlock {
-  /** The lock's contacts: the pan, the serpentine's thumb place and the match's burning end. */
+  /**
+   * The lock's contacts: the pan, the serpentine's thumb place and the match's
+   * burning end.
+   */
   export type Lock = "pan" | "serpentine" | "match";
 
   /** The shared handling and sling contacts and this lock's. */

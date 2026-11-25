@@ -5,9 +5,7 @@ import {
 
 import { pushViolation } from "./pushViolation";
 
-/**
- * Scan string-valued ids with a seen set, reporting later occurrences at supplied paths.
- */
+/** Scan ids with a seen set, reporting later occurrences at supplied paths. */
 export const validateUniqueBy: (
   entries: IAutoMovieValidateUniqueBy.IEntries,
   label: string,
@@ -19,7 +17,6 @@ export const validateUniqueBy: (
 ): void => {
   const seen: Set<string> = new Set<string>();
   for (const entry of entries) {
-    if (typeof entry.id !== "string") continue;
     if (seen.has(entry.id))
       pushViolation(
         violations,

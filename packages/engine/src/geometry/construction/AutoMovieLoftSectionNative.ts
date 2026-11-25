@@ -32,28 +32,29 @@ type Station = IAutoMovieViewSectionField.IStationJet;
 type Reader = (phi: number) => IAutoMovieViewChain.IReading | null;
 
 /**
- * Cartesian readings of the original native scalar generating field.
- * Explicit numeric rejection uses the internal admission error; exceptions
- * raised by input getters are not intercepted or reclassified here.
+ * Cartesian readings of the original native scalar generating field. Explicit
+ * numeric rejection uses the internal admission error; exceptions raised by
+ * input getters are not intercepted or reclassified here.
  *
  * A source that declares touch offsets or quarter split points
  * (`IAutoMovieViewPart.ITop`) is read as its conic chain
  * (`AutoMovieViewChain`): the guide on support line q stands at its extent
- * along the chart axis and its touch offset across it, with the tangent of
- * that support line; each split point of a quarter stands at its own (u, v)
- * with the tangent at its angle, in the quarter's order; each arc keeps its
- * own shoulder. Every chain reading takes its point and direction from the
- * chain's one ray reader, so Point0 and value read the arc point alone and
- * the derivative capabilities add their jets on that same ray. The chain is
- * G1, so its radius is C1 in phase; at a join whose curvatures differ the
- * second phase derivatives are the starting arc's alone. Such a source
- * therefore has no eight-scalar boundary law (`AutoMovieLoftSectionBoundary`
- * refuses it) and its loft declares C1 (`AutoMovieViewLoft`). A source
- * without them keeps the four-quarter reading unchanged.
+ * along the chart axis and its touch offset across it, with the tangent of that
+ * support line; each split point of a quarter stands at its own (u, v) with the
+ * tangent at its angle, in the quarter's order; each arc keeps its own
+ * shoulder. Every chain reading takes its point and direction from the chain's
+ * one ray reader, so Point0 and value read the arc point alone and the
+ * derivative capabilities add their jets on that same ray. The chain is G1, so
+ * its radius is C1 in phase; at a join whose curvatures differ the second phase
+ * derivatives are the starting arc's alone. Such a source therefore has no
+ * eight-scalar boundary law (`AutoMovieLoftSectionBoundary` refuses it) and its
+ * loft declares C1 (`AutoMovieViewLoft`). A source without them keeps the
+ * four-quarter reading unchanged.
  */
 export namespace AutoMovieLoftSectionNative {
   /**
-   * Prepare the numeric source once when a consumer needs Point0 inversion and a later phase tangent.
+   * Prepare the numeric source once when a consumer needs Point0 inversion and
+   * a later phase tangent.
    */
   export function curve(
     inputs: IAutoMovieLoftViewRead.IValues,
@@ -69,9 +70,7 @@ export namespace AutoMovieLoftSectionNative {
     return { point: pointFrom(geometry), phase: phaseFrom(geometry) };
   }
 
-  /**
-   * Prepare finite value/phase geometry using NUMBER alone.
-   */
+  /** Prepare finite value/phase geometry using NUMBER alone. */
   export function phase(
     inputs: IAutoMovieLoftViewRead.IValues,
   ): (phi: number) => IAutoMovieLoftSectionPhase {
@@ -79,9 +78,7 @@ export namespace AutoMovieLoftSectionNative {
     return phaseFrom(prepare(inputs));
   }
 
-  /**
-   * Prepare the existing radial phase jet without inspection partitions.
-   */
+  /** Prepare the existing radial phase jet without inspection partitions. */
   export function radial(
     inputs: IAutoMovieLoftViewRead.IValues,
   ): (phi: number) => IAutoMoviePolarSector.Jet {
@@ -103,9 +100,7 @@ export namespace AutoMovieLoftSectionNative {
       AutoMovieViewConic.radius(geometry, phi);
   }
 
-  /**
-   * Prepare the original radius value required by scalar dimension constraints.
-   */
+  /** Prepare the original radius value required by scalar dimension constraints. */
   export function value(
     inputs: IAutoMovieLoftViewRead.IValues,
   ): (phi: number) => number {
@@ -121,9 +116,7 @@ export namespace AutoMovieLoftSectionNative {
     return (phi: number): number => AutoMovieViewConic.value(geometry, phi);
   }
 
-  /**
-   * The numeric chain of a source declaring touch offsets or split points.
-   */
+  /** The numeric chain of a source declaring touch offsets or split points. */
   export function chain(
     inputs: IAutoMovieLoftViewRead.IValues,
   ): IAutoMovieViewChain.ISection | string {
@@ -137,9 +130,7 @@ export namespace AutoMovieLoftSectionNative {
     return prepared.fault ?? prepared;
   }
 
-  /**
-   * Prepare exactly the finite Cartesian value capability of the native source.
-   */
+  /** Prepare exactly the finite Cartesian value capability of the native source. */
   export function point(
     inputs: IAutoMovieLoftViewRead.IValues,
   ): (phi: number) => [number, number] {
@@ -147,9 +138,7 @@ export namespace AutoMovieLoftSectionNative {
     return pointFrom(prepare(inputs));
   }
 
-  /**
-   * Prepare actual physical source2 and retain its one numeric primal lookup.
-   */
+  /** Prepare actual physical source2 and retain its one numeric primal lookup. */
   export function jet(
     inputs: IAutoMovieLoftViewRead.IJets,
   ): (phi: number) => IAutoMovieLoftSectionJet {
@@ -212,7 +201,10 @@ function declares(inputs: {
   );
 }
 
-/** Each quarter's ordered split points: one split as a one-point list, a split list as it stands; a source declaring both is refused. */
+/**
+ * Each quarter's ordered split points: one split as a one-point list, a split
+ * list as it stands; a source declaring both is refused.
+ */
 function lists<T>(
   splits: readonly T[] | undefined,
   pieces: readonly (readonly T[])[] | undefined,
@@ -258,10 +250,10 @@ function valued(
  * The view source's chain at one station: guide q on its support line at its
  * extent along the chart axis and its touch offset (the `v` of the `+u`/`-u`
  * guides, the `u` of the `+v`/`-v` guides) across it, tangent along that line
- * in increasing phase; then quarter q's split points in order, each at its
- * (u, v) with the tangent at its angle; the arcs' shoulders in chain order
- * (the quarter's own shoulder for the arc leaving its guide, each split
- * point's shoulder for the arc it starts).
+ * in increasing phase; then quarter q's split points in order, each at its (u,
+ * v) with the tangent at its angle; the arcs' shoulders in chain order (the
+ * quarter's own shoulder for the arc leaving its guide, each split point's
+ * shoulder for the arc it starts).
  */
 function controls(
   extents: readonly Station[],
@@ -374,7 +366,10 @@ function chainPoint(
   };
 }
 
-/** A chain's point and its first two phase derivatives on its ray reader's direction. */
+/**
+ * A chain's point and its first two phase derivatives on its ray reader's
+ * direction.
+ */
 function chainPhase(read: Reader): (phi: number) => IAutoMovieLoftSectionPhase {
   return (phi: number): IAutoMovieLoftSectionPhase => {
     const at: IAutoMovieViewChain.IReading = met(read, phi);
@@ -386,7 +381,10 @@ function chainPhase(read: Reader): (phi: number) => IAutoMovieLoftSectionPhase {
   };
 }
 
-/** The direction of an arc point, admitted finite and away from the course point. */
+/**
+ * The direction of an arc point, admitted finite and away from the course
+ * point.
+ */
 function towards(point: readonly [number, number]): Direction {
   const size: number = Math.hypot(point[0], point[1]);
   if (!(Number.isFinite(size) && size > 0))
@@ -397,7 +395,10 @@ function towards(point: readonly [number, number]): Direction {
   return { p: [point[0], point[1]], radial, turn: [-radial[1], radial[0]] };
 }
 
-/** The six Cartesian vectors of a radial Hessian `[r, s, phi, ss, sphi, phiphi]` along one ray. */
+/**
+ * The six Cartesian vectors of a radial Hessian `[r, s, phi, ss, sphi, phiphi]`
+ * along one ray.
+ */
 function cartesianJet(
   at: Direction,
   radial: readonly number[],
@@ -418,7 +419,10 @@ function cartesianJet(
   });
 }
 
-/** Share one caller-owned numeric station without changing this capability's admission. */
+/**
+ * Share one caller-owned numeric station without changing this capability's
+ * admission.
+ */
 function phaseFrom(
   geometry: IAutoMovieViewConic.ICurve,
 ): (phi: number) => IAutoMovieLoftSectionPhase {
@@ -433,7 +437,10 @@ function phaseFrom(
   };
 }
 
-/** Share one caller-owned numeric station without changing this capability's admission. */
+/**
+ * Share one caller-owned numeric station without changing this capability's
+ * admission.
+ */
 function pointFrom(
   geometry: IAutoMovieViewConic.ICurve,
 ): (phi: number) => [number, number] {
@@ -458,7 +465,10 @@ function pointFrom(
   };
 }
 
-/** The shared geometry-only preparation preserves NUMBER operation and input order. */
+/**
+ * The shared geometry-only preparation preserves NUMBER operation and input
+ * order.
+ */
 function prepare(
   inputs: IAutoMovieLoftViewRead.IValues,
 ): IAutoMovieViewConic.ICurve {
@@ -489,7 +499,10 @@ function prepare(
   };
 }
 
-/** Forward the raw requested phase to its one numeric owner, including tiny negative distances. */
+/**
+ * Forward the raw requested phase to its one numeric owner, including tiny
+ * negative distances.
+ */
 function locate(
   geometry: IAutoMovieViewConic.ICurve,
   phi: number,
@@ -505,7 +518,10 @@ function locate(
   return ray;
 }
 
-/** Quarter rotations are exact sign/swaps; the native inverse has already restored its own reflection. */
+/**
+ * Quarter rotations are exact sign/swaps; the native inverse has already
+ * restored its own reflection.
+ */
 function direction(ray: IAutoMovieViewConic.IRay): Direction {
   const p: [number, number] = cartesian(ray);
   const size: number = Math.hypot(p[0], p[1]);
@@ -517,7 +533,10 @@ function direction(ray: IAutoMovieViewConic.IRay): Direction {
   return { p, radial, turn: [-radial[1], radial[0]] };
 }
 
-/** Preserve the exact quarter sign/swaps, including signed zero, for both capabilities. */
+/**
+ * Preserve the exact quarter sign/swaps, including signed zero, for both
+ * capabilities.
+ */
 function cartesian(
   ray: Pick<IAutoMovieViewConic.IRay, "point" | "quarter">,
 ): [number, number] {
@@ -531,7 +550,10 @@ function cartesian(
         : [z, -x];
 }
 
-/** Exactly value/phase/phase2 of rho*er; physical source partials are not required here. */
+/**
+ * Exactly value/phase/phase2 of rho*er; physical source partials are not
+ * required here.
+ */
 function polarPhase(
   at: Direction,
   radial: readonly [number, number, number],
@@ -553,7 +575,10 @@ function polarPhase(
   });
 }
 
-/** Each capability validates exactly its required returned vectors after conversion. */
+/**
+ * Each capability validates exactly its required returned vectors after
+ * conversion.
+ */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
   if (
     !Object.values(out).every(

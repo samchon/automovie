@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is read and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A capsule of linearly tapering radius against the body's own profile colliders, with the median plane for the elbow's side.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The reading and its prepared form; `HumanArmClearance` owns the colliders it is read against and the arm readings built on it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The radius is the body's measured forearm radius; no margin is added and no law is named.
-
-# src/posture/HumanArmOvershoot.ts#HumanArmOvershoot.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the unit, each input's frame and the meaning of 0.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
@@ -44,13 +26,13 @@ The same evaluate owner serves this one-off reading and prepare's varying candid
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Existing weak frame/room caches remain unchanged. This one-off call creates a query map only at an exact query, retains no point/result and releases it on return or throw.
+The room is built for this call alone. This one-off call creates a query map only at an exact query, retains no point/result and releases it on return or throw.
 
 # src/posture/HumanArmOvershoot.ts#HumanArmOvershoot.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines fixed dependencies, lazy first use, varying world-metre points and operation ownership.
+Defines fixed dependencies, the room built at preparation, varying world-metre points and operation ownership.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -74,4 +56,4 @@ Caller-owned fixed placed frames, shapes and scalar goal metadata establish equi
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The fit owns the closure, borrowed lists and at most S lazy opaque geometry readers until return or throw; none enter global room/frame caches, a result, a body memory or a returned plan.
+The fit owns the closure, borrowed lists and at most S lazy opaque geometry readers until return or throw; no room or frame is kept beyond the reader, a result, a body memory or a returned plan.

@@ -7,9 +7,15 @@ import {
 } from "@automovie/interface";
 
 /**
- * Build a playback layout and the shot index shared by frame, event and editorial marker consumers.
+ * Build a playback layout and the shot index shared by frame, event and
+ * editorial marker consumers.
  *
- * The sequence must have passed cutSequence: source trims, playback rates and output overlaps already fit their respective clocks. This preparation still refuses empty cuts, duplicate supplied shot ids, missing referenced shots, a first-entry transition and nondefault rates that cannot produce a representable output interval. Extra supplied shots are indexed but do not add playback entries.
+ * The sequence must have passed cutSequence: source trims, playback rates and
+ * output overlaps already fit their respective clocks. This preparation still
+ * refuses empty cuts, duplicate supplied shot ids, missing referenced shots, a
+ * first-entry transition and nondefault rates that cannot produce a
+ * representable output interval. Extra supplied shots are indexed but do not
+ * add playback entries.
  *
  * @returns The output-clock timeline and its unambiguous supplied-shot index.
  */
@@ -50,16 +56,9 @@ export function preparePlaybackTimeline(
         (entry.trim?.duration ?? found.shot.duration) / rate;
       const start: number = cursor - (entry.transition?.duration ?? 0);
       const end: number = start + played;
-      if (
-        rate !== 1 &&
-        (!Number.isFinite(rate) ||
-          !(rate > 0) ||
-          !Number.isFinite(end) ||
-          !(played > 0) ||
-          !(end > start))
-      )
+      if (rate !== 1 && (!(rate > 0) || !(played > 0) || !(end > start)))
         throw new Error(
-          `sequence.shots[${index}].playbackRate must be finite and positive and produce a representable output span`,
+          `sequence.shots[${index}].playbackRate must be positive and produce a representable output span`,
         );
       entries.push({
         entry: index,

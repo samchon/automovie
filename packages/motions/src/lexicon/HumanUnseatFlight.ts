@@ -1,13 +1,98 @@
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+/** The projectile with a push built over `TAKE`, at `t` seconds. */
+function position(
+  origin: IAutoMovieVector3,
+  velocity: IAutoMovieVector3,
+  push: IAutoMovieVector3,
+  t: number,
+): IAutoMovieVector3 {
+  const g: number = AutoMovieGravity.STANDARD;
+  const built: number = Math.min(t, HumanUnseatFlight.TAKE);
+  const after: number = Math.max(0, t - HumanUnseatFlight.TAKE);
+  // The push's displacement: t^2 / (2 TAKE) while it builds, then its full velocity.
+  const pushed: number = (built * built) / (2 * HumanUnseatFlight.TAKE) + after;
+  return {
+    x: origin.x + velocity.x * t + push.x * pushed,
+    y: origin.y + velocity.y * t + push.y * pushed - 0.5 * g * t * t,
+    z: origin.z + velocity.z * t + push.z * pushed,
+  };
+}
+
+/** The least positive root of a t^2 + b t + c = 0, if any. */
+function first(a: number, b: number, c: number): number | undefined {
+  if (Math.abs(a) < 1e-12) return b < 0 ? -c / b : undefined;
+  const d: number = b * b - 4 * a * c;
+  if (d < 0) return undefined;
+  const roots: number[] = [
+    (-b + Math.sqrt(d)) / (2 * a),
+    (-b - Math.sqrt(d)) / (2 * a),
+  ].filter((t: number): boolean => t > 0);
+  return roots.length === 0 ? undefined : Math.min(...roots);
+}
+
 /**
- * The closed-form path of a rider leaving a saddle (`HumanUnseat`): from the release the root keeps the saddle's velocity and gains the fall's push over `TAKE` seconds at a constant rate, so the velocity has no jump; it flies under standard gravity to the height it lies or stands at, then slides on the floor under Coulomb friction until it stops.
+ * Solve a flight from its release to the height `floor`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three phases and their laws; the push time and friction are provisional.
- * @evidence contracts/development/design.md#principled-representation A flight as its release state, push and landing, evaluated in closed form at any second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The flight record, its solver and its reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The release velocity is the caller's measured one; nothing is simulated.
+ * @param origin The root at the release.
+ * @param velocity Its velocity then.
+ * @param push The velocity the fall adds.
+ * @param floor The root's height when it lands.
+ * @returns The flight.
+ */
+export function HumanUnseatFlight(
+  origin: IAutoMovieVector3,
+  velocity: IAutoMovieVector3,
+  push: IAutoMovieVector3,
+  floor: number,
+): HumanUnseatFlight.IFlight {
+  const g: number = AutoMovieGravity.STANDARD;
+  const drop: number = origin.y - floor;
+  // In the push phase the height above the landing is drop + vy t + (py / (2 TAKE) - g / 2) t^2.
+  const a: number = push.y / (2 * HumanUnseatFlight.TAKE) - g / 2;
+  const early: number | undefined = first(a, velocity.y, drop);
+  let land: number;
+  if (drop <= 0) land = 0;
+  else if (early !== undefined && early <= HumanUnseatFlight.TAKE) land = early;
+  else {
+    const top: IAutoMovieVector3 = position(
+      origin,
+      velocity,
+      push,
+      HumanUnseatFlight.TAKE,
+    );
+    const rise: number = velocity.y + push.y - g * HumanUnseatFlight.TAKE;
+    land =
+      HumanUnseatFlight.TAKE +
+      (rise + Math.sqrt(rise * rise + 2 * g * (top.y - floor))) / g;
+  }
+  const landed: IAutoMovieVector3 = {
+    ...position(origin, velocity, push, land),
+    y: floor,
+  };
+  const level: IAutoMovieVector3 = {
+    x: velocity.x + push.x * Math.min(1, land / HumanUnseatFlight.TAKE),
+    y: 0,
+    z: velocity.z + push.z * Math.min(1, land / HumanUnseatFlight.TAKE),
+  };
+  return {
+    origin,
+    velocity,
+    push,
+    land,
+    landed,
+    slide: level,
+    stop: Vector3.length(level) / (HumanUnseatFlight.FRICTION * g),
+  };
+}
+
+/**
+ * The closed-form path of a rider leaving a saddle (`HumanUnseat`): from the
+ * release the root keeps the saddle's velocity and gains the fall's push over
+ * `TAKE` seconds at a constant rate, so the velocity has no jump; it flies
+ * under standard gravity to the height it lies or stands at, then slides on the
+ * floor under Coulomb friction until it stops.
  */
 export namespace HumanUnseatFlight {
   /** Seconds the fall's push builds over (provisional). */
@@ -16,14 +101,7 @@ export namespace HumanUnseatFlight {
   /** Sliding friction of a clothed body on turf (provisional). */
   export const FRICTION: number = 0.5;
 
-  /**
-   * One flight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation origin: The root at the release. velocity: Its velocity then. push: The velocity the fall adds over `TAKE`. land: Seconds from the release to the landing. landed: The root at the landing. slide: Its level velocity on landing. stop: Seconds from the landing until it stops.
-   * @evidence contracts/development/design.md#principled-representation Vectors in world metres and metres per second, times in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `at`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** One flight. */
   export interface IFlight {
     /** The root at the release. */
     origin: IAutoMovieVector3;
@@ -48,76 +126,12 @@ export namespace HumanUnseatFlight {
   }
 
   /**
-   * Solve a flight from its release to the height `floor`.
-   *
-   * @param origin The root at the release.
-   * @param velocity Its velocity then.
-   * @param push The velocity the fall adds.
-   * @param floor The root's height when it lands.
-   * @returns The flight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The landing is the first root of the height's quadratic in the push phase, else in the free phase; the slide's stopping time is the level speed over the friction's deceleration.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two quadratics and a quotient.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A release already at or below the height lands at once.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solved once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record.
-   */
-  export function of(
-    origin: IAutoMovieVector3,
-    velocity: IAutoMovieVector3,
-    push: IAutoMovieVector3,
-    floor: number,
-  ): IFlight {
-    const g: number = AutoMovieGravity.STANDARD;
-    const drop: number = origin.y - floor;
-    // In the push phase the height above the landing is drop + vy t + (py / (2 TAKE) - g / 2) t^2.
-    const a: number = push.y / (2 * TAKE) - g / 2;
-    const early: number | undefined = first(a, velocity.y, drop);
-    let land: number;
-    if (drop <= 0) land = 0;
-    else if (early !== undefined && early <= TAKE) land = early;
-    else {
-      const top: IAutoMovieVector3 = position(origin, velocity, push, TAKE);
-      const rise: number = velocity.y + push.y - g * TAKE;
-      land =
-        TAKE + (rise + Math.sqrt(rise * rise + 2 * g * (top.y - floor))) / g;
-    }
-    const landed: IAutoMovieVector3 = {
-      ...position(origin, velocity, push, land),
-      y: floor,
-    };
-    const level: IAutoMovieVector3 = {
-      x: velocity.x + push.x * Math.min(1, land / TAKE),
-      y: 0,
-      z: velocity.z + push.z * Math.min(1, land / TAKE),
-    };
-    return {
-      origin,
-      velocity,
-      push,
-      land,
-      landed,
-      slide: level,
-      stop: Vector3.length(level) / (FRICTION * g),
-    };
-  }
-
-  /**
-   * The root at a second after the release: flying until the landing, then sliding to a stop.
+   * The root at a second after the release: flying until the landing, then
+   * sliding to a stop.
    *
    * @param flight The flight.
    * @param t Seconds from the release.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The projectile with a linearly built push, then a uniformly decelerating slide along the landing's level velocity.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One branch per phase.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
    */
   export function at(flight: IFlight, t: number): IAutoMovieVector3 {
     if (t <= flight.land)
@@ -133,36 +147,5 @@ export namespace HumanUnseatFlight {
     const run: number =
       speed * s - 0.5 * FRICTION * AutoMovieGravity.STANDARD * s * s;
     return Vector3.add(flight.landed, Vector3.scale(flight.slide, run / speed));
-  }
-
-  /** The projectile with a push built over `TAKE`, at `t` seconds. */
-  function position(
-    origin: IAutoMovieVector3,
-    velocity: IAutoMovieVector3,
-    push: IAutoMovieVector3,
-    t: number,
-  ): IAutoMovieVector3 {
-    const g: number = AutoMovieGravity.STANDARD;
-    const built: number = Math.min(t, TAKE);
-    const after: number = Math.max(0, t - TAKE);
-    // The push's displacement: t^2 / (2 TAKE) while it builds, then its full velocity.
-    const pushed: number = (built * built) / (2 * TAKE) + after;
-    return {
-      x: origin.x + velocity.x * t + push.x * pushed,
-      y: origin.y + velocity.y * t + push.y * pushed - 0.5 * g * t * t,
-      z: origin.z + velocity.z * t + push.z * pushed,
-    };
-  }
-
-  /** The least positive root of a t^2 + b t + c = 0, if any. */
-  function first(a: number, b: number, c: number): number | undefined {
-    if (Math.abs(a) < 1e-12) return b < 0 ? -c / b : undefined;
-    const d: number = b * b - 4 * a * c;
-    if (d < 0) return undefined;
-    const roots: number[] = [
-      (-b + Math.sqrt(d)) / (2 * a),
-      (-b - Math.sqrt(d)) / (2 * a),
-    ].filter((t: number): boolean => t > 0);
-    return roots.length === 0 ? undefined : Math.min(...roots);
   }
 }

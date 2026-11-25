@@ -6,11 +6,18 @@ import {
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
 /**
- * Declared lattice, state-payload and spray counts derived from one fluid domain.
+ * Declared lattice, state-payload and spray counts derived from one fluid
+ * domain.
  *
- * No step is integrated. `measureRenderSimulation` consumes the cell count and spray cap; `validateFluidDomain` separately enforces authored population budgets. The record is not validated here, so invalid or extreme fields can produce non-finite estimates.
+ * No step is integrated. `measureRenderSimulation` consumes the cell count and
+ * spray cap; `validateFluidDomain` separately enforces authored population
+ * budgets. The record is not validated here, so invalid or extreme fields can
+ * produce non-finite estimates.
  *
- * `stateBytes` counts eight bytes per depth or face velocity, excluding JavaScript array/object overhead, solver scratch arrays, surface buffers and spray storage. `worstCaseCellUpdates` is cells times maxSteps for one maximum seek, excluding face/flow work and repeated stateless seeks.
+ * `stateBytes` counts eight bytes per depth or face velocity, excluding
+ * JavaScript array/object overhead, solver scratch arrays, surface buffers and
+ * spray storage. `worstCaseCellUpdates` is cells times maxSteps for one maximum
+ * seek, excluding face/flow work and repeated stateless seeks.
  */
 export const fluidDomainBudget: (
   domain: IAutoMovieFluidDomain,

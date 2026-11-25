@@ -29,15 +29,26 @@ const STILL: IAutoMovieRigidTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-/**
- * World hand placements shared by wearable prop actions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Uses displayed bone and grip frames to place, recover and validate wearable props.
- * @evidence contracts/development/design.md#principled-representation Rigid ownership transfers are solved from the actual grip transform and the desired model pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The helpers keep grip frames, named model contacts and shared limb goals in their owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No anatomy, FK rule or limit is duplicated.
- */
+/** World hand placements shared by wearable prop actions. */
 export namespace wardrobeHands {
+  /** Admit a hand that is free to work the closure. */
+  export function closureHand(
+    side: AutoMovieHumanSide,
+    held: string | undefined,
+  ): void {
+    if (held !== undefined)
+      throw refusal("side", side, "free the hand that works the zip");
+  }
+
+  /** Admit a supported jacket close enough to the wearer's own collar. */
+  export function sleeveMount(subject: string, distance: number): void {
+    if (distance > 0.12)
+      throw refusal(
+        "prop",
+        subject,
+        "the jacket must be seated on the performer before threading this sleeve",
+      );
+  }
   /** What every wardrobe mode names: the staged wearable prop. */
   export interface IPropParams {
     /** The wearable prop's scene id. */
@@ -99,7 +110,10 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Local affordance lookup with one actionable refusal for absent or incompatible sockets. */
+  /**
+   * Local affordance lookup with one actionable refusal for absent or
+   * incompatible sockets.
+   */
   export function site(
     prop: IAutoMovieMotionHumanPropReader["prop"],
     id: string,
@@ -168,8 +182,8 @@ export namespace wardrobeHands {
   /**
    * Assign a grip target to one arm while preserving every other part of the
    * posture. A channel demand that leaves the arm out (`courseArmGoal`'s, while
-   * the arm is on its planned course) takes the posture as it is, with no
-   * elbow search for a goal no reader takes.
+   * the arm is on its planned course) takes the posture as it is, with no elbow
+   * search for a goal no reader takes.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
@@ -238,7 +252,10 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Construct a declared grip that takes custody at closure, or steadies the receiver. */
+  /**
+   * Construct a declared grip that takes custody at closure, or steadies the
+   * receiver.
+   */
   export function contact(
     prop: string,
     side: AutoMovieHumanSide,
@@ -255,7 +272,10 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Reject incomplete authorship or a geometric fit that the wearer cannot take. */
+  /**
+   * Reject incomplete authorship or a geometric fit that the wearer cannot
+   * take.
+   */
   export function refusal(
     axis: string,
     value: unknown,
@@ -303,21 +323,23 @@ export namespace wardrobeHands {
   ): number {
     return Math.max(
       0.23,
-      AutoMovieMotionHumanTiming.of(Vector3.distance(a.position, b.position), {
+      AutoMovieMotionHumanTiming(Vector3.distance(a.position, b.position), {
         solid: false,
       }),
     );
   }
 
-  /** Drive the slider with a hand after the jacket has transferred onto the chest. */
+  /**
+   * Drive the slider with a hand after the jacket has transferred onto the
+   * chest.
+   */
   export function zipper(
     context: IAutoMovieMotionHumanActionContext<IPropParams>,
     side: AutoMovieHumanSide,
     reverse: boolean,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params }: typeof context = context;
-    if (entry.holds[side] !== undefined)
-      throw refusal("side", side, "free the hand that works the zip");
+    closureHand(side, entry.holds[side]);
     const reader: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
     const model: IAutoMovieRigidTransform = reader.frame(context.start - 1e-6);
     const slider: IAutoMovieAffordance = site(reader.prop, "zip", "slider");

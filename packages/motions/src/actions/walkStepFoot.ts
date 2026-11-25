@@ -1,5 +1,6 @@
 import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
@@ -11,35 +12,81 @@ import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
 
+/** The record of `IScheduleEndsResult`'s site. */
+type IScheduleEndsResult = {
+  from: IAutoMovieMotionHumanWalkFoot.IFoot;
+  to: IAutoMovieMotionHumanWalkFoot.IFoot;
+};
+
+/** The record of `IScheduleEndsItem`'s site. */
+type IScheduleEndsItem = {
+  from: IAutoMovieMotionHumanWalkFoot.IFoot;
+  to: IAutoMovieMotionHumanWalkFoot.IFoot;
+};
+
+/** The record of `IWindowsStancesItem`'s site. */
+type IWindowsStancesItem = {
+  side: AutoMovieHumanSide;
+  from: number;
+  to: number;
+};
+
+/** The record of `IWindowsB`'s site. */
+type IWindowsB = { name: string; seconds: number };
+
+/** The record of `IWindowsA`'s site. */
+type IWindowsA = { name: string; seconds: number };
+
+/** The record of `IWindowsEventsItem`'s site. */
+type IWindowsEventsItem = { name: string; seconds: number };
+
+/** The record of `IWindowsResult`'s site. */
+type IWindowsResult = {
+  events: IWindowsEventsItemResult[];
+  stances: IWindowsStancesItemResult[];
+};
+
+/** The record of `IWindowsStancesItemResult`'s site. */
+type IWindowsStancesItemResult = {
+  side: AutoMovieHumanSide;
+  from: number;
+  to: number;
+};
+
+/** The record of `IWindowsEventsItemResult`'s site. */
+type IWindowsEventsItemResult = { name: string; seconds: number };
+
 /**
  * Each foot's schedule in a walk's footstep plan (`walkSteps`): from its
- * footfalls, the stance it holds before its first toe-off, the swing between
- * a toe-off and the next heel strike, and the stance on each footprint
- * after it, the rockers of each stance being `walkFoot`'s.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a foot's schedule is made of and who owns the rockers.
- * @evidence contracts/development/design.md#principled-representation The footfall as data and one schedule built over a side's footfalls.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The footfall, the toe-off pitches, the instants and stance spans, and the schedule, read by the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A swing's two halves read the stances it joins, so no foot place is typed.
+ * footfalls, the stance it holds before its first toe-off, the swing between a
+ * toe-off and the next heel strike, and the stance on each footprint after it,
+ * the rockers of each stance being `walkFoot`'s.
  */
 export namespace walkStepFoot {
-  /** The toe-off pitch of a straight step, degrees toes-down: the toes' joints are extended about 55° at the end of pre-swing, the toes still flat on the floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves the ankle behind the advancing hip, so the trailing knee straightens through pre-swing where it bends. */
+  /**
+   * The toe-off pitch of a straight step, degrees toes-down: the toes' joints
+   * are extended about 55° at the end of pre-swing, the toes still flat on the
+   * floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves
+   * the ankle behind the advancing hip, so the trailing knee straightens
+   * through pre-swing where it bends.
+   */
   export const PUSH: number = 55;
 
-  /** The share of its straight push-off pitch a foot turned from the pelvis by `walkReach.TWIST` keeps: the ankle plantarflexion at toe-off of a step turn against straight walking, 1.37° against 10.37° (Ficanha, Rastgaar, Moridian and Mahmoudian 2013, ASME DSCC2013-3782, motion capture; the straight value as the same group reports it in US patent 9,849,003), a turning step pivoting more and pushing less in the sagittal plane (Hase and Stein 1999). */
+  /**
+   * The share of its straight push-off pitch a foot turned from the pelvis by
+   * `walkReach.TWIST` keeps: the ankle plantarflexion at toe-off of a step turn
+   * against straight walking, 1.37° against 10.37° (Ficanha, Rastgaar, Moridian
+   * and Mahmoudian 2013, ASME DSCC2013-3782, motion capture; the straight value
+   * as the same group reports it in US patent 9,849,003), a turning step
+   * pivoting more and pushing less in the sagittal plane (Hase and Stein
+   * 1999).
+   */
   export const TURNED_SHARE: number = 1.37 / 10.37;
 
-  /**
-   * One footfall.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The side, the two instants, the flat footprint, its heading and the push-off before it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by the plan and the schedule.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The footprint is a placement, the ankle derived by `HumanFoot`.
-   */
+  /** One footfall. */
   export interface IStep {
     /** The foot. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** When the heel strikes, seconds. */
     heelStrike: number;
@@ -53,21 +100,22 @@ export namespace walkStepFoot {
     /** The footprint's heading, degrees. */
     heading: number;
 
-    /** The toe-off pitch of the foot leaving for this footfall, degrees, negative. */
+    /**
+     * The toe-off pitch of the foot leaving for this footfall, degrees,
+     * negative.
+     */
     push: number;
 
-    /** Whether the foot travels backward to this footfall: its stances' rockers run in reverse (`walkFoot.prepareStance`). False when absent. */
+    /**
+     * Whether the foot travels backward to this footfall: its stances' rockers
+     * run in reverse (`walkFoot.prepareStance`). False when absent.
+     */
     backward?: boolean;
   }
 
   /**
-   * A foot that enters a walk in the air, as a hurdler's trail leg comes
-   * over the bar: where it is and how fast it moves at the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The entry's own foot record: its placement and toes, and its world velocity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by the schedule's first swing.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the walk foot and vector types.
+   * A foot that enters a walk in the air, as a hurdler's trail leg comes over
+   * the bar: where it is and how fast it moves at the start.
    */
   export interface IAirborne {
     /** The foot at the start: its placement, world metres, and toes. */
@@ -78,34 +126,26 @@ export namespace walkStepFoot {
   }
 
   /**
-   * Set each footfall's push-off: a foot turned from the pelvis at its
-   * toe-off pushes off less, since a turning step pivots more and pushes
-   * less in the sagittal plane (Hase and Stein 1999): the pitch falls to
-   * `TURNED_SHARE` of the straight one (Ficanha et al. 2013) as the turn
-   * reaches `walkReach.TWIST`, linearly between (the interpolation is
-   * provisional, no intermediate turn having been read), and a leg kept straight leaves the floor nearly
-   * flat, a steep push-off needing the knee it does not bend.
+   * Set each footfall's push-off: a foot turned from the pelvis at its toe-off
+   * pushes off less, since a turning step pivots more and pushes less in the
+   * sagittal plane (Hase and Stein 1999): the pitch falls to `TURNED_SHARE` of
+   * the straight one (Ficanha et al. 2013) as the turn reaches
+   * `walkReach.TWIST`, linearly between (the interpolation is provisional, no
+   * intermediate turn having been read), and a leg kept straight leaves the
+   * floor nearly flat, a steep push-off needing the knee it does not bend.
    *
    * @param steps The footfalls, in order; each one's `push` is set.
    * @param start Each foot flat where the walk begins.
    * @param yaw The pelvis's heading at a second, degrees.
    * @param push The straight step's push-off pitch, degrees toes-down.
    * @param stiff The leg kept straight, if any.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both rules, their sources and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation The turn a foot leaves is its last heading against the pelvis's at the toe-off; the pitch falls with it and is capped for a straight knee.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `TURNED_SHARE` is the cited ratio; only the linear fall between straight and fully turned is provisional, and stated so.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the footfalls.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes the footfalls given and retains nothing.
    */
   export function pushed(
     steps: readonly IStep[],
-    start: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    start: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     yaw: (seconds: number) => number,
     push: number,
-    stiff?: "left" | "right",
+    stiff?: AutoMovieHumanSide,
   ): void {
     for (const side of ["left", "right"] as const) {
       let leaving: number = HumanFoot.heading(start[side].rotation);
@@ -117,7 +157,9 @@ export namespace walkStepFoot {
         );
         step.push =
           -push *
-          (1 - (1 - TURNED_SHARE) * Math.min(1, Math.abs(turned) / walkReach.TWIST));
+          (1 -
+            (1 - TURNED_SHARE) *
+              Math.min(1, Math.abs(turned) / walkReach.TWIST));
         if (stiff === side)
           step.push = Math.max(step.push, -walkFoot.STIFF_PUSH);
         leaving = step.heading;
@@ -131,26 +173,17 @@ export namespace walkStepFoot {
    * @param steps The footfalls, in order.
    * @param last The last footfall, seconds.
    * @param duration The walk's length, seconds.
-   * @returns Each foot's numbered toe-offs and heel strikes with the last footfall and the arrival, in time order, and each foot's stances from the start to the end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and both results.
-   * @evidence contracts/development/implementation.md#principled-implementation A stance runs from a heel strike to the foot's next toe-off; the first from the start, the last to the end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the instants, one per foot for the stances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every footfall names both its instants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the footfalls but the sort.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new arrays and retains nothing.
+   * @returns Each foot's numbered toe-offs and heel strikes with the last
+   *   footfall and the arrival, in time order, and each foot's stances from the
+   *   start to the end.
    */
   export function windows(
     steps: readonly IStep[],
     last: number,
     duration: number,
-  ): {
-    events: { name: string; seconds: number }[];
-    stances: { side: "left" | "right"; from: number; to: number }[];
-  } {
+  ): IWindowsResult {
     const counts: Record<string, number> = {};
-    const events: { name: string; seconds: number }[] = [];
+    const events: IWindowsEventsItem[] = [];
     for (const step of steps) {
       counts[step.side] = (counts[step.side] ?? 0) + 1;
       events.push(
@@ -168,13 +201,8 @@ export namespace walkStepFoot {
       { name: "lastFootfall", seconds: last },
       { name: "arrive", seconds: duration },
     );
-    events.sort(
-      (
-        a: { name: string; seconds: number },
-        b: { name: string; seconds: number },
-      ): number => a.seconds - b.seconds,
-    );
-    const stances: { side: "left" | "right"; from: number; to: number }[] = [];
+    events.sort((a: IWindowsA, b: IWindowsB): number => a.seconds - b.seconds);
+    const stances: IWindowsStancesItem[] = [];
     for (const side of ["left", "right"] as const) {
       let from: number = 0;
       for (const step of steps.filter((s: IStep): boolean => s.side === side)) {
@@ -194,23 +222,21 @@ export namespace walkStepFoot {
    * @param side The foot.
    * @param start The foot flat where the walk begins.
    * @param own The foot's footfalls, in order.
-   * @param typical The gait's cruising stance, seconds, which an opening or closing stance's rockers take their shares of (`walkFoot.prepareStance`).
+   * @param typical The gait's cruising stance, seconds, which an opening or
+   *   closing stance's rockers take their shares of
+   *   (`walkFoot.prepareStance`).
    * @param raised How far the gait holds the heels off the floor, degrees.
    * @param inPlace A stepping turn without a heel strike or forefoot push.
-   * @param airborne A foot entered in the air, its first footfall's toe-off at the start: its first swing leaves from where it is, with the velocity it entered with, instead of from an opening stance. Absent for a foot standing at the start.
-   * @returns The foot's scheduled stance at a second, with its swing while it swings.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each stance is `walkFoot.prepareStance` between a heel strike and the next toe-off; a swing's first half reads the stance it leaves and its second the one it reaches.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares one stance reader per footprint, then selects the first unfinished footfall by its heel strike.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The last stance is held open, so a foot after its last footfall stays planted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation and storage in the foot's footfalls, logarithmic selection and one stance evaluation per planted read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each swing reuses its two scheduled endpoint stances; the body, side, footfalls, typical stance and raised pitch are fixed for the schedule.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned schedule owns its readers and two endpoints per footfall, released with that plan; no query history is retained.
+   * @param airborne A foot entered in the air, its first footfall's toe-off at
+   *   the start: its first swing leaves from where it is, with the velocity it
+   *   entered with, instead of from an opening stance. Absent for a foot
+   *   standing at the start.
+   * @returns The foot's scheduled stance at a second, with its swing while it
+   *   swings.
    */
   export function schedule(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     start: IAutoMovieMotionHumanFoot.IPlacement,
     own: readonly IStep[],
     typical: number,
@@ -222,7 +248,8 @@ export namespace walkStepFoot {
     for (let i: number = 0; i <= own.length; i++) {
       const previous: IStep | undefined = own[i - 1];
       const next: IStep | undefined = own[i];
-      const flat: IAutoMovieMotionHumanFoot.IPlacement = previous?.flat ?? start;
+      const flat: IAutoMovieMotionHumanFoot.IPlacement =
+        previous?.flat ?? start;
       const facing: number =
         previous?.heading ?? HumanFoot.heading(start.rotation);
       const strike: number = previous?.heelStrike ?? -Infinity;
@@ -233,25 +260,28 @@ export namespace walkStepFoot {
       stances.push(
         inPlace
           ? (): IAutoMovieMotionHumanWalkFoot.IFoot => ({
-              placement: { ankle: { ...flat.ankle }, rotation: { ...flat.rotation } },
+              placement: {
+                ankle: { ...flat.ankle },
+                rotation: { ...flat.rotation },
+              },
               toes: 0,
             })
           : walkFoot.prepareStance(
-          body,
-          side,
-          flat,
-          facing,
-          strike,
-          next?.toeOff ?? Infinity,
-          next?.push ?? -PUSH,
-          typical,
-          raised,
-          backward,
-        ),
+              body,
+              side,
+              flat,
+              facing,
+              strike,
+              next?.toeOff ?? Infinity,
+              next?.push ?? -PUSH,
+              typical,
+              raised,
+              backward,
+            ),
       );
     }
-    const ends: { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot }[] = own.map(
-      (step: IStep, i: number): { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot } => ({
+    const ends: IScheduleEndsItem[] = own.map(
+      (step: IStep, i: number): IScheduleEndsResult => ({
         from:
           i === 0 && airborne !== undefined
             ? {
@@ -276,7 +306,12 @@ export namespace walkStepFoot {
       const step: IStep | undefined = own[low];
       // Before the start a foot entered in the air was moving as it entered,
       // so its swing leaves with the entry's velocity.
-      if (low === 0 && airborne !== undefined && step !== undefined && t < step.toeOff)
+      if (
+        low === 0 &&
+        airborne !== undefined &&
+        step !== undefined &&
+        t < step.toeOff
+      )
         return {
           placement: {
             ankle: Vector3.add(
@@ -289,7 +324,8 @@ export namespace walkStepFoot {
         };
       if (step === undefined || t < step.toeOff) return stances[low]!(t);
       const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
-      const end: IAutoMovieMotionHumanWalkFoot.IFoot = u < 0.5 ? ends[low]!.from : ends[low]!.to;
+      const end: IAutoMovieMotionHumanWalkFoot.IFoot =
+        u < 0.5 ? ends[low]!.from : ends[low]!.to;
       return {
         placement: {
           ankle: { ...end.placement.ankle },

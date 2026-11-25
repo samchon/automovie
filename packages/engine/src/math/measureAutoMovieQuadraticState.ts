@@ -8,7 +8,7 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 
 /**
  * Measure homogeneous equations and original-coordinate termination quantities.
- * Residual signs are rx=-Px-A'z-q*tau and rz=Ax+s-b*tau. Costs divide by tau
+ * Residual signs are rx=-Px-A'z-q_tau and rz=Ax+s-b_tau. Costs divide by tau
  * and undo objective scaling; infeasibility quantities remain homogeneous.
  * Stable Euclidean norms retain the preceding solver's residual definitions.
  * Product/addition corrections remain through sparse residuals and costs; the
@@ -134,7 +134,10 @@ export function measureAutoMovieQuadraticState(
   };
 }
 
-/** Round each twofold component only where the vector API needs one binary64 value. */
+/**
+ * Round each twofold component only where the vector API needs one binary64
+ * value.
+ */
 function rounded(values: Float64Array, count: number): Float64Array {
   return Float64Array.from(
     { length: count },
@@ -154,7 +157,6 @@ function scaledNorm(
     const value: number = Math.abs(
       inverse ? values[at]! / scales[at]! : values[at]! * scales[at]!,
     );
-    if (!Number.isFinite(value)) return value;
     if (value === 0) continue;
     if (value > largest) {
       sum = 1 + sum * (largest / value) ** 2;

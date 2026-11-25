@@ -15,21 +15,17 @@ import { AutoMovieViewSectionReading } from "./AutoMovieViewSectionReading";
  *
  * Inputs must be the actual scalar jets at the same physical station in mm.
  * Effective shoulders already include their owner's departures and cap law.
- * This owner neither interpolates principal sections nor solves a girth.
- * Finite arithmetic is checked; a positive ray denominator is not a general
+ * This owner neither interpolates principal sections nor solves a girth. Finite
+ * arithmetic is checked; a positive ray denominator is not a general
  * forward-error certificate. Physical poles and world/frame jets are separate.
  */
 export namespace AutoMovieViewSectionField {
-  /**
-   * Prepare original positive extents and effective shoulders at one station.
-   */
+  /** Prepare original positive extents and effective shoulders at one station. */
   export function prepare(
     extents: readonly IAutoMovieViewSectionField.IStationJet[],
     shoulders: readonly IAutoMovieViewSectionField.IStationJet[],
   ): IAutoMovieViewSectionField.IPrepared | IAutoMovieConicArcField.IFailure {
     if (
-      !Array.isArray(extents) ||
-      !Array.isArray(shoulders) ||
       extents.length !== 4 ||
       shoulders.length !== 4 ||
       !extents.every(
@@ -62,17 +58,13 @@ export namespace AutoMovieViewSectionField {
     };
   }
 
-  /**
-   * Read one polar ray and its regular-station radial 2-jet.
-   */
+  /** Read one polar ray and its regular-station radial 2-jet. */
   export function read(
     prepared: IAutoMovieViewSectionField.IPrepared,
     phi: number,
-  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+  ): IAutoMovieViewSectionField.IRead {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     if (fault !== null) return failure(fault);
-    if (!Number.isFinite(phi))
-      return failure("The section field requires a finite polar phase.");
     const ray: IAutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
       prepared.geometry,
       phi,
@@ -85,16 +77,17 @@ export namespace AutoMovieViewSectionField {
   }
 
   /**
-   * Read source2 from the caller's one numeric descriptor of this same preparation.
+   * Read source2 from the caller's one numeric descriptor of this same
+   * preparation.
    *
-   * The caller must obtain ray from prepared.geometry, without another geometry,
-   * phase rewrap or reflection. This keeps its primal point/direction available
-   * to Cartesian consumers without repeating the numeric inverse.
+   * The caller must obtain ray from prepared.geometry, without another
+   * geometry, phase rewrap or reflection. This keeps its primal point/direction
+   * available to Cartesian consumers without repeating the numeric inverse.
    */
   export function readRay(
     prepared: IAutoMovieViewSectionField.IPrepared,
     ray: IAutoMovieViewConic.IRay,
-  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+  ): IAutoMovieViewSectionField.IRead {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     return fault === null
       ? AutoMovieViewSectionReading.evaluate(prepared, ray)
@@ -108,10 +101,6 @@ function failure(detail: string): IAutoMovieConicArcField.IFailure {
 }
 
 /** Actual regular station jets contain three finite scalars. */
-function stationJet(
-  value: unknown,
-): value is IAutoMovieViewSectionField.IStationJet {
-  return (
-    Array.isArray(value) && value.length === 3 && value.every(Number.isFinite)
-  );
+function stationJet(value: readonly number[]): boolean {
+  return value.length === 3;
 }

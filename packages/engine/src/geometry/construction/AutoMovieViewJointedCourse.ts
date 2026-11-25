@@ -11,12 +11,11 @@ import { AutoMovieAxisDirection } from "./AutoMovieAxisDirection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 
-/**
- * The admitted jointed course's Rodrigues transport and analytic frame jets.
- */
+/** The admitted jointed course's Rodrigues transport and analytic frame jets. */
 export namespace AutoMovieViewJointedCourse {
   /**
-   * Prepare the original centreline admission and setback integral shared by both consumers.
+   * Prepare the original centreline admission and setback integral shared by
+   * both consumers.
    */
   export function prepare(
     centres: readonly AutoMovieVector3Tuple[],
@@ -24,12 +23,6 @@ export namespace AutoMovieViewJointedCourse {
   ): IAutoMovieViewJointedCourse.ICourse | string {
     const m: number = centres.length;
     if (m < 2) return `${m} centres, at least two needed`;
-    if (
-      !centres.every((p: AutoMovieVector3Tuple): boolean =>
-        p.every(Number.isFinite),
-      )
-    )
-      return "joint centres are not finite";
     if (halves.length !== m - 2)
       return `${halves.length} half lengths for ${m - 2} interior centres`;
     const directions: AutoMovieVector3Tuple[] = [];
@@ -37,7 +30,7 @@ export namespace AutoMovieViewJointedCourse {
     for (let i: number = 0; i + 1 < m; i++) {
       const d: AutoMovieVector3Tuple = sub(centres[i + 1]!, centres[i]!);
       const l: number = Math.hypot(d[0], d[1], d[2]);
-      if (!(l > 0 && Number.isFinite(l)))
+      if (!(l > 0))
         return `centres ${i} and ${i + 1} have no finite positive separation`;
       directions.push(AutoMovieAxisDirection.unit(d, l));
       lengths.push(l);
@@ -54,7 +47,7 @@ export namespace AutoMovieViewJointedCourse {
       const angle: number = Math.atan2(ln, dot(a, b));
       if (!(angle < Math.PI - 1e-9))
         return `segments ${i - 1} and ${i} are opposite`;
-      if (!(Number.isFinite(h) && h >= 0 && (angle === 0 || h > 0)))
+      if (!(h >= 0 && (angle === 0 || h > 0)))
         return `half length ${h} at centre ${i} must be finite and nonnegative, and positive for a nonzero turn`;
       const axis: AutoMovieVector3Tuple =
         ln > 0 ? AutoMovieAxisDirection.unit(n, ln) : [0, 0, 0];
@@ -93,7 +86,8 @@ export namespace AutoMovieViewJointedCourse {
   }
 
   /**
-   * Evaluate one immutable admitted course from its first origin, tangent and chart axis.
+   * Evaluate one immutable admitted course from its first origin, tangent and
+   * chart axis.
    */
   export function create(
     origin: AutoMovieVector3Tuple,
@@ -196,7 +190,10 @@ export namespace AutoMovieViewJointedCourse {
     };
   }
 
-  /** One value-only course walk; derivative vectors are allocated only by the analytic jet query. */
+  /**
+   * One value-only course walk; derivative vectors are allocated only by the
+   * analytic jet query.
+   */
   interface ISample {
     /** Actual quadrature-origin frame value. */
     value: IAutoMovieLoftSectionFrame;
@@ -211,9 +208,7 @@ export namespace AutoMovieViewJointedCourse {
     offset: number;
   }
 
-  /**
-   * Integral of one admitted turn's tangent over an arclength from its start.
-   */
+  /** Integral of one admitted turn's tangent over an arclength from its start. */
   export function integrate(
     tangent: AutoMovieVector3Tuple,
     turn: IAutoMovieViewJointedCourse.ITurn,

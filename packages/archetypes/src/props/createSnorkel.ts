@@ -14,22 +14,18 @@ const STAGED: string =
   "a snorkel: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A J snorkel worn beside the head. Its origin is the mouthpiece, `+Y` up along the barrel and `+Z` out of the mouth. `wear` is the mouthpiece the mouth closes on; `top` is the barrel's open top, which must stay above the surface while the swimmer breathes through it.
+ * A J snorkel worn beside the head. Its origin is the mouthpiece, `+Y` up along
+ * the barrel and `+Z` out of the mouth. `wear` is the mouthpiece the mouth
+ * closes on; `top` is the barrel's open top, which must stay above the surface
+ * while the swimmer breathes through it.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The item with its contacts.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame and the contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Coarse boxes, rods and balls sized by the drawn dimensions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; straps and hoses are not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms A few parts and contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSnorkel(
   params: createSnorkel.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSnorkel.Affordance, createSnorkel.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSnorkel.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -72,14 +68,7 @@ export function createSnorkel(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the socket of {@link createSnorkel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contacts, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The wear socket and points a scene or law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
- */
+/** Dimensions and the socket of {@link createSnorkel}. */
 export namespace createSnorkel {
   /** The mouthpiece, and the barrel's open top. */
   export type Affordance = "wear" | "top";

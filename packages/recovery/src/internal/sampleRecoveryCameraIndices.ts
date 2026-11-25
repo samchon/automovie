@@ -1,9 +1,9 @@
 import { seededValue } from "@automovie/engine";
 
 /**
- * Draw a reproducible ordered subset without replacement for one proposal.
- * The declared seed, distinct model domain and trial number identify every
- * sample independently of previous invocations. Sampling models the entire
+ * Draw a reproducible ordered subset without replacement for one proposal. The
+ * declared seed, distinct model domain and trial number identify every sample
+ * independently of previous invocations. Sampling models the entire
  * tentative-match population, with no location, object or expected-pose prior.
  */
 export function sampleRecoveryCameraIndices(
@@ -14,9 +14,6 @@ export function sampleRecoveryCameraIndices(
   trial: number,
 ): number[] {
   if (
-    ![population, sampleSize, seed, domain, trial].every(
-      Number.isSafeInteger,
-    ) ||
     population < sampleSize ||
     sampleSize < 1 ||
     seed < 0 ||

@@ -1,15 +1,16 @@
+import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
- * A course's path: its legs measured and laid end to end from its start, and the place and heading a distance along a leg reaches.
+ * A course's path: its legs measured and laid end to end from its start, and
+ * the place and heading a distance along a leg reaches.
  *
- * `ArchetypeCourseLegs.plan` is its one caller; the path is kept apart from the speed so each file stays within its size.
+ * `ArchetypeCourseLegs.plan` is its one caller; the path is kept apart from the
+ * speed so each file stays within its size.
  */
 export namespace ArchetypeCoursePath {
-  /**
-   * One leg with where it starts.
-   */
+  /** One leg with where it starts. */
   export interface IRow {
     /** The leg. */
     leg: AutoMovieArchetypeCourse.Leg;
@@ -17,7 +18,10 @@ export namespace ArchetypeCoursePath {
     /** Distance along the path at which the leg starts, metres. */
     from: number;
 
-    /** The leg's length along the path, metres: its run on the ground, lengthened by its grade. */
+    /**
+     * The leg's length along the path, metres: its run on the ground,
+     * lengthened by its grade.
+     */
     span: number;
 
     /** The leg's run on the ground, metres. */
@@ -29,7 +33,10 @@ export namespace ArchetypeCoursePath {
     /** Whether the support goes backward along it. */
     reverse: boolean;
 
-    /** The signed distance rolled where the leg starts, metres: forward legs add their span, reversed legs take it away. */
+    /**
+     * The signed distance rolled where the leg starts, metres: forward legs add
+     * their span, reversed legs take it away.
+     */
     progress: number;
 
     /** The root's X where the leg starts, metres. */
@@ -45,9 +52,7 @@ export namespace ArchetypeCoursePath {
     heading: number;
   }
 
-  /**
-   * A place on the path and the heading faced there.
-   */
+  /** A place on the path and the heading faced there. */
   export interface IPose {
     /** X, metres. */
     x: number;
@@ -67,8 +72,11 @@ export namespace ArchetypeCoursePath {
    *
    * @param course The course.
    * @param refuse The plan's refusal, which names the course's field.
-   * @returns One row per leg, and the path's whole length along its grades, metres.
-   * @throws {AutoMovieArchetypeRefusal} Through `refuse`, for a leg whose length or radius is not positive, a turn of no angle, or a rise that is not finite.
+   * @returns One row per leg, and the path's whole length along its grades,
+   *   metres.
+   * @throws {AutoMovieArchetypeRefusal} Through `refuse`, for a leg whose
+   *   length or radius is not positive, a turn of no angle, or a path length
+   *   that is unrepresentable.
    */
   export function lay(
     course: AutoMovieArchetypeCourse.ICourse,
@@ -84,30 +92,33 @@ export namespace ArchetypeCoursePath {
     course.legs.forEach(
       (leg: AutoMovieArchetypeCourse.Leg, index: number): void => {
         const size: number = leg.kind === "straight" ? leg.length : leg.radius;
-        if (!(Number.isFinite(size) && size > 0))
+        if (!(size > 0))
           refuse(
             `legs[${index}]`,
             size,
             "a leg's length or radius must be positive",
           );
-        if (
-          leg.kind === "turn" &&
-          !(Number.isFinite(leg.angle) && leg.angle !== 0)
-        )
+        if (leg.kind === "turn" && !(leg.angle !== 0))
           refuse(
             `legs[${index}].angle`,
             leg.angle,
             "a turn must change the heading",
           );
         const rise: number = leg.rise ?? 0;
-        if (!Number.isFinite(rise))
-          refuse(`legs[${index}].rise`, rise, "a leg's rise must be finite");
         const run: number =
           leg.kind === "straight"
             ? leg.length
             : leg.radius * Math.abs(leg.angle) * AutoMovieArchetypeUnits.DEGREE;
-        const span: number =
-          rise === 0 ? run : run * Math.sqrt(1 + (rise / run) * (rise / run));
+        const grade: number = rise === 0 ? 0 : rise / run;
+        const ordinary: number = rise === 0 ? run : run * Math.sqrt(1 + grade * grade);
+        const span: number = ordinary < Infinity ? ordinary : Math.hypot(run, rise);
+        const next: number = length + span;
+        if (!(next > length && next < Infinity))
+          refuse(
+            `legs[${index}]`,
+            span,
+            "the course must gain a representable distance along each leg",
+          );
         const row: IRow = {
           leg,
           from: length,
@@ -127,7 +138,7 @@ export namespace ArchetypeCoursePath {
         y = end.y;
         z = end.z;
         heading = end.heading;
-        length += span;
+        length = next;
         progress += leg.reverse === true ? -span : span;
       },
     );
@@ -144,9 +155,9 @@ export namespace ArchetypeCoursePath {
   export function advance(row: IRow, along: number): IPose {
     // The ground covered and the height gained, in the grade's proportion; a level leg covers what it travels.
     const ground: number =
-      row.rise === 0 ? along : (along * row.run) / row.span;
+      row.rise === 0 ? along : gradedComponent(row.run, along, row.span);
     const height: number =
-      row.rise === 0 ? row.y : row.y + (row.rise * along) / row.span;
+      row.rise === 0 ? row.y : row.y + gradedComponent(row.rise, along, row.span);
 
     // A reversed leg travels opposite to the heading it faces.
     const travel: number = row.reverse ? row.heading + 180 : row.heading;
@@ -170,5 +181,18 @@ export namespace ArchetypeCoursePath {
       z: cz + side * row.leg.radius * Math.sin(h + swept),
       heading: row.heading + swept / AutoMovieArchetypeUnits.DEGREE,
     };
+  }
+
+  /** Project one component without prematurely rounding the product to zero or infinity. */
+  function gradedComponent(component: number, along: number, span: number): number {
+    if (component === 0 || along === 0) return 0;
+    const product: number = component * along;
+    const magnitude: number = Math.abs(product);
+    // Below the least normal value an intermediate product loses significand bits.
+    if (magnitude >= 2 ** -1022 && magnitude < Infinity) return product / span;
+    return (
+      Math.sign(component) *
+      ArchetypeMassArithmetic.ratio(Math.abs(component), along, span, 1)
+    );
   }
 }

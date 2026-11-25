@@ -57,27 +57,21 @@ const WALL: number = 0.012;
 /**
  * An open-front short-sleeve stage jacket with two hollow sleeve passages.
  *
- * The model's origin is at the middle of the upper back. Positive Y points
- * up and positive Z faces forward. Each sleeve's opening faces up in model
- * space and fits around the wearer's upper arm. One visible zipper pull
- * travels along the placket from its lower stop toward the neck.
+ * The model's origin is at the middle of the upper back. Positive Y points up
+ * and positive Z faces forward. Each sleeve's opening faces up in model space
+ * and fits around the wearer's upper arm. One visible zipper pull travels along
+ * the placket from its lower stop toward the neck.
  *
  * @param params An optional identity and authored dimensions in metres.
  * @param seed Selects dimensions left unbound by the author.
- * @returns A model with separate front and back collar holds, wear, sleeve, exit and closure contacts.
- * @throws {AutoMovieArchetypeRefusal} When an authored dimension is outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names model origin, axes, empty sleeve passages, and zipper geometry.
- * @evidence contracts/development/implementation.md#principled-implementation Builds real wall parts around each sleeve opening and one driven closure that shares its pose with the pull grip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve dimensions, draw the garment and sleeve walls, then record one articulation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Empty sleeves use separate wall volumes. The actor's appearance model is independent.
- * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-size model per input.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing builder owns primitive geometry, articulated bindings and model collision shapes.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a complete model and retains no inputs.
+ * @returns A model with separate front and back collar holds, wear, sleeve,
+ *   exit and closure contacts.
+ * @throws {AutoMovieArchetypeRefusal} When an authored dimension is outside its
+ *   band.
  */
 export function createStageJacket(
   params: createStageJacket.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageJacket.Affordance,
   createStageJacket.Dimension
@@ -265,16 +259,12 @@ export function createStageJacket(
   return builder.build(0.46);
 }
 
-/**
- * Authorable dimensions and declared contact identities.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names metre dimensions and stable in-model contact ids.
- * @evidence contracts/development/design.md#principled-representation The closed union names the apertures, grip, wear site and slider.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Choices apply only to the coarse jacket geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The wearer is a separate model with an independently resolved skeleton.
- */
+/** Authorable dimensions and declared contact identities. */
 export namespace createStageJacket {
-  /** Distinct sleeve opening/exit sites, the front collar hold, the back collar hold a dresser behind the wearer takes, the wear site and the zip. */
+  /**
+   * Distinct sleeve opening/exit sites, the front collar hold, the back collar
+   * hold a dresser behind the wearer takes, the wear site and the zip.
+   */
   export type Affordance =
     | "leftSleeveOpening"
     | "leftSleeveExit"

@@ -17,16 +17,16 @@ import type { IStagedVault } from "./IStagedVault";
  * rack in front of the performer.
  *
  * A vaulter carries the pole in two hands, the top hand near the hip and the
- * lower hand a fulcrum toward the tip (Coaches Insider, "Pole carry and
- * drop"). A rigid pole stands upright only as far as the run's energy swings
- * the body over its planted end, so the top hand grips as far from the tip as
- * the sprint's own speed allows: the run law's pace on this body
- * (`run.speed`, √(Fr · g · l)) and the vault's own plant and pendulum
- * (`poleVault.grip`, a bisection on that monotone condition, the take-off
- * centre placed by Frontiers in Sports and Active Living 2022,
- * 10.3389/fspor.2022.835659). The lower hand grips a shoulder width toward the
- * tip, the hands about shoulder width apart as vaulters hold them. Both grips
- * are places on the pole's `shaft`, shares along its band.
+ * lower hand a fulcrum toward the tip (Coaches Insider, "Pole carry and drop").
+ * A pole stands upright only as far as the run's energy swings the body over
+ * its planted end, so the top hand grips as far from the tip as the sprint's
+ * own speed allows on a pole of this rating: the run law's pace on this body
+ * (`run.speed`, √(Fr · g · l)) and the vault's own plant and swing
+ * (`poleVault.grip`, a bisection on that monotone condition over Linthorne's
+ * flexible-pole model), the pole's rating its archetype's. The lower hand grips
+ * a shoulder width toward the tip, the hands about shoulder width apart as
+ * vaulters hold them. Both grips are places on the pole's `shaft`, shares along
+ * its band.
  *
  * The pole is UCS Spirit's 305 series, a beginner's 10 ft (3.05 m), lying
  * across a rack at hip height, its tip to the left and the top hand's place in
@@ -35,9 +35,8 @@ import type { IStagedVault } from "./IStagedVault";
  * @param body The vaulter.
  * @param seed The take's seed.
  * @returns The take and the pole.
- *
  * @evidence contracts/development/testing.md#behavioral-verification Composes pick-ups, a run and a vault through the public chain with the real pole and mat.
- * @evidence contracts/development/testing.md#independent-expectations The grips follow from the run law's pace and the vault's pendulum, not from a chosen band; the pole and mat are the archetypes'.
+ * @evidence contracts/development/testing.md#independent-expectations The grips follow from the run law's pace, the pole's rating and the vault's swing, not from a chosen band; the pole and mat are the archetypes'.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory performance on the shared Human fixture.
  * @evidence contracts/development/common.md#meaningful-documentation States the carry, the grip's derivation, the staging and its sources.
  */
@@ -49,11 +48,13 @@ export function stageVaultingPole(
     series: "305",
   });
   const length: number = createVaultingPole.SERIES["305"].length!;
+  const rating: number = pole.dimensions.rating!;
   const top: number = AutoMovieMotionHumanJump.poleVault.grip(
     body,
     "right",
     AutoMovieMotionHumanGait.run.speed(body, "sprint"),
     length,
+    rating,
   );
   const lower: number =
     top -
@@ -100,11 +101,16 @@ export function stageVaultingPole(
         lift: 0.05,
         along: along(top),
       })
-      .pickUp({ prop: "pole", handle: "shaft", hand: "left", along: along(lower) })
+      .pickUp({
+        prop: "pole",
+        handle: "shaft",
+        hand: "left",
+        along: along(lower),
+      })
       .stand({ hold: 0.3 })
       .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
       .until({ event: "leftHeelStrike3" })
-      .registered("vaultOnPole", { pole: "pole" }).node,
+      .registered("vaultOnPole", { pole: "pole", rating }).node,
   });
   return { film, pole };
 }

@@ -30,14 +30,10 @@ Where a direct 3D film declares a sound list, does it carry each line its scenes
 
 The [sound list](../../audio/soundtrack.md#sound-list) carries each line its scenes speak, with the screenplay's text and a start frame within its beat. It carries each cue their beats sound. It binds each speaker to the staged actor who plays that speaker. Check `sound.lines`, `sound.cues` and `sound.speakers` against the cited scene files and the subjects their scenes bind.
 
-## Realization comments
-
-Can a reader trace each value the film passes, and each default it relies on, to its source: the screenplay, profile, look or finishing approach entry it takes, or the scene's metered key subject?
-
-Comment each such value with its source and how it realizes it, so a reader can check it against that source without deriving it again.
-
 ## Composition only
 
 Does the film compose only its scenes and accepted module capabilities using installed operators and the screenplay's decisions?
 
-Resolve the film once from one seed. Place absolute time only at screenplay anchors. Order the scenes and compose any capability the film calls with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections. Use the same capabilities as the catalog.
+Resolve the ordered scenes once from one seed. Place absolute time only at screenplay anchors and follow the [composition rules](../../development/modules.md#how-the-parts-work-together).
+
+Trace film choices in [source comments](../../development/modules.md#documenting-source) to the screenplay, profile, look, finishing approach or metered key subject.

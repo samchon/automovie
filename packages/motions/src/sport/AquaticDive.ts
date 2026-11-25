@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -16,13 +17,8 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { AquaticPosture } from "./AquaticPosture";
 
 /**
- * Pool departure and springboard dive. Springboard flight phases follow
- * PMID 27762669, with provisional timings and take-off velocity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the ballistic phase reference and authored quantities.
- * @evidence contracts/development/design.md#principled-representation Take-off, ballistic flight and immersed path share one water reference plane and a resolved hand crossing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shared departure serves the pool race and the dive, whose recovery owns its underwater path.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Launch feet retain their entered ankle goals until release.
+ * Pool departure and springboard dive. Springboard flight phases follow PMID
+ * 27762669, with provisional timings and take-off velocity.
  */
 export namespace AquaticDive {
   /** A block or board departure with a resolved first surface crossing. */
@@ -144,7 +140,10 @@ export namespace AquaticDive {
     };
   }
 
-  /** Solve a ballistic entry at the actual leading hand height; dry legs retain their entered ankle targets. */
+  /**
+   * Solve a ballistic entry at the actual leading hand height; dry legs retain
+   * their entered ankle targets.
+   */
   export function departure(
     context: AquaticPosture.Context,
     water: number,
@@ -289,7 +288,7 @@ export namespace AquaticDive {
     const contacts: IAutoMovieMotionHumanContactWindow[] = (
       ["left", "right"] as const
     ).map(
-      (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
         part: `${side}Foot`,
         kind: "plant",
         from: 0,

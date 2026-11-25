@@ -19,26 +19,24 @@ const UNREAD: string =
   "the Peloton manual read lists the saddle and the handlebar as adjustable but gives no figure";
 
 /**
- * A stationary exercise bike (an indoor cycle): a frame on a floor base with a saddle, a handlebar, a crank and two pedals.
+ * A stationary exercise bike (an indoor cycle): a frame on a floor base with a
+ * saddle, a handlebar, a crank and two pedals.
  *
- * It stands with its bottom bracket over the origin and its front toward `+Z`, the rider facing `+Z`. The `crank` turns both arms, the left one (`+X`) straight up at rest and a positive travel pedalling forward; each pedal rides it and stays level. The rider sits astride the `saddle`, behind and above the bracket, and holds `leftGrip` and `rightGrip` at the handlebar's ends.
+ * It stands with its bottom bracket over the origin and its front toward `+Z`,
+ * the rider facing `+Z`. The `crank` turns both arms, the left one (`+X`)
+ * straight up at rest and a positive travel pedalling forward; each pedal rides
+ * it and stays level. The rider sits astride the `saddle`, behind and above the
+ * bracket, and holds `leftGrip` and `rightGrip` at the handlebar's ends.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bike.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the bike stands, the crank's rest and sense and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A floor base, a seat post up to the drawn saddle height behind the bracket, a stem up to the drawn handlebar height ahead of it, the handlebar of the drawn width, and the crank of the drawn length with a level pedal on each arm, as `createBicycle` builds them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the base, posts and bar, the saddle, the grips, then the crank and its pedals.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No flywheel or resistance knob; the posts stand upright; the parts' sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms About ten parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createExerciseBike(
   params: createExerciseBike.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createExerciseBike.Affordance,
   createExerciseBike.Dimension
@@ -204,16 +202,12 @@ export function createExerciseBike(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createExerciseBike}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension a rider sets or a maker varies; the saddle's height is the one a seated workout reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The saddle, the grips, the crank and the pedals, named as `createBicycle` names them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass and the footprint are a maker's as read; no source read gives the saddle's, the handlebar's or the crank's settings, so those bands are provisional; the parts' sizes are named estimates.
- */
+/** Companion types, constants and bands of {@link createExerciseBike}. */
 export namespace createExerciseBike {
-  /** The floor footprint, metres: the Peloton Bike's 120 x 60 cm (see the source). */
+  /**
+   * The floor footprint, metres: the Peloton Bike's 120 x 60 cm (see the
+   * source).
+   */
   export const FOOTPRINT: Readonly<{ length: number; width: number }> = {
     length: 1.2,
     width: 0.6,

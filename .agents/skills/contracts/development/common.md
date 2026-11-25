@@ -1,13 +1,11 @@
 # Common
 
-The router that links this page names the declarations that answer this item beside their design, implementation or testing items, and where each answers.
-
 ## Meaningful documentation
 
-Document each public declaration and member's purpose and non-obvious input, output and effect contracts. Include ownership, units, frames, timebases, defaults, optional values and failure effects where relevant. For each test, document its cases and expected behavior.
+Can readers use the declaration correctly and verify its non-obvious choices?
 
-In implementation comments, explain the premises, derivation, units, frames and use of non-obvious calculations. Cite the origin of fitted or conventional coefficients and distinguish them from measurements.
+Explain what the declaration does, which conditions callers must meet and what they can rely on. Include effects, failures, units, frames, clocks and defaults where these affect use.
 
-Write it to the documentation skill's rules, with a blank comment line between prose and tags and a blank line between documented properties.
+For a test, name the behavior and the distinct cases that exercise it.
 
-State which facts the documentation gives.
+Put the premise and derivation beside an operation that needs explaining. Identify where its numbers come from and distinguish a measurement from a fitted value or convention.

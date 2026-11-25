@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTouchDrink.ts#IAutoMovieMotionHumanTouchDrink
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-lean: How far the vessel's axis leans from where the grasp holds it toward the region, degrees. bend: The elbow's hint, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-lean: How far the vessel's axis leans from where the grasp holds it toward the region, degrees. bend: The elbow's hint, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.drinking, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.admitted, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.held, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.held.found.later, phase); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.trial, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.drinking, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieHumanLimbGoal, IAutoMovieVector3, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget.IPlace identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTouchDrink.ts#IAutoMovieMotionHumanTouchDrink.IHeld
 
 ## @evidence contracts/development/common.md#meaningful-documentation

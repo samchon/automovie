@@ -7,8 +7,8 @@
  *
  * Every node carries the componentwise XYZ extrema of every entry below it, in
  * the entries' shared metre frame, so a node's box distance is a lower bound
- * for every descendant and a walker may skip a node its query cannot reach.
- * A leaf holds the entries themselves, by reference and in partition order; a
+ * for every descendant and a walker may skip a node its query cannot reach. A
+ * leaf holds the entries themselves, by reference and in partition order; a
  * branch holds two disjoint halves. Callers tell the variants apart with
  * `"triangles" in node`.
  */
@@ -52,8 +52,8 @@ export namespace IAutoMovieMeshQueryHierarchy {
   }
 
   /**
-   * An interior node whose two children preserve the original median split.
-   * A refit updates all bounds without repartitioning by the current centres.
+   * An interior node whose two children preserve the original median split. A
+   * refit updates all bounds without repartitioning by the current centres.
    */
   export interface IBranch<T extends IAutoMovieMeshQueryHierarchy.IEntry> {
     /** Componentwise XYZ minimum over every descendant entry. */

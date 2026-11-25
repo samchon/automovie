@@ -13,13 +13,14 @@ import { RecoveryMultiBoundaryChart as M } from "./RecoveryMultiBoundaryChart";
 /**
  * Prepare privately cut feature banks for a common four-arc boundary network.
  * Unique occurrence keys guide auxiliary cuts; repeated physical keys retain
- * source identity without welding private fans. Every output remains an observation
- * chart. Closed components and failed topology or disk admissions stay unsupported.
+ * source identity without welding private fans. Every output remains an
+ * observation chart. Closed components and failed topology or disk admissions
+ * stay unsupported.
  */
 export function RecoveryFeatureChartPreparation(
   input: Parameters<IAutoMovieRecoveryFeatureChartPreparation.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation> {
-  if (!Number.isSafeInteger(input.maxCharts) || input.maxCharts < 0)
+  if (input.maxCharts < 0)
     throw new Error(
       "Feature preparation needs an explicit remaining chart budget",
     );

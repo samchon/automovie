@@ -1,6 +1,7 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  attachPhysicalProfileHulls,
   clampPose,
   indexSkeletonTopology,
   measureAutoMovieHumanoidBody,
@@ -9,43 +10,46 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePhysicalProfile,
-  IAutoMovieResolvedJointAngles,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { stand } from "../actions/stand";
+import { standRelaxed } from "../actions/standRelaxed";
 import { standUpright } from "../actions/standUpright";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { HumanColliders } from "../posture/HumanColliders";
+import { bendFloorThumb } from "../everyday/bendFloorThumb";
+import { HumanColliderPlacement } from "../posture/HumanColliderPlacement";
 import { humanLimbReads } from "../posture/humanLimbReads";
 import { humanSettledJoints } from "../posture/humanSettledJoints";
+
+/** The alternatives of `CreateHumanBody`'s site. */
+type CreateHumanBody = "measure" | "surfaces";
 
 /**
  * Derive a performer's body from a canonical rig and profile.
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
- * @returns The body with its measure, surfaces, topology, rest joints, bone records by name and immutable canonical FK preparation. The bone-local mass model, the quiet-stance alignment, collider placement, hull faces and each side's hanging arm are prepared by their actual first queries. Recreate it after editing the input rig or profile.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is derived and the frame premise.
- * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's measurer, surface resolver, topology index, immutable FK producer with canonical axes/rest frames and segmental mass-model resolver, and sums rest translations for rest positions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Preserves rest-position, measure, surface and topology derivation order. The engine's withSurfaces producer lends one call-scoped neutral-bounds owner across the two consecutive derivations and releases it in finally. Immutable FK follows; a body getter prepares mass on first read, and collider owners prepare only actual query needs.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig or profile lacking a needed bone throws inside the engine owners.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed segment/hull bounds compute at their original measurement observation and serve surface bounds. Unobserved mass performs no rest work; first mass access borrows the genuine rig's actual neutral rest computation instead of repeating raw FK, while mass transforms/admission still run once. Hull faces remain lazy and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work withSurfaces shares actual neutral bounds across the unchanged derivation. The privately captured genuine poseResolution supplies mass rest independently of public method/property replacement, through the same static neutral rows ordinary FK uses. Plans share one successful lazy mass model; failed reads are retried and source edits require a new body.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources withSurfaces releases its temporary geometry owner in finally before returning independent measure/surfaces. The body owns O(B) static FK, its O(B) name index, first-read mass data and at most two hanging-arm angle triples; its getter retains only source inputs/one successful model. FK uses weak operation keys and collider geometry uses weak body/point keys; all release with those owners.
+ * @returns The body with its measure, surfaces, topology, rest joints, bone
+ *   records by name, immutable canonical FK preparation, bone-local mass model
+ *   and the bones its colliders ride, and its solved properties: each side's
+ *   unloaded hanging arm, the quiet-stance alignment, the relaxed hanging arms,
+ *   the tangle model and each flat hand's thumb twist, all made here once and
+ *   only read after. Recreate it after editing the input rig or profile.
  */
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
   profile: IAutoMoviePhysicalProfile,
 ): IAutoMovieMotionHumanBody {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
-  for (const bone of skeleton.bones as IAutoMovieBone[])
+  for (const bone of skeleton.bones)
     rest.set(bone.bone, {
       x:
         (bone.parent === null ? 0 : rest.get(bone.parent)!.x) +
@@ -60,7 +64,7 @@ export function createHumanBody(
   const {
     measure,
     surfaces,
-  }: Pick<IAutoMovieMotionHumanBody, "measure" | "surfaces"> =
+  }: Pick<IAutoMovieMotionHumanBody, CreateHumanBody> =
     measureAutoMovieHumanoidBody.withSurfaces(skeleton, profile);
   const topology: IAutoMovieMotionHumanBody["topology"] =
     indexSkeletonTopology(skeleton);
@@ -98,17 +102,40 @@ export function createHumanBody(
         });
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
-  let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
-  let upright: IAutoMovieMotionHumanBody["upright"] | undefined;
-  let colliderBones: IAutoMovieMotionHumanBody["colliderBones"] | undefined;
+  const massModel: IAutoMovieMotionHumanBody["massModel"] =
+    resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
+
+  // The colliders at rest, mirrored left from right once here, and the bones
+  // they ride, read off the rig, its rest joints and the profile alone.
+  const hulled: IAutoMoviePhysicalProfile = attachPhysicalProfileHulls(profile);
+  const colliders: IAutoMovieMotionHumanBody["colliders"] =
+    HumanColliderPlacement.neutral({ skeleton, profile: hulled, rest });
+  const colliderBones: IAutoMovieMotionHumanBody["colliderBones"] =
+    poseResolution.prepareBones(colliders.bones);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
-  for (const record of skeleton.bones as IAutoMovieBone[])
+  for (const record of skeleton.bones)
     if (!bones.has(record.bone)) bones.set(record.bone, record);
-  const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> =
-    new Map();
-  const body: IAutoMovieMotionHumanBody = {
+  const projection: IAutoMovieMotionHumanBody["projection"] =
+    clampPose.prepare(skeleton);
+  const settled: IAutoMovieMotionHumanBody["settled"] =
+    humanSettledJoints(skeleton);
+  const reads: IAutoMovieMotionHumanBody["reads"] = humanLimbReads(
     skeleton,
-    profile,
+    poseResolution,
+    chains,
+  );
+  const record = ({
+    upright,
+    relaxed,
+    tangle,
+    hanging,
+    flatThumb,
+  }: Pick<
+    IAutoMovieMotionHumanBody,
+    CreateHumanBodySolved
+  >): IAutoMovieMotionHumanBody => ({
+    skeleton,
+    profile: hulled,
     measure,
     surfaces,
     topology,
@@ -117,137 +144,122 @@ export function createHumanBody(
 
     // The rig's ROM projection is a constant of the body like its FK
     // prerequisites: one pose clamp on this rig, read by every consumer.
-    projection: clampPose.prepare(skeleton),
-    settled: humanSettledJoints(skeleton),
+    projection,
+    settled,
 
     // What each limb's fit reads of a pose is a value of the rig too.
-    reads: humanLimbReads(skeleton, poseResolution, chains),
-    get colliderBones(): IAutoMovieMotionHumanBody["colliderBones"] {
-      colliderBones ??= poseResolution.prepareBones(HumanColliders.bones(body));
-      return colliderBones;
-    },
-    get massModel(): IAutoMovieMotionHumanBody["massModel"] {
-      massModel ??= resolveAutoMovieCenterOfMass.fromRig(
-        poseResolution,
-        profile,
-      );
-      return massModel;
-    },
-
-    // Quiet standing is a property of the body: aligned on its first read.
-    get upright(): IAutoMovieMotionHumanBody["upright"] {
-      upright ??= standUpright.align(body);
-      return upright;
-    },
+    reads,
+    tangle,
+    colliderBones,
+    colliders,
+    massModel,
+    upright,
+    relaxed,
     rest,
     bones,
-    hanging: (
-      side: AutoMovieHumanSide,
-    ): IAutoMovieResolvedJointAngles | null => {
-      if (!hung.has(side))
-        hung.set(side, AutoMovieMotionHumanBend.hanging(body, side));
-      return hung.get(side)!;
-    },
-  };
-  const readers: IReader[] = [];
-  for (const source of [
-    poseResolution,
-    body.projection,
-    body.projection.joints,
-  ])
-    for (const [key, value] of Object.entries(source))
-      if (typeof value === "function") readers.push({ source, key, value });
-  for (const key of [
-    "poseResolution",
-    "projection",
-    "hanging",
-    "reads",
-  ] as const)
-    readers.push({ source: body, key, value: body[key] });
-  readers.push({
-    source: body.projection,
-    key: "joints",
-    value: body.projection.joints,
+    hanging,
+    flatThumb,
   });
-  for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
-    const pair: (typeof body.reads)[typeof limb] = body.reads[limb];
-    readers.push({ source: body.reads, key: limb, value: pair });
-    for (const [index, read] of pair.entries()) {
-      readers.push({ source: pair, key: String(index), value: read });
-      for (const key of ["bones", "requested", "demand"] as const)
-        readers.push({ source: read, key, value: read[key] });
-      readers.push({ source: read.demand, key: "map", value: read.demand.map });
-    }
-  }
-  NATIVE_READERS.set(body, readers);
-  BEND_MEASURE.set(body, measure);
-  return body;
-}
 
-/** Reader identities supplied at construction, owned by the body itself. */
-const NATIVE_READERS: WeakMap<IAutoMovieMotionHumanBody, readonly IReader[]> =
-  new WeakMap();
-/** The factory's original measurement object for pure Bend scoring. */
-const BEND_MEASURE: WeakMap<
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBody["measure"]
-> = new WeakMap();
-/** One original own property read by the native actor. */
-interface IReader {
-  source: object;
-  key: string;
-  value: unknown;
-}
-/**
- * Identify bodies whose factory-installed readers can be used by native motion.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the body ownership and reader identity premise.
- * @evidence contracts/development/design.md#principled-representation Each issued body indexes its original reader properties by object and key. A current descriptor must expose the same value.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The factory records ownership and exposes one predicate. Motion consumers decide whether a matching body qualifies for their own path.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Descriptor reads reject accessor replacements without invoking them. The weak index contains identities alone and releases them with their body.
- */
-export namespace createHumanBody {
-  /** Whether this body's original FK, projection, hanging and limb readers are still installed. */
-  export function owns(body: IAutoMovieMotionHumanBody): boolean {
-    const readers: readonly IReader[] | undefined = NATIVE_READERS.get(body);
-    return (
-      readers !== undefined &&
-      readers.every(
-        (reader: IReader): boolean =>
-          Object.getOwnPropertyDescriptor(reader.source, reader.key)?.value ===
-          reader.value,
-      )
+  // The body's solved properties, each solved here once on the record of the
+  // ones before it: the unloaded hanging arms on the rig's own rest, then the
+  // quiet stance's alignment on the rig's rest column, the relaxed hanging
+  // arms on the aligned stance, the tangle model on the solved stance, and
+  // each flat hand's thumb twist. No solve reads what is solved after it.
+  const unsolved: Pick<IAutoMovieMotionHumanBody, CreateHumanBodySolved> = {
+    upright: REST_COLUMN,
+    relaxed: stand.RELAXED,
+    tangle: UNTANGLED,
+    hanging: UNHUNG,
+    flatThumb: UNTURNED,
+  };
+  const unhung: IAutoMovieMotionHumanBody = record(unsolved);
+  const hanging: IAutoMovieMotionHumanBody["hanging"] = {
+    left: AutoMovieMotionHumanBend.hanging(unhung, "left"),
+    right: AutoMovieMotionHumanBend.hanging(unhung, "right"),
+  };
+  const upright: IAutoMovieMotionHumanBody["upright"] = standUpright.align(
+    record({ ...unsolved, hanging }),
+  );
+  const relaxed: IAutoMovieMotionHumanBody["relaxed"] = standRelaxed.solve(
+    record({ ...unsolved, hanging, upright }),
+  );
+  const tangle: IAutoMovieMotionHumanBody["tangle"] =
+    AutoMovieMotionHumanAuditTangleModel.build(
+      record({ ...unsolved, hanging, upright, relaxed }),
     );
-  }
-
-  /**
-   * Read the two current scalar measures the ordinary Bend candidate scorer uses.
-   *
-   */
-  export function bendMeasure(
-    body: IAutoMovieMotionHumanBody,
-  ): readonly [number, number] | undefined {
-    if (!owns(body)) return undefined;
-    const original: IAutoMovieMotionHumanBody["measure"] | undefined =
-      BEND_MEASURE.get(body);
-    if (
-      original === undefined ||
-      Object.getOwnPropertyDescriptor(body, "measure")?.value !== original
-    )
-      return undefined;
-    const length: unknown = Object.getOwnPropertyDescriptor(
-      original,
-      "upperArm",
-    )?.value;
-    const radius: unknown = Object.getOwnPropertyDescriptor(
-      original,
-      "forearmRadius",
-    )?.value;
-    return typeof length === "number" &&
-      Number.isFinite(length) &&
-      typeof radius === "number" &&
-      Number.isFinite(radius)
-      ? [length, radius]
-      : undefined;
-  }
+  const thumbless: IAutoMovieMotionHumanBody = record({
+    ...unsolved,
+    hanging,
+    upright,
+    relaxed,
+    tangle,
+  });
+  const flatThumb: IAutoMovieMotionHumanBody["flatThumb"] = {
+    left: bendFloorThumb(thumbless, ORIGIN_POSTURE, "left"),
+    right: bendFloorThumb(thumbless, ORIGIN_POSTURE, "right"),
+  };
+  return record({ upright, relaxed, tangle, hanging, flatThumb });
 }
+
+/** The body's fields solved in stages from the records before them. */
+type CreateHumanBodySolved =
+  | "upright"
+  | "relaxed"
+  | "tangle"
+  | "hanging"
+  | "flatThumb";
+
+/**
+ * The flat thumbs' twists before they are solved. Their own solve
+ * (`bendFloorThumb`) reads none.
+ */
+const UNTURNED: IAutoMovieMotionHumanBody["flatThumb"] = {
+  left: 0,
+  right: 0,
+};
+
+/**
+ * A posture at the origin the flat thumbs are solved in: the thumb's clearance
+ * reads only the hand's own frame.
+ */
+const ORIGIN_POSTURE: IAutoMovieMotionHumanPosture = {
+  root: { x: 0, y: 0, z: 0 },
+  yaw: 0,
+  pitch: 0,
+  roll: 0,
+  joints: {},
+  limbs: {},
+};
+
+/**
+ * The hanging arms before they are solved. Their own solve
+ * (`AutoMovieMotionHumanBend.hanging`) reads none.
+ */
+const UNHUNG: IAutoMovieMotionHumanBody["hanging"] = {
+  left: null,
+  right: null,
+};
+
+/**
+ * The tangle model before it is built: no segment. No solve before the model's
+ * own reads a body's tangle model (`AutoMovieMotionHumanAuditTangleModel`).
+ */
+const UNTANGLED: IAutoMovieMotionHumanBody["tangle"] = {
+  parts: [],
+  related: [],
+  arms: { left: [], right: [] },
+  rest: [],
+  stance: [],
+  baseline: [],
+};
+
+/**
+ * The rig's rest column, unaligned: the trunk, neck and head at their rest
+ * angles and no forward lean, the record the quiet-stance alignment is solved
+ * from (`standUpright.align`).
+ */
+const REST_COLUMN: IAutoMovieMotionHumanBody["upright"] = {
+  joints: {},
+  lean: 0,
+};

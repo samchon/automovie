@@ -11,13 +11,16 @@ import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves6
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /**
- * Refine interacting display chords from their retained Bernstein restrictions before slit ownership freezes.
- * A dominant-plane projection is used for the common planar section; exact dyadic orientation tests
- * detect intersections of the represented binary64 chords. Only a contacted curved source restriction
- * is split, retaining its original physical tolerance, parameter interval and existing endpoint identity.
- * A genuine linear contact or exhausted numeric subdivision remains explicit and keeps finite geometry.
- * This is not a certificate of source-curve simplicity, injectivity or exact floating-point subdivision.
- * Actual predicate/refinement counts are returned; elapsed time is measured only on explicit request.
+ * Refine interacting display chords from their retained Bernstein restrictions
+ * before slit ownership freezes. A dominant-plane projection is used for the
+ * common planar section; exact dyadic orientation tests detect intersections of
+ * the represented binary64 chords. Only a contacted curved source restriction
+ * is split, retaining its original physical tolerance, parameter interval and
+ * existing endpoint identity. A genuine linear contact or exhausted numeric
+ * subdivision remains explicit and keeps finite geometry. This is not a
+ * certificate of source-curve simplicity, injectivity or exact floating-point
+ * subdivision. Actual predicate/refinement counts are returned; elapsed time is
+ * measured only on explicit request.
  */
 export function refineAutoMovieContourInteractions64<
   R extends IAutoMovieRefineContourInteractions64Ring,
@@ -69,8 +72,6 @@ export function refineAutoMovieContourInteractions64<
     0,
   );
   const axes: number[] = [0, 1, 2].filter((k: number): boolean => k !== drop);
-  const encoded: WeakMap<AutoMovieVector3Tuple, [bigint, bigint]> =
-    new WeakMap();
   const bits: DataView = new DataView(new ArrayBuffer(8));
   const integer = (x: number): bigint => {
     // Every finite binary64 value scaled by 2^1074 is an integer, including subnormals.
@@ -84,11 +85,10 @@ export function refineAutoMovieContourInteractions64<
         : ((1n << 52n) | fraction) << BigInt(exponent - 1);
     return value >> 63n ? -unsigned : unsigned;
   };
-  const encode = (p: AutoMovieVector3Tuple): [bigint, bigint] => {
-    if (!encoded.has(p))
-      encoded.set(p, [integer(p[axes[0]]), integer(p[axes[1]])]);
-    return encoded.get(p)!;
-  };
+  const encode = (p: AutoMovieVector3Tuple): [bigint, bigint] => [
+    integer(p[axes[0]]),
+    integer(p[axes[1]]),
+  ];
   const orient = (
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,

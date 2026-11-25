@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Carries original draw-completion scene/camera/pass and optional observed clock, with an application-owned state controller for capture, restoration, explicit redraw and clock freezing; composite layer facts remain separate from original native objects.
+Carries original draw-completion scene/camera/pass and optional observed clock, with an application-owned state controller for typed IViewerFrameTransfer capture, restoration, explicit redraw and clock freezing; composite layer facts remain separate from original native objects.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

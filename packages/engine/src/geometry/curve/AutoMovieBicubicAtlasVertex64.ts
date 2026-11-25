@@ -11,12 +11,14 @@ import type {
 
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 type Occurrence = IAutoMovieBicubicAtlas64.Occurrence;
 type Edge = IAutoMovieBicubicAtlas64.Edge;
 type Corner = IAutoMovieBicubicAtlas64.Corner;
 /**
- * Create the current patch vertex owner while reading the live generator chunk for each allocation.
+ * Create the current patch vertex owner while reading the live generator chunk
+ * for each allocation.
  */
 export function AutoMovieBicubicAtlasVertex64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,
@@ -80,11 +82,12 @@ export function AutoMovieBicubicAtlasVertex64(
       (side >= 0
         ? phaseMaps[side]!.get(side % 2 === 0 ? u : v)?.[0]
         : undefined);
-    const q: number = requested?.value ?? (side >= 0 ? NaN : 0);
-    if (side >= 0 && !Number.isFinite(q))
-      throw new Error(
-        "canonical edge phase is not representable in this chart",
-      );
+    if (
+      side >= 0 &&
+      (requested === undefined || overflowsBinary64(requested.value))
+    )
+      throw new Error("canonical edge phase is not representable in this chart");
+    const q: number = requested?.value ?? 0;
     const declared: Occurrence["binding"] =
       side >= 0 ? occurrences[p]![side]?.binding : undefined;
     if (declared && edge) {
@@ -107,9 +110,10 @@ export function AutoMovieBicubicAtlasVertex64(
           phase,
         ),
         value: ReturnType<typeof jet> = jet(p, u, v);
+      // Evaluating finite controls can overflow binary64.
       if (
-        !position.every(Number.isFinite) ||
-        !Number.isSafeInteger(cursor.nextIndex + 1)
+        position.some(overflowsBinary64) ||
+        cursor.nextIndex + 1 > Number.MAX_SAFE_INTEGER
       )
         throw new Error("Unrepresentable canonical boundary vertex");
       const result: IAutoMovieBicubicAtlas64.Vertex = {
@@ -154,9 +158,9 @@ export function AutoMovieBicubicAtlasVertex64(
     }
     const value: ReturnType<typeof jet> = jet(owner.patch, owner.u, owner.v);
     position ??= value.position;
-    if (!position.every(Number.isFinite))
+    if (position.some(overflowsBinary64))
       throw new Error("nonfinite generated position");
-    if (!Number.isSafeInteger(cursor.nextIndex + 1))
+    if (cursor.nextIndex + 1 > Number.MAX_SAFE_INTEGER)
       throw new Error("resource-unprocessed: global vertex index exhausted");
     const result: IAutoMovieBicubicAtlas64.Vertex = {
       index: cursor.nextIndex++,

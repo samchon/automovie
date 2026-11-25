@@ -5,18 +5,24 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Contact classification observes position only; full FK frames remain valid inputs. */
+/**
+ * Contact classification observes position only; full FK frames remain valid
+ * inputs.
+ */
 type IPoint =
   | IAutoMovieResolvedBone
   | Pick<IAutoMovieResolvedBone, "worldPosition">;
 
 /**
- * Classify each resolved effector sample as stance when its model-frame Y is at or below sampled ground plus finite nonnegative tolerance. Missing effectors are false; nonfinite sampled ground throws and callback exceptions propagate.
+ * Classify each resolved effector sample as stance when its model-frame Y is at
+ * or below sampled ground plus finite nonnegative tolerance. Missing effectors
+ * are false; nonfinite sampled ground throws and callback exceptions
+ * propagate.
  */
 export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
   props: IAutoMovieContactMask.IProps,
 ): boolean[] => {
-  if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
+  if (props.tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
   return props.resolved.map(
     (map: ReadonlyMap<AutoMovieHumanoidBone, IPoint>): boolean => {
@@ -25,10 +31,6 @@ export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
       )?.worldPosition;
       if (p === undefined) return false;
       const height: number = props.groundAt(p.x, p.z);
-      if (!Number.isFinite(height))
-        throw new Error(
-          `contact ground height at (${p.x}, ${p.z}) must be finite`,
-        );
       return p.y <= height + props.tolerance;
     },
   );

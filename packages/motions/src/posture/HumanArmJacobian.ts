@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieChainBone,
   IAutoMovieJointPose,
@@ -18,20 +19,23 @@ import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanJacobian } from "./HumanJacobian";
 
+/** The alternatives of `AXESItem`'s site. */
+type AXESItem = 0 | 1 | 2;
+
 /**
  * The analytic Jacobian of the arm planner's coordinates: for each free
- * coordinate, the twist of the upper arm, the forearm and the hand, so a
- * point riding a segment moves at `v_origin + ω × (p − origin)`.
+ * coordinate, the twist of the upper arm, the forearm and the hand, so a point
+ * riding a segment moves at `v_origin + ω × (p − origin)`.
  *
  * The elbow's and the wrist's coordinates are their joints' clinical angles,
- * whose motions are the rig's own joint axes (`HumanJacobian.of`) read on
- * the planner's placed chain; an angle past the skeleton's range, which
- * forward kinematics clamps (`HumanArmGeometry.rotation`), moves nothing,
- * so its column is zero. The shoulder's three are the swing-twist
- * chart's (`HumanArmGeometry.shoulder`), whose turn per coordinate is the
- * chart's own derivative: the world rotation of the upper arm read at the
- * coordinate a hair either side, the shoulder's point fixed, the forearm
- * and the hand carried with it.
+ * whose motions are the rig's own joint axes (`HumanJacobian.of`) read on the
+ * planner's placed chain; an angle past the skeleton's range, which forward
+ * kinematics clamps (`HumanArmGeometry.rotation`), moves nothing, so its column
+ * is zero. The shoulder's three are the swing-twist chart's
+ * (`HumanArmGeometry.shoulder`), whose turn per coordinate is the chart's own
+ * derivative: the world rotation of the upper arm read at the coordinate a hair
+ * either side, the shoulder's point fixed, the forearm and the hand carried
+ * with it.
  */
 export namespace HumanArmJacobian {
   /**
@@ -40,7 +44,8 @@ export namespace HumanArmJacobian {
    * @param setup The arm.
    * @param at The frame.
    * @param c The coordinates.
-   * @param placed The arm's actual chain placed at them (`HumanArmGeometry.chain`, also included in placed).
+   * @param placed The arm's actual chain placed at them
+   *   (`HumanArmGeometry.chain`, also included in placed).
    * @param free The free coordinates, in order.
    * @returns One column per free coordinate.
    */
@@ -51,7 +56,11 @@ export namespace HumanArmJacobian {
     placed: IAutoMovieMotionHumanArmJacobian.IChain,
     free: readonly number[],
   ): IAutoMovieMotionHumanArmJacobian.IColumn[] {
-    const { upper, lower, hand }: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = setup.bones;
+    const {
+      upper,
+      lower,
+      hand,
+    }: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = setup.bones;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieChainBone> = new Map();
     bones.set(upper, {
       worldPosition: placed.shoulder,
@@ -87,7 +96,8 @@ export namespace HumanArmJacobian {
           : jointVariables(lower, hand),
       setup.clamp,
     );
-    const joints: readonly IAutoMovieMotionHumanJacobian.IMotion[] = reading.motions;
+    const joints: readonly IAutoMovieMotionHumanJacobian.IMotion[] =
+      reading.motions;
     const lowerJoint: IAutoMovieJointPose = reading.clamped.get(lower)!;
     const flexion: number = lowerJoint.flexion ?? 0;
     const abduction: number = lowerJoint.abduction ?? 0;
@@ -115,8 +125,14 @@ export namespace HumanArmJacobian {
         ),
       );
     };
-    let elbow: IAutoMovieVector3 | undefined;
-    let wrist: IAutoMovieVector3 | undefined;
+    const elbow: IAutoMovieVector3 = Vector3.subtract(
+      placed.elbow,
+      placed.shoulder,
+    );
+    const wrist: IAutoMovieVector3 = Vector3.subtract(
+      placed.wrist,
+      placed.shoulder,
+    );
     return free.map((d: number): IAutoMovieMotionHumanArmJacobian.IColumn => {
       if (d >= 3) {
         // Past its limit an angle is clamped by forward kinematics, so it
@@ -141,17 +157,11 @@ export namespace HumanArmJacobian {
         upper: { angular: omega, linear: { x: 0, y: 0, z: 0 } },
         lower: {
           angular: omega,
-          linear: Vector3.cross(
-            omega,
-            (elbow ??= Vector3.subtract(placed.elbow, placed.shoulder)),
-          ),
+          linear: Vector3.cross(omega, elbow),
         },
         hand: {
           angular: omega,
-          linear: Vector3.cross(
-            omega,
-            (wrist ??= Vector3.subtract(placed.wrist, placed.shoulder)),
-          ),
+          linear: Vector3.cross(omega, wrist),
         },
       };
     });
@@ -164,19 +174,29 @@ export namespace HumanArmJacobian {
    * @param body The body.
    * @param side The arm.
    * @param pose The pose the arm is read on.
-   * @param arm The arm's clinical triples, encoded clamped (`HumanArmGeometry.encode`).
-   * @param offset Added to each of the nine coordinates, so a coordinate may lie past its range; none when absent.
-   * @returns The coordinates read at, the free ones (a hinge's fixed angle is not), their columns in that order and the chain.
+   * @param arm The arm's clinical triples, encoded clamped
+   *   (`HumanArmGeometry.encode`).
+   * @param offset Added to each of the nine coordinates, so a coordinate may
+   *   lie past its range; none when absent.
+   * @returns The coordinates read at, the free ones (a hinge's fixed angle is
+   *   not), their columns in that order and the chain.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pose: IAutoMoviePose,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     offset: readonly number[] = [],
   ): IAutoMovieMotionHumanArmJacobian.IReadResult {
-    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = G.prepare(body, side);
-    const at: IAutoMovieMotionHumanArmGeometry.IFrame = HumanArmFrame.of(setup, { pose, others: [] }, true);
+    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = G.prepare(
+      body,
+      side,
+    );
+    const at: IAutoMovieMotionHumanArmGeometry.IFrame = HumanArmFrame(
+      setup,
+      { pose, others: [] },
+      true,
+    );
     const c: number[] = G.encode(setup, arm).map(
       (v: number, d: number): number => v + (offset[d] ?? 0),
     );
@@ -187,7 +207,8 @@ export namespace HumanArmJacobian {
       c,
       free,
       columns: columns(setup, at, c, G.chain(setup, at, c), free),
-      chain: (q: readonly number[]): IAutoMovieMotionHumanArmJacobian.IChain => G.chain(setup, at, q),
+      chain: (q: readonly number[]): IAutoMovieMotionHumanArmJacobian.IChain =>
+        G.chain(setup, at, q),
     };
   }
 
@@ -198,17 +219,26 @@ export namespace HumanArmJacobian {
   };
 
   /** A joint's angles by index: flexion, abduction, twist. */
-  const AXES: readonly (0 | 1 | 2)[] = [0, 1, 2];
+  const AXES: readonly AXESItem[] = [0, 1, 2];
 
-  /** Fixed variable labels of the canonical arms, borrowed only by the read-only Jacobian consumer. */
+  /**
+   * Fixed variable labels of the canonical arms, borrowed only by the read-only
+   * Jacobian consumer.
+   */
   const JOINTS: Readonly<
-    Record<"left" | "right", readonly IAutoMovieMotionHumanJacobian.IVariable[]>
+    Record<
+      AutoMovieHumanSide,
+      readonly IAutoMovieMotionHumanJacobian.IVariable[]
+    >
   > = {
     left: jointVariables("leftLowerArm", "leftHand"),
     right: jointVariables("rightLowerArm", "rightHand"),
   };
 
-  /** The original six-variable order, also used for a setup with noncanonical bone identities. */
+  /**
+   * The original six-variable order, also used for a setup with noncanonical
+   * bone identities.
+   */
   function jointVariables(
     lower: AutoMovieHumanoidBone,
     hand: AutoMovieHumanoidBone,
@@ -225,7 +255,10 @@ export namespace HumanArmJacobian {
   /** The chart's step, coordinate units. */
   const STEP: number = 1e-3;
 
-  /** The world angular velocity that carries one rotation to another over a span, radians per unit. */
+  /**
+   * The world angular velocity that carries one rotation to another over a
+   * span, radians per unit.
+   */
   const turn: (
     from: IAutoMovieQuaternion,
     to: IAutoMovieQuaternion,

@@ -21,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { guitarChordTimes } from "./guitarChordTimes";
 import { guitarFrettingSpan } from "./guitarFrettingSpan";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
@@ -50,24 +51,20 @@ interface IArm {
 }
 
 /**
- * Keep the left index and middle fingertips on two stopped strings while
- * the right index sweeps them on one continuous path over the soundboard.
- * A downstroke goes from the lower pitch to the higher pitch, as taught
- * by [Fender](https://www.fender.com/articles/techniques/how-to-strum-beginner-guitar-tips).
- * The [RITMO fourMs archive](https://www.uio.no/ritmo/english/research/labs/fourms/research/Datasets/)
+ * Keep the left index and middle fingertips on two stopped strings while the
+ * right index sweeps them on one continuous path over the soundboard. A
+ * downstroke goes from the lower pitch to the higher pitch, as taught by
+ * [Fender](https://www.fender.com/articles/techniques/how-to-strum-beginner-guitar-tips).
+ * The [RITMO fourMs
+ * archive](https://www.uio.no/ritmo/english/research/labs/fourms/research/Datasets/)
  * includes a synchronized jazz guitar pilot recording. The fixed voicing,
  * authored times and narrow travel of this draft are staging choices.
  *
- * Both hands must be free and the guitar must have a fixed frame. The two
- * arm wrist paths are refused outside their geometric reach bands. The
- * fretting span must also fit within the two digit chains and their knuckle
- * spacing. The first pitched contact is decisive. Each crossing event
- * names the actual string in either direction.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the contacts, decisive instant, source, scope and admission rule.
- * @evidence contracts/development/design.md#principled-representation A single sweep traverses two actual guitar strings while two articulated fretting digits hold their own contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law owns this stroke and uses the shared note geometry and arm and digit primitives.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sweep and fret targets derive from rigid affordances in the staged guitar frame.
+ * Both hands must be free and the guitar must have a fixed frame. The two arm
+ * wrist paths are refused outside their geometric reach bands. The fretting
+ * span must also fit within the two digit chains and their knuckle spacing. The
+ * first pitched contact is decisive. Each crossing event names the actual
+ * string in either direction.
  */
 export const guitarChord: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGuitarChord> =
   { name: "guitarChord", interrupts: {}, plan };
@@ -75,9 +72,11 @@ export const guitarChord: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGu
 /**
  * Convert the authored phase clock into two static stops and a moving stroke.
  *
- * @param context The performer, displayed entry, action clock and staged guitar.
+ * @param context The performer, displayed entry, action clock and staged
+ *   guitar.
  * @returns The carried base, named crossings and three digit goals.
- * @throws {HumanRefusal} For invalid clocks, instruments, occupied hands or unreachable wrist paths.
+ * @throws {HumanRefusal} For invalid clocks, instruments, occupied hands or
+ *   unreachable wrist paths.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {
@@ -88,54 +87,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     releaseAt,
     direction,
   }: IAutoMovieMotionHumanGuitarChord = context.params;
-  if (
-    !(
-      0 < stopAt &&
-      stopAt < sweepStartAt &&
-      sweepStartAt < sweepEndAt &&
-      sweepEndAt < releaseAt &&
-      releaseAt < duration &&
-      Number.isFinite(duration)
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "stopAt",
-      value: [stopAt, sweepStartAt, sweepEndAt, releaseAt, duration],
-      reason: "the fretting, sweep and release need ordered finite times",
-      fix: "give 0 < stopAt < sweepStartAt < sweepEndAt < releaseAt < duration",
-    });
-  const prep: number = stopAt / 2;
-  const sweepDuration: number = sweepEndAt - sweepStartAt;
-  const firstAt: number = sweepStartAt + sweepDuration / 3;
-  const secondAt: number = sweepEndAt - sweepDuration / 3;
-  if (
-    !(
-      prep > 0 &&
-      sweepStartAt < firstAt &&
-      firstAt < secondAt &&
-      secondAt < sweepEndAt &&
-      sweepStartAt / duration < firstAt / duration &&
-      firstAt / duration < secondAt / duration &&
-      secondAt / duration < sweepEndAt / duration
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "sweepStartAt",
-      value: [stopAt, sweepStartAt, sweepEndAt, duration],
-      reason:
-        "the preparation and both crossings need distinct representable times",
-      fix: "give the hand preparation and sweep wider time intervals",
-    });
-  if (direction !== "down" && direction !== "up")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "direction",
-      value: direction,
-      reason: "the chord takes one directed sweep",
-      fix: "choose down or up",
-    });
+  const { prep, firstAt, secondAt }: guitarChordTimes.ITimes = guitarChordTimes(
+    context.params,
+  );
   if (
     context.entry.holds.left !== undefined ||
     context.entry.holds.right !== undefined
@@ -335,7 +289,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 }
 
-/** Fit the wrist offsets and arm reach once, using the extrema of each straight path segment. */
+/**
+ * Fit the wrist offsets and arm reach once, using the extrema of each straight
+ * path segment.
+ */
 function arm(
   context: Context,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

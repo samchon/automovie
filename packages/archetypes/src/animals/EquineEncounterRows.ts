@@ -18,10 +18,16 @@ type End = "Fore" | "Hind";
 /** A rearing strike's trunk pitch about the hips, degrees: authored. */
 const STRIKE_PITCH: number = 30;
 
-/** A double-barrel kick's trunk pitch down about the shoulders, degrees: authored. */
+/**
+ * A double-barrel kick's trunk pitch down about the shoulders, degrees:
+ * authored.
+ */
 const KICK_PITCH: number = 15;
 
-/** The folded foreleg's joint turns in a strike, degrees, shoulder first: the stance rows' rear fold. */
+/**
+ * The folded foreleg's joint turns in a strike, degrees, shoulder first: the
+ * stance rows' rear fold.
+ */
 const TUCK: readonly [number, number, number, number] = [-40, -10, 100, 20];
 
 /** A moving hoof's path height, metres: authored. */
@@ -36,9 +42,18 @@ const KINDS: ReadonlySet<string> = new Set<
 >(["strike", "kick"]);
 
 /**
- * The encounter's stance rows: a rearing foreleg strike and a double-barrel kick, each bringing hooves onto a point on the other horse.
+ * The encounter's stance rows: a rearing foreleg strike and a double-barrel
+ * kick, each bringing hooves onto a point on the other horse.
  *
- * A strike pitches the trunk up about the hips by `STRIKE_PITCH` with both hind hooves planted, folds the other foreleg and carries the striking hoof on a lifted path to the struck point, its terminal bar turning to drive straight into the surface along its inward normal, held there through the hold. A kick pitches the trunk down about the shoulders by `KICK_PITCH` with both fore hooves planted and carries each hind hoof to its own kicked point, their terminal bars driving into the surface along its inward normal. An unreachable point is refused by the stance's admission. The pitches are authored.
+ * A strike pitches the trunk up about the hips by `STRIKE_PITCH` with both hind
+ * hooves planted, folds the other foreleg and carries the striking hoof on a
+ * lifted path to the struck point, its terminal bar turning to drive straight
+ * into the surface along its inward normal, held there through the hold. A kick
+ * pitches the trunk down about the shoulders by `KICK_PITCH` with both fore
+ * hooves planted and carries each hind hoof to its own kicked point, their
+ * terminal bars driving into the surface along its inward normal. An
+ * unreachable point is refused by the stance's admission. The pitches are
+ * authored.
  */
 export namespace EquineEncounterRows {
   /**

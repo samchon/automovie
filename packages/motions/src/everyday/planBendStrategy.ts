@@ -19,7 +19,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
@@ -31,6 +30,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -47,18 +47,11 @@ import { prepareBendGoal } from "./prepareBendGoal";
 import { prepareBendSquat } from "./prepareBendSquat";
 
 /**
- * Fit one complete lowering of a bend: both arm courses and the held surface, for the requested strategy.
+ * Fit one complete lowering of a bend: both arm courses and the held surface,
+ * for the requested strategy.
  *
- * Moved unchanged from `bend` to keep that file under the
- * repository's 500-line limit; its caller and behaviour are unchanged.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the function computes and where it was moved from; the caller's documentation states the method.
- * @evidence contracts/development/implementation.md#principled-implementation The same computation its caller performed inline before the move, with the same inputs and outputs.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One function per file; the caller keeps its own decisions and delegates this step.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No value, tolerance or branch changed in the move.
- * @evidence contracts/development/implementation.md#efficient-algorithms The cost is the moved body's, unchanged; the move adds one call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares nothing beyond what the body shared before the move.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond what the body retained before the move.
+ * Moved unchanged from `bend` to keep that file under the repository's 500-line
+ * limit; its caller and behaviour are unchanged.
  */
 export function planBendStrategy(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,
@@ -120,7 +113,7 @@ export function planBendStrategy(
   const speed: number = HumanSkill.quantity(context.skill, "speed", 1.4, 1.0);
   const down: number = speed * AutoMovieMotionHumanTiming.aimed(D, 0);
   const duration: number = 2 * down + hold;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
     { name: "contact", seconds: down },
     { name: "deepest", seconds: down },
     { name: "upright", seconds: duration },
@@ -183,20 +176,16 @@ export function planBendStrategy(
           ),
           strategy,
           side,
-          fixedWrist ??
-            ((
-              posture: IAutoMovieMotionHumanPosture,
-              placed?: ReadonlyMap<
-                AutoMovieHumanoidBone,
-                IAutoMovieResolvedBone
-              >,
-            ): IAutoMovieVector3 => {
-              const shared: typeof placed =
-                placed !== undefined && createHumanBody.owns(body)
-                  ? placed
-                  : undefined;
-              return goal(posture, undefined, undefined, shared).point;
-            }),
+          fixedWrist === undefined
+            ? (
+                posture: IAutoMovieMotionHumanPosture,
+                placed?: ReadonlyMap<
+                  AutoMovieHumanoidBone,
+                  IAutoMovieResolvedBone
+                >,
+              ): IAutoMovieVector3 =>
+                goal(posture, undefined, undefined, placed).point
+            : (): IAutoMovieVector3 => fixedWrist,
         );
   const base: IAutoMovieMotionHumanActionPlan =
     window === null
@@ -278,7 +267,7 @@ export function planBendStrategy(
                   resolution,
                   lateralTilt,
                 )
-              : resolveHumanPosture.lower(
+              : lowerHumanPosture(
                   body,
                   {
                     ...lowered,
@@ -319,8 +308,19 @@ export function planBendStrategy(
   );
   const placeShins: ReturnType<typeof HumanColliders.preparePlaced> =
     HumanColliders.preparePlaced(body, lowerLegs);
-  let contactBones: ReadonlySet<AutoMovieHumanoidBone> | undefined;
-  let readContact: ReturnType<typeof poseBones.prepare> | undefined;
+  // The contact read's bones and their reader, prepared once with the plan.
+  const contactBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+    region === undefined
+      ? undefined
+      : new Set<AutoMovieHumanoidBone>([
+          ...lowerLegs,
+          region.bone,
+          `${side}UpperArm`,
+        ]);
+  const readContact: ReturnType<typeof poseBones.prepare> | undefined =
+    contactBones === undefined
+      ? undefined
+      : poseBones.prepare(body, contactBones);
   const reach: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
     {
       body,
@@ -344,15 +344,10 @@ export function planBendStrategy(
         if (
           strategy !== "stoop" &&
           region !== undefined &&
-          createHumanBody.owns(body) &&
-          prepareHumanPoseResolution.isNativeSource(source) &&
+          contactBones !== undefined &&
+          readContact !== undefined &&
           (projection === undefined || projection === body.projection)
         ) {
-          contactBones ??= new Set<AutoMovieHumanoidBone>([
-            ...lowerLegs,
-            region.bone,
-            `${side}UpperArm`,
-          ]);
           const read: ReturnType<typeof prepareHumanPoseResolution> =
             prepareHumanPoseResolution(source);
           const frame: ReturnType<typeof resolveHumanPosture.seeded> =
@@ -365,7 +360,7 @@ export function planBendStrategy(
               contactBones,
               projection,
             );
-          readContact ??= poseBones.prepare(body, contactBones);
+
           const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             readContact(frame.pose, read());
           return {
@@ -416,7 +411,7 @@ export function planBendStrategy(
           weight: share,
         })
       : bendFloorHand(body, upright, hand, moving, share);
-  const travel: IAutoMovieMotionClock = AutoMovieMotionClock.of(moving, [
+  const travel: IAutoMovieMotionClock = AutoMovieMotionClock(moving, [
     { name: "contact", seconds: down },
     { name: "deepest", seconds: down },
     { name: "upright", seconds: moving },
@@ -439,7 +434,7 @@ export function planBendStrategy(
       })
     : armCourse;
   // A bracing palm must bear on the front of its thigh (`admitBendBrace`).
-  let held: IAutoMovieMotionHumanPosture | undefined =
+  const braced: IAutoMovieMotionHumanPosture | undefined =
     region === undefined ? undefined : admitBendBrace(body, course, down, free);
   if (hold === 0 || window !== null)
     return { ...course, ...HumanPhysics.declared(context.params, window) };
@@ -447,6 +442,7 @@ export function planBendStrategy(
   // Nothing changes while holding a bend. Measure one actual lowest
   // body with both hands placed. The reaching and returning courses
   // meet on this single key regardless of how long it is held.
+  const held: IAutoMovieMotionHumanPosture = braced ?? course.posture(down);
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds,
     channels,
@@ -460,7 +456,7 @@ export function planBendStrategy(
           resolution,
           projection,
         )
-      : (held ??= course.posture(down));
+      : held;
   return {
     ...course,
     ...HumanPhysics.declared(context.params, window),

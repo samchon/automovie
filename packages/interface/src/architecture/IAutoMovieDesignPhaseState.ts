@@ -4,9 +4,9 @@ import type { AutoMovieDesignPresence } from "./AutoMovieDesignPresence";
 /**
  * One subject's classification and presence at one phase.
  *
- * The role describes the whole work and is the same in every snapshot; only
- * the presence depends on the phase asked about. A subject installed on a
- * branch that neither precedes nor follows that phase reads as `pending`.
+ * The role describes the whole work and is the same in every snapshot; only the
+ * presence depends on the phase asked about. A subject installed on a branch
+ * that neither precedes nor follows that phase reads as `pending`.
  */
 export interface IAutoMovieDesignPhaseState {
   /** Declared subject id. */

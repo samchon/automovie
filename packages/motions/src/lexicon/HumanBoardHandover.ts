@@ -12,18 +12,12 @@ import type {
 import { HumanMountedFrame } from "./HumanMountedFrame";
 
 /**
- * The hand-over of a boarding's hold on a partner (#3437): a passenger
- * swung up behind a rider takes off holding the rider with one hand, and a
- * hand on the rider's far side would reach around behind the rider's back
- * once the passenger is behind it, the forearm through the rider. The other
- * hand takes the rider's waist on its own side before the first lets go,
- * so a hand holds the rider throughout, as a passenger keeps hold while
- * settling behind a rider.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect, the hand-over and why the support stays continuous.
- * @evidence contracts/development/design.md#principled-representation A second hold on the partner and the two instants of the hand-over, read on the boarding's own path.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hand-over record and its planner; the boarding and its holds are `HumanBoard`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The partner's holds are the partner's displayed ones; what holds is the course's own still problem.
+ * The hand-over of a boarding's hold on a partner: a passenger swung up behind
+ * a rider takes off holding the rider with one hand, and a hand on the rider's
+ * far side would reach around behind the rider's back once the passenger is
+ * behind it, the forearm through the rider. The other hand takes the rider's
+ * waist on its own side before the first lets go, so a hand holds the rider
+ * throughout, as a passenger keeps hold while settling behind a rider.
  */
 export namespace HumanBoardHandover {
   /** A hand-over: the other hand, the waist it takes and the two local seconds. */
@@ -34,10 +28,16 @@ export namespace HumanBoardHandover {
     /** The partner's waist it holds: the side of the pelvis on its own side. */
     region: AutoMovieHumanoidRegion;
 
-    /** When it takes its hold, local seconds: the first instant the course's still problem holds both hands. */
+    /**
+     * When it takes its hold, local seconds: the first instant the course's
+     * still problem holds both hands.
+     */
     takes: number;
 
-    /** When the first hand lets go, local seconds: the last instant from the taking at which the course's still problem holds both hands. */
+    /**
+     * When the first hand lets go, local seconds: the last instant from the
+     * taking at which the course's still problem holds both hands.
+     */
     lets: number;
   }
 
@@ -50,59 +50,11 @@ export namespace HumanBoardHandover {
     point: IAutoMovieVector3;
   }
 
-  /** Whether the plan's arms can hold the given holds at a local second, by the course's own still problem. */
-  export type Stands = (t: number, holds: readonly IHold[]) => boolean;
-
-  /** A hand-over planned once, and the flight it was planned over. */
-  export interface IKept {
-    /** The hand-over, or none. */
-    handover: IHandover | undefined;
-
-    /** The flight's seconds it was planned over. */
-    flight: number;
-  }
-
-  /** The hand-overs planned for a boarding's parameters, by performer and start. */
-  const KEPT: WeakMap<object, Map<string, IKept>> = new WeakMap();
-
   /**
-   * A boarding's hand-over planned once and read again by every replan of
-   * the same boarding: a replan at a slower tempo (`HumanPerformanceTempo`)
-   * plans the same boarding again, and the hand-over's instants are shares
-   * of the flight, rescaled onto the replan's.
-   *
-   * @param params The boarding's parameters, the replans' own record.
-   * @param key The performer and the start the boarding was planned at.
-   * @param flight The flight's seconds.
-   * @param plan The hand-over's planner, run once.
-   * @returns The hand-over, its instants on this flight, or none.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is kept, by what and how a replan reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand-over's instants are the flight's own shares, so one planning serves every tempo of the same boarding.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One lookup, one rescale.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding at another start or by another performer plans its own.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One planning per boarding, however many replans.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every replan of the same boarding reads the one planning.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Kept weakly by the boarding's parameters and released with them.
+   * Whether the plan's arms can hold the given holds at a local second, by the
+   * course's own still problem.
    */
-  export function kept(
-    params: object,
-    key: string,
-    flight: number,
-    plan: () => IHandover | undefined,
-  ): IHandover | undefined {
-    let held: Map<string, IKept> | undefined = KEPT.get(params);
-    if (held === undefined) KEPT.set(params, (held = new Map()));
-    let found: IKept | undefined = held.get(key);
-    if (found === undefined) held.set(key, (found = { handover: plan(), flight }));
-    if (found.handover === undefined) return undefined;
-    const scale: number = flight / found.flight;
-    return {
-      ...found.handover,
-      takes: found.handover.takes * scale,
-      lets: found.handover.lets * scale,
-    };
-  }
+  export type Stands = (t: number, holds: readonly IHold[]) => boolean;
 
   /**
    * Plan the hand-over of a hold on a partner, or none when the first hand
@@ -112,16 +64,9 @@ export namespace HumanBoardHandover {
    * @param partner The partner held.
    * @param flight The flight's seconds.
    * @param start The boarding's film second.
-   * @param stands Whether the plan's arms can hold at a local second (`AutoMovieMotionHumanArmPlanned.stands`).
+   * @param stands Whether the plan's arms can hold at a local second
+   *   (`AutoMovieMotionHumanArmPlanned.stands`).
    * @returns The hand-over, or none.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the two instants and when none is planned.
-   * @evidence contracts/development/implementation.md#principled-implementation Every instant is admitted by the course's own still problem (`AutoMovieMotionHumanArmPlanned.stands`), so admission and course agree: the first hand alone until it no longer holds, the other hand taking at the first instant both hold together, the first letting go at the last instant from there both still do.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The first hand's span, then the shared span.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hand-over no instant of which holds both hands is none; nothing is stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most seventeen still problems of one hand and seventeen of two, on the flight's sixteen even samples.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a small record.
    */
   export function plan(
     hand: IAutoMovieMotionHumanBoard.IHand,
@@ -184,14 +129,6 @@ export namespace HumanBoardHandover {
    * @param region The side of the pelvis held.
    * @param film The film second.
    * @returns The region's surface point, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the region, the body it is read on and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The body's own surface region placed on its displayed bone (`resolveAutoMovieHumanoidSurfaces.place`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bone read, one placement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The partner is read where displayed at the second; no point is invented.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded bone a call.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function waist(
     partner: IAutoMovieMotionHumanPerformerReader,

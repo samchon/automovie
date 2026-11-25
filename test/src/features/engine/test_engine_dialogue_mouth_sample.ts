@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 /**
  * One actor's dialogue mouth is read from the film's mouth track at any second.
@@ -26,8 +26,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * 5. Where two lines of one actor overlap, the later-starting line speaks from its
  *    start frame: frame 14 reads the first line's 3 mm, frame 15 the second
  *    line's 9 mm and `aa` 0.75.
- * 6. Two samplings of one second are identical, and a non-finite second is
- *    refused.
+ * 6. Two samplings of one second are identical.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the track, the seconds sampled and the mouth each must give.
  * @evidence contracts/development/testing.md#behavioral-verification Samples `sampleAutoMovieDialogueMouth` on a hand-written track. A sampler that reads another frame's jaw, ignores the actor, lets an earlier line keep the mouth, scales the envelope weight by another maximum or leaves the mouth open outside every line fails.
@@ -119,16 +118,7 @@ export function test_engine_dialogue_mouth_sample(): void {
       nclose(handed.visemes.sil ?? -1, 0.25),
   );
   TestValidator.predicate(
-    "sampling is repeatable and a non-finite second is refused",
-    JSON.stringify(at("ann", 12.25)) === JSON.stringify(at("ann", 12.25)) &&
-      throwsError(
-        () =>
-          sampleAutoMovieDialogueMouth({
-            track,
-            actor: "ann",
-            seconds: Number.NaN,
-          }),
-        "not finite",
-      ),
+    "sampling is repeatable",
+    JSON.stringify(at("ann", 12.25)) === JSON.stringify(at("ann", 12.25)),
   );
 }

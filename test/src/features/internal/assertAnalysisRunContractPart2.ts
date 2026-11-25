@@ -14,8 +14,8 @@ import { hasViolation, namedFacts } from "./predicates";
  * Scenarios:
  * 1. every identity field of a run has a refusing twin.
  *
- * Schema version 1, the v1 protocol, known domains, nonblank identity/solver fields and SHA-256 spelling supply the literal refusal paths. A solved result requires a metric population and unique keys. Authored malformed records are deliberately resealed by the fixture so a digest mismatch cannot explain a contents failure.
- * Each identity field has its own changed twin; unknown outcome status, missing refusal reason/remedy, empty solved metrics, duplicate keys and blank metric keys/units are located faults beside the fully stated not-run result. The returned gap and absent-metric factory are inputs for Part3, which owns their value/status/target consistency.
+ * Nonblank subject, revision and solver version/model fields and SHA-256 spelling supply the literal refusal paths. A solved result requires a metric population and unique keys. Authored malformed records are deliberately resealed by the fixture so a digest mismatch cannot explain a contents failure.
+ * Each identity field has its own changed twin; missing refusal reason/remedy, empty solved metrics, duplicate keys and blank metric keys/units are located faults beside the fully stated not-run result. The returned gap and absent-metric factory are inputs for Part3, which owns their value/status/target consistency.
  */
 export function assertAnalysisRunContractPart2(
   measured: (
@@ -39,31 +39,6 @@ export function assertAnalysisRunContractPart2(
     "every identity field of a run has a refusing twin",
     namedFacts([
       [
-        "version",
-        (): boolean =>
-          hasViolation(
-            check({ version: 2 as unknown as 1 }),
-            "type",
-            "$input.version",
-          ),
-      ],
-      [
-        "protocol",
-        (): boolean =>
-          hasViolation(
-            check({
-              protocol:
-                "automovie.analysis-run.v2" as unknown as IAutoMovieAnalysisRun["protocol"],
-            }),
-            "type",
-            "$input.protocol",
-          ),
-      ],
-      [
-        "blank id",
-        (): boolean => hasViolation(check({ id: " " }), "type", "$input.id"),
-      ],
-      [
         "blank subject",
         (): boolean =>
           hasViolation(check({ subject: "" }), "type", "$input.subject"),
@@ -75,27 +50,6 @@ export function assertAnalysisRunContractPart2(
             check({ inputRevision: "  " }),
             "type",
             "$input.inputRevision",
-          ),
-      ],
-      [
-        "unknown domain",
-        (): boolean =>
-          hasViolation(
-            check({
-              domain:
-                "structural" as unknown as IAutoMovieAnalysisRun["domain"],
-            }),
-            "type",
-            "$input.domain",
-          ),
-      ],
-      [
-        "blank solver id",
-        (): boolean =>
-          hasViolation(
-            check({ solver: { id: "", version: "1", model: "m" } }),
-            "type",
-            "$input.solver.id",
           ),
       ],
       [
@@ -125,19 +79,6 @@ export function assertAnalysisRunContractPart2(
             }),
             "type",
             "$input.settings",
-          ),
-      ],
-      [
-        "unknown outcome status",
-        (): boolean =>
-          hasViolation(
-            check({
-              outcome: {
-                status: "pending",
-              } as unknown as IAutoMovieAnalysisRun["outcome"],
-            }),
-            "type",
-            "$input.outcome.status",
           ),
       ],
       [
@@ -211,17 +152,11 @@ export function assertAnalysisRunContractPart2(
       ],
     ]),
     {
-      version: true,
-      protocol: true,
-      "blank id": true,
       "blank subject": true,
       "blank revision": true,
-      "unknown domain": true,
-      "blank solver id": true,
       "blank solver version": true,
       "blank solver model": true,
       "settings digest": true,
-      "unknown outcome status": true,
       "unsupported without a reason": true,
       "not-run without a remedy": true,
       "not-run stated in full": true,

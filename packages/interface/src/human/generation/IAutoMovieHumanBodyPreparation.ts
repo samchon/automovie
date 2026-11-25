@@ -5,18 +5,25 @@ import type { IAutoMovieHumanTrunkConstruction } from "./IAutoMovieHumanTrunkCon
 import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 
 /**
- * Complete production preparation over the original body context, including head, eye and bind metadata.
+ * Complete production preparation over the original body context, including
+ * head, eye and bind metadata.
  *
- * The interface package owns these declarations; AutoMovieHumanBodyPreparation in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanBodyPreparation
+ * in Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanBodyPreparation {
-  /** Explicit production preparation adds actual head/eye and whole bind metadata to the same original context.
+  /**
+   * Explicit production preparation adds actual head/eye and whole bind
+   * metadata to the same original context.
    */
   export interface IOutput
     extends
       IAutoMovieHumanBodySources.IOriginal,
       IAutoMovieHumanBodySources.ICommon {
-    /** Actual completed receiver boundary, requested only by production or legacy body consumers. */
+    /**
+     * Actual completed receiver boundary, requested only by production or
+     * legacy body consumers.
+     */
     readonly neckConnection: ReturnType<
       IAutoMovieHumanBodySources.IOriginal["neckBoundary"]
     >["connection"];
@@ -29,7 +36,10 @@ export namespace IAutoMovieHumanBodyPreparation {
     /** Actual prepared head, requested by complete. */
     readonly head: IAutoMovieHumanHeadLane.IPrepared;
 
-    /** Placement metadata with actual head records; raw chains remain unrequested. */
+    /**
+     * Placement metadata with actual head records; raw chains remain
+     * unrequested.
+     */
     readonly standing: IAutoMovieHumanBodyCalibration;
 
     /** Same original trunk solution and its production metadata. */

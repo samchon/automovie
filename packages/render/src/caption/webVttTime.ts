@@ -4,9 +4,9 @@
  *
  * Hours always carry at least two digits and grow past two after 99 hours,
  * which WebVTT allows; minutes and seconds carry two digits and milliseconds
- * three, so one cue boundary has exactly one spelling on every host. The
- * caller passes an integer from `productionFrameIntervalToGridTicks`; a
- * fractional or negative input would produce an invalid timestamp.
+ * three, so one cue boundary has exactly one spelling on every host. The caller
+ * passes an integer from `productionFrameIntervalToGridTicks`; a fractional or
+ * negative input would produce an invalid timestamp.
  */
 export const webVttTime: (milliseconds: number) => string = (
   milliseconds: number,

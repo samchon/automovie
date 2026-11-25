@@ -1,12 +1,10 @@
 import type { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 
-/**
- * Shared transport and station layout for a live sweep orientation evaluator.
- */
+/** Shared transport and station layout for a live sweep orientation evaluator. */
 export namespace IAutoMovieOrientSweep {
   /**
-   * Create the station-rotation buffers of a sweep and the in-place
-   * computation of its section planes.
+   * Create the station-rotation buffers of a sweep and the in-place computation
+   * of its section planes.
    *
    * The carried frame at `u` is the transport's rotation-minimizing frame, or
    * under the fixed orientation its first frame's axes moved to the spine
@@ -21,13 +19,26 @@ export namespace IAutoMovieOrientSweep {
    * the carried frame.
    */
   export type IProps = {
-    /** Borrowed live spine transport, updated before the orientation's update method. Its frame origin is in model metres and its axes are unit directions in that frame. Retained by the returned orientation. */
+    /**
+     * Borrowed live spine transport, updated before the orientation's update
+     * method. Its frame origin is in model metres and its axes are unit
+     * directions in that frame. Retained by the returned orientation.
+     */
     transport: IAutoMovieSweepTransport;
 
-    /** Borrowed, nonempty, increasing normalized station-u buffer. It fixes rotation-buffer sizes at construction and is read during later updates and queries; preserve length and ordering. compileAutoMovieSweep admits station knots; this kernel does not. */
+    /**
+     * Borrowed, nonempty, increasing normalized station-u buffer. It fixes
+     * rotation-buffer sizes at construction and is read during later updates
+     * and queries; preserve length and ordering. compileAutoMovieSweep admits
+     * station knots; this kernel does not.
+     */
     knots: Float64Array;
 
-    /** True carries the transport's u=0 axes to each spine point; false uses its rotation-minimizing axes at each u. Station rotations still apply in either mode. */
+    /**
+     * True carries the transport's u=0 axes to each spine point; false uses its
+     * rotation-minimizing axes at each u. Station rotations still apply in
+     * either mode.
+     */
     fixed: boolean;
   };
 }

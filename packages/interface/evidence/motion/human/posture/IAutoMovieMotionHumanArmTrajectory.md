@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanArmTrajectory.ts#IAutoMovieMotionHumanArmTrajectory
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A performer's arms over one action as one trajectory optimisation, in TrajOpt's formulation (Schulman et al. 2014, "Motion planning with sequential convex optimization and convex collision checking", IJRR 33:1251): the arms' joint-space waypoints over the reach, the hold and the return are the variables, the objective and the constraints are `HumanArmTrajectoryModel`'s, and the problem is solved by penalty sequential convex optimisation with a trust region (TrajOpt's Algorithm 1, `HumanArmOptimiser`) from a seed whose hold is solved by inverse kinematics and whose reach and return are a sampling planner's clear paths (`HumanArmSeed`), its waypoints refined where they do not bound what lies between them (`HumanArmRefine`). Two arms that move over one span are one problem, their probes kept clear of each other as they both move: planning one after the other is incomplete where their paths are coupled (Erdmann and Lozano-Pérez 1987, Algorithmica 2:477). A problem whose first arm is the left is solved as its mirror image, the arms on the other side, so mirrored scenes give mirrored paths. A problem still infeasible at the last penalty is refused.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A trajectory is an action-second sampler of the canonical arm-clearance pose, shared by the planner and the carried-arm/follower evaluators.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carried.planned, return); compose/AutoMovieMotionHumanArmFollow.ts (AutoMovieMotionHumanArmFollow.follower, plan); compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.planned, return); everyday/gestureHands.ts (gestureHands.planned, return); everyday/gestureHands.ts (gestureHands.written, arms); posture/HumanArmTrajectory.ts (HumanArmTrajectory.solve, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanArmClearance.IArm identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanArmTrajectory.ts#IAutoMovieMotionHumanArmTrajectory.Trajectory
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -33,6 +15,42 @@ Runtime boundary references: compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieM
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 Shares the canonical IAutoMovieMotionHumanArmClearance.IArm identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+
+# src/motion/human/posture/IAutoMovieMotionHumanArmTrajectory.ts#IAutoMovieMotionHumanArmTrajectory.IPlayed
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States that the arm's joints and the hand's digit joints are written unchanged, in clinical degrees by bone, and that a digit with no carried state is absent.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A planned arm and its hand's finger state in joint space, the pair MoveIt's grasp carries (moveit_msgs/Grasp, BSD-3-Clause: grasp_pose with grasp_posture) for execution to play, so the hand the display shows is the hand the planner read; the digit record is the posture's own joint record, so no second angle representation exists.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Produced by compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.planned) and written by compose/AutoMovieMotionHumanArmPlayed.ts (AutoMovieMotionHumanArmPlayed.written) for AutoMovieMotionHumanArmCarry, AutoMovieMotionHumanSharedCarry and gestureHands.written; extends the arm-clearance arm with only the finger state those writers read.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Extends IAutoMovieMotionHumanArmClearance.IArm instead of copying it, and reuses IAutoMovieMotionHumanPosture's joint record; the digits are required, an empty record where the plan carries none.
+
+# src/motion/human/posture/IAutoMovieMotionHumanArmTrajectory.ts#IAutoMovieMotionHumanArmTrajectory.Played
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+A planned arm and its hand's finger state at any second of the span, the span's own clock.
+
+## @evidence contracts/development/design.md#principled-representation
+
+One action-relative second maps to the played arm (`IPlayed`): the solver's trajectory and the finger state its bases carried, so a trajectory and its hand never come apart.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Returned by AutoMovieMotionHumanArmPlanned.planned and gestureHands.planned, held by IAutoMovieMotionHumanArmPlanned.ITogether.solved, read by AutoMovieMotionHumanArmCarry, AutoMovieMotionHumanSharedCarry, gestureHands.written, gesture and brace; it is assignable where a Trajectory is read (AutoMovieMotionHumanArmFollow, certifyHumanArmTracks).
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A subtype of Trajectory's result, so every arm-only reader keeps its signature.
 
 # src/motion/human/posture/IAutoMovieMotionHumanArmTrajectory.ts#IAutoMovieMotionHumanArmTrajectory.IState
 

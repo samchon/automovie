@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTiming.ts#IAutoMovieMotionHumanTiming
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-distance: Metres travelled. width: The width of the target the movement stops on, metres; a free movement when absent. seconds: The seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-distance: Metres travelled. width: The width of the target the movement stops on, metres; a free movement when absent. seconds: The seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanTiming.ts (AutoMovieMotionHumanTiming.of, place); compose/AutoMovieMotionHumanTiming.ts (AutoMovieMotionHumanTiming.seconds, span); compose/AutoMovieMotionHumanTiming.ts (AutoMovieMotionHumanTiming.phrase, roles); compose/AutoMovieMotionHumanTiming.ts (AutoMovieMotionHumanTiming.PAUSE_NAMES); compose/AutoMovieMotionHumanTiming.ts (AutoMovieMotionHumanTiming.PAUSES); everyday/gestureStrokeTables.ts (gestureStrokeTables.RHYTHM).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The literal vocabulary is declared independently of runtime values; implementations are checked against this exact set.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTiming.ts#IAutoMovieMotionHumanTiming.Pause
 
 ## @evidence contracts/development/common.md#meaningful-documentation

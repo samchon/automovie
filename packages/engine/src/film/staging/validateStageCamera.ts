@@ -6,7 +6,6 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
-import { isFiniteStageVector3 } from "./isFiniteStageVector3";
 import { validateCameraClearanceEnvelope } from "./validateCameraClearanceEnvelope";
 import { validateCameraDepthPrecision } from "./validateCameraDepthPrecision";
 
@@ -42,37 +41,21 @@ export function validateStageCamera(
   placedPoints: ReadonlyMap<string, IAutoMovieVector3>,
   out: IAutoMovieViolationCollector,
 ): IAutoMovieVector3 | undefined {
-  const positionFinite: boolean = isFiniteStageVector3(camera.position);
-  if (!positionFinite)
-    out.push(
-      "range",
-      `${path}.position`,
-      "camera position must be a finite vector",
-      camera.position,
-    );
-  if (
-    typeof camera.fovDeg !== "number" ||
-    !(camera.fovDeg > 0 && camera.fovDeg < 180)
-  )
+  if (!(camera.fovDeg > 0 && camera.fovDeg < 180))
     out.push(
       "range",
       `${path}.fovDeg`,
       `vertical field of view must be within (0, 180)°, but was ${describeInvalidValue(camera.fovDeg)}`,
       camera.fovDeg,
     );
-  if (!Number.isFinite(camera.near) || camera.near <= 0)
+  if (camera.near <= 0)
     out.push(
       "range",
       `${path}.near`,
       "camera near distance must be finite and greater than zero metres",
       camera.near,
     );
-  if (
-    !Number.isFinite(camera.far) ||
-    (Number.isFinite(camera.near) &&
-      camera.near > 0 &&
-      camera.far <= camera.near)
-  )
+  if (camera.near > 0 && camera.far <= camera.near)
     out.push(
       "range",
       `${path}.far`,
@@ -91,31 +74,15 @@ export function validateStageCamera(
       `camera target "${describeInvalidValue(camera.lookAt.node)}" must be a placed actor, set piece, or camera`,
       camera.lookAt.node,
     );
-  if (
-    camera.lookAt.kind === "point" &&
-    !isFiniteStageVector3(camera.lookAt.point)
-  )
-    out.push(
-      "range",
-      `${path}.lookAt.point`,
-      "camera point target must be a finite vector",
-      camera.lookAt.point,
-    );
+
   const target: IAutoMovieVector3 | undefined =
     camera.lookAt.kind === "node"
       ? placedPoints.get(camera.lookAt.node)
       : camera.lookAt.point;
   let direction: IAutoMovieVector3 | undefined;
-  if (target !== undefined && positionFinite && isFiniteStageVector3(target)) {
+  if (target !== undefined) {
     const offset: IAutoMovieVector3 = Vector3.subtract(target, camera.position);
-    if (!isFiniteStageVector3(offset))
-      out.push(
-        "range",
-        `${path}.lookAt`,
-        "camera look direction must have finite components",
-        camera.lookAt,
-      );
-    else if (Vector3.length(offset) < LOOK_DISTANCE_EPSILON)
+    if (Vector3.length(offset) < LOOK_DISTANCE_EPSILON)
       out.push(
         "range",
         `${path}.lookAt`,

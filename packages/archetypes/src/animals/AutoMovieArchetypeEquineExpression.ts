@@ -1,22 +1,6 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  prepareArticulatedRig,
-} from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieModelPart,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  type AutoMovieArchetypeRide,
-} from "../core";
+import { Quaternion, Vector3, minimumJerk, prepareArticulatedRig } from "@automovie/engine";
+import type { IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
@@ -26,86 +10,46 @@ import { EquineHeadClearance } from "./EquineHeadClearance";
 import { EquineHeadCourse } from "./EquineHeadCourse";
 import { EquineHeadReach } from "./EquineHeadReach";
 import { createQuadruped } from "./createQuadruped";
+import { EquineExpressionConstants } from "./EquineExpressionConstants";
 
-/** Grazing chew rate, Hz: 47.1 chews per minute by sound recorder (Taylor, Lancaster and Ellis 2025, Animals 15:2273, Table 1). */
-const CHEW_HZ: number = 47.1 / 60;
-
-/** Peak jaw opening of a chew, degrees: authored, no source read gives the coarse jaw's angle. */
-const CHEW_DEGREES: number = 6;
-
-/** A held-open jaw, degrees: authored. */
-const OPEN_DEGREES: number = 15;
-
-/** A yawn's jaw opening, degrees: authored. */
-const YAWN_DEGREES: number = 35;
-
-/** A slack lower lip's drop of the jaw, degrees: authored. */
-const SLACK_DEGREES: number = 4;
-
-/** A curled upper lip's turn, degrees: authored. */
-const CURL_DEGREES: number = 45;
-
-/** A neck shake's rate, Hz, and roll, degrees: authored. */
-const SHAKE: Readonly<{ hertz: number; degrees: number }> = {
-  hertz: 3,
-  degrees: 25,
-};
-
-/** Each head carriage's neck and head pitch, degrees, positive lowering: authored poses. */
-const CARRIAGES: Readonly<
-  Record<
-    AutoMovieArchetypeEquineExpressionCue.HeadCarriage,
-    readonly [number, number]
-  >
-> = {
-  doze: [25, 10],
-  flehmen: [-10, -40],
-  yawn: [5, -25],
-};
-
-/** A tail swish's rate, Hz, and swing, degrees: authored. */
-const SWISH: Readonly<{ hertz: number; degrees: number }> = {
-  hertz: 1,
-  degrees: 30,
-};
-
-/** Each ear carriage's direction for the left ear in the rest model's space, mirrored for the right: authored poses for EquiFACS EAD101 (forward), EAD104 (lateral, back) and EAD103 (pinned). */
-const EARS: Readonly<
-  Record<AutoMovieArchetypeEquineExpressionCue.EarCarriage, IAutoMovieVector3>
-> = {
-  forward: { x: 0.15, y: 0.75, z: 0.65 },
-  lateral: { x: 1, y: 0.45, z: 0 },
-  droop: { x: 1, y: -0.15, z: 0.15 },
-  back: { x: 0.3, y: 0.6, z: -0.75 },
-  pinned: { x: 0.2, y: 0.2, z: -1 },
-};
-
-/** Each tail carriage's raise, degrees: authored. A swish keeps the hang and swings. */
-const TAILS: Readonly<
-  Record<AutoMovieArchetypeEquineExpressionCue.TailCarriage, number>
-> = {
-  raised: 40,
-  clamped: -15,
-  swish: 0,
-};
-
-/** A held cue with its channel. */
-type Held = EquineExpressionAdmission.Held;
-
-/** Any cue on the head channel. */
-type Heading = EquineExpressionAdmission.Heading;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
+type Held = EquineExpressionConstants.Held;
+type Heading = EquineExpressionConstants.Heading;
+type Instant = EquineExpressionConstants.Instant;
 
 /**
- * An equid's expression layer over any of its rides: attention, muzzle reaches for sniffing, greeting, feeding, drinking, rubbing and grooming, held head carriages (doze, flehmen, yawn), each ear, the jaw, the lips, a neck shake and the tail, and vocal and skin-twitch marks.
+ * An equid's expression layer over any of its rides: attention, muzzle reaches
+ * for sniffing, greeting, feeding, drinking, rubbing and grooming, held head
+ * carriages (doze, flehmen, yawn), each ear, the jaw, the lips, a neck shake
+ * and the tail, and vocal and skin-twitch marks.
  *
- * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. On the head channel a cue that starts where the one before it ends blends from that cue's turns rather than from rest, and the one before holds until it hands over; a reach given another body to go around plans its neck and head course around that body's bars (`EquineHeadCourse`), refusing when none clears. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`), a suckling foal's with its poll bent down so it reaches up under the belly, its head first dipped low and then raised to the udder (`EquineHeadReach.dipping`, `rising`), against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb (`EquineHeadClearance`), is refused. A carriage pitches the neck and head by authored angles (`EquineHeadReach.pitched`); a curled upper lip turns about its root and a slack lower lip drops the jaw a little; a shake rolls the neck about its own bar. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`, and each skin twitch one instant `twitch:<region>`; each reach adds `<act>On` and `<act>Off` where it is fully held.
+ * The layer is a pose layer in the motion skill's sense: it samples the base
+ * ride and re-poses only the neck and head, the ears, the jaw and the tail
+ * through the animal's rig (`EquineExpressionPose`), so the base's stride,
+ * hooves, trunk, tack and contacts are kept exactly and its timing and instants
+ * are kept. Each held cue blends in and out on a minimum-jerk share over its
+ * `ease`; outside every cue a sample is the base ride's own. On the head
+ * channel a cue that starts where the one before it ends blends from that cue's
+ * turns rather than from rest, and the one before holds until it hands over; a
+ * reach given another body to go around plans its neck and head course around
+ * that body's bars (`EquineHeadCourse`), refusing when none clears. A muzzle
+ * reach solves the neck and head in closed form (`EquineHeadReach`), a suckling
+ * foal's with its poll bent down so it reaches up under the belly, its head
+ * first dipped low and then raised to the udder (`EquineHeadReach.dipping`,
+ * `rising`), against the target read at that sample, in the horse's current
+ * frame, so a moving partner is tracked; a target out of reach, or one the head
+ * or neck could only reach through a forelimb (`EquineHeadClearance`), is
+ * refused. A carriage pitches the neck and head by authored angles
+ * (`EquineHeadReach.pitched`); a curled upper lip turns about its root and a
+ * slack lower lip drops the jaw a little; a shake rolls the neck about its own
+ * bar. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants
+ * and to `marks`, and each skin twitch one instant `twitch:<region>`; each
+ * reach adds `<act>On` and `<act>Off` where it is fully held.
  */
 export namespace AutoMovieArchetypeEquineExpression {
   /**
-   * The layered ride: the base ride's plan and duration, its instants with the cues' added, and its vocal marks.
+   * The layered ride: the base ride's plan and duration, its instants with the
+   * cues' added, and its vocal marks.
    */
   export interface IRide<
     Id extends string,
@@ -118,11 +62,15 @@ export namespace AutoMovieArchetypeEquineExpression {
   /**
    * Layer cues over an equid's ride.
    *
-   * @param animal The equid at rest, as its producer built it: the rest frames the ears' and jaw's carriages are read in.
+   * @param animal The equid at rest, as its producer built it: the rest frames
+   *   the ears' and jaw's carriages are read in.
    * @param ride Any ride of that equid.
    * @param cues The cues.
    * @returns The layered ride.
-   * @throws {AutoMovieArchetypeRefusal} For a non-equid, a malformed window, cues overlapping on one channel, a clearance that contradicts its act, or a fixed target out of reach where it is first fully held; a tracked target out of reach refuses at the sample that reads it.
+   * @throws {AutoMovieArchetypeRefusal} For a non-equid, a malformed window,
+   *   cues overlapping on one channel, a clearance that contradicts its act, or
+   *   a fixed target out of reach where it is first fully held; a tracked
+   *   target out of reach refuses at the sample that reads it.
    */
   export function layer<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -303,7 +251,11 @@ export namespace AutoMovieArchetypeEquineExpression {
     };
 
     /**
-     * The head channel's turns at a second: the active cue's full turns, eased in along a course from rest, or from an adjacent cue's turns that it takes over, and eased out to rest unless an adjacent cue takes over; a reach around another body plans its course around it (`EquineHeadCourse`).
+     * The head channel's turns at a second: the active cue's full turns, eased
+     * in along a course from rest, or from an adjacent cue's turns that it
+     * takes over, and eased out to rest unless an adjacent cue takes over; a
+     * reach around another body plans its course around it
+     * (`EquineHeadCourse`).
      */
     function course(
       base: AutoMovieArchetypeRide.ISample<Id, D>,

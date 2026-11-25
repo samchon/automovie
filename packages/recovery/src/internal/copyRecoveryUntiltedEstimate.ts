@@ -1,8 +1,6 @@
 import type { IAutoMovieRecoveryUntiltedEstimate } from "@automovie/interface";
 
-/**
- * Copy one selected model's borrowed original dual into fit-owned seed storage.
- */
+/** Copy one selected model's borrowed original dual into fit-owned seed storage. */
 export function copyRecoveryUntiltedEstimate(
   estimate: IAutoMovieRecoveryUntiltedEstimate | null,
   width: number,
@@ -11,16 +9,7 @@ export function copyRecoveryUntiltedEstimate(
 ): IAutoMovieRecoveryUntiltedEstimate | null {
   const count: number = estimate?.selected.length ?? 0;
   const work: number = 64 * (count + 1);
-  if (
-    !Number.isSafeInteger(width) ||
-    width < 1 ||
-    !Number.isSafeInteger(rowCount) ||
-    rowCount < 1 ||
-    !Number.isSafeInteger(count) ||
-    count < 0 ||
-    count >= rowCount ||
-    !Number.isSafeInteger(work)
-  )
+  if (width < 1 || rowCount < 1 || count < 0 || count >= rowCount)
     throw new Error(
       "camera-curvature: bounded borrowed selected count required",
     );
@@ -40,12 +29,10 @@ export function copyRecoveryUntiltedEstimate(
     const id: number = estimate.selected[at]!,
       multiplier: number = estimate.multipliers[at]!;
     if (
-      !Number.isSafeInteger(id) ||
       id < 1 ||
       id >= rowCount ||
       (at > 0 && id <= estimate.selected[at - 1]!) ||
-      !(multiplier >= 0) ||
-      !Number.isFinite(multiplier)
+      !(multiplier >= 0)
     )
       throw new Error(
         "camera-curvature: qualified ordered original dual required",

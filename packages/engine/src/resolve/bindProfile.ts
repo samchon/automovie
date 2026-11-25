@@ -7,7 +7,10 @@ import {
 } from "@automovie/interface";
 
 /**
- * Bind every supported semantic node reference through an own boneMap entry and optional placement prefix. Pointer channels retain their global addresses. Mismatched profile ids and missing/blank node mappings throw before a bound result returns; unchanged nested bounds and curve data remain borrowed.
+ * Bind every supported semantic node reference through an own boneMap entry and
+ * optional placement prefix. Pointer channels retain their global addresses.
+ * Mismatched profile ids and missing node mappings throw before a bound
+ * result returns; unchanged nested bounds and curve data remain borrowed.
  */
 export const bindProfile: (
   application: IAutoMovieProfileApplication,
@@ -28,10 +31,6 @@ export const bindProfile: (
     if (mapped === undefined)
       throw new Error(
         `profile "${profile.id}" binding has no boneMap entry for "${key}"`,
-      );
-    if (mapped.trim().length === 0)
-      throw new Error(
-        `profile "${profile.id}" binding maps "${key}" to an empty node id`,
       );
     return `${prefix}${mapped}`;
   };

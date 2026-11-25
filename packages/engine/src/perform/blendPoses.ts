@@ -20,7 +20,10 @@ interface IAxisAccumulator {
 }
 
 /**
- * Blend a nonempty list of admitted same-skeleton clinical poses by positive finite weights per non-null axis. Bone order follows first appearance; root is the last owning layer's value, else the last non-null root. The result does not clamp ROM.
+ * Blend a nonempty list of admitted same-skeleton clinical poses by positive
+ * finite weights per non-null axis. Bone order follows first appearance; root
+ * is the last owning layer's value, else the last non-null root. The result
+ * does not clamp ROM.
  */
 export const blendPoses: (layers: IAutoMoviePoseLayer[]) => IAutoMoviePose = (
   layers: IAutoMoviePoseLayer[],

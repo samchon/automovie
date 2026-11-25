@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -14,21 +14,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
+import { humanTrickSchedule } from "./humanTrickSchedule";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrick>;
+/** The alternatives of `BindLimb`'s site. */
+type BindLimb = "leftLeg" | "rightLeg" | "leftArm" | "rightArm";
 
 /** A limb's binding to a carrier contact in a figure. */
 interface IBind {
   /** The limb. */
-  limb: "leftLeg" | "rightLeg" | "leftArm" | "rightArm";
+  limb: BindLimb;
 
   /** The carrier contact, or `object` for a pickup's prop. */
   contact: string;
@@ -43,64 +44,31 @@ interface IKey {
   binds: IBind[];
 }
 
+/** Admit the figures, lay each key once, then sample. */
+function planHumanTrick(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
+
 /**
- * Trick-riding figures (`IAutoMovieMotionHumanTrick`, #3950): each figure is a key posture in the seat contact's moving frame whose feet and hands are bound to the trick saddle's own straps, horn and handholds (or a pickup's prop) read where the carrier has them at each second; keys blend by a minimum-jerk share over each transfer and are carried by the seat contact. Every attitude and offset is a provisional stage reading. Register `HumanTrick` to use it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the keys, the bindings, the blend and that the values are provisional.
- * @evidence contracts/development/design.md#principled-representation One law over a closed figure vocabulary and the saddle's named contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound point is the carrier's own moving contact or the prop's own place.
+ * Trick-riding figures (`IAutoMovieMotionHumanTrick`): each figure is a key
+ * posture in the seat contact's moving frame whose feet and hands are bound to
+ * the trick saddle's own straps, horn and handholds (or a pickup's prop) read
+ * where the carrier has them at each second; keys blend by a minimum-jerk share
+ * over each transfer and are carried by the seat contact. Every attitude and
+ * offset is a provisional stage reading. Register `HumanTrick` to use it.
  */
 export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTrick> =
   {
     name: "trick",
     interrupts: {},
-    /**
-     * Admit the figures, lay each key once, then sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the refusals: no figure or a last figure out of the seat, a bad time, a pickup without its prop, and a pickup whose prop lies beyond the leaning hand's reach.
-     * @evidence contracts/development/implementation.md#principled-implementation Keys from the body's measures in the seat's frame; bound limbs take their contact's point each sample; the pickup's reach is checked against the leaned shoulder at the figure's hold.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, clock and windows, then the sampler.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable pickup is refused, never stretched.
-     * @evidence contracts/development/implementation.md#efficient-algorithms A sample blends two keys and reads one frame and at most four contacts.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are shared by every sample.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the carrier reader.
-     */
-    plan(context: Context): IAutoMovieMotionHumanActionPlan {
-      return plan(context);
-    },
+    plan: planHumanTrick,
   };
-
 /** Admit, lay the keys and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const { on, frame, figures }: IAutoMovieMotionHumanTrick = context.params;
-  if (figures.length === 0 || figures[figures.length - 1]!.kind !== "seat")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "figures",
-      value: figures.map((f) => f.kind),
-      feasible: null,
-      reason:
-        "trick riding holds at least one figure and ends back in the seat",
-      fix: "end on a seat figure",
-    });
-  figures.forEach(
-    (figure: IAutoMovieMotionHumanTrick.IFigure, i: number): void => {
-      HumanBound.above(`figures.${i}.transfer`, figure.transfer, 0, "s");
-      HumanBound.least(`figures.${i}.seconds`, figure.hold, 0, "s");
-      if (figure.kind === "pickup" && figure.object === undefined)
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: `figures.${i}.object`,
-          value: undefined,
-          feasible: null,
-          reason: "a pickup takes a prop from the ground, and none is named",
-          fix: "name the prop the pickup takes",
-        });
-    },
-  );
+  const schedule: humanTrickSchedule.ISchedule = humanTrickSchedule(figures);
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     on,
     frame,
@@ -115,24 +83,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     key(context.body, entry, figure),
   );
 
-  // The clock: each figure's transfer then its hold.
-  const starts: number[] = [];
-  let clock: number = 0;
-  for (const figure of figures) {
-    starts.push(clock);
-    clock += figure.transfer + figure.hold;
-  }
-  const duration: number = clock;
-  const at = (t: number): { index: number; share: number } => {
-    let index: number = 0;
-    while (index + 1 < figures.length && t >= starts[index + 1]!) ++index;
-    return {
-      index,
-      share: minimumJerk.share(
-        Math.min(1, (t - starts[index]!) / figures[index]!.transfer),
-      ),
-    };
-  };
+  const { starts, duration } = schedule;
+  const at: (t: number) => humanTrickSchedule.IAt = schedule.at;
   const point = (
     contact: string,
     figure: IAutoMovieMotionHumanTrick.IFigure,
@@ -207,10 +159,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   });
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
-    events: figures.map((figure, i: number) => ({
-      name: `${figure.kind}:${i}`,
-      share: (starts[i]! + figure.transfer) / duration,
-    })),
+    events: schedule.events,
+
     contacts,
     base: context.entry.base,
     posture: (time: number): IAutoMovieMotionHumanPosture => {
@@ -300,15 +250,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     context.start,
     (local: IAutoMovieMotionHumanActionPlan) =>
       courseArmGoal({
-        body: context.body,
+        context,
         plan: local,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,
         with: [
           {
             side: other,
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
             span,
           },
         ],
@@ -316,7 +264,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
 }
 
-/** A posture with its leg goals only: the arms are laid by the act's course, never by goals carried from the entry. */
+/**
+ * A posture with its leg goals only: the arms are laid by the act's course,
+ * never by goals carried from the entry.
+ */
 function legsOnly(
   posture: IAutoMovieMotionHumanPosture,
 ): IAutoMovieMotionHumanPosture {

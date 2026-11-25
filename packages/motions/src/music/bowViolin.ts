@@ -28,6 +28,9 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { bowViolinGrip } from "./bowViolinGrip";
+import { bowViolinHairAxis } from "./bowViolinHairAxis";
+import { bowViolinStroke } from "./bowViolinStroke";
 
 /** The bar frame's +X points from bridge to nut. */
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -38,38 +41,39 @@ const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** Raised clearance before and after the stroke in metres, provisional. */
 const CLEARANCE: number = 0.035;
 
-/** Provisional tilt toward the outside edge for clearance over coplanar strings. */
-const TILT: number = Math.PI / 15;
+/** The record of `IBowViolin`'s site. */
+type IBowViolin = {
+  name: "bowViolin";
+};
 
 /**
- * One staged open-string violin stroke with a held bow. Register this law
- * with HumanChain.extend and HumanPerformance.laws. The bow moves to a
- * raised ready pose, lowers to contact, slides frog-to-tip or tip-to-frog
- * during the stroke and leaves the string after lift, still in the hand.
+ * One staged open-string violin stroke with a held bow. Register this law with
+ * HumanChain.extend and HumanPerformance.laws. The bow moves to a raised ready
+ * pose, lowers to contact, slides frog-to-tip or tip-to-frog during the stroke
+ * and leaves the string after lift, still in the hand.
  *
- * The straight hair line is perpendicular to the selected string, following
- * the straight-stroke condition in Schoonderwaldt (2010, DOI 10.3813/AAA.918314).
- * The sounding point is one tenth of the bar's length from the bridge, as
- * in the range for a sustained note in Schoonderwaldt (2009, DOI
- * 10.1121/1.3203209, Fig. 1). The provisional stroke travels over 18–42%
- * of the playable hair. Inclination clears the other strings on the
- * simplified coplanar instrument. The performer moves the right arm and
- * holds the same grip throughout. The violin is staged as a fixed prop.
- * This geometry models contact only, with hair deflection and note acoustics
- * outside the law.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives registration, phases, measurements, staging and limits.
+ * The straight hair line is perpendicular to the selected string, following the
+ * straight-stroke condition in Schoonderwaldt (2010, DOI 10.3813/AAA.918314).
+ * The sounding point is one tenth of the bar's length from the bridge, as in
+ * the range for a sustained note in Schoonderwaldt (2009, DOI
+ * 10.1121/1.3203209, Fig. 1). The provisional stroke travels over 18–42% of the
+ * playable hair. Inclination clears the other strings on the simplified
+ * coplanar instrument. The performer moves the right arm and holds the same
+ * grip throughout. The violin is staged as a fixed prop. This geometry models
+ * contact only, with hair deflection and note acoustics outside the law.
  */
-export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowViolinParams> & {
-  name: "bowViolin";
-} = {
+export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowViolinParams> &
+  IBowViolin = {
   name: "bowViolin",
   overlay: true,
   interrupts: {},
   plan: planStroke,
 };
 
-/** Place the bow from its held frame, then pose its hand on the four stroke phases. */
+/**
+ * Place the bow from its held frame, then pose its hand on the four stroke
+ * phases.
+ */
 function planStroke(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -85,7 +89,7 @@ function planStroke(
     0,
     "s",
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     "right",
     params.bow,
@@ -110,8 +114,7 @@ function planStroke(
   if (
     (params.string !== "string1" && params.string !== "string4") ||
     bar?.length === undefined ||
-    !Number.isFinite(bar.length) ||
-    bar.length <= 0
+    !(bar.length > 0)
   )
     throw new HumanRefusal({
       kind: "affordance",
@@ -137,13 +140,10 @@ function planStroke(
   );
 
   // Across the instrument, the hair rises toward the other three strings.
-  const across: IAutoMovieVector3 = Vector3.cross(longitudinal, outward);
-  const hairAxis: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(across, Math.cos(TILT)),
-    Vector3.scale(
-      outward,
-      Math.sin(TILT) * (params.string === "string1" ? 1 : -1),
-    ),
+  const hairAxis: IAutoMovieVector3 = bowViolinHairAxis(
+    longitudinal,
+    outward,
+    params.string,
   );
   const frog: IAutoMovieMotionHumanHeld.IPointResult =
     AutoMovieMotionHumanHeld.point(held, "hairFrog");
@@ -153,7 +153,6 @@ function planStroke(
   const length: number = Vector3.length(hair);
   if (
     !(length > 0) ||
-    !Number.isFinite(length) ||
     Math.abs(Vector3.dot(Vector3.scale(hair, 1 / length), frog.direction)) >
       1e-6
   )
@@ -169,29 +168,8 @@ function planStroke(
     { normal: hair, forward: frog.direction },
     { normal: hairAxis, forward: Vector3.scale(outward, -1) },
   );
-  if (
-    params.direction !== undefined &&
-    params.direction !== "up" &&
-    params.direction !== "down"
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "direction",
-      value: params.direction,
-      feasible: { kind: "alternatives", values: ["up", "down"] },
-      reason: "the bow direction must be up or down",
-      fix: "choose down for frog-to-tip or up for tip-to-frog",
-    });
-  const from: number = params.direction === "up" ? 0.42 : 0.18;
-  const to: number = params.direction === "up" ? 0.18 : 0.42;
-  const grip = (share: number, lift: number): IAutoMovieVector3 =>
-    Vector3.subtract(
-      Vector3.add(contact, Vector3.scale(outward, lift)),
-      Quaternion.rotateVector(
-        rotation,
-        Vector3.add(frog.point, Vector3.scale(hair, share)),
-      ),
-    );
+  const grip: (share: number, lift: number) => IAutoMovieVector3 =
+    bowViolinGrip(contact, outward, rotation, frog.point, hair);
   const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
     AutoMovieMotionHumanArm.origin(
       body,
@@ -203,7 +181,7 @@ function planStroke(
   const reach: number = AutoMovieMotionHumanTiming.aimed(
     Vector3.length(
       Vector3.subtract(
-        grip(from, CLEARANCE),
+        grip(bowViolinStroke.from(params.direction), CLEARANCE),
         AutoMovieMotionHumanArm.point(entry.posture, origin),
       ),
     ),
@@ -215,18 +193,17 @@ function planStroke(
     { name: "contact", seconds: stroke },
     { name: "lift", seconds: 0.2 },
   ]);
+  const stroked: ReturnType<typeof bowViolinStroke> = bowViolinStroke(
+    clock,
+    params.direction,
+    CLEARANCE,
+  );
   const target = (
     posture: IAutoMovieMotionHumanPosture,
     time: number,
   ): IAutoMovieMotionHumanArmTarget.ITarget => {
-    const share: number =
-      from + (to - from) * clock.progress("contact", "lift", time);
-    const height: number =
-      CLEARANCE *
-      (1 -
-        clock.progress("ready", "contact", time) +
-        clock.progress("lift", "end", time));
-    const point: IAutoMovieVector3 = grip(share, height);
+    const at: bowViolinStroke.IStroke = stroked(time);
+    const point: IAutoMovieVector3 = grip(at.share, at.lift);
     return {
       surface: "grip",
       shape: "relaxed",
@@ -249,6 +226,7 @@ function planStroke(
     };
   };
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.move({
+    fixedShape: "relaxed",
     body,
     side: "right",
     from: 0,

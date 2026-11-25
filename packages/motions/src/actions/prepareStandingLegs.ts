@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -9,10 +10,18 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { standingLegs } from "./standingLegs";
 
+/** The record of `IFootResult`'s site. */
+type IFootResult = {
+  yaw: number;
+  rotation: IAutoMovieQuaternion;
+  contact: IAutoMovieVector3;
+  knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
+};
+
 /**
  * Prepare a standing body's two toe-out headings and metatarsophalangeal
- * contacts for one fixed yaw. Each query places the knees from its current
- * root and reads its supplied world-metre ankle targets.
+ * contacts for one fixed yaw. Each query places the knees from its current root
+ * and reads its supplied world-metre ankle targets.
  *
  * @param body The unchanged body of this stance.
  * @param yaw Its fixed heading, degrees about +Y.
@@ -25,15 +34,10 @@ export function prepareStandingLegs(
   toeOut: number,
 ): (
   root: IAutoMovieVector3,
-  feet: Record<"left" | "right", IAutoMovieVector3>,
+  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>,
 ) => IAutoMovieMotionHumanPosture["limbs"] {
   /** Fixed heading rotation and body-local contact of one side. */
-  function foot(side: "left" | "right"): {
-    yaw: number;
-    rotation: IAutoMovieQuaternion;
-    contact: IAutoMovieVector3;
-    knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
-  } {
+  function foot(side: AutoMovieHumanSide): IFootResult {
     const heading: number = yaw + (side === "left" ? toeOut : -toeOut);
     const rest: ReturnType<typeof HumanFrame.preparePoint> =
       HumanFrame.preparePoint(yaw, body.rest.get(`${side}LowerLeg`)!);
@@ -46,13 +50,13 @@ export function prepareStandingLegs(
       knee: (root: IAutoMovieVector3): IAutoMovieVector3 => ahead(rest(root)),
     };
   }
-  const fixed: Record<"left" | "right", ReturnType<typeof foot>> = {
+  const fixed: Record<AutoMovieHumanSide, ReturnType<typeof foot>> = {
     left: foot("left"),
     right: foot("right"),
   };
   return (
     root: IAutoMovieVector3,
-    feet: Record<"left" | "right", IAutoMovieVector3>,
+    feet: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): IAutoMovieMotionHumanPosture["limbs"] =>
     standingLegs(body, root, yaw, feet, toeOut, fixed);
 }

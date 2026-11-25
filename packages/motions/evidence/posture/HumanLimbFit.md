@@ -1,21 +1,3 @@
-# src/posture/HumanLimbFit.ts#HumanLimbFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three parts of a limb's fit, who runs it and that no fit is remembered.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The fit of one limb is one responsibility, apart from the assembly of a whole pose.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The chain, the world goal, the world-frame and kernel fits and the closed-form swivel readings, read by the resolver, its direct solve and the arm course.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The solver is the engine's; nothing here sets an angle past the rig's range.
-
 # src/posture/HumanLimbFit.ts#HumanLimbFit.IChain
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -64,36 +46,6 @@ Nothing to reuse.
 
 A pure function that retains nothing.
 
-# src/posture/HumanLimbFit.ts#HumanLimbFit.world
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the transform, the refusal and its reason.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-A rigid transform of the goal by the bone's posed frame.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One frame read and one transform.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-A goal on its own chain or on a missing bone throws instead of chasing itself.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-An attached goal requests only its carrying bone and ancestor FK while preserving ordered authored-joint admission; a supplied exact reading shares that completed frame.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Reuses poseBones, or the same exact authored-FK reader the fit's clearance and engine source read consume; a self-chain refusal precedes that read.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-A pure function that retains nothing.
-
 # src/posture/HumanLimbFit.ts#HumanLimbFit.fit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -102,7 +54,7 @@ States the fit, the re-aim with its sources and bounds, the attachment and the c
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
+The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction. A continued arm whose admitted arc vanished is refused, since keeping the hand's turn would jump the elbow to another arc and leaving it would misstate the goal.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -273,3 +225,33 @@ Reuses common goal/shape reflection and HumanArmMirror's mirrored hull points wh
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The caller owns the returned goal and mirrored records; unchanged fields are borrowed and shared hull points follow their source-array weak cache. This wrapper owns no retained state, handles or tasks.
+
+# src/posture/HumanLimbFit.ts#HumanLimbFit.continues
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what the query answers, when it is null and which refusals pass through.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The fit's own arc continuation decides: null exactly where its admitted arc vanished, the refusal `fit` raises for it told apart by identity.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One call of `fit` and one test of what it threw.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Every other refusal is rethrown; nothing is retried or relaxed.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One continued fit, the same as `fit`.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Delegates to `fit`, which owns its preparation.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing; a vanished arc is told by its refusal's class (`HumanLimbVanishedRefusal`).

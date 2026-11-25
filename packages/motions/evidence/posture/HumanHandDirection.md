@@ -2,22 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is read and for whom.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One function over the closed union `HumanHand.Direction`, in the performer's floor frame turned by the heading.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The cold reading and explicit fixed-hand named-axis preparation serve HumanHand and armPhrase; HumanHand owns the existing direction types.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts `out` and `in` mirror by the acting hand, so one name serves both hands and no left or right table exists.
-
-# src/posture/HumanHandDirection.ts#HumanHandDirection.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States each input, the result's frame and the four refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

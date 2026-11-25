@@ -5,7 +5,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Concatenate nonempty admitted same-skeleton clips in seconds. Durations must be finite and positive; later time-zero seam frames transfer their easing to the retained previous endpoint. Pose and expression values remain borrowed.
+ * Concatenate nonempty admitted same-skeleton clips in seconds. Durations must
+ * be finite and positive; later time-zero seam frames transfer their easing to
+ * the retained previous endpoint. Pose and expression values remain borrowed.
  */
 export const sequenceMotion: (
   id: string,
@@ -22,8 +24,6 @@ export const sequenceMotion: (
   for (const part of parts) {
     if (part.skeleton !== skeleton)
       throw new Error("sequence part skeletons must match");
-    if (!Number.isFinite(part.duration))
-      throw new Error("sequence part duration must be finite and positive");
     if (part.duration <= 0)
       throw new Error("sequence part duration must be finite and positive");
   }

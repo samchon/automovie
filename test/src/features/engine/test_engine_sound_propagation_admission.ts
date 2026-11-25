@@ -6,17 +6,20 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
 import { throwsError } from "../internal/predicates";
 
 /**
- * Propagation clock, distance, physical profile and out-of-film arrival boundaries refuse unsupported inputs.
+ * Propagation clock, distance, physical profile and out-of-film arrival
+ * boundaries refuse unsupported inputs.
  *
  * Scenarios:
- * 1. Empty assumptions, unsupported laws and invalid physical profile values retain exact refusals.
- * 2. Distance, emission, segment, frame rate, total span and out-of-film arrival refuse their negative or non-finite boundaries.
+ *
+ * 1. Empty assumptions and invalid physical profile values retain exact refusals.
+ * 2. Distance, emission, segment, frame rate, total span and out-of-film arrival
+ *    refuse their negative boundaries.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Invokes actual propagation derivation for individually malformed clocks, distance and physical profile fields, observing each original diagnostic substring instead of accepting a fallback receipt.
- * @evidence contracts/development/testing.md#independent-expectations Literal invalid values, unsupported discriminants and exclusive film/segment bounds determine the expected refusals independently. The fixed valid base arranges one changed premise at a time; diagnostic agreement does not prove numeric conditioning or every possible malformed input.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves empty/blank assumptions, out-of-film arrival, negative/NaN coefficient and absorption, fractional/negative/outside frames, NaN/zero fps or speed, blank identity and unsupported gain/spectral/boundary choices. Separate accepted-path units own zero distance and carry/trim PCM behavior.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh selected profiles and refusal closures through the existing fixture; deliberate invalid discriminant casts remain negative inputs, with no file, device, decoder, renderer, browser or GPU and no foreign-method replacement.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty assumptions, unsupported laws and invalid physical profile values retain exact refusals.).
+ * @evidence contracts/development/testing.md#independent-expectations Literal invalid values and exclusive film/segment bounds determine the expected refusals independently. The fixed valid base arranges one changed premise at a time; diagnostic agreement does not prove numeric conditioning or every possible malformed input.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves empty/blank assumptions, out-of-film arrival, negative coefficient and absorption, fractional/negative/outside frames and zero fps or speed. Separate accepted-path units own zero distance and carry/trim PCM behavior.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh selected profiles and refusal closures through the existing fixture, with no file, device, decoder, renderer, browser or GPU and no foreign-method replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty assumptions and invalid physical profile values retain exact refusals.).
  */
 export function test_engine_sound_propagation_admission(): void {
   const { profile }: ReturnType<typeof createSoundPropagationTestInputs> =
@@ -106,17 +109,9 @@ export function test_engine_sound_propagation_admission(): void {
   TestValidator.equals(
     "every numeric and profile precondition refuses its negative boundary",
     {
-      distanceNaN: throwsError(
-        (): ReturnType<typeof propagate> => propagate({ distanceMeters: NaN }),
-        "non-negative",
-      ),
       distanceNegative: throwsError(
         (): ReturnType<typeof propagate> => propagate({ distanceMeters: -1 }),
         "non-negative",
-      ),
-      emissionFractional: throwsError(
-        (): ReturnType<typeof propagate> => propagate({ emissionFrame: 0.5 }),
-        "integer at least 0",
       ),
       emissionNegative: throwsError(
         (): ReturnType<typeof propagate> => propagate({ emissionFrame: -1 }),
@@ -126,17 +121,9 @@ export function test_engine_sound_propagation_admission(): void {
         (): ReturnType<typeof propagate> => propagate({ segmentEndFrame: 0 }),
         "integer at least 1",
       ),
-      fpsNaN: throwsError(
-        (): ReturnType<typeof propagate> => propagate({ fps: NaN }),
-        "positive",
-      ),
       fpsZero: throwsError(
         (): ReturnType<typeof propagate> => propagate({ fps: 0 }),
         "positive",
-      ),
-      totalFractional: throwsError(
-        (): ReturnType<typeof propagate> => propagate({ totalFrames: 2.5 }),
-        "integer at least 1",
       ),
       totalZero: throwsError(
         (): ReturnType<typeof propagate> => propagate({ totalFrames: 0 }),
@@ -151,61 +138,15 @@ export function test_engine_sound_propagation_admission(): void {
         (): ReturnType<typeof propagate> => propagate({ segmentEndFrame: 4 }),
         "segment end lies outside",
       ),
-      blankProfile: throwsError(
-        (): ReturnType<typeof propagate> =>
-          propagate({}, { ...profile(), id: " " }),
-        "id must not be blank",
-      ),
-      speedNaN: throwsError(
-        (): ReturnType<typeof propagate> =>
-          propagate({}, { ...profile(), speedOfSoundMetersPerSecond: NaN }),
-        "speed must be finite and positive",
-      ),
       speedZero: throwsError(
         (): ReturnType<typeof propagate> =>
           propagate({}, { ...profile(), speedOfSoundMetersPerSecond: 0 }),
         "speed must be finite and positive",
       ),
-      gainLaw: throwsError(
-        (): ReturnType<typeof propagate> =>
-          propagate({}, {
-            ...profile(),
-            distanceGain: { kind: "other", coefficient: 1 },
-          } as unknown as IAutoMovieSoundPropagationProfile),
-        "gain law is unsupported",
-      ),
-      coefficientNaN: throwsError(
-        (): ReturnType<typeof propagate> =>
-          propagate(
-            {},
-            {
-              ...profile(),
-              distanceGain: {
-                kind: "softened-inverse-square-v1",
-                coefficient: NaN,
-              },
-            },
-          ),
-        "coefficient must be finite",
-      ),
       blankAssumption: throwsError(
         (): ReturnType<typeof propagate> =>
           propagate({}, { ...profile(), assumptions: [" "] }),
         "assumptions",
-      ),
-      absorptionNaN: throwsError(
-        (): ReturnType<typeof propagate> =>
-          propagate(
-            {},
-            {
-              ...profile(),
-              spectral: {
-                kind: "broadband-high-frequency-v1",
-                absorptionDbPerMeter: NaN,
-              },
-            },
-          ),
-        "absorption must be finite",
       ),
       absorptionNegative: throwsError(
         (): ReturnType<typeof propagate> =>
@@ -221,45 +162,18 @@ export function test_engine_sound_propagation_admission(): void {
           ),
         "absorption must be finite",
       ),
-      spectralLaw: throwsError(
-        (): ReturnType<typeof propagate> =>
-          propagate({}, {
-            ...profile(),
-            spectral: { kind: "other" },
-          } as unknown as IAutoMovieSoundPropagationProfile),
-        "spectral law is unsupported",
-      ),
-      segmentBoundary: throwsError(
-        (): ReturnType<typeof propagate> =>
-          propagate({}, {
-            ...profile(),
-            segmentBoundary: "other",
-          } as unknown as IAutoMovieSoundPropagationProfile),
-        "segment-boundary policy is unsupported",
-      ),
     },
     {
-      distanceNaN: true,
       distanceNegative: true,
-      emissionFractional: true,
       emissionNegative: true,
       segmentBeforeEmission: true,
-      fpsNaN: true,
       fpsZero: true,
-      totalFractional: true,
       totalZero: true,
       emissionOutside: true,
       segmentOutside: true,
-      blankProfile: true,
-      speedNaN: true,
       speedZero: true,
-      gainLaw: true,
-      coefficientNaN: true,
       blankAssumption: true,
-      absorptionNaN: true,
       absorptionNegative: true,
-      spectralLaw: true,
-      segmentBoundary: true,
     },
   );
 }

@@ -1,21 +1,3 @@
-# src/kinematics/RigidCarrierSample.ts#RigidCarrierSample
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Holds identify the constant portions of the support and its attached material frames, in film seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An authored binding certifies one exact pair of readers for one model. A hold carries a closed-form domain predicate from that producer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the paired-reader producer and consuming prop adapter register or read this evidence.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Field equality and a stopped velocity alone confer no authority. The registry keeps no sampled output, pose, or fit.
-
 # src/kinematics/RigidCarrierSample.ts#RigidCarrierSample.IHold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

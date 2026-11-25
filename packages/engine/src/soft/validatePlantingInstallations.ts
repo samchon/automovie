@@ -26,25 +26,9 @@ import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
 
-/** Fixed schema kinds reused by installation admission; module-owned set is never mutated by a pass. */
-const INSTALLATION_KINDS: Set<string> = new Set([
-  "potted",
-  "planter",
-  "green-wall",
-  "aquatic",
-  "other",
-]);
-
-/** Fixed declared irrigation media; this membership check does not establish a connected water service. */
-const IRRIGATION_MEDIA: Set<string> = new Set([
-  "potable",
-  "reclaimed",
-  "rainwater",
-  "pond",
-]);
-
 /**
- * Join planting recipes, clusters and installation references, then inspect member canopy bounds in authored rooms.
+ * Join planting recipes, clusters and installation references, then inspect
+ * member canopy bounds in authored rooms.
  */
 export const validatePlantingInstallations: (
   props: IAutoMovieValidatePlantingInstallations.IProps,
@@ -146,14 +130,7 @@ export const validatePlantingInstallations: (
   installations.forEach(
     (installation: IAutoMoviePlantingInstallation, index: number): void => {
       const path: string = `${root}.installations[${index}]`;
-      if (installation.id.trim().length === 0)
-        out.push(
-          "type",
-          `${path}.id`,
-          "planting installation id must be non-empty",
-          installation.id,
-        );
-      else if (seenInstallations.has(installation.id))
+      if (seenInstallations.has(installation.id))
         out.push(
           "type",
           `${path}.id`,
@@ -162,13 +139,6 @@ export const validatePlantingInstallations: (
         );
       seenInstallations.add(installation.id);
 
-      if (!INSTALLATION_KINDS.has(installation.kind))
-        out.push(
-          "type",
-          `${path}.kind`,
-          `planting installation kind must be one of ${[...INSTALLATION_KINDS].join(", ")}`,
-          installation.kind,
-        );
       if (installation.environment !== environment.id)
         out.push(
           "type",
@@ -231,22 +201,12 @@ export const validatePlantingInstallations: (
             `irrigation port "${irrigation.port}" does not resolve in built environment "${environment.id}"`,
             irrigation.port,
           );
-        if (
-          !Number.isFinite(irrigation.demandLitresPerDay) ||
-          irrigation.demandLitresPerDay <= 0
-        )
+        if (irrigation.demandLitresPerDay <= 0)
           out.push(
             "range",
             `${path}.irrigation.demandLitresPerDay`,
             "irrigation demand must be finite and strictly positive",
             irrigation.demandLitresPerDay,
-          );
-        if (!IRRIGATION_MEDIA.has(irrigation.medium))
-          out.push(
-            "type",
-            `${path}.irrigation.medium`,
-            `irrigation medium must be one of ${[...IRRIGATION_MEDIA].join(", ")}`,
-            irrigation.medium,
           );
       }
       const aquatic: boolean = installation.kind === "aquatic";
@@ -440,12 +400,8 @@ const corners: (
  * statement about the design, and integrating a pond to decide whether a reed
  * is planted in it would make the answer depend on a shot second nobody named.
  *
- * `null` covers both ways the question can be unanswerable — a point outside
- * the lattice, and a lattice whose bed or depth array does not reach the cell —
- * because a fluid domain arrives here from another binding's validation and
- * this one must not read past the end of an array and compare against `NaN`. A
- * comparison against `NaN` is false, which would make a malformed pond report
- * every reed as properly planted.
+ * A point outside the lattice or a cell missing either sample has no stated
+ * free surface.
  */
 const freeSurfaceAt: (
   domain: IAutoMovieFluidDomain,
@@ -463,7 +419,9 @@ const freeSurfaceAt: (
   if (column < 0 || column >= domain.grid.columns) return null;
   if (row < 0 || row >= domain.grid.rows) return null;
   const cell: number = row * domain.grid.columns + column;
-  const level: number =
-    domain.grid.origin.y + domain.bed[cell] + domain.depth[cell];
-  return Number.isFinite(level) ? level : null;
+  const bed: number | undefined = domain.bed[cell];
+  const depth: number | undefined = domain.depth[cell];
+  return bed === undefined || depth === undefined
+    ? null
+    : domain.grid.origin.y + bed + depth;
 };

@@ -8,13 +8,12 @@ const TOLERANCE: number = 1e-6;
  * Find the factor on a posed sweep's joint sections that restores its rest
  * volume, by secant steps.
  *
- * The first two trials are 1 and `sqrt(target / V(1))`, the factor that
- * would restore the volume if it scaled as an area; then up to eight secant
- * steps, each factor held at 0.1 or more, stop when the volume is within
- * 1e-6 of the target or two trials give the same volume. Volume preservation
- * in sweep-based deformation rescales the key section at the bent joint the
- * same way (Hyun et al. 2005, The Visual Computer 21(8-10):542-550, Section
- * 4.4).
+ * The first two trials are 1 and `sqrt(target / V(1))`, the factor that would
+ * restore the volume if it scaled as an area; then up to eight secant steps,
+ * each factor held at 0.1 or more, stop when the volume is within 1e-6 of the
+ * target or two trials give the same volume. Volume preservation in sweep-based
+ * deformation rescales the key section at the bent joint the same way (Hyun et
+ * al. 2005, The Visual Computer 21(8-10):542-550, Section 4.4).
  *
  * @param target The rest volume, cubic metres.
  * @param volume The posed volume at a joint factor.

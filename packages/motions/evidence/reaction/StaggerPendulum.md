@@ -16,36 +16,6 @@ The state, its spans and its readings, as `staggerStep`, `staggerClose` and `sta
 
 Every quantity is the body's own: its feet, its centre of mass and its pendulum's frequency.
 
-# src/reaction/StaggerPendulum.ts#StaggerPendulum.prepare
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read, its frames and who shares it.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The pendulum's frequency from Hof's leg length, the centre of mass read from the entry posture, and the soles' extents along the heading's axes.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One record of every speed-independent quantity the constructor used to read per pendulum.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Every value is read from the actual body and entry; nothing is a constant of one body.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Four centre-of-mass reads (the entry's and the bending's three) and two sole-extent scans per search instead of per probed speed.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The record depends on the body and the entry alone, so a search over speeds and pushes on one entry shares it; a different entry prepares its own.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Returns a fresh record that its search owns until it returns.
-
 # src/reaction/StaggerPendulum.ts#StaggerPendulum.flat
 
 ## @evidence contracts/development/common.md#meaningful-documentation

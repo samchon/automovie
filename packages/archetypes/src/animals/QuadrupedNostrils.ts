@@ -5,25 +5,31 @@ import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * Two coarse nostrils laid inside the head capsule's nose cap, one to each side, so breathing can flare them.
+ * Two coarse nostrils laid inside the head capsule's nose cap, one to each
+ * side, so breathing can flare them.
  *
- * Each nostril is a sphere centred on the nose cap's lateral side, inset so that it is internally tangent to the cap: at rest it lies wholly inside the head and the closed silhouette and every head contact are unchanged; widening its radius pushes it out of the muzzle, the flare. Its radius and how far it sits back from the nose are authored coarse construction, not measured anatomy, and it carries no mass of its own: a share of zero under the head's source share.
+ * Each nostril is a sphere centred on the nose cap's lateral side, inset so
+ * that it is internally tangent to the cap: at rest it lies wholly inside the
+ * head and the closed silhouette and every head contact are unchanged; widening
+ * its radius pushes it out of the muzzle, the flare. Its radius and how far it
+ * sits back from the nose are authored coarse construction, not measured
+ * anatomy, and it carries no mass of its own: a share of zero under the head's
+ * source share.
  */
 export namespace QuadrupedNostrils {
-  /**
-   * Authored nostril construction as fractions of the head.
-   */
+  /** Authored nostril construction as fractions of the head. */
   export interface IProfile {
     /** Each nostril's radius over the head capsule's, in (0, 1). */
     radius: number;
 
-    /** How far back of the nose each sits, over the head capsule's radius, in [0, 1). */
+    /**
+     * How far back of the nose each sits, over the head capsule's radius, in
+     * [0, 1).
+     */
     back: number;
   }
 
-  /**
-   * The nostrils' neutral centres and radius in the model's space.
-   */
+  /** The nostrils' neutral centres and radius in the model's space. */
   export interface IGeometry {
     /** The left nostril's centre. */
     left: IAutoMovieVector3;
@@ -41,7 +47,8 @@ export namespace QuadrupedNostrils {
    * @param head The neutral head capsule: poll, nose and radius.
    * @param profile The authored construction.
    * @returns Their neutral geometry.
-   * @throws {RangeError} For fractions outside their ranges or a degenerate head.
+   * @throws {RangeError} For fractions outside their ranges or a degenerate
+   *   head.
    */
   export function geometry(
     head: Pick<
@@ -59,7 +66,7 @@ export namespace QuadrupedNostrils {
       );
     const span: IAutoMovieVector3 = Vector3.subtract(head.nose, head.poll);
     const length: number = Vector3.length(span);
-    if (!(Number.isFinite(length) && length > 0))
+    if (!(length > 0))
       throw new RangeError(
         "Nostrils need a head with a finite positive length",
       );

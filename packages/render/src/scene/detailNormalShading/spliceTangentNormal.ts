@@ -3,10 +3,10 @@ import * as THREE from "three";
 import { DETAIL_NORMAL_TARGET } from "./DETAIL_NORMAL_TARGET.js";
 
 /**
- * Insert code into the tangent-space branch of three's normal-map chunk,
- * just before the frame turns `mapN` into the normal, expanding the chunk
- * first unless an earlier patch already did, so patches that bend the
- * tangent-space normal compose in the order they run.
+ * Insert code into the tangent-space branch of three's normal-map chunk, just
+ * before the frame turns `mapN` into the normal, expanding the chunk first
+ * unless an earlier patch already did, so patches that bend the tangent-space
+ * normal compose in the order they run.
  */
 export const spliceTangentNormal: (
   fragmentShader: string,

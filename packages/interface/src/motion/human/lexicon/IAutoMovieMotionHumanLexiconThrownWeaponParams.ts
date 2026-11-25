@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
 
 /**
- * Open parameters of the thrownWeapon lexicon family, keyed by each runtime export name: the thrown weapons of #3490.
+ * Open parameters of the thrownWeapon lexicon family, keyed by each runtime
+ * export name: the thrown weapons.
  */
 export interface IAutoMovieMotionHumanLexiconThrownWeaponParams {
   /** A javelin thrown overarm, its shaft along its flight. */

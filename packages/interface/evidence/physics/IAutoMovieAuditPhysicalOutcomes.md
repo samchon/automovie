@@ -1,21 +1,3 @@
-# src/physics/IAutoMovieAuditPhysicalOutcomes.ts#IAutoMovieAuditPhysicalOutcomes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-An authored contact or miss to compare with measured shape-pair episodes. One unsatisfied contact, miss or fall promise, or an unplanned measured episode.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The finite nonnegative film second and tolerance define an inclusive timing window; shape lists are nonempty and names are nonblank. kind selects the failure meaning; seconds uses the film clock and missDistance uses metres or null for a fall.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-auditPhysicalOutcomes borrows this promise and requires matching body, shape and observation-source identities. auditPhysicalOutcomes allocates mutable findings for its caller; actionId links a promise or the unexpected receipt.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-admitPhysicalOutcomes checks the promise; a solver promise additionally needs a positive measured impulse at contact, so a geometric overlap alone cannot satisfy it. A finding reports evidence rather than changing the performance; an empty findings array means only the supplied promises and receipts passed.
-
 # src/physics/IAutoMovieAuditPhysicalOutcomes.ts#IAutoMovieAuditPhysicalOutcomes.IAction
 
 ## @evidence contracts/development/common.md#meaningful-documentation

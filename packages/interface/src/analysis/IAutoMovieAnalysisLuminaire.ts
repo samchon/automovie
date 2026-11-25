@@ -20,6 +20,9 @@ export interface IAutoMovieAnalysisLuminaire {
   /** World position in metres; every axis finite. */
   position: IAutoMovieVector3;
 
-  /** Luminous intensity in candela, equal in every direction; finite, at or above zero. */
+  /**
+   * Luminous intensity in candela, equal in every direction; finite, at or
+   * above zero.
+   */
   intensity: number;
 }

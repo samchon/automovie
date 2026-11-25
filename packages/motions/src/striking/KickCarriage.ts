@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -9,9 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
@@ -20,22 +22,20 @@ import type { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * How the body carries a kick (Gavagan and Sayers 2017 phases; kickboxing
- * research of #3201): the support foot pivots on its ball with the heel
- * raised, the pelvis turns over into the kick, the root travels over the
- * support foot, and the whole body tilts away from the target about the
- * support hip, which is what raises the kicking hip so the leg reaches a
- * high target inside the hip's range of motion.
+ * research): the support foot pivots on its ball with the heel raised, the
+ * pelvis turns over into the kick, the root travels over the support foot, and
+ * the whole body tilts away from the target about the support hip, which is
+ * what raises the kicking hip so the leg reaches a high target inside the hip's
+ * range of motion.
  *
- * The turn, the tilt, the travel and the rise onto the support leg grow on
- * one minimum-jerk profile to the chamber key and fall on another from the
- * contact to the replant. A step of the support foot (up toward a target out
- * of reach, back from one too close) slides on its own clock between the
- * launch and the chamber key, and the root rides it.
+ * The turn, the tilt, the travel and the rise onto the support leg grow on one
+ * minimum-jerk profile to the chamber key and fall on another from the contact
+ * to the replant. A step of the support foot (up toward a target out of reach,
+ * back from one too close) slides on its own clock between the launch and the
+ * chamber key, and the root rides it.
  */
 export namespace KickCarriage {
-  /**
-   * What a kick's carriage is built from.
-   */
+  /** What a kick's carriage is built from. */
   export interface IProps {
     /** The kicking body. */
     body: IAutoMovieMotionHumanBody;
@@ -43,14 +43,17 @@ export namespace KickCarriage {
     /** The posture the kick starts from. */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The entry joints with the fixed fighting hand/neck posture already applied, when prepared by the kick planner. */
+    /**
+     * The entry joints with the fixed fighting hand/neck posture already
+     * applied, when prepared by the kick planner.
+     */
     joints?: IAutoMovieMotionHumanPosture["joints"];
 
     /** The feet the kick starts on. */
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The kicking side. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The horizontal unit line toward the target. */
     line: IAutoMovieVector3;
@@ -65,24 +68,72 @@ export namespace KickCarriage {
     recovery?: strikingStepSupport.ISupport;
 
     /**
-     * How far the entry's support hip stands below its standing height,
-     * metres, never negative: the kick rises onto its support leg by this
-     * much, so a kick thrown from a sunk stance has the hip height its range
-     * was read at.
+     * How far the entry's support hip stands below its standing height, metres,
+     * never negative: the kick rises onto its support leg by this much, so a
+     * kick thrown from a sunk stance has the hip height its range was read at.
      */
     rise: number;
+  }
+
+  /** The scalar timing driving the three independent carriage motions. */
+  export interface IMotion {
+    /** Share of the turn, lean and shift onto the support foot. */
+    weight: number;
+
+    /** Travel retained after the support foot has stepped, metres. */
+    stepped: number;
+
+    /** Travel of the pelvis ahead of the support foot, metres. */
+    driven: number;
+  }
+
+  /**
+   * Read the carriage's three minimum-jerk tracks. The step remains on the
+   * original clock when a withdrawal reverses the turn or drive.
+   *
+   * @param timing The phase boundaries, seconds since launch of the action.
+   * @param carriage The step and drive at their full displacements, metres.
+   * @param seconds Seconds on the step's clock.
+   * @param turning Seconds on the turn and drive's clock.
+   * @returns The share of the plate's turn and the two travel displacements.
+   */
+  export function motion(
+    timing: Pick<IAutoMovieMotionHumanKickGeometry.ITiming, "prep" | "chamber" | "impact" | "duration">,
+    carriage: Pick<IAutoMovieMotionHumanKickGeometry.ICarriage, "step" | "drive">,
+    seconds: number,
+    turning: number,
+  ): IMotion {
+    const recovery: number = minimumJerk.share(
+      (turning - timing.impact) / (timing.duration - timing.impact),
+    );
+    const weight: number = minimumJerk.share(turning / timing.chamber) - recovery;
+    const stepped: number = carriage.step * minimumJerk.share(
+      (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
+    );
+    const driven: number = carriage.drive === 0
+      ? 0
+      : carriage.drive * (minimumJerk.share(
+          (turning - timing.chamber) / Math.max(1e-3, timing.impact - timing.chamber),
+        ) - recovery);
+    return { weight, stepped, driven };
   }
 
   /**
    * The body's posture without the kicking leg's goal.
    *
    * @param props The kick's body, entry, feet, side, line and timing.
-   * @param carriage The carriage shown in full between the chamber key and the contact.
-   * @param seconds Seconds since the kick's start: the clock of the support foot's step.
-   * @param turning The second the turn, tilt and travel are read at; `seconds` when absent.
-   * @param resolution Optional exact FK workspace borrowed from this synchronous person's evaluation.
-   * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
-   * @returns The posture, lowered until the planted support leg reaches its foot; the kicking leg holds its entry foot, unplanted.
+   * @param carriage The carriage shown in full between the chamber key and the
+   *   contact.
+   * @param seconds Seconds since the kick's start: the clock of the support
+   *   foot's step.
+   * @param turning The second the turn, tilt and travel are read at; `seconds`
+   *   when absent.
+   * @param resolution Optional exact FK workspace borrowed from this
+   *   synchronous person's evaluation.
+   * @param projection Optional genuine same-body ROM metadata borrowed only
+   *   within this synchronous unchanged-table operation.
+   * @returns The posture, lowered until the planted support leg reaches its
+   *   foot; the kicking leg holds its entry foot, unplanted.
    */
   export function posture(
     props: IProps,
@@ -95,32 +146,9 @@ export namespace KickCarriage {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const { body, entry, feet, side, line, timing } = props;
-    const support: "left" | "right" = side === "left" ? "right" : "left";
+    const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const w: number =
-      minimumJerk.share(turning / timing.chamber) -
-      minimumJerk.share(
-        (turning - timing.impact) / (timing.duration - timing.impact),
-      );
-    const stepped: number =
-      carriage.step *
-      minimumJerk.share(
-        (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
-      );
-
-    // A push kick's pelvis is held back through the chamber and driven along
-    // the line into the contact, then drawn back with the recoil.
-    const driven: number =
-      carriage.drive === 0
-        ? 0
-        : carriage.drive *
-          (minimumJerk.share(
-            (turning - timing.chamber) /
-              Math.max(1e-3, timing.impact - timing.chamber),
-          ) -
-            minimumJerk.share(
-              (turning - timing.impact) / (timing.duration - timing.impact),
-            ));
+    const { weight: w, stepped, driven }: IMotion = motion(timing, carriage, seconds, turning);
 
     // The root travels toward the support ankle and rides the step and the
     // drive.
@@ -184,7 +212,7 @@ export namespace KickCarriage {
             read,
             projection,
           );
-    return resolveHumanPosture.lower(
+    return lowerHumanPosture(
       body,
       {
         ...tilted,
@@ -205,7 +233,7 @@ export namespace KickCarriage {
           },
         ),
       },
-      resolveHumanPosture.KNEE,
+      lowerHumanPosture.KNEE,
       read,
     );
   }
@@ -216,14 +244,16 @@ export namespace KickCarriage {
    * @param body The body.
    * @param posture The posture; its limbs are not read.
    * @param side The hip's side.
-   * @param resolution Optional exact FK workspace borrowed from this synchronous evaluation.
-   * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
+   * @param resolution Optional exact FK workspace borrowed from this
+   *   synchronous evaluation.
+   * @param projection Optional genuine same-body ROM metadata borrowed only
+   *   within this synchronous unchanged-table operation.
    * @returns The hip joint, world metres.
    */
   export function hip(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3 {
@@ -233,7 +263,7 @@ export namespace KickCarriage {
       resolution,
       HIPS[side],
       projection,
-    ).get(`${side}UpperLeg` as AutoMovieHumanoidBone)!.worldPosition;
+    ).get(`${side}UpperLeg`)!.worldPosition;
   }
 
   /**
@@ -244,7 +274,7 @@ export namespace KickCarriage {
   function tilt(
     body: IAutoMovieMotionHumanBody,
     flat: IAutoMovieMotionHumanPosture,
-    support: "left" | "right",
+    support: AutoMovieHumanSide,
     axis: IAutoMovieVector3,
     degrees: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
@@ -253,12 +283,12 @@ export namespace KickCarriage {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.fromAxisAngle(axis, degrees),
-        resolveHumanPosture.heading(flat),
+        humanPostureHeading(flat),
       ),
     );
     const turned: IAutoMovieMotionHumanPosture = {
       ...flat,
-      ...resolveHumanPosture.angles(rotation),
+      ...humanPostureHeading.angles(rotation),
     };
     return {
       ...turned,
@@ -273,9 +303,12 @@ export namespace KickCarriage {
   }
 }
 
-/** Immutable requested outputs; each hip query still admits every authored joint. */
+/**
+ * Immutable requested outputs; each hip query still admits every authored
+ * joint.
+ */
 const HIPS: Readonly<
-  Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
   left: new Set<AutoMovieHumanoidBone>(["leftUpperLeg"]),
   right: new Set<AutoMovieHumanoidBone>(["rightUpperLeg"]),

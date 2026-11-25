@@ -14,14 +14,15 @@ import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
  * A per-axis positional motor measuring 2 asin(qi) while using the plain joint
  * axis as its Jacobian disagrees under compound rotations. The error is
  * therefore the geodesic rotation vector of target times inverse current, on
- * the short arc. Each axis drives an implicit velocity motor with damping
- * d = (c + k dt) strength-scaled plus passive damping and target speed
- * (k e + c_active w_target + f strength) / d_active+passive, the backward-Euler
- * form of PD with stiffness k = stiffness strength. With positive strength the
+ * the short arc. Each axis drives an implicit velocity motor with damping d =
+ * (c + k dt) strength-scaled plus passive damping and target speed (k e +
+ * c_active w_target + f strength) / d_active+passive, the backward-Euler form
+ * of PD with stiffness k = stiffness strength. With positive strength the
  * requested velocity is projected into the joint's limit box for the next
- * substep, read in its chart when it declares one, as the solver limits it. The cap is the axis torque when any gain is active and zero
- * otherwise. Saturation is a demand forecast |d (speed - velocity)| > cap at
- * the command's velocity, before the substeps run.
+ * substep, read in its chart when it declares one, as the solver limits it. The
+ * cap is the axis torque when any gain is active and zero otherwise. Saturation
+ * is a demand forecast |d (speed - velocity)| > cap at the command's velocity,
+ * before the substeps run.
  */
 export function physicalJointMotorCommand(
   input: IAutoMoviePhysicalJointMotorCommand.IInput,

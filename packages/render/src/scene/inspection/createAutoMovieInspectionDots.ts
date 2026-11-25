@@ -1,13 +1,24 @@
 import * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
+import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /**
- * Make the points object inspection marks draw their places with: one screen-sized square per vertex, one colour per vertex, unlit and outside fog and tone mapping.
+ * Make the points object inspection marks draw their places with: one
+ * screen-sized square per vertex, one colour per vertex, unlit and outside fog
+ * and tone mapping.
  *
- * A point is three stroke widths across, in the same pixels as a line's width, so a joint stays visible where the lines of its bones meet it. Its size does not shrink with distance. three.js draws it that many pixels times the renderer's pixel ratio, as it draws a line's width.
+ * A point is three stroke widths across, in the same pixels as a line's width,
+ * so a joint stays visible where the lines of its bones meet it. Its size does
+ * not shrink with distance. three.js draws it that many pixels times the
+ * renderer's pixel ratio, as it draws a line's width.
  *
- * `positions` holds one xyz vertex per point and `colors` the matching linear rgb, kept by the geometry, not copied, so the caller rewrites `positions` in place to move the points. Depth follows `createAutoMovieInspectionStrokes`: ignored with `xray`, and otherwise led `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` toward the camera.
+ * `positions` holds one xyz vertex per point and `colors` the matching linear
+ * rgb, kept by the geometry, not copied, so the caller rewrites `positions` in
+ * place to move the points. Depth follows `createAutoMovieInspectionStrokes`:
+ * ignored with `xray`, and otherwise led `AUTO_MOVIE_INSPECTION_DEPTH_LEAD`
+ * toward the camera.
  */
 export function createAutoMovieInspectionDots(
   positions: Float32Array,
@@ -34,19 +45,20 @@ export function createAutoMovieInspectionDots(
     fog: false,
   });
   if (!options.xray)
-    material.onBeforeCompile = (
-      shader: THREE.WebGLProgramParametersWithUniforms,
-    ): void => {
-      // Lead the view-space position toward the eye, then project it again.
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <project_vertex>",
-        [
+    addMaterialShaderPatch(material, {
+      key: "automovie-inspection-dot-lead",
+      apply: (shader: IMaterialShaderSource): void => {
+        // Lead the view-space position toward the eye, then project it again.
+        shader.vertexShader = shader.vertexShader.replace(
           "#include <project_vertex>",
-          `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
-          "gl_Position = projectionMatrix * mvPosition;",
-        ].join("\n"),
-      );
-    };
+          [
+            "#include <project_vertex>",
+            `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
+            "gl_Position = projectionMatrix * mvPosition;",
+          ].join("\n"),
+        );
+      },
+    });
 
   const dots: THREE.Points = new THREE.Points(geometry, material);
   dots.matrixAutoUpdate = false;

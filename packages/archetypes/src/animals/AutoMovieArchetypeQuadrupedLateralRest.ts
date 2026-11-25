@@ -26,10 +26,13 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC13491436/
  *
  * @param animal The rigged animal and attached geometry to support.
- * @param restParams The existing sternal plan and its complete carrier bindings.
+ * @param restParams The existing sternal plan and its complete carrier
+ *   bindings.
  * @param params Explicit rolling shape, direction and durations for this take.
- * @returns One seekable rest performance with the lateral and return cues on its own clock.
- * @throws {RangeError} For inconsistent time, geometry or support at the held side.
+ * @returns One seekable rest performance with the lateral and return cues on
+ *   its own clock.
+ * @throws {RangeError} For inconsistent time, geometry or support at the held
+ *   side.
  */
 export function AutoMovieArchetypeQuadrupedLateralRest<
   Id extends string,
@@ -43,9 +46,6 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   const { turnSeconds, holdSeconds, side, offset, rollDegrees, tuckDegrees } =
     params;
   if (
-    ![floorY, turnSeconds, holdSeconds, offset, rollDegrees, tuckDegrees].every(
-      Number.isFinite,
-    ) ||
     !(
       turnSeconds > 0 &&
       holdSeconds >= 0 &&
@@ -68,14 +68,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   const sternal: number = sideOff + turnSeconds;
   const extended: number = sternal - start;
   const end: number = rest.duration + extended;
-  if (
-    !(
-      Number.isFinite(end) &&
-      start < sideOn &&
-      sideOn <= sideOff &&
-      sideOff < sternal
-    )
-  )
+  if (!(start < sideOn && sideOn <= sideOff && sideOff < sternal))
     throw new RangeError("The roll clock is unrepresentable");
   const sign: number = side === "left" ? 1 : -1;
 
@@ -127,7 +120,10 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
     sample,
   };
 
-  /** Turn each proximal bar inward and keep the attached distal fold carried by its endpoint. */
+  /**
+   * Turn each proximal bar inward and keep the attached distal fold carried by
+   * its endpoint.
+   */
   function tuck(amount: number): AutoMovieArchetype<Id, D> {
     const joints: Map<
       AutoMovieArchetypeQuadrupedBody.Bone,
@@ -185,7 +181,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   function sample(
     seconds: number,
   ): AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D> {
-    if (!Number.isFinite(seconds) || seconds < 0 || seconds > end)
+    if (seconds < 0 || seconds > end)
       throw new RangeError("Lateral rest time lies outside the authored clip");
     if (seconds < start || seconds >= sternal) {
       const original: AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D> =
@@ -200,6 +196,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
         z: 0,
       });
       return {
+        kind: "lateral",
         animal: original.animal,
         placement,
         support: support(original.animal, placement).sites,
@@ -218,6 +215,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
     const bound: Bound = support(animal, placement);
     placement.translation.y = floorY - bound.lowest;
     return {
+      kind: "lateral",
       animal,
       placement,
       support: bound.sites,
@@ -240,14 +238,15 @@ interface Bound {
   sites: readonly string[];
 }
 
-/** Find the exact set support over the transformed rigid primitives. */
+/** Find the exact set support over the transformed rigid solids. */
 function support(
-  animal: Pick<AutoMovieArchetype, "parts">,
+  animal: Pick<AutoMovieArchetype, "parts" | "convexCells">,
   placement: IAutoMovieTransform,
 ): Bound {
   let lowest: number = Infinity;
   let body: number = Infinity;
   const bounds: { id: string; height: number }[] = [];
+  const cells: AutoMovieArchetype["convexCells"] = animal.convexCells;
   for (const part of animal.parts) {
     if (part.transform === null || part.transform === undefined)
       throw new RangeError(`Lateral rest requires a posed part ${part.id}`);
@@ -255,13 +254,13 @@ function support(
       ...part,
       transform: AutoMovieArchetypeFrame.compose(placement, part.transform),
     };
-    const height: number = QuadrupedRestFloor(posed);
+    const height: number = QuadrupedRestFloor(posed, cells);
     lowest = Math.min(height, lowest);
     if (part.id === "trunk" || part.id === "hindquarters")
       body = Math.min(body, height);
     bounds.push({ id: part.id, height });
   }
-  if (!Number.isFinite(lowest) || !Number.isFinite(body))
+  if (lowest === Infinity || body === Infinity)
     throw new RangeError("Lateral rest requires the actual supported body");
   return {
     lowest,

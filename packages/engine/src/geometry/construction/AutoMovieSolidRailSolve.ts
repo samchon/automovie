@@ -15,9 +15,7 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 const { combine, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
-/**
- * Local normal-section/chord rail solves on owned surface charts.
- */
+/** Local normal-section/chord rail solves on owned surface charts. */
 export namespace AutoMovieSolidRailSolve {
   /**
    * Solve the host's normal section across explicitly adjacent owned charts.
@@ -32,8 +30,10 @@ export namespace AutoMovieSolidRailSolve {
    * @param steps Newton iteration bound.
    * @param rounding Original relative plane/chord residual allowance.
    * @param switches Maximum accepted chart transitions.
-   * @param report Filled, when given, with why a null was returned and the face, chart, residuals and remaining switches at that moment.
-   * @returns One actually retained solution, or null on numerical/open-boundary failure.
+   * @param report Filled, when given, with why a null was returned and the
+   *   face, chart, residuals and remaining switches at that moment.
+   * @returns One actually retained solution, or null on numerical/open-boundary
+   *   failure.
    */
   export function atlas(
     host: IAutoMovieSolidAtlas,
@@ -89,7 +89,11 @@ export namespace AutoMovieSolidRailSolve {
       return Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width));
     };
 
-    /** The foot itself, or one Newton step on its face from it, halved within that face's region (kept when the foot is kept), whose residual is below bound; null when none is. */
+    /**
+     * The foot itself, or one Newton step on its face from it, halved within
+     * that face's region (kept when the foot is kept), whose residual is below
+     * bound; null when none is.
+     */
     const onward = (
       foot: NonNullable<IAutoMovieSolidTraceTrialTrial | null>,
       bound: number,
@@ -342,9 +346,7 @@ export namespace AutoMovieSolidRailSolve {
       : null;
   }
 
-  /**
-   * Settle a positive-width normal section from a regional chart guess.
-   */
+  /** Settle a positive-width normal section from a regional chart guess. */
   export function section(
     surface: IAutoMovieSolidSurface,
     start: readonly [number, number],

@@ -1,20 +1,30 @@
 /**
  * Column-oriented factors of a bounded real matrix, A = U diag(s) V transpose.
  * Singular values descend. Right columns form a full basis, including a wide
- * matrix's nullspace. Nonzero left columns have unit length; orthogonality below
- * the reported relative cutoff is unresolved. Exact zero columns are zero.
+ * matrix's nullspace. Nonzero left columns have unit length; orthogonality
+ * below the reported relative cutoff is unresolved. Exact zero columns are
+ * zero.
  */
 export interface IAutoMovieSingularDecomposition {
   /** Nonnegative descending values in the original matrix's units. */
   singularValues: number[];
 
-  /** One length-m left vector per singular value; exact zero values have zero vectors. */
+  /**
+   * One length-m left vector per singular value; exact zero values have zero
+   * vectors.
+   */
   leftColumns: number[][];
 
-  /** One length-n right vector per singular value, including numerical null directions. */
+  /**
+   * One length-n right vector per singular value, including numerical null
+   * directions.
+   */
   rightColumns: number[][];
 
-  /** Count above the reported cutoff times the largest singular value, not exact rank. */
+  /**
+   * Count above the reported cutoff times the largest singular value, not exact
+   * rank.
+   */
   numericalRank: number;
 
   /** Relative cutoff below which left-column orthogonality is not qualified. */
@@ -23,12 +33,18 @@ export interface IAutoMovieSingularDecomposition {
   /** Requested maximum absolute normalized dot product of active left columns. */
   orthogonalityTolerance: number;
 
-  /** Measured maximum normalized column dot product on the final rotation-free sweep. */
+  /**
+   * Measured maximum normalized column dot product on the final rotation-free
+   * sweep.
+   */
   maximumActiveColumnCorrelation: number;
 
   /** Actual completed cyclic sweeps; an exhausted unconverged attempt throws. */
   sweeps: number;
 
-  /** Measured Frobenius reconstruction error divided by the original norm, zero for a zero matrix. */
+  /**
+   * Measured Frobenius reconstruction error divided by the original norm, zero
+   * for a zero matrix.
+   */
   relativeReconstructionResidual: number;
 }

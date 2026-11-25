@@ -30,34 +30,21 @@ const PROVITA: string =
 const POWER: string =
   "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a walker's frame, whose tube no maker read sizes";
 
-/** A saved mobility aid recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createMobilityAid.IParams,
-  seed?: number | string,
-) => AutoMovieArchetype<
-  createMobilityAid.Affordance,
-  createMobilityAid.Dimension
->;
-
 /**
- * Replay a saved mobilityAid variant with the original dimensions, identifier and model choices.
+ * Replay a saved mobilityAid variant with the original dimensions, identifier
+ * and model choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved mobilityAid variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the mobilityAid draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createMobilityAid(
   params: createMobilityAid.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createMobilityAid.Affordance,
   createMobilityAid.Dimension
@@ -70,18 +57,10 @@ export function createMobilityAid(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createMobilityAid.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createMobilityAid.PRODUCERS[kind](params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createMobilityAid}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the three aids with sourced bands, one band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grips a hand takes, the foot on the floor and an infusion stand's hook (#3468's N5).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, widths, diameter and walker's weight are the maker's as read; the infusion stand's are its maker's catalogue's as read; the walker's depth and the cane's weight are seen only in search results and a walker's tube is a grip band applied, all provisional; the cane's handle length is CCOHS's recommended handle length.
- */
+/** Companion types, constants and bands of {@link createMobilityAid}. */
 export namespace createMobilityAid {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -114,7 +93,13 @@ export namespace createMobilityAid {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["cane", "walker", "infusionStand"];
 
-  /** The infusion stand's read construction, metres and kilograms: its castors' and base legs' diameters, its outer tube's length, its inner tube's diameter and its weighted base's mass, Provita's I-PRE003 / I-PRE013; its five legs are counted in the catalogue's photographs of the stand (pp. 13 and 16), as its text states no count. */
+  /**
+   * The infusion stand's read construction, metres and kilograms: its castors'
+   * and base legs' diameters, its outer tube's length, its inner tube's
+   * diameter and its weighted base's mass, Provita's I-PRE003 / I-PRE013; its
+   * five legs are counted in the catalogue's photographs of the stand (pp. 13
+   * and 16), as its text states no count.
+   */
   export const STAND: Readonly<{
     legs: number;
     castor: number;
@@ -131,14 +116,20 @@ export namespace createMobilityAid {
     base: 8.9,
   };
 
-  /** The cane's offset handle, forward of the shaft, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html), the length a hand closes round. */
+  /**
+   * The cane's offset handle, forward of the shaft, metres: the 120 mm CCOHS
+   * recommends for a tool handle
+   * (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html), the
+   * length a hand closes round.
+   */
   export const HANDLE: number = 0.12;
 
   /**
    * The affordance ids:
    *
    * - `grip`: a cane's handle, taken from above.
-   * - `leftGrip`, `rightGrip`: a walker's side rails at `+X` and `-X`, taken from above.
+   * - `leftGrip`, `rightGrip`: a walker's side rails at `+X` and `-X`, taken from
+   *   above.
    * - `tip`: the foot on the floor, facing down.
    * - `hook`: an infusion stand's hooks at its top, where the bags hang.
    */
@@ -147,9 +138,12 @@ export namespace createMobilityAid {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `height`: the handle's top above the floor; an infusion stand's top, where its hooks are.
-   * - `diameter`: a cane's shaft, a walker's tube, an infusion stand's outer tube.
-   * - `width`, `depth`: a walker's across `X` and along `Z`; `width` an infusion stand's base diameter.
+   * - `height`: the handle's top above the floor; an infusion stand's top, where
+   *   its hooks are.
+   * - `diameter`: a cane's shaft, a walker's tube, an infusion stand's outer
+   *   tube.
+   * - `width`, `depth`: a walker's across `X` and along `Z`; `width` an infusion
+   *   stand's base diameter.
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "width" | "depth" | "mass";
@@ -165,7 +159,10 @@ export namespace createMobilityAid {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which aid. */
     kind: Kind;
@@ -180,10 +177,17 @@ export namespace createMobilityAid {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The walkers read: Drive Medical's deluxe two-button folding walker, adult (10210-1, 10210-4ASM) and junior (10211-4ASM). */
+  /**
+   * The walkers read: Drive Medical's deluxe two-button folding walker, adult
+   * (10210-1, 10210-4ASM) and junior (10211-4ASM).
+   */
   export type Model = "adult" | "junior";
 
-  /** Each kind's models whole, the default first: the adult walker 7.5 lb and the junior 7 lb, the sheet's weights in the order of its item rows (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf). */
+  /**
+   * Each kind's models whole, the default first: the adult walker 7.5 lb and
+   * the junior 7 lb, the sheet's weights in the order of its item rows
+   * (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
@@ -193,7 +197,10 @@ export namespace createMobilityAid {
     },
   };
 
-  /** Each walker model's own handle height range, metres: the sheet's 32 to 39 in for the adult and 25 to 32.25 in for the junior. */
+  /**
+   * Each walker model's own handle height range, metres: the sheet's 32 to 39
+   * in for the adult and 25 to 32.25 in for the junior.
+   */
   export const HANDLE_HEIGHTS: Readonly<
     Partial<Record<Model, IAutoMovieArchetypeBand>>
   > = {

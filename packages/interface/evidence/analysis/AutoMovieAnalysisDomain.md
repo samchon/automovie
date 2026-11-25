@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A closed string union mirrored by the engine's `AUTOMOVIE_ANALYSIS_DOMAINS` table, which `isAutoMovieAnalysisDomain` checks so run validation refuses an unknown domain and the summarizer throws on one it is asked to require.
+A closed string union mirrored by the engine's `AUTOMOVIE_ANALYSIS_DOMAINS` table; the compiler owns membership, so no runtime check re-reads a domain.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

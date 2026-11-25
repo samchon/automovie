@@ -1,21 +1,3 @@
-# src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the merit reads, prices and decides, with its sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An iterate's reading and its misses row by row, the l1 merit's terms.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The fit and support seed selection consume the tolerance, actual misses, evaluation and merit builder; selected support indices also feed the fit's next model.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The floor, the balance and the pairs are read by their owners; the band and the unit are the rows'.
-
 # src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit.IMisses
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -46,7 +28,7 @@ The loop's evaluation carries actual reading-specific misses and selected suppor
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Carries the reading, misses, ordered selected supports and their membership set, plus actual ordered pair gaps whose witnesses the next convexification consumes.
+Carries the merit's two sums and the greatest single row's violation (sco's `vecMax(cnt_viols)`, which the loop's penalty adjustment reads), the reading, misses, ordered selected supports and their membership set, plus actual ordered pair gaps whose witnesses the next convexification consumes.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -148,7 +130,7 @@ The declaration retains no verdict; of evaluates the supplied misses anew withou
 
 The declaration allocates nothing; of supplies a boolean operation without retained misses.
 
-# src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit.of
+# src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -160,7 +142,7 @@ The l1 merit: the objective's pull plus each row's miss beyond the band at its s
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One reading, one pass of misses, one sum.
+One reading, one pass of misses, one sum with its greatest term.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

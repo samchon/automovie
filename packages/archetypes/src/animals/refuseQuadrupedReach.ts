@@ -1,9 +1,13 @@
 import { AutoMovieArchetypeRefusal } from "../core";
 
 /**
- * Turn a pose solver's geometric failure at one sample into the ride's typed refusal, naming the film second.
+ * Turn a pose solver's geometric failure at one sample into the ride's typed
+ * refusal, naming the film second.
  *
- * The pose solver reports an unreachable foothold or an empty body-height interval as a RangeError. A ride sampled by a consumer must instead refuse as the ride contract states, with the course second at fault, so a timed route or authored course can be corrected there.
+ * The pose solver reports an unreachable foothold or an empty body-height
+ * interval as a RangeError. A ride sampled by a consumer must instead refuse as
+ * the ride contract states, with the course second at fault, so a timed route
+ * or authored course can be corrected there.
  *
  * @param archetype The archetype name.
  * @param seconds The film second sampled.

@@ -1,7 +1,9 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Seeded environmental billboard emitter with explicit transport and live-instance budgets. Fog, smoke and dust share the same bounded stream representation.
+ * Seeded environmental billboard emitter with explicit transport and
+ * live-instance budgets. Fog, smoke and dust share the same bounded stream
+ * representation.
  */
 export interface IAutoMovieEffectRecipe {
   /** Stable recipe id. */
@@ -36,7 +38,10 @@ export interface IAutoMovieEffectRecipe {
       max: number;
     };
 
-    /** Ordered inclusive initial world-size endpoints in metres, within `[0.01, 20]`. */
+    /**
+     * Ordered inclusive initial world-size endpoints in metres, within `[0.01,
+     * 20]`.
+     */
     size: {
       /** Smallest sampled billboard extent, world metres. */
       min: number;
@@ -45,9 +50,9 @@ export interface IAutoMovieEffectRecipe {
       max: number;
 
       /**
-       * Final airborne billboard extent in metres, from max through 20.
-       * The extent grows linearly from its seeded initial size over the
-       * particle lifetime, or stops growing on landing. Omit for fixed size.
+       * Final airborne billboard extent in metres, from max through 20. The
+       * extent grows linearly from its seeded initial size over the particle
+       * lifetime, or stops growing on landing. Omit for fixed size.
        */
       end?: number;
     };
@@ -62,21 +67,28 @@ export interface IAutoMovieEffectRecipe {
 
       /** Upper unitless sampled alpha, within [min, 1]. */
       max: number;
-      /** Alpha over a live particle's lifetime; defaults to the original sine envelope. */ envelope?:
-        | "sine"
-        | "constant";
+      /**
+       * Alpha over a live particle's lifetime; defaults to the original sine
+       * envelope.
+       */ envelope?: "sine" | "constant";
     };
   };
 
   /** Bounded deterministic transport. */
   motion: {
-    /** Finite world velocity components in metres per second, each within `[-50, 50]`. */
+    /**
+     * Finite world velocity components in metres per second, each within `[-50,
+     * 50]`.
+     */
     wind: IAutoMovieVector3;
 
     /** Finite additional upward metres per second, within `[-50, 50]`. */
     rise: number;
 
-    /** Finite maximum lateral velocity deviation in metres per second, within `[0, 50]`. */
+    /**
+     * Finite maximum lateral velocity deviation in metres per second, within
+     * `[0, 50]`.
+     */
     turbulence: number;
 
     /** Optional ballistic transport; omission preserves the original v1 stream. */
@@ -85,11 +97,20 @@ export interface IAutoMovieEffectRecipe {
       gravity: number;
       /** Horizontal landing plane, world metres. */
       floor: number;
-      /** Keep particles which land before their lifetime expires as floor-facing stains through the cue end. */
+      /**
+       * Keep particles which land before their lifetime expires as floor-facing
+       * stains through the cue end.
+       */
       retainStains: boolean;
-      /** Independent world-axis initial velocity half-ranges, m/s, each 0..50; omission adds no spread. */
+      /**
+       * Independent world-axis initial velocity half-ranges, m/s, each 0..50;
+       * omission adds no spread.
+       */
       velocitySpread?: IAutoMovieVector3;
-      /** Landed billboard size multiplier, (0,16]; omission retains its airborne size. */
+      /**
+       * Landed billboard size multiplier, (0,16]; omission retains its airborne
+       * size.
+       */
       stainSizeMultiplier?: number;
     };
   };

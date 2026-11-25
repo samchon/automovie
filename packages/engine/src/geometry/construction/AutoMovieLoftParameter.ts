@@ -6,47 +6,48 @@ import type { IAutoMovieLoftParameter } from "@automovie/interface";
  * Every rule expects the polygon ordered from the front (+X) toward +Z, the
  * orientation every chain uses. One rule serves two consumers:
  *
- * - the observation fitter, which resamples a recovered section at uniform
- *   phases before projecting it onto harmonics;
- * - the generator, which assigns phases to the vertices a child chain
- *   inherits from its parent ring at a branch event.
+ * - The observation fitter, which resamples a recovered section at uniform phases
+ *   before projecting it onto harmonics;
+ * - The generator, which assigns phases to the vertices a child chain inherits
+ *   from its parent ring at a branch event.
  *
- * Using one function for both keeps fitted coefficients and inherited
- * vertices in one correspondence, so the band between an inherited ring and
- * the next generated ring connects corresponding points.
+ * Using one function for both keeps fitted coefficients and inherited vertices
+ * in one correspondence, so the band between an inherited ring and the next
+ * generated ring connects corresponding points.
  *
  * Rules:
  *
- * - `polar`: phase is the polar angle about the chain axis, unwrapped to
- *   increase monotonically. It requires a section that is star-shaped about
- *   the axis point, which holds for limb shafts.
- * - `sagittal`: phase 0 is the front crossing of the plane `z = axis z`,
- *   phase pi is the back crossing, and each half is parameterized by its
- *   arclength. It accepts non-star sections such as the shoulder girdle,
- *   where an arm lobe leaves the torso, provided the most forward and most
- *   rearward crossings of that plane are the anatomical front and back.
- * - `arclength`: phase 0 is the same front crossing and the whole outline
- *   is parameterized by its arclength. It is the rule of chains whose bottom
+ * - `polar`: phase is the polar angle about the chain axis, unwrapped to increase
+ *   monotonically. It requires a section that is star-shaped about the axis
+ *   point, which holds for limb shafts.
+ * - `sagittal`: phase 0 is the front crossing of the plane `z = axis z`, phase pi
+ *   is the back crossing, and each half is parameterized by its arclength. It
+ *   accepts non-star sections such as the shoulder girdle, where an arm lobe
+ *   leaves the torso, provided the most forward and most rearward crossings of
+ *   that plane are the anatomical front and back.
+ * - `arclength`: phase 0 is the same front crossing and the whole outline is
+ *   parameterized by its arclength. It is the rule of chains whose bottom
  *   section is a contact of several children, such as a palm whose fingers
- *   touch: the contact point is passed twice, and a polar angle would give
- *   both passes the same phase while arclength separates them.
+ *   touch: the contact point is passed twice, and a polar angle would give both
+ *   passes the same phase while arclength separates them.
  */
 export namespace AutoMovieLoftParameter {
   /**
    * Phase of every polygon vertex under a rule.
    *
-   * Polar phases are unwrapped and monotone. Sagittal phases lie in
-   * `[0, 2pi)` and wrap once at the front anchor. Evaluation of a harmonic
-   * curve is periodic, so both forms address the same points.
+   * Polar phases are unwrapped and monotone. Sagittal phases lie in `[0, 2pi)`
+   * and wrap once at the front anchor. Evaluation of a harmonic curve is
+   * periodic, so both forms address the same points.
    *
-   * The rule's reference point is the polygon's area centroid, computed
-   * here rather than supplied. A vertex mean would depend on how densely
-   * each stretch of the outline happens to be sampled, so recovered spans of
-   * uneven length would jitter the phase origin from section to section and
-   * twist the correspondence; the area centroid depends only on the outline.
+   * The rule's reference point is the polygon's area centroid, computed here
+   * rather than supplied. A vertex mean would depend on how densely each
+   * stretch of the outline happens to be sampled, so recovered spans of uneven
+   * length would jitter the phase origin from section to section and twist the
+   * correspondence; the area centroid depends only on the outline.
    *
    * @param rule Correspondence rule of the owning chain.
-   * @param polygon Closed polygon `[x, z]` in mm, front-to-+Z orientation, without a repeated last point.
+   * @param polygon Closed polygon `[x, z]` in mm, front-to-+Z orientation,
+   *   without a repeated last point.
    * @returns Phase in radians of every polygon vertex.
    */
   export function phases(
@@ -63,8 +64,8 @@ export namespace AutoMovieLoftParameter {
    * Area centroid `[x, z]` of a simple closed polygon in mm.
    *
    * Uses the shoelace decomposition into origin triangles. A twice-area
-   * magnitude below 1e-9 squared input units falls back to the vertex mean;
-   * an empty polygon returns the zero pair.
+   * magnitude below 1e-9 squared input units falls back to the vertex mean; an
+   * empty polygon returns the zero pair.
    */
   export function centroid(
     polygon: readonly (readonly [number, number])[],
@@ -101,14 +102,14 @@ export namespace AutoMovieLoftParameter {
     axis: readonly [number, number],
   ): number[] {
     const out: number[] = [];
-    let previous: number = NaN;
+    let previous: number | undefined;
 
     for (const p of polygon) {
       let angle: number = Math.atan2(p[1] - axis[1], p[0] - axis[0]);
 
       // The first vertex starts in [0, 2pi); each later vertex is unwrapped
       // to the branch nearest its predecessor, so the sequence is continuous.
-      if (Number.isNaN(previous)) {
+      if (previous === undefined) {
         if (angle < 0) angle += 2 * Math.PI;
       } else {
         while (angle < previous - Math.PI) angle += 2 * Math.PI;
@@ -184,7 +185,10 @@ export namespace AutoMovieLoftParameter {
       return cumulative[i]! + (at - i) * (cumulative[i + 1]! - cumulative[i]!);
     };
 
-    /** Length travelled from `from` to `to` along the orientation, wrapping once. */
+    /**
+     * Length travelled from `from` to `to` along the orientation, wrapping
+     * once.
+     */
     const lengthBetween: (from: number, to: number) => number = (
       from: number,
       to: number,

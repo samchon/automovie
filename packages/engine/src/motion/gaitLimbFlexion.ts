@@ -22,29 +22,21 @@ const gaitPhaseEase: (
     : ease(curve ?? "linear", t);
 
 /**
- * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets the wrapped cycle and neutral shifts both halves; optional easing shapes each half.
+ * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in
+ * seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets
+ * the wrapped cycle and neutral shifts both halves; optional easing shapes each
+ * half.
  */
 export const gaitLimbFlexion: (
   limb: IAutoMovieGaitLimb,
   t: number,
   period: number,
 ) => number = (limb: IAutoMovieGaitLimb, t: number, period: number): number => {
-  if (!Number.isFinite(period))
-    throw new Error("gait period must be finite and positive");
   if (!(period > 0)) throw new Error("gait period must be finite and positive");
-  if (!Number.isFinite(limb.phase))
-    throw new Error("gait limb phase must be finite");
-  if (!Number.isFinite(limb.duty))
-    throw new Error("gait limb duty must be finite and in (0, 1)");
   if (!(limb.duty > 0))
     throw new Error("gait limb duty must be finite and in (0, 1)");
   if (!(limb.duty < 1))
     throw new Error("gait limb duty must be finite and in (0, 1)");
-  if (!Number.isFinite(limb.amplitude))
-    throw new Error("gait limb amplitude must be finite");
-  if (limb.neutral !== undefined)
-    if (!Number.isFinite(limb.neutral))
-      throw new Error("gait limb neutral must be finite");
 
   const u: number = wrap01(t / period + limb.phase);
   const a: number = limb.amplitude;

@@ -10,10 +10,10 @@ import { STORY_CONTRACTS } from "./internal/STORY_CONTRACTS";
  * Each study in `docs/research/`, apart from its index, answers every item of
  * `contracts/story/principles/research.md`, read from the skills tree at
  * `skills`, by default the production's own `.agents/skills`. The citation
- * address, `principles/research.md`, is the same wherever that tree
- * lives. Like the other story layers, the answers live apart from the study,
- * in `docs/evidence/construction/files/research/`, under an H1 naming the
- * study's path, so the study stays a plain synthesis its readers use.
+ * address, `principles/research.md`, is the same wherever that tree lives. Like
+ * the other story layers, the answers live apart from the study, in
+ * `docs/evidence/construction/files/research/`, under an H1 naming the study's
+ * path, so the study stays a plain synthesis its readers use.
  */
 export function createResearchClaims(
   props: {

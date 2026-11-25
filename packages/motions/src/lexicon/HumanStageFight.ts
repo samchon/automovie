@@ -38,138 +38,187 @@ import { touch } from "../touch/touch";
 
 /**
  * Stage fighting short of a strike: slaps, grabs and holds, each a row of a
- * shipped action on a partner the composition names (the row leaves the
- * target or the partner open). The receiver's response is its own row
- * (`slapped`, `shoved`, `grabbed`, `pushed`), whose start the composition
- * syncs to the attacker's contact:
- * `b.registered("slapped", { from }).sync({ of: "slap" })`.
+ * shipped action on a partner the composition names (the row leaves the target
+ * or the partner open). The receiver's response is its own row (`slapped`,
+ * `shoved`, `grabbed`, `pushed`), whose start the composition syncs to the
+ * attacker's contact: `b.registered("slapped", { from }).sync({ of: "slap" })`.
  * Register the ones a film uses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanStageFight {
-  /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. It reaches the stop 0.26 s after the launch at elite skill (0.85 of the elite cross's 0.310 s, Cheraghi et al. 2014) and returns in as long ({@link IAutoMovieMotionHumanPunch}). */
+  /**
+   * A stage palm strike: the rear palm heel driven at the target and stopped
+   * short at 0.85 of its delivery (provisional), with no contact declared. It
+   * reaches the stop 0.26 s after the launch at elite skill (0.85 of the elite
+   * cross's 0.310 s, Cheraghi et al. 2014) and returns in as long
+   * ({@link IAutoMovieMotionHumanPunch}).
+   */
   export const stagePalmStrike: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["stagePalmStrike"]
-  > = HumanActionRow.of(
+  > = HumanActionRow(
     "stagePalmStrike",
     punch,
     HUMAN_STAGE_FIGHT_STAGE_PALM_STRIKE,
   );
 
-  /** A stage headbutt: the forehead driven at the target and stopped short at 0.85 of its delivery (provisional), the hands on a person's neck, with no contact declared. It stops 0.26 s after the launch at elite skill (0.85 of the elite cross's 0.310 s) and returns in as long ({@link IAutoMovieMotionHumanCloseStrike}). */
+  /**
+   * A stage headbutt: the forehead driven at the target and stopped short at
+   * 0.85 of its delivery (provisional), the hands on a person's neck, with no
+   * contact declared. It stops 0.26 s after the launch at elite skill (0.85 of
+   * the elite cross's 0.310 s) and returns in as long
+   * ({@link IAutoMovieMotionHumanCloseStrike}).
+   */
   export const stageHeadbutt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["stageHeadbutt"]
-  > = HumanActionRow.of(
+  > = HumanActionRow(
     "stageHeadbutt",
     closeStrike,
     HUMAN_STAGE_FIGHT_STAGE_HEADBUTT,
   );
 
-  /** A forehand slap: one tap of the open palm. The composition gives the cheek as the target. */
+  /**
+   * A forehand slap: one tap of the open palm. The composition gives the cheek
+   * as the target.
+   */
   export const slap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["slap"]
-  > = HumanActionRow.of("slap", touch, HUMAN_STAGE_FIGHT_SLAP);
+  > = HumanActionRow("slap", touch, HUMAN_STAGE_FIGHT_SLAP);
 
-  /** A stage slap, the non-contact one a stage fight uses: the open palm swung across the cheek the composition names, half a hand's length clear of it (provisional), with no contact declared. The receiver's `slapped` sells it. */
+  /**
+   * A stage slap, the non-contact one a stage fight uses: the open palm swung
+   * across the cheek the composition names, half a hand's length clear of it
+   * (provisional), with no contact declared. The receiver's `slapped` sells
+   * it.
+   */
   export const stageSlap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["stageSlap"]
-  > = HumanActionRow.of("stageSlap", touch, HUMAN_STAGE_FIGHT_STAGE_SLAP);
+  > = HumanActionRow("stageSlap", touch, HUMAN_STAGE_FIGHT_STAGE_SLAP);
 
   /** A backhand slap: one tap of the hand's back. */
   export const backhand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["backhand"]
-  > = HumanActionRow.of("backhand", touch, HUMAN_STAGE_FIGHT_BACKHAND);
+  > = HumanActionRow("backhand", touch, HUMAN_STAGE_FIGHT_BACKHAND);
 
   /** A shove: the palm pressed on the partner's chest. */
   export const shove: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["shove"]
-  > = HumanActionRow.of("shove", touch, HUMAN_STAGE_FIGHT_SHOVE);
+  > = HumanActionRow("shove", touch, HUMAN_STAGE_FIGHT_SHOVE);
 
-  /** A grab: the hand closed on the partner's region and held (a collar, an arm, the hair at the crown). */
+  /**
+   * A grab: the hand closed on the partner's region and held (a collar, an arm,
+   * the hair at the crown).
+   */
   export const grab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["grab"]
-  > = HumanActionRow.of("grab", touch, HUMAN_STAGE_FIGHT_GRAB);
+  > = HumanActionRow("grab", touch, HUMAN_STAGE_FIGHT_GRAB);
 
   /** A poke of the forefinger into the partner's chest, repeated. */
   export const poke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["poke"]
-  > = HumanActionRow.of("poke", touch, HUMAN_STAGE_FIGHT_POKE);
+  > = HumanActionRow("poke", touch, HUMAN_STAGE_FIGHT_POKE);
 
   /** A hold on the partner by the clinch, kept three seconds (provisional). */
   export const restrain: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["restrain"]
-  > = HumanActionRow.of("restrain", clinch, HUMAN_STAGE_FIGHT_RESTRAIN);
+  > = HumanActionRow("restrain", clinch, HUMAN_STAGE_FIGHT_RESTRAIN);
 
-  /** The receiver of a slap: the head turned away from the hand (`from`). Sync its start to the slap's contact. */
+  /**
+   * The receiver of a slap: the head turned away from the hand (`from`). Sync
+   * its start to the slap's contact.
+   */
   export const slapped: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["slapped"]
-  > = HumanActionRow.of("slapped", give, HUMAN_STAGE_FIGHT_SLAPPED);
+  > = HumanActionRow("slapped", give, HUMAN_STAGE_FIGHT_SLAPPED);
 
-  /** The receiver of a shove: a step back to catch the balance, the body leaving at 0.8 m/s (provisional). Sync its start to the shove's contact. */
+  /**
+   * The receiver of a shove: a step back to catch the balance, the body leaving
+   * at 0.8 m/s (provisional). Sync its start to the shove's contact.
+   */
   export const shoved: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["shoved"]
-  > = HumanActionRow.of("shoved", stagger, HUMAN_STAGE_FIGHT_SHOVED);
+  > = HumanActionRow("shoved", stagger, HUMAN_STAGE_FIGHT_SHOVED);
 
-  /** The receiver of a grab: the trunk led toward the grabbing hand (`from`). Sync its start to the grab's contact. */
+  /**
+   * The receiver of a grab: the trunk led toward the grabbing hand (`from`).
+   * Sync its start to the grab's contact.
+   */
   export const grabbed: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["grabbed"]
-  > = HumanActionRow.of("grabbed", give, HUMAN_STAGE_FIGHT_GRABBED);
+  > = HumanActionRow("grabbed", give, HUMAN_STAGE_FIGHT_GRABBED);
 
-  /** A choke from the front: both palms closed on the neck and held two seconds (provisional). The composition gives the two sides of the neck as `target` and `other`. */
+  /**
+   * A choke from the front: both palms closed on the neck and held two seconds
+   * (provisional). The composition gives the two sides of the neck as `target`
+   * and `other`.
+   */
   export const choke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["choke"]
-  > = HumanActionRow.of("choke", touch, HUMAN_STAGE_FIGHT_CHOKE);
+  > = HumanActionRow("choke", touch, HUMAN_STAGE_FIGHT_CHOKE);
 
-  /** A headlock or a choke from behind: the clinch's hold on the partner's neck, kept two seconds (provisional). */
+  /**
+   * A headlock or a choke from behind: the clinch's hold on the partner's neck,
+   * kept two seconds (provisional).
+   */
   export const headlock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["headlock"]
-  > = HumanActionRow.of("headlock", clinch, HUMAN_STAGE_FIGHT_HEADLOCK);
+  > = HumanActionRow("headlock", clinch, HUMAN_STAGE_FIGHT_HEADLOCK);
 
-  /** A hair pull: the hand closed on the crown, the temple or the nape the composition names and held; the receiver's `grabbed` follows it. The puller stands as close as for a slap: the row does not close the distance itself, and a region beyond the arm is refused. */
+  /**
+   * A hair pull: the hand closed on the crown, the temple or the nape the
+   * composition names and held; the receiver's `grabbed` follows it. The puller
+   * stands as close as for a slap: the row does not close the distance itself,
+   * and a region beyond the arm is refused.
+   */
   export const hairPull: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["hairPull"]
-  > = HumanActionRow.of("hairPull", touch, HUMAN_STAGE_FIGHT_HAIR_PULL);
+  > = HumanActionRow("hairPull", touch, HUMAN_STAGE_FIGHT_HAIR_PULL);
 
-  /** The receiver of a choke: both hands brought to the attacker's forearms. The composition gives them as `target` and `other`. */
+  /**
+   * The receiver of a choke: both hands brought to the attacker's forearms. The
+   * composition gives them as `target` and `other`.
+   */
   export const struggle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["struggle"]
-  > = HumanActionRow.of("struggle", touch, HUMAN_STAGE_FIGHT_STRUGGLE);
+  > = HumanActionRow("struggle", touch, HUMAN_STAGE_FIGHT_STRUGGLE);
 
-  /** A dive for cover: down onto the floor, prone, and stay there three seconds (provisional). */
+  /**
+   * A dive for cover: down onto the floor, prone, and stay there three seconds
+   * (provisional).
+   */
   export const diveForCover: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["diveForCover"]
-  > = HumanActionRow.of(
-    "diveForCover",
-    lieDown,
-    HUMAN_STAGE_FIGHT_DIVE_FOR_COVER,
-  );
+  > = HumanActionRow("diveForCover", lieDown, HUMAN_STAGE_FIGHT_DIVE_FOR_COVER);
 
-  /** A duck under a threat with no strike to answer: a short partial crouch (0.3 s held, provisional). */
+  /**
+   * A duck under a threat with no strike to answer: a short partial crouch (0.3
+   * s held, provisional).
+   */
   export const duck: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["duck"]
-  > = HumanActionRow.of("duck", crouch, HUMAN_STAGE_FIGHT_DUCK);
+  > = HumanActionRow("duck", crouch, HUMAN_STAGE_FIGHT_DUCK);
 
   /** Capoeira's esquiva baixa: a full crouch under a kick, held while it passes. */
   export const esquiva: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["esquiva"]
-  > = HumanActionRow.of("esquiva", crouch, HUMAN_STAGE_FIGHT_ESQUIVA);
+  > = HumanActionRow("esquiva", crouch, HUMAN_STAGE_FIGHT_ESQUIVA);
 
-  /** A dodge with no strike to answer: one quick step to the right out of a threat's line. */
+  /**
+   * A dodge with no strike to answer: one quick step to the right out of a
+   * threat's line.
+   */
   export const dodge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["dodge"]
-  > = HumanActionRow.of("dodge", step, HUMAN_STAGE_FIGHT_DODGE);
+  > = HumanActionRow("dodge", step, HUMAN_STAGE_FIGHT_DODGE);
 
   /** A lean back out of a threat's line (`from`), the feet kept. */
   export const leanBack: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["leanBack"]
-  > = HumanActionRow.of("leanBack", give, HUMAN_STAGE_FIGHT_LEAN_BACK);
+  > = HumanActionRow("leanBack", give, HUMAN_STAGE_FIGHT_LEAN_BACK);
 
-  /** The receiver of a poke or a light push: the trunk giving way from the hand (`from`) without a step. */
+  /**
+   * The receiver of a poke or a light push: the trunk giving way from the hand
+   * (`from`) without a step.
+   */
   export const pushed: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["pushed"]
-  > = HumanActionRow.of("pushed", give, HUMAN_STAGE_FIGHT_PUSHED);
+  > = HumanActionRow("pushed", give, HUMAN_STAGE_FIGHT_PUSHED);
 }

@@ -25,10 +25,8 @@ import { subjectOfFilm } from "../../src/subjectOfFilm";
  * 3. A film without `seekShot` gives a subject without it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and the placements and readings each pins.
- * @evidence contracts/development/testing.md#behavioral-verification Creates the subject through `subjectOfFilm`, the mapping `src/subjects.ts` uses, and asserts the arguments the production receives in order; a clamped shot-local time, an unclamped film second, a dropped soft-prop read after `seekShot` or a stubbed `seekShot` fails.
- * @evidence contracts/development/testing.md#independent-expectations The clamp's ends are zero and the literal 15 s running time, and −1/64 s is exactly representable.
- * @evidence contracts/development/testing.md#distinguishing-cases Shot and film placements, times before zero and past the end, and a film with and without `seekShot`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test with an in-memory film, discovered by test/index.ts; it prepares the physical geometry queries but starts no Viewer, browser or render.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates the subject through `subjectOfFilm`, the mapping `src/subjects.ts` uses, and asserts the arguments the production receives in order; a clamped shot-local time, an unclamped film second, a dropped soft-prop read after `seekShot` or a stubbed `seekShot` fails. A unit test with an in-memory film, discovered by test/index.ts; it prepares the physical geometry queries but starts no Viewer, browser or render.
+ * @evidence contracts/development/testing.md#independent-expectations The clamp's ends are zero and the literal 15 s running time, and −1/64 s is exactly representable. Shot and film placements, times before zero and past the end, and a film with and without `seekShot`.
  */
 export async function test_subject_of_film(): Promise<void> {
   const calls: string[] = [];

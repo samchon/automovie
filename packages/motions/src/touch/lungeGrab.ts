@@ -22,15 +22,16 @@ import { step } from "../striking/step";
 import { touch } from "./touch";
 
 /**
- * A lunge that closes both hands on a victim (`IAutoMovieMotionHumanLungeGrab`),
- * as a shambler breaks from its walk. The grab is the stage-fight grab, both
- * palms squeezing the victim's regions (`touch`), planned from where the
- * lunge leaves the body: the leading foot steps long toward the victim over
- * one step period (`step.period`) while the rear foot stays planted, and the
- * root travels the length the arms lack on one minimum-jerk profile, ending
- * between the feet, so the hands reach as the body arrives. The lunge's length is what the arms lack to
- * reach the regions from where the body stands; a victim further than the
- * longest lunge is refused with the distance named.
+ * A lunge that closes both hands on a victim
+ * (`IAutoMovieMotionHumanLungeGrab`), as a shambler breaks from its walk. The
+ * grab is the stage-fight grab, both palms squeezing the victim's regions
+ * (`touch`), planned from where the lunge leaves the body: the leading foot
+ * steps long toward the victim over one step period (`step.period`) while the
+ * rear foot stays planted, and the root travels the length the arms lack on one
+ * minimum-jerk profile, ending between the feet, so the hands reach as the body
+ * arrives. The lunge's length is what the arms lack to reach the regions from
+ * where the body stands; a victim further than the longest lunge is refused
+ * with the distance named.
  */
 export namespace lungeGrab {
   /** The action's name. */
@@ -40,13 +41,22 @@ export namespace lungeGrab {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     touch.interrupts;
 
-  /** The longest lunge, the hips' travel in hip heights: authored, with the leading foot stepping `STRIDE` times as far. */
+  /**
+   * The longest lunge, the hips' travel in hip heights: authored, with the
+   * leading foot stepping `STRIDE` times as far.
+   */
   export const LONGEST: number = 0.45;
 
-  /** How far the leading foot steps for the hips' travel: the hips end between the planted rear foot and the landed front foot (authored). */
+  /**
+   * How far the leading foot steps for the hips' travel: the hips end between
+   * the planted rear foot and the landed front foot (authored).
+   */
   export const STRIDE: number = 1.5;
 
-  /** How long the weight takes to shift onto the rear foot before the leading foot lifts, seconds: authored, a gait initiation's anticipatory shift. */
+  /**
+   * How long the weight takes to shift onto the rear foot before the leading
+   * foot lifts, seconds: authored, a gait initiation's anticipatory shift.
+   */
   export const SHIFT: number = 0.15;
 
   /** How high the leading foot lifts as it steps, metres: authored. */
@@ -57,7 +67,8 @@ export namespace lungeGrab {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `partner` when the victim lies beyond the longest lunge, and whatever the grab refuses.
+   * @throws {HumanRefusal} On `partner` when the victim lies beyond the longest
+   *   lunge, and whatever the grab refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLungeGrab.IParams>,

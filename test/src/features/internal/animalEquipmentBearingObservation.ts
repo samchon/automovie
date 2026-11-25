@@ -78,10 +78,11 @@ export function animalEquipmentBearingObservation(
       Math.max(-shape.height / 2, Math.min(a.y, b.y));
     const plane: number =
       (Math.min(shape.height / 2, Math.max(a.y, b.y)) +
-        Math.max(-shape.height / 2, Math.min(a.y, b.y))) / 2;
+        Math.max(-shape.height / 2, Math.min(a.y, b.y))) /
+      2;
     if (
       !nclose(stock.radius, radius, 1e-9) ||
-      !(Number.isFinite(stock.height) && stock.height > 0) ||
+      !(stock.height > 0) ||
       !(Math.PI * stock.radius ** 2 * stock.height > 0) ||
       !nclose(a.x, b.x, 1e-9) ||
       !nclose(a.z, b.z, 1e-9) ||
@@ -100,8 +101,12 @@ export function animalEquipmentBearingObservation(
     /** Intersect actual transformed triangles with an interior axial plane. */
     function section(part: IAutoMovieModelPart): IAutoMovieVector3[][] {
       if (part.geometry.type !== "primitive")
-        throw new Error("The observed bearing must retain its actual primitive");
-      const mesh: ReturnType<typeof tessellate> = tessellate(part.geometry.shape);
+        throw new Error(
+          "The observed bearing must retain its actual primitive",
+        );
+      const mesh: ReturnType<typeof tessellate> = tessellate(
+        part.geometry.shape,
+      );
       const points: IAutoMovieVector3[] = [];
       for (let index: number = 0; index < mesh.positions.length; index += 3) {
         const rotated: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -148,7 +153,10 @@ export function animalEquipmentBearingObservation(
       return segments;
     }
 
-    /** Convex section SAT: positive separates, negative penetrates, zero touches. */
+    /**
+     * Convex section SAT: positive separates, negative penetrates, zero
+     * touches.
+     */
     function meshGap(
       first: IAutoMovieVector3[][],
       second: IAutoMovieVector3[][],
@@ -204,7 +212,7 @@ export function animalEquipmentBearingObservation(
     const shape: IAutoMovieCylinderShape = Equipment.cylinder(part);
     if (
       !nclose(shape.radius, radius, 1e-9) ||
-      !(Number.isFinite(shape.height) && shape.height > 0) ||
+      !(shape.height > 0) ||
       !same(Equipment.end(part, -1), from) ||
       !same(Equipment.end(part, 1), to)
     )

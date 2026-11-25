@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
@@ -18,36 +19,28 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * How a displayed body meets the floor: whether any collider sinks below it,
  * and whether a foot declared planted stays where it stands and on the floor.
  *
- * The floor is the floor under the person (`AutoMovieMotionHumanAuditMotion.floors`):
- * the ground their bearing contacts declare, none while a prop, a person or
- * the water bears them; a leg is read against the floor under its own foot
- * (`AutoMovieMotionHumanAuditMotion.feet`), so a person on two treads has
- * one leg over each. A planted foot rolls through the
- * rockers of stance (Perry and Burnfield, Gait Analysis, 2nd ed.): on its
- * heel, flat, then on its ball and its toe pad, so its contact at an instant
- * is its lowest sole socket, the heel winning a tie within a micrometre and
- * then the ball, which keeps a flat foot from flickering between sockets. A
- * socket that is not the lowest is lifted and free to travel. A window that
- * declares the point its law holds (`IAutoMovieMotionHumanContactWindow.socket`:
- * the ball a heel rises about, or the leg goal's own contact) is read at that
- * point throughout instead, so the toe tip rolling under a held ball is not
- * a slip, and a held ball that slides is. A plant window
- * is read at its two ends and at the motion's own grid instants between
- * them, the poses the other checks read as well. Slip is the
- * contact's horizontal distance from where that socket first was the contact
- * in the same plant window, that place held in the frame of the window's
- * support (`IAutoMovieMotionHumanAuditMotion.support`), so a foot planted on a
- * moving deck or tread is carried with it and only its travel on the support
- * counts; lift is the contact's distance from its declared
- * stationary surface, such as the world floor or a stair tread.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the floor, the contact rule with its source and what each reading measures.
- * @evidence contracts/development/implementation.md#principled-implementation Exact collider bounds from the engine's shape owner, and the sole sockets from `HumanFoot.sockets`, the one place that puts them on displayed bones; a declared rest-frame contact is placed by the displayed foot bone's own frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three readings over one grid, the two foot readings sharing one window walk.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones, never a law's goals; no foot or window is exempt.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times shapes; a plant window adds at most its two ends to the poses of the motion's grid.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * The floor is the floor under the person
+ * (`AutoMovieMotionHumanAuditMotion.floors`): the ground their bearing contacts
+ * declare, none while a prop, a person or the water bears them; a leg is read
+ * against the floor under its own foot
+ * (`AutoMovieMotionHumanAuditMotion.feet`), so a person on two treads has one
+ * leg over each. A planted foot rolls through the rockers of stance (Perry and
+ * Burnfield, Gait Analysis, 2nd ed.): on its heel, flat, then on its ball and
+ * its toe pad, so its contact at an instant is its lowest sole socket, the heel
+ * winning a tie within a micrometre and then the ball, which keeps a flat foot
+ * from flickering between sockets. A socket that is not the lowest is lifted
+ * and free to travel. A window that declares the point its law holds
+ * (`IAutoMovieMotionHumanContactWindow.socket`: the ball a heel rises about, or
+ * the leg goal's own contact) is read at that point throughout instead, so the
+ * toe tip rolling under a held ball is not a slip, and a held ball that slides
+ * is. A plant window is read at its two ends and at the motion's own grid
+ * instants between them, the poses the other checks read as well. Slip is the
+ * contact's horizontal distance from where that socket first was the contact in
+ * the same plant window, that place held in the frame of the window's support
+ * (`IAutoMovieMotionHumanAuditMotion.support`), so a foot planted on a moving
+ * deck or tread is carried with it and only its travel on the support counts;
+ * lift is the contact's distance from its declared stationary surface, such as
+ * the world floor or a stair tread.
  */
 export namespace AutoMovieMotionHumanAuditGround {
   /**
@@ -57,7 +50,8 @@ export namespace AutoMovieMotionHumanAuditGround {
    * @param subject The person.
    * @param body Their body.
    * @param rate Grid samples per second.
-   * @returns Metres below the floor (zero when nothing sinks), with the bone that sinks.
+   * @returns Metres below the floor (zero when nothing sinks), with the bone
+   *   that sinks.
    */
   export function floor(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -77,14 +71,15 @@ export namespace AutoMovieMotionHumanAuditGround {
     // A leg is read against the floor under its own foot, the rest of the
     // body against the floor under the person: a person on two treads has
     // one leg over each.
-    const legs: Record<"left" | "right", (seconds: number) => number | null> = {
-      left: HumanAuditMotion.feet(motion, subject, "left"),
-      right: HumanAuditMotion.feet(motion, subject, "right"),
-    };
+    const legs: Record<AutoMovieHumanSide, (seconds: number) => number | null> =
+      {
+        left: HumanAuditMotion.feet(motion, subject, "left"),
+        right: HumanAuditMotion.feet(motion, subject, "right"),
+      };
     for (const t of HumanAuditMotion.grid(0, motion.duration, rate)) {
       const floor: number | null = under(t);
       if (floor === null) continue;
-      const leg: Record<"left" | "right", number | null> = {
+      const leg: Record<AutoMovieHumanSide, number | null> = {
         left: legs.left(t),
         right: legs.right(t),
       };
@@ -93,8 +88,10 @@ export namespace AutoMovieMotionHumanAuditGround {
         motion.bones(subject, t),
       ))
         for (const shape of shapes) {
-          const side: "left" | "right" | undefined = LEG.test(bone)
-            ? bone.startsWith("left") ? "left" : "right"
+          const side: AutoMovieHumanSide | undefined = LEG.test(bone)
+            ? bone.startsWith("left")
+              ? "left"
+              : "right"
             : undefined;
           const level: number | null = side === undefined ? floor : leg[side];
           if (level === null) continue;
@@ -144,11 +141,10 @@ export namespace AutoMovieMotionHumanAuditGround {
   }
 
   /**
-   * A planted foot's contact at an instant: the point its window declares
-   * held (`IAutoMovieMotionHumanContactWindow.socket`), a named sole socket
-   * or a rest-frame point placed by the displayed foot bone, else its lowest
-   * sole socket, the heel winning a tie within a micrometre and then the
-   * ball.
+   * A planted foot's contact at an instant: the point its window declares held
+   * (`IAutoMovieMotionHumanContactWindow.socket`), a named sole socket or a
+   * rest-frame point placed by the displayed foot bone, else its lowest sole
+   * socket, the heel winning a tie within a micrometre and then the ball.
    *
    * @param body The body.
    * @param bones The displayed bones at the instant.
@@ -159,7 +155,7 @@ export namespace AutoMovieMotionHumanAuditGround {
   export function held(
     body: IAutoMovieMotionHumanBody,
     bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     declared: IAutoMovieMotionHumanContactWindow.Socket | undefined,
   ): IHeld {
     if (declared !== undefined && typeof declared !== "string") {
@@ -189,14 +185,7 @@ export namespace AutoMovieMotionHumanAuditGround {
     return { key: contact.socket, point: contact.point };
   }
 
-  /**
-   * A planted foot's contact point at an instant, keyed by which point it is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A key naming the point and its world place.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the slip, lift, loose and afloat readings.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's vector.
-   */
+  /** A planted foot's contact point at an instant, keyed by which point it is. */
   export interface IHeld {
     /** The socket's name, or `contact` for a declared rest-frame point. */
     key: string;
@@ -206,10 +195,16 @@ export namespace AutoMovieMotionHumanAuditGround {
   }
 }
 
-/** The bones of a leg, thigh to toes, which the floor under their own foot bears. */
+/**
+ * The bones of a leg, thigh to toes, which the floor under their own foot
+ * bears.
+ */
 const LEG: RegExp = /^(left|right)(UpperLeg|LowerLeg|Foot|Toes)$/;
 
-/** The worst slip, or the worst height off the floor, over every foot plant window. */
+/**
+ * The worst slip, or the worst height off the floor, over every foot plant
+ * window.
+ */
 const plants = (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,
@@ -241,7 +236,7 @@ const plants = (
       : new Map();
     const declared: IAutoMovieMotionHumanContactWindow.Socket | undefined =
       window.contact.socket;
-    const side: "left" | "right" = part === "leftFoot" ? "left" : "right";
+    const side: AutoMovieHumanSide = part === "leftFoot" ? "left" : "right";
     const frame = (seconds: number): IAutoMovieRigidTransform | null =>
       surface.kind === "ground" || motion.support === undefined
         ? null

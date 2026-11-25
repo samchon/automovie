@@ -37,17 +37,26 @@ export namespace EquineEarObservation {
     /** Independent complete pinna-breadth/donor-withers ratio, dimensionless. */
     width: number;
 
-    /** Existing withers height, metres, or null for the original drawn donkey profile. */
+    /**
+     * Existing withers height, metres, or null for the original drawn donkey
+     * profile.
+     */
     height: number | null;
 
     /** Existing girth, metres, or null for the original drawn donkey profile. */
     girth: number | null;
 
-    /** Existing whole-body mass, kilograms, or null for the original drawn donkey profile. */
+    /**
+     * Existing whole-body mass, kilograms, or null for the original drawn
+     * donkey profile.
+     */
     mass: number | null;
   }
 
-  /** Real dimensions and actual base-corner membership, with no production attachment oracle. */
+  /**
+   * Real dimensions and actual base-corner membership, with no production
+   * attachment oracle.
+   */
   export function observe(
     model: Model,
     row: ICase,
@@ -164,7 +173,10 @@ export namespace EquineEarObservation {
     }
   }
 
-  /** Current head-local plate corners stay equal through actual AR nodding and seeking. */
+  /**
+   * Current head-local plate corners stay equal through actual AR nodding and
+   * seeking.
+   */
   export function carriage(
     model: Model,
     label: string,
@@ -274,11 +286,6 @@ export namespace EquineEarObservation {
       part.transform.scale.x !== 1 ||
       part.transform.scale.y !== 1 ||
       part.transform.scale.z !== 1 ||
-      ![
-        part.transform.translation.x,
-        part.transform.translation.y,
-        part.transform.translation.z,
-      ].every(Number.isFinite) ||
       !nclose(
         Math.hypot(
           part.transform.rotation.x,

@@ -5,6 +5,7 @@ import {
 import type { IAutoMovieProceduralSurface } from "@automovie/interface";
 import * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "./AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
@@ -97,7 +98,7 @@ export const applyProceduralSurface: (
   material.userData.procedural = surface;
   addMaterialShaderPatch(material, {
     key: `automovie-procedural-${surface.kind}${piece === undefined ? "" : "-piece"}`,
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = shader.vertexShader
         .replace(

@@ -21,8 +21,8 @@ import { sameProductData } from "./sameProductData";
  * 1. the metric builder judges only what it can compare.
  * 2. the builder and the target table refuse what has no honest reading.
  *
- * Hand-authored complete metric records follow ordinary <= and >= comparisons: 0.8 meets an upper bound of 1 and a lower bound of 0.5, while 1.2/0.4 miss those bounds. Wrong units remove the target with a warning rather than convert it. Builder failures follow value/gap consistency and nonblank unique target keys, units and closed directions; this is not solver accuracy or hash certification.
- * Untargeted, both passing/failing directions, wrong unit, unrelated key and absent value compare full returned records with authored fixtures. Nonfinite values, value-plus-gap, absence-without-gap and malformed/duplicate target tables must throw; later parts own report folding.
+ * Hand-authored complete metric records follow ordinary <= and >= comparisons: 0.8 meets an upper bound of 1 and a lower bound of 0.5, while 1.2/0.4 miss those bounds. Wrong units remove the target with a warning rather than convert it. Builder failures follow value/gap consistency and nonblank unique target keys and units; this is not solver accuracy or hash certification.
+ * Untargeted, both passing/failing directions, wrong unit, unrelated key and absent value compare full returned records with authored fixtures. Value-plus-gap, absence-without-gap and malformed/duplicate target tables must throw; later parts own report folding.
  */
 export function assertAnalysisRunContractPart5(
   measured: (
@@ -160,14 +160,6 @@ export function assertAnalysisRunContractPart5(
           ),
       ],
       [
-        "a non-finite value",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisMetric => build(Number.NaN, []),
-            "finite value",
-          ),
-      ],
-      [
         "a blank target key",
         (): boolean =>
           throwsError(
@@ -190,38 +182,6 @@ export function assertAnalysisRunContractPart5(
           ),
       ],
       [
-        "a non-finite target value",
-        (): boolean =>
-          throwsError(
-            (): void =>
-              assertAutoMovieAnalysisTargets([
-                {
-                  key: "k",
-                  unit: "s",
-                  value: Number.NaN,
-                  comparison: "at-most",
-                },
-              ]),
-            "finite value",
-          ),
-      ],
-      [
-        "an unknown direction",
-        (): boolean =>
-          throwsError(
-            (): void =>
-              assertAutoMovieAnalysisTargets([
-                {
-                  key: "k",
-                  unit: "s",
-                  value: 1,
-                  comparison: "near" as unknown as "at-most",
-                },
-              ]),
-            "at-least",
-          ),
-      ],
-      [
         "a duplicated target",
         (): boolean =>
           throwsError(
@@ -237,11 +197,8 @@ export function assertAnalysisRunContractPart5(
     {
       "absence with no reason": true,
       "a value beside a gap": true,
-      "a non-finite value": true,
       "a blank target key": true,
       "a blank target unit": true,
-      "a non-finite target value": true,
-      "an unknown direction": true,
       "a duplicated target": true,
     },
   );

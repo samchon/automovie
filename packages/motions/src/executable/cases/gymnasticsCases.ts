@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
@@ -21,26 +22,18 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture case of the handstand (#3251): `gymnastics-handstand`, kicked up
- * from quiet standing, held 2 s and stepped down.
+ * Capture case of the handstand: `gymnastics-handstand`, kicked up from quiet
+ * standing, held 2 s and stepped down.
  *
  * It reports foot slip at most 5 mm and no range-of-motion overshoot, the
- * issue's hand slip at most 5 mm from `handsDown` to `release`, and through
- * the hold: both palms within 10 mm of the floor, each wrist within 5 cm
+ * issue's hand slip at most 5 mm from `handsDown` to `release`, and through the
+ * hold: both palms within 10 mm of the floor, each wrist within 5 cm
  * horizontally of its shoulder (the stacked handstand), the hips above the
- * shoulders and the ankles above the hips, and the centre of mass within
- * half a hand of the line between the hands (balanced over the hands).
+ * shoulders and the ankles above the hips, and the centre of mass within half a
+ * hand of the line between the hands (balanced over the hands).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones and the engine's centre of mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance and one verdict block per body.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function gymnasticsCases(
   bodies: readonly string[] = ["m-average"],
@@ -54,6 +47,8 @@ export function gymnasticsCases(
     );
     const name: string = `gymnastics-handstand${bodies.length === 1 ? "" : `-${id}`}`;
     let performance: IAutoMovieMotionHumanPerformance;
+
+    // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
     try {
       performance = new HumanPerformance({
         seed: "gymnastics",
@@ -76,7 +71,7 @@ export function gymnasticsCases(
     const inverted: number = TouchVerdicts.event(performance, "a", "inverted");
     const release: number = TouchVerdicts.event(performance, "a", "release");
     const palm = { surface: "palm", shape: "flat" } as const;
-    const palmAt = (t: number, side: "left" | "right"): IAutoMovieVector3 =>
+    const palmAt = (t: number, side: AutoMovieHumanSide): IAutoMovieVector3 =>
       AutoMovieMotionHumanTouchEffector.point(
         body,
         performance.bones("a", t),

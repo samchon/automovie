@@ -1,21 +1,3 @@
-# src/human/generation/head/IAutoMovieHumanHeadTape.ts#IAutoMovieHumanHeadTape
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the AutoMovieHumanHeadTape exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A type-only namespace groups IResult, ICourse, Member, P2, CloseFactory, MaximumRegion, MaximumSeed. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these declarations used by Human's AutoMovieHumanHeadTape; Human retains the computation and source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace only qualifies the IResult, ICourse, Member, P2, CloseFactory, MaximumRegion, MaximumSeed contracts and adds no alternate implementation, optional mode or runtime state.
-
 # src/human/generation/head/IAutoMovieHumanHeadTape.ts#IAutoMovieHumanHeadTape.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

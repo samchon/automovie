@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMoviePoseSurfaceNetwork.ts#IAutoMoviePoseSurfaceNetwork
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Name-based bindings apply resolved model-frame rigid transforms while preserving network topology and metre geometry. Absent bindings retain rest components, while requested missing names fail; the returned network may share unchanged source objects.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Name-based bindings apply resolved model-frame rigid transforms while preserving network topology and metre geometry.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-poseAutoMovieSurfaceNetwork consumes rest declarations and delegates bound sweep motion to poseAutoMovieSweep.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Absent bindings retain rest components, while requested missing names fail; the returned network may share unchanged source objects.
-
 # src/geometry/sweep/IAutoMoviePoseSurfaceNetwork.ts#IAutoMoviePoseSurfaceNetwork.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

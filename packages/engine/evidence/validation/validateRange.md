@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Narrows unknown input by typeof before finite and open/closed numeric comparisons, then appends a range finding through pushViolation; diagnostic-only string conversion cannot turn a malformed value into an admitted number or replace a finding with a conversion exception.
+Applies finite and open/closed numeric comparisons to the declared number, then appends a range finding through pushViolation.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

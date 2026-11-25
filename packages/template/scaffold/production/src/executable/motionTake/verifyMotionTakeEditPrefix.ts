@@ -12,12 +12,8 @@ import { isDeepStrictEqual } from "node:util";
  * Refuse a branch that changes the original editorial view through the Human join.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the boundary whose placement and cues must remain fixed.
- * @evidence contracts/development/implementation.md#principled-implementation Compares the admitted affine placement, visible bounds, prior shots and projected event ownership on the original output clock.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure First verifies frame placement and then compares the engine's projected event ledgers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A matching snapshot alone cannot admit an edit that changes a prior rate, trim, transition or event.
- * @evidence contracts/development/implementation.md#efficient-algorithms Walks the visible prefix once and obtains ordered cues from the existing projector.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the prepared layouts already used to resolve the saved anchors.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows both editable sources and keeps neither after the check.
+ * @evidence contracts/development/implementation.md#principled-implementation Compares the admitted affine placement, visible bounds, prior shots and projected event ownership on the original output clock. A matching snapshot alone cannot admit an edit that changes a prior rate, trim, transition or event.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Uses the prepared layouts from anchor resolution to locate the join and compare the visible placements. Projects each full edit with the engine event reader, which builds its own playback layout, then compares only cues through the join. The input layouts and temporary event lists stay local to the check.
  */
 export function verifyMotionTakeEditPrefix(
   original: {

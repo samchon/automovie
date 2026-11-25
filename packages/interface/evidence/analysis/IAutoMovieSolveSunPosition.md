@@ -1,21 +1,3 @@
-# src/analysis/IAutoMovieSolveSunPosition.ts#IAutoMovieSolveSunPosition
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the operation it serves; its members document the site, the UTC instant and the atmosphere.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace grouping the solver's input record and its calendar instant, so the instant is not mistaken for the production's own epoch seconds used by `IAutoMovieEnvironmentInstant.time`.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-interface owns it for `solveAutoMovieSunPosition`, its only reader; it adds no result type because `IAutoMovieSunPosition` is shared with `autoMovieSunDirection`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No alternative input forms such as a Julian Day or a local time zone are offered; one UTC calendar instant covers every consumer.
-
 # src/analysis/IAutoMovieSolveSunPosition.ts#IAutoMovieSolveSunPosition.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

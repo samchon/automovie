@@ -3,13 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    "types": ["node"],
-    "plugins": [
-      {
-        "transform": "@ttsc/lint",
-        "configFile": "lint.config.ts"
-      }
-    ]
+    "types": ["node"]
   },
   "include": [
     "src"

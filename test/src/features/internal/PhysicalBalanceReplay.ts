@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieXpbdBody,
+  AutoMovieXpbdWorld,
   advancePhysicalBalance,
   physicalBalanceSense,
   physicalIcpController,
@@ -9,15 +9,14 @@ import {
 import type {
   IAutoMovieCollectPhysicalSupports,
   IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 
 import { PhysicalDisturbance } from "./PhysicalDisturbance";
@@ -88,18 +87,125 @@ export namespace PhysicalBalanceReplay {
     dynamic: boolean;
   }
 
-  /** One recorded call. */
-  export interface IRecord {
-    /** Which call: the balance controller's or the root tracker's. */
-    kind: "advance" | "root";
-    /** Why the frame was kept, for an `advance` record. */
+  /** A recorded `advance` call's input, its segments unpacked. */
+  export type IAdvanceInput = Pick<
+    Parameters<typeof advancePhysicalBalance>[0],
+    | "targets"
+    | "velocities"
+    | "unavailable"
+    | "seconds"
+    | "dt"
+    | "gravity"
+    | "floor"
+  > & {
+    /** The supports' measured contacts. */
+    supports: IAutoMovieCollectPhysicalSupports.ISupport[];
+    /** The state before the call; absent before the first. */
+    state?: IAutoMoviePhysicalRecoveryState;
+    /** Each segment's recorded state, by bone. */
+    segments: Record<string, ISegment>;
+    /** The accumulated actuation before the call, by bone. */
+    actuation?: [string, IAutoMovieVector3][];
+  };
+
+  /** A recorded `root` call's input, its segments and goals unpacked. */
+  export type IRootInput = Pick<
+    trackPhysicalRoot.IInput,
+    | "rootDynamic"
+    | "rootIntent"
+    | "target"
+    | "rootShift"
+    | "planted"
+    | "seating"
+    | "center"
+    | "landed"
+    | "integral"
+    | "icp"
+    | "desired"
+    | "omega"
+    | "pushed"
+    | "gravity"
+    | "supports"
+    | "recoveryBones"
+    | "requested"
+    | "step"
+    | "seconds"
+    | "dt"
+    | "goals"
+  > & {
+    /** The root segment's bone. */
+    base: string;
+    /** Each segment's recorded state, by bone. */
+    segments: Record<string, ISegment>;
+    /** The accumulated actuation before the call, by bone. */
+    actuation?: [string, IAutoMovieVector3][];
+  };
+
+  /**
+   * What a replayed root record's call set and wrote: the root task with its
+   * bodies named by bone, the integral after, the wrench records and the
+   * actuation after.
+   */
+  export type IRootReplay = {
+    /** Root wrench task after the call, with participating bodies named by bone. */
+    task: {
+      origin: IAutoMovieVector3;
+      force: IAutoMovieVector3;
+      torque: IAutoMovieVector3;
+      spin?: IAutoMovieVector3;
+      bounds?: { bodies: string[] | undefined; force: number }[];
+      released?: string[] | undefined;
+      stance?: string[] | undefined;
+      objective?: {
+        force: IAutoMovieVector3;
+        yaw?: AutoMovieXpbdWorld.IObjective["yaw"];
+        pressure?: {
+          point: IAutoMovieVector3;
+          weight: number;
+          bodies?: string[] | undefined;
+        };
+      };
+    } | null;
+
+    /** The root controller's integral state after the call. */
+    integral: IRootInput["integral"];
+
+    /** The support wrenches written by the call, in recording order. */
+    supportWrenches: trackPhysicalRoot.IInput["bound"]["supportWrenches"];
+
+    /** The accumulated actuation by bone, when recording was enabled. */
+    actuation: [string, IAutoMovieVector3][] | undefined;
+  };
+
+  /** One recorded call: the balance controller's or the root tracker's. */
+  export type IRecord = IAdvanceRecord | IRootRecord;
+
+  /** One recorded balance controller call. */
+  export interface IAdvanceRecord {
+    /** The balance controller's call. */
+    kind: "advance";
+    /** Why the frame was kept. */
     reason?: string;
     /** The substep's local seconds. */
     seconds: number;
-    /** The call's input, as JSON. */
-    input: Record<string, any>;
+    /** The call's input. */
+    input: IAdvanceInput;
     /** What the call returned and wrote, as JSON. */
-    output: Record<string, any>;
+    output: Record<string, unknown>;
+  }
+
+  /** One recorded root tracker call. */
+  export interface IRootRecord {
+    /** The root tracker's call. */
+    kind: "root";
+    /** Unused for a root record. */
+    reason?: string;
+    /** The substep's local seconds. */
+    seconds: number;
+    /** The call's input. */
+    input: IRootInput;
+    /** What the call wrote, as JSON. */
+    output: Record<string, unknown>;
   }
 
   /** One case's fixture, its records' inputs complete. */
@@ -115,9 +221,11 @@ export namespace PhysicalBalanceReplay {
     /** The push's impulse, N s. */
     impulse: number;
     /** The simulation's gravity, floor, rate and substeps. */
-    settings: Record<string, any>;
+    settings: trackPhysicalRoot.IInput["settings"];
     /** The simulated body without its profile, which its digest names. */
-    body: Record<string, any> & { id: string; profileDigest: string };
+    body: Omit<IAutoMoviePhysicalSimulationInput.IBody, "profile"> & {
+      profileDigest: string;
+    };
     /**
      * The profile the digest names, when the fixture stores it, so a replay
      * needs no figure built (`stored`).
@@ -140,7 +248,9 @@ export namespace PhysicalBalanceReplay {
   }
 
   /** One case's file: the fixture with its segments and goals packed. */
-  export interface IFile extends IFixture {
+  export interface IFile extends Omit<IFixture, "records"> {
+    /** The kept calls, packed. */
+    records: object[];
     /** Each segment's constant state, by bone. */
     statics: Record<string, IStatic>;
     /** The values the records refer to as `{ "@": n }`. */
@@ -149,8 +259,8 @@ export namespace PhysicalBalanceReplay {
 
   /**
    * The fixtures whose key frames the replay checks: each subject's recovery,
-   * which steps and lands, and its fall, which fails; the sustained and
-   * extra pushes pass through the same phases at the same kinds of frame.
+   * which steps and lands, and its fall, which fails; the sustained and extra
+   * pushes pass through the same phases at the same kinds of frame.
    */
   export const KEY_FIXTURES: readonly string[] = [
     // The Human's recovery first: it stores the profile the fall reuses.
@@ -161,11 +271,10 @@ export namespace PhysicalBalanceReplay {
   ];
 
   /**
-   * A fixture's key records, by index: the controller's call at quiet
-   * stance, at the push, at the first and last events, mid-swing and at the
-   * landing ramp's end or after the landing, each phase's frame once; and the
-   * root tracker's at quiet stance and mid-swing, or at the push without a
-   * swing.
+   * A fixture's key records, by index: the controller's call at quiet stance,
+   * at the push, at the first and last events, mid-swing and at the landing
+   * ramp's end or after the landing, each phase's frame once; and the root
+   * tracker's at quiet stance and mid-swing, or at the push without a swing.
    */
   export function keyFrames(fixture: IFixture): number[] {
     const records: IRecord[] = fixture.records;
@@ -203,25 +312,30 @@ export namespace PhysicalBalanceReplay {
   export const HUMAN_PROFILE: string = "human_recover_z.json";
 
   /** Every fixture's file name. */
-  export function list(): string[] {
-    return fs
-      .readdirSync(path.join(repositoryRoot(), FOLDER))
+  export async function list(): Promise<string[]> {
+    return (await fs.readdir(path.join(repositoryRoot(), FOLDER)))
       .filter((name: string): boolean => name.endsWith(".json"))
       .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
   }
 
   /** One fixture, read and unpacked. */
-  export function load(name: string): IFixture {
-    const file: IFile = JSON.parse(
-      fs.readFileSync(path.join(repositoryRoot(), FOLDER, name), "utf8"),
-    ) as IFile;
-    const resolve = (value: unknown): any =>
+  export async function load(name: string): Promise<IFixture> {
+    const text: string = await fs.readFile(
+      path.join(repositoryRoot(), FOLDER, name),
+      "utf8",
+    );
+    // The constant states and the shared values first; the second reading
+    // unpacks each record's input and output with them.
+    const { statics, shared }: Pick<IFile, "statics" | "shared"> =
+      JSON.parse(text);
+    const resolve = (value: unknown): unknown =>
       value !== null &&
       typeof value === "object" &&
       !Array.isArray(value) &&
       Object.keys(value).length === 1 &&
-      "@" in value
-        ? file.shared[(value as { "@": number })["@"]]
+      "@" in value &&
+      typeof value["@"] === "number"
+        ? shared[value["@"]]
         : value;
     const vector = (a: number[], i: number): IAutoMovieVector3 => ({
       x: a[i]!,
@@ -237,56 +351,50 @@ export namespace PhysicalBalanceReplay {
     const segment = (bone: string, a: number[]): ISegment => ({
       center: vector(a, 0),
       orientation: quaternion(a, 3),
-      centerOfMass: { ...file.statics[bone]!.centerOfMass },
-      inertia: { ...file.statics[bone]!.inertia },
-      inertiaRotation: { ...file.statics[bone]!.inertiaRotation },
+      centerOfMass: { ...statics[bone]!.centerOfMass },
+      inertia: { ...statics[bone]!.inertia },
+      inertiaRotation: { ...statics[bone]!.inertiaRotation },
       velocity: vector(a, 7),
       angularVelocity: vector(a, 10),
-      dynamic: file.statics[bone]!.dynamic,
+      dynamic: statics[bone]!.dynamic,
     });
-    const goal = (a: unknown): unknown =>
-      Array.isArray(a)
-        ? {
-            pose: { position: vector(a, 0), rotation: quaternion(a, 3) },
-            velocity: vector(a, 7),
-            angularVelocity: vector(a, 10),
-          }
-        : a;
-    const unpack = (
-      packed: Record<string, unknown>,
-      unpacker: (bone: string, value: any) => unknown,
-    ): Record<string, any> =>
+    const goal = (a: number[]): IAutoMovieSamplePhysicalTarget.IResult => ({
+      pose: { position: vector(a, 0), rotation: quaternion(a, 3) },
+      velocity: vector(a, 7),
+      angularVelocity: vector(a, 10),
+    });
+    const unpack = <T>(
+      packed: Record<string, number[]>,
+      unpacker: (bone: string, value: number[]) => T,
+    ): Record<string, T> =>
       Object.fromEntries(
-        Object.entries(packed).map(([bone, value]: [string, unknown]) => [
+        Object.entries(packed).map(([bone, value]: [string, number[]]) => [
           bone,
           unpacker(bone, value),
         ]),
       );
-    const { statics: _statics, shared: _shared, ...fixture } = file;
-    return {
-      ...fixture,
-      records: file.records.map((record: IRecord): IRecord => {
-        const input: Record<string, any> = Object.fromEntries(
-          Object.entries(record.input).map(([key, value]) => [
-            key,
-            resolve(value),
-          ]),
-        );
-        input.segments = unpack(input.segments, segment);
-        if (record.kind === "root" && input.goals !== undefined)
-          input.goals = unpack(input.goals, (_bone, value) => goal(value));
-        return {
-          ...record,
-          input,
-          output: Object.fromEntries(
-            Object.entries(record.output).map(([key, value]) => [
-              key,
-              resolve(value),
-            ]),
-          ),
-        };
-      }),
-    };
+    // The JSON reading is the fixture's typed boundary: a record's input and
+    // output values resolve their shared references, and an input's segments
+    // and a root input's goals unpack into their states.
+    const parsed: IFixture & Pick<IFile, "statics" | "shared"> = JSON.parse(
+      text,
+      function (this: object, key: string, value) {
+        if ((key !== "input" && key !== "output") || !("kind" in this))
+          return value;
+        for (const entry of Object.keys(value))
+          value[entry] = resolve(value[entry]);
+        if (key === "input") {
+          value.segments = unpack(value.segments, segment);
+          if (this.kind === "root" && value.goals !== undefined)
+            value.goals = unpack(value.goals, (_bone: string, a: number[]) =>
+              goal(a),
+            );
+        }
+        return value;
+      },
+    );
+    const { statics: _statics, shared: _shared, ...fixture } = parsed;
+    return fixture;
   }
 
   /** The case's profile, rebuilt as the recording built it. */
@@ -301,14 +409,19 @@ export namespace PhysicalBalanceReplay {
   }
 
   /**
-   * The case's profile as the fixture stores it, checked against the digest
-   * the recording took of it; rebuilt as the recording built it when the
-   * fixture stores none.
+   * The case's profile as the fixture stores it, checked against the digest the
+   * recording took of it; rebuilt as the recording built it when the fixture
+   * stores none.
    */
-  export function stored(fixture: IFixture): IAutoMoviePhysicalProfile {
+  export async function stored(
+    fixture: IFixture,
+  ): Promise<IAutoMoviePhysicalProfile> {
     if (fixture.profile === undefined)
       return fixture.subject === "human"
-        ? stored({ ...fixture, profile: PhysicalHumanProfiles.load("m-average") })
+        ? stored({
+            ...fixture,
+            profile: await PhysicalHumanProfiles.load("m-average"),
+          })
         : PhysicalModelFixtures.quadrupod();
     const found: string = digest(JSON.stringify(fixture.profile));
     if (found !== fixture.body.profileDigest)
@@ -329,125 +442,38 @@ export namespace PhysicalBalanceReplay {
   }
 
   /**
-   * A recorded segment rebuilt with every method the controller reads, each
-   * computed as `AutoMovieXpbdBody` computes it.
+   * A recorded segment as a solver body: its centre, orientation, mass frame
+   * and velocities written as recorded, bit for bit. The recording keeps no
+   * mass, which the controller does not read.
    */
-  export class Body {
-    /** The body-frame centre of mass, metres. */
-    public readonly centerOfMass: IAutoMovieVector3;
-    /** The principal inertia, kg m^2. */
-    public readonly inertia: IAutoMovieVector3;
-    /** The principal axes' rotation in the body frame. */
-    public readonly inertiaRotation: IAutoMovieQuaternion;
-    private readonly center: IAutoMovieVector3;
-    private readonly orientation: IAutoMovieQuaternion;
-    private readonly velocity: IAutoMovieVector3;
-    private readonly angularVelocity: IAutoMovieVector3;
-    private readonly dynamic: boolean;
-
-    public constructor(state: ISegment) {
-      this.center = { ...state.center };
-      this.orientation = { ...state.orientation };
-      this.centerOfMass = { ...state.centerOfMass };
-      this.inertia = { ...state.inertia };
-      this.inertiaRotation = { ...state.inertiaRotation };
-      this.velocity = { ...state.velocity };
-      this.angularVelocity = { ...state.angularVelocity };
-      this.dynamic = state.dynamic;
-    }
-
-    /** The bone origin, world metres. */
-    public translation(): IAutoMovieVector3 {
-      return Vector3.subtract(
-        this.center,
-        Quaternion.rotateVector(this.orientation, this.centerOfMass),
-      );
-    }
-
-    /** The world orientation. */
-    public rotation(): IAutoMovieQuaternion {
-      return { ...this.orientation };
-    }
-
-    /** The world centre of mass, metres. */
-    public worldCom(): IAutoMovieVector3 {
-      return { ...this.center };
-    }
-
-    /** The centre of mass's velocity, metres per second. */
-    public linvel(): IAutoMovieVector3 {
-      return { ...this.velocity };
-    }
-
-    /** The angular velocity, radians per second. */
-    public angvel(): IAutoMovieVector3 {
-      return { ...this.angularVelocity };
-    }
-
-    /** Whether the solver integrates the body. */
-    public isDynamic(): boolean {
-      return this.dynamic;
-    }
-
-    /** A world point's velocity on the body, metres per second. */
-    public velocityAtPoint(point: IAutoMovieVector3): IAutoMovieVector3 {
-      return Vector3.add(
-        this.velocity,
-        Vector3.cross(
-          this.angularVelocity,
-          Vector3.subtract(point, this.center),
-        ),
-      );
-    }
-
-    /**
-     * The world inverse inertia applied to a world vector; zero when not
-     * dynamic.
-     */
-    public inverseInertia(v: IAutoMovieVector3): IAutoMovieVector3 {
-      if (!this.dynamic) return { x: 0, y: 0, z: 0 };
-      const r: IAutoMovieQuaternion = Quaternion.multiply(
-        this.orientation,
-        this.inertiaRotation,
-      );
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(r),
-        v,
-      );
-      return Quaternion.rotateVector(r, {
-        x: this.inertia.x > 0 ? local.x / this.inertia.x : 0,
-        y: this.inertia.y > 0 ? local.y / this.inertia.y : 0,
-        z: this.inertia.z > 0 ? local.z / this.inertia.z : 0,
-      });
-    }
-
-    /** The world inertia applied to a world vector. */
-    public worldInertia(v: IAutoMovieVector3): IAutoMovieVector3 {
-      const r: IAutoMovieQuaternion = Quaternion.multiply(
-        this.orientation,
-        this.inertiaRotation,
-      );
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(r),
-        v,
-      );
-      return Quaternion.rotateVector(r, {
-        x: local.x * this.inertia.x,
-        y: local.y * this.inertia.y,
-        z: local.z * this.inertia.z,
-      });
-    }
+  export function body(state: ISegment, handle: number): AutoMovieXpbdBody {
+    const result: AutoMovieXpbdBody = new AutoMovieXpbdBody(
+      handle,
+      state.dynamic,
+      state.center,
+      state.orientation,
+    );
+    result.center = { ...state.center };
+    result.orientation = { ...state.orientation };
+    result.centerOfMass = { ...state.centerOfMass };
+    result.inertia = { ...state.inertia };
+    result.inertiaRotation = { ...state.inertiaRotation };
+    result.velocity = { ...state.velocity };
+    result.angularVelocity = { ...state.angularVelocity };
+    return result;
   }
 
   /** The recorded segments as bodies, by bone. */
   export function segments(
     recorded: Record<string, ISegment>,
-  ): Map<string, Body> {
+  ): Map<string, AutoMovieXpbdBody> {
     return new Map(
-      Object.entries(recorded).map(([bone, state]: [string, ISegment]) => [
-        bone,
-        new Body(state),
-      ]),
+      Object.entries(recorded).map(
+        ([bone, state]: [string, ISegment], handle: number) => [
+          bone,
+          body(state, handle),
+        ],
+      ),
     );
   }
 
@@ -461,29 +487,28 @@ export namespace PhysicalBalanceReplay {
   /** Replay one `advance` record: what the controller returns and writes. */
   export function advance(
     fixture: IFixture,
-    record: IRecord,
+    record: IAdvanceRecord,
     built: IAutoMoviePhysicalProfile,
-  ): Record<string, any> {
-    const input = record.input;
+  ): Record<string, unknown> {
+    const input: IAdvanceInput = record.input;
     const state: IAutoMoviePhysicalRecoveryState = clone(input.state) ?? {
       last: "supported",
       steps: [],
       offsets: Object.create(null),
     };
     const actuation: Map<string, IAutoMovieVector3> | undefined =
-      input.actuation
-        ? new Map(clone(input.actuation) as [string, IAutoMovieVector3][])
-        : undefined;
+      input.actuation ? new Map(clone(input.actuation)) : undefined;
     const output = advancePhysicalBalance({
-      world: undefined as never,
+      // The controller reads no solver state but the recorded segments.
+      world: new AutoMovieXpbdWorld(fixture.settings.gravity),
       body: fixture.body.id,
       profile: built,
-      segments: segments(input.segments) as never,
+      segments: segments(input.segments),
       colliders: new Map(),
       contacts: [],
-      policy: clone(fixture.body.balance) as IAutoMoviePhysicalRecoveryPolicy,
+      policy: clone(fixture.body.balance)!,
       state,
-      targets: clone(input.targets) as Record<string, IAutoMovieRigidTransform>,
+      targets: clone(input.targets),
       ...(input.velocities ? { velocities: clone(input.velocities) } : {}),
       ...(input.unavailable ? { unavailable: clone(input.unavailable) } : {}),
       seconds: input.seconds,
@@ -491,9 +516,7 @@ export namespace PhysicalBalanceReplay {
       gravity: input.gravity,
       floor: input.floor,
       ...(actuation ? { actuation } : {}),
-      supports: clone(
-        input.supports,
-      ) as IAutoMovieCollectPhysicalSupports.ISupport[],
+      supports: clone(input.supports),
     });
     return {
       rootStrength: output.rootStrength,
@@ -512,31 +535,26 @@ export namespace PhysicalBalanceReplay {
    */
   export function sense(
     fixture: IFixture,
-    record: IRecord,
+    record: IAdvanceRecord,
     built: IAutoMoviePhysicalProfile,
   ): {
     sense: physicalBalanceSense.ISense;
     state: IAutoMoviePhysicalRecoveryState;
   } {
-    const input = record.input;
+    const input: IAdvanceInput = record.input;
     return {
       sense: physicalBalanceSense({
         profile: built,
-        segments: segments(input.segments) as never,
-        policy: clone(fixture.body.balance) as IAutoMoviePhysicalRecoveryPolicy,
-        targets: clone(input.targets) as Record<
-          string,
-          IAutoMovieRigidTransform
-        >,
+        segments: segments(input.segments),
+        policy: clone(fixture.body.balance)!,
+        targets: clone(input.targets),
         ...(input.velocities ? { velocities: clone(input.velocities) } : {}),
         ...(input.unavailable ? { unavailable: clone(input.unavailable) } : {}),
         seconds: input.seconds,
         dt: input.dt,
         gravity: input.gravity,
         floor: input.floor,
-        supports: clone(
-          input.supports,
-        ) as IAutoMovieCollectPhysicalSupports.ISupport[],
+        supports: clone(input.supports),
       }),
       state: clone(input.state) ?? {
         last: "supported",
@@ -549,45 +567,41 @@ export namespace PhysicalBalanceReplay {
   /** Replay one `root` record: the task, integral, wrenches and actuation. */
   export function root(
     fixture: IFixture,
-    record: IRecord,
+    record: IRootRecord,
     built: IAutoMoviePhysicalProfile,
-  ): Record<string, any> {
-    const input = record.input;
-    const bodies: Map<string, Body> = segments(input.segments);
-    const names: Map<unknown, string> = new Map(
-      [...bodies].map(([bone, body]: [string, Body]) => [body, bone]),
+  ): IRootReplay {
+    const input: IRootInput = record.input;
+    const bodies: Map<string, AutoMovieXpbdBody> = segments(input.segments);
+    const names: Map<AutoMovieXpbdBody, string> = new Map(
+      [...bodies].map(([bone, body]: [string, AutoMovieXpbdBody]) => [
+        body,
+        bone,
+      ]),
     );
-    const rootBone: string = built.segments.find(
+    const rootSegment: IAutoMoviePhysicalSegment = built.segments.find(
       (segment): boolean =>
         !built.joints.some((joint): boolean => joint.child === segment.bone),
-    )!.bone;
-    const world = { rootTasks: new Map<unknown, any>() };
-    const bound = {
+    )!;
+    const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(
+      fixture.settings.gravity,
+    );
+    const bound: trackPhysicalRoot.IInput["bound"] = {
       segments: new Map([[fixture.body.id, bodies]]),
-      order: new Map([[fixture.body.id, [{ bone: rootBone }]]]),
-      supportWrenches: [] as unknown[],
+      order: new Map([[fixture.body.id, [rootSegment]]]),
+      supportWrenches: [],
     };
     const integral = clone(input.integral);
     const actuation: Map<string, IAutoMovieVector3> | undefined =
-      input.actuation
-        ? new Map(clone(input.actuation) as [string, IAutoMovieVector3][])
-        : undefined;
-    const base: Body = bodies.get(input.base)!;
+      input.actuation ? new Map(clone(input.actuation)) : undefined;
+    const base: AutoMovieXpbdBody = bodies.get(input.base)!;
     trackPhysicalRoot({
-      settings: clone(
-        fixture.settings,
-      ) as IAutoMoviePhysicalSimulationInput.IInput,
-      body: {
-        ...clone(fixture.body),
-        profile: built,
-      } as unknown as IAutoMoviePhysicalSimulationInput.IBody,
-      bound: bound as never,
-      base: base as never,
+      settings: clone(fixture.settings),
+      body: { ...clone(fixture.body), profile: built },
+      bound,
+      base,
       rootDynamic: input.rootDynamic,
-      rootIntent: clone(
-        input.rootIntent,
-      ) as IAutoMovieSamplePhysicalTarget.IResult,
-      target: clone(input.target) as IAutoMoviePhysicalSimulationInput.ITarget,
+      rootIntent: clone(input.rootIntent),
+      target: clone(input.target),
       ...(input.rootShift ? { rootShift: clone(input.rootShift) } : {}),
       ...(input.planted ? { planted: clone(input.planted) } : {}),
       ...(input.seating ? { seating: clone(input.seating) } : {}),
@@ -606,9 +620,7 @@ export namespace PhysicalBalanceReplay {
       ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),
       gravity: clone(input.gravity),
       ...(actuation ? { actuation } : {}),
-      supports: clone(
-        input.supports,
-      ) as IAutoMovieCollectPhysicalSupports.ISupport[],
+      supports: clone(input.supports),
       ...(input.recoveryBones
         ? { recoveryBones: clone(input.recoveryBones) }
         : {}),
@@ -616,15 +628,18 @@ export namespace PhysicalBalanceReplay {
       step: input.step,
       seconds: input.seconds,
       dt: input.dt,
-      world: world as never,
+      world,
       goals: clone(input.goals),
-    } as trackPhysicalRoot.IInput);
-    const task = world.rootTasks.get(base);
+    });
+    const task: AutoMovieXpbdWorld.IRootTask | undefined =
+      world.rootTasks.get(base);
     const named = (
-      list: Iterable<unknown> | undefined,
+      list: Iterable<AutoMovieXpbdBody> | undefined,
     ): string[] | undefined =>
       list
-        ? [...list].map((body: unknown): string => names.get(body) ?? "?")
+        ? [...list].map(
+            (body: AutoMovieXpbdBody): string => names.get(body) ?? "?",
+          )
         : undefined;
     return {
       task: task
@@ -635,12 +650,10 @@ export namespace PhysicalBalanceReplay {
             ...(task.spin ? { spin: clone(task.spin) } : {}),
             ...(task.bounds
               ? {
-                  bounds: task.bounds.map(
-                    (b: { bodies: unknown[]; force: number }) => ({
-                      bodies: named(b.bodies),
-                      force: b.force,
-                    }),
-                  ),
+                  bounds: task.bounds.map((b: AutoMovieXpbdWorld.IBound) => ({
+                    bodies: named(b.bodies),
+                    force: b.force,
+                  })),
                 }
               : {}),
             ...(task.released ? { released: named(task.released) } : {}),

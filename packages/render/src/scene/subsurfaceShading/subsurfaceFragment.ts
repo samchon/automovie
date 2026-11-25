@@ -3,7 +3,10 @@ import * as THREE from "three";
 import { subsurfacePhysicalChunk } from "./subsurfacePhysicalChunk.js";
 
 /**
- * Expand the supported physical lighting include and add the existing screen-space curvature assignment. Missing outer include markers are not rejected; compatibility therefore requires the actual supported physical shader template.
+ * Expand the supported physical lighting include and add the existing
+ * screen-space curvature assignment. Missing outer include markers are not
+ * rejected; compatibility therefore requires the actual supported physical
+ * shader template.
  */
 export function subsurfaceFragment(fragmentShader: string): string {
   const pars: string = THREE.ShaderChunk.lights_physical_pars_fragment;

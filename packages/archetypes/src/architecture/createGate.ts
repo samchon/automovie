@@ -18,35 +18,45 @@ const TRILOCK: string =
 const SPEEDLANE: string =
   "Boon Edam Lifeline Speedlane Swing brochure: cabinet 106 mm wide, 1035 mm high, 1776 mm long; passage 615 mm, wide 915 mm; wing height 940 mm (https://www.barbourproductsearch.info/BEL_Lifeline%20Speedlane%20Swing_A4%20Brochure_2023-file133773.pdf)";
 
-/** A speed gate wing's lower edge above the floor, metres: the Speedlane Swing elevation's 200 mm. */
+/**
+ * A speed gate wing's lower edge above the floor, metres: the Speedlane Swing
+ * elevation's 200 mm.
+ */
 const WING_FOOT: number = 0.2;
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `wing`, a swing gate's wing thickness. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `wing`, a swing gate's wing thickness.
+ */
 const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
 
 /**
- * A pedestrian gate a person passes through: a tripod turnstile or a swing speed gate.
+ * A pedestrian gate a person passes through: a tripod turnstile or a swing
+ * speed gate.
  *
- * The lane runs along `Z` through the origin, one of its maker's read passage widths between its cabinets, given or drawn from the seed, and is walked toward `-Z`. A turnstile has one cabinet on the lane's `-X` side with its barrier arm reaching across the lane at the maker's barrier height; a speed gate has a cabinet on each side, each with a wing closing half the lane at the maker's wing height. `passage` is the lane's opening, an aperture as high as the cabinets; `top` is the `-X` cabinet's top, leaned on or vaulted.
+ * The lane runs along `Z` through the origin, one of its maker's read passage
+ * widths between its cabinets, given or drawn from the seed, and is walked
+ * toward `-Z`. A turnstile has one cabinet on the lane's `-X` side with its
+ * barrier arm reaching across the lane at the maker's barrier height; a speed
+ * gate has a cabinet on each side, each with a wing closing half the lane at
+ * the maker's wing height. `passage` is the lane's opening, an aperture as high
+ * as the cabinets; `top` is the `-X` cabinet's top, leaned on or vaulted.
  *
- * The arm and the wings are drawn at their cabinet's middle and declared as no contact, since no source read places them along the cabinet; turning an arm or swinging a wing has no motion law yet (#3468 N7), so the gate is built for static use.
+ * The arm and the wings are drawn at their cabinet's middle and declared as no
+ * contact, since no source read places them along the cabinet; turning an arm
+ * or swinging a wing has no motion law yet (#3468 N7), so the gate is built for
+ * static use.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The gate.
- * @throws {AutoMovieArchetypeRefusal} For a passage the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the lane's frame, each kind's parts, its contacts, and why the arm and wings are no contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The makers' cabinet sizes and barrier and wing heights, and one of each maker's read passage widths whole; the arm's reach and section from the Trilock drawing.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the passage, draw the dimensions, then the cabinets, the barrier, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One arm stands for the tripod's three; a wing is a slab from the elevation's 200 mm up to its height; their place along the cabinet and the wing's thickness are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most four parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a passage the kind's maker does not
+ *   list, a fixed dimension outside its band, or one only another kind has.
  */
 export function createGate(
   params: createGate.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createGate.Affordance, createGate.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createGate.Dimension> =
     new AutoMovieArchetypeDrawSession<createGate.Dimension>(
@@ -139,14 +149,7 @@ export function createGate(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createGate}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read passages among them, and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lane a person passes and the cabinet top a hand meets (#3468 N7).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A barrier no source places along its cabinet is drawn but not declared.
- */
+/** Companion types and bands of {@link createGate}. */
 export namespace createGate {
   /** The kinds of gate. */
   export type Kind = "turnstile" | "speedGate";
@@ -154,10 +157,16 @@ export namespace createGate {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["turnstile", "speedGate"];
 
-  /** The passage widths read, millimetres: the Trilock 60's 457, 508 and 559 mm and the Speedlane Swing's 615 and 915 mm. */
+  /**
+   * The passage widths read, millimetres: the Trilock 60's 457, 508 and 559 mm
+   * and the Speedlane Swing's 615 and 915 mm.
+   */
   export type Passage = "457" | "508" | "559" | "615" | "915";
 
-  /** Each kind's passages with the clear width each gives, metres, its default first. */
+  /**
+   * Each kind's passages with the clear width each gives, metres, its default
+   * first.
+   */
   export const PASSAGES: Readonly<
     Record<
       Kind,
@@ -215,14 +224,20 @@ export namespace createGate {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "passage">, number>
   > {
     /** Which gate. */
     kind: Kind;
 
-    /** The lane's clear width, one the kind's maker lists; drawn from the seed when absent. */
+    /**
+     * The lane's clear width, one the kind's maker lists; drawn from the seed
+     * when absent.
+     */
     lane?: Passage;
 
     /** The model's id, unique in a scene; `gate` when absent. */

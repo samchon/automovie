@@ -8,8 +8,8 @@ import type { IAutoMovieGrammarStyleClaim } from "./IAutoMovieGrammarStyleClaim"
  *
  * Both halves come from the same pass. A declaration that suppresses a finding
  * and one that suppresses nothing both leave the finding list silent, so only
- * the pass that applies the suppression table can tell which declarations
- * were exercised.
+ * the pass that applies the suppression table can tell which declarations were
+ * exercised.
  */
 export interface IAutoMovieGrammarReading {
   /**

@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanStrikingAdvance.ts#IAutoMovieMotionHumanStrikingAdvance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-clock: Strike action's relative event clock. travel: Optional approach distance in metres; omitted uses the selected advance's full travel.
-
-## @evidence contracts/development/design.md#principled-representation
-
-clock: Strike action's relative event clock. travel: Optional approach distance in metres; omitted uses the selected advance's full travel.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanSword.ts (HumanSword.aim.within, candidate); lexicon/HumanSword.ts (HumanSword.aim.advance, candidate); striking/StrikingAdvance.ts (StrikingAdvance.travel, advance); striking/StrikingBlade.ts (StrikingBlade.shoulder, advance); striking/StrikingAdvance.ts (StrikingAdvance.base, stroke); lexicon/HumanSword.ts (HumanSword.aim).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionClock, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanStrikingAdvance.ts#IAutoMovieMotionHumanStrikingAdvance.Advance
 
 ## @evidence contracts/development/common.md#meaningful-documentation

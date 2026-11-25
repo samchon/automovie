@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionViews.ts#AutoMovieConstructionViews
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the scale, what it applies to and what it does not.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A construction tree's view part as the view-to-section operator's input (`IAutoMovieViewPart`): declared metres become kernel millimetres once, while an explicit source leaf reads its already evaluated input from this call's context: companion namespace of 11 members (`SCALE`, `part`, `frame`, `parameter`, `point`, `vector`, ...); units and frames named in its text: metre, frame, metres, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConstructionViews` in packages/engine/src/geometry/construction/AutoMovieConstructionViews.ts; its surface is the 11 members listed and the text shows 25 other files naming it, mostly packages/human (10), test (8), packages/engine (7), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConstructionViews.ts#AutoMovieConstructionViews.part
 
 ## @evidence contracts/development/implementation.md#principled-implementation

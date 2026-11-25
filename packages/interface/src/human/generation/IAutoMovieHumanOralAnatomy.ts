@@ -2,8 +2,9 @@ import type { IAutoMovieHumanOralCavitySection } from "./IAutoMovieHumanOralCavi
 import type { IAutoMovieHumanTongueRest } from "./IAutoMovieHumanTongueRest";
 import type { IAutoMovieHumanToothPlacement } from "./IAutoMovieHumanToothPlacement";
 
-/** One person's oral anatomy in the registered figure frame: +X forward,
- * +Y up and +Z left. Lengths and coordinates are millimetres; `cant` is the
+/**
+ * One person's oral anatomy in the registered figure frame: +X forward, +Y up
+ * and +Z left. Lengths and coordinates are millimetres; `cant` is the
  * dimensionless rise per backward millimetre. Contact samples use normalized
  * half-width shares, not angular phase.
  */
@@ -53,10 +54,16 @@ export interface IAutoMovieHumanOralAnatomy {
   /** The lining's section at the oropharynx, round the tongue's base. */
   oropharynx: IAutoMovieHumanOralCavitySection;
 
-  /** The pharynx's back wall, where the lining closes behind the oropharynx, `[x, y]`. */
+  /**
+   * The pharynx's back wall, where the lining closes behind the oropharynx,
+   * `[x, y]`.
+   */
   pharynx: [number, number];
 
-  /** Alveolar ridge behind the upper incisors, where a tip touches for /t/, `[x, y]`. */
+  /**
+   * Alveolar ridge behind the upper incisors, where a tip touches for /t/, `[x,
+   * y]`.
+   */
   ridge: [number, number];
 
   /** Palate's vault over the molars, `[x, y]`. */

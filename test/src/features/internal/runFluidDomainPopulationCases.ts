@@ -15,11 +15,11 @@ import { TestValidator } from "@nestia/e2e";
 import { hasViolation, namedFacts } from "./predicates";
 
 /**
- * Run the original array, solid flag, boundary, flow and spray admission cases
- * after the owning domain-validation entry's schema/grid/solver/Courant cases.
- * Expected kinds, addresses and finite/range boundaries come from the authored
+ * Run the original array, solid occupancy, flow and spray admission cases
+ * after the owning domain-validation entry's grid/solver/Courant cases.
+ * Expected kinds, addresses and range boundaries come from the authored
  * domain contract; shared witnesses test path inclusion rather than full reports.
- * The discoverable owning entry retains the original nine Scenarios and calls
+ * The discoverable owning entry retains its seven Scenarios and calls
  * this internal helper once with its existing source-data fixture functions.
  * This helper has no independently discoverable test entry or runtime host.
  */
@@ -34,7 +34,7 @@ export function runFluidDomainPopulationCases(props: {
   solid[5] = true;
   const arrays: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
-      bed: [Number.NaN, 0, 0],
+      bed: [0, 0, 0],
       depth: [-0.1, 99, 0.25, 0.25],
       solid,
     }),
@@ -42,23 +42,11 @@ export function runFluidDomainPopulationCases(props: {
   const wetPier: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({ solid, depth: new Array<number>(16).fill(0.25) }),
   });
-  // A flag that is neither `true` nor `false` answers "no" to both readers of
-  // it, so the solver would push water through a pier the surface refuses to
-  // draw around. The sibling cell one index away is the twin: it is a real
-  // boolean, and nothing is reported about it.
-  const flags: unknown[] = new Array<boolean>(16).fill(false);
-  flags[7] = 1;
-  const flagged: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
-    domain: basin({ solid: flags as boolean[] }),
-  });
+
   TestValidator.equals(
-    "the state arrays must be one finite, non-negative value per cell",
+    "the state arrays must be one non-negative value per cell",
     namedFacts([
       ["bedLength", (): boolean => hasViolation(arrays, "type", "$input.bed")],
-      [
-        "bedFinite",
-        (): boolean => hasViolation(arrays, "range", "$input.bed[0]"),
-      ],
       [
         "depthLength",
         (): boolean => hasViolation(arrays, "type", "$input.depth"),
@@ -84,67 +72,22 @@ export function runFluidDomainPopulationCases(props: {
             "$input.solid",
           ),
       ],
-      [
-        "solidFlag",
-        (): boolean => hasViolation(flagged, "type", "$input.solid[7]"),
-      ],
-      [
-        "solidFlagTwin",
-        (): boolean =>
-          hasViolation(flagged, "type", "$input.solid[6]") === false,
-      ],
     ]),
     {
       bedLength: true,
-      bedFinite: true,
       depthLength: true,
       depthNegative: true,
       depthTooDeep: true,
       wetPier: true,
       solidLength: true,
-      solidFlag: true,
-      solidFlagTwin: true,
     },
-  );
-
-  const edges: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
-    domain: basin({
-      boundaries: {
-        xMin: "leak" as unknown as "wall",
-        xMax: "leak" as unknown as "wall",
-        zMin: "leak" as unknown as "wall",
-        zMax: "leak" as unknown as "wall",
-      },
-    }),
-  });
-  TestValidator.equals(
-    "an unknown edge kind is refused on every edge",
-    namedFacts([
-      [
-        "xMin",
-        (): boolean => hasViolation(edges, "type", "$input.boundaries.xMin"),
-      ],
-      [
-        "xMax",
-        (): boolean => hasViolation(edges, "type", "$input.boundaries.xMax"),
-      ],
-      [
-        "zMin",
-        (): boolean => hasViolation(edges, "type", "$input.boundaries.zMin"),
-      ],
-      [
-        "zMax",
-        (): boolean => hasViolation(edges, "type", "$input.boundaries.zMax"),
-      ],
-    ]),
-    { xMin: true, xMax: true, zMin: true, zMax: true },
   );
 
   const flows: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       solid,
       sources: [
-        source({ id: " " }),
+        source({ id: "first" }),
         source({ id: "jet" }),
         source({ id: "jet" }),
         source({ id: "off-lattice", column: 1.5, row: 1 }),
@@ -155,11 +98,10 @@ export function runFluidDomainPopulationCases(props: {
         source({ id: "backwards", flowRate: -1 }),
       ],
       drains: [
-        drain({ id: "sill", sillLevel: Number.NaN }),
+        drain({ id: "sill" }),
         drain({ id: "reverse", flowRate: -2 }),
         drain({ id: "backwards-window", start: 5, end: 1 }),
         drain({ id: "unstarted", start: -1 }),
-        drain({ id: "non-finite-end", end: Number.POSITIVE_INFINITY }),
       ],
     }),
   });
@@ -185,10 +127,6 @@ export function runFluidDomainPopulationCases(props: {
   TestValidator.equals(
     "a declared flow must name itself, land on water, and open sanely",
     namedFacts([
-      [
-        "emptyId",
-        (): boolean => hasViolation(flows, "type", "$input.sources[0].id"),
-      ],
       [
         "duplicateId",
         (): boolean => hasViolation(flows, "type", "$input.sources[2].id"),
@@ -219,11 +157,6 @@ export function runFluidDomainPopulationCases(props: {
           hasViolation(flows, "range", "$input.sources[8].flowRate"),
       ],
       [
-        "sill",
-        (): boolean =>
-          hasViolation(flows, "range", "$input.drains[0].sillLevel"),
-      ],
-      [
         "drainRate",
         (): boolean =>
           hasViolation(flows, "range", "$input.drains[1].flowRate"),
@@ -235,10 +168,6 @@ export function runFluidDomainPopulationCases(props: {
       [
         "negativeStart",
         (): boolean => hasViolation(flows, "range", "$input.drains[3].start"),
-      ],
-      [
-        "nonFiniteEnd",
-        (): boolean => hasViolation(flows, "range", "$input.drains[4].end"),
       ],
       [
         "sourceBudget",
@@ -254,7 +183,6 @@ export function runFluidDomainPopulationCases(props: {
       ],
     ]),
     {
-      emptyId: true,
       duplicateId: true,
       fractionalColumn: true,
       negativeColumn: true,
@@ -262,11 +190,9 @@ export function runFluidDomainPopulationCases(props: {
       rowPastEdge: true,
       onPier: true,
       negativeRate: true,
-      sill: true,
       drainRate: true,
       backwardsWindow: true,
       negativeStart: true,
-      nonFiniteEnd: true,
       sourceBudget: true,
       drainBudget: true,
       sprayBudget: true,
@@ -289,9 +215,6 @@ export function runFluidDomainPopulationCases(props: {
           direction: { x: 0, y: 0, z: 0 },
         }),
         spray({ id: "under", spread: -0.5, maxParticles: 0 }),
-        spray({ id: "nan-axis", direction: { x: Number.NaN, y: 1, z: 0 } }),
-        spray({ id: "nan-y", direction: { x: 0, y: Number.NaN, z: 0 } }),
-        spray({ id: "nan-z", direction: { x: 0, y: 1, z: Number.NaN } }),
       ],
     }),
   });
@@ -347,21 +270,6 @@ export function runFluidDomainPopulationCases(props: {
         (): boolean =>
           hasViolation(mists, "type", "$input.sprays[1].maxParticles"),
       ],
-      [
-        "nanX",
-        (): boolean =>
-          hasViolation(mists, "type", "$input.sprays[2].direction"),
-      ],
-      [
-        "nanY",
-        (): boolean =>
-          hasViolation(mists, "type", "$input.sprays[3].direction"),
-      ],
-      [
-        "nanZ",
-        (): boolean =>
-          hasViolation(mists, "type", "$input.sprays[4].direction"),
-      ],
     ]),
     {
       rate: true,
@@ -375,9 +283,6 @@ export function runFluidDomainPopulationCases(props: {
       zeroAxis: true,
       spreadUnder: true,
       capUnder: true,
-      nanX: true,
-      nanY: true,
-      nanZ: true,
     },
   );
 

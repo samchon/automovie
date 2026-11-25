@@ -5,6 +5,8 @@ import {
   Mesh,
 } from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+
 /**
  * List the index ranges Three draws for a mesh, each with its visible material.
  *
@@ -25,7 +27,7 @@ export function readAutoMovieDrawnRanges(
   const start: number = Math.max(0, mesh.geometry.drawRange.start);
   const end: number = Math.min(total, start + mesh.geometry.drawRange.count);
   const material: Material | Material[] = mesh.material;
-  if (!Array.isArray(material))
+  if (AutoMovieThreeKind.isMaterial(material))
     return material.visible && start < end ? [{ start, end, material }] : [];
 
   // Three draws a multi-material mesh only through its groups.

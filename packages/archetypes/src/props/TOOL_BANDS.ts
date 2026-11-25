@@ -30,11 +30,17 @@ const SPOON: string =
 const FORK: string =
   "IKEA DRAGON fork, stainless steel, 19 cm, sold in fours at 0.18 kg the pack (https://www.ikea.com/de/en/p/dragon-fork-stainless-steel-00515527/)";
 
-/** A ladle, read whole; IKEA's FINMAT page gives a length but no bowl or weight, so it is not built. */
+/**
+ * A ladle, read whole; IKEA's FINMAT page gives a length but no bowl or weight,
+ * so it is not built.
+ */
 const LADLE: string =
   "Rösle hook ladle, 320 mm, bowl 9 cm, 0.218 kg (https://www.roesle.com/en/hook-ladle-with-pouring-rim-oe-9-cm-35-in)";
 
-/** A field gun's priming wire, read; its weight is read only for the garrison wire. */
+/**
+ * A field gun's priming wire, read; its weight is read only for the garrison
+ * wire.
+ */
 const PRIMING: string =
   '1862 Ordnance Manual, p. 134 (https://archive.org/details/ordnancemanualfo00unitrich): "Priming-wire; iron wire 0.175 inch diameter, formed with a ring 2 inches diameter at the head, and pointed; length of stem, for siege and garrison guns, 14 inches; length for field-guns, 8 inches. Weight 0.08 lb. for garrison guns."';
 
@@ -43,7 +49,11 @@ const PRECISION: string =
   "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a handle no maker read sizes";
 
 /**
- * The band of each free dimension of {@link createTool}, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. One cited band per dimension per kind, in metres and kilograms, read only as `createTool.BANDS`; every band names its source, and one not read at its primary source is provisional.
+ * The band of each free dimension of {@link createTool}, by kind, with the
+ * sources they are read at: kept apart from the producer so each file stays
+ * within its size. One cited band per dimension per kind, in metres and
+ * kilograms, read only as `createTool.BANDS`; every band names its source, and
+ * one not read at its primary source is provisional.
  */
 export const TOOL_BANDS: Readonly<
   Record<

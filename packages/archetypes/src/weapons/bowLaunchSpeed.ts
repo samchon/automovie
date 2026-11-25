@@ -2,20 +2,27 @@ import { type AutoMovieArchetype, AutoMovieArchetypeRefusal } from "../core";
 import { createBow } from "./createBow";
 
 /**
- * The provisional speed from the bow prototype's declared stroke-energy law: what `createBow.launchSpeed` gives. Its reference numbers are reinterpreted stroke factors, as createBow.KOOI documents; this is not native-q or measured force-draw reconstruction.
+ * The provisional speed from the bow prototype's declared stroke-energy law:
+ * what `createBow.launchSpeed` gives. Its reference numbers are reinterpreted
+ * stroke factors, as createBow.KOOI documents; this is not native-q or measured
+ * force-draw reconstruction.
  *
  * @param bow The bow.
  * @param mass The arrow's finite positive mass, kilograms.
- * @param travel The finite string travel from brace, metres, inside its stroke; 0 gives no speed.
- * @returns The finite speed, metres per second; representational underflow can give zero.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, draw weight, string stroke or travel, an unread draw weight, or unrepresentable launch arithmetic.
+ * @param travel The finite string travel from brace, metres, inside its stroke;
+ *   0 gives no speed.
+ * @returns The finite speed, metres per second; representational underflow can
+ *   give zero.
+ * @throws {AutoMovieArchetypeRefusal} For invalid mass, draw weight, string
+ *   stroke or travel, an unread draw weight, or unrepresentable launch
+ *   arithmetic.
  */
 export function bowLaunchSpeed(
   bow: AutoMovieArchetype<createBow.Affordance, createBow.Dimension>,
   mass: number,
   travel: number,
 ): number {
-  if (!(Number.isFinite(mass) && mass > 0))
+  if (!(mass > 0 && mass < Infinity))
     refuse(
       "mass",
       mass,
@@ -32,7 +39,7 @@ export function bowLaunchSpeed(
       reason: `no source read gives the ${bow.name}'s draw weight, so its stored energy is unknown`,
       fix: "launch from a bow whose draw weight is read",
     });
-  if (!(Number.isFinite(draw) && draw > 0))
+  if (!(draw > 0 && draw < Infinity))
     refuse(
       "draw",
       draw,
@@ -40,14 +47,14 @@ export function bowLaunchSpeed(
       "give a sourced positive draw weight in newtons",
     );
   const stroke: number | undefined = bow.affordance("string").travel;
-  if (!(stroke !== undefined && Number.isFinite(stroke) && stroke > 0))
+  if (!(stroke !== undefined && stroke > 0 && stroke < Infinity))
     refuse(
       "string",
       stroke,
       "the bow needs a finite positive string stroke",
       "declare the string's positive travel in metres",
     );
-  if (!(Number.isFinite(travel) && travel >= 0 && travel <= stroke))
+  if (!(travel >= 0 && travel <= stroke))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: bow.archetype,
@@ -65,31 +72,40 @@ export function bowLaunchSpeed(
       : createBow.KOOI.recurve;
   if (travel === 0) return 0;
   const share: number = travel / stroke;
-  const stored: number = q * draw * stroke * share ** (1 / q);
+  const force: number = q * draw;
+  const full: number = force * stroke;
+  const fraction: number = share ** (1 / q);
+  const stored: number = full * fraction;
   const virtual: number =
     (createBow.KOOI.arrow * (1 - createBow.KOOI.efficiency)) /
     createBow.KOOI.efficiency;
   const squared: number = (2 * stored) / (mass + virtual);
-  const speed: number = Math.sqrt(squared);
 
-  // The least normal binary64 value marks lost energy precision, not a physical draw cutoff.
+  // A subnormal intermediate can lose precision even if a later factor
+  // recovers its range. The least normal binary64 value is 2 to the -1022.
+  const normal: number = 2 ** -1022;
   const result: number =
-    !Number.isFinite(squared) || stored < 2 ** -1022 || squared < 2 ** -1022
-      ? Math.exp(
+    force >= normal &&
+    full >= normal &&
+    fraction >= normal &&
+    stored >= normal &&
+    squared >= normal &&
+    squared < Infinity
+      ? Math.sqrt(squared)
+      : Math.exp(
           (Math.log(2 * q) +
             Math.log(draw) +
             Math.log(stroke) -
             Math.log(mass + virtual)) /
             2 +
             (Math.log(travel) - Math.log(stroke)) / (2 * q),
-        )
-      : speed;
-  if (!Number.isFinite(result))
+        );
+  if (!(result >= 0 && result < Infinity))
     refuse(
-      "launch",
+      "speed",
       result,
-      "the launch arithmetic has no finite speed",
-      "use mechanics whose energy and speed are representable",
+      "the sampled speed is outside the representable range",
+      "use animation values with a representable speed",
     );
   return result;
 

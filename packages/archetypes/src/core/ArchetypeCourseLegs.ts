@@ -11,18 +11,24 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
- * How a course of legs is planned: its legs measured and placed end to end by `ArchetypeCoursePath`, its speed marks admitted and handed to the engine's speed profile, and each second's state read back from the leg that holds it.
+ * How a course of legs is planned: its legs measured and placed end to end by
+ * `ArchetypeCoursePath`, its speed marks admitted and handed to the engine's
+ * speed profile, and each second's state read back from the leg that holds it.
  *
- * `AutoMovieArchetypeCourse.plan` reads the full course plan, and `rowBoat` also reads its travelled distance to locate catches.
+ * `AutoMovieArchetypeCourse.plan` reads the full course plan, and `rowBoat`
+ * also reads its travelled distance to locate catches.
  */
 export namespace ArchetypeCourseLegs {
   /**
-   * A course of legs made ready to sample, as `AutoMovieArchetypeCourse.plan` documents it.
+   * A course of legs made ready to sample, as `AutoMovieArchetypeCourse.plan`
+   * documents it.
    *
    * @param archetype The name a refusal carries.
    * @param course The course.
-   * @returns The plan and its travelled distance reader in metres at a course second.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.plan` states.
+   * @returns The plan and its travelled distance reader in metres at a course
+   *   second.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.plan`
+   *   states.
    */
   export function plan(
     archetype: string,
@@ -49,18 +55,12 @@ export namespace ArchetypeCourseLegs {
       });
     };
     if (course.legs.length === 0) refuse("legs", 0, "a course needs a leg");
-    for (const name of ["x", "z", "heading"] as const)
-      if (!Number.isFinite(course.start[name]))
-        refuse(`start.${name}`, course.start[name], "the start must be finite");
     for (const [name, value] of [
       ["cruise", course.cruise],
       ["acceleration", course.acceleration],
       ["deceleration", course.deceleration],
     ] as const)
-      if (
-        (name === "cruise" || value !== undefined) &&
-        !(Number.isFinite(value) && value! > 0)
-      )
+      if ((name === "cruise" || value !== undefined) && !(value! > 0))
         refuse(name, value, `${name} must be positive`);
     // A rate the course's speed changes read, refused as missing only where one is read.
     const rate = (
@@ -87,13 +87,11 @@ export namespace ArchetypeCourseLegs {
     // The speed marks, each reachable from the one before it.
     const at: number = course.at ?? 0;
     const startSpeed: number = course.startSpeed ?? 0;
-    if (!Number.isFinite(at))
-      refuse("at", at, "the start second must be finite");
     for (const [name, value] of [
       ["startSpeed", startSpeed],
       ["endSpeed", course.endSpeed ?? 0],
     ] as const)
-      if (!(Number.isFinite(value) && value >= 0))
+      if (!(value >= 0))
         refuse(name, value, `${name} must be finite and not negative`);
     const marks: readonly number[] | undefined = course.speeds;
     const stretches: IAutoMovieSpeedProfile.Stretch[] = [];
@@ -183,7 +181,7 @@ export namespace ArchetypeCourseLegs {
       let before: number = startSpeed;
       rows.forEach((row: ArchetypeCoursePath.IRow, index: number): void => {
         const mark: number = marks[index]!;
-        if (!(Number.isFinite(mark) && mark >= 0))
+        if (!(mark >= 0))
           refuse(
             `speeds[${index}]`,
             mark,
@@ -201,7 +199,7 @@ export namespace ArchetypeCourseLegs {
         });
         const pause: number | undefined = row.leg.pause;
         if (pause !== undefined) {
-          if (!(Number.isFinite(pause) && pause > 0))
+          if (!(pause > 0))
             refuse(`legs[${index}].pause`, pause, "a pause must be positive");
           if (mark !== 0 || index === rows.length - 1)
             refuse(

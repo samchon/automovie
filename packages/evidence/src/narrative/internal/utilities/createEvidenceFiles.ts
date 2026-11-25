@@ -1,6 +1,4 @@
-/**
- * Mirrors selected manuscript files under detached construction evidence.
- */
+/** Mirrors selected manuscript files under detached construction evidence. */
 export function createEvidenceFiles(
   symbol: "file" | "h2",
   files: string[],

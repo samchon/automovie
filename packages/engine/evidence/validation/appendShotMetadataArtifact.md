@@ -10,11 +10,11 @@ One metadata join serves submitted artifacts with a camera index and stored slic
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Absent optional fields are not invented; present malformed fields produce located findings. A clear clearance status is checked structurally, but carries no revision pair from which this adapter could independently prove geometry freshness.
+Absent optional fields are not invented; present out-of-range fields produce located findings. A clear clearance status is checked structurally, but carries no revision pair from which this adapter could independently prove geometry freshness.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents structural unknown fields, reporting root, nullable scene-camera context, optional dispatch and the limits of carried clearance evidence.
+Documents the borrowed shot fields, reporting root, nullable scene-camera context, optional dispatch and the limits of carried clearance evidence.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -22,7 +22,7 @@ Cost follows event, marker, intent, coverage/clip and clearance/sample populatio
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Canonical array/object/range/vector/clip and camera union owners are reused; sibling metadata shares the supplied duration and camera set without a cross-shot cache.
+Canonical range/vector/clip owners are reused; sibling metadata shares the supplied duration and camera set without a cross-shot cache.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

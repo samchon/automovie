@@ -36,22 +36,23 @@ import { pushPull } from "../handling/pushPull";
 import { putDown } from "../handling/putDown";
 import { receive } from "../handling/receive";
 import { flinch } from "../reaction/flinch";
+import { give } from "../reaction/give";
 import { knockdown } from "../reaction/knockdown";
 import { perturb } from "../reaction/perturb";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
 import { ballSport } from "../sport/ballSport";
 import { baseball } from "../sport/baseball";
+import { chiSau } from "../sport/chiSau";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
-import { chiSau } from "../sport/chiSau";
 import { racket } from "../sport/racket";
 import { swim } from "../sport/swim";
+import { closeStrike } from "../striking/closeStrike";
 import { defend } from "../striking/defend";
+import { footStrike } from "../striking/footStrike";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
-import { closeStrike } from "../striking/closeStrike";
-import { footStrike } from "../striking/footStrike";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
@@ -60,6 +61,7 @@ import { wipe } from "../tasks/wipe";
 import { climbStairs } from "../terrain/climbStairs";
 import { catchObject } from "../throwing/catchObject";
 import { release } from "../throwing/release";
+import { stageCatch } from "../throwing/stageCatch";
 import { throwObject } from "../throwing/throwObject";
 import { highFive } from "../touch/highFive";
 import { kiss } from "../touch/kiss";
@@ -72,12 +74,10 @@ import { support } from "./support";
 import { walk } from "./walk";
 
 /**
- * Every action law by name: the closed table a performance dispatches
- * through. A law's parameter type is its own; the table erases it to
- * `never` so one table holds every law, and the chain method that names an
- * action is what supplies its parameters.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds, who dispatches through it and why its parameter type is erased.
+ * Every action law by name: the closed table a performance dispatches through.
+ * A law's parameter type is its own; the table erases it to `never` so one
+ * table holds every law, and the chain method that names an action is what
+ * supplies its parameters.
  */
 export const HUMAN_ACTIONS: Readonly<
   Record<AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionLaw<never>>
@@ -96,6 +96,7 @@ export const HUMAN_ACTIONS: Readonly<
   step,
   defend,
   flinch,
+  give,
   stagger,
   knockdown,
   perturb,
@@ -119,8 +120,9 @@ export const HUMAN_ACTIONS: Readonly<
   crouch,
   kneel,
   climbStairs,
-  throwObject,
+  throwObject: throwObject,
   catchObject,
+  stageCatch,
   release,
   operate,
   lieDown,

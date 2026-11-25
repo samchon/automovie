@@ -1,21 +1,3 @@
-# src/animals/DeerCohorts.ts#DeerCohorts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both study/table sources, sex/age/trait-dependent counts, SI units and the provisional cross-sample use.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two closed adult references retain whole external body vectors and separate sex-matched skeletal observations.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieArchetypeDeerBody and createDeer consume these existing physical dimensions and cohort keys; juvenile growth and statistical sampling remain unsupported.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Female controls are not labelled male anatomy, group SD is not a hard bound and no unmeasured paired allometry or cohort frequency is encoded.
-
 # src/animals/DeerCohorts.ts#DeerCohorts.Name
 
 ## @evidence contracts/development/common.md#meaningful-documentation

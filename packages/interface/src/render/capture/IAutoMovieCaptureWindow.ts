@@ -1,16 +1,25 @@
 /**
- * The consecutive frames a capture draws around one event or cut, as the record lists them.
+ * The consecutive frames a capture draws around one event or cut, as the record
+ * lists them.
  *
- * The window is every frame from `first` to `last` of the subject's grid; it is the requested number of frames on each side of `frame`, cut at the subject's first and last frame, and `clipped` says when it was.
+ * The window is every frame from `first` to `last` of the subject's grid; it is
+ * the requested number of frames on each side of `frame`, cut at the subject's
+ * first and last frame, and `clipped` says when it was.
  */
 export interface IAutoMovieCaptureWindow {
-  /** `event` for an instant the request named, `cut` for a scene cut detected in a file. */
+  /**
+   * `event` for an instant the request named, `cut` for a scene cut detected in
+   * a file.
+   */
   kind: "event" | "cut";
 
   /** The instant in seconds, as named or detected. */
   seconds: number;
 
-  /** Index of the frame nearest the instant, which may lie outside the subject when the instant is at its end. */
+  /**
+   * Index of the frame nearest the instant, which may lie outside the subject
+   * when the instant is at its end.
+   */
   frame: number;
 
   /** First frame drawn, inclusive. */

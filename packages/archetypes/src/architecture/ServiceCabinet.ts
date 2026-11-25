@@ -22,11 +22,13 @@ const STRADA: string =
 const NCR: string =
   "NCR SelfServ 32 Site Preparation B006-6585-B000 (https://tranact.com/pdf/NCR-SS32-Site-Prep.pdf): p. 9, fascia 770 mm wide, 1575 mm high, 800 mm deep, shelf 763 mm high protruding 174 mm; pp. 14-15, heights from the base and depths from the shelf's front; pp. 17-18, each item's distance from the No. 5 key, drawn as a straight arrow on the fascia's front elevation, and its clock position, which gives only its side; the keypad on the centre line as drawn, not dimensioned";
 
-/**
- * The shared measured rectangular cabinet and its two exterior contact frames.
- */
+/** The shared measured rectangular cabinet and its two exterior contact frames. */
 export namespace ServiceCabinet {
-  /** Each kind's models with the width each gives, metres, the default first: a vending machine's Merchant 4 and Merchant 6; the other kinds have one read model. */
+  /**
+   * Each kind's models with the width each gives, metres, the default first: a
+   * vending machine's Merchant 4 and Merchant 6; the other kinds have one read
+   * model.
+   */
   export const MODELS: Readonly<
     Partial<
       Record<
@@ -98,9 +100,7 @@ export namespace ServiceCabinet {
     },
   };
 
-  /**
-   * The built cabinet with its drawn outside dimensions and mass.
-   */
+  /** The built cabinet with its drawn outside dimensions and mass. */
   export interface ICabinet<Id extends string> {
     /** Builder carrying the exterior cabinet. */
     builder: AutoMovieArchetypeBuilder<Id, createMachine.Dimension>;
@@ -124,17 +124,19 @@ export namespace ServiceCabinet {
    * @param kind The fixed profile and model table to draw.
    * @param name Display name before the optional model name.
    * @param color The cabinet finish.
-   * @param params The scene identifier, possibly a model choice, and fixed dimensions.
+   * @param params The scene identifier, possibly a model choice, and fixed
+   *   dimensions.
    * @param seed The seed for the unresolved draws.
    * @returns The cabinet's builder, mass and external dimensions.
-   * @throws {AutoMovieArchetypeRefusal} When a model or dimension does not fit the given profile.
+   * @throws {AutoMovieArchetypeRefusal} When a model or dimension does not fit
+   *   the given profile.
    */
   export function begin<Id extends string>(
     kind: createMachine.Kind,
     name: string,
     color: string,
     params: Omit<createMachine.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): ICabinet<Id> {
     const draw: AutoMovieArchetypeDrawSession<createMachine.Dimension> =
       new AutoMovieArchetypeDrawSession(
@@ -173,14 +175,10 @@ export namespace ServiceCabinet {
     return { builder, width, height, depth, mass: d.mass! };
   }
 
-  /**
-   * The contact ids {@link faces} builds or reads.
-   */
+  /** The contact ids {@link faces} builds or reads. */
   export type FacesContact = "front" | "side";
 
-  /**
-   * The values {@link faces} accepts at this place in its signature.
-   */
+  /** The values {@link faces} accepts at this place in its signature. */
   export type FacesChoice = "width" | "height" | "depth";
 
   /**

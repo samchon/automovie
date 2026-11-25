@@ -1,21 +1,3 @@
-# src/kinematics/swingTwistRange.ts#swingTwistRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the decomposition, its singular direction, how the swing region is read from the constraint, how a direction outside it is brought back and the premise that keeps that continuous.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A rotation is split into the two quantities a ball joint's range limits independently, where the limb points and how it is turned about itself, neither read through a three-angle chart.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Rig/frame preparation, reading, range measure, projection, chart blending and radius serve actual clamp/chart consumers. prepareBlend additionally serves unchanged endpoint pairs without exposing chart metadata or adding a result cache; radius tables retain their existing owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No joint is named: the axes, the rest frame and the intervals are the caller's.
-
 # src/kinematics/swingTwistRange.ts#swingTwistRange.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

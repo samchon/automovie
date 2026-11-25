@@ -4,27 +4,19 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The signed distance to the box enclosing the hull in its local frame.
- * Inside the box, the bound is the negative distance to the nearest face.
- * A non-hull yields negative infinity so the exact shape query stays eligible.
+ * The signed distance to the box enclosing the hull in its local frame. Inside
+ * the box, the bound is the negative distance to the nearest face. A non-hull
+ * yields negative infinity so the exact shape query stays eligible.
  *
  * The point is carried into the shape's frame through the segment's pose and
  * the shape's own transform, as the exact distance carries it
- * (`physicalShapeSegmentDistance`), and the box is the hull points' least
- * and greatest coordinates on each of the frame's axes, a constant of the
- * hull's points.
+ * (`physicalShapeSegmentDistance`), and the box is the hull points' least and
+ * greatest coordinates on each of the frame's axes, a constant of the hull's
+ * points.
  *
  * @param shape The placed shape.
  * @param p The point, world metres.
  * @returns A lower bound on signed clearance in metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bound, the frame it is read in, the box and the cases that bound nothing.
- * @evidence contracts/development/implementation.md#principled-implementation Outside the enclosing box its nearest point is at least as close as the hull. Inside the hull, leaving the box requires at least as much travel as leaving the hull, so the negative distance to the box boundary bounds signed clearance there as well. The result is lessened by `ROUNDING`, more than the rounding of the two rotations of a point a few metres out, so it stays a bound as computed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The point into the segment's frame, into the shape's, then one clamp per axis.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a bound: its callers decide nothing from it that the exact distance could reverse (`HumanArmTrajectoryPairs.deepest`).
- * @evidence contracts/development/implementation.md#efficient-algorithms Two rotations of a point and six comparisons, against the exact query's support search over the hull's faces; the box is built once for a hull's points (O(V)).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's box is kept with its points, which do not change once the shape is built.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The boxes are held weakly by their hulls' point arrays and released with them; nothing of a query is kept.
  */
 export function HumanArmShapeBox(
   shape: IAutoMovieMotionHumanArmGeometry.IShape,
@@ -32,26 +24,8 @@ export function HumanArmShapeBox(
 ): number {
   const solid: IAutoMovieMotionHumanArmGeometry.IShape["shape"] = shape.shape;
   if (solid.kind !== "hull") return -Infinity;
-  let box: Float64Array | undefined = BOXES.get(solid.points);
-  if (box === undefined) {
-    box = new Float64Array([
-      Infinity,
-      Infinity,
-      Infinity,
-      -Infinity,
-      -Infinity,
-      -Infinity,
-    ]);
-    for (const v of solid.points) {
-      box[0] = Math.min(box[0]!, v.x);
-      box[1] = Math.min(box[1]!, v.y);
-      box[2] = Math.min(box[2]!, v.z);
-      box[3] = Math.max(box[3]!, v.x);
-      box[4] = Math.max(box[4]!, v.y);
-      box[5] = Math.max(box[5]!, v.z);
-    }
-    BOXES.set(solid.points, box);
-  }
+  const box: Readonly<Float64Array> = shape.hullBox ?? extrema(solid.points);
+
   // The point in the segment's frame, then in the shape's.
   const segment: IAutoMovieVector3 = unturn(
     shape.pose.rotation,
@@ -78,9 +52,51 @@ export function HumanArmShapeBox(
   return Math.sqrt(x * x + y * y + z * z) - ROUNDING;
 }
 
-/** A vector turned by the inverse of a unit rotation: the rotation's conjugate applied. */
+/** The local box used to bound signed distance to a hull. */
+export namespace HumanArmShapeBox {
+  /**
+   * Take a fixed obstacle's axis extrema once when its frame is prepared.
+   *
+   * @param shape The obstacle's borrowed shape.
+   * @returns The hull's local least x, y, z and greatest x, y, z, in metres.
+   */
+  export function prepare(
+    shape: IAutoMovieMotionHumanArmGeometry.IShape["shape"],
+  ): IAutoMovieMotionHumanArmGeometry.IShape["hullBox"] {
+    return shape.kind === "hull" ? extrema(shape.points) : undefined;
+  }
+}
+
+/** Pack the vertex extrema without changing their order or arithmetic. */
+function extrema(points: readonly IAutoMovieVector3[]): Float64Array {
+  const box: Float64Array = new Float64Array([
+    Infinity,
+    Infinity,
+    Infinity,
+    -Infinity,
+    -Infinity,
+    -Infinity,
+  ]);
+  for (const v of points) {
+    box[0] = Math.min(box[0]!, v.x);
+    box[1] = Math.min(box[1]!, v.y);
+    box[2] = Math.min(box[2]!, v.z);
+    box[3] = Math.max(box[3]!, v.x);
+    box[4] = Math.max(box[4]!, v.y);
+    box[5] = Math.max(box[5]!, v.z);
+  }
+  return box;
+}
+
+/** The record of `IUnturnQ`'s site. */
+type IUnturnQ = { x: number; y: number; z: number; w: number };
+
+/**
+ * A vector turned by the inverse of a unit rotation: the rotation's conjugate
+ * applied.
+ */
 function unturn(
-  q: { x: number; y: number; z: number; w: number },
+  q: IUnturnQ,
   vx: number,
   vy: number,
   vz: number,
@@ -98,9 +114,10 @@ function unturn(
   };
 }
 
-/** Each hull's box, by its point array: least x, y, z, then greatest. */
-const BOXES: WeakMap<readonly IAutoMovieVector3[], Float64Array> =
-  new WeakMap();
 
-/** Metres taken off the box's distance: far more than the rounding of two rotations and three differences of points a few metres from the origin (about 1e-15 m). */
+/**
+ * Metres taken off the box's distance: far more than the rounding of two
+ * rotations and three differences of points a few metres from the origin (about
+ * 1e-15 m).
+ */
 const ROUNDING: number = 1e-12;

@@ -14,9 +14,19 @@ import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEff
 type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
 
 /**
- * Prove that one persisted runtime population is the exact executable projection of the current timeline's effect track.
+ * Prove that one persisted runtime population is the exact executable
+ * projection of the current timeline's effect track.
  *
- * Per-entry identity checks cannot see an entry that is absent, so an empty or truncated runtime array would otherwise read as current. The population must match the canonically ordered cue set one to one, every entry must pass `validateProductionFilmEffectRuntime`, and every entry must carry the timeline's film id, `inputFingerprint`, edit fingerprint and reduced frame rate together with its cue's id, zone, frame interval and intensity. The timeline does not name its production, so the `production` field is left to the sampler's identity comparison. An inconsistent timeline clock throws `film-effect-input-invalid`; every population mismatch throws `film-effect-runtime-invalid`.
+ * Per-entry identity checks cannot see an entry that is absent, so an empty or
+ * truncated runtime array would otherwise read as current. The population must
+ * match the canonically ordered cue set one to one, every entry must pass
+ * `validateProductionFilmEffectRuntime`, and every entry must carry the
+ * timeline's film id, `inputFingerprint`, edit fingerprint and reduced frame
+ * rate together with its cue's id, zone, frame interval and intensity. The
+ * timeline does not name its production, so the `production` field is left to
+ * the sampler's identity comparison. An inconsistent timeline clock throws
+ * `film-effect-input-invalid`; every population mismatch throws
+ * `film-effect-runtime-invalid`.
  */
 export function verifyProductionFilmEffectPopulation(
   props: IAutoMovieVerifyProductionFilmEffectPopulation.IProps,

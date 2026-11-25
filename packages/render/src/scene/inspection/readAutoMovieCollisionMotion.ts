@@ -7,8 +7,8 @@ import type {
 import * as THREE from "three";
 
 /**
- * Read the feature points, world box and thickness of one collision part at
- * one placed instant, for comparing its motion between instants.
+ * Read the feature points, world box and thickness of one collision part at one
+ * placed instant, for comparing its motion between instants.
  *
  * A shape's features are its defining points: a sphere's centre, a capsule's
  * axis ends, a box's corners or a hull's points, placed by the collider pose
@@ -17,13 +17,6 @@ import * as THREE from "three";
  *
  * @param part A collected part.
  * @returns Its pose, or null when the part has no geometry.
- * @evidence contracts/development/common.md#meaningful-documentation Names the features and the thickness of each geometry kind.
- * @evidence contracts/development/implementation.md#principled-implementation Composes the collider pose with the shape transform and reads the Engine's world bounds.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One feature list per geometry kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A part without geometry has no pose to compare.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eight points except a hull's own points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per part per placed instant by the caller.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns plain data.
  */
 export function readAutoMovieCollisionMotion(
   part: Collision.IPart,
@@ -79,18 +72,9 @@ export function readAutoMovieCollisionMotion(
   };
 }
 
-/**
- * Feature poses and their comparison between instants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the units of a pose and states what the displacement and swept helpers return.
- * @evidence contracts/development/design.md#principled-representation IPose holds world-metre points in a fixed order per part, a world box and a full thickness.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A pose is read by the motion subdivision only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Points of two instants compare only in the same order; features that do not correspond give an infinite displacement instead of a guessed match.
- */
+/** Feature poses and their comparison between instants. */
 export namespace readAutoMovieCollisionMotion {
-  /**
-   * A part's features, world box and thickness at one instant.
-   */
+  /** A part's features, world box and thickness at one instant. */
   export interface IPose {
     /** Feature points in world metres. */
     readonly points: readonly { x: number; y: number; z: number }[];
@@ -119,10 +103,10 @@ export namespace readAutoMovieCollisionMotion {
   }
 
   /**
-   * Conservative swept bounds between two instants: both world boxes,
-   * enlarged by half the largest feature displacement. A feature turning by
-   * up to half a revolution leaves its chord by at most half the chord, so
-   * the enlargement covers rigid rotation and deformation of that size.
+   * Conservative swept bounds between two instants: both world boxes, enlarged
+   * by half the largest feature displacement. A feature turning by up to half a
+   * revolution leaves its chord by at most half the chord, so the enlargement
+   * covers rigid rotation and deformation of that size.
    *
    * @param a The earlier pose.
    * @param b The later pose.

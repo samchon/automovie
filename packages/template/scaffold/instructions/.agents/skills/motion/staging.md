@@ -4,7 +4,7 @@ Staging turns screenplay beats into scene compositions, and returns whenever blo
 
 ## Reading the scene
 
-List each beat's elements: its action and dialogue blocks and each entry of its [record](../story/layers/notation.md#records), with the props, supports, entrances and exits they involve. Include authored silence, stillness and off-screen action. Realize each element as values in the composition and comment each value under [realization comments](../contracts/development/composition.md#realization-comments). Map beats to setups as needed.
+List each beat's action and dialogue blocks and each [record](../story/layers/notation.md#records) entry, along with their props, supports, entrances and exits. Include authored silence, stillness and off-screen action. Realize each element with composition values and trace them in [source comments](../development/modules.md#documenting-source). Map beats to setups as needed.
 
 ## Blocking
 

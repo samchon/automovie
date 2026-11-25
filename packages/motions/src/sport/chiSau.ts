@@ -30,7 +30,10 @@ interface IRoll {
   /** Each of this performer's sides' contact centre, world metres. */
   centre: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 
-  /** The roll's in-line axis, shared by both partners: from the first subject toward the second. */
+  /**
+   * The roll's in-line axis, shared by both partners: from the first subject
+   * toward the second.
+   */
   line: IAutoMovieVector3;
 
   /** This performer's forward, toward the partner. */
@@ -39,7 +42,10 @@ interface IRoll {
   /** This performer's left. */
   left: IAutoMovieVector3;
 
-  /** The roll phase offset of each of this performer's sides, radians, shared by the side's two forearms. */
+  /**
+   * The roll phase offset of each of this performer's sides, radians, shared by
+   * the side's two forearms.
+   */
   phase: Readonly<Record<AutoMovieHumanSide, number>>;
 }
 
@@ -47,23 +53,18 @@ interface IRoll {
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
- * Wing chun's rolling chi sau (`IAutoMovieMotionHumanChiSau`): both wrists
- * held on the two contacts between the partners, each partner's left wrist
- * over the partner's right, the contacts rolling a small vertical circle in
- * the line half a cycle apart, so the wrists stay one wrist's thickness
- * apart through every roll.
+ * Wing chun's rolling chi sau (`IAutoMovieMotionHumanChiSau`): both wrists held
+ * on the two contacts between the partners, each partner's left wrist over the
+ * partner's right, the contacts rolling a small vertical circle in the line
+ * half a cycle apart, so the wrists stay one wrist's thickness apart through
+ * every roll.
  *
- * Both partners derive the same contacts from the two placed marks: the
- * middle between their roots at the mean of their lower chest heights, a
- * shoulder's width apart across the line. Everyone's left forearm lies on
- * top, so on each side one forearm is over the other. The arms blend in
- * from the entry's goals over `BLEND` seconds and end the roll on its own
- * goals, open-handed; the feet stay planted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contacts, the layering, the roll and the blends.
- * @evidence contracts/development/design.md#principled-representation One law record over the shared clock and base with two arm primitives on one shared roll.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan registration reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts come from the two marks; the circle and cycle are named provisional values.
+ * Both partners derive the same contacts from the two placed marks: the middle
+ * between their roots at the mean of their lower chest heights, a shoulder's
+ * width apart across the line. Everyone's left forearm lies on top, so on each
+ * side one forearm is over the other. The arms blend in from the entry's goals
+ * over `BLEND` seconds and end the roll on its own goals, open-handed; the feet
+ * stay planted.
  */
 export namespace chiSau {
   /** Action key. */
@@ -78,7 +79,10 @@ export namespace chiSau {
   /** The roll circle's radius as a share of stature (provisional). */
   export const RADIUS: number = 0.035;
 
-  /** The contacts' half spacing across the line as a share of stature (provisional). */
+  /**
+   * The contacts' half spacing across the line as a share of stature
+   * (provisional).
+   */
   export const HALF: number = 0.07;
 
   /** A wrist's radius as a share of stature, from the joint to its surface. */
@@ -88,19 +92,29 @@ export namespace chiSau {
   export const BLEND: number = 0.5;
 
   /**
+   * Chi sau's timetable: `count` cycles of `CYCLE` (four by default) unless a
+   * duration is given, joined and parted over a blend of `BLEND` or a quarter
+   * of the whole, whichever is shorter.
+   *
+   * @param p The cycles and the duration.
+   * @returns The clock with `joined` and `parted`.
+   */
+  export function timetable(
+    p: Pick<IAutoMovieMotionHumanChiSau.IParams, "count" | "duration">,
+  ): IAutoMovieMotionClock {
+    const duration: number = p.duration ?? (p.count ?? 4) * CYCLE;
+    const blend: number = Math.min(BLEND, duration / 4);
+    return AutoMovieMotionClock(duration, [
+      { name: "joined", seconds: blend },
+      { name: "parted", seconds: duration - blend },
+    ]);
+  }
+  /**
    * Plan chi sau.
    *
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the partner is the performer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Both partners compute the same contacts and roll from the two marks; each places its wrists on its side of them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing, then the roll read lazily from the settled marks, then the two arm primitives.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A self-partner is refused; the partner's placed root is read only after placement settles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The roll is built once per settle; each posture costs two closed-form points.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared clock, base and composition.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its roll until settle drops it.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanChiSau.IParams>,
@@ -116,28 +130,24 @@ export namespace chiSau {
       });
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const clock: IAutoMovieMotionClock = timetable(p);
+    const duration: number = clock.duration;
     const cycles: number = p.count ?? 4;
-    const duration: number = p.duration ?? cycles * CYCLE;
-    const blend: number = Math.min(BLEND, duration / 4);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
-      { name: "joined", seconds: blend },
-      { name: "parted", seconds: duration - blend },
-    ]);
     const first: boolean = context.subject < p.partner;
 
-    // The roll reads the partner's placed root, so it is built on first use
-    // and dropped when placement settles.
+    // The roll reads the partner's placed root, so it is solved when the plan
+    // is prepared; a read before builds it afresh and keeps nothing.
     // Each partner reads the other's root, whose posture reads this one's:
     // while this roll is being built, a read of it gives the arms as they
     // are, which leaves the root it was asked for unchanged.
-    let roll: IRoll | undefined;
+    const preparation: { roll?: IRoll } = {};
     let building: boolean = false;
     const build = (): IRoll | null => {
-      if (roll !== undefined) return roll;
+      if (preparation.roll !== undefined) return preparation.roll;
       if (building) return null;
       building = true;
       try {
-        return (roll = lay());
+        return lay();
       } finally {
         building = false;
       }
@@ -315,8 +325,11 @@ export namespace chiSau {
       });
     return {
       ...composed,
-      settle: (): void => {
-        roll = undefined;
+      prepare: (): void => {
+        delete preparation.roll;
+        const next: IRoll | null = build();
+        if (next !== null) preparation.roll = next;
+        composed.prepare?.();
       },
     };
   }

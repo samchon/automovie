@@ -23,91 +23,70 @@ import { stageBladeFootwork } from "./stageBladeFootwork";
 /**
  * A two-performer bout on a piste or a kendo court. The opening distance is
  * authored by the marks; each advance of the approach covers at most 0.3 m
- * (`HumanStagePiste.ADVANCE`, about a foot, provisional) in the `duration`
- * the take gives it, so the approach lasts the advances' count times that.
- * The epee scores a double touch when the two touches fall within 0.04 s
- * (`HumanStagePiste.DOUBLE`, FIE). The attack is the weapon's own blade
- * timing (`IAutoMovieMotionHumanSword`): a lunge's point at 2.6 to 3.2 m/s
- * for foil and epee, a cut at 6 to 10 m/s for sabre and kendo. From their opening
- * marks both close the distance in advances of the weapon's own footwork,
- * then the first attacks and the screenplay's result decides the exchange. A touch for the first lands its
- * attack; one for the second has the attack parried and the second riposte;
- * the epee's double touch lands both attacks at one instant, each blade
- * following the other performer as it lunges; no touch has the
+ * (`HumanStagePiste.ADVANCE`, about a foot, provisional) in the `duration` the
+ * take gives it, so the approach lasts the advances' count times that. The epee
+ * scores a double touch when the two touches fall within 0.04 s
+ * (`HumanStagePiste.DOUBLE`, FIE). The attack is the weapon's own blade timing
+ * (`IAutoMovieMotionHumanSword`): a lunge's point at 2.6 to 3.2 m/s for foil
+ * and epee, a cut at 6 to 10 m/s for sabre and kendo. From their opening marks
+ * both close the distance in advances of the weapon's own footwork, then the
+ * first attacks and the screenplay's result decides the exchange. A touch for
+ * the first lands its attack; one for the second has the attack parried and the
+ * second riposte; the epee's double touch lands both attacks at one instant,
+ * each blade following the other performer as it lunges; no touch has the
  * attack parried and left there. The result is announced at the decisive
  * instant of the touch that scores, or of the parry that closes the attack.
  *
  * The rules are checked before anything is placed. A touch must aim at the
  * weapon's valid target (FIE Technical Rules): the foil's trunk, every region
- * for the epee, and for the sabre every region above the waist. A kendo
- * strike must aim at a struck region of the opponent's armour (FIK, The
- * Regulations of Kendo Shiai and Shinpan, Articles 12 and 14): the men, the
- * kote, either side of the do or the tsuki. Only the epee scores a double
- * touch. Register stageBladeFootwork and the HumanBlade rows when playing the
- * take; the blade actions refuse a target out of reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the bout's phases, the result's branches and their actions, the announced instant, the rule checks and the required laws.
- * @evidence contracts/development/design.md#principled-representation The take holds each performer's chain, marks, blade and target, the shared clock of the footwork and the scripted result; the placed record pairs the composition with its result reader.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses HumanChain, the stageBladeFootwork law and the HumanBlade rows; keeps the result reading in the same public namespace and the target rule in HumanPisteTarget.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The weapons and results are closed literals; the outcome is the script's, and the blade actions own reach and contact.
+ * for the epee, and for the sabre every region above the waist. A kendo strike
+ * must aim at a struck region of the opponent's armour (FIK, The Regulations of
+ * Kendo Shiai and Shinpan, Articles 12 and 14): the men, the kote, either side
+ * of the do or the tsuki. Only the epee scores a double touch. Register
+ * stageBladeFootwork and the HumanBlade rows when playing the take; the blade
+ * actions refuse a target out of reach.
  */
 export namespace HumanStagePiste {
-  /**
-   * The weapon of the bout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the three fencing weapons and kendo.
-   * @evidence contracts/development/design.md#principled-representation Four explicit literals, each with its footwork, attack and target rule.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by compose for the footwork style, the attack, the reply and the target rule.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller chooses the weapon. No props are guessed or created.
-   */
+  /** The weapon of the bout. */
   export type Kind = "foil" | "epee" | "sabre" | "kendo";
 
-  /**
-   * The result the screenplay gives the two performers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the performer or performers the touch is awarded to.
-   * @evidence contracts/development/design.md#principled-representation A touch for either performer, a double touch and no touch are distinct literals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Chooses the exchange's actions and the announced result.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The script supplies the outcome before either performer is placed.
-   */
+  /** The result the screenplay gives the two performers. */
   export type Result = "first" | "second" | "both" | "none";
 
-  /**
-   * One performer's preparation, marks, blade and target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the preparatory chain, the body-relative mark shift in metres, the held blade and the target.
-   * @evidence contracts/development/design.md#principled-representation One existing chain, a stage direction with a positive distance, the held blade's prop subject and a motion target.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface compose reads every member: the shift from the first four, the attack or reply from the blade and target.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Props and preparatory actions stay in the caller's own chain; the blade must already be held when the exchange starts.
-   */
+  /** One performer's preparation, marks, blade and target. */
   export interface IActor {
-    /** Chain that prepares the performer on its opening mark, the blade taken in hand. */
+    /**
+     * Chain that prepares the performer on its opening mark, the blade taken in
+     * hand.
+     */
     chain: IAutoMovieMotionHumanChainCore;
 
-    /** Direction of the mark shift from the performer's heading on its opening mark. */
+    /**
+     * Direction of the mark shift from the performer's heading on its opening
+     * mark.
+     */
     direction: IAutoMovieMotionHumanStageBladeFootwork.Direction;
 
     /** Forward lead, or the lead read by the footwork law when omitted. */
     lead?: AutoMovieHumanSide;
 
-    /** Positive horizontal distance the performer's approach covers to its lunging mark, in metres, in advances of at most `ADVANCE`. */
+    /**
+     * Positive horizontal distance the performer's approach covers to its
+     * lunging mark, in metres, in advances of at most `ADVANCE`.
+     */
     distance: number;
 
     /** The held blade's prop subject. */
     blade: string;
 
-    /** Where this performer's attack or reply lands on the other: a body region for fencing, a struck point of the worn armour for kendo. */
+    /**
+     * Where this performer's attack or reply lands on the other: a body region
+     * for fencing, a struck point of the worn armour for kendo.
+     */
     target: IAutoMovieMotionTarget;
   }
 
-  /**
-   * Two performers, the footwork's clock and the screenplay's result.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the anchor, time and length units, the optional editing cue and the optional spacing check.
-   * @evidence contracts/development/design.md#principled-representation A closed result independent of the two performers' marks and targets, with the footwork's duration in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface compose uses each input to place the shift, check the spacing and the rules, and choose the exchange.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reserved space is an authored bound on travel between the floor marks. Physical pose remains the motion laws' responsibility.
-   */
+  /** Two performers, the footwork's clock and the screenplay's result. */
   export interface ITake {
     /** Unique prefix of the bout's schedule anchors. */
     anchor: string;
@@ -124,45 +103,43 @@ export namespace HumanStagePiste {
     /** Positive common duration of each advance of the approach, in seconds. */
     duration: number;
 
-    /** Share in [0, 1] of the shift's duration for its `propCue` editing event; none when absent. */
+    /**
+     * Share in [0, 1] of the shift's duration for its `propCue` editing event;
+     * none when absent.
+     */
     cue?: number;
 
     /** Scripted result of the exchange. */
     result: Result;
 
-    /** Optional opening separation and minimum reserve between the floor marks, both in metres. */
+    /**
+     * Optional opening separation and minimum reserve between the floor marks,
+     * both in metres.
+     */
     reserve?: readonly [opening: number, minimum: number];
   }
 
-  /**
-   * The screenplay's result at its actual film time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the unit and reference of its time.
-   * @evidence contracts/development/design.md#principled-representation Film seconds and the closed scripted result.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Produced by the take's reader for editing and playback.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No computed score is embedded in the record.
-   */
+  /** The screenplay's result at its actual film time. */
   export interface IAnnouncement {
-    /** Absolute film seconds of the decisive instant that scores or closes the exchange. */
+    /**
+     * Absolute film seconds of the decisive instant that scores or closes the
+     * exchange.
+     */
     seconds: number;
 
     /** Result from the screenplay. */
     result: Result;
   }
 
-  /**
-   * The composition to place and its result reader.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the composition and the reader's presence condition.
-   * @evidence contracts/development/design.md#principled-representation The reader receives the placed schedule and reads the deciding action from it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A caller places the composition, then reads the result through this record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing or cut deciding action, or a double touch outside the epee's window, yields no result.
-   */
+  /** The composition to place and its result reader. */
   export interface IPlaced {
     /** The shift and then the exchange, both preparatory chains included. */
     composition: IAutoMovieComposition.ISequence;
 
-    /** Reads the result only when its deciding action was placed whole within its span. */
+    /**
+     * Reads the result only when its deciding action was placed whole within
+     * its span.
+     */
     announced: (schedule: IAutoMovieSchedule) => IAnnouncement | undefined;
   }
 
@@ -178,7 +155,10 @@ export namespace HumanStagePiste {
    */
   export const DOUBLE: number = 0.04;
 
-  /** The weapon's attack: a thrust lunged for the point weapons, a cut otherwise. */
+  /**
+   * The weapon's attack: a thrust lunged for the point weapons, a cut
+   * otherwise.
+   */
   const ATTACK: Readonly<Record<Kind, string>> = {
     foil: HumanBlade.lunge.name,
     epee: HumanBlade.lunge.name,
@@ -186,7 +166,10 @@ export namespace HumanStagePiste {
     kendo: HumanBlade.cut.name,
   };
 
-  /** The weapon's answer out of a parry: a riposte for the point weapons, a cut otherwise. */
+  /**
+   * The weapon's answer out of a parry: a riposte for the point weapons, a cut
+   * otherwise.
+   */
   const REPLY: Readonly<Record<Kind, string>> = {
     foil: HumanBlade.riposte.name,
     epee: HumanBlade.riposte.name,
@@ -194,15 +177,18 @@ export namespace HumanStagePiste {
     kendo: HumanBlade.cut.name,
   };
 
-  /** The advance a cut is carried by: the sabre's lunge, kendo's stepping strike. */
+  /**
+   * The advance a cut is carried by: the sabre's lunge, kendo's stepping
+   * strike.
+   */
   const CARRY: Readonly<
     Partial<Record<Kind, IAutoMovieMotionHumanSword.IAttack["advance"]>>
   > = { sabre: "lunge", kendo: "step" };
 
   /**
    * The longest single advance of the approach, metres: about one foot's
-   * length, the fencing advance's step (provisional), inside the footwork
-   * law's longest mark shift for every canonical body.
+   * length, the fencing advance's step (provisional), inside the footwork law's
+   * longest mark shift for every canonical body.
    */
   export const ADVANCE: number = 0.3;
 
@@ -218,7 +204,10 @@ export namespace HumanStagePiste {
     count: number;
   }
 
-  /** Each advance shifts both performers on one clock, each its share of its approach. */
+  /**
+   * Each advance shifts both performers on one clock, each its share of its
+   * approach.
+   */
   const SHIFT: IAutoMovieMotionHumanMutual<IAdvance, Role> = {
     name: "stagePiste",
     roles: ["first", "second"],
@@ -240,22 +229,15 @@ export namespace HumanStagePiste {
   /**
    * Check the take against the weapon's rules, then close each performer's
    * approach in equal advances of at most `ADVANCE`, both stepping on each
-   * advance's one clock, and append the exchange the result calls for.
-   * The optional reserve requires enough opening space for both full
-   * translations and the remaining space stated in the screenplay.
+   * advance's one clock, and append the exchange the result calls for. The
+   * optional reserve requires enough opening space for both full translations
+   * and the remaining space stated in the screenplay.
    *
    * @param take The cast, blocking, time, reserved space, targets and result.
    * @returns The composition and its result reader.
-   * @throws {HumanRefusal} When the weapon, a number, the reserved space, a target or the result breaks the take's rules.
+   * @throws {HumanRefusal} When the weapon, a number, the reserved space, a
+   *   target or the result breaks the take's rules.
    * @throws {Error} When the anchor is blank or one performer takes both roles.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the phases, the result's branches, the required space and the refusal cases.
-   * @evidence contracts/development/implementation.md#principled-implementation The rules are the weapon's valid target and double-touch rule; each full planned translation is subtracted from the opening distance for a conservative reserve. HumanChain places the advances, and the registered blade actions, synchronised on the attack's decisive instant, place the exchange.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the weapon, numbers and rules, place the approach's advances, then the exchange and its reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Cast, timing, marks, targets and outcome come from the script; reach, the parry's meeting and every pose belong to the blade actions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Validation reads fixed input fields and constant sets, placement builds two intents per advance and at most three for the exchange, and the reader scans the schedule's entries for at most two anchors.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanChain.mutual, the HumanBlade rows, HumanBound and the registered stageBladeFootwork.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader captures the anchors and the result, with no frame cache or native resource.
    */
   export function compose(take: ITake): IPlaced {
     if (take.anchor.trim().length === 0)

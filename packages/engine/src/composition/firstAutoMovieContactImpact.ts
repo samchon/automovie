@@ -4,36 +4,35 @@ import { bracketedRoot } from "../math/bracketedRoot";
 import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
 /**
- * Find one weapon's first new contact on the resolver's scan grid, horizon
- * and live window: the first grid step whose signed gap is not positive
- * brackets the crossing with the clear sample before it, and the crossing is
- * found in that bracket by `bracketedRoot` to `RESOLUTION` seconds. The
- * second reported is the bracket's touching end, the latest second measured
- * at or inside the surface, so it is never a clear one. While the clear end
- * measures no gap (a weapon not yet live there) the bracket is halved instead,
- * down to the resolution or to two adjacent doubles, whichever is wider.
- * A gap that jumps across zero is still bracketed, but the false-position
- * search's order of convergence is stated for a smooth gap only; its limit
- * of evaluations then decides how narrow the bracket gets.
+ * Find one weapon's first new contact on the resolver's scan grid, horizon and
+ * live window: the first grid step whose signed gap is not positive brackets
+ * the crossing with the clear sample before it, and the crossing is found in
+ * that bracket by `bracketedRoot` to `RESOLUTION` seconds. The second reported
+ * is the bracket's touching end, the latest second measured at or inside the
+ * surface, so it is never a clear one. While the clear end measures no gap (a
+ * weapon not yet live there) the bracket is halved instead, down to the
+ * resolution or to two adjacent doubles, whichever is wider. A gap that jumps
+ * across zero is still bracketed, but the false-position search's order of
+ * convergence is stated for a smooth gap only; its limit of evaluations then
+ * decides how narrow the bracket gets.
  *
  * An initial contact is reported unless its body supplies a departure
- * certificate. A certificate either rules out another entry in this search
- * or supplies an actually clear instant with no new entry before it. Only
- * that initial pair is then inactive before that witness; other bodies keep
- * their original times. The caller's physical model owns that proof because
- * an opaque signed-distance function alone cannot determine departure.
+ * certificate. A certificate either rules out another entry in this search or
+ * supplies an actually clear instant with no new entry before it. Only that
+ * initial pair is then inactive before that witness; other bodies keep their
+ * original times. The caller's physical model owns that proof because an opaque
+ * signed-distance function alone cannot determine departure.
  *
- * The search is one scan (`firstAutoMovieContactImpact.scan`) read to its
- * end or to the horizon; the resolver reads several weapons' scans a grid
- * step at a time instead.
+ * Where the weapon and a body both state a speed bound, a gap read on the grid
+ * clears that body for the grid seconds within the gap over the two bounds
+ * together (conservative advancement, Mirtich 1996), so the scan reads it again
+ * only as the gap could close; where every body is cleared, the scan skips the
+ * cleared grid seconds altogether. A body without a bound is read at every grid
+ * step.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the live window, the grid, the crossing search with its resolution and the side reported, the case of an unmeasured clear end, the limitation for a discontinuous gap, conservative initial reporting, pair-local certificate meaning and unchanged time ordering.
- * @evidence contracts/development/implementation.md#principled-implementation The signed-gap scan brackets the first admitted crossing, and the Illinois false-position search (`bracketedRoot`, Dowell and Jarratt 1971) closes the bracket to `RESOLUTION`, a thousandth of the microsecond the contact specifications and hit ids resolve; the root stays inside the bracket, so the touching end it tracks is within that width of the crossing. Physical departure information establishes when a previously resolved pair can next enter; a clearance witness is checked against the actual pair gap before it is used.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan owns the grid, the pair distances, the departure admission and the crossing search; this entry reads it alone against a horizon, and resolveAutoMovieContactEvents reads many in step. sampleAutoMovieContactWeapon supplies actual combined or legacy endpoints to every path.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown departure preserves initial penetration/touch reporting. A clearance witness must be finite, strictly later, inside the live search and strictly outside the actual body. No epsilon, shifted query clock, permanent collider exclusion or bounce cap is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Work is proportional to bodies times the scan steps plus the crossing search's evaluations: superlinear on a smooth gap where a bisection to the same width takes about 23 halvings of a 1/120 s step, and at most the search's limit of 64. The bracket's clear end is the gap the scan read one step before, not read again. Where a weapon and every body it can meet state a bound on the search's grid, a clear gap certifies the grid steps it cannot close within, which are not read (conservative advancement on the grid), with the same bracket and contact; each side's bound is prepared once a search and asked over a window of grid steps doubling from one, the body's first, so neither is read past twice the stretch it certifies and a body that cannot be bound costs the weapon no read. No measured count is claimed. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Sphere, capsule and tapered-capsule gaps share one reader. Each exact sample produces endpoints once for all bodies at that sample; witnesses also read actual endpoints through the shared primitive. The body supplies model-specific departure knowledge once per initial pair; all source/stop-dependent certificates are rebuilt for each event search, with no retained pose/time cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A lazy call-local map holds at most one scalar release time or no-entry marker per certified body, and the scan one gap of its last clear step, its weapon's speed reader and one per bounded body it asked, all released with the scan. Returned ids/times retain no callback, body, certificate object or map.
+ * The search is one scan (`firstAutoMovieContactImpact.scan`) read to its end
+ * or to the horizon; the resolver reads several weapons' scans a grid step at a
+ * time instead.
  */
 export function firstAutoMovieContactImpact(
   weapon: IAutoMovieResolveContactEvents.IWeapon,
@@ -58,29 +57,37 @@ export function firstAutoMovieContactImpact(
 /**
  * The scan behind {@link firstAutoMovieContactImpact}, for a reader of several
  * weapons a grid step at a time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the scan is, its grid, each member's meaning and unit, and when a scan has ended.
- * @evidence contracts/development/design.md#principled-representation One weapon's search as a state read a grid step at a time: the initial contact, the next step's index, the last clear second and the step's reading, on the search's own grid so several scans share their seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One constructor and four readers, read by this entry alone against a horizon and by resolveAutoMovieContactEvents in step.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The scan keeps no pose, time table or result beyond its own last clear gap, and exposes neither its gap reader nor its departure certificates.
  */
 export namespace firstAutoMovieContactImpact {
   /**
-   * One weapon's scan of one search: its initial contact, then one grid step
-   * a call. The grid is the search's, `from + k * step` clipped to the span's
+   * One weapon's scan of one search: its initial contact, then one grid step a
+   * call. The grid is the search's, `from + k * step` clipped to the span's
    * end, so the scans of one search read the same seconds at the same step.
    */
   export interface IScan {
-    /** The weapon's initial contact at the search's start, when the scan begins there; read once, before any step. */
+    /**
+     * The weapon's initial contact at the search's start, when the scan begins
+     * there; read once, before any step.
+     */
     start(): { against: string; seconds: number } | undefined;
 
-    /** The grid step the next `advance` reads, 1 or more; Infinity once the scan has ended (a contact found, the live window passed, or no window at all). */
+    /**
+     * The grid step the next `advance` reads, 1 or more; Infinity once the scan
+     * has ended (a contact found, the live window passed, or no window at
+     * all).
+     */
     step(): number;
 
-    /** The second of the step before the next one: the latest second the scan has found clear or left unread. */
+    /**
+     * The second of the step before the next one: the latest second the scan
+     * has found clear or left unread.
+     */
     previous(): number;
 
-    /** Read the next grid step: the contact whose crossing lies in the bracket it closes, or undefined when the step is clear. */
+    /**
+     * Read the next grid step: the contact whose crossing lies in the bracket
+     * it closes, or undefined when the step is clear.
+     */
     advance(): { against: string; seconds: number } | undefined;
   }
 
@@ -88,11 +95,14 @@ export namespace firstAutoMovieContactImpact {
    * Begin one weapon's scan of one search.
    *
    * @param weapon The weapon.
-   * @param input The resolver's input, for the bodies, the span's end and the grid's step.
+   * @param input The resolver's input, for the bodies, the span's end and the
+   *   grid's step.
    * @param stops The stops so far, unchanged during the scan.
    * @param from The search's start, seconds.
    * @returns The scan.
-   * @throws {RangeError} When the search's start or span end is not finite, the step is not positive and finite, or the grid's step count from the start to the end is not a safe integer.
+   * @throws {RangeError} When the search's start or span end is not finite, the
+   *   step is not positive and finite, or the grid's step count from the start
+   *   to the end is not a safe integer.
    */
   export function scan(
     weapon: IAutoMovieResolveContactEvents.IWeapon,
@@ -104,9 +114,8 @@ export namespace firstAutoMovieContactImpact {
     // step that is not finite, or a count past 2^53 where `next + 1` stops
     // moving, gives a scan that never reaches the span's end.
     if (
-      !(Number.isFinite(from) && Number.isFinite(input.to)) ||
-      !(Number.isFinite(input.step) && input.step > 0) ||
-      !Number.isSafeInteger(Math.max(0, Math.ceil((input.to - from) / input.step)))
+      input.step <= 0 ||
+      Math.ceil((input.to - from) / input.step) > Number.MAX_SAFE_INTEGER
     )
       throw new RangeError(
         `A contact scan needs a finite span and a positive finite step with a safe-integer count, got ${from} to ${input.to} by ${input.step}`,
@@ -135,6 +144,13 @@ export namespace firstAutoMovieContactImpact {
       IAutoMovieResolveContactEvents.IBody,
       IAutoMovieResolveContactEvents.Speed
     > = new Map();
+
+    // Each body's own advancement: the second before which the two bounds
+    // together leave its gap clear at every grid second, from the grid second
+    // it was last read. A body whose bound has not run out is not read on a
+    // grid step, so where one body cannot be bound the others still are read
+    // only as their gaps could close.
+    const ahead: Map<IAutoMovieResolveContactEvents.IBody, number> = new Map();
     const certified = (
       value: number | undefined,
       owner: string,
@@ -243,10 +259,19 @@ export namespace firstAutoMovieContactImpact {
           free = Math.min(free, release - t);
           continue;
         }
+        const advanced: number | undefined =
+          certify === undefined ? undefined : ahead.get(body);
+        if (advanced !== undefined && t < advanced) {
+          free = Math.min(free, advanced - t);
+          continue;
+        }
         const d: number = distance(body, t, frame);
 
         // On the grid the gap closes no faster than the two bounds together.
-        free = Math.min(free, certify !== undefined ? clear(body, t, d, certify) : 0);
+        const certified: number =
+          certify !== undefined ? clear(body, t, d, certify) : 0;
+        free = Math.min(free, certified);
+        if (certified > 0) ahead.set(body, t + certified);
         if (initial && d <= 0 && body.departure !== undefined) {
           const proof: IAutoMovieResolveContactEvents.Departure | undefined =
             body.departure({
@@ -272,10 +297,7 @@ export namespace firstAutoMovieContactImpact {
               throw new RangeError(
                 "Unknown initial contact departure certificate",
               );
-            if (
-              !Number.isFinite(proof.seconds) ||
-              !(proof.seconds > from && proof.seconds <= until)
-            )
+            if (!(proof.seconds > from && proof.seconds <= until))
               throw new RangeError(
                 "Contact departure clearance is outside its search",
               );
@@ -284,7 +306,7 @@ export namespace firstAutoMovieContactImpact {
               proof.seconds,
               sampleAutoMovieContactWeapon(weapon, proof.seconds, stops),
             );
-            if (!(Number.isFinite(clearance) && clearance > 0))
+            if (!(clearance > 0))
               throw new RangeError(
                 "Contact departure has no positive clearance",
               );
@@ -352,7 +374,7 @@ export namespace firstAutoMovieContactImpact {
           // it read that step.
           let lo: number = previous;
           let clear: number = cleared ?? measure(lo);
-          while (!Number.isFinite(clear) && inside - lo > RESOLUTION) {
+          while (clear === Infinity && inside - lo > RESOLUTION) {
             const mid: number = (lo + inside) / 2;
 
             // Past 2^23 s adjacent doubles lie farther apart than the
@@ -365,7 +387,7 @@ export namespace firstAutoMovieContactImpact {
               clear = d;
             }
           }
-          if (Number.isFinite(clear) && inside - lo > RESOLUTION) {
+          if (clear !== Infinity && inside - lo > RESOLUTION) {
             const ends: readonly [number, number, number, number] = [
               lo,
               clear,
@@ -416,9 +438,9 @@ export namespace firstAutoMovieContactImpact {
 }
 
 /**
- * The bracket width at which a contact's second is taken, seconds: a
- * thousandth of the microsecond the contact specifications and a hit's id
- * resolve (`1e-6` s), so the second read at that precision does not depend
- * on where in the bracket the search stopped.
+ * The bracket width at which a contact's second is taken, seconds: a thousandth
+ * of the microsecond the contact specifications and a hit's id resolve (`1e-6`
+ * s), so the second read at that precision does not depend on where in the
+ * bracket the search stopped.
  */
 const RESOLUTION: number = 1e-9;

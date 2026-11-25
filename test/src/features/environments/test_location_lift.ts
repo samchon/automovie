@@ -1,3 +1,4 @@
+import type { createLift } from "@automovie/archetypes/environments";
 import {
   Quaternion,
   Vector3,
@@ -21,16 +22,17 @@ import { environmentLiftFixture } from "./environmentLiftFixture";
  * The same geometry and clip frames locate the lift, both doors and the rider.
  *
  * Scenarios:
- * 1. Call a fixed landing station, cross into the docked cab, turn about in
- *    the cab, ride its vertical track, and land on the upper floor.
- * 2. Inspect both doors during travel, and inspect a different authored rise
- *    and the unchanging call stations and unsupported crossing times.
  *
- * The scene's timing is staging: the cab leaves after its rider has walked
- * in and turned about, a walk whose honest length (its step turns taken a
- * footfall at a time) sets the schedule, and every check samples the
- * travel at the same share of it (the ride at 70 % of the travel, the doors
- * at its half and half a second after the upper doors open).
+ * 1. Call a fixed landing station, cross into the docked cab, turn about in the
+ *    cab, ride its vertical track, and land on the upper floor.
+ * 2. Inspect both doors during travel, and inspect a different authored rise and
+ *    the unchanging call stations and unsupported crossing times.
+ *
+ * The scene's timing is staging: the cab leaves after its rider has walked in
+ * and turned about, a walk whose honest length (its step turns taken a footfall
+ * at a time) sets the schedule, and every check samples the travel at the same
+ * share of it (the ride at 70 % of the travel, the doors at its half and half a
+ * second after the upper doors open).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the authored choreography, the movement consumers and the negative schedule cases.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public environment and transfer producer, native HumanPerformance plans and actual poses, and the engine's baked object motion frames.
@@ -94,13 +96,26 @@ export function test_location_lift(): void {
       ),
     );
   };
-  // The cab travels from 9.2 s to 11.2 s and its upper doors stand open from
-  // 12 s (`environmentLiftFixture`); the rider leaves the cab from 12.1 s.
-  const rideTime: number = 9.2 + 0.7 * 2;
-  const halfway: number = 9.2 + 0.5 * 2;
-  const opened: number = 12 + 0.5;
+  // The cab leaves the ground at the schedule's first closed key there,
+  // arrives at its first upper key and opens at its first open one; the
+  // rider steps out over the exit's 2 s crossing from that opening.
+  const schedule: readonly createLift.IKey[] = fixture.schedule;
+  const leaves: number = schedule.find(
+    (key: createLift.IKey): boolean =>
+      key.stop === "ground" && key.doors === "closed" && key.seconds > 0,
+  )!.seconds;
+  const arrives: number = schedule.find(
+    (key: createLift.IKey): boolean => key.stop === "upper",
+  )!.seconds;
+  const opens: number = schedule.find(
+    (key: createLift.IKey): boolean =>
+      key.stop === "upper" && key.doors === "open",
+  )!.seconds;
+  const rideTime: number = leaves + 0.7 * (arrives - leaves);
+  const halfway: number = leaves + 0.5 * (arrives - leaves);
+  const opened: number = opens + 0.5;
   const rising: IAutoMovieVector3[] = soles(rideTime);
-  const landed: IAutoMovieVector3[] = soles(12.1 + 2 + 0.2);
+  const landed: IAutoMovieVector3[] = soles(opens + 2 + 0.2);
   TestValidator.predicate(
     "the rider rises with the closed cab and stands on the named destination",
     nclose(at(cab, rideTime).translation.y, 2.38) &&
@@ -158,7 +173,7 @@ export function test_location_lift(): void {
       ),
   );
   // Leaving while the cab travels, or docked with its doors still opening.
-  for (const start of [halfway, 11.3]) {
+  for (const start of [halfway, (arrives + opens) / 2]) {
     let diagnosed: boolean = false;
     try {
       fixture.lift.transfer({

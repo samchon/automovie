@@ -16,23 +16,20 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
 /**
  * Bounded damped least squares on the admitted profile's actual joint frames,
  * its damping adapted to the chain's smallest singular value (Nakamura and
- * Hanafusa 1986; Buss 2004).
- * This changes motor targets, never solved bodies. Each angular update stays
- * inside its source-derived box limit and rotates the complete child subtree.
- * The returned residual explicitly retains an unreachable endpoint goal.
- * Unchanged branches are borrowed; every written pose shell is detached first.
+ * Hanafusa 1986; Buss 2004). This changes motor targets, never solved bodies.
+ * Each angular update stays inside its source-derived box limit and rotates the
+ * complete child subtree. The returned residual explicitly retains an
+ * unreachable endpoint goal. Unchanged branches are borrowed; every written
+ * pose shell is detached first.
  */
 export function solvePhysicalChainTarget(
   input: IAutoMovieSolvePhysicalChainTarget.IInput,
 ): IAutoMovieSolvePhysicalChainTarget.IResult {
   if (
-    !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
     input.iterations > 64 ||
-    !(input.tolerance > 0) ||
-    !Number.isFinite(input.tolerance) ||
-    input.chain.length < 2 ||
-    ![input.goal.x, input.goal.y, input.goal.z].every(Number.isFinite)
+    input.tolerance <= 0 ||
+    input.chain.length < 2
   )
     throw new Error("Invalid physical chain target or work budget");
   const targets: Record<string, IAutoMovieRigidTransform> = {
@@ -52,10 +49,10 @@ export function solvePhysicalChainTarget(
     .map((bone: string): IAutoMoviePhysicalJoint | undefined =>
       parents.get(bone),
     )
-    .filter(
+    .flatMap(
       (
         joint: IAutoMoviePhysicalJoint | undefined,
-      ): joint is IAutoMoviePhysicalJoint => joint !== undefined,
+      ): IAutoMoviePhysicalJoint[] => (joint === undefined ? [] : [joint]),
     )
     .reverse();
   const descendants: Map<string, string[]> = new Map(
@@ -157,8 +154,8 @@ export function solvePhysicalChainTarget(
     }
     const y: IAutoMovieVector3 | undefined = solve3(m, error);
     if (!y) break;
-    const steps: number[] = columns.map(
-      (entry): number => Vector3.dot(entry.column, y),
+    const steps: number[] = columns.map((entry): number =>
+      Vector3.dot(entry.column, y),
     );
     const largest: number = Math.max(...steps.map(Math.abs));
     const shrink: number = largest > MAXIMUM_STEP ? MAXIMUM_STEP / largest : 1;
@@ -245,8 +242,7 @@ function smallestEigenvalue(m: readonly (readonly number[])[]): number {
     (a(0, 0) - q) ** 2 + (a(1, 1) - q) ** 2 + (a(2, 2) - q) ** 2 + 2 * p1;
   if (!(p2 > 0)) return q;
   const p: number = Math.sqrt(p2 / 6);
-  const b = (i: number, j: number): number =>
-    (a(i, j) - (i === j ? q : 0)) / p;
+  const b = (i: number, j: number): number => (a(i, j) - (i === j ? q : 0)) / p;
   const det: number =
     b(0, 0) * (b(1, 1) * b(2, 2) - b(1, 2) * b(2, 1)) -
     b(0, 1) * (b(1, 0) * b(2, 2) - b(1, 2) * b(2, 0)) +
@@ -265,7 +261,7 @@ function solve3(
     c[0]![1]! * (c[1]![0]! * c[2]![2]! - c[1]![2]! * c[2]![0]!) +
     c[0]![2]! * (c[1]![0]! * c[2]![1]! - c[1]![1]! * c[2]![0]!);
   const d: number = det3(m);
-  if (!(Math.abs(d) > 0) || !Number.isFinite(d)) return undefined;
+  if (d === 0) return undefined;
   const v: number[] = [r.x, r.y, r.z];
   const replaced = (k: number): number[][] =>
     m.map((row: readonly number[], i: number): number[] =>

@@ -11,9 +11,16 @@ import { playbackEntryAt } from "./playbackEntryAt";
 import { playbackSampleAt } from "./playbackSampleAt";
 
 /**
- * Resolve a saved take's source occurrence against an already prepared, admitted cut.
+ * Resolve a saved take's source occurrence against an already prepared,
+ * admitted cut.
  *
- * Output seconds must be finite and in `[0, runtime]`. `after` is the default. `before` is valid at a hard cut or the sequence end; `after` at sequence end and `before` at sequence start are refused. Outgoing selection skips occurrences whose starts coincide with the boundary because they occupy no output time before it. An overlap requires the explicit incoming or outgoing entry. At a selected outgoing endpoint, use the source's exact trim end if present, otherwise its numeric trim or shot end.
+ * Output seconds must be finite and in `[0, runtime]`. `after` is the default.
+ * `before` is valid at a hard cut or the sequence end; `after` at sequence end
+ * and `before` at sequence start are refused. Outgoing selection skips
+ * occurrences whose starts coincide with the boundary because they occupy no
+ * output time before it. An overlap requires the explicit incoming or outgoing
+ * entry. At a selected outgoing endpoint, use the source's exact trim end if
+ * present, otherwise its numeric trim or shot end.
  */
 export function resolveMotionTakeAnchor(
   sequence: IAutoMovieSequence,
@@ -27,7 +34,7 @@ export function resolveMotionTakeAnchor(
   const seconds: number = selection.outputSeconds;
   const side: IAutoMovieMotionTakeAnchor["side"] = selection.side ?? "after";
   const { entries, runtime } = prepared.timeline;
-  if (!Number.isFinite(seconds) || seconds < 0 || seconds > runtime)
+  if (seconds < 0 || seconds > runtime)
     throw new Error(
       "take-time: outputSeconds must lie within the edited sequence",
     );

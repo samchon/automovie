@@ -12,25 +12,17 @@ import { HumanColliders } from "../posture/HumanColliders";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 
 /** A knee at either side of the bearer's pelvis, in left-to-right order. */
-const KNEES: readonly AutoMovieHumanoidBone[] = ["leftLowerLeg", "rightLowerLeg"];
+const KNEES: readonly AutoMovieHumanoidBone[] = [
+  "leftLowerLeg",
+  "rightLowerLeg",
+];
 
 /**
- * A straddling carry wraps the borne knees outside the bearer's thighs.
- * This measures the two gaps in the bearer's pelvis frame using the hip
- * socket separation and measured thickness of the touching segments. The
- * thighs can swing while the bearer walks without pulling a carried knee
- * through a hip. The sternum and the hands still use their own contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two gaps and their frame.
- * @evidence contracts/development/design.md#principled-representation The side envelope uses the two measured hip centres and the girths of the contacting legs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The straddling key fit consumes the two signed gaps and the exact geometric check together.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The collision verdict uses the real fitted shapes and the existing skin limit when the envelope cannot establish clearance.
- * @evidence contracts/development/implementation.md#principled-implementation The projection onto the bearer's pelvis lateral axis provides two geometric half-space gaps.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pelvis frame and one projected knee on each side.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The side envelope scales with the measured bodies; it supplies neither the wrist reach nor the exact fallback verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms Computes one inverse frame reused by both signed gaps.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses both sides of the current rigid registration's FK.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * A straddling carry wraps the borne knees outside the bearer's thighs. This
+ * measures the two gaps in the bearer's pelvis frame using the hip socket
+ * separation and measured thickness of the touching segments. The thighs can
+ * swing while the bearer walks without pulling a carried knee through a hip.
+ * The sternum and the hands still use their own contacts.
  */
 export function HumanCarriedStraddle(
   bearer: IAutoMovieMotionHumanBody,
@@ -39,23 +31,26 @@ export function HumanCarriedStraddle(
 ): number[] {
   const hips: IAutoMovieResolvedBone = reading.theirs.get("hips")!;
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(hips.worldRotation);
-  const width: number = bearer.measure.hipHalfWidth + bearer.measure.thighRadius + borne.measure.shankRadius;
+  const width: number =
+    bearer.measure.hipHalfWidth +
+    bearer.measure.thighRadius +
+    borne.measure.shankRadius;
   return KNEES.map((knee: AutoMovieHumanoidBone, index: number): number => {
-    const point: IAutoMovieVector3 = reading.fit.place(reading.mine.get(knee)!.worldPosition);
-    return width - (index === 0 ? 1 : -1) * Quaternion.rotateVector(
-      inverse, Vector3.subtract(point, hips.worldPosition),
-    ).x;
+    const point: IAutoMovieVector3 = reading.fit.place(
+      reading.mine.get(knee)!.worldPosition,
+    );
+    return (
+      width -
+      (index === 0 ? 1 : -1) *
+        Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(point, hips.worldPosition),
+        ).x
+    );
   });
 }
 
-/**
- * The exact collision check for the straddling key pose.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the exact observation served by this namespace.
- * @evidence contracts/development/design.md#principled-representation Real segment placement and two knee queries verify the approximate lateral envelope.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One fallback predicate, paired with the approximate gap.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The exact check uses the independent partner verdict's skin limit.
- */
+/** The exact collision check for the straddling key pose. */
 export namespace HumanCarriedStraddle {
   /**
    * The measured knee clearance when the side envelope is inconclusive.
@@ -80,7 +75,9 @@ export namespace HumanCarriedStraddle {
     const distance: ReturnType<typeof HumanColliders.reading>["segment"] =
       HumanColliders.reading(bearer, shapes).segment;
     return KNEES.every((knee: AutoMovieHumanoidBone): boolean => {
-      const point: IAutoMovieVector3 = reading.fit.place(reading.mine.get(knee)!.worldPosition);
+      const point: IAutoMovieVector3 = reading.fit.place(
+        reading.mine.get(knee)!.worldPosition,
+      );
       return distance(point, point).distance >= -HumanVerdicts.SKIN;
     });
   }

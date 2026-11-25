@@ -14,24 +14,17 @@ const STAGED: string =
   "a feeding bottle: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A feeding bottle with a teat. Its origin is the base's centre, `+Y` up
- * the bottle to the teat. `grip` is the barrel a hand holds; `teat` the
- * teat's tip, facing `+Y`, which goes to an infant's mouth.
+ * A feeding bottle with a teat. Its origin is the base's centre, `+Y` up the
+ * bottle to the teat. `grip` is the barrel a hand holds; `teat` the teat's tip,
+ * facing `+Y`, which goes to an infant's mouth.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The bottle with its contacts.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame and the contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Two rods sized by the drawn height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the barrel, the teat and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; the milk is not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createFeedingBottle(
   params: createFeedingBottle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createFeedingBottle.Affordance,
   createFeedingBottle.Dimension
@@ -88,14 +81,7 @@ export function createFeedingBottle(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and contacts of {@link createFeedingBottle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contacts, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the teat a law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
- */
+/** Dimensions and contacts of {@link createFeedingBottle}. */
 export namespace createFeedingBottle {
   /** The barrel held, and the teat's tip. */
   export type Affordance = "grip" | "teat";

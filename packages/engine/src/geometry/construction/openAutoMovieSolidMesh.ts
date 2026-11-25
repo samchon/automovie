@@ -25,9 +25,7 @@ type Boundary = (
   last: number,
 ) => IAutoMovieOpenSolidMeshResult | string;
 
-/**
- * Read exposed source-domain cycles from the complete positive index plan.
- */
+/** Read exposed source-domain cycles from the complete positive index plan. */
 export function openAutoMovieSolidMesh(
   chart: Chart,
   triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
@@ -183,13 +181,14 @@ function readBoundary(
   const cycles: IAutoMovieSolidMesh.IOpen[] = [];
   let partial: boolean = false;
   for (const walk of walks) {
-    const boundary: IAutoMovieSolidMeshConstraints.ISegment[] = walk.vertices.map(
-      (id: number, k: number): IAutoMovieSolidMeshConstraints.ISegment => ({
-        a: id,
-        b: walk.vertices[(k + 1) % walk.vertices.length]!,
-        turn: (walk.lifts[k + 1] ?? walk.winding) - walk.lifts[k]!,
-      }),
-    );
+    const boundary: IAutoMovieSolidMeshConstraints.ISegment[] =
+      walk.vertices.map(
+        (id: number, k: number): IAutoMovieSolidMeshConstraints.ISegment => ({
+          a: id,
+          b: walk.vertices[(k + 1) % walk.vertices.length]!,
+          turn: (walk.lifts[k + 1] ?? walk.winding) - walk.lifts[k]!,
+        }),
+      );
     const keys: string[] = boundary.map(({ a, b, turn }) =>
       identityOf(a, b, turn),
     );
@@ -245,7 +244,9 @@ function readBoundary(
     });
   }
   if (
-    edges.some(({ a, b, turn }): boolean => !claimed.has(identityOf(a, b, turn)))
+    edges.some(
+      ({ a, b, turn }): boolean => !claimed.has(identityOf(a, b, turn)),
+    )
   )
     return "exposed domain boundary was not claimed by one positive native walk";
   return { cycles, partial };

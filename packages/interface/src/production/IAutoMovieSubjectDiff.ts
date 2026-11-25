@@ -2,7 +2,8 @@ import type { IAutoMovieSubjectChange } from "./IAutoMovieSubjectChange";
 import type { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
- * Stable-identity structural comparison of two compiled subject inventories without rendering.
+ * Stable-identity structural comparison of two compiled subject inventories
+ * without rendering.
  */
 export interface IAutoMovieSubjectDiff {
   /** Structural-diff schema version. */
@@ -14,7 +15,10 @@ export interface IAutoMovieSubjectDiff {
   /** Revision of the later compiled artifact. */
   toRevision: string;
 
-  /** Inclusive absolute tolerance shared by all numbers; rotation compares one minus the absolute quaternion half-angle cosine. */
+  /**
+   * Inclusive absolute tolerance shared by all numbers; rotation compares one
+   * minus the absolute quaternion half-angle cosine.
+   */
   tolerance: number;
 
   /** Subjects present only in the later revision. */

@@ -10,9 +10,10 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * Constraint generation for minimum squared nonnegative displacement. A solve
  * retains all vertex bounds and a growing subset of affine contact conditions.
  * Every original row is checked after every solve. If the restricted minimizer
- * is feasible for the full problem, it is also a full minimizer up to the stated
- * numerical residual. Grouping chooses work order, never which contacts count.
- * Geometry and physical units belong to the caller; no tissue model is inferred.
+ * is feasible for the full problem, it is also a full minimizer up to the
+ * stated numerical residual. Grouping chooses work order, never which contacts
+ * count. Geometry and physical units belong to the caller; no tissue model is
+ * inferred.
  */
 
 /**
@@ -26,20 +27,15 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * is a positive absolute row-value error in those units, not anatomical slack.
  * Maximum rounds is a positive integer work budget. An unsatisfied restricted
  * problem with no participating variable refuses before numerical iteration.
- * Native failure, an exhausted budget
- * or a residual that fails on already selected rows throws with native status,
- * residual and round count. This owner admits displacement before any
- * geometry consumer can apply it; no relaxed bound or objective is substituted.
+ * Native failure, an exhausted budget or a residual that fails on already
+ * selected rows throws with native status, residual and round count. This owner
+ * admits displacement before any geometry consumer can apply it; no relaxed
+ * bound or objective is substituted.
  */
 export function solveAutoMovieBoundedDisplacement(
   input: IAutoMovieSolveBoundedDisplacement.IInput,
 ): IAutoMovieSolveBoundedDisplacement.IResult {
-  if (
-    !Number.isFinite(input.tolerance) ||
-    input.tolerance <= 0 ||
-    !Number.isSafeInteger(input.maximumRounds) ||
-    input.maximumRounds <= 0
-  )
+  if (input.tolerance <= 0 || input.maximumRounds <= 0)
     throw new Error(
       "Displacement needs positive tolerance and integer round budget.",
     );

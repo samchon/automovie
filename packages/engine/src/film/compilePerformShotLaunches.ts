@@ -19,14 +19,31 @@ import { compileLaunch } from "./compileLaunch";
 import { performShotActors } from "./performShotActors";
 
 /**
- * Solve every gated launch, bake each projectile's flight onto the shot clock, and fold each target's engine-timed recoil into the stage list.
+ * Solve every gated launch, bake each projectile's flight onto the shot clock,
+ * and fold each target's engine-timed recoil into the stage list.
  *
- * Runs before the performance compiles, so an injected recoil rides the same synthesis and range-of-motion gate as an authored `react`. For each job:
+ * Runs before the performance compiles, so an injected recoil rides the same
+ * synthesis and range-of-motion gate as an authored `react`. For each job:
  *
- * - A `bone` aim with a live resolver leads the bone as it moves. A node aim whose target carries a `locomote` leads the node's animated base, compiled from that node's own actions; its own recoil fires at impact, past the lead window, so it does not perturb the path being sampled. Any other aim is the plain intercept.
- * - A flight that cannot reach the target at the given speed, or that lands more than `1e-9` s after the shot ends, is one `range` violation at the action's `speed`, and contributes nothing.
- * - Flight keys shift by the action start and the clip spans the shot. Before its first key, sampleClipSequence gives that flight no channel authority, leaving staged placement or an earlier started clip in charge; after landing its last key holds. Later flights of one projectile receive the id suffix :<n>.
- * - The flight's events carry the action's index, and its recoil, when the launch has one, is appended to `plan.stageActions` with the violation path of the launch's `onHit`, because the recoil has no `region` field of its own. The recoil stays exempt from the region-overlap gate: the engine schedules it at an instant the author cannot know, and the layering envelope bounds its blend to the flinch window.
+ * - A `bone` aim with a live resolver leads the bone as it moves. A node aim
+ *   whose target carries a `locomote` leads the node's animated base, compiled
+ *   from that node's own actions; its own recoil fires at impact, past the lead
+ *   window, so it does not perturb the path being sampled. Any other aim is the
+ *   plain intercept.
+ * - A flight that cannot reach the target at the given speed, or that lands more
+ *   than `1e-9` s after the shot ends, is one `range` violation at the action's
+ *   `speed`, and contributes nothing.
+ * - Flight keys shift by the action start and the clip spans the shot. Before its
+ *   first key, sampleClipSequence gives that flight no channel authority,
+ *   leaving staged placement or an earlier started clip in charge; after
+ *   landing its last key holds. Later flights of one projectile receive the id
+ *   suffix :<n>.
+ * - The flight's events carry the action's index, and its recoil, when the launch
+ *   has one, is appended to `plan.stageActions` with the violation path of the
+ *   launch's `onHit`, because the recoil has no `region` field of its own. The
+ *   recoil stays exempt from the region-overlap gate: the engine schedules it
+ *   at an instant the author cannot know, and the layering envelope bounds its
+ *   blend to the flinch window.
  *
  * @param context The shot's staged tables and collector.
  * @param plan The action plan; recoils are appended to its stage list.

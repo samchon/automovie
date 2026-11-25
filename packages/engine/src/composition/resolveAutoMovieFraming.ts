@@ -6,11 +6,10 @@ import type {
 
 /**
  * A camera pose meeting a framing goal from the subjects' actual bounding
- * spheres: the target is the centre of the smallest sphere about their
- * centroid that contains every subject sphere, and the camera stands on the
- * goal's bearing and elevation at the distance where that sphere's diameter
- * fills the declared share of the vertical field of view,
- * `d = r / (fill tan(fov / 2))`.
+ * spheres: the target is the centre of the smallest sphere about their centroid
+ * that contains every subject sphere, and the camera stands on the goal's
+ * bearing and elevation at the distance where that sphere's diameter fills the
+ * declared share of the vertical field of view, `d = r / (fill tan(fov / 2))`.
  *
  * @param goal The framing goal.
  * @param state Each subject's bounding sphere at the instant.

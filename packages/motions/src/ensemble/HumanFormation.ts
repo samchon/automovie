@@ -14,22 +14,67 @@ import { HumanFormationPath } from "./HumanFormationPath";
 import { formationCourseFrame } from "./formationCourseFrame";
 
 /**
- * Formations: validating one, and reading where each member's slot stands at
- * a film second, the way it travels between two seconds, and which member
- * takes which slot.
+ * A formation checked: every block's count within its layout's capacity, every
+ * size finite and positive.
+ *
+ * @param formation The formation.
+ * @returns The same formation.
+ * @throws {HumanRefusal} A `parameter` refusal naming the block and the value
+ *   at fault.
+ */
+export function HumanFormation(
+  formation: IAutoMovieMotionHumanFormation,
+): IAutoMovieMotionHumanFormation {
+  if (formation.blocks.length === 0)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "blocks",
+      value: 0,
+      reason: "a formation has no block",
+      fix: "give the formation at least one block",
+    });
+  formation.blocks.forEach(
+    (block: IAutoMovieMotionHumanFormation.IBlock, b: number): void => {
+      const capacity: number = HumanFormation.capacity(block.layout);
+      if (
+        !(
+          block.count > 0 &&
+          block.count <= capacity
+        )
+      )
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: `blocks[${b}].count`,
+          value: block.count,
+          feasible: {
+            kind: "range",
+            minimum: 1,
+            maximum: capacity === Infinity ? null : capacity,
+            unit: "",
+          },
+          reason: `block ${b} holds ${block.count} members, which its ${block.layout.kind} layout cannot place`,
+          fix: "give the block a whole number of members its layout holds",
+        });
+    },
+  );
+
+  // A path frame that cannot be laid is refused here, as the formation is checked.
+  if (formation.frame.kind === "path") HumanFormation.prepare(formation);
+  return formation;
+}
+
+/**
+ * Formations: validating one, and reading where each member's slot stands at a
+ * film second, the way it travels between two seconds, and which member takes
+ * which slot.
  *
  * A slot is laid by the engine's `formationSlotPosition` in its block's own
  * frame (the layout's geometry and dressing have that one owner), its depth
  * turned to run from the front rank to the rear, then turned by the block's
  * facing, moved by its offset and placed in the formation's frame at that
- * second. A member keeps its slot by its own travel: a cadenced march walks
- * the slot's way (`path`) and lets its step give, a free walk follows the
- * slot by speed matching (`walkStation`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how a slot is laid and placed and how members keep it.
- * @evidence contracts/development/design.md#principled-representation Reads of the data type `IHumanFormation`; layout geometry stays the engine's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `capacity`, `count`, `local`, `frame` (fixed, guide, path and course frames), `end`, `slot`, `place`, `path`, `assign`, and the frame's defaults `ACCELERATION`, `TURN` and `SAMPLE`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No second layout formula: every point comes from `formationSlotPosition`.
+ * second. A member keeps its slot by its own travel: a cadenced march walks the
+ * slot's way (`path`) and lets its step give, a free walk follows the slot by
+ * speed matching (`walkStation`).
  */
 export namespace HumanFormation {
   /**
@@ -40,72 +85,17 @@ export namespace HumanFormation {
    */
   export const ACCELERATION: number = 1.34 / 0.5;
 
-  /** Metres of path over which a path frame turns at a corner when it states none (provisional: about two marching steps). */
+  /**
+   * Metres of path over which a path frame turns at a corner when it states
+   * none (provisional: about two marching steps).
+   */
   export const TURN: number = 1.5;
 
-  /** Seconds between two samples of a slot's way when the caller asks no other (provisional: a few samples a step, as `walkFollowed.STEP`). */
-  export const SAMPLE: number = 0.25;
-
   /**
-   * A formation checked: every block's count within its layout's capacity,
-   * every size finite and positive.
-   *
-   * @param formation The formation.
-   * @returns The same formation.
-   * @throws {HumanRefusal} A `parameter` refusal naming the block and the value at fault.
+   * Seconds between two samples of a slot's way when the caller asks no other
+   * (provisional: a few samples a step, as `walkFollowed.STEP`).
    */
-  export function of(
-    formation: IAutoMovieMotionHumanFormation,
-  ): IAutoMovieMotionHumanFormation {
-    if (formation.blocks.length === 0)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "blocks",
-        value: 0,
-        reason: "a formation has no block",
-        fix: "give the formation at least one block",
-      });
-    formation.blocks.forEach(
-      (block: IAutoMovieMotionHumanFormation.IBlock, b: number): void => {
-        const capacity: number = HumanFormation.capacity(block.layout);
-        if (
-          !(
-            Number.isInteger(block.count) &&
-            block.count > 0 &&
-            block.count <= capacity
-          )
-        )
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: `blocks[${b}].count`,
-            value: block.count,
-            feasible: {
-              kind: "range",
-              minimum: 1,
-              maximum: Number.isFinite(capacity) ? capacity : null,
-              unit: "",
-            },
-            reason: `block ${b} holds ${block.count} members, which its ${block.layout.kind} layout cannot place`,
-            fix: "give the block a whole number of members its layout holds",
-          });
-        for (const value of [
-          block.offset?.lateral ?? 0,
-          block.offset?.depth ?? 0,
-          block.facing ?? 0,
-        ])
-          if (!Number.isFinite(value))
-            throw new HumanRefusal({
-              kind: "parameter",
-              axis: `blocks[${b}]`,
-              value,
-              reason: `block ${b}'s offset or facing is not finite`,
-              fix: "give finite offsets and facings",
-            });
-      },
-    );
-    if (formation.frame.kind === "path") laid(formation.frame);
-    return formation;
-  }
+  export const SAMPLE: number = 0.25;
 
   /**
    * How many members a layout places: its ranks times files, the square of a
@@ -136,9 +126,9 @@ export namespace HumanFormation {
   }
 
   /**
-   * A slot in the formation's own frame: its lateral and depth offsets from
-   * the frame's origin, its facing relative to the frame, and its block, rank
-   * and file.
+   * A slot in the formation's own frame: its lateral and depth offsets from the
+   * frame's origin, its facing relative to the frame, and its block, rank and
+   * file.
    *
    * @param formation The formation.
    * @param index The slot, from 0 in member order.
@@ -159,7 +149,7 @@ export namespace HumanFormation {
       ++b;
     }
     if (
-      !(Number.isInteger(index) && index >= 0) ||
+      !(index >= 0) ||
       b === formation.blocks.length
     )
       throw new RangeError(
@@ -232,176 +222,217 @@ export namespace HumanFormation {
   }
 
   /**
-   * The formation's frame at a film second: its origin and heading.
+   * A formation prepared for reading: its frame laid once, then its frame and
+   * slots read at any film second in closed form.
+   */
+  export interface IPrepared {
+    /** The formation. */
+    formation: IAutoMovieMotionHumanFormation;
+
+    /**
+     * The film second the formation's frame comes to rest: a path frame's stop,
+     * a course's last sample; null for a fixed frame, which never moves, and
+     * for a guide frame, whose guide's rest only the performance knows.
+     */
+    end: number | null;
+
+    /**
+     * The formation's frame at a film second: its origin and heading.
+     *
+     * @param seconds Film seconds.
+     * @param read Reads the guide's placed root, for a guide frame.
+     * @returns The origin, world metres, and the heading, degrees.
+     * @throws {HumanRefusal} When a guide frame is read without a reader.
+     */
+    frame(
+      seconds: number,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): IAutoMovieMotionHumanFormation.IFrameResult;
+
+    /**
+     * One slot at a film second: the local place moved into the frame.
+     *
+     * @param index The slot.
+     * @param seconds Film seconds.
+     * @param read Reads the guide's placed root, for a guide frame.
+     * @returns The slot.
+     */
+    slot(
+      index: number,
+      seconds: number,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): IAutoMovieMotionHumanFormation.ISlot;
+
+    /**
+     * A slot's way between two film seconds, sampled every `step` seconds and
+     * at both ends: the samples a march's `via` or a timed course
+     * (`AutoMovieArchetypeCourse.timed`) takes.
+     *
+     * @param index The slot.
+     * @param from The first film second.
+     * @param to The last film second, after `from`.
+     * @param step Seconds between samples; `SAMPLE` when absent.
+     * @param read Reads the guide's placed root, for a guide frame.
+     * @returns The samples in time order.
+     */
+    path(
+      index: number,
+      from: number,
+      to: number,
+      step?: number,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): IAutoMovieMotionHumanFormation.ISample[];
+
+    /**
+     * Which slot each member takes: in member order, or the assignment of least
+     * total distance from where the members stand to the slots at a second
+     * (Kuhn's Hungarian method, the engine's `assignAutoMovieMinimumCost`).
+     *
+     * @param members Where each member stands, world metres.
+     * @param rule `order` keeps member order; `nearest` minimises the total
+     *   distance.
+     * @param seconds The film second the slots are read at.
+     * @param read Reads the guide's placed root, for a guide frame.
+     * @returns The slot of each member.
+     * @throws {HumanRefusal} When there are more members than slots.
+     */
+    assign(
+      members: readonly IAutoMovieVector3[],
+      rule: AssignRule,
+      seconds: number,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): number[];
+  }
+
+  /** How members take slots: in member order, or by least total distance. */
+  export type AssignRule = "order" | "nearest";
+
+  /**
+   * Prepare a formation for reading: a path frame is laid once
+   * (`HumanFormationPath.lay`, at the frame's acceleration and turn or
+   * `ACCELERATION` and `TURN`), and the frame and slots are then read from it.
    *
    * @param formation The formation.
-   * @param seconds Film seconds.
-   * @param read Reads the guide's placed root, for a guide frame.
-   * @returns The origin, world metres, and the heading, degrees.
-   * @throws {HumanRefusal} When a guide frame is read without a reader.
+   * @returns The prepared formation.
+   * @throws {HumanRefusal} When a path frame cannot be laid.
    */
-  export function frame(
+  export function prepare(
     formation: IAutoMovieMotionHumanFormation,
-    seconds: number,
-    read?: IAutoMovieMotionHumanFormation.Reader,
-  ): IAutoMovieMotionHumanFormation.IFrameResult {
+  ): IPrepared {
     const f: IAutoMovieMotionHumanFormation.Frame = formation.frame;
-    if (f.kind === "fixed") return { at: f.at, heading: f.heading };
-    if (f.kind === "path") return laid(f).at(seconds);
-    if (f.kind === "course") return formationCourseFrame(f, seconds);
-    if (read === undefined)
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "frame",
-        value: f.subject,
-        reason: `the formation follows ${f.subject}, whose placed path is read only while the performance places its members`,
-        fix: "read the slot from a law's context, or give the formation a fixed or path frame",
-      });
-    const root: IAutoMovieMotionHumanActionContext.IRoot = read(
-      f.subject,
-      seconds,
-    );
-    return {
-      at: { x: root.position.x, y: 0, z: root.position.z },
-      heading: root.yaw,
-    };
-  }
-
-  /**
-   * The film second the formation's frame comes to rest: a path frame's
-   * stop, a course's last sample; null for a fixed frame, which never moves,
-   * and for a guide frame, whose guide's rest only the performance knows.
-   *
-   * @param formation The formation.
-   * @returns The second, or null.
-   */
-  export function end(
-    formation: IAutoMovieMotionHumanFormation,
-  ): number | null {
-    const f: IAutoMovieMotionHumanFormation.Frame = formation.frame;
-    if (f.kind === "path") return laid(f).end;
-    if (f.kind === "course")
-      return f.samples[f.samples.length - 1]?.seconds ?? null;
-    return null;
-  }
-
-  /**
-   * One slot at a film second: the local place moved into the frame.
-   *
-   * @param formation The formation.
-   * @param index The slot.
-   * @param seconds Film seconds.
-   * @param read Reads the guide's placed root, for a guide frame.
-   * @returns The slot.
-   */
-  export function slot(
-    formation: IAutoMovieMotionHumanFormation,
-    index: number,
-    seconds: number,
-    read?: IAutoMovieMotionHumanFormation.Reader,
-  ): IAutoMovieMotionHumanFormation.ISlot {
-    const place: IAutoMovieMotionHumanFormation.ILocal = local(
-      formation,
-      index,
-    );
-    const origin: { at: IAutoMovieVector3; heading: number } = frame(
-      formation,
-      seconds,
-      read,
-    );
-    return {
-      at: place_(origin, place),
-      heading: origin.heading + place.facing,
-      block: place.block,
-      rank: place.rank,
-      file: place.file,
-    };
-  }
-
-  /**
-   * A slot's way between two film seconds, sampled every `step` seconds and at
-   * both ends: the samples a march's `via` or a timed course
-   * (`AutoMovieArchetypeCourse.timed`) takes.
-   *
-   * @param formation The formation.
-   * @param index The slot.
-   * @param from The first film second.
-   * @param to The last film second, after `from`.
-   * @param step Seconds between samples; `SAMPLE` when absent.
-   * @param read Reads the guide's placed root, for a guide frame.
-   * @returns The samples in time order.
-   */
-  export function path(
-    formation: IAutoMovieMotionHumanFormation,
-    index: number,
-    from: number,
-    to: number,
-    step: number = SAMPLE,
-    read?: IAutoMovieMotionHumanFormation.Reader,
-  ): IAutoMovieMotionHumanFormation.ISample[] {
-    if (!(to > from && step > 0))
-      throw new RangeError(
-        `A slot's way runs forward in positive steps: ${from} to ${to} by ${step}`,
+    const laid: HumanFormationPath.ILaid | null =
+      f.kind === "path"
+        ? HumanFormationPath.lay(
+            f,
+            f.acceleration ?? ACCELERATION,
+            f.turn ?? TURN,
+          )
+        : null;
+    const frame: IPrepared["frame"] = (
+      seconds: number,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): IAutoMovieMotionHumanFormation.IFrameResult => {
+      if (f.kind === "fixed") return { at: f.at, heading: f.heading };
+      if (f.kind === "path") return laid!.at(seconds);
+      if (f.kind === "course") return formationCourseFrame(f, seconds);
+      if (read === undefined)
+        throw new HumanRefusal({
+          kind: "participant",
+          axis: "frame",
+          value: f.subject,
+          reason: `the formation follows ${f.subject}, whose placed path is read only while the performance places its members`,
+          fix: "read the slot from a law's context, or give the formation a fixed or path frame",
+        });
+      const root: IAutoMovieMotionHumanActionContext.IRoot = read(
+        f.subject,
+        seconds,
       );
-    const place: IAutoMovieMotionHumanFormation.ILocal = local(
-      formation,
-      index,
-    );
-    const count: number = Math.ceil((to - from) / step - 1e-9);
-    const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
-    for (let k: number = 0; k <= count; ++k) {
-      const seconds: number = k === count ? to : from + k * step;
-      const at: IAutoMovieVector3 = place_(
-        frame(formation, seconds, read),
-        place,
+      return {
+        at: { x: root.position.x, y: 0, z: root.position.z },
+        heading: root.yaw,
+      };
+    };
+    const slot: IPrepared["slot"] = (
+      index: number,
+      seconds: number,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): IAutoMovieMotionHumanFormation.ISlot => {
+      const place: IAutoMovieMotionHumanFormation.ILocal = local(
+        formation,
+        index,
       );
-      samples.push({ seconds, x: at.x, y: at.y, z: at.z });
-    }
-    return samples;
-  }
-
-  /**
-   * Which slot each member takes: in member order, or the assignment of least
-   * total distance from where the members stand to the slots at a second
-   * (Kuhn's Hungarian method, the engine's `assignAutoMovieMinimumCost`).
-   *
-   * @param formation The formation.
-   * @param members Where each member stands, world metres.
-   * @param rule `order` keeps member order; `nearest` minimises the total distance.
-   * @param seconds The film second the slots are read at.
-   * @param read Reads the guide's placed root, for a guide frame.
-   * @returns The slot of each member.
-   * @throws {HumanRefusal} When there are more members than slots.
-   */
-  export function assign(
-    formation: IAutoMovieMotionHumanFormation,
-    members: readonly IAutoMovieVector3[],
-    rule: "order" | "nearest",
-    seconds: number,
-    read?: IAutoMovieMotionHumanFormation.Reader,
-  ): number[] {
-    const slots: number = count(formation);
-    if (members.length > slots)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "members",
-        value: members.length,
-        feasible: { kind: "range", minimum: 0, maximum: slots, unit: "" },
-        reason: `${members.length} members cannot take distinct slots of ${slots}`,
-        fix: "give the formation a slot for every member",
-      });
-    if (rule === "order")
-      return members.map((_: IAutoMovieVector3, i: number): number => i);
-    const points: IAutoMovieVector3[] = [];
-    for (let s: number = 0; s < slots; ++s)
-      points.push(slot(formation, s, seconds, read).at);
-    return assignAutoMovieMinimumCost(
-      members.map((m: IAutoMovieVector3): number[] =>
-        points.map((p: IAutoMovieVector3): number =>
-          Math.hypot(p.x - m.x, p.z - m.z),
+      const origin: IAutoMovieMotionHumanFormation.IFrameResult = frame(
+        seconds,
+        read,
+      );
+      return {
+        at: place_(origin, place),
+        heading: origin.heading + place.facing,
+        block: place.block,
+        rank: place.rank,
+        file: place.file,
+      };
+    };
+    const path: IPrepared["path"] = (
+      index: number,
+      from: number,
+      to: number,
+      step: number = SAMPLE,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): IAutoMovieMotionHumanFormation.ISample[] => {
+      if (!(to > from && step > 0))
+        throw new RangeError(
+          `A slot's way runs forward in positive steps: ${from} to ${to} by ${step}`,
+        );
+      const place: IAutoMovieMotionHumanFormation.ILocal = local(
+        formation,
+        index,
+      );
+      const count: number = Math.ceil((to - from) / step - 1e-9);
+      const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
+      for (let k: number = 0; k <= count; ++k) {
+        const seconds: number = k === count ? to : from + k * step;
+        const at: IAutoMovieVector3 = place_(frame(seconds, read), place);
+        samples.push({ seconds, x: at.x, y: at.y, z: at.z });
+      }
+      return samples;
+    };
+    const assign: IPrepared["assign"] = (
+      members: readonly IAutoMovieVector3[],
+      rule: AssignRule,
+      seconds: number,
+      read?: IAutoMovieMotionHumanFormation.Reader,
+    ): number[] => {
+      const slots: number = count(formation);
+      if (members.length > slots)
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "members",
+          value: members.length,
+          feasible: { kind: "range", minimum: 0, maximum: slots, unit: "" },
+          reason: `${members.length} members cannot take distinct slots of ${slots}`,
+          fix: "give the formation a slot for every member",
+        });
+      if (rule === "order")
+        return members.map((_: IAutoMovieVector3, i: number): number => i);
+      const points: IAutoMovieVector3[] = [];
+      for (let s: number = 0; s < slots; ++s)
+        points.push(slot(s, seconds, read).at);
+      return assignAutoMovieMinimumCost(
+        members.map((m: IAutoMovieVector3): number[] =>
+          points.map((p: IAutoMovieVector3): number =>
+            Math.hypot(p.x - m.x, p.z - m.z),
+          ),
         ),
-      ),
-    );
+      );
+    };
+    const end: number | null =
+      f.kind === "path"
+        ? laid!.end
+        : f.kind === "course"
+          ? (f.samples[f.samples.length - 1]?.seconds ?? null)
+          : null;
+    return { formation, end, frame, slot, path, assign };
   }
 
   /**
@@ -419,40 +450,20 @@ export namespace HumanFormation {
     return place_(origin, place);
   }
 }
+/** The record of `IPlacePlace2`'s site. */
+type IPlacePlace2 = { lateral: number; depth: number };
 
-/** Every laid path frame, by its record, so a formation's frame is laid once. */
-const LAID: WeakMap<
-  IAutoMovieMotionHumanFormation.IPath,
-  HumanFormationPath.ILaid
-> = new WeakMap();
-
-/** The laid path frame of a record. */
-function laid(
-  frame: IAutoMovieMotionHumanFormation.IPath,
-): HumanFormationPath.ILaid {
-  let out: HumanFormationPath.ILaid | undefined = LAID.get(frame);
-  if (out === undefined) {
-    out = HumanFormationPath.lay(
-      frame,
-      frame.acceleration ?? HumanFormation.ACCELERATION,
-      frame.turn ?? HumanFormation.TURN,
-    );
-    LAID.set(frame, out);
-  }
-  return out;
-}
+/** The record of `IPlaceOrigin2`'s site. */
+type IPlaceOrigin2 = { at: IAutoMovieVector3; heading: number };
 
 /**
  * A local place moved into a frame: the frame's lateral axis is its right,
  * `(-cos h, 0, sin h)`, and its depth runs to the rear, `-(sin h, 0, cos h)`,
  * which is the engine's `formationSlotPosition` placing the block with its
- * facing turned about, so a population designed from the same block stands
- * on the same slots.
+ * facing turned about, so a population designed from the same block stands on
+ * the same slots.
  */
-function place_(
-  origin: { at: IAutoMovieVector3; heading: number },
-  place: { lateral: number; depth: number },
-): IAutoMovieVector3 {
+function place_(origin: IPlaceOrigin2, place: IPlacePlace2): IAutoMovieVector3 {
   const radians: number = (origin.heading * Math.PI) / 180;
   const sine: number = Math.sin(radians);
   const cosine: number = Math.cos(radians);

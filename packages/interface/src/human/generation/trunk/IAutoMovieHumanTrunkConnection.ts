@@ -4,10 +4,14 @@ import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieL
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
 /**
- * Native neck boundary fields and physical-station frame derivatives before coefficient construction. Runtime construction and admission remain with AutoMovieHumanTrunkConnection in Human.
+ * Native neck boundary fields and physical-station frame derivatives before
+ * coefficient construction. Runtime construction and admission remain with
+ * AutoMovieHumanTrunkConnection in Human.
  */
 export namespace IAutoMovieHumanTrunkConnection {
-  /** One actual native generating boundary and frame2; this original view declares no additional phase lift.
+  /**
+   * One actual native generating boundary and frame2; this original view
+   * declares no additional phase lift.
    */
   export interface IDefinition {
     /** Actual regular neck boundary, before any coefficient layer exists. */
@@ -23,7 +27,9 @@ export namespace IAutoMovieHumanTrunkConnection {
     >;
   }
 
-  /** Actual original section plane and its available physical-station derivatives; no coefficient layer is manufactured.
+  /**
+   * Actual original section plane and its available physical-station
+   * derivatives; no coefficient layer is manufactured.
    */
   export interface IBoundary {
     /** Physical world-height station, calibration millimetres. */
@@ -39,14 +45,22 @@ export namespace IAutoMovieHumanTrunkConnection {
     frameCurvatures: IAutoMovieLoftSectionFrame;
   }
 
-  /** A boundary read from an actual interval part additionally retains that part's original declarations.
+  /**
+   * A boundary read from an actual interval part additionally retains that
+   * part's original declarations.
    */
   export interface IConnection extends IDefinition {
     /** Actual preloft source ownership retained by both original consumers. */
     original: {
-      /** Geometric part with its original axis and section laws; its declared source frame and units apply. */
+      /**
+       * Geometric part with its original axis and section laws; its declared
+       * source frame and units apply.
+       */
       part: IAutoMovieViewPart;
-      /** Admitted original scalar/section owner for this geometric part; consumers read its declared source parameter. */
+      /**
+       * Admitted original scalar/section owner for this geometric part;
+       * consumers read its declared source parameter.
+       */
       source: IAutoMovieLoftViewSource.ISource;
     };
   }

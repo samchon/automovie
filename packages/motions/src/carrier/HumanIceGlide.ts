@@ -18,7 +18,6 @@ import type {
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanBound } from "../law/HumanBound";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanSurfaceGlide } from "./HumanSurfaceGlide";
 import { pivotSurfaceFoot } from "./pivotSurfaceFoot";
@@ -31,10 +30,16 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const CROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/** Share of a curling delivery spent lowering into the slide (provisional staging; the cited study gives the stance, not its timing). */
+/**
+ * Share of a curling delivery spent lowering into the slide (provisional
+ * staging; the cited study gives the stance, not its timing).
+ */
 const CURL_SET: number = 0.3;
 
-/** Share of a curling delivery at which its `delivery` event is named, mid-slide (provisional staging). */
+/**
+ * Share of a curling delivery at which its `delivery` event is named, mid-slide
+ * (provisional staging).
+ */
 const CURL_DELIVERY: number = 0.5;
 
 type Skate = IAutoMovieMotionHumanSurface.ISkateParams;
@@ -45,19 +50,54 @@ type Posture = IAutoMovieMotionHumanPosture;
 /**
  * One ice glide with fitted runner edges, an optional step, or a low curling
  * delivery. The bilateral glide owns path, speed, entry and stopping. Ice
- * footwork owns each foot's support window and the point which a shoe or
- * blade rotates around. Instrumented short-track turns distinguish
- * stroke phases (van der Kruk et al., 2018,
- * https://doi.org/10.1080/14763141.2018.1441898). Curling delivery uses a
- * loaded flat leading shoe and a trailing forefoot as described by Hua et
- * al. (2025, Figure 2, https://doi.org/10.3389/fnhum.2025.1587118).
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the two activities, shared path, independent contacts and measured reference stance.
- * @evidence contracts/development/design.md#principled-representation A rotated effector keeps its real contact pivot. A step separates the released foot's flight from the other foot's continuing load. The trailing curling shoe hinges on its ball.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the existing glide sampler and changes only the authored ankle and pelvis goals of ice actions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional pivots come from equipment geometry. Released skates lose their support windows and return at the moved endpoint.
+ * footwork owns each foot's support window and the point which a shoe or blade
+ * rotates around. Instrumented short-track turns distinguish stroke phases (van
+ * der Kruk et al., 2018, https://doi.org/10.1080/14763141.2018.1441898).
+ * Curling delivery uses a loaded flat leading shoe and a trailing forefoot as
+ * described by Hua et al. (2025, Figure 2,
+ * https://doi.org/10.3389/fnhum.2025.1587118).
  */
 export namespace HumanIceGlide {
+  /**
+   * Admit a skate's own requests before its glide is planned: an edge within a
+   * right angle either way, and a step whose window opens at or after the start
+   * and closes within the glide (its `duration`, the glide's length), whose
+   * offset lies within a leg's length and whose clearance is above 0 and within
+   * it.
+   *
+   * @param params The skate's requests.
+   * @param measure The body's leg lengths.
+   * @throws {HumanRefusal} When a request lies outside its range.
+   */
+  export function admit(
+    params: Pick<Skate, "edge" | "step" | "duration">,
+    measure: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank">,
+  ): void {
+    const { edge, step } = params;
+    if (edge !== undefined)
+      HumanBound.within("edge.degrees", edge.degrees, -90, 90, "deg");
+    if (step === undefined) return;
+    HumanBound.least("step.window[0]", step.window[0], 0, "s");
+    HumanBound.within(
+      "step.window[1]",
+      step.window[1],
+      step.window[0],
+      params.duration,
+      "s",
+      "minimum",
+    );
+    const span: number = measure.thigh + measure.shank;
+    HumanBound.within("step.offset.x", step.offset.x, -span, span, "m");
+    HumanBound.within("step.offset.z", step.offset.z, -span, span, "m");
+    HumanBound.within(
+      "step.clearance",
+      step.clearance,
+      0,
+      span,
+      "m",
+      "minimum",
+    );
+  }
   /**
    * Add the registered skate's blade work to the shared glide path.
    *
@@ -68,50 +108,9 @@ export namespace HumanIceGlide {
     context: IAutoMovieMotionHumanActionContext<Skate>,
   ): Plan {
     const { edge, step }: Skate = context.params;
+    admit(context.params, context.body.measure);
     const base: Plan = HumanSurfaceGlide.plan(context);
     if (edge === undefined && step === undefined) return base;
-    if (edge !== undefined) {
-      HumanBound.within("edge.degrees", edge.degrees, -90, 90, "deg");
-      for (const side of SIDES) {
-        const pivot: IAutoMovieVector3 = edge.pivots[side];
-        if (![pivot.x, pivot.y, pivot.z].every(Number.isFinite))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: `edge.pivots.${side}`,
-            value: pivot,
-            feasible: null,
-            reason: "the mounted runner's pivot must be finite",
-            fix: "use the selected runner edge in the foot's coordinates",
-          });
-      }
-    }
-    if (step !== undefined) {
-      HumanBound.least("step.window[0]", step.window[0], 0, "s");
-      HumanBound.within(
-        "step.window[1]",
-        step.window[1],
-        step.window[0],
-        base.duration,
-        "s",
-        "minimum",
-      );
-      const span: number =
-        context.body.measure.thigh + context.body.measure.shank;
-      HumanBound.within("step.offset.x", step.offset.x, -span, span, "m");
-      HumanBound.within("step.offset.z", step.offset.z, -span, span, "m");
-      HumanBound.within(
-        "step.clearance",
-        step.clearance,
-        0,
-        span,
-        "m",
-        "minimum",
-      );
-    }
-    // The released blade rises on `clearance 쨌 sin(?u)` over the step's
-    // window, so it stays within the bearing height of the ice for
-    // `asin(h / clearance) / ?` of the window at each end: it glides there,
-    // still on the ice, and its bearing holds until it clears.
     const grazing: number =
       step === undefined
         ? 0
@@ -315,10 +314,10 @@ export namespace HumanIceGlide {
 
 /**
  * A stepping blade within the dorsal range of the weight it bears
- * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it
- * leaves, its heel rises about the toes' joint, which stays on the ice, so
- * it leaves within the unloaded ankle's range and flies so; it lowers again
- * as it takes the body back.
+ * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it leaves, its
+ * heel rises about the toes' joint, which stays on the ice, so it leaves within
+ * the unloaded ankle's range and flies so; it lowers again as it takes the body
+ * back.
  */
 function sheds(
   body: IAutoMovieMotionHumanBody,
@@ -329,7 +328,7 @@ function sheds(
 ): IAutoMovieHumanLimbGoal {
   if (goal.rotation === undefined) return goal;
   const placed: IAutoMovieMotionHumanFoot.IPlacement =
-    AutoMovieMotionHumanFootRelax.of(
+    AutoMovieMotionHumanFootRelax(
       body,
       posture,
       side,

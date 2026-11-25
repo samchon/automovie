@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanHandToFace,
   IAutoMovieMotionHumanHandToFaceArm,
   IAutoMovieMotionHumanHandToFaceRows,
@@ -34,12 +33,12 @@ import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldEffector } from "../handling/HumanHeldEffector";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
@@ -48,56 +47,54 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { handToFaceArm } from "./handToFaceArm";
+import { handToFaceDrinkable } from "./handToFaceDrinkable";
+import { handToFaceMirrored } from "./handToFaceMirrored";
 import { handToFaceRegion } from "./handToFaceRegion";
 import { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
 import { handToFaceVessel } from "./handToFaceVessel";
 
+/** The alternatives of `PlanGraspedAt`'s site. */
+type PlanGraspedAt = "point" | "normal";
+
 /**
- * A hand-to-face task of daily living while standing: drinking, sipping,
- * eating with a spoon, biting held food, a phone at the ear, reading a held
- * sheet, brushing the teeth, combing the hair, washing the face and wiping
- * the mouth (M14, #3234).
+ * A hand-to-face task of daily living while standing: drinking, sipping, eating
+ * with a spoon, biting held food, a phone at the ear, reading a held sheet,
+ * brushing the teeth, combing the hair, washing the face and wiping the mouth.
  *
- * Every task takes the drinking task's phases (Alt Murphy et al. 2006,
- * 2011): reach and forward transport to the face, the task at the face,
- * back transport and return. Each is a row of the touch generator
- * (`AutoMovieMotionHumanTouch`) on a region of the performer's own head:
- * the effector is the tip of the implied tool (a cup's rim, a spoon's bowl,
- * a brush's head, a phone's face) stated in the hand's axes as shares of
- * the hand's length, or a bare palm, so the task is performed with no prop
- * and the hand stands where the tool would put it. A grooming task repeats
- * its stroke at the face (rub kinds); eating brings the head forward to meet
- * the spoon (van der Kamp and Steenbergen 1999), drinking tips the head back
- * only once the vessel is at the lips, in the drinking phase that follows
- * the transport (Alt Murphy et al. 2011), and reading holds the sheet 36.2 cm
- * from the eyes (Bababekova et al. 2011, the mean for text) where the hanging
- * arm's hand meets that distance. While walking, the sheet follows the preferred
+ * Every task takes the drinking task's phases (Alt Murphy et al. 2006, 2011):
+ * reach and forward transport to the face, the task at the face, back transport
+ * and return. Each is a row of the touch generator
+ * (`AutoMovieMotionHumanTouch`) on a region of the performer's own head: the
+ * effector is the tip of the implied tool (a cup's rim, a spoon's bowl, a
+ * brush's head, a phone's face) stated in the hand's axes as shares of the
+ * hand's length, or a bare palm, so the task is performed with no prop and the
+ * hand stands where the tool would put it. A grooming task repeats its stroke
+ * at the face (rub kinds); eating brings the head forward to meet the spoon
+ * (van der Kamp and Steenbergen 1999), drinking tips the head back only once
+ * the vessel is at the lips, in the drinking phase that follows the transport
+ * (Alt Murphy et al. 2011), and reading holds the sheet 36.2 cm from the eyes
+ * (Bababekova et al. 2011, the mean for text) where the hanging arm's hand
+ * meets that distance. While walking, the sheet follows the preferred
  * head-relative gaze and viewing distance measured for walking readers
- * (doi:10.1007/s00221-021-06267-6, Table 1). The head flexes by Lee et al. 2015's
- * measured 35 degrees and the eyes taking the rest of the line of sight up
- * to their range (`handToFaceSheet`). Tool lengths, the other head shares
+ * (doi:10.1007/s00221-021-06267-6, Table 1). The head flexes by Lee et al.
+ * 2015's measured 35 degrees and the eyes taking the rest of the line of sight
+ * up to their range (`handToFaceSheet`). Tool lengths, the other head shares
  * and the sip's extension have no located measurement.
  *
- * Events: the phrase instants, with `atMouth` (or `atEar`, `atFace`,
- * `atSheet`) at `ready` and `taskEnd` at `strokeEnd`. The back transport may
- * be cut into a put-down or standing from `relax`.
+ * Events: the phrase instants, with `atMouth` (or `atEar`, `atFace`, `atSheet`)
+ * at `ready` and `taskEnd` at `strokeEnd`. The back transport may be cut into a
+ * put-down or standing from `relax`.
  *
- * With `prop`, the task is performed with the prop the hand already holds
- * (a glass a `pickUp` took): the prop's own point, a vessel's `lip` or a
- * phone's `screen`, replaces the implied tool (`HumanHeld`), the
- * fingers keep their grip, and the hand holds the prop through the task and
- * after it. A prop that is not in the hand is refused. With the `grasp` the
- * prop was taken up by for its use, the hand holds it at the face as that
- * grasp presents it there (`HumanHeldUse`), so the task asks the wrist only
- * what the grip was chosen for; with `other` as well, the other hand takes
- * the prop's other handle where the first carries it, as a camera is held
- * in both hands.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the tasks, the phases with their source, how each task is a row, the sourced and the provisional values, the events and what a held prop changes.
- * @evidence contracts/development/design.md#principled-representation A law record whose tasks are rows of one touch generator with an implied tool.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the task table, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No task is a law of its own.
+ * With `prop`, the task is performed with the prop the hand already holds (a
+ * glass a `pickUp` took): the prop's own point, a vessel's `lip` or a phone's
+ * `screen`, replaces the implied tool (`HumanHeld`), the fingers keep their
+ * grip, and the hand holds the prop through the task and after it. A prop that
+ * is not in the hand is refused. With the `grasp` the prop was taken up by for
+ * its use, the hand holds it at the face as that grasp presents it there
+ * (`HumanHeldUse`), so the task asks the wrist only what the grip was chosen
+ * for; with `other` as well, the other hand takes the prop's other handle where
+ * the first carries it, as a camera is held in both hands.
  */
 export namespace handToFace {
   /** The action's name. */
@@ -113,7 +110,10 @@ export namespace handToFace {
       flinch: ["anytime", "reflex"],
     });
 
-  /** A hand-to-face task may be performed over a carrier: it claims the acting arms, their hands and the head. */
+  /**
+   * A hand-to-face task may be performed over a carrier: it claims the acting
+   * arms, their hands and the head.
+   */
   export const overlay: boolean = true;
 
   /** The tasks' rows. */
@@ -125,47 +125,16 @@ export namespace handToFace {
   > = handToFaceRows.ROWS;
 
   /**
-   * The region a row names for a hand: the right hand's region, mirrored for
-   * the left.
-   *
-   * @param region The right hand's region.
-   * @param side The hand.
-   * @returns The region.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the mirroring rule.
-   * @evidence contracts/development/implementation.md#principled-implementation Paired regions carry their side in the name, so mirroring swaps the suffix; a midline region is its own mirror.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional chain.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the trailing side is swapped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function mirrored(
-    region: AutoMovieHumanoidRegion,
-    side: AutoMovieHumanSide,
-  ): AutoMovieHumanoidRegion {
-    if (side === "right") return region;
-    return region.endsWith("Right")
-      ? (region.replace(/Right$/, "Left") as AutoMovieHumanoidRegion)
-      : region.endsWith("Left")
-        ? (region.replace(/Left$/, "Right") as AutoMovieHumanoidRegion)
-        : region;
-  }
-
-  /**
    * Plan a hand-to-face task.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the time at the face is negative, `prop` names a prop the hand does not hold or a point the prop lacks, a vessel drunk from is held by a grip not taken for drinking (`pickUp` without a `use` at the mouth), `grasp` comes without a held prop, its point or a region of the face, or `other` comes without `grasp` or names a handle the prop lacks.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases, the rows and the sources.
-   * @evidence contracts/development/implementation.md#principled-implementation The drinking task's phases (Alt Murphy et al. 2006) as a phrase clock, with the task's row run by the touch stroke per hand and the head's flexion pulsed on the same envelope; with `prop`, the acting hand's effector is the held prop's own point, a vessel drunk from with a kept grasp at its named material point, or without one on the rim side its drink admits (`handToFaceVessel`), the fingers are kept and the grip is declared.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Row, the head's place at the face, the effector, transport, clock with the task's event names, head pulse, one stroke per hand, composition, the kept hold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every value comes from the row or a named constant; tool lengths and head angles are marked provisional on the table.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry resolve and one elbow solve per hand at plan time; a vessel drunk from adds the drink's search per rim side until one admits (its own side's alone when that admits), found once and handed to the arm, which does not search again; another held prop adds the upright search on each of its eight sides.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the touch stroke, the laid arm, the head share, the timing owner, the manner and `HumanHeld`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the entry bones and the clock.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the
+   *   time at the face is negative, `prop` names a prop the hand does not hold
+   *   or a point the prop lacks, a vessel drunk from is held by a grip not
+   *   taken for drinking (`pickUp` without a `use` at the mouth), `grasp` comes
+   *   without a held prop, its point or a region of the face, or `other` comes
+   *   without `grasp` or names a handle the prop lacks.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandToFace.IParams>,
@@ -188,8 +157,10 @@ export namespace handToFace {
             1,
           )[0]!;
     } else hold = HumanBound.least("hold", p.hold ?? row.hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
@@ -199,15 +170,22 @@ export namespace handToFace {
 
     // The acting hand's effector: the row's implied tool, or the point of
     // the prop that hand holds.
+    // The held prop's effector is read within this plan once its hand first
+    // asks for it, after the arm's geometry below is laid (`grasped`).
     let held: IAutoMovieMotionHumanTouchEffector.IEffector | undefined;
     const effector = (
       side: AutoMovieHumanSide,
-    ): IAutoMovieMotionHumanTouchEffector.IEffector =>
-      p.prop === undefined || side !== first
-        ? AutoMovieMotionHumanTouchForm.curled(row.effector, row.kind)
-        : (held ??= grasped(p.prop));
+    ): IAutoMovieMotionHumanTouchEffector.IEffector => {
+      if (p.prop === undefined || side !== first)
+        return AutoMovieMotionHumanTouchForm.curled(row.effector, row.kind);
+      if (held === undefined) held = grasped(p.prop);
+      return held;
+    };
     const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion | null][] = [
-      [first, row.region === null ? null : mirrored(row.region, first)],
+      [
+        first,
+        row.region === null ? null : handToFaceMirrored(row.region, first),
+      ],
       // A second hand on the held prop takes the place of the row's other.
       ...(row.other === undefined || p.other !== undefined
         ? []
@@ -262,7 +240,7 @@ export namespace handToFace {
         ...p,
         ...(row.point === undefined ? {} : { point: p.point ?? row.point }),
       },
-      row.region === null ? null : mirrored(row.region, first),
+      row.region === null ? null : handToFaceMirrored(row.region, first),
     );
 
     // A kept vessel presents the named rim point captured at pickup. Other
@@ -285,7 +263,10 @@ export namespace handToFace {
       if (
         row.upright === true &&
         context.entry.holds[first] === subject &&
-        !drinkable(context.entry.uses[first], mirrored(row.region, first))
+        !handToFaceDrinkable(
+          context.entry.uses[first],
+          handToFaceMirrored(row.region, first),
+        )
       )
         throw new HumanRefusal({
           kind: "reach",
@@ -297,8 +278,10 @@ export namespace handToFace {
       const at: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-      ) => Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
-        region(first, mirrored(row.region, first));
+      ) => Pick<IAutoMovieMotionHumanTarget.IPlace, PlanGraspedAt> = region(
+        first,
+        handToFaceMirrored(row.region, first),
+      );
       if (row.upright !== true)
         return HumanHeld.steadiest(
           context,
@@ -310,7 +293,7 @@ export namespace handToFace {
           at(atFace, 0),
           false,
         );
-      const vessel: handToFaceVessel.IVessel = handToFaceVessel.of(
+      const vessel: handToFaceVessel.IVessel = handToFaceVessel(
         body,
         atFace,
         first,
@@ -343,7 +326,7 @@ export namespace handToFace {
         side,
         name,
       ]: (typeof hands)[number]): IAutoMovieMotionHumanHandToFaceArm.IArm =>
-        handToFaceArm.of({
+        handToFaceArm({
           body,
           atFace,
           turned,
@@ -403,14 +386,11 @@ export namespace handToFace {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: row.at, seconds: timed.at("ready") },
-        { name: "taskEnd", seconds: timed.at("strokeEnd") },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+      ...timed.instants,
+      { name: row.at, seconds: timed.at("ready") },
+      { name: "taskEnd", seconds: timed.at("strokeEnd") },
+    ]);
 
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     if (head !== 0)
@@ -508,14 +488,4 @@ export namespace handToFace {
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);
   }
-}
-
-/** Whether a grip was chosen for a use at a region of the face: its `use` brings the working point to that region, the mouth named as `mouth` or as the region itself. */
-function drinkable(
-  use: IAutoMovieMotionHumanGraspUse.IUse | undefined,
-  region: AutoMovieHumanoidRegion,
-): boolean {
-  if (use === undefined || use.at === undefined || use.at === "ahead")
-    return false;
-  return use.at === "mouth" ? region === "mouth" : use.at.region === region;
 }

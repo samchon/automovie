@@ -6,11 +6,11 @@ States the premise on the rotation, why each entry is a sinusoid, each bound's s
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Rodrigues' formula makes each entry an exact sinusoid in the swivel, so each bound's crossing swivels are a sinusoid's two arccos roots, and an angle's interval maps through the rest frame and the chart exactly as `decomposeJointRotationOnBasis` and `alternateRigJointAngles` read it.
+Rodrigues' formula makes each entry an exact sinusoid in the swivel, so each bound's crossing swivels are a sinusoid's two arccos roots, and an angle's interval maps through the rest frame and the chart exactly as `decomposeJointRotationOnBasis` and `alternateRigJointAngles` read it. The swing cone couples two angles, so it is refused piece by piece of at most a degree, where its closed-form interval bound certainly exceeds it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The entries are fitted once, each reading's axes give their bound sinusoids, the sinusoids their arcs, the arcs one merged list per reading, and the test reads the lists.
+Each chart's refused arcs are built once (`boxRefusedArcs`) and the test reads both lists.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -22,7 +22,7 @@ Three rotations and nine dot products each fit the entries, a few arcs per readi
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The fit, the arcs, their union and its test are `swivelArcs`'s, shared with a point's bounds; the arcs are built once per rotation and read by every test of its sweep.
+The fit, the arcs, their union and its test are `swivelArcs`'s, shared with a point's bounds, and each bound's sinusoid and interval are `swivelJointReadings`'s, shared with `boxLeastSwivels`; the arcs are built once per rotation and read by every test of its sweep.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

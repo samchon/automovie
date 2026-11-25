@@ -9,26 +9,29 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
 import type { createQuadruped } from "./createQuadruped";
 
 /**
- * Explicit rigid carriers for a quadruped's accessories and contacts.
- * Species nod selectors describe optional producer vocabulary: an absent tack
- * selector creates no attachment and does not require an unbuilt accessory.
+ * Explicit rigid carriers for a quadruped's accessories and contacts. Species
+ * nod selectors describe optional producer vocabulary: an absent tack selector
+ * creates no attachment and does not require an unbuilt accessory.
  */
 export namespace QuadrupedCarriage {
   /**
    * Bind every accessory/contact to the declared neck or trunk carrier.
    *
-   * The 21 bone parts carry themselves and are excluded from parts.
-   * Accessories named by species.nodding follow the common neck nod; every
-   * remaining accessory follows trunk. Contacts named by noddingContacts
-   * follow neck, while remaining contacts retain trunk carriage, including the
-   * current equid held-rein policy. Flexible two-end spans are another owner.
-   * Optional producer vocabulary may name absent tack, but duplicate/empty
-   * selectors and declarations assigning another bone to neck refuse.
+   * The 21 bone parts carry themselves and are excluded from parts. Accessories
+   * named by species.nodding follow the common neck nod; every remaining
+   * accessory follows trunk. Contacts named by noddingContacts follow neck,
+   * while remaining contacts retain trunk carriage, including the current equid
+   * held-rein policy. Flexible two-end spans are another owner. Optional
+   * producer vocabulary may name absent tack, but duplicate/empty selectors and
+   * declarations assigning another bone to neck refuse.
    *
    * @param animal The source parts and original affordances, unchanged.
    * @param species Its declared nod-part/contact selectors and trunk default.
-   * @returns Independent complete accessory-part/contact carrier records; bone parts are intentionally absent from the first record.
-   * @throws {RangeError} For missing/sparse arrays, empty/duplicate identities or selectors, a missing bone or a nod selector conflicting with a self-carried bone.
+   * @returns Independent complete accessory-part/contact carrier records; bone
+   *   parts are intentionally absent from the first record.
+   * @throws {RangeError} For missing/sparse arrays, empty/duplicate identities
+   *   or selectors, a missing bone or a nod selector conflicting with a
+   *   self-carried bone.
    */
   export function of(
     animal: Pick<AutoMovieArchetype, "parts" | "affordances">,
@@ -37,11 +40,6 @@ export namespace QuadrupedCarriage {
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
     contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   } {
-    if (!Array.isArray(animal.parts) || !Array.isArray(animal.affordances))
-      throw new RangeError(
-        "Quadruped carriage requires actual part and contact arrays",
-      );
-
     const bones: ReadonlySet<string> = new Set<string>([
       "trunk",
       "hindquarters",
@@ -107,21 +105,24 @@ export namespace QuadrupedCarriage {
     };
   }
 
-  /** A missing or empty identity cannot name an explicit carrier. */
+  /** A missing identity cannot name an explicit carrier. */
   function identity(value: string | undefined, label: string): string {
-    if (typeof value !== "string" || value.trim().length === 0)
-      throw new RangeError(`Quadruped ${label} requires a nonempty identity`);
+    if (value === undefined)
+      throw new RangeError(`Quadruped ${label} requires an identity`);
     return value;
   }
 
-  /** Optional producer selectors are a vocabulary, not an assertion that tack was built. */
+  /**
+   * Optional producer selectors are a vocabulary, not an assertion that tack
+   * was built.
+   */
   function selectors(
     values: readonly string[] | undefined,
     label: string,
     required: boolean,
   ): ReadonlySet<string> {
     if (values === undefined && !required) return new Set<string>();
-    if (!Array.isArray(values))
+    if (values === undefined)
       throw new RangeError(`Quadruped ${label} must be an identity array`);
 
     const result: Set<string> = new Set();

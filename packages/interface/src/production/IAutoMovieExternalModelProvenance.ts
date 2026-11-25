@@ -1,14 +1,13 @@
 import type { IAutoMovieCollisionProxyReference } from "./IAutoMovieCollisionProxyReference";
 import type { IAutoMovieMeasurementProxyReference } from "./IAutoMovieMeasurementProxyReference";
 
-/**
- * Explicit ingest and proxy choices for an external 3D model.
- */
+/** Explicit ingest and proxy choices for an external 3D model. */
 export interface IAutoMovieExternalModelProvenance {
   /**
    * Stable model-only normalization profile applied to the source model.
    *
-   * Motion-only `gltf-motion-v1` provenance belongs to {@link IAutoMovieExternalMotionProvenance} and cannot enter this record.
+   * Motion-only `gltf-motion-v1` provenance belongs to
+   * {@link IAutoMovieExternalMotionProvenance} and cannot enter this record.
    */
   ingestProfile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1";
 

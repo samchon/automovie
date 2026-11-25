@@ -2,11 +2,13 @@ import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence";
 import type { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 
 /**
- * The edit relation between two output instants of one cut, with each instant's live shot clock.
+ * The edit relation between two output instants of one cut, with each instant's
+ * live shot clock.
  */
 export namespace IAutoMovieClassifyPlaybackBoundary {
   /**
-   * The cut, its prepared layout, the two output instants and the producer's deliberate breaks.
+   * The cut, its prepared layout, the two output instants and the producer's
+   * deliberate breaks.
    */
   export interface IProps {
     /** The cut the layout was built from, already admitted by `cutSequence`. */
@@ -35,9 +37,7 @@ export namespace IAutoMovieClassifyPlaybackBoundary {
     }[];
   }
 
-  /**
-   * One instant on the live shot's clock.
-   */
+  /** One instant on the live shot's clock. */
   export interface IEndpoint {
     /** Index of the live entry in `sequence.shots`. */
     readonly entry: number;
@@ -50,7 +50,8 @@ export namespace IAutoMovieClassifyPlaybackBoundary {
   }
 
   /**
-   * The relation and, when both instants lie on the timeline, their shot clocks.
+   * The relation and, when both instants lie on the timeline, their shot
+   * clocks.
    *
    * `continuous` holds inside one entry and across a hard cut that resumes the
    * same shot exactly where the previous entry ended. `cut` holds across any

@@ -43,7 +43,10 @@ export function orderAutoMovieQuadraticMatrix(
   ): boolean =>
     degrees[a]! < degrees[b]! || (degrees[a] === degrees[b] && a < b);
 
-  /** Repair one key; construction only descends because parent heaps do not yet exist. */
+  /**
+   * Repair one key; construction only descends because parent heaps do not yet
+   * exist.
+   */
   const repair: (start: number, rise: boolean) => void = (
     start: number,
     rise: boolean,

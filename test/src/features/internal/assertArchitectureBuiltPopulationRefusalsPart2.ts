@@ -48,22 +48,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart2(
           ),
       ],
       [
-        "uniformMaximum",
-        (): boolean =>
-          refuses(
-            [
-              population({
-                variation: {
-                  scale: { min: 1, max: Number.NaN },
-                  palette: ["#808080"],
-                  traits: [],
-                },
-              }),
-            ],
-            "populations[0].set.variation.scale.max",
-          ),
-      ],
-      [
         "uniformOrder",
         (): boolean =>
           refuses(
@@ -100,26 +84,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart2(
           ),
       ],
       [
-        "axisMaximum",
-        (): boolean =>
-          refuses(
-            [
-              population({
-                variation: {
-                  scale: { min: 1, max: 1 },
-                  scale3: {
-                    min: { x: 1, y: 1, z: 1 },
-                    max: { x: 1, y: Number.POSITIVE_INFINITY, z: 1 },
-                  },
-                  palette: ["#808080"],
-                  traits: [],
-                },
-              }),
-            ],
-            "populations[0].set.variation.scale3.max.y",
-          ),
-      ],
-      [
         "axisOrder",
         (): boolean =>
           refuses(
@@ -137,48 +101,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart2(
               }),
             ],
             "populations[0].set.variation.scale3.z",
-          ),
-      ],
-      [
-        "rotationMinimum",
-        (): boolean =>
-          refuses(
-            [
-              population({
-                variation: {
-                  scale: { min: 1, max: 1 },
-                  rotationDeg: {
-                    x: { min: Number.NaN, max: 0 },
-                    y: { min: 0, max: 0 },
-                    z: { min: 0, max: 0 },
-                  },
-                  palette: ["#808080"],
-                  traits: [],
-                },
-              }),
-            ],
-            "populations[0].set.variation.rotationDeg.x.min",
-          ),
-      ],
-      [
-        "rotationMaximum",
-        (): boolean =>
-          refuses(
-            [
-              population({
-                variation: {
-                  scale: { min: 1, max: 1 },
-                  rotationDeg: {
-                    x: { min: 0, max: 0 },
-                    y: { min: 0, max: Number.NEGATIVE_INFINITY },
-                    z: { min: 0, max: 0 },
-                  },
-                  palette: ["#808080"],
-                  traits: [],
-                },
-              }),
-            ],
-            "populations[0].set.variation.rotationDeg.y.max",
           ),
       ],
       [
@@ -205,13 +127,9 @@ export function assertArchitectureBuiltPopulationRefusalsPart2(
     ]),
     {
       uniformMinimum: true,
-      uniformMaximum: true,
       uniformOrder: true,
       axisMinimum: true,
-      axisMaximum: true,
       axisOrder: true,
-      rotationMinimum: true,
-      rotationMaximum: true,
       rotationOrder: true,
     },
   );

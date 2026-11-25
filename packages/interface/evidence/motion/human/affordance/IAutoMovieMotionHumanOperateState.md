@@ -1,21 +1,3 @@
-# src/motion/human/affordance/IAutoMovieMotionHumanOperateState.ts#IAutoMovieMotionHumanOperateState
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: Unoperated contact point in world metres. normal: Unoperated surface normal in world coordinates. point: Operated contact point in world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: Unoperated contact point in world metres. normal: Unoperated surface normal in world coordinates. point: Operated contact point in world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: affordance/operateState.ts (operateState.at, place); affordance/operateState.ts (operateState.at, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/affordance/IAutoMovieMotionHumanOperateState.ts#IAutoMovieMotionHumanOperateState.IAtPlace
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,7 +1,8 @@
 import type { IAutoMovieWorldBounds } from "./IAutoMovieWorldBounds";
 
 /**
- * Named deterministic effect region binding a world-meter volume to a declared recipe and seed.
+ * Named deterministic effect region binding a world-meter volume to a declared
+ * recipe and seed.
  */
 export interface IAutoMovieWorldEffectZone {
   /** Stable zone id. */

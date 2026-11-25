@@ -21,41 +21,58 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import { FootSlip } from "./FootSlip";
 
+/** The record of `IFitValueS`'s site. */
+type IFitValueS = { t: number; p: IAutoMovieVector3 };
+
+/** The record of `IJumpCasesSamplesItem`'s site. */
+type IJumpCasesSamplesItem = { t: number; p: IAutoMovieVector3 };
+
+/** The record of `IJumpCasesChannelBest`'s site. */
+type IJumpCasesChannelBest = { key: string; score: number };
+
+/** The record of `IJumpCasesSink`'s site. */
+type IJumpCasesSink = { value: number; where: string };
+
+/** The record of `IJumpCasesFlight`'s site. */
+type IJumpCasesFlight = { value: number; where: string };
+
+/** The record of `IJumpCasesPop`'s site. */
+type IJumpCasesPop = { value: number; where: string };
+
+/** The record of `IJumpCasesJumpRatio`'s site. */
+type IJumpCasesJumpRatio = { value: number; where: string };
+
+/** The record of `IJumpCasesSlip`'s site. */
+type IJumpCasesSlip = { value: number; where: string };
+
 /**
  * Experiment E1 on the polygon man (`jump-e1-<body>` for the smallest, the
- * average and the tallest sweep bodies): the body walks at a
- * normal pace and is cut into a jump that lands 0.9 m ahead of where it is,
- * at 21 shares across one stride (from its second to its third left heel
- * strike, 0.05 of the stride apart). The middle cut is drawn every 0.1 s and
- * at its events; the verdicts hold over every cut, each measured from 0.3 s
- * before its cut to the end, the span the cut, the push, the flight and the
- * landing lie in (the walking before it is the walk captures'):
+ * average and the tallest sweep bodies): the body walks at a normal pace and is
+ * cut into a jump that lands 0.9 m ahead of where it is, at 21 shares across
+ * one stride (from its second to its third left heel strike, 0.05 of the stride
+ * apart). The middle cut is drawn every 0.1 s and at its events; the verdicts
+ * hold over every cut, each measured from 0.3 s before its cut to the end, the
+ * span the cut, the push, the flight and the landing lie in (the walking before
+ * it is the walk captures'):
  *
- * - every cut is legal, a stance foot being planted;
- * - the planted point of a foot, its lowest sole socket while within 1 cm of
- *   the floor, slides under 5 mm in both actions' plant windows
- *   ({@link FootSlip}, the rule the walk captures measure by);
- * - the velocity jump at the cut, the largest change of any bone's velocity
- *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of it,
- *   each velocity the symmetric difference at the cut -/+ 1/240 s, naming the
- *   displayed channel (root translation or clinical angle) that changes most;
- * - every displayed channel is continuous at the cut: within 0.5 degree, the
- *   root within 0.5 mm, from 1 microsecond before it to 1 after;
- * - the centre of mass in flight lies within 10 mm of the least-squares
- *   ballistic parabola with gravity fixed;
- * - after touchdown no heel, ball or toe sinks more than 10 mm under the floor;
- * - at take-off the reaching ankle is under the body, within 0.25 hip heights
- *   of the hips horizontally and at least 0.2 hip heights up.
+ * - Every cut is legal, a stance foot being planted;
+ * - The planted point of a foot, its lowest sole socket while within 1 cm of the
+ *   floor, slides under 5 mm in both actions' plant windows ({@link FootSlip},
+ *   the rule the walk captures measure by);
+ * - The velocity jump at the cut, the largest change of any bone's velocity
+ *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of
+ *   it, each velocity the symmetric difference at the cut -/+ 1/240 s, naming
+ *   the displayed channel (root translation or clinical angle) that changes
+ *   most;
+ * - Every displayed channel is continuous at the cut: within 0.5 degree, the root
+ *   within 0.5 mm, from 1 microsecond before it to 1 after;
+ * - The centre of mass in flight lies within 10 mm of the least-squares ballistic
+ *   parabola with gravity fixed;
+ * - After touchdown no heel, ball or toe sinks more than 10 mm under the floor;
+ * - At take-off the reaching ankle is under the body, within 0.25 hip heights of
+ *   the hips horizontally and at least 0.2 hip heights up.
  *
  * @returns The case.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the sweep, the drawn instants and every verdict with its bound.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real walk and jump through the performance, cut by the interrupt table, and measures the displayed bones, the sockets and the engine's centre of mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk to read the stride, one performance per cut, one measurement per cut.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Cut shares come from the walk's own heel-strike events; the parabola is fitted, not assumed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in cuts times samples.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function jumpCases(who: string): IMotionCaptureCase[] {
   const man = MotionBodies.population(who);
@@ -91,9 +108,9 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
   const s1: number = share("leftHeelStrike3");
   const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   let illegal: string[] = [];
-  let slip: { value: number; where: string } = { value: 0, where: "none" };
-  let jumpRatio: { value: number; where: string } = { value: 0, where: "none" };
-  let pop: { value: number; where: string } = { value: 0, where: "none" };
+  let slip: IJumpCasesSlip = { value: 0, where: "none" };
+  let jumpRatio: IJumpCasesJumpRatio = { value: 0, where: "none" };
+  let pop: IJumpCasesPop = { value: 0, where: "none" };
   // A displayed pose's channels: the root translation and every clinical angle.
   const channels = (pose: IAutoMoviePose): Map<string, number> => {
     const out: Map<string, number> = new Map();
@@ -108,8 +125,8 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     }
     return out;
   };
-  let flight: { value: number; where: string } = { value: 0, where: "none" };
-  let sink: { value: number; where: string } = { value: 0, where: "none" };
+  let flight: IJumpCasesFlight = { value: 0, where: "none" };
+  let sink: IJumpCasesSink = { value: 0, where: "none" };
   const tuck: string[] = [];
   let tuckOk: boolean = true;
   let drawn: IAutoMovieMotionHumanPerformance | undefined;
@@ -120,6 +137,8 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       .bones("a", at)
       .get("hips")!.worldPosition;
     let performance: IAutoMovieMotionHumanPerformance;
+
+    // Process boundary: a jump the law refuses at this k is recorded as illegal with its message, and the scan goes on to the next k.
     try {
       performance = perform(
         HumanChain.subject("a")
@@ -241,7 +260,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       };
       const v0 = rate(cut - 2 * h);
       const v1 = rate(cut + 2 * h);
-      let best: { key: string; score: number } = { key: "", score: -1 };
+      let best: IJumpCasesChannelBest = { key: "", score: -1 };
       for (const [key, x] of v0) {
         // Metres against degrees: 1 m/s weighs as 100 deg/s, a 1 m segment's turn.
         const d: number =
@@ -280,7 +299,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     }
 
     // Flight: least-squares parabola with gravity fixed.
-    const samples: { t: number; p: IAutoMovieVector3 }[] = [];
+    const samples: IJumpCasesSamplesItem[] = [];
     for (
       let t: number = takeoff + 1 / 240;
       t < touchdown - 1 / 240;
@@ -290,9 +309,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
         t: t - takeoff,
         p: resolveAutoMovieCenterOfMass.place(model, bones(t)),
       });
-    const fit = (
-      value: (s: { t: number; p: IAutoMovieVector3 }) => number,
-    ): ((t: number) => number) => {
+    const fit = (value: (s: IFitValueS) => number): ((t: number) => number) => {
       const n: number = samples.length;
       const st: number = samples.reduce((a, s) => a + s.t, 0);
       const stt: number = samples.reduce((a, s) => a + s.t * s.t, 0);

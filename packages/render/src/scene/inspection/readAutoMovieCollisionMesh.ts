@@ -6,12 +6,14 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
 /**
- * Read one ordinary drawn mesh: an exact box, a closed static surface or a stock skin.
+ * Read one ordinary drawn mesh: an exact box, a closed static surface or a
+ * stock skin.
  *
  * A box is an exact displayed solid. A closed static mesh and a stock skin are
  * conservative world envelopes whose drawn surface is posed only when a
@@ -20,15 +22,9 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
  *
  * @param mesh The drawn mesh.
  * @param identity Its collision identity and ownership.
- * @param budget Posed vertices the frame may still spend; charged when a surface is read.
+ * @param budget Posed vertices the frame may still spend; charged when a
+ *   surface is read.
  * @param add Receives the part, its lazy surface and any unsupported reason.
- * @evidence contracts/development/common.md#meaningful-documentation States the three admitted kinds and when each surface is posed.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the stock box proof, the skin owner's culling sphere and pose, and topology-derived closure.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader per ordinary mesh kind, sharing the lazy surface owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Custom appearance, morphs, custom mesh classes and open surfaces certify nothing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per mesh until a candidate pair reads its surface.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The box proof and topology are cached per geometry version.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure borrows the mesh for the current observation.
  */
 export function readAutoMovieCollisionMesh(
   mesh: THREE.Mesh,
@@ -44,7 +40,7 @@ export function readAutoMovieCollisionMesh(
     return unsupported("morph-targets");
   const topology: readAutoMovieCollisionTopology.ITopology | null =
     readAutoMovieCollisionTopology(mesh.geometry);
-  if (mesh instanceof AutoMovieSkinnedMesh) {
+  if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) {
     const bounds: IAutoMovieSubjectBox | null =
       readAutoMovieDisplayedBox.skinEnvelope(mesh);
     const read: collectAutoMovieCollisionParts.IPartSurface["read"] | null =
@@ -98,16 +94,12 @@ export function readAutoMovieCollisionMesh(
   );
 }
 
-/**
- * The callback shape every collision source reports parts through.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what one report carries: a part, its optional lazy surface and an optional unsupported reason.
- * @evidence contracts/development/design.md#principled-representation One callback receives a part with its optional surface and reason, so every source reports through the same shape.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the collector supplies the callback, and the cord, instance and mesh readers call it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A reason accompanies a part whose geometry cannot be read instead of the part being dropped.
- */
+/** The callback shape every collision source reports parts through. */
 export namespace readAutoMovieCollisionMesh {
-  /** Receives one part, its optional lazy surface and an optional unsupported reason. */
+  /**
+   * Receives one part, its optional lazy surface and an optional unsupported
+   * reason.
+   */
   export type IAdd = (
     part: Collision.IPart,
     surface?: collectAutoMovieCollisionParts.IPartSurface,
@@ -116,8 +108,8 @@ export namespace readAutoMovieCollisionMesh {
 }
 
 /**
- * A stock skin's drawn surface, posed by its owner's draw method and charged
- * to the vertex budget only when a candidate pair reads it.
+ * A stock skin's drawn surface, posed by its owner's draw method and charged to
+ * the vertex budget only when a candidate pair reads it.
  */
 function readSkin(
   mesh: AutoMovieSkinnedMesh,
@@ -133,7 +125,6 @@ function readSkin(
       Math.hypot(e[2]!, e[6]!, e[10]!),
     ) *
     3;
-  if (!Number.isFinite(error)) return null;
   return readAutoMovieCollisionTopology.lazySurface(
     budget,
     topology,
@@ -144,7 +135,10 @@ function readSkin(
   );
 }
 
-/** Name the joint with the largest weight of each vertex, from the drawn skin buffers. */
+/**
+ * Name the joint with the largest weight of each vertex, from the drawn skin
+ * buffers.
+ */
 function dominantJoints(
   mesh: AutoMovieSkinnedMesh,
 ): ((vertex: number) => string | undefined) | undefined {

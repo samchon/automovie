@@ -19,9 +19,9 @@ type Body = IAutoMoviePhysicalSimulationInput.IBody;
 type Target = IAutoMoviePhysicalSimulationInput.ITarget;
 
 /**
- * Fit every member of the caller's admitted group against the same native
- * scene snapshot, then replace each member's interval plan together. The
- * caller samples its own plan afterwards; later members reuse theirs.
+ * Fit every member of the caller's admitted group against the same native scene
+ * snapshot, then replace each member's interval plan together. The caller
+ * samples its own plan afterwards; later members reuse theirs.
  */
 export function trackPhysicalCoupledTargets(props: {
   readonly input: IAutoMoviePhysicalSimulationInput.IInput;

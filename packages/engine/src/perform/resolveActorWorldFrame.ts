@@ -13,7 +13,10 @@ import { sampleMotion } from "../motion/sampleMotion";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 
 /**
- * Resolve an admitted motion root at shot-local seconds through the context's staged rigid world frame. Missing motion or a null sampled root returns null. Output rotation and heading include the motion root; root scale is not represented.
+ * Resolve an admitted motion root at shot-local seconds through the context's
+ * staged rigid world frame. Missing motion or a null sampled root returns null.
+ * Output rotation and heading include the motion root; root scale is not
+ * represented.
  */
 export const resolveActorWorldFrame: (
   context: IAutoMovieActorContext,

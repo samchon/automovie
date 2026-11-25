@@ -36,7 +36,9 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * Throws on a malformed request (see {@link IAutoMovieSpaceAirRequest}). The
  * returned run is always `solved` and carries no spatial samples.
  *
- * Finite admitted inputs can still overflow or underflow intermediate arithmetic; a nonfinite metric throws through the shared builder instead of becoming a fabricated measurement.
+ * Finite admitted inputs can still overflow or underflow intermediate
+ * arithmetic; a nonfinite metric throws through the shared builder instead of
+ * becoming a fabricated measurement.
  */
 export const analyzeAutoMovieSpaceAir: (
   props: IAutoMovieAnalyzeSpaceAir.IProps,
@@ -179,37 +181,44 @@ export const analyzeAutoMovieSpaceAir: (
 };
 
 /**
- * Check nonblank header strings, positive volume, null/nonnegative flow, safe nonnegative occupancy and finite nonnegative carbon-dioxide inputs before target admission. Throws at the first defect; nested typed-record shape is a premise and derived arithmetic is not certified.
+ * Check nonblank header strings, positive volume, null/nonnegative flow, safe
+ * nonnegative occupancy and finite nonnegative carbon-dioxide inputs before
+ * target admission. Throws at the first defect; nested typed-record shape is a
+ * premise and derived arithmetic is not certified.
  *
- * One fixed field pass plus the shared target scan uses target-proportional temporary ids and retains no request or verdict after return or throw.
+ * One fixed field pass plus the shared target scan uses target-proportional
+ * temporary ids and retains no request or verdict after return or throw.
  */
 const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (
   request: IAutoMovieSpaceAirRequest,
 ): void => {
   for (const [label, value] of [
-    ["id", request.id],
     ["subject", request.subject],
     ["input revision", request.inputRevision],
   ] as const)
     if (value.trim().length === 0)
       throw new Error(`a ventilation study must state a non-blank ${label}`);
-  if (!Number.isFinite(request.volume) || request.volume <= 0)
+  if (request.volume <= 0)
     throw new Error(
       `a ventilated space volume must be a finite number above zero, but was ${request.volume}`,
     );
-  if (
-    request.supplyFlow !== null &&
-    (!Number.isFinite(request.supplyFlow) || request.supplyFlow < 0)
-  )
+  if (request.supplyFlow !== null && request.supplyFlow < 0)
     throw new Error(
       `a supply flow must be null or a finite number at or above zero, but was ${request.supplyFlow}`,
     );
-  if (!Number.isSafeInteger(request.occupants) || request.occupants < 0)
+  const occupants: number = request.occupants;
+  if (
+    !(
+      occupants >= 0 &&
+      occupants <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(occupants) === occupants
+    )
+  )
     throw new Error(
-      `an occupancy must be a whole number at or above zero, but was ${request.occupants}`,
+      `an occupancy must be a whole number at or above zero, but was ${occupants}`,
     );
   for (const key of ["occupantCarbonDioxide", "outdoorCarbonDioxide"] as const)
-    if (!Number.isFinite(request[key]) || request[key] < 0)
+    if (request[key] < 0)
       throw new Error(
         `${key} must be a finite number at or above zero, but was ${request[key]}`,
       );

@@ -1,11 +1,18 @@
 /**
- * Explicit operating thresholds for conditional calibrated relative-pose estimation.
+ * Explicit operating thresholds for conditional calibrated relative-pose
+ * estimation.
  */
 export interface IAutoMovieRecoveryCameraPolicy {
-  /** Multiscale Harris positions, oriented gradient descriptors and calibrated eight-point consensus. */
+  /**
+   * Multiscale Harris positions, oriented gradient descriptors and calibrated
+   * eight-point consensus.
+   */
   family: "harris-gradient-calibrated-eight-point";
 
-  /** Positive harmonic Harris response threshold in squared grayscale-byte units. */
+  /**
+   * Positive harmonic Harris response threshold in squared grayscale-byte
+   * units.
+   */
   minimumCornerResponse: number;
 
   /** ANMS stronger-neighbour robustness strictly between zero and one. */
@@ -17,10 +24,16 @@ export interface IAutoMovieRecoveryCameraPolicy {
   /** Positive pixel Sampson threshold used to score calibrated consensus. */
   maximumSampsonErrorPx: number;
 
-  /** Conditional sampling confidence in (0,1), not probability that a returned pose is physically correct. */
+  /**
+   * Conditional sampling confidence in (0,1), not probability that a returned
+   * pose is physically correct.
+   */
   samplingConfidence: number;
 
-  /** Unsigned 32-bit deterministic sampling identity, independent of fixture or invocation order. */
+  /**
+   * Unsigned 32-bit deterministic sampling identity, independent of fixture or
+   * invocation order.
+   */
   samplingSeed: number;
 
   /** Positive minimum unique accepted correspondence count, at least eight. */
@@ -38,16 +51,28 @@ export interface IAutoMovieRecoveryCameraPolicy {
   /** Minimum triangulated points in front of both cameras, in (0,1]. */
   minimumPositiveDepthFraction: number;
 
-  /** Positive median calibrated ray parallax in radians; metric scale remains unknown. */
+  /**
+   * Positive median calibrated ray parallax in radians; metric scale remains
+   * unknown.
+   */
   minimumParallaxRadians: number;
 
-  /** Homography overlap at or above this fraction of epipolar inliers rejects the nonplanar route, in (0,1]. */
+  /**
+   * Homography overlap at or above this fraction of epipolar inliers rejects
+   * the nonplanar route, in (0,1].
+   */
   maximumHomographyOverlapFraction: number;
 
-  /** Positive symmetric forward/backward RMS homography transfer threshold in pixels. */
+  /**
+   * Positive symmetric forward/backward RMS homography transfer threshold in
+   * pixels.
+   */
   maximumHomographyTransferPx: number;
 
-  /** Positive minimum eighth/largest singular-value ratio of the original eight-point design. */
+  /**
+   * Positive minimum eighth/largest singular-value ratio of the original
+   * eight-point design.
+   */
   minimumDesignSingularRatio: number;
 
   /** Positive pixel scale of the soft-L1 local Sampson objective. */

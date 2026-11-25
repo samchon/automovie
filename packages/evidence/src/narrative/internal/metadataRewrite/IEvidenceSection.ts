@@ -1,8 +1,6 @@
 import type { EvidenceDeclarationKind } from "./EvidenceDeclarationKind";
 
-/**
- * Bounds one evidence annotation section in its original line population.
- */
+/** Bounds one evidence annotation section in its original line population. */
 export interface IEvidenceSection {
   /** Zero-based first source-line index belonging to this annotation. */
   start: number;

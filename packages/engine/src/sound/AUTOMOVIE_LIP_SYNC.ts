@@ -21,9 +21,9 @@ export const AUTOMOVIE_LIP_SYNC: Readonly<{
 
   /** Peak correlation below which the measurement is inconclusive. */
   minimumCorrelation: number;
-}> = Object.freeze({
+}> = {
   leadMilliseconds: -45,
   lagMilliseconds: 125,
   windowSeconds: 0.25,
   minimumCorrelation: 0.3,
-});
+};

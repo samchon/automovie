@@ -3,14 +3,15 @@
 // (computeConvexPolygon2DArea, lineOfSightStartIndex, lineOfSightEndIndex,
 // canObserverSeeEdge, isPoint2DInsideConvexPolygon2D, signed distance and
 // orthogonal projection), and ConvexPolygon2D.scale. See NOTICE.
+import { physicalPlanarPolygonEdges as Edges } from "./physicalPlanarPolygonEdges";
 
 /**
  * Convex polygons in a horizontal frame of their own, with the semantics of
  * IHMC's Euclid `ConvexPolygon2D`, which the ported balance modules read
  * (`physicalOneStepCaptureRegion`, `physicalFootstepAdjustor`): vertices
- * clockwise, an empty polygon's area and centroid not a number, a polygon of
- * one or two vertices of area zero with its vertices' mean as centroid, and a
- * point on an edge inside.
+ * clockwise, an empty polygon's area zero and centroid not a number, a polygon
+ * of one or two vertices of area zero with its vertices' mean as centroid, and
+ * a point on an edge inside.
  *
  * Points are `{ x, y }` in a right-handed frame with z up, as IHMC's sole and
  * mid-feet frames: x forward, y to the left. A world point maps into it by
@@ -101,7 +102,7 @@ export namespace physicalPlanarPolygon {
       for (const p of list) {
         while (
           out.length >= 2 &&
-          cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+          Edges.cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
         )
           out.pop();
         out.push(p);
@@ -117,14 +118,14 @@ export namespace physicalPlanarPolygon {
   }
 
   /**
-   * The area, square metres: not a number for no vertex, zero for one or two
-   * (Euclid `computeConvexPolygon2DArea`).
+   * The area, square metres: half the absolute shoelace sum (Euclid
+   * `computeConvexPolygon2DArea`), zero for fewer than three vertices, the
+   * empty sum included.
    *
    * @param polygon The clockwise polygon.
    * @returns The area.
    */
   export function area(polygon: readonly IPoint[]): number {
-    if (polygon.length === 0) return Number.NaN;
     if (polygon.length < 3) return 0;
     let sum: number = 0;
     for (let i: number = 0; i < polygon.length; i++) {
@@ -182,7 +183,7 @@ export namespace physicalPlanarPolygon {
     polygon: readonly IPoint[],
     observer: IPoint,
   ): IPoint[] | undefined {
-    const sight: { start: number; end: number } | undefined = lineOfSight(
+    const sight: { start: number; end: number } | undefined = Edges.lineOfSight(
       polygon,
       observer,
     );
@@ -210,9 +211,9 @@ export namespace physicalPlanarPolygon {
    */
   export function inside(polygon: readonly IPoint[], point: IPoint): boolean {
     if (polygon.length === 0) return false;
-    if (polygon.length < 3) return segmentDistance(polygon, point) <= 0;
+    if (polygon.length < 3) return Edges.segmentDistance(polygon, point) <= 0;
     for (let i: number = 0; i < polygon.length; i++)
-      if (outer(polygon[i]!, polygon[(i + 1) % polygon.length]!, point))
+      if (Edges.outer(polygon[i]!, polygon[(i + 1) % polygon.length]!, point))
         return false;
     return true;
   }
@@ -222,21 +223,16 @@ export namespace physicalPlanarPolygon {
    * boundary, negative inside (Euclid `signedDistance`).
    *
    * @param polygon The clockwise polygon.
-   * @param point The point; a coordinate that is not a number gives not a
-   *   number.
-   * @returns The signed distance.
+   * @param point The point.
+   * @returns The signed distance; not a number for an empty polygon.
    */
   export function signedDistance(
     polygon: readonly IPoint[],
     point: IPoint,
   ): number {
-    if (
-      polygon.length === 0 ||
-      !(Number.isFinite(point.x) && Number.isFinite(point.y))
-    )
-      return Number.NaN;
-    if (polygon.length < 3) return segmentDistance(polygon, point);
-    const distance: number = boundary(polygon, point).distance;
+    if (polygon.length === 0) return Number.NaN;
+    if (polygon.length < 3) return Edges.segmentDistance(polygon, point);
+    const distance: number = Edges.boundary(polygon, point).distance;
     return inside(polygon, point) ? -distance : distance;
   }
 
@@ -251,7 +247,7 @@ export namespace physicalPlanarPolygon {
    */
   export function project(polygon: readonly IPoint[], point: IPoint): IPoint {
     if (polygon.length >= 3 && inside(polygon, point)) return { ...point };
-    return boundary(polygon, point).nearest;
+    return Edges.boundary(polygon, point).nearest;
   }
 
   /**
@@ -278,7 +274,7 @@ export namespace physicalPlanarPolygon {
       const b: IPoint = second[(k + 1) % second.length]!;
 
       // Inside a clockwise polygon is right of each edge: cross <= 0.
-      const side = (p: IPoint): number => -cross(a, b, p);
+      const side = (p: IPoint): number => -Edges.cross(a, b, p);
       const kept: IPoint[] = [];
       out.forEach((p: IPoint, i: number): void => {
         const q: IPoint = out[(i + 1) % out.length]!;
@@ -356,7 +352,8 @@ export namespace physicalPlanarPolygon {
 
       // Inside a clockwise polygon is right of each edge; the moved line
       // keeps the points at least the distance to the right.
-      const side = (p: IPoint): number => -cross(a, b, p) / length - distance;
+      const side = (p: IPoint): number =>
+        -Edges.cross(a, b, p) / length - distance;
       const kept: IPoint[] = [];
       out.forEach((p: IPoint, i: number): void => {
         const q: IPoint = out[(i + 1) % out.length]!;
@@ -427,123 +424,4 @@ export namespace physicalPlanarPolygon {
 
   /** Euclid's polygon tolerance for coincident vertices, metres. */
   export const EPSILON: number = 1.0e-7;
-}
-
-/** The z-component of (a - o) x (b - o). */
-function cross(
-  o: physicalPlanarPolygon.IPoint,
-  a: physicalPlanarPolygon.IPoint,
-  b: physicalPlanarPolygon.IPoint,
-): number {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-}
-
-/**
- * Whether a point is strictly on the outer side of a clockwise polygon's edge a
- * -> b, its left (Euclid `canObserverSeeEdge`, `isPoint2DOnSideOfLine2D`).
- */
-function outer(
-  a: physicalPlanarPolygon.IPoint,
-  b: physicalPlanarPolygon.IPoint,
-  point: physicalPlanarPolygon.IPoint,
-): boolean {
-  return cross(a, b, point) > 0;
-}
-
-/**
- * The indices of a clockwise polygon's line-of-sight start and end vertices
- * from an observer (Euclid `lineOfSightStartIndex`, `lineOfSightEndIndex`): the
- * start begins the first visible edge after an invisible one, the end begins
- * the first invisible edge after a visible one; undefined when the observer
- * sees no edge.
- */
-function lineOfSight(
-  polygon: readonly physicalPlanarPolygon.IPoint[],
-  observer: physicalPlanarPolygon.IPoint,
-): { start: number; end: number } | undefined {
-  const n: number = polygon.length;
-  if (n === 0) return undefined;
-  if (n === 1)
-    return polygon[0]!.x === observer.x && polygon[0]!.y === observer.y
-      ? undefined
-      : { start: 0, end: 0 };
-  if (n === 2) {
-    if (segmentDistance(polygon, observer) <= 0) return undefined;
-    const onSide: boolean = outer(polygon[0]!, polygon[1]!, observer);
-    return onSide ? { start: 0, end: 1 } : { start: 1, end: 0 };
-  }
-  const sees = (edge: number): boolean =>
-    outer(polygon[edge]!, polygon[(edge + 1) % n]!, observer);
-  let start: number = -1;
-  let end: number = -1;
-  let previous: boolean = sees(n - 1);
-  for (let edge: number = 0; edge < n; edge++) {
-    const now: boolean = sees(edge);
-    if (!previous && now && start < 0) start = edge;
-    if (previous && !now && end < 0) end = edge;
-    previous = now;
-  }
-  return start >= 0 && end >= 0 ? { start, end } : undefined;
-}
-
-/** The distance from a point to a polygon of one or two vertices, metres. */
-function segmentDistance(
-  polygon: readonly physicalPlanarPolygon.IPoint[],
-  point: physicalPlanarPolygon.IPoint,
-): number {
-  return polygon.length === 1
-    ? Math.hypot(point.x - polygon[0]!.x, point.y - polygon[0]!.y)
-    : nearestOnSegment(polygon[0]!, polygon[1]!, point).distance;
-}
-
-/** The nearest boundary point of a polygon to a point, and its distance. */
-function boundary(
-  polygon: readonly physicalPlanarPolygon.IPoint[],
-  point: physicalPlanarPolygon.IPoint,
-): { nearest: physicalPlanarPolygon.IPoint; distance: number } {
-  if (polygon.length === 1)
-    return {
-      nearest: { ...polygon[0]! },
-      distance: Math.hypot(point.x - polygon[0]!.x, point.y - polygon[0]!.y),
-    };
-  let best: { nearest: physicalPlanarPolygon.IPoint; distance: number } = {
-    nearest: { ...point },
-    distance: Infinity,
-  };
-  const edges: number = polygon.length === 2 ? 1 : polygon.length;
-  for (let i: number = 0; i < edges; i++) {
-    const candidate = nearestOnSegment(
-      polygon[i]!,
-      polygon[(i + 1) % polygon.length]!,
-      point,
-    );
-    if (candidate.distance < best.distance) best = candidate;
-  }
-  return best;
-}
-
-/** The nearest point of segment a b to a point, and its distance. */
-function nearestOnSegment(
-  a: physicalPlanarPolygon.IPoint,
-  b: physicalPlanarPolygon.IPoint,
-  point: physicalPlanarPolygon.IPoint,
-): { nearest: physicalPlanarPolygon.IPoint; distance: number } {
-  const dx: number = b.x - a.x;
-  const dy: number = b.y - a.y;
-  const length2: number = dx * dx + dy * dy;
-  const t: number =
-    length2 > 0
-      ? Math.max(
-          0,
-          Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / length2),
-        )
-      : 0;
-  const nearest: physicalPlanarPolygon.IPoint = {
-    x: a.x + dx * t,
-    y: a.y + dy * t,
-  };
-  return {
-    nearest,
-    distance: Math.hypot(point.x - nearest.x, point.y - nearest.y),
-  };
 }

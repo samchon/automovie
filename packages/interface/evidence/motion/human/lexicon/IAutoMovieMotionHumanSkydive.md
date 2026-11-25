@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanSkydive.ts#IAutoMovieMotionHumanSkydive
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the phases, the altitude frame and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The exit edge, the freefall's track and turn, the deployment altitude, the toggle pulls by time and side and the landing.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One registered vocabulary entry; planSkydive in motions is the only consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The exit height comes from the edge; speeds follow from the stated terminal and canopy speeds.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanSkydive.ts#IAutoMovieMotionHumanSkydive.Landing
 
 ## @evidence contracts/development/common.md#meaningful-documentation

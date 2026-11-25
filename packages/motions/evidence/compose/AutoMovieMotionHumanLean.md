@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanLean.ts#AutoMovieMotionHumanLean
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a lean tips, about what, why the hips move back and what the legs do.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A lean is a pitch about the hip joint with a horizontal hip shift that keeps the centre of mass over the base of support, the counter-movement of standing balance.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The tipped posture (`tip`), the balanced lean (`bow`), the small tilt about the root that needs no balance (`tilt`), the tilt about the hips (`pivot`) with the sway over planted feet built on it (`sway`), and the tilt about any world point (`about`), which the ankle tips of a broken base and a resisted pull read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The hip shift is solved by the balance owner on the body and never stated as a constant.
-
 # src/compose/AutoMovieMotionHumanLean.ts#AutoMovieMotionHumanLean.tilt
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -66,7 +48,7 @@ The hips' place is read with the posture's own pitch and roll, so a posture that
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.heading`.
+Reuses `humanPostureHeading`.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
@@ -96,7 +78,7 @@ The offset is read from the posture's own root and heading, so a posture that al
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.heading`.
+Reuses `humanPostureHeading`.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
@@ -118,7 +100,7 @@ The hips are the pivot of a standing lean and a planted leg has a fixed length, 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One `pivot`, one floor-frame translation and one `resolveHumanPosture.lower`.
+One `pivot`, one floor-frame translation and one `lowerHumanPosture`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -156,7 +138,7 @@ The hips' place is read from the posture's own root and heading before the pitch
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `HumanFrame.point` and `resolveHumanPosture.heading`.
+Reuses `HumanFrame.point` and `humanPostureHeading`.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 

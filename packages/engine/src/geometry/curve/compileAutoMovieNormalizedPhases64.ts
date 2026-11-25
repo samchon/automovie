@@ -7,18 +7,13 @@ export function compileAutoMovieNormalizedPhases64(
   widths: readonly number[],
   count: number,
 ): number[] {
-  if (!Number.isSafeInteger(count) || count < 1 || widths.length !== count)
+  if (count < 1 || widths.length !== count)
     throw new Error("Phase widths must match the polynomial spans");
   const knots: number[] = [0];
   for (let i: number = 0; i < count; ++i) {
     const width: number = widths[i]!;
     const next: number = knots[i]! + width;
-    if (
-      !Number.isFinite(width) ||
-      width <= 0 ||
-      !Number.isFinite(next) ||
-      next <= knots[i]!
-    )
+    if (width <= 0 || next <= knots[i]!)
       throw new Error("Phase widths require a resolvable positive partition");
     knots.push(next);
   }

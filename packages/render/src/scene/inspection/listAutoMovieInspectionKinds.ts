@@ -6,11 +6,19 @@ import type {
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 
 /**
- * List the styled kinds for the supplied marks and the measurements available under the current request. Each entry has a label and default colour.
+ * List the styled kinds for the supplied marks and the measurements available
+ * under the current request. Each entry has a label and default colour.
  *
- * The supplied marks' kinds come first, in the order they first appear, with the label and colour of their first mark. The inspection's own kinds follow in `AUTO_MOVIE_INSPECTION_KINDS` order: `edge` and the `defect/<kind>` kinds always, since every mesh has them, except `defect/sliver`, which exists only while the request sets a sliver limit, and `trail` and `trail/now` only while the request names a trail. A supplied kind that has an inspection kind's name is listed once, as supplied.
+ * The supplied marks' kinds come first, in the order they first appear, with
+ * the label and colour of their first mark. The inspection's own kinds follow
+ * in `AUTO_MOVIE_INSPECTION_KINDS` order: `edge` and the `defect/<kind>` kinds
+ * always, since every mesh has them, except `defect/sliver`, which exists only
+ * while the request sets a sliver limit, and `trail` and `trail/now` only while
+ * the request names a trail. A supplied kind that has an inspection kind's name
+ * is listed once, as supplied.
  *
- * `listAutoMovieInspectionKindOptions` adds lifetime declarations to these styled kinds for request admission and the inspector panel.
+ * `listAutoMovieInspectionKindOptions` adds lifetime declarations to these
+ * styled kinds for request admission and the inspector panel.
  */
 export function listAutoMovieInspectionKinds(
   props: IAutoMovieListInspectionKindsProps,

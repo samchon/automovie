@@ -5,11 +5,9 @@ import {
   IAutoMovieStorySyncPoint,
 } from "@automovie/interface";
 
-import { autoMovieStoryTime } from "./autoMovieStoryTime";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
-/**
- * One addressed event's measurement, with why it has no story time.
- */
+/** One addressed event's measurement, with why it has no story time. */
 interface IStorySyncEntry {
   /** The event as reported in the outcome. */
   point: IAutoMovieStorySyncPoint;
@@ -21,9 +19,21 @@ interface IStorySyncEntry {
 /**
  * Measure one cross-shot simultaneity claim on the production story clock.
  *
- * Each addressed event is taken at its realized shot-local time, mapped through its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between any two resulting story times is compared against the tolerance, inclusive. Nothing here consults the edit: two shots cut minutes apart pass when their pins put the events together, and two adjacent shots fail when their pins do not.
+ * Each addressed event is taken at its realized shot-local time, mapped through
+ * its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between
+ * any two resulting story times is compared against the tolerance, inclusive.
+ * Nothing here consults the edit: two shots cut minutes apart pass when their
+ * pins put the events together, and two adjacent shots fail when their pins do
+ * not.
  *
- * The verdict is refusable. An unpinned shot, a missing or non-finite realization, or a story time that is not finite leaves an operand unresolved, and the claim then fails with a summary naming the first such operand and why, because a claim nobody can measure is not a claim that holds. An empty event list fails too. Otherwise the summary names the earliest and latest events, where a tie for latest names the later-listed event so a simultaneous claim quotes two distinct events. Every point is reported in declared order either way.
+ * The verdict is refusable. An unpinned shot, a missing or non-finite
+ * realization, or a story time that is not finite leaves an operand unresolved,
+ * and the claim then fails with a summary naming the first such operand and
+ * why, because a claim nobody can measure is not a claim that holds. An empty
+ * event list fails too. Otherwise the summary names the earliest and latest
+ * events, where a tie for latest names the later-listed event so a simultaneous
+ * claim quotes two distinct events. Every point is reported in declared order
+ * either way.
  */
 export function evaluateAutoMovieStorySync(
   props: IAutoMovieEvaluateStorySync.IProps,
@@ -31,17 +41,12 @@ export function evaluateAutoMovieStorySync(
   const entries: IStorySyncEntry[] = props.events.map(
     (entry: { shot: string; event: string }): IStorySyncEntry => {
       const realized: number | null = props.realized(entry.shot, entry.event);
-      const localSeconds: number | null =
-        realized === null || Number.isFinite(realized) === false
-          ? null
-          : realized;
+      const localSeconds: number | null = realized === null ? null : realized;
       const pin: IAutoMovieShotStoryTime | null = props.pin(entry.shot);
-      const mapped: number | null =
+      const storySeconds: number | null =
         localSeconds === null || pin === null
           ? null
-          : autoMovieStoryTime(pin, localSeconds);
-      const storySeconds: number | null =
-        mapped === null || Number.isFinite(mapped) === false ? null : mapped;
+          : pinned(pin, localSeconds);
       return {
         point: {
           shot: entry.shot,
@@ -102,4 +107,18 @@ export function evaluateAutoMovieStorySync(
       passed ? "within" : "beyond"
     } the ${props.toleranceSeconds}s tolerance.`,
   };
+}
+
+/**
+ * The story second of a local second under a pin, or null where its product or
+ * sum overflows binary64.
+ */
+function pinned(
+  pin: IAutoMovieShotStoryTime,
+  localSeconds: number,
+): number | null {
+  const scaled: number = localSeconds * (pin.rate ?? 1);
+  if (overflowsBinary64(scaled)) return null;
+  const story: number = pin.originSeconds + scaled;
+  return overflowsBinary64(story) ? null : story;
 }

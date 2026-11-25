@@ -6,9 +6,9 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * Actual original field and chart-map owners of a known port.
  *
  * The immutable invocation owns these functions before either side is lofted.
- * Maps read original field-chart coordinates, with their actual parameter units;
- * their input order is (original clock, normalized transverse), while the
- * returned kernel surface uses (transverse, clock) and transposed total2.
+ * Maps read original field-chart coordinates, with their actual parameter
+ * units; their input order is (original clock, normalized transverse), while
+ * the returned kernel surface uses (transverse, clock) and transposed total2.
  * world fields use kernel millimetres. A null map total2 stays unavailable.
  * Runtime evaluators preserve foreign callback/getter exceptions unchanged.
  */
@@ -16,7 +16,10 @@ export interface IAutoMovieConstructionKnownPortSource {
   /** Closed original-port declaration, immutable during consumption. */
   definition: IAutoMovieConstructionKnownPort;
 
-  /** Actual original neighboring fields, not completed-loft contact reconstructions. */
+  /**
+   * Actual original neighboring fields, not completed-loft contact
+   * reconstructions.
+   */
   fields: ReadonlyMap<string, IAutoMovieSolidSurface>;
 
   /** Actual maps into those field charts, covering the whole declared rectangle. */
@@ -24,16 +27,18 @@ export interface IAutoMovieConstructionKnownPortSource {
 }
 
 /**
- * Pullback maps from the authored port rectangle into original neighboring charts.
- *
+ * Pullback maps from the authored port rectangle into original neighboring
+ * charts.
  */
 export namespace IAutoMovieConstructionKnownPortSource {
   /**
-   * Complete total2 of the actual map from band clock u and normalized transverse v.
+   * Complete total2 of the actual map from band clock u and normalized
+   * transverse v.
    *
    * Each tuple component keeps the corresponding target field-chart unit;
    * derivative orders divide those units by the indicated source variables.
-   * KnownPort reads these arrays without modifying or retaining the jet record.
+   * KnownPort reads these arrays without modifying or retaining the jet
+   * record.
    */
   export interface IJet {
     /** Actual field-chart point. */
@@ -67,20 +72,24 @@ export namespace IAutoMovieConstructionKnownPortSource {
     /** Actual tangential-clock domain in the same units as definition.domain. */
     domain: readonly [number, number];
 
-    /** Actual normalized transverse domain, containing the entire interval [0,1]. */
+    /**
+     * Actual normalized transverse domain, containing the entire interval
+     * [0,1].
+     */
     transverse: readonly [number, number];
 
     /**
-     * Target field-chart point at clock u and transverse v in [0,1], independent
-     * of derivative availability. The consumer checks finite components and
-     * the target field's declared u domain; it does not modify the returned tuple.
+     * Target field-chart point at clock u and transverse v in [0,1],
+     * independent of derivative availability. The consumer checks finite
+     * components and the target field's declared u domain; it does not modify
+     * the returned tuple.
      */
     point(u: number, v: number): AutoMovieVector2Tuple;
 
     /**
      * Complete derivatives of this map at clock u and transverse v, or null
-     * where unavailable. KnownPort turns null into an admission exception for
-     * a jet query; a point query remains independent. Foreign throws propagate.
+     * where unavailable. KnownPort turns null into an admission exception for a
+     * jet query; a point query remains independent. Foreign throws propagate.
      */
     jet(
       u: number,

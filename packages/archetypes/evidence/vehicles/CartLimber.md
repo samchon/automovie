@@ -1,19 +1,3 @@
-# src/vehicles/CartLimber.ts#CartLimber
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and why it is its own file.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One builder on the shared wheel pair, its sizes `createCart.LIMBER`'s.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `build`, which `createCart` calls for its limber.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The wheels are `CartWheel`'s pair, not a copy.
-
 # src/vehicles/CartLimber.ts#CartLimber.build
 
 ## @evidence contracts/development/common.md#meaningful-documentation

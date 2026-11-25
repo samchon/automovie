@@ -45,8 +45,7 @@ function washerDoor(
  * stages and operated household fixtures. The floor pass is a straight
  * two-handed push, one documented mopping pattern.
  *
- * https://arxiv.org/abs/1604.01753
- * https://jlogkim.github.io/parahome/
+ * https://arxiv.org/abs/1604.01753 https://jlogkim.github.io/parahome/
  * https://pubmed.ncbi.nlm.nih.gov/2753016/
  * https://pubmed.ncbi.nlm.nih.gov/11733124/
  */
@@ -148,7 +147,7 @@ export const SCENES_HOUSEHOLD: readonly IScene[] = [
       fixture("washer", "createAppliance", "washingMachine", 0, 0.77, 180, TOP),
       {
         ...fixture("basket", "createTray", "basket", -0.54, 0.38, 90, TOP),
-        seed: "1",
+        seed: 1,
       },
       object("cloth", "createCleaning", "cloth", -0.535, 0.28, 90, TOP + 0.012),
     ],

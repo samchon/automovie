@@ -4283,6 +4283,43 @@
       ]
     },
     {
+      "law": "give",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
       "law": "bend",
       "checks": [
         "tangle",
@@ -5250,6 +5287,42 @@
         },
         {
           "row": "hand=right",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "stageCatch",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
           "tests": [],
           "audit": [],
           "sweep": "reduced"

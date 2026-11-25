@@ -23,24 +23,25 @@ const PLANT: number = 0.45;
 /** Share over which the feet settle onto the bottom before they bear. */
 const LAND: number = 0.1;
 
-/** How far ahead of the entered root the feet plant, metres over stature: provisional, under the hips as the legs swing down. */
+/**
+ * How far ahead of the entered root the feet plant, metres over stature:
+ * provisional, under the hips as the legs swing down.
+ */
 const AHEAD: number = 0.2;
 
-/** The deepest water a swimmer stands up in, over stature: provisional, about chest depth. */
+/**
+ * The deepest water a swimmer stands up in, over stature: provisional, about
+ * chest depth.
+ */
 const DEPTH: number = 0.75;
 
 /**
  * Stand up out of the shallows at the end of a swim, as a triathlete or an
  * open-water swimmer does: the legs swing down under the hips as buoyancy is
- * given up, both feet bear on the bottom (`footDown`), and the trunk rises
- * over them to a standing posture on the ground (`upright`). The bottom is
- * the world ground; the water surface is the authored plane. The ground
- * plant holds from `footDown` to the end, so a run can leave from it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the support handoff, the frames and the refusal.
- * @evidence contracts/development/design.md#principled-representation Clinical keys blended in time with ground plants fitted from the standing key.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the water-to-ground handoff only; strokes and running stay with their laws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The feet stand on the world ground, never on the water plane.
+ * given up, both feet bear on the bottom (`footDown`), and the trunk rises over
+ * them to a standing posture on the ground (`upright`). The bottom is the world
+ * ground; the water surface is the authored plane. The ground plant holds from
+ * `footDown` to the end, so a run can leave from it.
  */
 export namespace AquaticExit {
   /** A foot's plant on the bottom and where it settles from. */

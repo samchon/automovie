@@ -15,53 +15,92 @@ import { HUMAN_TOUCH_TAP } from "../next/presets/HUMAN_TOUCH_TAP";
 import { touch } from "../touch/touch";
 
 /**
- * The contact strokes as rows (#3361): each kind of `touch` under a name of its own, the site, the effector, the side and the target open, so one row serves every site (#3357).
+ * The contact strokes as rows: each kind of `touch` under a name of its own,
+ * the site, the effector, the side and the target open, so one row serves every
+ * site.
  *
- * Each row writes no motion: its law plans it, so it fits any body, refuses and is checked as the law is, and its draws are keyed by its own name. The rows over the arm's phrases themselves are `HumanUpperRows`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes and what it leaves open.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`), data over a law that already fits the body and refuses.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per value of the law's closed union and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or restates a value of the law.
+ * Each row writes no motion: its law plans it, so it fits any body, refuses and
+ * is checked as the law is, and its draws are keyed by its own name. The rows
+ * over the arm's phrases themselves are `HumanUpperRows`.
  */
 export namespace HumanTouchRows {
-  /** `touch` of kind `tap`: 3 taps of 0.3 s, then 0.4 s on the place, in all 1.3 s after the reach; a light attention-getting touch on a shoulder or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `tap`: 3 taps of 0.3 s, then 0.4 s on the place, in all 1.3
+   * s after the reach; a light attention-getting touch on a shoulder or an arm
+   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * provisional except the stroke).
+   */
   export const touchTap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchTap"]
-  > = HumanActionRow.of("touchTap", touch, HUMAN_TOUCH_TAP);
+  > = HumanActionRow("touchTap", touch, HUMAN_TOUCH_TAP);
 
-  /** `touch` of kind `pat`: 3 pats of 0.4 s, then 0.4 s, 1.6 s after the reach; comfort, praise, a friendly pat ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `pat`: 3 pats of 0.4 s, then 0.4 s, 1.6 s after the reach;
+   * comfort, praise, a friendly pat
+   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * provisional except the stroke).
+   */
   export const touchPat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPat"]
-  > = HumanActionRow.of("touchPat", touch, HUMAN_TOUCH_PAT);
+  > = HumanActionRow("touchPat", touch, HUMAN_TOUCH_PAT);
 
-  /** `touch` of kind `stroke`: one stroke at a 5 cm/s peak (the pleasant-touch rate, Loken et al. 2009), about 5 s for a 0.2 m hand, then 0.4 s; a caress, soothing ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `stroke`: one stroke at a 5 cm/s peak (the pleasant-touch
+   * rate, Loken et al. 2009), about 5 s for a 0.2 m hand, then 0.4 s; a caress,
+   * soothing ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold`
+   * override; provisional except the stroke).
+   */
   export const touchStroke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchStroke"]
-  > = HumanActionRow.of("touchStroke", touch, HUMAN_TOUCH_STROKE);
+  > = HumanActionRow("touchStroke", touch, HUMAN_TOUCH_STROKE);
 
-  /** `touch` of kind `rub`: 3 rubs of 0.5 s, then 0.4 s, 1.9 s after the reach; warming, soothing, rubbing a shoulder or a back ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `rub`: 3 rubs of 0.5 s, then 0.4 s, 1.9 s after the reach;
+   * warming, soothing, rubbing a shoulder or a back
+   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * provisional except the stroke).
+   */
   export const touchRub: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchRub"]
-  > = HumanActionRow.of("touchRub", touch, HUMAN_TOUCH_RUB);
+  > = HumanActionRow("touchRub", touch, HUMAN_TOUCH_RUB);
 
-  /** `touch` of kind `press`: one press of 0.4 s, then held 1.2 s, 1.6 s after the reach; a firm touch, pushing a button on a person, steadying ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `press`: one press of 0.4 s, then held 1.2 s, 1.6 s after
+   * the reach; a firm touch, pushing a button on a person, steadying
+   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * provisional except the stroke).
+   */
   export const touchPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPress"]
-  > = HumanActionRow.of("touchPress", touch, HUMAN_TOUCH_PRESS);
+  > = HumanActionRow("touchPress", touch, HUMAN_TOUCH_PRESS);
 
-  /** `touch` of kind `squeeze`: one squeeze of 0.4 s with the fingers curled 20 degrees, held 1.2 s, 1.6 s after the reach; reassurance, a grip on an arm or a hand ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `squeeze`: one squeeze of 0.4 s with the fingers curled 20
+   * degrees, held 1.2 s, 1.6 s after the reach; reassurance, a grip on an arm
+   * or a hand ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold`
+   * override; provisional except the stroke).
+   */
   export const touchSqueeze: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchSqueeze"]
-  > = HumanActionRow.of("touchSqueeze", touch, HUMAN_TOUCH_SQUEEZE);
+  > = HumanActionRow("touchSqueeze", touch, HUMAN_TOUCH_SQUEEZE);
 
-  /** `touch` of kind `hold`: one placement of 0.4 s, then held 1.2 s, 1.6 s after the reach; a hand laid on a shoulder or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `hold`: one placement of 0.4 s, then held 1.2 s, 1.6 s
+   * after the reach; a hand laid on a shoulder or an arm
+   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * provisional except the stroke).
+   */
   export const touchHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchHold"]
-  > = HumanActionRow.of("touchHold", touch, HUMAN_TOUCH_HOLD);
+  > = HumanActionRow("touchHold", touch, HUMAN_TOUCH_HOLD);
 
-  /** `touch` of kind `scratch`: 3 scratches of 0.2 s with curled fingers, then 0.4 s, 1.0 s after the reach; an itch, scratching the head or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
+  /**
+   * `touch` of kind `scratch`: 3 scratches of 0.2 s with curled fingers, then
+   * 0.4 s, 1.0 s after the reach; an itch, scratching the head or an arm
+   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * provisional except the stroke).
+   */
   export const touchScratch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchScratch"]
-  > = HumanActionRow.of("touchScratch", touch, HUMAN_TOUCH_SCRATCH);
+  > = HumanActionRow("touchScratch", touch, HUMAN_TOUCH_SCRATCH);
 }

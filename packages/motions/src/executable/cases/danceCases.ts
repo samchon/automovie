@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDance,
   IAutoMovieMotionHumanPerformance,
@@ -15,32 +16,26 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The alternatives of `DanceCasesExtremesSign`'s site. */
+type DanceCasesExtremesSign = 1 | -1;
+
 /**
- * Capture cases of the solo dance steps (#3253), eight beats at 120 bpm
- * from quiet standing.
+ * Capture cases of the solo dance steps, eight beats at 120 bpm from quiet
+ * standing.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. The issue's acceptance, that footfalls and accents land within
- * one frame (1/24 s) of the beat, is read on a 96 Hz grid as:
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot.
+ * The issue's acceptance, that footfalls and accents land within one frame
+ * (1/24 s) of the beat, is read on a 96 Hz grid as:
  *
- * - `dance-bounce`: the hips' lowest point of each beat within one frame of
- *   it;
+ * - `dance-bounce`: the hips' lowest point of each beat within one frame of it;
  * - `dance-sway`: the hips' sideways extremes within one frame of beats;
- * - `dance-stepTouch`: each footfall (the first instant the ankle is within
- *   2 mm of where it comes to rest) within one frame of its beat, and a
- *   footfall on every beat;
+ * - `dance-stepTouch`: each footfall (the first instant the ankle is within 2 mm
+ *   of where it comes to rest) within one frame of its beat, and a footfall on
+ *   every beat;
  * - `dance-boxStep`: the same two readings of its footfalls.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and times the displayed bones against the authored beats.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per step, one timing measure per step.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's curves; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function danceCases(
   bodies: readonly string[] = ["m-average"],
@@ -62,6 +57,8 @@ export function danceCases(
     ] as IAutoMovieMotionHumanDance.Kind[]) {
       const name: string = `dance-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "dance",
@@ -87,15 +84,15 @@ export function danceCases(
       const beats: number[] = [];
       for (let k: number = 1; k <= 8; k++)
         beats.push(TouchVerdicts.event(performance, "a", `beat${k}`));
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const grid: number[] = [];
       for (let t: number = 0; t <= performance.duration + 1e-9; t += 1 / 96)
         grid.push(t);
       // The film seconds where a measure has a strict local extreme.
       const extremes = (
         measure: (t: number) => number,
-        sign: 1 | -1,
+        sign: DanceCasesExtremesSign,
       ): number[] => {
         const v: number[] = grid.map((t: number): number => sign * measure(t));
         const found: number[] = [];
@@ -155,7 +152,10 @@ export function danceCases(
         case "stepTouch":
         case "boxStep": {
           const falls: number[] = [];
-          for (const foot of ["leftFoot", "rightFoot"]) {
+          for (const foot of [
+            "leftFoot",
+            "rightFoot",
+          ] satisfies readonly AutoMovieHumanoidBone[]) {
             const pos: IAutoMovieVector3[] = grid.map((t: number) =>
               at(t, foot),
             );

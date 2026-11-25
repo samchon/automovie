@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./internal": "./src/internal.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -24,6 +25,10 @@
         "types": "./lib/index.d.ts",
         "import": "./lib/index.mjs",
         "default": "./lib/index.js"
+      },
+      "./internal": {
+        "types": "./lib/internal.d.ts",
+        "default": "./lib/internal.js"
       },
       "./package.json": "./package.json"
     }

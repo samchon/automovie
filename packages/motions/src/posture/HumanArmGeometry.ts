@@ -13,6 +13,7 @@ import {
   swingTwistRange,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointAxes,
@@ -27,19 +28,33 @@ import type {
 import { readHumanBone } from "../body/readHumanBone";
 import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
 import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
-import { prepareHumanArmChain } from "./prepareHumanArmChain";
 import { resolveHumanArmChain } from "./resolveHumanArmChain";
+
+/** The record of `IArmRead`'s site. */
+type IArmRead = { flexion: number; abduction: number; twist: number };
+
+/** The record of `IEncodePlace`'s site. */
+type IEncodePlace = { x: number; y: number; twist: number };
+
+/** The alternatives of `PrepareHasKey2`'s site. */
+type PrepareHasKey2 = "flexion" | "abduction" | "twist";
+
+/** The alternatives of `PrepareHasKey`'s site. */
+type PrepareHasKey = "flexion" | "abduction" | "twist";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
  * swing-twist chart (`swingTwistRange.chart`, continuous and one to one over
- * the range, scaled so a unit is near a degree of swing), the elbow's and
- * the wrist's clinical angles; the arm's forward kinematics from its
- * shoulder in a posed frame (`HumanArmFrame`) and its probes; the shapes
- * in its way and the probes' distances to them are `HumanArmShapes`'.
+ * the range, scaled so a unit is near a degree of swing), the elbow's and the
+ * wrist's clinical angles; the arm's forward kinematics from its shoulder in a
+ * posed frame (`HumanArmFrame`) and its probes; the shapes in its way and the
+ * probes' distances to them are `HumanArmShapes`'.
  */
 export namespace HumanArmGeometry {
-  /** Coordinates of an arm: the shoulder's chart (two) and twist, the elbow's and the wrist's clinical triples. */
+  /**
+   * Coordinates of an arm: the shoulder's chart (two) and twist, the elbow's
+   * and the wrist's clinical triples.
+   */
   export const DIMENSIONS: number = 9;
 
   /** The chart's unit disc in coordinate units. */
@@ -54,11 +69,15 @@ export namespace HumanArmGeometry {
   /** The probe on the middle fingertip. */
   export const TIP: number = 7;
 
-  /** The first of the arm's collider probes among a placed arm's probes, after its eight axis spheres. */
+  /**
+   * The first of the arm's collider probes among a placed arm's probes, after
+   * its eight axis spheres.
+   */
   export const SURFACE: number = 8;
 
   /**
-   * The shared source pose and external colliders from which an arm frame is built.
+   * The shared source pose and external colliders from which an arm frame is
+   * built.
    */
   export interface IBase extends T.IBase {}
 
@@ -71,7 +90,7 @@ export namespace HumanArmGeometry {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmGeometry.ISetup {
     const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = {
       upper: `${side}UpperArm`,
@@ -92,23 +111,34 @@ export namespace HumanArmGeometry {
     );
     const has: (
       c: IAutoMovieJointConstraint | null,
-      key: "flexion" | "abduction" | "twist",
+      key: PrepareHasKey,
     ) => boolean = (
       c: IAutoMovieJointConstraint | null,
-      key: "flexion" | "abduction" | "twist",
+      key: PrepareHasKey2,
     ): boolean => c === null || c[key] !== null;
     const bases: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes> = new Map();
+    for (const bone of [bones.upper, bones.lower, bones.hand])
+      bases.set(
+        bone,
+        normalizeJointAxes(axes[bone] ?? DEFAULT_JOINT_AXES, `arm axes: ${bone}`),
+      );
     const upperBone: IAutoMovieBone = find(body, bones.upper);
+    const upperConstraint: IAutoMovieJointConstraint = getConstraint(
+      bones.upper,
+      upperBone.constraint ?? null,
+    )!;
     return {
       body,
       bones,
       constraint: {
-        upper: getConstraint(bones.upper, upperBone.constraint ?? null)!,
+        upper: upperConstraint,
         lower,
         hand,
       },
       joint: swingTwistRange.prepare(
+        bones.upper,
         swingTwistRange.fromAxes(bones.upper, axes[bones.upper])!,
+        upperConstraint,
       ),
       axes,
       rest: {
@@ -132,16 +162,10 @@ export namespace HumanArmGeometry {
         bone: AutoMovieHumanoidBone,
         path: string,
       ): IAutoMovieJointAxes => {
-        let basis: IAutoMovieJointAxes | undefined = bases.get(bone);
-        if (basis === undefined) {
-          const source: IAutoMovieJointAxes | undefined = axes[bone];
-          basis = normalizeJointAxes(
-            source === undefined ? DEFAULT_JOINT_AXES : source,
-            path,
-          );
-          bases.set(bone, basis);
-        }
-        return basis;
+        return (
+          bases.get(bone) ??
+          normalizeJointAxes(axes[bone] ?? DEFAULT_JOINT_AXES, path)
+        );
       },
     };
   }
@@ -156,14 +180,14 @@ export namespace HumanArmGeometry {
   export function parent(
     body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
-  ): AutoMovieHumanoidBone {
-    return find(body, bone).parent as AutoMovieHumanoidBone;
+  ): IAutoMovieBone["parent"] {
+    return find(body, bone).parent;
   }
 
   /**
-   * A joint's articulation from its clinical triple, clamped to the
-   * skeleton's range (`clampJointToSkeleton`), using the same clinical
-   * articulation as the displayed posture, so the arm planned is the arm shown.
+   * A joint's articulation from its clinical triple, clamped to the skeleton's
+   * range (`clampJointToSkeleton`), using the same clinical articulation as the
+   * displayed posture, so the arm planned is the arm shown.
    *
    * @param setup The arm.
    * @param bone The joint's bone.
@@ -223,12 +247,11 @@ export namespace HumanArmGeometry {
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
   ): number[] {
-    const place: { x: number; y: number; twist: number } =
-      swingTwistRange.chart(
-        rotation(setup, setup.bones.upper, arm.upper),
-        setup.constraint.upper,
-        setup.joint,
-      );
+    const place: IEncodePlace = swingTwistRange.chart(
+      rotation(setup, setup.bones.upper, arm.upper),
+      setup.constraint.upper,
+      setup.joint,
+    );
     // An arm already past a range enters as it is shown, clamped.
     return [
       place.x * SCALE,
@@ -240,12 +263,12 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * The shoulder's articulation at coordinates. The chart is one to one up
-   * to the rest direction's antipode, where a direction has no azimuth, so a
-   * place whose swing would reach it is drawn back along its azimuth to a
-   * swing the joints' resolution (`ROM_TOLERANCE`) short of 180 degrees;
-   * every rotation an arm can show lies inside, so an arm's coordinates
-   * (`encode`) read back as the arm itself.
+   * The shoulder's articulation at coordinates. The chart is one to one up to
+   * the rest direction's antipode, where a direction has no azimuth, so a place
+   * whose swing would reach it is drawn back along its azimuth to a swing the
+   * joints' resolution (`ROM_TOLERANCE`) short of 180 degrees; every rotation
+   * an arm can show lies inside, so an arm's coordinates (`encode`) read back
+   * as the arm itself.
    *
    * @param setup The arm.
    * @param c The coordinates.
@@ -259,14 +282,12 @@ export namespace HumanArmGeometry {
     const most: number =
       (180 - ROM_TOLERANCE) /
       swingTwistRange.radius(
-        setup.constraint.upper,
         setup.joint,
         k > 0 ? (Math.atan2(c[1]!, c[0]!) * 180) / Math.PI : 0,
       );
     const scale: number = k > most ? most / k : 1;
     return swingTwistRange.placed(
       { x: (c[0]! * scale) / SCALE, y: (c[1]! * scale) / SCALE, twist: c[2]! },
-      setup.constraint.upper,
       setup.joint,
     );
   }
@@ -276,7 +297,8 @@ export namespace HumanArmGeometry {
    *
    * @param setup The arm.
    * @param c The coordinates.
-   * @param turned The shoulder's rotation at these coordinates (`shoulder`) when the caller already holds it; computed when absent.
+   * @param turned The shoulder's rotation at these coordinates (`shoulder`)
+   *   when the caller already holds it; computed when absent.
    * @returns The triples.
    */
   export function arm(
@@ -284,20 +306,19 @@ export namespace HumanArmGeometry {
     c: readonly number[],
     turned: IAutoMovieQuaternion = shoulder(setup, c),
   ): IAutoMovieMotionHumanArmClearance.IArm {
-    const read: { flexion: number; abduction: number; twist: number } =
-      decomposeJointRotationOnBasis(
-        turned,
-        setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
-        HUMANOID_REST_FRAME[setup.bones.upper],
-        {
-          bone: setup.bones.upper,
-          constraint:
-            setup.constraint.upper.swingTwist !== undefined &&
-            setup.constraint.upper.swingTwist !== null
-              ? setup.constraint.upper
-              : { ...setup.constraint.upper, swingTwist: null },
-        },
-      );
+    const read: IArmRead = decomposeJointRotationOnBasis(
+      turned,
+      setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
+      HUMANOID_REST_FRAME[setup.bones.upper],
+      {
+        bone: setup.bones.upper,
+        constraint:
+          setup.constraint.upper.swingTwist !== undefined &&
+          setup.constraint.upper.swingTwist !== null
+            ? setup.constraint.upper
+            : { ...setup.constraint.upper, swingTwist: null },
+      },
+    );
     return {
       upper: [read.flexion, read.abduction, read.twist],
       lower: [c[3]!, c[4]!, c[5]!],
@@ -306,7 +327,8 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * The actual arm chain at coordinates, without fingertip or probe observations.
+   * The actual arm chain at coordinates, without fingertip or probe
+   * observations.
    *
    * @param setup The unchanged arm rig metadata.
    * @param at The instant's shoulder-parent frame.
@@ -319,23 +341,6 @@ export namespace HumanArmGeometry {
     c: readonly number[],
   ): Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
     return resolveHumanArmChain(setup, at, c, shoulder, rotation);
-  }
-
-  /**
-   * Read chains during one synchronous derivative invocation, sharing only
-   * completed identical local articulations under its unchanged setup/frame.
-   *
-   * @param setup The actual prepare-produced setup, unchanged for this derivative.
-   * @param at This derivative's unchanged frame.
-   * @returns A local chain reader, released when the derivative finishes or throws.
-   */
-  export function prepareChain(
-    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
-    at: IAutoMovieMotionHumanArmGeometry.IFrame,
-  ): (
-    c: readonly number[],
-  ) => Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
-    return prepareHumanArmChain(setup, at, shoulder, rotation);
   }
 
   /**

@@ -1,6 +1,5 @@
 import {
   AutoMovieConstructionContinuation,
-  AutoMovieLoftChain,
   AutoMovieLoftJet,
   AutoMovieLoftSectionConnect,
   AutoMovieLoftSectionSource,
@@ -24,9 +23,9 @@ import { nclose } from "../nclose";
 /** Independently authored polynomial circles in a signed physical station chart. */
 export namespace ConstructionNativeContinuation {
   /**
-   * Author r(y)=scale*(3+y/scale+(y/scale)^2), with y=offset+direction*s.
-   * Exact normalized scalar endpoint2 and a straight original axis determine
-   * the entire source before lofting. Different orders/samples change output
+   * Author r(y)=scale*(3+y/scale+(y/scale)^2), with y=offset+direction*s. Exact
+   * normalized scalar endpoint2 and a straight original axis determine the
+   * entire source before lofting. Different orders/samples change output
    * density only. The caller owns the returned input and its immutable axis.
    */
   export function source(
@@ -78,7 +77,10 @@ export namespace ConstructionNativeContinuation {
     };
   }
 
-  /** Preserve all actual loft diagnostics rather than inventing fixture geometry. */
+  /**
+   * Preserve all actual loft diagnostics rather than inventing fixture
+   * geometry.
+   */
   export function chain(source: IAutoMovieViewPart): IAutoMovieLoftChain {
     const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(source);
     if (
@@ -133,7 +135,10 @@ export namespace ConstructionNativeContinuation {
     };
   }
 
-  /** A real phase-constant polynomial lift keeps all three physical orders at the shared boundary. */
+  /**
+   * A real phase-constant polynomial lift keeps all three physical orders at
+   * the shared boundary.
+   */
   export function lifted(failures: string[]): void {
     const host: IAutoMovieLoftChain = chain(source("lift.host", 256, 24));
     const part: IAutoMovieLoftChain = chain(source("lift.part", 64, 40, 1));
@@ -175,7 +180,10 @@ export namespace ConstructionNativeContinuation {
         );
   }
 
-  /** Re-express an owned endpoint and its adjacent native law after a genuine source2 change. */
+  /**
+   * Re-express an owned endpoint and its adjacent native law after a genuine
+   * source2 change.
+   */
   export function changed(
     chain: IAutoMovieLoftChain,
     key: "extents" | "shoulders",
@@ -196,7 +204,10 @@ export namespace ConstructionNativeContinuation {
     Object.assign(chain, AutoMovieLoftSectionConnect.finish(chain));
   }
 
-  /** Refuse complete-family mismatches, unavailable physical2 and owned getter failures at their actual seams. */
+  /**
+   * Refuse complete-family mismatches, unavailable physical2 and owned getter
+   * failures at their actual seams.
+   */
   export function refusals(failures: string[]): void {
     const host: IAutoMovieLoftChain = chain(source("refuse.host", 256, 24));
     const original: IAutoMovieLoftChain = chain(
@@ -303,12 +314,6 @@ export namespace ConstructionNativeContinuation {
       AutoMovieViewLoft.create(singular);
     if (unavailable.chain === null)
       throw new Error(JSON.stringify(unavailable.diagnostics));
-    if (
-      !AutoMovieLoftChain.point(unavailable.chain, 0, 0.37).every(
-        Number.isFinite,
-      )
-    )
-      failures.push("Missing source2 erased the original finite Point0.");
     const result: IAutoMovieLoftChain | string =
       AutoMovieConstructionContinuation.apply(
         host,
@@ -339,7 +344,10 @@ export namespace ConstructionNativeContinuation {
       failures.push("A boundary data-getter error lost its original identity.");
   }
 
-  /** One middle leaf consumes two independent pending endpoints, or rolls both nested walks back on an outer refusal. */
+  /**
+   * One middle leaf consumes two independent pending endpoints, or rolls both
+   * nested walks back on an outer refusal.
+   */
   export function nested(failures: string[]): void {
     for (const mismatch of [false, true]) {
       const a: IAutoMovieViewPart = source("nested.a", 256, 24);

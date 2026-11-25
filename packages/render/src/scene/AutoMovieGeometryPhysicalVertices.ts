@@ -2,6 +2,8 @@ import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import type * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+
 /**
  * Owned physical source correspondence on generated geometry, or readonly
  * source-pair decoding on an already-loaded static glTF geometry. Neither path
@@ -18,14 +20,10 @@ export class AutoMovieGeometryPhysicalVertices {
   public static read(
     geometry: THREE.BufferGeometry,
   ): IAutoMovieMesh["physicalVertices"] {
-    const raw: boolean = Object.hasOwn(
-      geometry.userData,
-      "automovieMeshPhysicalVertices",
-    );
-    const wire: boolean = Object.hasOwn(
-      geometry.userData,
-      "automoviePhysicalVertices",
-    );
+    const raw: boolean =
+      geometry.userData.automovieMeshPhysicalVertices !== undefined;
+    const wire: boolean =
+      geometry.userData.automoviePhysicalVertices !== undefined;
     const attribute: ReturnType<THREE.BufferGeometry["getAttribute"]> =
       geometry.getAttribute("_automovie_physical_source");
     if (!raw && !wire) {
@@ -35,24 +33,18 @@ export class AutoMovieGeometryPhysicalVertices {
     }
     if (raw && (wire || attribute !== undefined))
       throw new Error("Conflicting physical source namespaces.");
-    let input: unknown = geometry.userData.automovieMeshPhysicalVertices;
+    let input: NonNullable<IAutoMovieMesh["physicalVertices"]> =
+      geometry.userData.automovieMeshPhysicalVertices;
     if (wire) {
-      const record: unknown = geometry.userData.automoviePhysicalVertices;
+      const record: Pick<
+        NonNullable<IAutoMovieMesh["physicalVertices"]>,
+        "sources"
+      > = geometry.userData.automoviePhysicalVertices;
       if (
-        record === null ||
-        typeof record !== "object" ||
-        Object.keys(record)
-          .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-          .join(",") !== "attribute,sources,version" ||
-        !("version" in record) ||
-        record.version !== 1 ||
-        !("attribute" in record) ||
-        record.attribute !== "_AUTOMOVIE_PHYSICAL_SOURCE" ||
-        !("sources" in record) ||
         attribute === undefined ||
         attribute.itemSize !== 2 ||
         attribute.normalized ||
-        !(attribute.array instanceof Uint16Array)
+        !AutoMovieThreeKind.isUint16Array(attribute.array)
       )
         throw new Error("Malformed physical source wire namespace.");
       const vertices: (number | null)[] = [];
@@ -79,7 +71,7 @@ export class AutoMovieGeometryPhysicalVertices {
       position === undefined ||
       position.itemSize !== 3 ||
       position.normalized ||
-      !(position.array instanceof Float32Array)
+      !AutoMovieThreeKind.isFloat32Array(position.array)
     )
       throw new Error(
         "Physical source correspondence needs resident Float32 XYZ.",
@@ -108,7 +100,7 @@ export class AutoMovieGeometryPhysicalVertices {
     metadata: IAutoMovieMesh["physicalVertices"],
   ): void {
     if (
-      Object.hasOwn(geometry.userData, "automoviePhysicalVertices") ||
+      geometry.userData.automoviePhysicalVertices !== undefined ||
       geometry.getAttribute("_automovie_physical_source") !== undefined
     )
       throw new Error("Imported physical source metadata is readonly.");
@@ -123,43 +115,22 @@ export class AutoMovieGeometryPhysicalVertices {
   }
 
   private static copy(
-    input: unknown,
+    input: NonNullable<IAutoMovieMesh["physicalVertices"]>,
   ): NonNullable<IAutoMovieMesh["physicalVertices"]> {
-    if (
-      input === null ||
-      typeof input !== "object" ||
-      !("sources" in input) ||
-      !Array.isArray(input.sources) ||
-      !("vertices" in input) ||
-      !Array.isArray(input.vertices)
-    )
-      throw new Error(
-        "Physical source correspondence needs source and vertex arrays.",
-      );
     const sources: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"] =
       input.sources.map(
         (
-          source: unknown,
+          source: NonNullable<
+            IAutoMovieMesh["physicalVertices"]
+          >["sources"][number],
         ): NonNullable<
           IAutoMovieMesh["physicalVertices"]
         >["sources"][number] => {
-          if (
-            source === null ||
-            typeof source !== "object" ||
-            !("domain" in source) ||
-            typeof source.domain !== "string" ||
-            source.domain.trim().length === 0 ||
-            !("id" in source) ||
-            typeof source.id !== "number" ||
-            !Number.isSafeInteger(source.id) ||
-            source.id < 0
-          )
-            throw new Error(
-              "Physical sources need nonblank domains and safe nonnegative IDs.",
-            );
+          if (source.id < 0)
+            throw new Error("Physical sources need nonnegative IDs.");
           return { domain: source.domain, id: source.id };
         },
       );
-    return { sources, vertices: input.vertices.slice() as (number | null)[] };
+    return { sources, vertices: input.vertices.slice() };
   }
 }

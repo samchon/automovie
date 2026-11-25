@@ -1,8 +1,6 @@
 import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
 
-/**
- * Borrowed mesh and reporting options for validateMeshTopology.
- */
+/** Borrowed mesh and reporting options for validateMeshTopology. */
 export interface IAutoMovieMeshTopologyValidationProps {
   /** Resident mesh in its local metre frame; the check borrows its buffers. */
   mesh: IAutoMovieMesh;

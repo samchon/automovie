@@ -15,8 +15,8 @@ import { measureRecoveryFeasibleArithmetic } from "./measureRecoveryFeasibleArit
  * Solve a pure tilted feasible-direction model in common metric coordinates.
  * The first atom is the actual objective gradient with zero offset. Each later
  * atom is an unweighted inequality gradient with offset minus its feasible g.
- * Min half ||d||^2+gamma subject to a_i*d-gamma<=offset_i has simplex dual
- * min half ||sum(lambda_i*a_i)||^2+sum(lambda_i*offset_i).
+ * Min half ||d||^2+gamma subject to a_i_d-gamma<=offset_i has simplex dual min
+ * half ||sum(lambda_i_a_i)||^2+sum(lambda_i*offset_i).
  */
 export function solveRecoveryFeasibleDirection(
   width: number,
@@ -26,7 +26,7 @@ export function solveRecoveryFeasibleDirection(
   charge: (work: number) => void = (): void => {},
 ): IAutoMovieRecoveryFeasibleDirection {
   const metadataWork: number = 4 * rows.length;
-  if (!Number.isSafeInteger(budget.maxWork) || metadataWork >= budget.maxWork)
+  if (metadataWork >= budget.maxWork)
     throw new Error("camera-feasible: bounded metadata admission required");
   charge(metadataWork);
   if (
@@ -47,7 +47,6 @@ export function solveRecoveryFeasibleDirection(
     128 * width +
     1024;
   if (
-    !Number.isSafeInteger(certificateWork) ||
     metadataWork + certificateWork >= budget.maxWork ||
     width + 128 >= budget.maxEntries
   )
@@ -114,12 +113,13 @@ export function solveRecoveryFeasibleDirection(
       true,
     );
     arithmeticAllowance = Math.max(arithmeticAllowance, allowance);
+    // An overflowing allowance bounds nothing, so it qualifies no row.
     rowsQualified &&=
-      Number.isFinite(allowance) &&
+      allowance !== Infinity &&
+      reconstructionAllowance !== Infinity &&
       slack <= tolerance + allowance &&
       Math.abs(solution.weights[at]! * slack) <= tolerance + allowance;
     reconstructionRowsQualified &&=
-      Number.isFinite(reconstructionAllowance) &&
       slack <= tolerance + reconstructionAllowance &&
       Math.abs(solution.weights[at]! * slack) <=
         tolerance +
@@ -158,14 +158,13 @@ export function solveRecoveryFeasibleDirection(
   const roundoffCandidate: boolean =
     solution.termination === "stalled" &&
     solution.gap <= tolerance + reconstruction.gap;
+  const unbounded: (value: number) => boolean = (value: number): boolean =>
+    value === Infinity || value === -Infinity;
   const numericalChecks: boolean =
-    step.every(Number.isFinite) &&
-    [gamma, objective, maximumViolation, complementarity].every(
-      Number.isFinite,
-    ) &&
+    !step.some(unbounded) &&
+    ![gamma, objective, maximumViolation, complementarity].some(unbounded) &&
     Math.abs(sum - 1) <= 64 * Number.EPSILON * rows.length &&
-    Number.isFinite(stationarityAllowance) &&
-    Number.isFinite(stationarityResidual) &&
+    stationarityAllowance !== Infinity &&
     stationarityResidual <= tolerance + stationarityAllowance &&
     solution.weights.every((value: number): boolean => value >= 0);
   const gapUpperBound: number = adjacentAutoMovieFloat64(

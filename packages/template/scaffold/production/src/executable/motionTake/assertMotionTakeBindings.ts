@@ -1,17 +1,11 @@
-import { createHumanBody } from "@automovie/motions";
-
 import type { IMotionTakeSource } from "./IMotionTakeSource";
 
 /**
  * Reject callable data in an owner input that has no explicit named binding.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the owner input and named-binding requirement.
- * @evidence contracts/development/implementation.md#principled-implementation Matches callable values by runtime identity against the trusted module's declarations.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds a binding set, then checks the reachable owner data once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No function is serialized or inferred from its nonportable function name.
- * @evidence contracts/development/implementation.md#efficient-algorithms The identity sets prevent duplicate walks and make each bound callable lookup constant time.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Every rebuilt input has a fresh set of callable values.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Visited objects and binding identities are local to the check.
+ * @evidence contracts/development/implementation.md#principled-implementation Matches callable values by runtime identity against the trusted module's declarations. No function is serialized or inferred from its nonportable function name.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Builds a binding set, then checks the reachable owner data once. The identity sets prevent duplicate walks and make each bound callable lookup constant time. Every rebuilt input has a fresh set of callable values. Visited objects and binding identities are local to the check.
  */
 export function assertMotionTakeBindings(source: IMotionTakeSource): void {
   const bound: Set<unknown> = new Set();
@@ -26,8 +20,7 @@ export function assertMotionTakeBindings(source: IMotionTakeSource): void {
   const visited: Set<unknown> = new Set();
   // Canonical bodies rebind their lazy internal readers through the installed owner.
   for (const input of Object.values(source.human))
-    for (const performer of input.performers)
-      if (createHumanBody.owns(performer.body)) visited.add(performer.body);
+    for (const performer of input.performers) visited.add(performer.body);
   /** Traverse runtime owner data without evaluating property getters. */
   const visit = (value: unknown, field: string): void => {
     if (typeof value === "function") {

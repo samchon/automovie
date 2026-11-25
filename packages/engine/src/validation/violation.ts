@@ -4,7 +4,8 @@ import {
 } from "@automovie/interface";
 
 /**
- * Construct a fresh constraint row with supplied fields, optional overshoot and caller severity defaulting to error.
+ * Construct a fresh constraint row with supplied fields, optional overshoot and
+ * caller severity defaulting to error.
  */
 export const violation: (
   kind: AutoMovieViolationKind,

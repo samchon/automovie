@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanHand } from "../posture/HumanHand";
 import { HumanColliders } from "../posture/HumanColliders";
+import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seatedPairDepth } from "./seatedPairDepth";
@@ -19,56 +19,94 @@ import { seatedPairDepth } from "./seatedPairDepth";
 interface IRoll {
   /** The side that needs forearm clearance. */
   side: AutoMovieHumanSide;
-  /** The tangent-plane rotation from fingers toward the projected forearm, degrees. */
+  /**
+   * The tangent-plane rotation from fingers toward the projected forearm,
+   * degrees.
+   */
   angle: number;
   /** The material frame that stays on its site when the wrist turns. */
   palm: IAutoMovieMotionHumanHand.IFrame;
 }
 
 /**
- * At seat-off, let a loaded palm turn in its tangent plane where its
- * forearm runs into the trunk. Align the fingers with the incoming
- * forearm projected on the skin, preserving the contact point and normal.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Takes the actual supported seat-off posture, free thigh contacts and a phase share. It returns fresh changed goals only for the obstructed forearms.
- * @evidence contracts/development/implementation.md#principled-implementation A signed vector angle on the material plane picks the roll; rotating about the actual palm point gives the matching wrist translation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Determine the obstructed sides and their tangent angles at seat-off, then apply the phase share to their original palm goals.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No armrest, contact normal, target radius or joint bound is changed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each free forearm has one material check at load transfer. Its moving goal needs one rotation and translation per active read.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The same immutable tangent angle and palm-local frame are used throughout the support phase.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most two side, frame and angle records live with the action.
+ * At seat-off, let a loaded palm turn in its tangent plane where its forearm
+ * runs into the trunk. Align the fingers with the incoming forearm projected on
+ * the skin, preserving the contact point and normal.
  */
 export function prepareRisePalmRoll(
   body: IAutoMovieMotionHumanBody,
   peak: IAutoMovieMotionHumanPosture,
   sides: readonly AutoMovieHumanSide[],
-): (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture {
+): (
+  posture: IAutoMovieMotionHumanPosture,
+  share: number,
+) => IAutoMovieMotionHumanPosture {
   const rolls: IRoll[] = [];
   if (sides.length > 0) {
-    const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture(body, peak));
-    const placed: ReturnType<typeof HumanColliders.placed> = HumanColliders.placed(body, bones);
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture(body, peak),
+    );
+    const placed: ReturnType<typeof HumanColliders.placed> =
+      HumanColliders.placed(body, bones);
     for (const side of sides) {
-      if (seatedPairDepth(body, `${side}LowerArm`, "spine")(placed) <= 0) continue;
-      const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(body, bones, side, "palm", "flat");
-      const along: IAutoMovieVector3 = Vector3.subtract(
-        bones.get(`${side}Hand`)!.worldPosition, bones.get(`${side}LowerArm`)!.worldPosition,
+      if (seatedPairDepth(body, `${side}LowerArm`, "spine")(placed) <= 0)
+        continue;
+      const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
+        body,
+        bones,
+        side,
+        "palm",
+        "flat",
       );
-      const tangent: IAutoMovieVector3 = Vector3.addScaled(along, palm.normal, -Vector3.dot(along, palm.normal));
-      const angle: number = Math.atan2(Vector3.dot(Vector3.cross(palm.forward, tangent), palm.normal), Vector3.dot(palm.forward, tangent)) * 180 / Math.PI;
-      rolls.push({ side, angle, palm: HumanHand.offset(body, side, "palm", "flat") });
+      const along: IAutoMovieVector3 = Vector3.subtract(
+        bones.get(`${side}Hand`)!.worldPosition,
+        bones.get(`${side}LowerArm`)!.worldPosition,
+      );
+      const tangent: IAutoMovieVector3 = Vector3.addScaled(
+        along,
+        palm.normal,
+        -Vector3.dot(along, palm.normal),
+      );
+      const angle: number =
+        (Math.atan2(
+          Vector3.dot(Vector3.cross(palm.forward, tangent), palm.normal),
+          Vector3.dot(palm.forward, tangent),
+        ) *
+          180) /
+        Math.PI;
+      rolls.push({
+        side,
+        angle,
+        palm: HumanHand.offset(body, side, "palm", "flat"),
+      });
     }
   }
-  return (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture => {
+  return (
+    posture: IAutoMovieMotionHumanPosture,
+    share: number,
+  ): IAutoMovieMotionHumanPosture => {
     if (rolls.length === 0 || share <= 0) return posture;
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const { side, angle, palm } of rolls) {
       const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Arm`];
       if (goal?.rotation === undefined) continue;
       const turned: IAutoMovieQuaternion = Quaternion.multiply(
-        goal.rotation, Quaternion.prepareAxisAngle(palm.normal)(angle * share),
+        goal.rotation,
+        Quaternion.prepareAxisAngle(palm.normal)(angle * share),
       );
-      const site: IAutoMovieVector3 = Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, palm.point));
-      limbs[`${side}Arm`] = { ...goal, point: Vector3.subtract(site, Quaternion.rotateVector(turned, palm.point)), rotation: turned };
+      const site: IAutoMovieVector3 = Vector3.add(
+        goal.point,
+        Quaternion.rotateVector(goal.rotation, palm.point),
+      );
+      limbs[`${side}Arm`] = {
+        ...goal,
+        point: Vector3.subtract(
+          site,
+          Quaternion.rotateVector(turned, palm.point),
+        ),
+        rotation: turned,
+      };
     }
     return { ...posture, limbs };
   };

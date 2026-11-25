@@ -4,7 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Switch on primitive shape and require finite positive supported dimensions, including capsule length policy.
+ * Switch on primitive shape and require finite positive supported dimensions,
+ * including capsule length policy.
  */
 export const validateExtents: (
   shape: IAutoMoviePrimitiveShape,
@@ -41,19 +42,9 @@ export const validateExtents: (
         ["height", shape.height],
       ];
       break;
-    default: {
-      const unknown: { type: unknown } = shape as { type: unknown };
-      collector.push(
-        "type",
-        `${path}.type`,
-        `unknown primitive shape "${String(unknown.type)}"`,
-        unknown.type,
-      );
-      return;
-    }
   }
   for (const [name, value] of dims)
-    if (!Number.isFinite(value) || value <= 0)
+    if (value <= 0)
       collector.push(
         "range",
         `${path}.${name}`,

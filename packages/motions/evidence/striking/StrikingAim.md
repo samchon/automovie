@@ -1,21 +1,3 @@
-# src/striking/StrikingAim.ts#StrikingAim
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the observation, prediction and correction model with its sources, the cutoff and the exact cases.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Tracking as film-second timing, a planned goal in world metres and superposed correction units, evaluated causally.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The observation step and shortest correction every strike tracks with, the timing, the tracker and the three functions the punch and kick laws and the tests read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the engine's minimum-jerk unit and the interface vector.
-
 # src/striking/StrikingAim.ts#StrikingAim.observations
 
 ## @evidence contracts/development/common.md#meaningful-documentation

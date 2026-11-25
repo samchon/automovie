@@ -1,21 +1,3 @@
-# src/props/Throwers.ts#Throwers
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how each thrower stands and what each contact is.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each thrower as rods and boxes from its read sizes, its contacts as handles and sockets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two builders `createLongTool` calls for its throwers, and their bands.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The sling's cords are straight, a coarse stand-in for flexible cords; every unread size is a named estimate.
-
 # src/props/Throwers.ts#Throwers.sling
 
 ## @evidence contracts/development/common.md#meaningful-documentation

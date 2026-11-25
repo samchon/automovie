@@ -4,13 +4,9 @@ import type { IAutoMovieFitPhysicalWholeBodyTarget } from "../../physics/IAutoMo
 import type { IAutoMoviePhysicalProfile } from "../../physics/IAutoMoviePhysicalProfile";
 import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
 
-/**
- * Data and callback contracts shared by the ResolveRelationalGoal operations.
- */
+/** Data and callback contracts shared by the ResolveRelationalGoal operations. */
 export namespace IAutoMovieResolveRelationalGoal {
-  /**
-   * A named point on a body.
-   */
+  /** A named point on a body. */
   export interface IRegion {
     /** Segment carrying it. */
     bone: string;
@@ -19,9 +15,7 @@ export namespace IAutoMovieResolveRelationalGoal {
     localPoint: IAutoMovieVector3;
   }
 
-  /**
-   * A held support at an instant.
-   */
+  /** A held support at an instant. */
   export interface ISupport {
     /** Held segment. */
     bone: string;
@@ -39,33 +33,25 @@ export namespace IAutoMovieResolveRelationalGoal {
     maximum: number;
   }
 
-  /**
-   * An engine-level body.
-   */
+  /** An engine-level body. */
   export interface IBody {
     /** Its admitted physical profile. */
     profile: IAutoMoviePhysicalProfile;
 
-    /**
-     * Its prior world pose of every segment at an instant.
-     */
+    /** Its prior world pose of every segment at an instant. */
     pose(seconds: number): Record<string, IAutoMovieRigidTransform>;
 
     /** Its named regions. */
     regions: Readonly<Record<string, IAutoMovieResolveRelationalGoal.IRegion>>;
 
-    /**
-     * Its held support at an instant, for a performer.
-     */
+    /** Its held support at an instant, for a performer. */
     support(seconds: number): IAutoMovieResolveRelationalGoal.ISupport;
 
     /** Segments a fit may move, for a performer. */
     bones: readonly string[];
   }
 
-  /**
-   * A realized goal.
-   */
+  /** A realized goal. */
   export interface IResult
     extends IAutoMovieFitPhysicalWholeBodyTarget.IResult {
     /** The target's world point, or null outside the window. */

@@ -1,21 +1,3 @@
-# src/sport/roundOff.ts#roundOff
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the figure, the two turns and where each happens, where the twist and the roll overlap and how they compose with its follow-up, the timing, the events and what is left out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A wheel table from the body's own joints, the quarter turns a function of the wheel's angle.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the seconds, the closing shape, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No length in metres: the travel follows from the spokes.
-
 # src/sport/roundOff.ts#roundOff.landed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

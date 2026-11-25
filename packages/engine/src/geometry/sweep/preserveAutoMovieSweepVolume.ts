@@ -8,19 +8,28 @@ import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Compile the volume-settled joint-scale update of a sealed sweep rig.
  *
- * Section moments and the authored sweep's rest-volume target are computed once. Each pose updates the shared orientation first, then this writer settles the joint factor and writes every registered scale slot. The network's separate girth multipliers apply after that settlement, matching the rig's existing ordering; the target is the authored sweep's volume before girth correction.
+ * Section moments and the authored sweep's rest-volume target are computed
+ * once. Each pose updates the shared orientation first, then this writer
+ * settles the joint factor and writes every registered scale slot. The
+ * network's separate girth multipliers apply after that settlement, matching
+ * the rig's existing ordering; the target is the authored sweep's volume before
+ * girth correction.
  *
  * @param props.surface The immutable compiled authored sweep, metre units
- * @param props.orientation Current shared pose frames, updated before this writer
+ * @param props.orientation Current shared pose frames, updated before this
+ *   writer
  * @param props.joints Which authored station indices are joints
  * @param props.scaleU Sealed registered scale parameters along u
- * @param props.girth Shared radial correction factors, refreshed in place by the owning rig
+ * @param props.girth Shared radial correction factors, refreshed in place by
+ *   the owning rig
  * @param props.scales Receives the final scale per registered slot
- * @param props.writeFrame The rig's packed-frame serializer used during compilation
+ * @param props.writeFrame The rig's packed-frame serializer used during
+ *   compilation
  * @returns A pose writer that updates the supplied scale buffer in place
  */
 export function preserveAutoMovieSweepVolume(
@@ -119,7 +128,7 @@ export function preserveAutoMovieSweepVolume(
     profile(settleAutoMovieSweepVolume(target, volume));
     for (let k: number = 0; k < scaleU.length; ++k) {
       const value: number = at(scaleU[k]!) * girth[k]!;
-      if (!(value > 0) || !Number.isFinite(value))
+      if (!(value > 0) || overflowsBinary64(value))
         throw new Error("posed sweep scale is not positive and finite");
       settled[k] = value;
     }

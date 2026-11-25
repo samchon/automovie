@@ -1,21 +1,3 @@
-# src/handling/HumanGraspHand.ts#HumanGraspHand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the alignment, the tilt and the palm placement, and the two scopes the geometry is prepared for.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World-metre grasp frames, degree angles and the canonical wrist type; prepared data is the hand's rigid geometry only.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-prepare serves `HumanGrasp.hand` and the second hand of `HumanHeldUse`; turns serves the handover's grid of turns about one offered handle.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No prop, body size, solved pose or contact verdict is embedded.
-
 # src/handling/HumanGraspHand.ts#HumanGraspHand.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -24,7 +6,7 @@ States the fixed body and hand, the target and degree tilt, and the world wrist 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The hand's grip normal and forward are aligned with the approach and the wrapped axis, the result turned about the approach by the tilt, and the wrist placed so the flat palm's point lies half the width back from the grip point (the Final IK InteractionObject and Unreal hand-socket practice of an effector frame on an authored grip).
+The hand's grip normal and forward are aligned with the approach and the wrapped axis, the result turned about the approach by the tilt, and the wrist placed so the flat palm's point lies half the width back from the grip point.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

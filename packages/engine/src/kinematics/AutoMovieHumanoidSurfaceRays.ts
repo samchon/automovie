@@ -16,7 +16,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "../physics/physicalHullFaces";
+import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { physicalShapeNormal } from "../physics/physicalShapeNormal";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
@@ -25,15 +25,21 @@ import { resolvePose } from "./resolvePose";
 
 /**
  * The rest-pose readers a humanoid's surfaces are resolved with
- * (`resolveAutoMovieHumanoidSurfaces`): its bones, segments, collider
- * bounds, bone-local frames, stations, and the exits of rays from them
- * through the colliders with the colliders' outward normal there.
+ * (`resolveAutoMovieHumanoidSurfaces`): its bones, segments, collider bounds,
+ * bone-local frames, stations, and the exits of rays from them through the
+ * colliders with the colliders' outward normal there.
  */
 export namespace AutoMovieHumanoidSurfaceRays {
   /** Actual ray queries share only one fixed rest-shape frame. */
-  type Exit = (origin: IAutoMovieVector3, direction: IAutoMovieVector3) => number;
+  type Exit = (
+    origin: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+  ) => number;
 
-  /** A rest collider shares fixed exit/normal metadata, never a ray or surface answer. */
+  /**
+   * A rest collider shares fixed exit/normal metadata, never a ray or surface
+   * answer.
+   */
   interface IShapeReading {
     /** Original admitted collider, borrowed only with its unchanged segment. */
     shape: IAutoMoviePhysicalShape;
@@ -41,29 +47,8 @@ export namespace AutoMovieHumanoidSurfaceRays {
     /** Actual origin/direction intersection through the collider. */
     exit: Exit;
 
-    /** Acquired only when this collider first wins a ray whose normal is demanded. */
-    normal?: ReturnType<typeof physicalShapeNormal.prepare>;
-  }
-
-  /** Reader-local copied turn keys protect inverse reuse even after an at-result edit. */
-  interface IRestTurn {
-    /** Last observed world quaternion coordinates, copied without normalization. */
-    key: IAutoMovieQuaternion;
-
-    /** Private inverse for those exact coordinates; no caller receives it. */
-    inverse: IAutoMovieQuaternion;
-  }
-
-  /** One copied origin and its fixed-shape prerequisites, never a ray answer. */
-  interface ILocalOrigin {
-    /** Copied world coordinates; actual XYZ must all match before reuse. */
-    point: IAutoMovieVector3;
-
-    /** Private shape-local origin for those exact coordinates. */
-    local: IAutoMovieVector3;
-
-    /** Lazily observed hull-plane heights; absent for box slabs. */
-    heights?: number[];
+    /** The collider's surface normal reader. */
+    normal: ReturnType<typeof physicalShapeNormal.prepare>;
   }
 
   /** The six actual rest observations consumed by anatomical surface owners. */
@@ -72,34 +57,70 @@ export namespace AutoMovieHumanoidSurfaceRays {
     at: (bone: AutoMovieHumanoidBone) => IAutoMovieResolvedBone;
 
     /** Fresh vectors for the segment's exact neutral world-axis bounds. */
-    bounds: (bone: AutoMovieHumanoidBone) => { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+    bounds: (bone: AutoMovieHumanoidBone) => {
+      min: IAutoMovieVector3;
+      max: IAutoMovieVector3;
+    };
 
-    /** Express the actual world point/directions relative to the current rest joint. */
-    local: (bone: AutoMovieHumanoidBone, world: IAutoMovieVector3, direction: IAutoMovieVector3, forward?: IAutoMovieVector3) => IAutoMovieHumanoidSurfaces.IFrame;
+    /**
+     * Express the actual world point/directions relative to the current rest
+     * joint.
+     */
+    local: (
+      bone: AutoMovieHumanoidBone,
+      world: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      forward?: IAutoMovieVector3,
+    ) => IAutoMovieHumanoidSurfaces.IFrame;
 
-    /** Actual anatomical station from rest joints, exact collider centre or a level of the body's stature on a segment. */
-    station: (station: IAutoMovieHumanoidSurfaceRegions.IStation | AutoMovieHumanoidSurfaceRegions.ILevel) => IAutoMovieVector3;
+    /**
+     * Actual anatomical station from rest joints, exact collider centre or a
+     * level of the body's stature on a segment.
+     */
+    station: (
+      station:
+        | IAutoMovieHumanoidSurfaceRegions.IStation
+        | AutoMovieHumanoidSurfaceRegions.ILevel,
+    ) => IAutoMovieVector3;
 
     /** Actual farthest collider exit point for the current ray. */
-    exit: (bone: AutoMovieHumanoidBone, origin: IAutoMovieVector3, direction: IAutoMovieVector3) => IAutoMovieVector3;
+    exit: (
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+    ) => IAutoMovieVector3;
 
     /** Actual collider exit point and its physical outward normal. */
-    surface: (bone: AutoMovieHumanoidBone, origin: IAutoMovieVector3, direction: IAutoMovieVector3) => IAutoMovieHumanoidSurfaceRays.ISurfacePoint;
+    surface: (
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+    ) => IAutoMovieHumanoidSurfaceRays.ISurfacePoint;
   }
 
-  /** Prepare the fixed shape frame; every actual ray retains the original exact intersection. */
+  /**
+   * Prepare the fixed shape frame; every actual ray retains the original exact
+   * intersection.
+   */
   function prepareExit(
     frame: IAutoMovieRigidTransform,
     shape: IAutoMoviePhysicalShape,
   ): Exit {
     const parentPosition: IAutoMovieVector3 = frame.position;
-    const centre: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, shape.transform.position);
+    const centre: IAutoMovieVector3 = Quaternion.rotateVector(
+      frame.rotation,
+      shape.transform.position,
+    );
     centre.x = parentPosition.x + centre.x;
     centre.y = parentPosition.y + centre.y;
     centre.z = parentPosition.z + centre.z;
     if (shape.kind === "sphere")
-      return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => sphereExit(origin, d, centre, shape.radius);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, shape.transform.rotation);
+      return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number =>
+        sphereExit(origin, d, centre, shape.radius);
+    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      frame.rotation,
+      shape.transform.rotation,
+    );
     if (shape.kind === "capsule") {
       const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
         x: 0,
@@ -144,29 +165,23 @@ export namespace AutoMovieHumanoidSurfaceRays {
       };
     }
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-    const faces: readonly IAutoMoviePhysicalHullFaces.IFace[] | undefined = shape.kind === "hull"
-      ? physicalHullFaces(shape.points).faces : undefined;
-    let previousOrigin: ILocalOrigin | undefined;
+    const faces: readonly IAutoMoviePhysicalHullFaces.IFace[] | undefined =
+      shape.kind === "hull" ? physicalShapeHull(shape).faces : undefined;
     return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => {
-      const current: ILocalOrigin = localOrigin(previousOrigin, origin, centre, inverse);
-      previousOrigin = current;
-      const o: IAutoMovieVector3 = current.local;
+      const o: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+        x: origin.x - centre.x,
+        y: origin.y - centre.y,
+        z: origin.z - centre.z,
+      });
       const dir: IAutoMovieVector3 = Quaternion.rotateVector(inverse, d);
       let near: number = -Infinity;
       let far: number = Infinity;
       if (shape.kind === "hull") {
         // Clip the ray against every face plane: it enters through the planes
         // it runs against and leaves through the ones it runs with.
-        const heights: number[] = current.heights ??= [];
-        let index: number = 0;
         for (const face of faces!) {
           const speed: number = Vector3.dot(face.normal, dir);
-          let height: number | undefined = heights[index];
-          if (height === undefined) {
-            height = Vector3.dot(face.normal, o) - face.offset;
-            heights[index] = height;
-          }
-          index++;
+          const height: number = Vector3.dot(face.normal, o) - face.offset;
           if (Math.abs(speed) < 1e-12) {
             if (height > BOUNDARY) return -Infinity;
             continue;
@@ -195,31 +210,10 @@ export namespace AutoMovieHumanoidSurfaceRays {
     };
   }
 
-  /** Reuse only the exact numeric origin under this prepared, unchanged shape frame. */
-  function localOrigin(
-    known: ILocalOrigin | undefined,
-    point: IAutoMovieVector3,
-    centre: IAutoMovieVector3,
-    inverse: IAutoMovieQuaternion,
-  ): ILocalOrigin {
-    const x: number = point.x;
-    const y: number = point.y;
-    const z: number = point.z;
-    if (known !== undefined && Object.is(known.point.x, x) &&
-        Object.is(known.point.y, y) && Object.is(known.point.z, z)) return known;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
-      x: x - centre.x, y: y - centre.y, z: z - centre.z,
-    });
-    if (known === undefined) return { point: { x, y, z }, local };
-    known.point.x = x;
-    known.point.y = y;
-    known.point.z = z;
-    known.local = local;
-    if (known.heights !== undefined) known.heights.length = 0;
-    return known;
-  }
-
-  /** Preserve the ray-sphere discriminant and boundary branch without a per-ray closure. */
+  /**
+   * Preserve the ray-sphere discriminant and boundary branch without a per-ray
+   * closure.
+   */
   function sphereExit(
     origin: IAutoMovieVector3,
     direction: IAutoMovieVector3,
@@ -229,14 +223,16 @@ export namespace AutoMovieHumanoidSurfaceRays {
     const oc: IAutoMovieVector3 = Vector3.subtract(origin, centre);
     const b: number = Vector3.dot(oc, direction);
     const disc: number = b * b - (Vector3.dot(oc, oc) - radius * radius);
-    return disc < -BOUNDARY * radius ? -Infinity : -b + Math.sqrt(Math.max(0, disc));
+    return disc < -BOUNDARY * radius
+      ? -Infinity
+      : -b + Math.sqrt(Math.max(0, disc));
   }
 
   /**
    * Rest-pose readers for one unchanged body's surface resolution: bones,
-   * segments, bounds, bone-local frames, stations and actual ray exits.
-   * Release this bundle after the resolution, and create another after any
-   * rig/profile edit. Returned bounds own their vectors independently.
+   * segments, bounds, bone-local frames, stations and actual ray exits. Release
+   * this bundle after the resolution, and create another after any rig/profile
+   * edit. Returned bounds own their vectors independently.
    */
   export function tools(
     skeleton: IAutoMovieSkeleton,
@@ -246,21 +242,41 @@ export namespace AutoMovieHumanoidSurfaceRays {
     const segments: Map<string, IAutoMoviePhysicalSegment> = new Map();
     for (const part of profile.segments)
       if (!segments.has(part.bone)) segments.set(part.bone, part);
-    const extents: Map<IAutoMoviePhysicalSegment, ReturnType<typeof physicalShapeBounds>> = new Map();
+    const extents: Map<
+      IAutoMoviePhysicalSegment,
+      ReturnType<typeof physicalShapeBounds>
+    > = new Map();
     const exits: Map<IAutoMoviePhysicalSegment, IShapeReading[]> = new Map();
-    const unturned: Map<AutoMovieHumanoidBone, IRestTurn> = new Map();
+    for (const s of segments.values()) {
+      extents.set(s, AutoMovieHumanoidNeutralBounds.read(profile, s, neutral));
+      exits.set(
+        s,
+        s.shapes.map(
+          (shape: IAutoMoviePhysicalShape): IShapeReading => ({
+            shape,
+            exit: prepareExit(s.neutral, shape),
+            normal: physicalShapeNormal.prepare(s.neutral, shape),
+          }),
+        ),
+      );
+    }
     const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
     for (const resolved of resolvePose(
       { skeleton: skeleton.id, root: null, joints: [] },
       skeleton,
-    )) rest.set(resolved.bone, resolved);
+    ))
+      rest.set(resolved.bone, resolved);
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieResolvedBone => {
       const r: IAutoMovieResolvedBone | undefined = rest.get(bone);
       if (r === undefined)
         throw new Error(`Surfaces need the rig bone ${bone}`);
       return r;
     };
-    const segment: (bone: AutoMovieHumanoidBone) => IAutoMoviePhysicalSegment = (bone: AutoMovieHumanoidBone): IAutoMoviePhysicalSegment => {
+    const segment: (
+      bone: AutoMovieHumanoidBone,
+    ) => IAutoMoviePhysicalSegment = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMoviePhysicalSegment => {
       const s: IAutoMoviePhysicalSegment | undefined = segments.get(bone);
       if (s === undefined)
         throw new Error(`Surfaces need the profile segment ${bone}`);
@@ -270,11 +286,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       bone: AutoMovieHumanoidBone,
     ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
       const s: IAutoMoviePhysicalSegment = segment(bone);
-      let known: ReturnType<typeof physicalShapeBounds> | undefined = extents.get(s);
-      if (known === undefined) {
-        known = AutoMovieHumanoidNeutralBounds.read(profile, s, neutral);
-        extents.set(s, known);
-      }
+      const known: ReturnType<typeof physicalShapeBounds> = extents.get(s)!;
       return { min: { ...known.min }, max: { ...known.max } };
     };
     const local = (
@@ -284,20 +296,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       forward?: IAutoMovieVector3,
     ): IAutoMovieHumanoidSurfaces.IFrame => {
       const r: IAutoMovieResolvedBone = at(bone);
-      const rotation: IAutoMovieQuaternion = r.worldRotation;
-      const qx: number = rotation.x;
-      const qy: number = rotation.y;
-      const qz: number = rotation.z;
-      const qw: number = rotation.w;
-      let turn: IRestTurn | undefined = unturned.get(bone);
-      if (turn === undefined ||
-          !Object.is(turn.key.x, qx) || !Object.is(turn.key.y, qy) ||
-          !Object.is(turn.key.z, qz) || !Object.is(turn.key.w, qw)) {
-        const key: IAutoMovieQuaternion = { x: qx, y: qy, z: qz, w: qw };
-        turn = { key, inverse: Quaternion.inverse(key) };
-        unturned.set(bone, turn);
-      }
-      const inverse: IAutoMovieQuaternion = turn.inverse;
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(r.worldRotation);
       return {
         bone,
         point: Quaternion.rotateVector(
@@ -318,17 +317,18 @@ export namespace AutoMovieHumanoidSurfaceRays {
     // The body's stature, the top of its colliders at rest above the floor
     // at zero, as `measureAutoMovieHumanoidBody` reads it; read by the first
     // station placed by a level.
-    let stature: number | undefined;
+    let stature: number = -Infinity;
+    for (const part of profile.segments)
+      stature = Math.max(
+        stature,
+        AutoMovieHumanoidNeutralBounds.read(profile, part, neutral).max.y,
+      );
     const station = (
-      s: IAutoMovieHumanoidSurfaceRegions.IStation | AutoMovieHumanoidSurfaceRegions.ILevel,
+      s:
+        | IAutoMovieHumanoidSurfaceRegions.IStation
+        | AutoMovieHumanoidSurfaceRegions.ILevel,
     ): IAutoMovieVector3 => {
       if ("level" in s) {
-        if (stature === undefined) {
-          let top: number = -Infinity;
-          for (const part of profile.segments)
-            top = Math.max(top, AutoMovieHumanoidNeutralBounds.read(profile, part, neutral).max.y);
-          stature = top;
-        }
         const from: IAutoMovieVector3 = at(s.bone).worldPosition;
         const to: IAutoMovieVector3 = at(s.toward).worldPosition;
         const share: number = (s.level * stature - from.y) / (to.y - from.y);
@@ -352,7 +352,10 @@ export namespace AutoMovieHumanoidSurfaceRays {
         s.share,
       );
     };
-    /** The demand is private; every entry still tests all original colliders and the same miss gate. */
+    /**
+     * The demand is private; every entry still tests all original colliders and
+     * the same miss gate.
+     */
     function trace(
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
@@ -373,14 +376,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     ): IAutoMovieVector3 | IAutoMovieHumanoidSurfaceRays.ISurfacePoint {
       const d: IAutoMovieVector3 = Vector3.normalize(direction);
       const s: IAutoMoviePhysicalSegment = segment(bone);
-      let readings: IShapeReading[] | undefined = exits.get(s);
-      if (readings === undefined) {
-        readings = s.shapes.map((shape: IAutoMoviePhysicalShape): IShapeReading => ({
-          shape,
-          exit: prepareExit(s.neutral, shape),
-        }));
-        exits.set(s, readings);
-      }
+      const readings: IShapeReading[] = exits.get(s)!;
       let far: number = -Infinity;
       let left: IShapeReading | undefined;
       for (let i: number = 0; i < s.shapes.length; i++) {
@@ -397,15 +393,14 @@ export namespace AutoMovieHumanoidSurfaceRays {
       point.y = origin.y + point.y;
       point.z = origin.z + point.z;
       if (!readNormal) return point;
-      const normal: ReturnType<typeof physicalShapeNormal.prepare> = left.normal ??=
-        physicalShapeNormal.prepare(s.neutral, left.shape);
-      return { point, normal: normal(point, d) };
+      return { point, normal: left.normal(point, d) };
     }
     const surface = (
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
       direction: IAutoMovieVector3,
-    ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint => trace(bone, origin, direction, true);
+    ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint =>
+      trace(bone, origin, direction, true);
     const exit = (
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
@@ -415,5 +410,9 @@ export namespace AutoMovieHumanoidSurfaceRays {
   }
 }
 
-/** Metres a station may sit outside a collider and still count as on it: the colliders are closed sets, so a station on a face or a cap must not miss by rounding. */
+/**
+ * Metres a station may sit outside a collider and still count as on it: the
+ * colliders are closed sets, so a station on a face or a cap must not miss by
+ * rounding.
+ */
 const BOUNDARY: number = 1e-9;

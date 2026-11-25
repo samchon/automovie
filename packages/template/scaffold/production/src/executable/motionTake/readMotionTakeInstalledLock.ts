@@ -7,12 +7,8 @@ import { hashMotionTakeFile } from "./hashMotionTakeFile";
  * Measure the lockfile at the nearest pnpm workspace boundary, if present.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the workspace boundary and optional result.
- * @evidence contracts/development/implementation.md#principled-implementation Locates the workspace using standard pnpm filenames and hashes its actual lockfile bytes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Walks toward the workspace root, then measures the associated lockfile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An artifact cannot choose the lockfile; permission and read errors are not treated as absence.
- * @evidence contracts/development/implementation.md#efficient-algorithms Tests one file per directory level and only streams the matching lockfile.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Must measure installed inputs again on reopen.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Leaves no open handles or retained lockfile contents.
+ * @evidence contracts/development/implementation.md#principled-implementation Locates the workspace using standard pnpm filenames and hashes its actual lockfile bytes. An artifact cannot choose the lockfile; permission and read errors are not treated as absence.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Walks toward the workspace root, then measures the associated lockfile once. Tests one file per directory level and only streams the matching lockfile. Must measure installed inputs again on reopen. Leaves no open handles or retained lockfile contents.
  */
 export async function readMotionTakeInstalledLock(
   root: string,

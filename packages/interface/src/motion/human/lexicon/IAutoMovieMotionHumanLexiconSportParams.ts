@@ -24,7 +24,8 @@ import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanLexiconSurfaceParams } from "./IAutoMovieMotionHumanLexiconSurfaceParams";
 
 /**
- * Open parameters of the sport lexicon family, keyed by each runtime export name.
+ * Open parameters of the sport lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotionHumanLexiconSurfaceParams {
   /** A phase of a water sport with its named support or prop. */
@@ -111,7 +112,12 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
   /** Addressing the ball in golf. */
   golfAddress: Omit<IAutoMovieMotionHumanRacket.IParams, "kind">;
 
-  /** A basketball defensive slide: two steps to the left, the stance kept. */
+  /**
+   * A two-step shuffle to the left in the fighting stance: the `step` law
+   * carrying a boxing or kickboxing guard, a boxer's footwork and not a low
+   * basketball stance. It is a row of the lexicon (`HUMAN_LEXICON.sport`) and
+   * belongs to no family namespace.
+   */
   defensiveSlide: Omit<
     IAutoMovieMotionHumanStep.IParams,
     "direction" | "steps"
@@ -120,7 +126,10 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
   /** The chair pose of yoga: a partial squat held five seconds (provisional). */
   chairPose: Omit<IAutoMovieMotionHumanCrouch.IParams, "depth" | "hold">;
 
-  /** The child's pose of yoga: kneeling, sat back on the heels, ten seconds (provisional). */
+  /**
+   * The child's pose of yoga: kneeling, sat back on the heels, ten seconds
+   * (provisional).
+   */
   childsPose: Omit<IAutoMovieMotionHumanKneel.IParams, "kind" | "hold">;
 
   /** A hip flexor stretch in the half kneel, twenty seconds (provisional). */
@@ -129,7 +138,10 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
   /** The corpse pose of yoga: lying on the back, ten seconds (provisional). */
   corpsePose: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
-  /** A standing hamstring stretch: a bend down to the right foot, held twenty seconds (provisional). */
+  /**
+   * A standing hamstring stretch: a bend down to the right foot, held twenty
+   * seconds (provisional).
+   */
   toeTouch: Omit<IAutoMovieMotionHumanBend.IParams, "target" | "hold">;
 
   /** Treading water. */

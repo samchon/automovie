@@ -1,50 +1,32 @@
-# src/reaction/KnockdownFloor.ts#KnockdownFloor
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the owned geometry and the law's separate clock and heading responsibility.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A fitted angle record and one folded posture, measured against the body's own colliders in the original root frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The laws consume fold, fit, fitProneKnee, prepareMeasure and rest. Fixed-body floor and support intervals consume prepareRest.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The back fall retains its clinical ranges and provisional angle laws. The forward lie fits terminal knee flexion using the same placed-collider bounds as the floor reading.
-
 # src/reaction/KnockdownFloor.ts#KnockdownFloor.fitProneKnee
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines the terminal clinical angle in degrees and the placed geometry that determines when the body's contact can own the floor.
+Returns a terminal clinical knee angle in degrees, measured against the body's placed distal and trunk support geometry.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Reads the exact minimum height of the distal leg colliders and of the remainder of the body at the same pose. An angular bracket finds a supported state where the distal height is at least the other minimum.
+Compares the minimum height of the distal leg colliders with the minimum from the rest of the body at the same prone pose. An angular bracket finds the first supported trial from below.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Uses one fixed body's placed readers for all trial angles. The fall's law applies the fitted angle only over the lay phase.
+The fit reads one fixed pose per trial. The collapse fold uses its returned knee angle during the lay phase.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Keeps the original clinical direction and restricts the search to the smaller knee range and one quarter turn from its starting angle. Retains the original clinical request when it already clears or the upper trial lacks a supporting bracket.
+The trial interval stays inside both knees' flexion ranges and ends at most one quarter turn from its initial angle. The original angle is retained if it already clears or the upper trial cannot establish a bracket.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most two bracket measurements and 16 bisections on one fixed forward lie. Neither the action clock nor the complete pose sequence is evaluated during the fit.
+Two bracket readings and at most sixteen bisections use fixed preparation inputs. No pose sequence is evaluated during the fit.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the existing posture, forward-kinematics and collider minima readers on the same physical profile that determines floor height.
+Uses the existing posture, forward-kinematics and collider minima readers on the same physical profile used for floor contact.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Returns one angle. The posed-bone and minima readers end with the call.
+One scalar angle escapes. The pose projection and minima readers are local to the fit.
 
 # src/reaction/KnockdownFloor.ts#KnockdownFloor.IFold
 

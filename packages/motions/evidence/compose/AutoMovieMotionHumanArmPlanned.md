@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmPlanned.ts#AutoMovieMotionHumanArmPlanned
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the planned trajectory and fixed span; reaching/moved alias the physical observations documented at AutoMovieMotionHumanArmObservation while this namespace owns trajectory construction.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The action's four instants, the group of arms solved together, each arm's task and the reach's duration, the inputs of one trajectory problem.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The span, the group and its constructor, the planned arm, the planner and the reach's duration, read by the carry, the touch law and the gesture law.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
-
 # src/compose/AutoMovieMotionHumanArmPlanned.ts#AutoMovieMotionHumanArmPlanned.IWarm
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -164,15 +146,15 @@ Retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the problem, the waypoints and their spacing, the sites and the refusal.
+States the problem, the waypoints and their spacing, the knots as waypoints, the sites, the refusal, and the hand's finger state each returned trajectory plays.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action.
+The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action. Every knot of the span (an instant carrying a pose constraint) is a waypoint of both, as trajopt imposes a pose term at a timestep (github.com/joschu/trajopt src/trajopt/problem_description.cpp; Schulman et al. 2014, section VII-B). Each planned hand's fingers are one joint-space state the plan carries, MoveIt's grasp convention (moveit_msgs/Grasp, BSD-3-Clause: grasp_posture with its grasp_pose): at each instant a base is built for, the hand's digit goals are fitted with the arm at its goal's own fit (`AutoMovieMotionHumanArmPlayed.grasp`). The base the planner reads the hand by holds those fingers, and the returned trajectory plays them between the instants linearly in each joint, as joint_trajectory_controller (ros_controllers, BSD-3-Clause) plays position-only points. So the display and the audit read the fingers the planner kept clear, with no digit fitted after the plan.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Build the common laid course, then try independent paths for a pair with separate sites when the course fails on collision. One coupled certificate precedes the original fallback optimiser.
+Build the common laid course, then try independent paths for a pair with separate sites when the course fails on collision. One coupled certificate precedes the original fallback optimiser. The readings (`AutoMovieMotionHumanArmPlannedReads`), the waypoints and problem (`AutoMovieMotionHumanArmPlannedProblem`) and the solve with its playback (`AutoMovieMotionHumanArmPlannedSolve`) are their own files, read through named scopes.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -180,7 +162,7 @@ Goals are read at every waypoint and the full coupled site, sweep, ROM and speed
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-An admitted first course needs no optimiser. A collision on independent sites can add at most two single-arm plans and one coupled grid certificate. The coupled optimiser's waypoints are cut only on fallback. Postures, removed-arm bases, perceived goals and endpoint fits are computed once per exact instant within their own plan; a base within a frame and a half of the base resolved last continues its limbs' fits from that base's seeds (frame-to-frame IK coherence) instead of sweeping each swivel cold.
+An admitted first course needs no optimiser. A collision on independent sites can add at most two single-arm plans and one coupled grid certificate. The coupled optimiser's waypoints are cut only on fallback. Postures, removed-arm bases, their finger states (one digit fit per hand with digit goals, from that instant's goal fit), perceived goals and endpoint fits are computed once per exact instant within their own plan; the finger playback is a bisection over those instants; a base within a frame and a half of the base resolved last continues its limbs' fits from that base's seeds (frame-to-frame IK coherence) instead of sweeping each swivel cold.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -188,4 +170,4 @@ Same body, cached raw posture/goal and endpoint second prove fit equivalence wit
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
+This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, plus each hand's finger state at the instants its bases were built (one record of digit joints per instant), retaining none of the other maps/getters or preparation callbacks.

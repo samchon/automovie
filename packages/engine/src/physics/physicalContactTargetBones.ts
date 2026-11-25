@@ -6,7 +6,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Select the original actuator chains, expanding to every joint for self avoidance.
+ * Select the original actuator chains, expanding to every joint for self
+ * avoidance.
  */
 export function physicalContactTargetBones(
   input: Pick<

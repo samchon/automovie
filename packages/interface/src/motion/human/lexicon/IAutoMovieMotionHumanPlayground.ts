@@ -3,13 +3,14 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * Authoring inputs for riding playground equipment whose motion the rider
- * drives: a pumped swing, a seesaw, a pushed roundabout and the leap off a swing.
+ * drives: a pumped swing, a seesaw, a pushed roundabout and the leap off a
+ * swing.
  */
 export namespace IAutoMovieMotionHumanPlayground {
   /**
-   * A seated rider pumping a swing: leaning back with the legs extended
-   * while the seat swings forward along the rider's facing, and sitting up
-   * with the knees bent while it swings back.
+   * A seated rider pumping a swing: leaning back with the legs extended while
+   * the seat swings forward along the rider's facing, and sitting up with the
+   * knees bent while it swings back.
    */
   export interface ISwingPumpParams {
     /** Scene subject id of the hanging seat. */
@@ -50,8 +51,8 @@ export namespace IAutoMovieMotionHumanPlayground {
   }
 
   /**
-   * Running alongside a roundabout with one hand on a grab bar: a walk on
-   * the ground whose hand holds the bar as the disc turns with it.
+   * Running alongside a roundabout with one hand on a grab bar: a walk on the
+   * ground whose hand holds the bar as the disc turns with it.
    */
   export interface IRoundaboutPushParams {
     /** World target of the walk, metres. */
@@ -71,8 +72,8 @@ export namespace IAutoMovieMotionHumanPlayground {
   }
 
   /**
-   * A leap off a moving swing seat to the ground: the body leaves the seat
-   * with the seat's velocity and lands standing.
+   * A leap off a moving swing seat to the ground: the body leaves the seat with
+   * the seat's velocity and lands standing.
    */
   export interface ISwingLeapParams {
     /** Scene subject id of the hanging seat left. */

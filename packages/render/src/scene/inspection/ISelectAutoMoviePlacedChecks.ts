@@ -21,9 +21,7 @@ import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScen
  * the incoming declaration owns the boundary instant.
  */
 export namespace ISelectAutoMoviePlacedChecks {
-  /**
-   * The sample and the production's declarations.
-   */
+  /** The sample and the production's declarations. */
   export interface IProps {
     /** The settled scene of the placed sample. Holders are found beneath it. */
     readonly scene: Object3D;
@@ -47,9 +45,7 @@ export namespace ISelectAutoMoviePlacedChecks {
     readonly continuity?: IContinuity;
   }
 
-  /**
-   * Identity shared by every declaration.
-   */
+  /** Identity shared by every declaration. */
   export interface IRule {
     /** Stable identity of the rule across samples. */
     readonly key: string;
@@ -64,16 +60,15 @@ export namespace ISelectAutoMoviePlacedChecks {
     readonly paths?: readonly string[];
 
     /**
-     * Actual touching evidence for the declared pair at a film second, when the producer has it.
+     * Actual touching evidence for the declared pair at a film second, when the
+     * producer has it.
      */
     readonly contact?: (
       filmSeconds: number,
     ) => IObserveAutoMoviePlacedScene.ICheck["observedContact"];
   }
 
-  /**
-   * A support held through consecutive phases.
-   */
+  /** A support held through consecutive phases. */
   export interface ISupport extends IRule {
     /** Maximum absolute gap along the support normal, metres. */
     readonly maxGap: number;
@@ -81,13 +76,14 @@ export namespace ISelectAutoMoviePlacedChecks {
     /** Maximum distance from the anchor along the support plane, metres. */
     readonly maxSlip: number;
 
-    /** Non-overlapping phases. The earliest listed phase containing the instant applies. */
+    /**
+     * Non-overlapping phases. The earliest listed phase containing the instant
+     * applies.
+     */
     readonly phases: readonly ISupportPhase[];
   }
 
-  /**
-   * One half-open support phase.
-   */
+  /** One half-open support phase. */
   export interface ISupportPhase {
     /** First owned film second. */
     readonly from: number;
@@ -105,9 +101,7 @@ export namespace ISelectAutoMoviePlacedChecks {
     readonly anchor: IAutoMovieVector3;
   }
 
-  /**
-   * A grip held through consecutive windows.
-   */
+  /** A grip held through consecutive windows. */
   export interface IGrip extends IRule {
     /** Maximum position separation in the hand's frame, metres. */
     readonly maxDistance: number;
@@ -115,13 +109,14 @@ export namespace ISelectAutoMoviePlacedChecks {
     /** Maximum orientation separation, radians in [0, π]. */
     readonly maxAngle: number;
 
-    /** Non-overlapping windows. The earliest listed window containing the instant applies. */
+    /**
+     * Non-overlapping windows. The earliest listed window containing the
+     * instant applies.
+     */
     readonly windows: readonly IGripWindow[];
   }
 
-  /**
-   * One half-open grip window.
-   */
+  /** One half-open grip window. */
   export interface IGripWindow {
     /** First owned film second. */
     readonly from: number;
@@ -141,9 +136,7 @@ export namespace ISelectAutoMoviePlacedChecks {
       | ((filmSeconds: number) => IAutoMovieRigidTransform);
   }
 
-  /**
-   * A prop's holder schedule, observed through the displayed scene graph.
-   */
+  /** A prop's holder schedule, observed through the displayed scene graph. */
   export interface ICustody extends IRule {
     /** The prop whose holder is checked. */
     readonly prop: Object3D;
@@ -151,16 +144,17 @@ export namespace ISelectAutoMoviePlacedChecks {
     /** Declared holders by stable name, each the node that carries the prop. */
     readonly holders: Readonly<Record<string, Object3D>>;
 
-    /** Holder changes; each entry owns film time from its second until the next entry. Null declares a free prop. */
+    /**
+     * Holder changes; each entry owns film time from its second until the next
+     * entry. Null declares a free prop.
+     */
     readonly schedule: readonly {
       readonly from: number;
       readonly holder: string | null;
     }[];
   }
 
-  /**
-   * Continuous tracks evaluated across the film's cut.
-   */
+  /** Continuous tracks evaluated across the film's cut. */
   export interface IContinuity {
     /** The film's cut, already admitted by `cutSequence`. */
     readonly sequence: IAutoMovieSequence;
@@ -175,9 +169,7 @@ export namespace ISelectAutoMoviePlacedChecks {
     readonly tracks: readonly ITrack[];
   }
 
-  /**
-   * One entity track on its shot clocks.
-   */
+  /** One entity track on its shot clocks. */
   export interface ITrack extends IRule {
     /**
      * The entity's authored world transform at a shot-local second: a present
@@ -198,10 +190,16 @@ export namespace ISelectAutoMoviePlacedChecks {
       | null
       | undefined;
 
-    /** Maximum speed in metres per shot-local second. Omit to leave displacement unbounded. */
+    /**
+     * Maximum speed in metres per shot-local second. Omit to leave displacement
+     * unbounded.
+     */
     readonly maxSpeed?: number;
 
-    /** Maximum angular speed in radians per shot-local second. Omit to leave rotation unbounded. */
+    /**
+     * Maximum angular speed in radians per shot-local second. Omit to leave
+     * rotation unbounded.
+     */
     readonly maxAngularSpeed?: number;
 
     /** Allowance added to each limit, in metres and radians. */

@@ -5,13 +5,21 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
 
 /**
- * Measure the world-space box of every chosen path of an inspected scene: of the drawn objects at that path and of the marks at that path, together.
+ * Measure the world-space box of every chosen path of an inspected scene: of
+ * the drawn objects at that path and of the marks at that path, together.
  *
- * An object's box is what `measureAutoMovieInspectionBounds` measures of it as drawn now, its posed vertices and those of the objects beneath it that are drawn, so an isolated object contributes nothing. A mark's box holds its coordinates carried by its anchor's world matrix, through the anchor's first instance when it is an instanced mesh, and an arrow's tips as well as its origins. Paths come in the order the objects, then the marks, first give them; a chosen path with nothing drawn is left out.
+ * An object's box is what `measureAutoMovieInspectionBounds` measures of it as
+ * drawn now, its posed vertices and those of the objects beneath it that are
+ * drawn, so an isolated object contributes nothing. A mark's box holds its
+ * coordinates carried by its anchor's world matrix, through the anchor's first
+ * instance when it is an instanced mesh, and an arrow's tips as well as its
+ * origins. Paths come in the order the objects, then the marks, first give
+ * them; a chosen path with nothing drawn is left out.
  */
 export function measureAutoMovieInspectionPaths(props: {
   /** Drawn objects with their paths. */
@@ -51,7 +59,7 @@ export function measureAutoMovieInspectionPaths(props: {
     if (anchor !== null) {
       anchor.updateWorldMatrix(true, false);
       placement.copy(anchor.matrixWorld);
-      if (anchor instanceof THREE.InstancedMesh && anchor.count > 0) {
+      if (AutoMovieThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
         const instance: THREE.Matrix4 = new THREE.Matrix4();
         anchor.getMatrixAt(0, instance);
         placement.multiply(instance);

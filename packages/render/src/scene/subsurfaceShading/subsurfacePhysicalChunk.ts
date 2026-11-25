@@ -5,7 +5,10 @@ const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
   SUBSURFACE_TEXTURE_SIZE;
 
 /**
- * Replace the supported physical direct-diffuse line with the current RGB table lookup while preserving all other supplied chunk text. An absent target refuses before returning source; only the first exact occurrence is replaced.
+ * Replace the supported physical direct-diffuse line with the current RGB table
+ * lookup while preserving all other supplied chunk text. An absent target
+ * refuses before returning source; only the first exact occurrence is
+ * replaced.
  */
 export function subsurfacePhysicalChunk(pars: string): string {
   if (!pars.includes(SUBSURFACE_TARGET))
@@ -29,7 +32,7 @@ vec3 subsurfaceDiffuse( const in float dotNL ) {
 ` +
     pars.replace(
       SUBSURFACE_TARGET,
-      "reflectedLight.directDiffuse += directLight.color * subsurfaceDiffuse( dot( geometryNormal, directLight.direction ) ) * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );",
+      "reflectedLight.directDiffuse += directLight.color * subsurfaceDiffuse( dot( geometryNormal, directLight.direction ) ) * diffuseBRDF * ( 1.0 - F );",
     )
   );
 }

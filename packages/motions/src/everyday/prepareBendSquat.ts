@@ -15,13 +15,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { deriveHumanPosture } from "../posture/deriveHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -31,13 +30,14 @@ import { braceOnThighPoint } from "./braceOnThighPoint";
 import { seatedPairDepth } from "./seatedPairDepth";
 
 type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
-/** A fixed wrist or one on a carried surface. A trial offers its same-pose displayed bones. */
-type Wrist =
-  | IAutoMovieVector3
-  | ((
-      posture: IAutoMovieMotionHumanPosture,
-      bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ) => IAutoMovieVector3);
+/**
+ * The wrist's place in a posture: fixed, or on a carried surface. A trial
+ * offers its same-pose displayed bones.
+ */
+type Wrist = (
+  posture: IAutoMovieMotionHumanPosture,
+  bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+) => IAutoMovieVector3;
 type Course = (
   posture: IAutoMovieMotionHumanPosture,
   share: number,
@@ -54,29 +54,24 @@ type Angles = [
   twist: number,
 ];
 
-/** Current residuals and the canonical leg fit eligible to serve its derivatives. */
+/** A trial's residuals and the lower posture they were read on. */
 interface ITrial {
+  /** The residual rows. */
   rows: number[];
+
+  /** The lower posture. */
   legs: IAutoMovieMotionHumanPosture;
-  coordinates: readonly number[];
-  solved?: deriveHumanPosture.ISolved;
 }
 
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 const RAD: number = Math.PI / 180;
 
 /**
- * Recover a supported, unilateral squat when the nominal sagittal course
- * folds the lumbar skin into a thigh. Two links locate the hips above the
- * actual ankle centres while both hindfoot goals keep their material pivots.
- * The event solve varies the loaded ankle, knee, pelvis and trunk on their
- * clinical intervals. Playback reads the one resulting contact key.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Bilateral material sockets, knee circles, opposing thigh hulls and both wrist spheres constrain the same lower-body posture; the closed two-link phase starts from the current standing support.
- * @evidence contracts/development/implementation.md#efficient-algorithms The nominal lumbar hull is checked first. Only an obstructed squat enters a single projected descent at contact; playback transports the one chosen trunk disposition by its authored movement share.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The native descent derives each perturbed candidate's direct posture from its accepted iterate and transfers an existing leg fit only when the common resolver proves the root, chain records and planted targets are identical. A trial offers its current displayed bones to the carried wrist reader and to every reach, support and hull observation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Joint bounds come from this body and the action's strategy. The descent stops at the rig's angular resolution and never reads fixture or archetype names.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the accepted iterate and one temporary solve exist during descent. They and the shared FK workspace end before the course returns, which keeps its contact geometry and the entry shank orientation.
+ * Recover a supported, unilateral squat when the nominal sagittal course folds
+ * the lumbar skin into a thigh. Two links locate the hips above the actual
+ * ankle centres while both hindfoot goals keep their material pivots. The event
+ * solve varies the loaded ankle, knee, pelvis and trunk on their clinical
+ * intervals. Playback reads the one resulting contact key.
  */
 export function prepareBendSquat(
   body: IAutoMovieMotionHumanBody,
@@ -132,7 +127,7 @@ export function prepareBendSquat(
   ];
   const local = HumanFrame.local(
     { origin: standing.root, yaw: standing.yaw },
-    typeof wrist === "function" ? wrist(nominal) : wrist,
+    wrist(nominal),
   );
   const lean: number = Math.atan2(-local.x, -local.y) / RAD;
   const turn: number =
@@ -181,7 +176,10 @@ export function prepareBendSquat(
   const upper = HumanFrame.local({ ...legFrame, origin: startKnee }, startHip);
   const startShank: number = Math.atan2(lower.z, lower.y);
   const startThigh: number = Math.atan2(-upper.z, upper.y);
-  /** The root and both planted knee planes depend only on the first four coordinates. */
+  /**
+   * The root and both planted knee planes depend only on the first four
+   * coordinates.
+   */
   const lowerBody = (q: readonly number[]): IAutoMovieMotionHumanPosture => {
     const shank: number = (q[1]! + bendLower.HEEL[strategy]) * RAD,
       thigh: number = q[0]! * RAD - shank;
@@ -203,12 +201,7 @@ export function prepareBendSquat(
       pitch: q[2]!,
       roll: q[3]!,
     };
-    const hips = hipJoints(
-      body,
-      p.root,
-      resolveHumanPosture.heading(p),
-      p.joints.hips,
-    );
+    const hips = hipJoints(body, p.root, humanPostureHeading(p), p.joints.hips);
     return kneePlanes(body, {
       ...p,
       root: Vector3.subtract(centre, Vector3.lerp(hips.left, hips.right, 0.5)),
@@ -226,47 +219,25 @@ export function prepareBendSquat(
       chest: [q[5]!, q[6]! / 2, q[7]! / 2],
     },
   });
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
-    createHumanBody.owns(body) ? prepareHumanPoseResolution() : undefined;
-  /** Inspect one actual proposed posture, deriving only equivalent leg work. */
-  const residual = (q: readonly number[], before?: ITrial): ITrial => {
-    const coordinates: readonly number[] = q.slice(0, 4);
-    const legs: IAutoMovieMotionHumanPosture =
-      resolution !== undefined &&
-      before !== undefined &&
-      coordinates.every((value: number, i: number): boolean =>
-        Object.is(value, before.coordinates[i]),
-      )
-        ? before.legs
-        : lowerBody(q);
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
+  /** Inspect one proposed posture: its legs, trunk and fit, solved afresh. */
+  const residual = (q: readonly number[]): ITrial => {
+    const legs: IAutoMovieMotionHumanPosture = lowerBody(q);
     const p: IAutoMovieMotionHumanPosture = trunk(legs, q);
-    let solved: deriveHumanPosture.ISolved | undefined;
-    let bones: ReturnType<typeof poseBones>;
-    let inherited: boolean = false;
-    if (resolution === undefined) bones = native(p);
-    else {
-      const previous: deriveHumanPosture.ISolved | undefined = before?.solved;
-      const assembled: resolveHumanPostureSource.IAssembled =
-        previous === undefined
-          ? resolveHumanPostureSource.assemble(body, p)
-          : deriveHumanPosture(body, previous.assembled, p);
-      const retained: deriveHumanPosture.ISolved["seeded"] | undefined =
-        previous === undefined
-          ? undefined
-          : deriveHumanPosture.inherited(body, assembled, previous);
-      const seeded: deriveHumanPosture.ISolved["seeded"] =
-        retained ??
-        resolveHumanPostureSource.fit(
-          body,
-          assembled,
-          undefined,
-          undefined,
-          resolution,
-        );
-      inherited = retained !== undefined;
-      solved = { assembled, seeded };
-      bones = poseBones(body, seeded.pose, resolution());
-    }
+    const seeded: ReturnType<typeof resolveHumanPostureSource.fit> =
+      resolveHumanPostureSource.fit(
+        body,
+        resolveHumanPostureSource.assemble(body, p),
+        undefined,
+        undefined,
+        resolution,
+      );
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      seeded.pose,
+      resolution(),
+    );
     const placed = HumanColliders.placed(body, bones);
     const site = braced(bones);
     const braceWrist = Vector3.subtract(
@@ -278,7 +249,7 @@ export function prepareBendSquat(
         0,
         Vector3.distance(
           bones.get(`${side}UpperArm`)!.worldPosition,
-          typeof wrist === "function" ? wrist(p, bones) : wrist,
+          wrist(p, bones),
         ) - span,
       ),
       Math.max(
@@ -290,12 +261,6 @@ export function prepareBendSquat(
       ),
       ...depths.map((depth) => depth(placed)),
     ];
-    // The crossed leg hulls and foot sockets read only the inherited leg FK.
-    // The torso-to-leg hulls and the wrist terms above still read this trial.
-    if (inherited) {
-      rows.push(...before!.rows.slice(rows.length));
-      return { rows, solved, legs, coordinates };
-    }
     rows.push(...crossed.map((depth) => depth(placed)));
     SIDES.forEach((s, i) => {
       const foot = bones.get(`${s}Foot`)!,
@@ -317,7 +282,7 @@ export function prepareBendSquat(
         ),
       );
     });
-    return { rows, solved, legs, coordinates };
+    return { rows, legs };
   };
   const q: number[] = initial.map((v, i) =>
     Math.max(lo[i]!, Math.min(hi[i]!, v)),
@@ -331,7 +296,7 @@ export function prepareBendSquat(
     const gradients = q.map((_, i) => {
       const moved = q.slice();
       moved[i]! += ROM_TOLERANCE;
-      return residual(moved, at).rows.reduce(
+      return residual(moved).rows.reduce(
         (s, v, j) => s + ((v - at.rows[j]!) * at.rows[j]!) / ROM_TOLERANCE,
         0,
       );
@@ -348,7 +313,7 @@ export function prepareBendSquat(
         ),
       );
       if (next.every((v, i) => Math.abs(v - q[i]!) < ROM_TOLERANCE)) continue;
-      const trial: ITrial = residual(next, at);
+      const trial: ITrial = residual(next);
       if (cost(trial.rows) >= best) continue;
       q.splice(0, q.length, ...next);
       at = trial;
@@ -357,10 +322,7 @@ export function prepareBendSquat(
     }
     if (!accepted) break;
   }
-  const peak: IAutoMovieMotionHumanPosture = trunk(
-    resolution === undefined ? lowerBody(q) : at.legs,
-    q,
-  );
+  const peak: IAutoMovieMotionHumanPosture = trunk(at.legs, q);
   return (p, share, standing) => {
     const joints = { ...p.joints };
     for (const bone of ["spine", "chest"] as const) {
@@ -388,7 +350,7 @@ export function prepareBendSquat(
     const standingHips = hipJoints(
       body,
       standing.root,
-      resolveHumanPosture.heading(standing),
+      humanPostureHeading(standing),
       standing.joints.hips,
     );
     const start = Vector3.lerp(standingHips.left, standingHips.right, 0.5);
@@ -430,7 +392,7 @@ export function prepareBendSquat(
     const hips = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
-      resolveHumanPosture.heading(result),
+      humanPostureHeading(result),
       result.joints.hips,
     );
     return kneePlanes(body, {
@@ -448,7 +410,7 @@ function kneePlanes(
   const hips = hipJoints(
     body,
     original.root,
-    resolveHumanPosture.heading(original),
+    humanPostureHeading(original),
     original.joints.hips,
   );
   const limbs = { ...original.limbs };

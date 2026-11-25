@@ -1,81 +1,109 @@
 import type {
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
 } from "@automovie/interface";
 
+import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import type { HumanArmSeed } from "./HumanArmSeed";
+import { HumanArmSiteStepFeasible } from "./HumanArmSiteStepFeasible";
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
+import { HumanArmTrajectoryEvaluate } from "./HumanArmTrajectoryEvaluate";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryRateProjection as Projection } from "./HumanArmTrajectoryRateProjection";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
 import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
 
 /**
- * TrajOpt's penalty sequential convex optimisation with a trust region
- * (Schulman et al. 2014, "Motion planning with sequential convex optimization
- * and convex collision checking", IJRR 33:1251, Algorithm 1) of an arms'
- * waypoints under `HumanArmTrajectoryModel`'s objective and constraints, run
- * by the shared loop (`HumanSequentialConvex`): each convex subproblem
- * (`HumanArmTrajectoryConvex`) is solved within the region by the
- * interior-point method of `HumanQuadraticProgram.interior`, whose
- * iteration count does not grow with the conditioning of a trajectory's
- * second-difference curvature as an operator splitting's does; every row but
- * the trust region's is elastic, so each subproblem has a solution; a step is taken where the merit falls by a tenth of
- * what the model predicts and the region shrunk where not. The penalty is
- * steered (Byrd, Nocedal and Waltz 2008,
- * `HumanSequentialConvex.IOptions.steer`): each round it grows tenfold
- * until the step keeps its share of what the linearised constraints allow,
- * from the first of `PENALTIES` to the last at most, so an iterate is not
- * carried off the constraints by the objective at a penalty too low and
- * brought back at the next (measured: a sit's reach feasible at round 2,
- * infeasible again by round 11, feasible at round 18 under a fixed ladder).
- * A problem still infeasible at the last penalty is left to the caller to
- * refuse. A solve continued from another's result on refined waypoints
- * starts at that result's penalty, the continuation of a penalty method, in
- * place of the first.
+ * TrajOpt's solve of an arms' waypoints (Schulman et al. 2014, "Motion planning
+ * with sequential convex optimization and convex collision checking", IJRR
+ * 33:1251) under `HumanArmTrajectoryModel`'s objective and constraints:
+ * trajopt's sequential convex loop (`HumanSequentialConvex`, the port of
+ * `sco::BasicTrustRegionSQP::optimize`) at the settings trajopt's own
+ * trajectory entry gives it (`OptimizeProblem`,
+ * `src/trajopt/problem_description.cpp` lines 244-257,
+ * github.com/joschu/trajopt at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c,
+ * BSD-2-Clause, Copyright (c) 2013, John Schulman). Each convex model
+ * (`HumanArmTrajectoryConvex`) is solved inside the trust box, intersected with
+ * the coordinates' hard ranges as `setTrustBoxConstraints` intersects it, by
+ * the interior-point method of `HumanQuadraticProgram.interior`; a model that
+ * method cannot solve ends the solve failed, as trajopt's ends where its convex
+ * solver fails.
  */
 export namespace HumanArmOptimiser {
+  /** An optimised course: its waypoints, their reading and the coefficient. */
+  export interface IOptimised {
+    /** Each arm's coordinates at each waypoint. */
+    x: number[][][];
+
+    /**
+     * Each arm's velocity and acceleration at each knot, where the waypoints
+     * are knots on a finer frame grid; absent where they are read themselves.
+     */
+    rates?: Knots.IRates;
+
+    /** Their reading, which admits or refuses the path played. */
+    evaluation: M.IEvaluation;
+
+    /** The merit coefficient the solve ended at. */
+    penalty: number;
+  }
+
   /**
    * Optimise from an iterate.
    *
    * @param context The problem's context.
-   * @param start Each arm's coordinates at each waypoint; the first and the last waypoint stay.
-   * @param from The penalty to start at, a solve continued from an earlier one of the same problem on other waypoints (`penalty` of its result); the first when absent.
-   * @param fine The context at the frame grid's instants over the same span. When it holds more instants than `context`, the waypoints are knots: every evaluation and linearisation is the grid's, on the knots' interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`), the rounds reading the clearance pairs at the knots' instants alone and the motion terms and the sweeps on every instant; absent, or for a still configuration, the waypoints are read themselves.
-   * @returns The last iterate at the waypoints, its evaluation (the grid's in full where a grid was read) and the penalty it was reached at.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem, its domain rows elastic as TrajOpt's, is solved by the interior method, by the operator splitting where that leaves it unsolved.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and a subproblem the interior method leaves unsolved is solved by the operator splitting, never read as a zero step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. On a grid the rounds read the clearance pairs, the costliest readings, at the knots alone, TrajOpt's discrete collision terms at its timesteps with swept volumes between them (Schulman et al. 2014, section IV-C), and the converged path once in full; a pair that the full reading finds between knots is the caller's to refine (`HumanArmTrajectory.solve`). Measured on a tai chi push's row on f-small, two 87-knot reaches on a 361-instant grid: 52 s to 36-42 s.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales at a penalty serve every subproblem at that penalty, a subproblem at another penalty being equilibrated again and started cold since every soft row weighs the penalty, the solver's scratch serves them all, and the models of one linearisation at one penalty, which share its rows, start from the last one solved, a start that decides no answer; the violation-alone model, whose objective is not the model's, starts cold.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
+   * @param start Each arm's coordinates at each waypoint; the first and the
+   *   last waypoint stay.
+   * @param from The merit coefficient to start at, a solve continued from an
+   *   earlier one of the same problem on other waypoints (`penalty` of its
+   *   result), set as trajopt's caller sets `merit_error_coeff_`; trajopt's
+   *   trajectory setting when absent.
+   * @param fine The context at the frame grid's instants over the same span.
+   *   When it holds more instants than `context`, the waypoints are knots:
+   *   every evaluation and linearisation is the grid's, on the knots'
+   *   interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`);
+   *   absent, or for a still configuration, the waypoints are read themselves.
+   * @param rates The knots' velocities and accelerations to start from; the
+   *   minimum-jerk spline's through `start` when absent (`Knots.rates`).
+   * @param pinned The hold poses whose positions stay fixed.
+   * @param fixSite The hold's hard contact equality, at its projection or a
+   *   point selected within an inscribed region.
+   * @returns The last iterate at the waypoints, its evaluation and the merit
+   *   coefficient it was reached at.
    */
   export function optimise(
     context: M.IContext,
     start: readonly (readonly (readonly number[])[])[],
     from?: number,
     fine?: M.IContext,
-  ): { x: number[][][]; evaluation: M.IEvaluation; penalty: number } {
+    rates?: Knots.IRates,
+    pinned?: HumanArmSeed.IHolds,
+    fixSite: boolean | "region" = false,
+  ): IOptimised {
     // With a frame grid finer than the waypoints, the waypoints are knots:
     // the model is read and linearised at every grid instant on their
-    // interpolant, and each subproblem is carried onto the knots' steps
-    // (`HumanArmTrajectoryKnots`).
+    // interpolant, and each subproblem is carried onto the knots' steps.
     const grid: M.IContext | undefined =
-      fine !== undefined && !context.still && fine.n > context.n ? fine : undefined;
+      fine !== undefined && !context.still && fine.n > context.n
+        ? fine
+        : undefined;
     const read: M.IContext = grid ?? context;
-    const weights: number[][] | undefined =
+    const weights: Knots.IWeight[][] | undefined =
       grid === undefined ? undefined : Knots.weights(context.times, grid.times);
-    const spread = (x: number[][][]): number[][][] =>
-      grid === undefined ? x : Knots.read(context.times, grid.times, x);
+    const spread = (it: IIterate): number[][][] =>
+      grid === undefined
+        ? it.x
+        : Knots.read(context.times, grid.times, it.x, it.rates);
 
-    // The clearance pairs, the costliest of the model's readings, are read
-    // at the knots' own instants by the rounds, the swept spheres between
-    // every two frames keeping the continuous check and every motion term
-    // read on every frame, so the path optimised is the one played; the
-    // converged path is then read whole, which the caller admits by.
+    // The clearance is read at the knots' own instants and over the
+    // intervals between them, every motion term on every frame
+    // (`HumanArmTrajectoryEvaluate`), trajopt's timesteps and the casts
+    // between them.
     const contact: boolean[] | undefined =
       grid === undefined
         ? undefined
@@ -86,81 +114,99 @@ export namespace HumanArmOptimiser {
 
     // The objective's exact quadratic terms, the same at every iterate.
     const smooth: HumanArmTrajectorySmooth.ISmooth =
-      HumanArmTrajectorySmooth.of(read);
+      HumanArmTrajectorySmooth(read);
 
-    // Every subproblem of this solve is one session of the interior-point
-    // solve (`HumanQuadraticInteriorSession`): the first subproblem at a
-    // penalty equilibrates the rest at that penalty, the scratch is kept,
-    // and the models of one linearisation (a smaller region, a reprice),
-    // which share its rows, each start from the one solved before; the
-    // violation alone, another objective, starts cold. Every soft row weighs the penalty, so a subproblem at another
-    // penalty has data of another magnitude: it is equilibrated again, and
-    // starts cold, as OSQP and Ipopt scale again when their data's magnitude
-    // changes (`scaledAt`).
+    // The subproblems of one solve share one interior-point session; a model
+    // at another coefficient has data of another magnitude and is
+    // equilibrated again (`scaledAt`).
     const session: HumanQuadraticInteriorSession.ISession = {};
-    let scaledAt: number | undefined;
-    // A still solve never steps its fixed endpoints. Its single initial
-    // reading supplies those placements throughout this synchronous solve.
-    const changing: boolean[] | undefined = read.still
-      ? read.times.map((_time: number, i: number): boolean => M.inner(read, i))
+    const scaled: IScaled = { at: undefined };
+
+    // Place a still solve's immovable endpoint coordinates once before the
+    // first convex iteration. Each trial then reads those same placements.
+    const fixed: Parameters<typeof HumanArmTrajectoryEvaluate>[4] = read.still
+      ? start.map((arm: readonly (readonly number[])[], a: number) =>
+          arm.map(
+            (
+              q: readonly number[],
+              k: number,
+            ): IAutoMovieMotionHumanArmGeometry.IPlaced | undefined =>
+              M.inner(read, k)
+                ? undefined
+                : G.placed(read.setups[a]!, read.frames[a]![k]!, q),
+          ),
+        )
       : undefined;
-    let fixed: Parameters<typeof M.evaluate>[2];
-    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<number[][][], M.IEvaluation> = {
-      evaluate: (x: number[][][]): M.IEvaluation => {
-        const evaluation: M.IEvaluation = M.evaluate(read, spread(x), fixed, contact);
-        if (changing !== undefined && fixed === undefined)
-          fixed = { reading: evaluation, laid: changing };
-        return evaluation;
+
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<
+      IIterate,
+      IReading
+    > = {
+      closest: (it: IIterate): IIterate => ({
+        x: it.x,
+        ...(it.rates === undefined
+          ? {}
+          : { rates: Projection(context, it.x, limited(context, it.rates)) }),
+      }),
+      evaluate: (x: IIterate): IReading => {
+        const evaluation: M.IEvaluation = HumanArmTrajectoryEvaluate(
+          read,
+          spread(x),
+          undefined,
+          contact,
+          fixed,
+        );
+        return { ...evaluation, greatest: evaluation.worst.value };
       },
-      feasible: (evaluation: M.IEvaluation): boolean =>
-        evaluation.worst.value <= M.TOLERANCE,
       convexify: (
-        x: number[][][],
-        evaluation: M.IEvaluation,
-        mu: number,
-        radius: number,
-        objective: boolean,
-      ): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
+        x: IIterate,
+        evaluation: IReading,
+        coefficient: number,
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<IIterate> => {
         // A new linearisation has other rows: no earlier point starts it.
         session.point = undefined;
 
-        // The pairs that can enter the subproblem are read one growth of the
-        // region beyond it.
-        const built: IAutoMovieMotionHumanQuadraticProgram.IProblem = HumanArmTrajectoryConvex.convexify(
-          read,
-          spread(x),
-          evaluation,
-          mu,
-          SCHEDULE.expand * radius,
-          smooth,
-        );
-        const model: IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> = shell(
+        // The rows are the iterate's own reading's pairs within trajopt's
+        // contact distance of their bounds (`HumanArmTrajectoryTerms.CHECK`).
+        const built: IAutoMovieMotionHumanQuadraticProgram.IProblem =
+          HumanArmTrajectoryConvex.convexify(
+            read,
+            spread(x),
+            evaluation,
+            coefficient,
+            smooth,
+            fixSite,
+          );
+        return shell(
           grid === undefined ? built : Knots.reduce(context, weights!, built),
           x,
-          mu,
+          evaluation,
+          coefficient,
         );
-        return objective ? model : model.feasibility!();
       },
     };
 
-    // One linearisation at one penalty as the loop's model. Every soft row
-    // weighs the penalty itself, so the same linearisation at another
-    // penalty is the same rows reweighed (`reprice`), and the steering's
-    // step of the violation alone the same rows with no objective (Byrd,
-    // Nocedal and Waltz's (5.10), `feasibility`), with no geometry read
-    // again.
-    const shell = (model: IAutoMovieMotionHumanQuadraticProgram.IProblem, x: number[][][], mu: number, objectiveFree: boolean = false): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
-      let zero: number | undefined;
-
-      // The splitting's fixed model of this shell's rows, made only for a
-      // region the interior method leaves unsolved.
-      let fallback: ReturnType<typeof QP.prepare> | undefined;
-
-      // The region's rows, one per variable, built once for the model: a
-      // retry in a smaller region changes only their two ends.
-      const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = Array.from(
-        { length: model.n },
-        (_: unknown, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
+    // One linearisation at one coefficient as the loop's model.
+    const shell = (
+      model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+      x: IIterate,
+      evaluation: IReading,
+      coefficient: number,
+    ): IAutoMovieMotionHumanSequentialConvex.IModel<IIterate> => {
+      // The box's rows, one per variable, built once for the model: a
+      // smaller box changes only their two ends (`setTrustBoxConstraints`).
+      const ranges: IRange[] = rangesOf(
+        context,
+        x,
+        model.n,
+        grid !== undefined,
+        pinned,
+      );
+      const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = ranges.map(
+        (
+          _range: IRange,
+          i: number,
+        ): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
           index: [i],
           coef: [1],
           l: 0,
@@ -172,155 +218,294 @@ export namespace HumanArmOptimiser {
         ...model,
         rows: [...model.rows, ...trust],
       };
+      const siteRows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = fixSite
+        ? model.rows.filter(
+            (row) => row.weight === undefined && row.l === row.u,
+          )
+        : [];
       return {
-        solve: (r: number): IAutoMovieMotionHumanSequentialConvex.IStep<number[][][]> => {
-          for (const row of trust) {
-            row.l = -r;
-            row.u = r;
-          }
-
-          // The interior-point solve. Every row but the trust region's is
-          // elastic (`HumanArmTrajectoryConvex`), so the subproblem has a
-          // solution, the zero step among its feasible points; where the
-          // interior method leaves it unsolved, the operator splitting
-          // solves it (`HumanQuadraticProgram.prepare`), its iterate judged
-          // by the merit like any other: a failed solve is never read as a
-          // zero step, which the loop would answer by shrinking the region
-          // round an iterate the model can still improve.
-          if (scaledAt !== mu) {
+        solve: (
+          box: number,
+        ): IAutoMovieMotionHumanSequentialConvex.IStep<IIterate> => {
+          // lbtrust = fmax(x - box, lb), ubtrust = fmin(x + box, ub), as steps.
+          ranges.forEach((range: IRange, i: number): void => {
+            trust[i]!.l = Math.max(-box * range.scale, range.low);
+            trust[i]!.u = Math.min(box * range.scale, range.high);
+          });
+          if (
+            siteRows.some(
+              (row) => !HumanArmSiteStepFeasible(row, trust, M.TOLERANCE),
+            )
+          )
+            return { trial: x, merit: Infinity, failed: true };
+          if (scaled.at !== coefficient) {
             session.scaling = undefined;
             session.point = undefined;
-            scaledAt = mu;
+            scaled.at = coefficient;
           }
-          // The violation alone is another problem than the model whose
-          // point the session holds: its objective, the soft rows' penalties
-          // alone, is no small change of the model's, the premise of an
-          // interior-point warm start (Yildirim and Wright 2002, "Warm-start
-          // strategies in interior-point methods for linear programming",
-          // SIAM J Optim 12:782), and a start from that point measured as
-          // failing in four of five solves, each then solved again cold. It
-          // starts cold.
-          if (objectiveFree) session.point = undefined;
-          const solved: Float64Array =
-            QP.interior(trusted, session)?.x ??
-            (fallback ??= QP.prepare(trusted)).solve(trusted.rows).x;
-          let length: number = 0;
-          for (let i: number = 0; i < solved.length; ++i)
-            length = Math.max(length, Math.abs(solved[i]!));
+          const solved: Float64Array | undefined = QP.interior(
+            trusted,
+            session,
+          )?.x;
+          if (solved === undefined)
+            return { trial: x, merit: Infinity, failed: true };
 
-          // What the step leaves of the linearised constraints: each soft
-          // row's excess past its interval, millimetres, summed as the
-          // model's evaluation sums the constraints' violations.
-          let violation: number = 0;
-          let most: number = 0;
-          for (const row of model.rows) {
-            if (row.weight === undefined) continue;
-            let value: number = 0;
-            for (let i: number = 0; i < row.index.length; ++i)
-              value += row.coef[i]! * solved[row.index[i]!]!;
-            const excess: number = Math.max(0, row.l - value, value - row.u);
-            violation += excess;
-            most = Math.max(most, excess);
-          }
-          let trial: number[][][] | undefined;
+          // The model merit: the convexified costs and the priced linearised
+          // constraints at the solution. The model omits the costs' value at
+          // the iterate, its constant, which the iterate's exact objective is.
           return {
-            get trial(): number[][][] {
-              return (trial ??= M.stepped(context, x, solved));
-            },
-            predicted: (zero ??= QP.value(model)) - QP.value(model, solved),
-            length,
-
-            // The step at the region's edge, to the solver's own accuracy.
-            full: length >= r * (1 - QP.TOLERANCE),
-            violation,
-            met: most <= M.TOLERANCE,
+            trial: stepped(context, x, solved, grid !== undefined, pinned),
+            merit: evaluation.objective + QP.value(model, solved),
+            failed: false,
           };
         },
-        reprice: (penalty: number): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> =>
-          shell(
-            {
-              ...model,
-              rows: model.rows.map((row: IAutoMovieMotionHumanQuadraticProgram.IRow): IAutoMovieMotionHumanQuadraticProgram.IRow =>
-                row.weight === undefined ? row : { ...row, weight: penalty }),
-            },
-            x,
-            penalty,
-          ),
-        feasibility: (): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> =>
-          shell(
-            {
-              ...model,
-              p: model.p.map(
-                (row: Float64Array): Float64Array =>
-                  new Float64Array(row.length),
-              ),
-              q: new Float64Array(model.q.length),
-            },
-            x,
-            mu,
-            true,
-          ),
       };
     };
-    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<number[][][], M.IEvaluation> = SCO.minimise(
-      problem,
-      start.map((arm: readonly (readonly number[])[]): number[][] =>
-        arm.map((v: readonly number[]): number[] => [...v]),
-      ),
-      {
-        schedule: SCHEDULE,
-        penalties: PENALTIES,
-        rounds: ROUNDS,
-        steer: true,
-        ceiling: PENALTIES[PENALTIES.length - 1]!,
 
-        // A reduction of the violation under the millimetre the plan accepts
-        // as feasible is one the plan cannot tell (`IOptions.stationary`).
-        stationary: M.TOLERANCE,
-        ...(from === undefined ? {} : { from }),
+    const first: number[][][] = closest(context, start, pinned);
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
+      IIterate,
+      IReading
+    > = SCO.minimise(
+      problem,
+      {
+        x: first,
+        ...(grid === undefined
+          ? {}
+          : { rates: rates ?? Knots.rates(context.times, first) }),
+      },
+      {
+        ...SCO.DEFAULTS,
+        ...TRAJECTORY,
+        ...(from === undefined ? {} : { meritErrorCoeff: from }),
       },
     );
     return {
-      x: solved.x,
-      evaluation:
-        contact === undefined
-          ? solved.evaluation
-          : M.evaluate(read, spread(solved.x)),
-      penalty: solved.penalty,
+      x: solved.x.x,
+      ...(solved.x.rates === undefined ? {} : { rates: solved.x.rates }),
+      evaluation: solved.evaluation,
+      penalty: solved.coefficient,
     };
   }
+
+  /**
+   * The knots' rates nearest an iterate's within the coordinates' velocity
+   * limits (`HUMAN_ARM_COORDINATE_RATES`), the moving knots' clamped and the
+   * others kept, as the waypoints are projected into their ranges (`closest`),
+   * so every trust box holds the step of no change.
+   */
+  function limited(c: M.IContext, rates: Knots.IRates): Knots.IRates {
+    return {
+      velocities: rates.velocities.map((arm: number[][]): number[][] =>
+        arm.map((v: number[], k: number): number[] =>
+          M.inner(c, k)
+            ? v.map((value: number, d: number): number => {
+                const rate: number = RATES[d] ?? Infinity;
+                return Math.min(rate, Math.max(-rate, value));
+              })
+            : [...v],
+        ),
+      ),
+      accelerations: rates.accelerations.map((arm: number[][]): number[][] =>
+        arm.map((v: number[]): number[] => [...v]),
+      ),
+    };
+  }
+  /**
+   * The waypoints nearest an iterate inside the coordinates' hard ranges
+   * (`OptProb::getClosestFeasiblePoint`): each inner waypoint projected by
+   * `HumanArmTrajectoryModel.ranged`, the others kept.
+   */
+  function closest(
+    c: M.IContext,
+    x: readonly (readonly (readonly number[])[])[],
+    pinned?: HumanArmSeed.IHolds,
+  ): number[][][] {
+    return x.map((arm: readonly (readonly number[])[], a: number): number[][] =>
+      arm.map((v: readonly number[], k: number): number[] => {
+        const held: number[] | undefined = pinned?.get(c.times[k]!)?.[a];
+        if (held !== undefined && c.sites[a]![k] !== undefined)
+          return [...held];
+        return M.inner(c, k) ? M.ranged(c, a, v) : [...v];
+      }),
+    );
+  }
+
+  /**
+   * Each variable's hard range as a step from the iterate, the variable laid
+   * out as `HumanArmTrajectoryModel.stepped` reads it: a boxed coordinate's
+   * bounds less its value, the chart's two unbounded (its disc is met by the
+   * projection after the step).
+   */
+  function rangesOf(
+    c: M.IContext,
+    it: IIterate,
+    n: number,
+    knotted: boolean,
+    pinned?: HumanArmSeed.IHolds,
+  ): IRange[] {
+    const out: IRange[] = Array.from(
+      { length: n },
+      (): IRange => ({ low: -Infinity, high: Infinity, scale: 1 }),
+    );
+    const stride: number = knotted ? 3 * c.width : c.width;
+    for (let k: number = 1; k < c.n; ++k) {
+      if (!M.inner(c, k)) continue;
+      const fixed: boolean = pinned?.has(c.times[k]!) === true;
+      // A knot's velocity and acceleration are the subproblem's variables in
+      // its own time scale (`Knots.span`), in the positions' units.
+      const span: number = Knots.span(c.times, k);
+      c.free.forEach((free: readonly number[], a: number): void =>
+        free.forEach((d: number, f: number): void => {
+          const base: number = (k - 1) * stride + c.offset[a]! + f;
+          const b: Bound = c.bounds[a]![d] ?? null;
+          if (b !== null) {
+            const value: number = it.x[a]![k]![d]!;
+            out[base] = { low: b[0] - value, high: b[1] - value, scale: 1 };
+          }
+          // Hold this arm's position only while it has a site of its own.
+          if (fixed && c.sites[a]![k] !== undefined)
+            out[base] = { low: 0, high: 0, scale: 1 };
+          if (!knotted || it.rates === undefined) return;
+          // The velocity within the coordinate's own rate, the limit the
+          // retiming holds it to (`HUMAN_ARM_COORDINATE_RATES`, TOPP-RA's
+          // first-order constraint); the acceleration, which the retiming
+          // leaves unbounded, only within the trust box.
+          const rate: number = RATES[d] ?? Infinity;
+          const v: number = it.rates.velocities[a]![k]![d]!;
+          // An iterate the solver's own tolerance left just past the limit keeps
+          // the step of no change in its range.
+          out[base + c.width] = {
+            low: Math.min(0, (-rate - v) * span),
+            high: Math.max(0, (rate - v) * span),
+            scale: 1,
+          };
+          out[base + 2 * c.width] = {
+            low: -Infinity,
+            high: Infinity,
+            scale: 1,
+          };
+        }),
+      );
+    }
+    return out;
+  }
+
+  /**
+   * An iterate moved by a subproblem's solution: the positions by
+   * `HumanArmTrajectoryModel.stepped`, the knots' velocities and accelerations
+   * by their own steps, projected where a knot lies on a bound
+   * (`HumanArmTrajectoryRateProjection`).
+   */
+  function stepped(
+    c: M.IContext,
+    it: IIterate,
+    solved: Float64Array,
+    knotted: boolean,
+    pinned?: HumanArmSeed.IHolds,
+  ): IIterate {
+    if (!knotted || it.rates === undefined)
+      return { x: M.stepped(c, it.x, solved, pinned) };
+    const width: number = c.width;
+    const inner: number = solved.length / (3 * width);
+    const positions: Float64Array = new Float64Array(inner * width);
+    for (let k: number = 0; k < inner; ++k)
+      for (let o: number = 0; o < width; ++o)
+        positions[k * width + o] = solved[k * 3 * width + o]!;
+    const velocities: number[][][] = it.rates.velocities.map(
+      (arm: number[][]): number[][] =>
+        arm.map((v: number[]): number[] => [...v]),
+    );
+    const accelerations: number[][][] = it.rates.accelerations.map(
+      (arm: number[][]): number[][] =>
+        arm.map((v: number[]): number[] => [...v]),
+    );
+    for (let k: number = 1; k < c.n; ++k) {
+      if (!M.inner(c, k)) continue;
+      c.free.forEach((free: readonly number[], a: number): void =>
+        free.forEach((d: number, f: number): void => {
+          const base: number = (k - 1) * 3 * width + c.offset[a]! + f;
+          // The steps are in the knot's own time scale (`Knots.span`).
+          const span: number = Knots.span(c.times, k);
+          velocities[a]![k]![d] =
+            velocities[a]![k]![d]! + solved[base + width]! / span;
+          accelerations[a]![k]![d] =
+            accelerations[a]![k]![d]! +
+            solved[base + 2 * width]! / (span * span);
+        }),
+      );
+    }
+    const x: number[][][] = M.stepped(c, it.x, positions, pinned);
+    return {
+      x,
+      rates: Projection(c, x, { velocities, accelerations }),
+    };
+  }
+
+  /**
+   * The solve's iterate: each arm's coordinates at each waypoint, and where the
+   * waypoints are knots on a finer grid, each knot's velocity and
+   * acceleration.
+   */
+  interface IIterate {
+    /** Each arm's coordinates at each waypoint. */
+    x: number[][][];
+    /** The knots' rates; absent where the waypoints are read themselves. */
+    rates?: Knots.IRates;
+  }
+  /**
+   * An iterate's reading for the loop: the model's, with its greatest
+   * violation.
+   */
+  interface IReading extends M.IEvaluation {
+    /** The worst violation past its slack (`IWorst.value`). */
+    greatest: number;
+  }
+
+  /** A variable's hard range as a step from the iterate. */
+  interface IRange {
+    /** The least step. */
+    low: number;
+
+    /** The greatest step. */
+    high: number;
+
+    /** The trust box's scale in the variable's own units. */
+    scale: number;
+  }
+
+  /** The coefficient the session's scales were taken at. */
+  interface IScaled {
+    /** The coefficient; absent before the first solve. */
+    at?: number;
+  }
+
+  /** A coordinate's hard range, as the context holds it. */
+  type Bound = M.IContext["bounds"][number][number];
 }
 
-/** The penalty a solve starts at, the first, TrajOpt's own (sco's merit_error_coeff), and the greatest the steering may raise it to, the last: the top of the ladder this planner climbed before it steered (this planner's value, unsourced). A problem still infeasible there is the caller's to refuse, not the penalty's to force. */
-const PENALTIES: readonly number[] = [10, 100, 1000, 10000];
-
-/** Convexifications a solve may take: the benchmark setting of Schulman et al. 2013, section VI ("maximum of 40 iterations"). */
-const ROUNDS: number = 40;
+/** Degrees in a radian: the arm's coordinates are near a degree a unit. */
+const DEGREES: number = 180 / Math.PI;
 
 /**
- * The region's schedule. Sourced: a step is taken where the merit falls by
- * more than a tenth of the model's prediction, an eta within Nocedal and
- * Wright's Algorithm 4.1 range [0, 1/4); a step not taken quarters the
- * region, Algorithm 4.1's factor; a step taken widens it by half, TrajOpt's
- * trust_expand_ratio, on every step taken as TrajOpt does; the solve has
- * settled where the model predicts a decrease below a ten-thousandth of
- * the merit, the benchmark setting of Schulman et al. 2013, section VI
- * ("minimum merit function improvement ratio of 10^-4"), read before a
- * step is tried as TrajOpt's sco reads it; the least step or region, the
- * last guard, TrajOpt's min_trust_box_size (1e-4, sco's default). This
- * planner's values, unsourced: the first region (8 coordinate units), the
- * widest (four times it) and six tries a convexification.
+ * Trajopt's trajectory settings (`OptimizeProblem`, `problem_description.cpp`
+ * lines 247-250 at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c,
+ * BSD-2-Clause): `max_iter_` 40, `min_approx_improve_frac_` .001,
+ * `improve_ratio_threshold_` .2 and `merit_error_coeff_` 20; with the sco
+ * defaults that carry a unit read in this model's units: trajopt's joint
+ * variables are radians, so its box (`trust_box_size_` 0.1) and its least box
+ * (`min_trust_box_size_` 1e-4) are in coordinate units, near a degree each; its
+ * distances are metres, so its constraint tolerance (`cnt_tolerance_` 1e-4) is
+ * in this model's millimetres.
  */
-const SCHEDULE: IAutoMovieMotionHumanSequentialConvex.ISchedule = {
-  eta: 0.1,
-  low: 0.1,
-  high: 0.1,
-  shrink: 0.25,
-  expand: 1.5,
-  boundary: false,
-  widest: 8 * 4,
-  trust: 8,
-  least: 1e-4,
-  tries: 6,
-  improved: (merit: number): number => 1e-4 * Math.max(1, merit),
+const TRAJECTORY: Readonly<
+  Partial<IAutoMovieMotionHumanSequentialConvex.IParameters>
+> = {
+  maxIter: 40,
+  minApproxImproveFrac: 0.001,
+  improveRatioThreshold: 0.2,
+  meritErrorCoeff: 20,
+  trustBoxSize: 0.1 * DEGREES,
+  minTrustBoxSize: 1e-4 * DEGREES,
+  cntTolerance: 1e-4 * 1000,
 };

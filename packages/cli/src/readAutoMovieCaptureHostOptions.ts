@@ -3,18 +3,22 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
 
 /**
- * Split the options of `automovie capture` into the host's own, `AUTOMOVIE_CAPTURE_OPTIONS`, and the capture request's, which `parseAutoMovieCapturePlanRequest` reads.
+ * Split the options of `automovie capture` into the host's own,
+ * `AUTOMOVIE_CAPTURE_OPTIONS`, and the capture request's, which
+ * `parseAutoMovieCapturePlanRequest` reads.
  *
- * | Option | Meaning | Absent |
- * | --- | --- | --- |
- * | `--module <file>` | The subject module whose `subjects` the draw page offers | Required unless `--file` |
- * | `--file <video>` | An encoded video file captured from its own frames instead of a drawn subject | A drawn subject |
- * | `--props <file>` | A JSON file whose value the module's `subjects` is called with, for subjects built from data a host computes | `null` |
- * | `--out <folder>` | The capture's root folder | `media/capture/<subject>` |
- * | `--backend <software\|gpu>` | How the browser draws | `software` |
- * | `--timeout-ms <milliseconds>` | Per-call budget for draw-function readiness, subject description/creation and drawing, not a total build or render deadline; integer 1 to 2147483647 | `120000` |
+ * | Option                        | Meaning                                                                                                                                              | Absent                    |
+ * | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+ * | `--module <file>`             | The subject module whose `subjects` the draw page offers                                                                                             | Required unless `--file`  |
+ * | `--file <video>`              | An encoded video file captured from its own frames instead of a drawn subject                                                                        | A drawn subject           |
+ * | `--props <file>`              | A JSON file whose value the module's `subjects` is called with, for subjects built from data a host computes                                         | `null`                    |
+ * | `--out <folder>`              | The capture's root folder                                                                                                                            | `media/capture/<subject>` |
+ * | `--backend <software\|gpu>`   | How the browser draws                                                                                                                                | `software`                |
+ * | `--timeout-ms <milliseconds>` | Per-call budget for draw-function readiness, subject description/creation and drawing, not a total build or render deadline; integer 1 to 2147483647 | `120000`                  |
  *
- * Every other option is left for the request reader, which refuses one it does not know. It throws for `--module` beside `--file`, neither of them, an empty value of any host option, and a backend that is not `software` or `gpu`.
+ * Every other option is left for the request reader, which refuses one it does
+ * not know. It throws for `--module` beside `--file`, neither of them, an empty
+ * value of any host option, and a backend that is not `software` or `gpu`.
  */
 export function readAutoMovieCaptureHostOptions(
   values: ReadonlyMap<string, string>,
@@ -34,7 +38,10 @@ export function readAutoMovieCaptureHostOptions(
   /** How the browser draws. */
   backend: AutoMovieCaptureBackend;
 
-  /** Per-call milliseconds for draw-function readiness, subject description/creation and drawing, not a total build or render deadline. */
+  /**
+   * Per-call milliseconds for draw-function readiness, subject
+   * description/creation and drawing, not a total build or render deadline.
+   */
   timeout: number;
 
   /** The request's own options, for the request reader. */

@@ -23,7 +23,12 @@ import { sampleTimes } from "./sampleTimes";
 const DEFAULT_SAMPLE_RATE: number = 24;
 
 /**
- * Bake admitted clinical motion into general node tracks at a positive sample rate, default24Hz, with matching rig clinical tables. Full local bone rotations and rigid root translation/rotation reproduce FK at bake times; bone/root scale is ignored as in resolvePose, expressions are omitted, and inter-sample quaternion interpolation approximates clinical easing rather than preserving it exactly.
+ * Bake admitted clinical motion into general node tracks at a positive sample
+ * rate, default24Hz, with matching rig clinical tables. Full local bone
+ * rotations and rigid root translation/rotation reproduce FK at bake times;
+ * bone/root scale is ignored as in resolvePose, expressions are omitted, and
+ * inter-sample quaternion interpolation approximates clinical easing rather
+ * than preserving it exactly.
  */
 export const motionToClip: (
   props: IAutoMovieMotionToClip.IProps,
@@ -33,11 +38,11 @@ export const motionToClip: (
   const { motion, skeleton }: typeof props = props;
   const prefix: string = props.nodePrefix ?? "";
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
-  if (!Number.isFinite(sampleRate) || sampleRate <= 0)
+  if (sampleRate <= 0)
     throw new Error(
       `motionToClip sampleRate must be a finite number > 0, but was ${sampleRate}`,
     );
-  if (!Number.isFinite(motion.duration) || motion.duration <= 0)
+  if (motion.duration <= 0)
     throw new Error(
       `motionToClip motion "${motion.id}" duration must be a finite number > 0, but was ${motion.duration}`,
     );

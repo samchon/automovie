@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -16,38 +17,46 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FootSlip } from "./FootSlip";
 
+/** The alternatives of `WithinUnit`'s site. */
+type WithinUnit = "mm" | "deg";
+
+/** The record of `IGroundedWorst`'s site. */
+type IGroundedWorst = { value: number; where: string };
+
+/** The record of `IGroundedResult`'s site. */
+type IGroundedResult = { value: number; where: string };
+
+/** The record of `ISlipWorst`'s site. */
+type ISlipWorst = { value: number; where: string };
+
+/** The record of `ISlipResult`'s site. */
+type ISlipResult = { value: number; where: string };
+
 /**
  * The numeric checks the everyday capture cases report beside their sheets,
  * measured on the displayed poses the sheets draw: foot slip and the foot's
  * height off the floor in the plant windows, a joint's travel per frame,
  * range-of-motion overshoot, and a bounded distance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each check measures and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Slip is the sole centre's drift inside each declared plant window on the 24 Hz grid; overshoot is the engine's per-joint measure against the default humanoid range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Five small measures over one list of plant windows, and one verdict builder.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures read displayed poses, never the laws' goals, except where a check names its goal.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times joints.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace everydayVerdicts {
   /**
    * The largest slip of a planted foot within any plant window, metres, and
-   * where it happens, by the rule of {@link FootSlip} on the 24 Hz grid. A
-   * plant may stand on something raised (a step), so no floor height is
-   * asked of the contact here.
+   * where it happens, by the rule of {@link FootSlip} on the 24 Hz grid. A plant
+   * may stand on something raised (a step), so no floor height is asked of the
+   * contact here.
    *
    * @param performance The performance.
    * @param subject The person.
    * @param body The person's body.
-   * @returns Metres, with the action, the foot and the film second of the worst slip.
+   * @returns Metres, with the action, the foot and the film second of the worst
+   *   slip.
    */
   export function slip(
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-  ): { value: number; where: string } {
-    let worst: { value: number; where: string } = { value: 0, where: "none" };
+  ): ISlipResult {
+    let worst: ISlipWorst = { value: 0, where: "none" };
     for (const plant of plants(performance, subject)) {
       const anchors: Map<string, IAutoMovieVector3> = new Map();
       for (let t: number = plant.from; t <= plant.to + 1e-9; t += 1 / 24) {
@@ -69,22 +78,23 @@ export namespace everydayVerdicts {
   }
 
   /**
-   * The farthest a foot planted on the ground is from the floor within any
-   * of its plant windows, metres, and where it happens: the height of the
-   * sole point {@link FootSlip} reads as the contact, above or below zero, on
-   * the 24 Hz grid. A plant on something raised is not read.
+   * The farthest a foot planted on the ground is from the floor within any of
+   * its plant windows, metres, and where it happens: the height of the sole
+   * point {@link FootSlip} reads as the contact, above or below zero, on the 24
+   * Hz grid. A plant on something raised is not read.
    *
    * @param performance The performance.
    * @param subject The person.
    * @param body The person's body.
-   * @returns Metres, with the action, the foot and the film second of the worst height.
+   * @returns Metres, with the action, the foot and the film second of the worst
+   *   height.
    */
   export function grounded(
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-  ): { value: number; where: string } {
-    let worst: { value: number; where: string } = { value: 0, where: "none" };
+  ): IGroundedResult {
+    let worst: IGroundedWorst = { value: 0, where: "none" };
     for (const plant of plants(performance, subject)) {
       if (plant.ground === false) continue;
       for (let t: number = plant.from; t <= plant.to + 1e-9; t += 1 / 24) {
@@ -104,8 +114,8 @@ export namespace everydayVerdicts {
   }
 
   /**
-   * The farthest a bone's joint travels in one frame of the 24 Hz grid
-   * between two film seconds, metres: a speed limit read on displayed poses.
+   * The farthest a bone's joint travels in one frame of the 24 Hz grid between
+   * two film seconds, metres: a speed limit read on displayed poses.
    *
    * @param performance The performance.
    * @param subject The person.
@@ -133,7 +143,8 @@ export namespace everydayVerdicts {
   }
 
   /**
-   * The largest range-of-motion overshoot of any joint over the performance, degrees.
+   * The largest range-of-motion overshoot of any joint over the performance,
+   * degrees.
    *
    * @param performance The performance.
    * @param subject The person.
@@ -209,7 +220,7 @@ export namespace everydayVerdicts {
     name: string,
     value: number,
     limit: number,
-    unit: "mm" | "deg",
+    unit: WithinUnit,
   ): IMotionCaptureCase.IVerdict {
     const show = (v: number): string =>
       unit === "mm" ? `${(v * 1000).toFixed(1)} mm` : `${v.toFixed(2)} deg`;
@@ -252,12 +263,14 @@ export namespace everydayVerdicts {
     ];
   }
 }
+/** The alternatives of `PlantPart`'s site. */
+type PlantPart = "leftFoot" | "rightFoot";
 
 /** A foot's plant window in film seconds, clipped to its action's own span. */
 interface IPlant {
   action: string;
-  part: "leftFoot" | "rightFoot";
-  side: "left" | "right";
+  part: PlantPart;
+  side: AutoMovieHumanSide;
   from: number;
   to: number;
   ground: boolean;

@@ -1,21 +1,3 @@
-# src/core/math/IAutoMovieSolveBoundedDisplacement.ts#IAutoMovieSolveBoundedDisplacement
-
-## @evidence contracts/development/design.md#principled-representation
-
-Input weights, box caps and affine rows define a nonnegative displacement problem; the result records accepted travel and complete-row violation in caller-chosen numerical units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-solveAutoMovieBoundedDisplacement owns the grouped solve while IInput and IResult share existing quadratic-row contracts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Grouping schedules work without deleting constraints; unsuccessful or budget-exhausted solves cannot publish partial travel.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The nested records state variable alignment, row units, exact box clipping, work limits and zero-start status.
-
 # src/core/math/IAutoMovieSolveBoundedDisplacement.ts#IAutoMovieSolveBoundedDisplacement.IInput
 
 ## @evidence contracts/development/design.md#principled-representation

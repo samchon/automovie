@@ -225,8 +225,12 @@ function prepareWalk(
           (flat === undefined || rankWitnesses) &&
           sharePlaneAndOverlap(triangle.corners, candidate.corners) &&
           (flat === undefined ||
-            AutoMovieSpatialCandidates.compare(triangle, cell, candidate, flat) <
-              0)
+            AutoMovieSpatialCandidates.compare(
+              triangle,
+              cell,
+              candidate,
+              flat,
+            ) < 0)
         )
           flat = candidate;
       }

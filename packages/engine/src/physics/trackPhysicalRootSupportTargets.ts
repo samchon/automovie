@@ -9,7 +9,8 @@ import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { planPhysicalRootSupportTargets } from "./planPhysicalRootSupportTargets";
 
 /**
- * Optional endpoint IK owns only chains disjoint from balance posture. Its cached pose/twist endpoints survive native checkpoint continuation together.
+ * Optional endpoint IK owns only chains disjoint from balance posture. Its
+ * cached pose/twist endpoints survive native checkpoint continuation together.
  */
 export function trackPhysicalRootSupportTargets(input: {
   /** Admitted provider and endpoint budget. */ body: IAutoMoviePhysicalSimulationInput.IBody;

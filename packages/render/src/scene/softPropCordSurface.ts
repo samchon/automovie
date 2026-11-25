@@ -4,9 +4,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { isAutoMovieFloat32Point } from "./inspection/isAutoMovieFloat32Point.js";
+
 /**
- * Use a ring of the Three.js tube at each distinct adjoining particle.
- * The input is an unindexed one-wide surface in world metres.
+ * Use a ring of the Three.js tube at each distinct adjoining particle. The
+ * input is an unindexed one-wide surface in world metres.
  */
 export function softPropCordSurface(
   surface: IAutoMovieSoftBodySurface,
@@ -15,7 +17,6 @@ export function softPropCordSurface(
   const positions: readonly number[] = surface.mesh.positions;
   const projectedRadius: number = Math.fround(radius);
   if (
-    !Number.isFinite(projectedRadius) ||
     projectedRadius <= 0 ||
     surface.bounds !== null ||
     (surface.mesh.indices?.length ?? 0) !== 0 ||
@@ -32,11 +33,7 @@ export function softPropCordSurface(
       positions,
       offset,
     );
-    if (
-      !Number.isFinite(Math.fround(point.x)) ||
-      !Number.isFinite(Math.fround(point.y)) ||
-      !Number.isFinite(Math.fround(point.z))
-    )
+    if (!isAutoMovieFloat32Point(point))
       throw new Error(
         `Soft prop domain "${surface.domain}" has an unrepresentable cord particle.`,
       );
@@ -55,10 +52,6 @@ export function softPropCordSurface(
       geometry.getAttribute("position").array,
     );
     const normals: number[] = Array.from(geometry.getAttribute("normal").array);
-    if (!vertices.every(Number.isFinite) || !normals.every(Number.isFinite))
-      throw new Error(
-        `Soft prop domain "${surface.domain}" generated nonfinite tube geometry.`,
-      );
     geometry.computeBoundingBox();
     const box: THREE.Box3 = geometry.boundingBox!;
     const bounds: IAutoMovieSoftBounds = {
@@ -103,7 +96,10 @@ class ParticlePath extends THREE.Curve<THREE.Vector3> {
     );
   }
 
-  /** Tube rings use the authored particle spacing in place of arc-length spacing. */
+  /**
+   * Tube rings use the authored particle spacing in place of arc-length
+   * spacing.
+   */
   public override getPointAt(u: number, target?: THREE.Vector3): THREE.Vector3 {
     return this.getPoint(u, target);
   }

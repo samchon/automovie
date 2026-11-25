@@ -30,35 +30,39 @@ const COLUMNS: number = 32;
  *
  * Rings sit at the given spine parameters, by default the chord-length shares
  * of the spine's own points, so a sweep along a polyline gets one ring per
- * corner and straight walls between them. Each ring is every loop of the
- * sweep at that parameter: a polygon section under parameter correspondence
- * gives exactly its corners, so corners stay corners; any other loop gives
- * `columns` points at even parameters. Rings are laid out by
- * `canonicalRegion`, outer loop counterclockwise and holes clockwise, so the
- * walls between consecutive rings face out of the solid and the hole walls
- * into the holes. Both ends are capped by triangulating the end rings as
- * planar regions (`trianglesOf`) unless `caps` is false.
+ * corner and straight walls between them. Each ring is every loop of the sweep
+ * at that parameter: a polygon section under parameter correspondence gives
+ * exactly its corners, so corners stay corners; any other loop gives `columns`
+ * points at even parameters. Rings are laid out by `canonicalRegion`, outer
+ * loop counterclockwise and holes clockwise, so the walls between consecutive
+ * rings face out of the solid and the hole walls into the holes. Both ends are
+ * capped by triangulating the end rings as planar regions (`trianglesOf`)
+ * unless `caps` is false.
  *
- * `flat` shading gives every wall triangle its own corners and plane normal,
- * so section corners and ring edges stay creases; `smooth` shares each ring
- * point between its walls and takes area-weighted vertex normals (`meshOf`),
- * so a polygon approximating a round section reads round. The atlas is
- * metric: on the walls `u` is the distance round the ring and `v` the spine
- * parameter times the spine's polygon length, the distance along a path of
- * straight legs; caps take their section-plane coordinates. A smooth wall
- * repeats each ring's first point at the end of the ring so the seam can
- * carry both `u` 0 and the ring's length, and pools the two normals there.
+ * `flat` shading gives every wall triangle its own corners and plane normal, so
+ * section corners and ring edges stay creases; `smooth` shares each ring point
+ * between its walls and takes area-weighted vertex normals (`meshOf`), so a
+ * polygon approximating a round section reads round. The atlas is metric: on
+ * the walls `u` is the distance round the ring and `v` the spine parameter
+ * times the spine's polygon length, the distance along a path of straight legs;
+ * caps take their section-plane coordinates. A smooth wall repeats each ring's
+ * first point at the end of the ring so the seam can carry both `u` 0 and the
+ * ring's length, and pools the two normals there.
  *
- * Whether the solid intersects itself is the author's: a spine turning
- * tighter than the section is wide folds the walls through each other.
+ * Whether the solid intersects itself is the author's: a spine turning tighter
+ * than the section is wide folds the walls through each other.
  *
  * @param props.sweep The sweep, only read.
- * @param props.rows Spine parameters of the rings, at least two, strictly increasing from 0 to 1; omitted, the spine points' chord-length shares.
- * @param props.columns Points per loop for a section that is not a polygon under parameter correspondence, at least 3; omitted, 32.
+ * @param props.rows Spine parameters of the rings, at least two, strictly
+ *   increasing from 0 to 1; omitted, the spine points' chord-length shares.
+ * @param props.columns Points per loop for a section that is not a polygon
+ *   under parameter correspondence, at least 3; omitted, 32.
  * @param props.caps Whether to close both ends; omitted, true.
  * @param props.shading `flat` or `smooth`; omitted, `flat`.
  * @returns A new mesh with normals and metric UVs and no skin.
- * @throws Error when `compileAutoMovieSweep` refuses the sweep, the rows or columns are invalid, a ring is not a valid planar region, or a ring winds the other way from the first.
+ * @throws Error when `compileAutoMovieSweep` refuses the sweep, the rows or
+ *   columns are invalid, a ring is not a valid planar region, or a ring winds
+ *   the other way from the first.
  */
 export const meshAutoMovieSweep: (
   props: IAutoMovieMeshSweep.IProps,
@@ -76,13 +80,13 @@ export const meshAutoMovieSweep: (
       "sweep mesh rows must run from 0 to 1 with at least two rings",
     );
   rows.forEach((u: number, k: number): void => {
-    if (!Number.isFinite(u) || (k > 0 && !(u > rows[k - 1]!)))
+    if (k > 0 && !(u > rows[k - 1]!))
       throw new Error(
         `sweep mesh row ${k} must be finite and follow row ${k - 1}`,
       );
   });
   const columns: number = props.columns ?? COLUMNS;
-  if (!Number.isSafeInteger(columns) || columns < 3)
+  if (columns < 3)
     throw new Error("sweep mesh columns must be an integer of at least 3");
   // parameters of each loop's ring points: a polygon's corners under parameter correspondence, even otherwise
   const parameters: number[][] = Array.from(
@@ -175,7 +179,10 @@ export const meshAutoMovieSweep: (
   return { ...target, skin: null };
 };
 
-/** One ring of the mesh: its plane, its distance along the spine, and its canonical layout in the plane and in space. */
+/**
+ * One ring of the mesh: its plane, its distance along the spine, and its
+ * canonical layout in the plane and in space.
+ */
 interface IRing {
   frame: IAutoMovieSweepFrame;
   along: number;

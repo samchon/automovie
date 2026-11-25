@@ -1,10 +1,6 @@
-/**
- * Data and callback contracts shared by the SolveHalfPlaneProgram operations.
- */
+/** Data and callback contracts shared by the SolveHalfPlaneProgram operations. */
 export namespace IAutoMovieSolveHalfPlaneProgram {
-  /**
-   * A point of the plane.
-   */
+  /** A point of the plane. */
   export interface IPoint {
     /** The first coordinate. */
     x: number;
@@ -13,9 +9,7 @@ export namespace IAutoMovieSolveHalfPlaneProgram {
     y: number;
   }
 
-  /**
-   * A half-plane: the points left of a directed line, the line included.
-   */
+  /** A half-plane: the points left of a directed line, the line included. */
   export interface ILine {
     /** A point on the line. */
     point: IAutoMovieSolveHalfPlaneProgram.IPoint;
@@ -24,14 +18,15 @@ export namespace IAutoMovieSolveHalfPlaneProgram {
     direction: IAutoMovieSolveHalfPlaneProgram.IPoint;
   }
 
-  /**
-   * What the program found.
-   */
+  /** What the program found. */
   export interface IResult {
     /** The point. */
     point: IAutoMovieSolveHalfPlaneProgram.IPoint;
 
-    /** Whether every half-plane holds at it; otherwise it violates the worst of them least. */
+    /**
+     * Whether every half-plane holds at it; otherwise it violates the worst of
+     * them least.
+     */
     feasible: boolean;
   }
 }

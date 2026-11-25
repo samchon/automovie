@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
 
@@ -24,23 +24,45 @@ interface IFloorDatum {
 /** A placed contact compares the entry's achieved point to micrometre precision. */
 const SAME_PLACE: number = 1e-6;
 
-/** Test the structural support frame identity, independent of point offsets and event labels. */
+/**
+ * Test the structural support frame identity, independent of point offsets and
+ * event labels.
+ */
 function sameFrame(
   a: IAutoMovieMotionHumanContactWindow.Support,
   b: IAutoMovieMotionHumanContactWindow.Support,
 ): boolean {
   if (a.kind === "ground") return b.kind === "ground";
-  if (a.kind === "prop") return b.kind === "prop" && a.subject === b.subject;
-  return b.kind === "person" && a.subject === b.subject &&
-    ("region" in a ? "region" in b && a.region === b.region : "bone" in b && a.bone === b.bone);
+  if (a.kind === "prop")
+    return (
+      b.kind === "prop" &&
+      a.subject === b.subject &&
+      (a.point === undefined || b.point === undefined || a.point === b.point)
+    );
+  return (
+    b.kind === "person" &&
+    a.subject === b.subject &&
+    ("region" in a
+      ? "region" in b && a.region === b.region
+      : "bone" in b && a.bone === b.bone)
+  );
 }
 
 /** A support sequence's own instantaneous floor targets. */
 interface IFloor {
   inherited: readonly IAutoMovieMotionHumanSupport.IContact[];
   laid: ReadonlyMap<string, IAutoMovieVector3>;
-  recordFloors(posture: IAutoMovieMotionHumanPosture, contacts: readonly IAutoMovieMotionHumanSupport.IContact[]): void;
+  recordFloors(
+    posture: IAutoMovieMotionHumanPosture,
+    contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
+  ): void;
 }
+/** The record of `IPrepareSupportFloorNamedItem`'s site. */
+type IPrepareSupportFloorNamedItem = {
+  contact: IAutoMovieMotionHumanSupport.IContact;
+  at: IAutoMovieVector3;
+  ground: boolean;
+};
 
 /**
  * Identify inherited support at entry and record unnamed floor placements.
@@ -51,14 +73,6 @@ interface IFloor {
  * @param at The first stance's initial named target lookup, world metres.
  * @param context The performing subject and shared `on` target.
  * @returns The inherited contacts and the sequence-local floor placements.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States entry ownership, target units and the support history returned.
- * @evidence contracts/development/implementation.md#principled-implementation Keep the entry datum if the same part already bears on the same surface. Otherwise read the first solved stance where it bears.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry selection uses one batched achieved-point read after matching bearings; each key registers only new unnamed floor placements.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both faces of a lying body share a window identifier, so the actual trunk orientation distinguishes them.
- * @evidence contracts/development/implementation.md#efficient-algorithms One bone demand per key with unobserved contacts; no repeated remeasurement of a held contact.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One solved key supplies all its new ground positions.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One sequence-local map owns achieved floor positions until plan release. No sampled posture or FK reader is retained.
  */
 export function prepareSupportFloor(
   body: IAutoMovieMotionHumanBody,
@@ -72,7 +86,10 @@ export function prepareSupportFloor(
   // the body already rests on as it enters.
   const entry: IAutoMovieMotionHumanPosture = entryState.posture;
   const laid: Map<string, IAutoMovieVector3> = new Map();
-  /** Read each newly held floor datum once on this exact key, preserving first contact identity. */
+  /**
+   * Read each newly held floor datum once on this exact key, preserving first
+   * contact identity.
+   */
   const recordFloors: (
     posture: IAutoMovieMotionHumanPosture,
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
@@ -93,7 +110,8 @@ export function prepareSupportFloor(
       body,
       posture,
       added.map(
-        (item: (typeof added)[number]): IAutoMovieMotionHumanSupport.Part => item.part,
+        (item: (typeof added)[number]): IAutoMovieMotionHumanSupport.Part =>
+          item.part,
       ),
     );
     for (let i: number = 0; i < added.length; ++i)
@@ -102,21 +120,35 @@ export function prepareSupportFloor(
   // The film names the lying window "back" in every orientation. Its
   // world support identifies the ground, and the displayed trunk tells
   // which surface is already bearing on it.
-  const frontUp: number = entryState.base.kind === "lying"
-    ? Quaternion.rotateVector(resolveHumanPosture.heading(entry), { x: 0, y: 0, z: 1 }).y
-    : 0;
+  const frontUp: number =
+    entryState.base.kind === "lying"
+      ? Quaternion.rotateVector(humanPostureHeading(entry), {
+          x: 0,
+          y: 0,
+          z: 1,
+        }).y
+      : 0;
   const matched: Set<IAutoMovieMotionHumanSupport.IContact> = new Set();
-  const named: { contact: IAutoMovieMotionHumanSupport.IContact; at: IAutoMovieVector3; ground: boolean }[] = [];
+  const named: IPrepareSupportFloorNamedItem[] = [];
   for (const contact of contacts) {
-    if (contact.step === true ||
+    if (
+      contact.step === true ||
       (contact.part === "front" && frontUp >= 0) ||
-      (contact.part === "back" && frontUp <= 0)) continue;
-    const identity: ReturnType<typeof supportWindows.bearing> = supportWindows.bearing(context, contact);
-    if (identity === undefined || !entryState.supports.some(
-      (bearing: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        bearing.part === identity.part && bearing.kind === identity.kind &&
-        sameFrame(bearing.support, identity.support),
-    )) continue;
+      (contact.part === "back" && frontUp <= 0)
+    )
+      continue;
+    const identity: ReturnType<typeof supportWindows.bearing> =
+      supportWindows.bearing(context, contact);
+    if (
+      identity === undefined ||
+      !entryState.supports.some(
+        (bearing: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          bearing.part === identity.part &&
+          bearing.kind === identity.kind &&
+          sameFrame(bearing.support, identity.support),
+      )
+    )
+      continue;
     const target: Point = at(contact);
     const ground: boolean = identity.support.kind === "ground";
     if (target === null) {
@@ -128,11 +160,18 @@ export function prepareSupportFloor(
   named.forEach((observation: (typeof named)[number], index: number): void => {
     const achieved: IAutoMovieVector3 = datum[index]!;
     const target: IAutoMovieVector3 = observation.at;
-    if (Math.hypot(target.x - achieved.x, observation.ground ? 0 : target.y - achieved.y, target.z - achieved.z) <= SAME_PLACE)
+    if (
+      Math.hypot(
+        target.x - achieved.x,
+        observation.ground ? 0 : target.y - achieved.y,
+        target.z - achieved.z,
+      ) <= SAME_PLACE
+    )
       matched.add(observation.contact);
   });
   const inherited: IAutoMovieMotionHumanSupport.IContact[] = contacts.filter(
-    (contact: IAutoMovieMotionHumanSupport.IContact): boolean => matched.has(contact),
+    (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
+      matched.has(contact),
   );
   recordFloors(entry, inherited);
   return { inherited, laid, recordFloors };

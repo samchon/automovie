@@ -1,21 +1,3 @@
-# src/motion/human/grappling/IAutoMovieMotionHumanForceResponse.ts#IAutoMovieMotionHumanForceResponse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-on: The thrown body's region that lies on the fulcrum; `abdomen` when absent, a hip throw's front over the thrower's hip.
-
-## @evidence contracts/development/design.md#principled-representation
-
-on: The thrown body's region that lies on the fulcrum; `abdomen` when absent, a hip throw's front over the thrower's hip.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: grappling/HumanForceResponse.ts (HumanForceResponse.plan, context); grappling/HumanForceThrow.ts (HumanForceThrow.plan, context); grappling/HumanForceResponse.ts (HumanForceResponse.plan, chosen).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/grappling/IAutoMovieMotionHumanForceResponse.ts#IAutoMovieMotionHumanForceResponse.Outcome
 
 ## @evidence contracts/development/common.md#meaningful-documentation

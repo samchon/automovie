@@ -5,7 +5,9 @@ import type { IAutoMovieMotionMeetingRole } from "./IAutoMovieMotionMeetingRole"
 import type { IAutoMovieMotionMeetingTiming } from "./IAutoMovieMotionMeetingTiming";
 
 /**
- * A reusable meeting law declaring roles, contact targets and timing, with optional placement and coupling capabilities. AutoMovieMotionMeeting resolves it against the participating performers.
+ * A reusable meeting law declaring roles, contact targets and timing, with
+ * optional placement and coupling capabilities. AutoMovieMotionMeeting resolves
+ * it against the participating performers.
  */
 export interface IAutoMovieMotionMeetingKind {
   /** The kind's name (`handshake`, `handover`, `strike`). */
@@ -30,8 +32,8 @@ export interface IAutoMovieMotionMeetingKind {
   ): IAutoMovieMotionMeetingTiming;
 
   /**
-   * Where the contacts lie when every role is present; the mean of the
-   * roles' default places when absent.
+   * Where the contacts lie when every role is present; the mean of the roles'
+   * default places when absent.
    *
    * @param roles The roles, in the meeting's order.
    * @returns Each contact's world point, metres.
@@ -41,14 +43,17 @@ export interface IAutoMovieMotionMeetingKind {
   ): Record<string, IAutoMovieVector3>;
 
   /**
-   * Place oriented anatomical contacts once from the complete pair, giving their world points and outward normals.
+   * Place oriented anatomical contacts once from the complete pair, giving
+   * their world points and outward normals.
    */
-  surfaces?(roles: readonly IAutoMovieMotionMeetingRole[]): Record<string, IAutoMovieMotionMeetingKind.ISurface>;
+  surfaces?(
+    roles: readonly IAutoMovieMotionMeetingRole[],
+  ): Record<string, IAutoMovieMotionMeetingKind.ISurface>;
   /**
-   * The coupling of a kind in which one role bears another (#3437): the
-   * borne role's contacts on the bearer with their load shares, and the
-   * mass the bearer carries with its centre. Computed once with the
-   * meeting, from the ordered roles, and only when every role is present.
+   * The coupling of a kind in which one role bears another: the borne role's
+   * contacts on the bearer with their load shares, and the mass the bearer
+   * carries with its centre. Computed once with the meeting, from the ordered
+   * roles, and only when every role is present.
    *
    * @param roles The roles, in the meeting's order.
    * @param instants The meeting's shared instants, film seconds.
@@ -62,7 +67,11 @@ export interface IAutoMovieMotionMeetingKind {
 
 export namespace IAutoMovieMotionMeetingKind {
   /**
-   * A contact's world point and outward normal before the meeting grants solid contact.
+   * A contact's world point and outward normal before the meeting grants solid
+   * contact.
    */
-  export type ISurface = Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
+  export type ISurface = Pick<
+    IAutoMovieMotionHumanTarget.IPlace,
+    "point" | "normal"
+  >;
 }

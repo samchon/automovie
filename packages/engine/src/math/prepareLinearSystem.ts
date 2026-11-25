@@ -1,38 +1,31 @@
 /**
  * Factor an unchanged square matrix for repeated right-hand sides using
  * partial-pivot Gaussian elimination. Inputs must be finite, square and
- * consistently scaled with representable intermediate arithmetic. A pivot
- * no greater than 1e-14 times the largest original entry returns null, the
+ * consistently scaled with representable intermediate arithmetic. A pivot no
+ * greater than 1e-14 times the largest original entry returns null, the
  * existing dense solver's rejection rule rather than a rank certificate.
  *
  * The returned solver replays the same row swaps and elimination factors on
  * each copied right-hand side, then performs back substitution in descending
- * row order. Its arithmetic for every right-hand side is the augmented
- * Gaussian solve's original arithmetic, including strict pivot ties and
- * subtraction order. The source matrix may change after preparation because
- * the factor owns its copied coefficients; prepare again to adopt changes.
+ * row order. Its arithmetic for every right-hand side is the augmented Gaussian
+ * solve's original arithmetic, including strict pivot ties and subtraction
+ * order. The source matrix may change after preparation because the factor owns
+ * its copied coefficients; prepare again to adopt changes.
  *
  * @param rows Matrix entries by rows, not modified.
  * @returns A solver returning fresh solution arrays, or null at the pivot gate.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States finite square/scaled premises, strict pivot refusal, owned matrix snapshot and fresh RHS results; solve's child defines its one-shot augmented storage and caller ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Both entries use partial-pivot Gaussian elimination. Preparation records matrix-only swaps/factors for exact replay on later copied right-hand sides; solve instead eliminates the actual augmented column immediately, before the same descending back substitution.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure eliminate, largestEntry and backSubstitute own all numerical rules. The prepared closure serves repeated digit null-space columns, and solve serves AutoMovieSolidVector's ordinary one-shot workload without retained factors.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both paths retain the largest-original-entry 1e-14 threshold, first-row-on-pivot-tie policy and exact row/back-subtraction order, with no regularization, approximate inverse, alternative rank decision or solution cache.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepared setup costs O(N^3) work/O(N^2) factors, then O(N^2) work/O(N) fresh storage per RHS. solve uses one O(N^2) augmented matrix and O(N^3) elimination without factor rows, pivot arrays or a solver closure.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated RHSs share only privately copied matrix factors, independent of source-array mutation or identity. The one-shot entry retains no preparation; both strategies share the same numerical owner and never cache a solution.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared closures own O(N^2) coefficients/factors and O(N) pivots until caller release; each replayed column is local. One-shot augmented rows release on return/refusal. Only fresh O(N) solutions escape, with no global state or handles.
  */
 export function prepareLinearSystem(
   rows: readonly (readonly number[])[],
 ): ((right: readonly number[]) => number[]) | null {
   const size: number = rows.length;
-  const matrix: number[][] = rows.map(
-    (row: readonly number[]): number[] => [...row],
-  );
+  const matrix: number[][] = rows.map((row: readonly number[]): number[] => [
+    ...row,
+  ]);
   const pivots: number[] = [];
   const factors: number[][] = [];
-  if (!eliminate(matrix, size, largestEntry(rows), pivots, factors)) return null;
+  if (!eliminate(matrix, size, largestEntry(rows), pivots, factors))
+    return null;
 
   return (right: readonly number[]): number[] => {
     const column: number[] = [...right];
@@ -48,35 +41,32 @@ export function prepareLinearSystem(
   };
 }
 
-/**
- * One-shot augmented solving and repeated right-hand sides share elimination.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the ordinary dense consumer and its factor-free augmented path.
- * @evidence contracts/development/design.md#principled-representation A one-shot right-hand side is one extra eliminated column; repeated right-hand sides instead retain matrix-only swaps/factors.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieSolidVector.solve consumes the one-shot entry and fitDigitDescent consumes prepared factors; both use one pivot/elimination/back-substitution owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No second pivot policy, regularization, inverse or target cache is introduced by choosing storage for the actual number of right-hand sides.
- */
+/** One-shot augmented solving and repeated right-hand sides share elimination. */
 export namespace prepareLinearSystem {
   /**
    * Solve one square system without allocating retained factors or a solver
    * closure. The same finite/scaled premises and strict pivot refusal apply.
    *
-   * The actual RHS is copied as one augmented column and participates in
-   * each original row update before descending substitution. Pivot ties,
-   * rejection, update and subtraction order match repeated preparation's
-   * common numerical owner. O(N^3) work and one O(N^2) matrix retain no
-   * factor rows, pivots, closure or prior solution. Augmented rows release
-   * on return/refusal; only the fresh O(N) solution escapes.
+   * The actual RHS is copied as one augmented column and participates in each
+   * original row update before descending substitution. Pivot ties, rejection,
+   * update and subtraction order match repeated preparation's common numerical
+   * owner. O(N^3) work and one O(N^2) matrix retain no factor rows, pivots,
+   * closure or prior solution. Augmented rows release on return/refusal; only
+   * the fresh O(N) solution escapes.
    */
   export function solve(
     rows: readonly (readonly number[])[],
     right: readonly number[],
   ): number[] | null {
     const matrix: number[][] = rows.map(
-      (row: readonly number[], index: number): number[] => [...row, right[index]!],
+      (row: readonly number[], index: number): number[] => [
+        ...row,
+        right[index]!,
+      ],
     );
     return eliminate(matrix, rows.length + 1, largestEntry(rows))
-      ? backSubstitute(matrix) : null;
+      ? backSubstitute(matrix)
+      : null;
   }
 }
 
@@ -88,7 +78,10 @@ function largestEntry(rows: readonly (readonly number[])[]): number {
   return largest;
 }
 
-/** One partial-pivot elimination, optionally recording factors for later columns. */
+/**
+ * One partial-pivot elimination, optionally recording factors for later
+ * columns.
+ */
 function eliminate(
   matrix: number[][],
   columns: number,
@@ -105,7 +98,8 @@ function eliminate(
     if (!(Math.abs(matrix[pivot]![column]!) > 1e-14 * largest)) return false;
     pivots?.push(pivot);
     [matrix[column], matrix[pivot]] = [matrix[pivot]!, matrix[column]!];
-    const multipliers: number[] | undefined = factors === undefined ? undefined : [];
+    const multipliers: number[] | undefined =
+      factors === undefined ? undefined : [];
     for (let row: number = column + 1; row < size; ++row) {
       const factor: number = matrix[row]![column]! / matrix[column]![column]!;
       multipliers?.push(factor);
@@ -118,7 +112,10 @@ function eliminate(
 }
 
 /** Descending substitution from either an augmented column or a replayed one. */
-function backSubstitute(matrix: readonly (readonly number[])[], right?: readonly number[]): number[] {
+function backSubstitute(
+  matrix: readonly (readonly number[])[],
+  right?: readonly number[],
+): number[] {
   const size: number = matrix.length;
   const solution: number[] = new Array<number>(size).fill(0);
   for (let row: number = size - 1; row >= 0; --row) {

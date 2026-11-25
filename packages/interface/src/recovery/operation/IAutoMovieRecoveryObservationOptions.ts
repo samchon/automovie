@@ -4,7 +4,9 @@ import type {
 } from "../../index";
 
 /**
- * Observation options with an explicitly selected saved cubic basis. The selector is required so the result's generic basis matches the runtime input.
+ * Observation options with an explicitly selected saved cubic basis. The
+ * selector is required so the result's generic basis matches the runtime
+ * input.
  */
 
 export interface IAutoMovieRecoveryObservationOptions<

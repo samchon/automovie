@@ -1,19 +1,3 @@
-# src/motion/IAutoMoviePrepareJointRotationProjection.ts#IAutoMoviePrepareJointRotationProjection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each call states its local rotation input and its clinical joint or paired quaternion result.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A callable projector with its paired reader and optional swivel proposer, and the paired result record.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `prepareJointRotationProjection` produces it; chain fits and distal twist solves read it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every projection is computed afresh; proposals still need the actual clamp and checks.
-
 # src/motion/IAutoMoviePrepareJointRotationProjection.ts#IAutoMoviePrepareJointRotationProjection.IProjector
 
 ## @evidence contracts/development/common.md#meaningful-documentation

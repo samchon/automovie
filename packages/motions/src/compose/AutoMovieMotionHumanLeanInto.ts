@@ -9,31 +9,38 @@ import type {
 
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
+/** The record of `ISolvePitchNearest`'s site. */
+type ISolvePitchNearest = { pitch: number; beyond: number };
+
+/** The alternatives of `SolveLimb`'s site. */
+type SolveLimb = "leftArm" | "rightArm";
+
 /**
- * The lean of a standing body into a hand's work that lies beyond its
- * standing arm: the trunk tips about the hips by the least pitch that keeps
- * the wrist within a share of the arm's length, and straightens as the work
- * comes nearer. With balance asked (`IAutoMovieMotionHumanBalance`),
- * the hips move back by the balance shift of that pitch so the centre of
- * mass stays over the feet where it stood; otherwise they stay where they
- * stand and no centre of mass is computed.
+ * The lean of a standing body into a hand's work that lies beyond its standing
+ * arm: the trunk tips about the hips by the least pitch that keeps the wrist
+ * within a share of the arm's length, and straightens as the work comes nearer.
+ * With balance asked (`IAutoMovieMotionHumanBalance`), the hips move back by
+ * the balance shift of that pitch so the centre of mass stays over the feet
+ * where it stood; otherwise they stay where they stand and no centre of mass is
+ * computed.
  *
- * A person wiping the far side of a counter or pulling a drawer does not
- * lock the elbow: the trunk inclines as far as the hand needs and no
- * further. Work still out of reach at the lean's limit
- * (`AutoMovieMotionHumanReach.LEAN_LIMIT`) is refused, since it is walked up
- * to first.
+ * A person wiping the far side of a counter or pulling a drawer does not lock
+ * the elbow: the trunk inclines as far as the hand needs and no further. Work
+ * still out of reach at the lean's limit
+ * (`AutoMovieMotionHumanReach.LEAN_LIMIT`) is refused, since it is walked up to
+ * first.
  */
 export namespace AutoMovieMotionHumanLeanInto {
   /**
    * Solve the lean of a stroke.
    *
-   * @param props The body, the standing posture, the hand, the share, the wrist's goal and the arm's.
+   * @param props The body, the standing posture, the hand, the share, the
+   *   wrist's goal and the arm's.
    * @returns The lean.
    */
   export function solve(
@@ -48,7 +55,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     // proportion between two steps misplaces the centre by less).
     const KNOT: number = 5;
     const limit: number = props.limit ?? AutoMovieMotionHumanReach.LEAN_LIMIT;
-    const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    const limb: SolveLimb = `${props.side}Arm`;
     const checkReach: ReturnType<
       typeof AutoMovieMotionHumanReach.prepareCheck
     > = AutoMovieMotionHumanReach.prepareCheck(props.body, limb);
@@ -62,7 +69,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     ): IAutoMovieMotionHumanPosture => {
       const lowered: IAutoMovieMotionHumanPosture = {
         ...posture,
-        root: resolveHumanPosture.lower(props.body, posture).root,
+        root: lowerHumanPosture(props.body, posture).root,
       };
       return props.arm === undefined
         ? lowered
@@ -75,35 +82,33 @@ export namespace AutoMovieMotionHumanLeanInto {
     // posture tipped there: the centre held where the unleaned body with its
     // arm placed has it, so a pitch of 0 shifts nothing. Only when balance
     // is asked (`props.balance`); otherwise the hips stay where they stand.
-    let held: number | undefined;
-    const steps: Map<number, number> = new Map();
-    const step: (index: number) => number = (index: number): number => {
-      let back: number | undefined = steps.get(index);
-      if (back === undefined) {
-        back =
-          index === 0 || props.balance !== true
-            ? 0
-            : HumanBalance.shift(
-                props.body,
-                (shift: number): IAutoMovieMotionHumanPosture =>
-                  weighed(
-                    AutoMovieMotionHumanLean.tip(
-                      props.body,
-                      props.standing,
-                      Math.min(limit, index * KNOT),
-                      shift,
-                    ),
+    // Every knot the pitch can reach, 0 to the limit, solved here.
+    const held: number | undefined =
+      props.balance === true
+        ? HumanBalance.offset(props.body, weighed(props.standing))
+        : undefined;
+    const steps: readonly number[] = Array.from(
+      { length: Math.ceil(limit / KNOT) + 1 },
+      (_: unknown, index: number): number =>
+        index === 0 || held === undefined
+          ? 0
+          : HumanBalance.shift(
+              props.body,
+              (shift: number): IAutoMovieMotionHumanPosture =>
+                weighed(
+                  AutoMovieMotionHumanLean.tip(
+                    props.body,
+                    props.standing,
+                    Math.min(limit, index * KNOT),
+                    shift,
                   ),
-                HumanBalance.RANGE,
-                (held ??= HumanBalance.offset(
-                  props.body,
-                  weighed(props.standing),
-                )),
-              );
-        steps.set(index, back);
-      }
-      return back;
-    };
+                ),
+              HumanBalance.RANGE,
+              held,
+            ),
+    );
+    const step: (index: number) => number = (index: number): number =>
+      steps[index]!;
     // Between two steps the shift is carried in proportion, so it follows
     // the pitch continuously.
     const back: (pitch: number) => number = (pitch: number): number => {
@@ -145,7 +150,7 @@ export namespace AutoMovieMotionHumanLeanInto {
       // scan is not found.
       let low: number = 0;
       let high: number | undefined;
-      let nearest: { pitch: number; beyond: number } = {
+      let nearest: ISolvePitchNearest = {
         pitch: 0,
         beyond: beyond(0),
       };
@@ -201,12 +206,8 @@ export namespace AutoMovieMotionHumanLeanInto {
           );
           return {
             ...leaned,
-            root: resolveHumanPosture.lower(
-              props.body,
-              leaned,
-              undefined,
-              resolution,
-            ).root,
+            root: lowerHumanPosture(props.body, leaned, undefined, resolution)
+              .root,
           };
         },
       }),

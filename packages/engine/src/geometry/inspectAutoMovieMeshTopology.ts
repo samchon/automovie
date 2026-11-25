@@ -20,10 +20,8 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * degenerate, by ordinal, and contributes no edges in either mode. A closed
  * solid reports `watertight`; an assembly whose members share faces, or a
  * surface meant to stay open, reports its boundary and non-manifold edge counts
- * rather than passing. Non-finite components are counted across positions,
- * normals, UVs, colours and relief weights. Coordinates are metres and the
- * volume, by the divergence theorem, is cubic metres, positive for an
- * outward-wound closed shell.
+ * rather than passing. Coordinates are metres and the volume, by the divergence
+ * theorem, is cubic metres, positive for an outward-wound closed shell.
  *
  * This measures; it does not judge. `validateMeshTopology` is the verdict on
  * the same surface, adding winding consistency and an `expectClosed`
@@ -39,7 +37,6 @@ export function inspectAutoMovieMeshTopology(
 ): IAutoMovieMeshTopology {
   return inspectWeldedTopology(
     mesh,
-    countMeshNonFinite(mesh),
     weldAutoMovieMeshCorners(mesh, "mesh topology"),
   );
 }
@@ -56,7 +53,6 @@ export namespace inspectAutoMovieMeshTopology {
     readonly topology: IAutoMovieMeshTopology;
     readonly pieces: () => IAutoMovieMeshPiece[];
   } {
-    const nonFinite: number = countMeshNonFinite(mesh);
     const welded: weldAutoMovieMeshCorners.IResult = weldAutoMovieMeshCorners(
       mesh,
       "mesh topology",
@@ -64,7 +60,7 @@ export namespace inspectAutoMovieMeshTopology {
     const { corners, identities } = welded;
     const cornerWeld = { corners, identities };
     return {
-      topology: inspectWeldedTopology(mesh, nonFinite, welded),
+      topology: inspectWeldedTopology(mesh, welded),
       pieces: () => measureWeldedMeshPieces(cornerWeld),
     };
   }
@@ -73,7 +69,6 @@ export namespace inspectAutoMovieMeshTopology {
 /** Measure edge incidence and signed volume after the corner identities exist. */
 function inspectWeldedTopology(
   mesh: IAutoMovieMesh,
-  nonFinite: number,
   {
     indices,
     corners,
@@ -116,35 +111,9 @@ function inspectWeldedTopology(
     triangles: indices.length / 3,
     degenerate: degenerate.length,
     degenerateTriangles: degenerate,
-    nonFinite,
     boundaryEdges,
     nonManifoldEdges,
     watertight: edges.size > 0 && boundaryEdges === 0 && nonManifoldEdges === 0,
     volume: sixVolume / 6,
   };
 }
-
-/** Count non-finite components across the mesh's render attribute buffers. */
-function countMeshNonFinite(mesh: IAutoMovieMesh): number {
-  return (
-    countNonFinite(mesh.positions) +
-    countNonFinite(mesh.normals) +
-    countNonFinite(mesh.uvs) +
-    countNonFinite(mesh.colors ?? null) +
-    countNonFinite(mesh.reliefWeights ?? null)
-  );
-}
-
-/**
- * How many components of one optional attribute buffer are not finite numbers,
- * counted in place so measuring a merged building never allocates a second copy
- * of its buffers.
- */
-const countNonFinite: (values: readonly number[] | null) => number = (
-  values: readonly number[] | null,
-): number => {
-  if (values === null) return 0;
-  let count: number = 0;
-  for (const value of values) if (Number.isFinite(value) === false) ++count;
-  return count;
-};

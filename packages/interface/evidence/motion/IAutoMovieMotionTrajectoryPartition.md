@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieMotionTrajectoryPartition.ts#IAutoMovieMotionTrajectoryPartition
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the partition's blocks and the units each keeps.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Block lengths partition one state vector so each block's error is measured in its own unit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The motion integrators' tolerances read it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A partition only; it certifies no error bound.
-
 # src/motion/IAutoMovieMotionTrajectoryPartition.ts#IAutoMovieMotionTrajectoryPartition.IPartition
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -17,36 +17,72 @@ import { KickForm } from "./KickForm";
 import { StrikingReach } from "./StrikingReach";
 import { StrikingStance } from "./StrikingStance";
 
+/** The record of `IChooseSet`'s site. */
+type IChooseSet = {
+  drive?: number;
+};
+
+/** The alternatives of `ChooseSet`'s site. */
+type ChooseSet = "turn" | "pitch";
+
 /**
  * A kick's contact, decided on the figure itself: the carriage
- * ({@link KickCarriage}) under which the leg, solved from the hip the
- * carriage leaves it and fitted by the engine's limb fit ({@link KickChain}),
- * lands its weapon on the planned point with the support foot on its plant.
+ * ({@link KickCarriage}) under which the leg, solved from the hip the carriage
+ * leaves it and fitted by the engine's limb fit ({@link KickChain}), lands its
+ * weapon on the planned point with the support foot on its plant.
  *
  * The leans are tried from the least upward and the first that lands exactly
  * (weapon and support ball within {@link KickForm.TOLERANCE}) is the kick's;
  * when none does, the nearest of those whose weapon is on the point (within
- * {@link KickForm.RESIDUAL}) is, and only when no weapon is on the point the
- * one whose fitted leg comes nearest, which is the declared miss. Under each lean a leg that falls short steps the support
- * foot up along the line by what it lacks, unless the step is given: first by
- * the solve's gap, then by what the fitted weapon still lacks toward the
- * point, because the hip's range of motion can leave the fitted leg shorter
- * than the free solve promised. The step up never brings the kicking hip
- * nearer the point along the line than {@link KickForm.STEP_ROOM_SHARE} of
- * the thigh, where the knee would pass the target. A leg jammed by a point
- * closer than its flexion band's shortest reach steps the support foot back
- * by the difference instead, so the weapon it declared lands, not the knee;
- * a step back is no longer than the longest backward step measured
- * ({@link KickForm.STEP_BACK_SHARE}).
- * A fitted weapon that the hip's range of motion leaves beyond the point (a
- * high point too near for the thigh to rise to) steps the support foot back
- * by the excess in the same rounds, and so does a fitted knee folded past
- * the band (a `jammed` fit), by what its ankle lacks of the band's reach;
- * only a fit inside the band lands exactly, and one inside it ranks before
- * a jammed one.
+ * {@link KickForm.RESIDUAL}) is, and only when no weapon is on the point the one
+ * whose fitted leg comes nearest, which is the declared miss. Under each lean a
+ * leg that falls short steps the support foot up along the line by what it
+ * lacks, unless the step is given: first by the solve's gap, then by what the
+ * fitted weapon still lacks toward the point, because the hip's range of motion
+ * can leave the fitted leg shorter than the free solve promised. The step up
+ * never brings the kicking hip nearer the point along the line than
+ * {@link KickForm.STEP_ROOM_SHARE} of the thigh, where the knee would pass the
+ * target. A leg jammed by a point closer than its flexion band's shortest reach
+ * steps the support foot back by the difference instead, so the weapon it
+ * declared lands, not the knee; a step back is no longer than the longest
+ * backward step measured ({@link KickForm.STEP_BACK_SHARE}). A fitted weapon
+ * that the hip's range of motion leaves beyond the point (a high point too near
+ * for the thigh to rise to) steps the support foot back by the excess in the
+ * same rounds, and so does a fitted knee folded past the band (a `jammed` fit),
+ * by what its ankle lacks of the band's reach; only a fit inside the band lands
+ * exactly, and one inside it ranks before a jammed one.
  */
 export namespace KickContact {
-  /** The step's settling tolerance, metres: the limb solver's place tolerance (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). */
+  /**
+   * The body leans a kick tries, in order: the preferred lean first, then, for
+   * a round kick, every lean from `LEAN_LEAST` to `LEAN_MOST` by `LEAN_STEP`,
+   * and for a push kick upright.
+   *
+   * @param technique The kick.
+   * @param prefer The lean the last contact used, if any.
+   * @returns The leans, degrees.
+   */
+  export function leans(
+    technique: KickChain.IProps["technique"],
+    prefer: number | undefined,
+  ): number[] {
+    const leans: number[] = prefer === undefined ? [] : [prefer];
+    if (technique === "round")
+      for (
+        let lean: number = KickForm.LEAN_LEAST;
+        lean <= KickForm.LEAN_MOST;
+        lean += KickForm.LEAN_STEP
+      ) {
+        if (lean !== prefer) leans.push(lean);
+      }
+    else if (prefer !== 0) leans.push(0);
+    return leans;
+  }
+
+  /**
+   * The step's settling tolerance, metres: the limb solver's place tolerance
+   * (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
+   */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
   /** A carriage with the leg fitted under it. */
@@ -65,66 +101,71 @@ export namespace KickContact {
    * Choose a kick's carriage and fit its leg.
    *
    * @param props The body's carriage inputs.
-   * @param chain The kick's body, side, technique, line, travel and planned point.
-   * @param set The carriage's turn and tip, which the contact does not choose, and the pelvis drive a decided step goes with (none when absent).
-   * @param step The support foot's step-up when it is already decided, metres; undefined lets a short leg step up.
-   * @param prefer A lean tried before the others, degrees: the lean of the plan this one corrects, so a small correction keeps its carriage.
+   * @param chain The kick's body, side, technique, line, travel and planned
+   *   point.
+   * @param set The carriage's turn and tip, which the contact does not choose,
+   *   and the pelvis drive a decided step goes with (none when absent).
+   * @param step The support foot's step-up when it is already decided, metres;
+   *   undefined lets a short leg step up.
+   * @param prefer A lean tried before the others, degrees: the lean of the plan
+   *   this one corrects, so a small correction keeps its carriage.
    * @returns The contact.
-   * @throws {HumanRefusal} A `reach` refusal when the support step's search travels the whole ground from a backward step to the forward room without settling within `TOLERANCE`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States canonical carriage/chain inputs, optional fixed step and preferred lean, the physically fitted winning contact and the unsettled step's refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the original ordered lean search and the solved step correction, iterated as a fixed point until the step settles within the limb solver's tolerance, with full physical leg fits, first valid contact and strict best residual selection.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The local candidate builder shares only its same-base hip and fixed rig metadata; the outer lean/step loops still own every numerical trial and stopping condition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original lean, step bound, plant, ROM clamp, arm/rival fallback and miss remains. The positive-zero initial trial reuses only its actually computed identical base/hip/solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original bounded lean/step/refit search remains; one lazy prepared chain shares genuine ROM, endpoint demand, bend, extension bound and push rotation metadata across all actual trials, with no measured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous search keeps one canonical body and rig unchanged. Only its issued ROM metadata and exact FK prerequisites are borrowed; changed carriage/goal candidates always run their full physical fits.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources FK workspaces, the lazy fixed-chain producer and its ROM projector end on this call's return or throw; that same scoped mapper serves each existing carriage-tilt/hip clamp, without changing raw lowering. The returned contact contains only its original carriage, posture and fitted numerical observations; no helper, projector or new history escapes.
+   * @throws {HumanRefusal} A `reach` refusal when the support step's search
+   *   travels the whole ground from a backward step to the forward room without
+   *   settling within `TOLERANCE`.
    */
   export function choose(
     props: KickCarriage.IProps,
     chain: KickChain.IProps,
-    set: Pick<IAutoMovieMotionHumanKickGeometry.ICarriage, "turn" | "pitch"> & { drive?: number },
+    set: Pick<IAutoMovieMotionHumanKickGeometry.ICarriage, ChooseSet> &
+      IChooseSet,
     step: number | undefined,
     prefer?: number,
   ): IContact {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
-    const rom: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
-      (projection ??= prepareHumanPostureProjection(props.body));
-    let fitLeg: ReturnType<typeof KickChain.prepareFit> | undefined;
-    const leans: number[] = prefer === undefined ? [] : [prefer];
-    if (chain.technique === "round")
-      for (
-        let lean: number = KickForm.LEAN_LEAST;
-        lean <= KickForm.LEAN_MOST;
-        lean += KickForm.LEAN_STEP
-      ) {
-        if (lean !== prefer) leans.push(lean);
-      }
-    else if (prefer !== 0) leans.push(0);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(props.body);
+    const rom = (): ReturnType<typeof prepareHumanPostureProjection> =>
+      projection;
+    const fitLeg: ReturnType<typeof KickChain.prepareFit> =
+      KickChain.prepareFit(chain, projection);
+    const leans: number[] = KickContact.leans(chain.technique, prefer);
     const m: IAutoMovieMotionHumanBody["measure"] = props.body.measure;
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
     const back: number = KickForm.STEP_BACK_SHARE * m.stature;
-    const under: (carriage: IAutoMovieMotionHumanKickGeometry.ICarriage, source?: ISource) => ITrial = (carriage: IAutoMovieMotionHumanKickGeometry.ICarriage, source?: ISource): ITrial => {
-      const base: IAutoMovieMotionHumanPosture = source?.base ?? KickCarriage.posture(
-        props,
-        carriage,
-        props.timing.impact,
-        undefined, resolution, rom(),
-      );
-      const hip: IAutoMovieVector3 = source?.hip ?? KickCarriage.hip(
-        props.body,
-        base,
-        props.side,
-        resolution, rom(),
-      );
+    const under: (
+      carriage: IAutoMovieMotionHumanKickGeometry.ICarriage,
+      source?: ISource,
+    ) => ITrial = (
+      carriage: IAutoMovieMotionHumanKickGeometry.ICarriage,
+      source?: ISource,
+    ): ITrial => {
+      const base: IAutoMovieMotionHumanPosture =
+        source?.base ??
+        KickCarriage.posture(
+          props,
+          carriage,
+          props.timing.impact,
+          undefined,
+          resolution,
+          rom(),
+        );
+      const hip: IAutoMovieVector3 =
+        source?.hip ??
+        KickCarriage.hip(props.body, base, props.side, resolution, rom());
       return {
         hip,
         contact: {
           carriage,
           base,
-          fit: (fitLeg ??= KickChain.prepareFit(chain, rom()))(base, source?.solved ?? KickChain.solve(chain, base, hip), hip, resolution),
+          fit: fitLeg(
+            base,
+            source?.solved ?? KickChain.solve(chain, base, hip),
+            hip,
+            resolution,
+          ),
         },
       };
     };
@@ -147,15 +188,19 @@ export namespace KickContact {
           props,
           carriage,
           props.timing.impact,
-          undefined, resolution, rom(),
+          undefined,
+          resolution,
+          rom(),
         );
         const hip: IAutoMovieVector3 = KickCarriage.hip(
           props.body,
           base,
           props.side,
-          resolution, rom(),
+          resolution,
+          rom(),
         );
-        const solved: IAutoMovieMotionHumanStrikingReach.ISolution = KickChain.solve(chain, base, hip);
+        const solved: IAutoMovieMotionHumanStrikingReach.ISolution =
+          KickChain.solve(chain, base, hip);
         source = { base, hip, solved };
         const reach: IAutoMovieVector3 = Vector3.subtract(solved.point, hip);
         const span: number = Vector3.length(reach);
@@ -182,8 +227,7 @@ export namespace KickContact {
             drive,
             step: Math.min(forward - drive, solved.gap - drive),
           };
-        }
-        else if (solved.status === "jammed" && ahead > 1e-3)
+        } else if (solved.status === "jammed" && ahead > 1e-3)
           // The hip stands `span + gap` from the point, inside the band's
           // shortest reach by the difference, which the step back takes up
           // along the line.
@@ -257,10 +301,7 @@ export namespace KickContact {
         // beyond the point steps the support foot back by the excess.
         if (step !== undefined) break;
         const toward: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(
-            chain.planned,
-            hip,
-          ),
+          Vector3.subtract(chain.planned, hip),
         );
         const ahead: number = Vector3.dot(toward, props.line);
         const lack: number = Vector3.dot(
@@ -298,7 +339,10 @@ export namespace KickContact {
             kind: "reach",
             axis: "target",
             value: `${(Vector3.distance(hip, chain.planned) * 1000).toFixed(0)} mm`,
-            feasible: { kind: "alternatives", values: ["a target the support foot's step settles on"] },
+            feasible: {
+              kind: "alternatives",
+              values: ["a target the support foot's step settles on"],
+            },
             reason: `the kick's support step does not settle: it has moved ${(travelled * 1000).toFixed(0)} mm, the whole ground from a backward step to the forward room, and still moves ${(change * 1000).toFixed(1)} mm a pass`,
             fix: "aim the kick at a target nearer the kicking leg's reach, or stand nearer or farther from it",
           });
@@ -308,7 +352,10 @@ export namespace KickContact {
     return best!;
   }
 
-  /** One candidate and the unchanged hip shared by its solve, refits and step correction. */
+  /**
+   * One candidate and the unchanged hip shared by its solve, refits and step
+   * correction.
+   */
   interface ITrial {
     /** The candidate whose fitted weapon is measured. */
     contact: IContact;
@@ -317,7 +364,10 @@ export namespace KickContact {
     hip: IAutoMovieVector3;
   }
 
-  /** The already-computed zero-step source, used only if that first trial keeps exactly positive zero step. */
+  /**
+   * The already-computed zero-step source, used only if that first trial keeps
+   * exactly positive zero step.
+   */
   interface ISource {
     /** The exact same carriage's posture before the leg is fitted. */
     base: IAutoMovieMotionHumanPosture;

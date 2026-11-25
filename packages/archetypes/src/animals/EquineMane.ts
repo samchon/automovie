@@ -7,19 +7,33 @@ import {
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
-/** A handful of mane, metres: the round aperture a fist closes on, a construction estimate no source read gives. */
+/**
+ * A handful of mane, metres: the round aperture a fist closes on, a
+ * construction estimate no source read gives.
+ */
 const HANDFUL: number = 0.03;
 
-/** The run of crest a rider's hand may take, metres along the neck from its root, a construction estimate. */
+/**
+ * The run of crest a rider's hand may take, metres along the neck from its
+ * root, a construction estimate.
+ */
 const RUN: number = 0.2;
 
 /** The colour of the mane's drawn rod, sRGB. */
 const HAIR: string = "#2b1d14";
 
 /**
- * Lay the `mane` contact a rider grips on the crest of a saddled horse's neck: a round hold centred on the neck's top where it meets the withers, its axis up the neck toward the poll, `+Y` out of the crest. The hold closes on a `mane` rod, the one handful of hair: a rod of the handful's 0.03 m diameter and the run's 0.2 m, centred a radius above the crest so it rests on the neck, massless like the rest of the tack.
+ * Lay the `mane` contact a rider grips on the crest of a saddled horse's neck:
+ * a round hold centred on the neck's top where it meets the withers, its axis
+ * up the neck toward the poll, `+Y` out of the crest. The hold closes on a
+ * `mane` rod, the one handful of hair: a rod of the handful's 0.03 m diameter
+ * and the run's 0.2 m, centred a radius above the crest so it rests on the
+ * neck, massless like the rest of the tack.
  *
- * The hold is on the neck bar's top line, `crest` of the rest rig (the neck root raised by the neck bar's radius), so it rides the trunk with the saddle. A swimming horse's rider holds it with the reins loose (Horse Training by Modern Methods, cited by #3953).
+ * The hold is on the neck bar's top line, `crest` of the rest rig (the neck
+ * root raised by the neck bar's radius), so it rides the trunk with the saddle.
+ * A swimming horse's rider holds it with the reins loose (Horse Training by
+ * Modern Methods, cited by #3953).
  *
  * @param builder The equid under construction, its body laid.
  * @param rig The equid's rest rig.

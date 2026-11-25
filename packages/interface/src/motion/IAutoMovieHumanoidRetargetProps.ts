@@ -7,10 +7,10 @@ import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 import type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 
 /**
- * Input for {@link retargetHumanoidMotion}.
- * Clinical joint values remain degrees. Root translation and contacts scale
- * between the rigs' model units; their authored quaternion facing is retained.
- * Inputs are borrowed and must remain unchanged while the operation runs.
+ * Input for {@link retargetHumanoidMotion}. Clinical joint values remain
+ * degrees. Root translation and contacts scale between the rigs' model units;
+ * their authored quaternion facing is retained. Inputs are borrowed and must
+ * remain unchanged while the operation runs.
  */
 export interface IAutoMovieHumanoidRetargetProps {
   /** Clip authored on `source`. */
@@ -50,9 +50,7 @@ export interface IAutoMovieHumanoidRetargetProps {
     Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
   >;
 
-  /**
-   * Extra bones, such as a reach end effector, that must exist on both rigs.
-   */
+  /** Extra bones, such as a reach end effector, that must exist on both rigs. */
   requiredBones?: readonly AutoMovieHumanoidBone[];
 
   /**

@@ -28,9 +28,9 @@ import type { IAutoMovieAffordanceCoupling } from "./IAutoMovieAffordanceCouplin
  * contact can grow without rewriting every affordance; engine admission owns
  * the dimensions' positivity and the references' resolution.
  */
-export interface IAutoMovieAffordance {
+export interface IAutoMovieAffordance<Id extends string = string> {
   /** Stable id, unique within the model; action targets cite it by this. */
-  id: string;
+  id: Id;
 
   /** What the point is for. Drives which fields apply (see `extent`). */
   kind: AutoMovieAffordanceKind;

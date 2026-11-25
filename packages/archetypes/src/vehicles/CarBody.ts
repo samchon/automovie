@@ -9,20 +9,29 @@ import {
 import { createCar } from "./createCar";
 
 /**
- * A car's body: the layout every part is placed from, and the shell, bonnet and road wheels built on it; `CarRear` builds the boot, the van body and the pickup bed on the same layout.
+ * A car's body: the layout every part is placed from, and the shell, bonnet and
+ * road wheels built on it; `CarRear` builds the boot, the van body and the
+ * pickup bed on the same layout.
  *
- * `createCar` lays the car out once and hands the layout to this module and to `CarCabin`, so every part reads one set of planes: the floor, the belt line, the bulkhead, the pillars and the roof.
+ * `createCar` lays the car out once and hands the layout to this module and to
+ * `CarCabin`, so every part reads one set of planes: the floor, the belt line,
+ * the bulkhead, the pillars and the roof.
  */
 export namespace CarBody {
-  /** A sedan's bonnet leading edge above the ground, metres: below the 76.9 cm the new-car fleet averaged before bonnets rose to 83.8 cm by 2024 (Transport & Environment, as the IET reports, https://engx.theiet.org/b/articles/posts/call-to-cap-rising-car-bonnet-heights-amid-pedestrian-safety-fears, read through a search summary), a sedan standing below the SUVs that raised that average; provisional. */
+  /**
+   * A sedan's bonnet leading edge above the ground, metres: below the 76.9 cm
+   * the new-car fleet averaged before bonnets rose to 83.8 cm by 2024
+   * (Transport & Environment, as the IET reports,
+   * https://engx.theiet.org/b/articles/posts/call-to-cap-rising-car-bonnet-heights-amid-pedestrian-safety-fears,
+   * read through a search summary), a sedan standing below the SUVs that raised
+   * that average; provisional.
+   */
   export const LEADING: number = 0.75;
 
   /** The front bumper's top above the ground, metres: provisional. */
   export const BUMPER: number = 0.5;
 
-  /**
-   * The planes a car is built on, metres in the car's space.
-   */
+  /** The planes a car is built on, metres in the car's space. */
   export interface ILayout {
     /** The class. */
     kind: createCar.Kind;
@@ -57,25 +66,40 @@ export namespace CarBody {
     /** The bulkhead's station, `DOOR_LEAD` ahead of the front doors. */
     firewall: number;
 
-    /** The middle pillar's station, the front doors' rear edge, `DOOR_SPAN` behind their front edge. */
+    /**
+     * The middle pillar's station, the front doors' rear edge, `DOOR_SPAN`
+     * behind their front edge.
+     */
     pillar: number;
 
-    /** The rear of the passenger cabin: the rear pillar at the rear doors' trailing edge, a pickup's cab back, a van's rear doors' inner face. */
+    /**
+     * The rear of the passenger cabin: the rear pillar at the rear doors'
+     * trailing edge, a pickup's cab back, a van's rear doors' inner face.
+     */
     back: number;
 
     /** The driver's seating reference point. */
     reference: IAutoMovieVector3;
 
-    /** The driver's accelerator heel point, on the floor below the ball of foot's pedal plane. */
+    /**
+     * The driver's accelerator heel point, on the floor below the ball of
+     * foot's pedal plane.
+     */
     heel: IAutoMovieVector3;
 
-    /** The driver's ball of foot, `createCar.BALL` up the pedal plane from the heel point. */
+    /**
+     * The driver's ball of foot, `createCar.BALL` up the pedal plane from the
+     * heel point.
+     */
     ball: IAutoMovieVector3;
 
     /** The pedal plane's angle from the floor, degrees (`createCar.pedalPlane`). */
     pedal: number;
 
-    /** The steering wheel's centre: `createCar.WHEEL_AFT` behind the ball of foot and `createCar.WHEEL_HEIGHT` above the heel point. */
+    /**
+     * The steering wheel's centre: `createCar.WHEEL_AFT` behind the ball of
+     * foot and `createCar.WHEEL_HEIGHT` above the heel point.
+     */
     wheel: IAutoMovieVector3;
 
     /** The front doors' front edge, their hinges' station. */
@@ -174,7 +198,9 @@ export namespace CarBody {
   }
 
   /**
-   * The shell: the floor, the front bumper, the bonnet rising from its leading edge to the windscreen's foot with its lid on a hinge, and the roof on its pillars; `CarRear` builds what the class carries behind the cabin.
+   * The shell: the floor, the front bumper, the bonnet rising from its leading
+   * edge to the windscreen's foot with its lid on a hinge, and the roof on its
+   * pillars; `CarRear` builds what the class carries behind the cabin.
    *
    * @param builder The car under construction.
    * @param l The layout.
@@ -278,7 +304,9 @@ export namespace CarBody {
   }
 
   /**
-   * The road wheels: each on a `knob` that spins it about its axle, the front pair's knobs riding their steering, which follows the steering wheel by its Ackermann angle (`createCar.ackermann`).
+   * The road wheels: each on a `knob` that spins it about its axle, the front
+   * pair's knobs riding their steering, which follows the steering wheel by its
+   * Ackermann angle (`createCar.ackermann`).
    *
    * @param builder The car under construction.
    * @param l The layout.
@@ -364,7 +392,9 @@ export namespace CarBody {
   }
 
   /**
-   * A van's bulkhead station, its face toward the cargo: its middle pillar, behind the front seats' backrests, so the cargo space and the sliding door's opening begin there.
+   * A van's bulkhead station, its face toward the cargo: its middle pillar,
+   * behind the front seats' backrests, so the cargo space and the sliding
+   * door's opening begin there.
    *
    * @param l The layout.
    * @returns The station, metres along `+Z`.

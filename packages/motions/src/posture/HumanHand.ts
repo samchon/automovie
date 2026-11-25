@@ -17,80 +17,91 @@ import { alignHumanHandSurface } from "./alignHumanHandSurface";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
 import { readHumanHandFrame } from "./readHumanHandFrame";
 
+/** The alternatives of `FrameBonesEntry`'s site. */
+type FrameBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `AlignWorld`'s site. */
+type AlignWorld = "normal" | "forward";
+
+/** The alternatives of `AlignRest`'s site. */
+type AlignRest = "normal" | "forward";
+
+/** The alternatives of `OffsetSide`'s site. */
+type OffsetSide = "Left" | "Right";
+
 /**
- * A hand brought to a target: which wrist point and hand rotation put a
- * chosen hand surface (the palm, the grip centre, the fist, the back of the
- * hand, a digit's tip or pad, or the wrist itself) on a world frame, under a
- * stated hand shape, and where that surface is on a displayed pose.
+ * A hand brought to a target: which wrist point and hand rotation put a chosen
+ * hand surface (the palm, the grip centre, the fist, the back of the hand, a
+ * digit's tip or pad, or the wrist itself) on a world frame, under a stated
+ * hand shape, and where that surface is on a displayed pose.
  *
  * This is how procedural animation authors a hand contact: the effector is a
- * socket on the hand, the goal is a point and an orientation in the world,
- * and inverse kinematics solves the arm (Unreal's hand sockets with Control
- * Rig and Full Body IK; Final IK's effector offsets; Rosen, GDC 2014,
- * "Animation Bootcamp: An Indie Approach to Procedural Animation"). The arm
- * solver places the wrist joint, so the wrist goal is the target point less
- * the surface's offset from the wrist turned by the hand's rotation, the same
- * rigid relation `HumanFoot.pivot` uses for the sole.
+ * socket on the hand, the goal is a point and an orientation in the world, and
+ * inverse kinematics solves the arm (Rosen, GDC 2014, "Animation Bootcamp: An
+ * Indie Approach to Procedural Animation"). The arm solver places the wrist
+ * joint, so the wrist goal is the target point less the surface's offset from
+ * the wrist turned by the hand's rotation, the same rigid relation
+ * `HumanFoot.pivot` uses for the sole.
  *
  * Every surface is a frame of the body's own resolved surfaces, so the same
- * request fits any hand size: a point, an outward `normal` and a `forward`.
- * The palm, grip and fist sockets carry their own forward (the palm's along
- * the fingers, the grip's toward the thumb side, +Z at rest, the fist's
- * down); the back of the hand and the wrist take the palm's forward, along
- * the fingers; a digit's tip and pad take the palm normal as their forward.
- * The palm, grip, fist and back of the hand ride the hand bone and do not
- * depend on the fingers; a digit's tip and pad ride its distal phalanx, so
- * their frames are read by forward kinematics of the hand under the
- * requested shape and kept per body, surface and shape.
+ * request fits any hand size: a point, an outward `normal` and a `forward`. The
+ * palm, grip and fist sockets carry their own forward (the palm's along the
+ * fingers, the grip's toward the thumb side, +Z at rest, the fist's down); the
+ * back of the hand and the wrist take the palm's forward, along the fingers; a
+ * digit's tip and pad take the palm normal as their forward. The palm, grip,
+ * fist and back of the hand ride the hand bone and do not depend on the
+ * fingers; a digit's tip and pad ride its distal phalanx, so their frames are
+ * read by forward kinematics of the hand under the requested shape and kept per
+ * body, surface and shape.
  *
  * A rotation is the hand's world rotation from its rest, the form
  * `HumanPosture.IGoal.rotation` and `fitChainToTarget`'s `effectorRotation`
- * take. It is built by aligning two directions: {@link HumanHand.align} turns
- * a surface's rest normal onto a world normal exactly and its rest forward
- * onto a world forward as closely as a direction across the normal allows;
- * {@link HumanHand.rotation} does the same for the anatomical pair of where
- * the fingers point and where the palm faces (rest: left fingers +X, right
- * fingers -X, both palms -Y, `HUMANOID_REST_FRAME`).
+ * take. It is built by aligning two directions: {@link HumanHand.align} turns a
+ * surface's rest normal onto a world normal exactly and its rest forward onto a
+ * world forward as closely as a direction across the normal allows;
+ * {@link HumanHand.rotation} does the same for the anatomical pair of where the
+ * fingers point and where the palm faces (rest: left fingers +X, right fingers
+ * -X, both palms -Y, `HUMANOID_REST_FRAME`).
  *
- * Shapes are the only finger angles a law writes, since a hand's pre-shape is
- * a posture of the fingers themselves, not a goal any effector reaches
- * (Jeannerod 1984 describes prehension as transport plus a separate shaping):
+ * Shapes are the only finger angles a law writes, since a hand's pre-shape is a
+ * posture of the fingers themselves, not a goal any effector reaches (Jeannerod
+ * 1984 describes prehension as transport plus a separate shaping):
  *
- * - `relaxed`: the hand's position of rest, the fingers partly flexed at
- *   every joint (knuckles 35, middle joints 30, end joints 20 degrees) and
- *   the thumb's two hinges 25 each, measured from the straight finger of the
+ * - `relaxed`: the hand's position of rest, the fingers partly flexed at every
+ *   joint (knuckles 35, middle joints 30, end joints 20 degrees) and the
+ *   thumb's two hinges 25 each, measured from the straight finger of the
  *   canonical body; the stand law hangs the same hand;
- * - `flat`: every finger straight, an open palm (offer, stop, wave, a palm
- *   on a surface);
+ * - `flat`: every finger straight, an open palm (offer, stop, wave, a palm on a
+ *   surface);
  * - `point`: the index straight, the other fingers curled as the fist and the
  *   thumb folded over them;
- * - `fist`: proximal phalanges 85, the middle 95 and the distal 70 degrees,
- *   and the thumb's proximal 40 and distal 50 degrees across the curled fingers.
+ * - `fist`: proximal phalanges 85, the middle 95 and the distal 70 degrees, and
+ *   the thumb's proximal 40 and distal 50 degrees across the curled fingers.
  *   The common distal angle is an ESTIMATE from the approximately 67–74 degree
- *   endpoints of active closure in Figure 3 of https://doi.org/10.3390/biomimetics8020244.
- *   Section 6 of https://doi.org/10.1155/2013/910961 measures 70 degrees in the index during repeated fist closure.
+ *   endpoints of active closure in Figure 3 of
+ *   https://doi.org/10.3390/biomimetics8020244. Section 6 of
+ *   https://doi.org/10.1155/2013/910961 measures 70 degrees in the index during
+ *   repeated fist closure.
+ * - `bridge`: a sprinter's set hand, every finger straight and the thumb at its
+ *   neutral, standing palmar of the knuckles' plane and spread from the
+ *   forefinger, so the hand stands on the forefinger's and the thumb's tips
+ *   with the palm raised off the track (Davidson 2013, "Teaching athletes to
+ *   use the sprinter's block", Coach and Athletic Director: "Pyramid the hands
+ *   as to be on the fingertips with thumbs pointing in toward the body", "The
+ *   forefinger and thumb are against the starting line"; Badon 2015,
+ *   "Acceleration mechanics, drills, synthesis", Techniques (USTFCCCA): "The
+ *   hands form a bridge"). A flat hand lays its thumb in the palm's plane,
+ *   which a hand on its fingertips would lift off the line.
  *
- * The arm solver (`fitChainToTarget`) gives the forearm the share of an
- * asked hand rotation that turns about the forearm's length, within its
- * range of pronation and supination, and the wrist the rest by flexion and
- * deviation. A rotation beyond either range is clamped and its surface
- * lands off the point by the clamped share; {@link HumanHand.frame} reads
- * where the surface really is, so audits report that residual. Asked about
- * 140 degrees or more of forearm turn away from the hand's own rotation at
- * its place, the nearer limit changes sides and the hand with it, so a law
- * keeps an asked rotation on one side of that across its instants
- * (`test_human_motion_core_hand_rotation`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frames, each surface's forward, the rotation convention, each shape's angles and the forearm limitation.
- * @evidence contracts/development/design.md#principled-representation Surfaces are the body's own resolved frames; a rotation is a world quaternion from rest aligned from two directions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One owner for hand effector goals, shared by gestures, rest places and grasping.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine surfaces, FK and quaternion helpers.
- * @evidence contracts/development/implementation.md#principled-implementation Rigid offset of a socket from the wrist (an effector offset); alignment completes each direction pair to a frame and composes the engine's basis rotations.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets, alignment, placement and read-back as separate small functions over one frame type.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forward parallel to the normal throws instead of picking an arbitrary twist.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call; a digit surface's FK runs once per body, side, surface, shape and curl.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Digit surface frames retain their body/side/surface/shape/curl keys. Anatomical rotation shares only the two immutable canonical rest-frame inverses through the alignment owner; every actual world basis, admission and quaternion composition still runs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing digit memo weakly follows each body and grows with its requested sides/surfaces/shapes/curls. Two module-owned fixed canonical direction readers retain at most two successful inverse quaternions and no body, world input, aligned output or query history.
+ * The arm solver (`fitChainToTarget`) gives the forearm the share of an asked
+ * hand rotation that turns about the forearm's length, within its range of
+ * pronation and supination, and the wrist the rest by flexion and deviation. A
+ * rotation beyond either range is clamped and its surface lands off the point
+ * by the clamped share; {@link HumanHand.frame} reads where the surface really
+ * is, so audits report that residual. Asked about 140 degrees or more of
+ * forearm turn away from the hand's own rotation at its place, the nearer limit
+ * changes sides and the hand with it, so a law keeps an asked rotation on one
+ * side of that across its instants (`test_human_motion_core_hand_rotation`).
  */
 export namespace HumanHand {
   /** The sides of {@link Side}, as data. */
@@ -133,8 +144,8 @@ export namespace HumanHand {
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.DigitSurface>[];
 
   /**
-   * Whether a surface lies on a digit's distal phalanx, so it moves with
-   * the fingers rather than with the hand bone.
+   * Whether a surface lies on a digit's distal phalanx, so it moves with the
+   * fingers rather than with the hand bone.
    *
    * @param surface The surface.
    * @returns Whether it is a digit's tip or pad.
@@ -168,6 +179,7 @@ export namespace HumanHand {
     "flat",
     "point",
     "fist",
+    "bridge",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Shape>[];
 
   /**
@@ -181,7 +193,7 @@ export namespace HumanHand {
     side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    return HumanHandShape.of(side, form);
+    return HumanHandShape(side, form);
   }
 
   /**
@@ -192,7 +204,8 @@ export namespace HumanHand {
    * @param side The hand.
    * @param surface The surface.
    * @param form The hand shape; it matters only for a digit's tip or pad.
-   * @param curl Extra flexion of the fingers over the shape, degrees, as a kind of touch curls them; it matters only for a digit's tip or pad.
+   * @param curl Extra flexion of the fingers over the shape, degrees, as a kind
+   *   of touch curls them; it matters only for a digit's tip or pad.
    * @returns The frame, its point measured from the wrist joint.
    */
   export function offset(
@@ -202,7 +215,7 @@ export namespace HumanHand {
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
     curl: number = 0,
   ): IAutoMovieMotionHumanHand.IFrame {
-    const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
+    const Side: OffsetSide = side === "left" ? "Left" : "Right";
     const palm: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket];
     switch (surface) {
@@ -251,8 +264,8 @@ export namespace HumanHand {
    * and its forward onto a world forward as closely as possible: each pair is
    * completed to a right-handed orthonormal frame (the normal, the forward's
    * component across it, and their cross product), and the rotation is the
-   * world frame times the inverse of the rest frame, both read by the
-   * engine's `quaternionFromAutoMovieBasis`.
+   * world frame times the inverse of the rest frame, both read by the engine's
+   * `quaternionFromAutoMovieBasis`.
    *
    * @param rest The surface's rest normal and forward.
    * @param world The requested world normal and forward.
@@ -260,20 +273,23 @@ export namespace HumanHand {
    * @throws {Error} When a forward is parallel to its normal.
    */
   export function align(
-    rest: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
-    world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+    rest: Pick<IAutoMovieMotionHumanHand.IFrame, AlignRest>,
+    world: Pick<IAutoMovieMotionHumanHand.IFrame, AlignWorld>,
   ): IAutoMovieQuaternion {
     return alignHumanHandSurface(rest, world);
   }
 
-  /** Fixed-rest alignment owned by alignHumanHandSurface.prepare, with world-first admission on every actual read. */
+  /**
+   * Invert the rest basis at preparation and admit each actual world frame when
+   * it is read.
+   */
   export const prepareAlignment: typeof alignHumanHandSurface.prepare =
     alignHumanHandSurface.prepare;
 
   /**
-   * The hand's world rotation from its rest for an anatomical orientation:
-   * the fingers met exactly, the palm as closely as a direction across the
-   * fingers allows.
+   * The hand's world rotation from its rest for an anatomical orientation: the
+   * fingers met exactly, the palm as closely as a direction across the fingers
+   * allows.
    *
    * @param side The hand.
    * @param orientation Where the fingers point and the palm faces.
@@ -307,14 +323,16 @@ export namespace HumanHand {
    * @param yaw The performer's heading, degrees about +Y.
    * @param direction The direction, on any rung.
    * @returns The unit vector, world frame.
-   * @throws {Error} When a between joins opposite axes or its share lies outside [0, 1], when explicit components are all zero, or when an explicit source is empty.
+   * @throws {Error} When a between joins opposite axes or its share lies
+   *   outside [0, 1], when explicit components are all zero, or when an
+   *   explicit source is empty.
    */
   export function direction(
     side: AutoMovieHumanSide,
     yaw: number,
     direction: IAutoMovieMotionHumanHand.Direction,
   ): IAutoMovieVector3 {
-    return HumanHandDirection.of(side, yaw, direction);
+    return HumanHandDirection(side, yaw, direction);
   }
 
   /**
@@ -366,11 +384,10 @@ export namespace HumanHand {
   }
 
   /**
-   * The wrist goal that lays a hand surface's frame on a world frame: its
-   * point on the target point, its normal along the target normal and its
-   * forward toward the target forward. A grasp passes the handle's frame
-   * turned so the palm faces into the object and the forward runs along the
-   * wrapped axis.
+   * The wrist goal that lays a hand surface's frame on a world frame: its point
+   * on the target point, its normal along the target normal and its forward
+   * toward the target forward. A grasp passes the handle's frame turned so the
+   * palm faces into the object and the forward runs along the wrapped axis.
    *
    * @param body The body.
    * @param side The hand.
@@ -404,14 +421,15 @@ export namespace HumanHand {
    * @param bones The pose's resolved bones.
    * @param side The hand.
    * @param surface The surface.
-   * @param form The hand shape the pose holds; it matters only for a digit's tip or pad.
+   * @param form The hand shape the pose holds; it matters only for a digit's
+   *   tip or pad.
    * @returns The world frame.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, FrameBonesEntry>
     >,
     side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,
@@ -427,7 +445,10 @@ export namespace HumanHand {
     );
   }
 
-  /** Actual hand and body-declared digit-region bones consumed by frame, including custom/fallback region metadata. */
+  /**
+   * Actual hand and body-declared digit-region bones consumed by frame,
+   * including custom/fallback region metadata.
+   */
   export function frameBones(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -436,7 +457,10 @@ export namespace HumanHand {
     return readHumanHandFrame.bones(body, side, surface, digital(surface));
   }
 
-  /** Prepare fixed body/side/surface/form point geometry; current bones return fresh points, while digits keep complete original frame seating. */
+  /**
+   * Prepare fixed body/side/surface/form point geometry; current bones return
+   * fresh points, while digits keep complete original frame seating.
+   */
   export function preparePoint(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -453,7 +477,7 @@ export namespace HumanHand {
   }
 }
 
-/** Canonical left rest directions; inverse admission remains lazy and world-first. */
+/** Canonical left rest basis, inverted once at construction. */
 const LEFT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> =
   alignHumanHandSurface.prepare({
     normal: { x: 1, y: 0, z: 0 },

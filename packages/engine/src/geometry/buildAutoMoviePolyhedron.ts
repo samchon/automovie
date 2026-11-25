@@ -1,7 +1,6 @@
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { finiteVector } from "./finiteVector";
 
 /**
  * Build a boundary representation from planar convex polygonal faces.
@@ -23,21 +22,22 @@ import { finiteVector } from "./finiteVector";
  * developed layout this kernel does not cut. A level face takes world +X as U
  * instead, so a floor and the ceiling above it mirror rather than diverge.
  * Because the frame comes from the normal and not from the corner list,
- * coplanar faces form one continuous surface however their corners were
- * typed, and the same polygon started at another corner keeps its atlas.
+ * coplanar faces form one continuous surface however their corners were typed,
+ * and the same polygon started at another corner keeps its atlas.
  *
  * The face normal is taken at the first corner that is not straight, so a
  * straight corner anywhere in the list, the first included, neither collapses
- * the normal nor refuses the face. Refused, each by its own
- * diagnostic naming the face: no faces; fewer than three corners; a non-finite
- * corner; a face whose corners are all collinear; a corner off the face's
- * plane; a reflex corner; and a ring that turns around more than once, such as
- * a pentagram, whose fan would cover ground the face does not. Convexity is
- * required because the face is fanned from its first corner. Whether the
- * result is a closed shell is the caller's to declare and
- * `inspectAutoMovieMeshTopology`'s to measure.
+ * the normal nor refuses the face. Refused, each by its own diagnostic naming
+ * the face: no faces; fewer than three corners; a non-finite corner; a face
+ * whose corners are all collinear; a corner off the face's plane; a reflex
+ * corner; and a ring that turns around more than once, such as a pentagram,
+ * whose fan would cover ground the face does not. Convexity is required because
+ * the face is fanned from its first corner. Whether the result is a closed
+ * shell is the caller's to declare and `inspectAutoMovieMeshTopology`'s to
+ * measure.
  *
- * @param faces Each face's corners in metres, counter-clockwise seen from outside.
+ * @param faces Each face's corners in metres, counter-clockwise seen from
+ *   outside.
  * @returns A mesh with flat normals and metric UVs.
  */
 export const buildAutoMoviePolyhedron = (
@@ -51,9 +51,7 @@ export const buildAutoMoviePolyhedron = (
   faces.forEach((corners: readonly IAutoMovieVector3[], face: number): void => {
     if (corners.length < 3)
       throw new Error(`polyhedron face[${face}] needs at least three corners`);
-    corners.forEach((corner: IAutoMovieVector3, index: number): void =>
-      finiteVector(corner, `polyhedron face[${face}] corner[${index}]`),
-    );
+
     const normal: IAutoMovieVector3 = faceNormal(corners, face);
     const origin: IAutoMovieVector3 = corners[0]!;
     if (
@@ -145,8 +143,8 @@ const faceNormal = (
  * still 1.4 mm per metre, which normalizes without loss, so a steep roof and a
  * barely-tilted soffit both stay on the upright rule and only a face level to
  * within a twelfth of a degree leaves it. That switch is itself a declared
- * orientation seam: faces on opposite sides of it do not claim grain
- * continuity merely because their normals are close.
+ * orientation seam: faces on opposite sides of it do not claim grain continuity
+ * merely because their normals are close.
  */
 const surfaceUvFrame = (
   normal: IAutoMovieVector3,

@@ -13,13 +13,7 @@ export const frameTimes: (fps: number, durationSeconds: number) => number[] = (
   fps: number,
   durationSeconds: number,
 ): number[] => {
-  if (
-    Number.isFinite(fps) === false ||
-    Number.isFinite(durationSeconds) === false ||
-    fps <= 0 ||
-    durationSeconds <= 0
-  )
-    return [];
+  if (fps <= 0 || durationSeconds <= 0) return [];
   const count: number = Math.round(durationSeconds * fps);
   return Array.from(
     { length: count },

@@ -16,26 +16,23 @@ const RULE: string =
   "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 36.6 and 36.8, the hammer";
 
 /**
- * A competition hammer of the hammer throw, the men's or the women's: a metal head on a steel wire with a two-hand handle.
+ * A competition hammer of the hammer throw, the men's or the women's: a metal
+ * head on a steel wire with a two-hand handle.
  *
- * It stands on its head with the wire straight up along `+Y`, the handle level along `X` at the top. `handle` is the loop both hands close on; `head` the ball's centre, its `+Y` out along the wire's line away from the handle, the end a swing whirls.
+ * It stands on its head with the wire straight up along `+Y`, the handle level
+ * along `X` at the top. `handle` is the loop both hands close on; `head` the
+ * ball's centre, its `+Y` out along the wire's line away from the handle, the
+ * end a swing whirls.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The hammer.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the hammer stands and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A head sphere of the drawn diameter, a wire rod up from its top and a handle rod across the top, the drawn length from the head's bottom to the handle's inside.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, three parts, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wire is rigid and straight, as the hammer is when whirled; the handle is a straight bar, not a triangular loop; the wire's and the handle's sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHammerThrow(
   params: createHammerThrow.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createHammerThrow.Affordance,
   createHammerThrow.Dimension
@@ -108,14 +105,7 @@ export function createHammerThrow(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createHammerThrow}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle the hands take and the head a swing whirls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit; the wire's and the handle's sizes are named estimates.
- */
+/** Companion types, constants and bands of {@link createHammerThrow}. */
 export namespace createHammerThrow {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -158,7 +148,10 @@ export namespace createHammerThrow {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

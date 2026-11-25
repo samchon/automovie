@@ -1,13 +1,14 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Calibration-millimetre foot dimensions and the map from normalized foot coordinates into the left frame.
+ * Calibration-millimetre foot dimensions and the map from normalized foot
+ * coordinates into the left frame.
  *
- * The interface package owns these declarations; AutoMovieHumanFootFrame in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanFootFrame in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanFootFrame {
-  /** A foot's dimensions in calibration millimetres.
-   */
+  /** A foot's dimensions in calibration millimetres. */
   export interface IDimensions {
     /** Back of the heel to the tip of the longest toe. */
     length: number;
@@ -22,8 +23,7 @@ export namespace IAutoMovieHumanFootFrame {
     phalangealLengthScale?: number;
   }
 
-  /** A foot's frame: its scales and the map from normalised coordinates.
-   */
+  /** A foot's frame: its scales and the map from normalised coordinates. */
   export interface IFrame {
     /** Foot length, mm. */
     L: number;
@@ -37,9 +37,7 @@ export namespace IAutoMovieHumanFootFrame {
     /** Ankle ring height, mm. */
     ring: number;
 
-    /**
-     * World point of normalised foot coordinates `[a, u, y mm]`, left frame.
-     */
+    /** World point of normalised foot coordinates `[a, u, y mm]`, left frame. */
     at: (a: number, u: number, y: number) => AutoMovieVector3Tuple;
 
     /** The foot's lateral direction, left frame. */

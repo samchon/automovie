@@ -10,7 +10,6 @@ import {
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
 
 /**
  * Check every field of one analysis run except its seal.
@@ -29,7 +28,11 @@ import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
  * elsewhere, while `sealAutoMovieAnalysisRun` calls this before it computes the
  * digest, so a seal never hashes a record it will refuse.
  *
- * Resident metric, sample and warning slots are visited by index and an absent record is refused at its slot; judged comparisons must be `at-least` or `at-most`. Other nested fields must already have the declared shape: reading a missing `solver.id` container or sample position can throw a `TypeError`, so this is not a total unknown-JSON schema validator.
+ * Resident metric, sample and warning slots are visited by index and an absent
+ * record is refused at its slot; judged comparisons must be `at-least` or
+ * `at-most`. Other nested fields must already have the declared shape: reading
+ * a missing `solver.id` container or sample position can throw a `TypeError`,
+ * so this is not a total unknown-JSON schema validator.
  *
  * @param run Run contents to check, with or without a digest.
  * @param out Caller-owned sink the violations are appended to.
@@ -56,21 +59,13 @@ export const validateAutoMovieAnalysisRunContents: (
       `analysis run protocol must be "automovie.analysis-run.v1", but was ${String(run.protocol)}`,
       run.protocol,
     );
-  out.nonEmpty(`${root}.id`, run.id, "analysis run id");
   out.nonEmpty(`${root}.subject`, run.subject, "analysis run subject");
   out.nonEmpty(
     `${root}.inputRevision`,
     run.inputRevision,
     "analysis run input revision",
   );
-  if (!isAutoMovieAnalysisDomain(run.domain))
-    out.push(
-      "type",
-      `${root}.domain`,
-      `unknown analysis domain "${String(run.domain)}"`,
-      run.domain,
-    );
-  out.nonEmpty(`${root}.solver.id`, run.solver.id, "solver id");
+
   out.nonEmpty(`${root}.solver.version`, run.solver.version, "solver version");
   out.nonEmpty(
     `${root}.solver.model`,
@@ -144,7 +139,6 @@ export const validateAutoMovieAnalysisRunContents: (
         );
         continue;
       }
-      out.nonEmpty(`${path}.id`, sample.id, "sample id");
       if (sampleIds.has(sample.id))
         out.push(
           "type",
@@ -159,21 +153,6 @@ export const validateAutoMovieAnalysisRunContents: (
           `${path}.key`,
           `sample field "${sample.key}" names no metric of this run that produced a value; a field cannot be drawn for a measurement nobody made`,
           sample.key,
-        );
-      for (const axis of ["x", "y", "z"] as const)
-        if (!Number.isFinite(sample.position[axis]))
-          out.push(
-            "range",
-            `${path}.position.${axis}`,
-            `sample position ${axis} must be finite, but was ${sample.position[axis]}`,
-            sample.position[axis],
-          );
-      if (!Number.isFinite(sample.value))
-        out.push(
-          "range",
-          `${path}.value`,
-          `sample value must be finite, but was ${sample.value}`,
-          sample.value,
         );
     }
 
@@ -223,13 +202,23 @@ export const validateAutoMovieAnalysisRunContents: (
 };
 
 /**
- * Check one metric's value, gap, target and verdict against each other under the typed nested-record premise.
+ * Check one metric's value, gap, target and verdict against each other under
+ * the typed nested-record premise.
  *
- * A null value requires an unsupported/not-run status and a nonblank reason/remedy; a present value requires finite measurement, no gap and either no target or a finite target with one of the two inclusive directions. Judged status is derived again from that direction, with no key exception, numerical tolerance or unit conversion.
+ * A null value requires an unsupported/not-run status and a nonblank
+ * reason/remedy; a present value requires finite measurement, no gap and either
+ * no target or a finite target with one of the two inclusive directions. Judged
+ * status is derived again from that direction, with no key exception, numerical
+ * tolerance or unit conversion.
  *
- * The received-run validator and seal reach this private helper through the same contents walk and collector. Errors use the supplied metric path, while arbitrary nested containers remain outside this semantic check.
+ * The received-run validator and seal reach this private helper through the
+ * same contents walk and collector. Errors use the supplied metric path, while
+ * arbitrary nested containers remain outside this semantic check.
  *
- * Scalar work is constant per metric and nonblank string checks depend on character counts; no other metric is searched. Each contents pass revalidates the mutable record with no retained verdict. Appended violations may reference metric fragments and remain owned by the caller's collector.
+ * Scalar work is constant per metric and nonblank string checks depend on
+ * character counts; no other metric is searched. Each contents pass revalidates
+ * the mutable record with no retained verdict. Appended violations may
+ * reference metric fragments and remain owned by the caller's collector.
  */
 const validateMetric: (
   metric: IAutoMovieAnalysisMetric,
@@ -283,13 +272,6 @@ const validateMetric: (
       );
     return;
   }
-  if (!Number.isFinite(metric.value))
-    out.push(
-      "range",
-      `${path}.value`,
-      `metric "${metric.key}" must be a finite value, but was ${metric.value}`,
-      metric.value,
-    );
   if (metric.gap !== null)
     out.push(
       "type",
@@ -325,15 +307,7 @@ const validateMetric: (
     );
     return;
   }
-  if (!Number.isFinite(metric.target)) {
-    out.push(
-      "range",
-      `${path}.target`,
-      `metric "${metric.key}" target must be finite, but was ${metric.target}`,
-      metric.target,
-    );
-    return;
-  }
+
   if (metric.comparison !== "at-least" && metric.comparison !== "at-most") {
     out.push(
       "type",

@@ -15,8 +15,8 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * Seal one render target: the renderer, its settings, and the exact asset bytes
  * a frame will read.
  *
- * The digest hashes explicit-position JSON tuples, so object property order
- * and embedded tabs/newlines do not collapse different renderer/asset fields.
+ * The digest hashes explicit-position JSON tuples, so object property order and
+ * embedded tabs/newlines do not collapse different renderer/asset fields.
  * Assets are sorted by UTF-16 code unit rather than locale collation.
  *
  * Buffer dimensions, ratio/exposure, shadow policy, nonblank renderer fields,
@@ -62,7 +62,7 @@ export const sealAutoMovieRenderTarget: (
     ["width", settings.width],
     ["height", settings.height],
   ] as const)
-    if (!Number.isSafeInteger(value) || value <= 0)
+    if (value <= 0)
       throw new Error(
         `render target settings.${field} must be a positive integer, but was ${value}`,
       );
@@ -70,7 +70,7 @@ export const sealAutoMovieRenderTarget: (
     ["pixelRatio", settings.pixelRatio],
     ["exposure", settings.exposure],
   ] as const)
-    if (!Number.isFinite(value) || value <= 0)
+    if (value <= 0)
       throw new Error(
         `render target settings.${field} must be finite and above zero, but was ${value}`,
       );

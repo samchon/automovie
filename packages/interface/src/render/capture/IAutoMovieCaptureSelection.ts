@@ -1,7 +1,11 @@
 /**
- * Which objects one cell draws: the request's own selection, or one unit of a sweep alone or with its neighbours.
+ * Which objects one cell draws: the request's own selection, or one unit of a
+ * sweep alone or with its neighbours.
  *
- * `.agents/skills/visual-debugging/capture.md` asks for the whole, each unit alone and each unit with the neighbours it touches. `parts` is the selection's path patterns, which replace the inspection request's `parts` for that cell.
+ * `.agents/skills/visual-debugging/capture.md` asks for the whole, each unit
+ * alone and each unit with the neighbours it touches. `parts` is the
+ * selection's path patterns, which replace the inspection request's `parts` for
+ * that cell.
  */
 export type IAutoMovieCaptureSelection =
   | {
@@ -18,6 +22,9 @@ export type IAutoMovieCaptureSelection =
       /** Identity path of the swept unit. */
       unit: string;
 
-      /** Path patterns of what the cell draws: the unit, and its neighbours for `neighbours`. */
+      /**
+       * Path patterns of what the cell draws: the unit, and its neighbours for
+       * `neighbours`.
+       */
       parts: string[];
     };

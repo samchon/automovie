@@ -101,12 +101,7 @@ export function createTerrain(
     const right: number = origin.x + width;
     const far: number = origin.z + depth;
     const tolerance: number = recipe.meshTolerance ?? MESH_TOLERANCE;
-    if (
-      ![right, far, tolerance].every(Number.isFinite) ||
-      right <= origin.x ||
-      far <= origin.z ||
-      tolerance <= 0
-    )
+    if (right <= origin.x || far <= origin.z || tolerance <= 0)
       throw new Error(
         `Terrain "${context.id}" requires a representable positive extent and mesh tolerance.`,
       );
@@ -236,7 +231,7 @@ export function createTerrain(
     for (const [name, [px, pz]] of Object.entries(recipe.amenities ?? {})) {
       const wx: number = origin.x + px;
       const wz: number = origin.z + pz;
-      if (![wx, wz].every(Number.isFinite) || !footprintContains(land, wx, wz))
+      if (!footprintContains(land, wx, wz))
         throw new Error(
           `Terrain amenity "${context.id}/amenities/${name}" must rest on parcel land.`,
         );
@@ -315,22 +310,16 @@ function terrainBase(
     kind: "level",
   };
   const base: number = origin.y + (relief.height ?? 0);
-  if (!Number.isFinite(base))
-    throw new Error(`Terrain "${context.id}" has a nonfinite base height.`);
   if (relief.kind === "rolling") {
     const { amplitude, wavelength }: { amplitude: number; wavelength: number } =
       relief;
-    if (
-      ![amplitude, wavelength].every(Number.isFinite) ||
-      amplitude <= 0 ||
-      wavelength <= 0
-    )
+    if (amplitude <= 0 || wavelength <= 0)
       throw new Error(
         `Terrain "${context.id}" requires positive finite rolling amplitude and wavelength.`,
       );
     const random: ReturnType<typeof createAutoMovieRandom> =
       createAutoMovieRandom(
-        deriveAutoMovieSeed(context.seed ?? "0000000000000000", "terrain"),
+        deriveAutoMovieSeed(String(context.seed ?? 0), "terrain"),
       );
     const phaseX: number = 2 * Math.PI * random.float(0);
     const phaseZ: number = 2 * Math.PI * random.float(1);
@@ -380,15 +369,15 @@ function noiseBase(
     relief;
   const octaves: number = relief.octaves ?? 4;
   const roughness: number = relief.roughness ?? 0.5;
-  if (!(Number.isFinite(amplitude) && amplitude > 0))
+  if (!(amplitude > 0))
     throw new Error(
       `Terrain "${context.id}" requires a positive finite noise amplitude: ${amplitude}.`,
     );
-  if (!(Number.isFinite(wavelength) && wavelength > 0))
+  if (!(wavelength > 0))
     throw new Error(
       `Terrain "${context.id}" requires a positive finite noise wavelength: ${wavelength}.`,
     );
-  if (!(Number.isInteger(octaves) && octaves >= 1 && octaves <= 8))
+  if (!(octaves >= 1 && octaves <= 8))
     throw new Error(
       `Terrain "${context.id}" requires noise octaves to be an integer from 1 to 8: ${octaves}.`,
     );
@@ -397,7 +386,7 @@ function noiseBase(
       `Terrain "${context.id}" requires noise roughness strictly between 0 and 1: ${roughness}.`,
     );
   const noise: (x: number, y: number) => number = createAutoMovieFractalNoise2(
-    deriveAutoMovieSeed(context.seed ?? "0000000000000000", "terrain"),
+    deriveAutoMovieSeed(String(context.seed ?? 0), "terrain"),
     octaves,
     roughness,
   );

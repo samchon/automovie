@@ -1,5 +1,6 @@
 /**
- * A triangle mesh in millimetres: flat xyz positions, three indices per triangle.
+ * A triangle mesh in millimetres: flat xyz positions, three indices per
+ * triangle.
  */
 export interface IAutoMovieMillimeterMesh {
   /** Flat positions, three numbers per vertex, millimetres. */

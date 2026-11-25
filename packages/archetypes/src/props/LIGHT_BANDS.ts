@@ -21,7 +21,10 @@ const POWER: string =
 const PENDANT: string =
   "IKEA SKURUP pendant lamp, 15 in across, 11 in high, cord 4 ft 11 in (https://www.ikea.com/us/en/p/skurup-pendant-lamp-black-70407124/); its 1.35 kg net and 1.37 kg weights seen only in search results";
 
-/** IKEA's RINGSTA/SKAFTET table lamp, read, its shade's net weight seen only in search results. */
+/**
+ * IKEA's RINGSTA/SKAFTET table lamp, read, its shade's net weight seen only in
+ * search results.
+ */
 const TABLE_LAMP: string =
   "IKEA RINGSTA/SKAFTET table lamp, 41 cm high, base 15 cm, shade 19 cm (https://www.ikea.com/sa/en/p/ringsta-skaftet-table-lamp-white-nickel-plated-s79386565); SKAFTET table lamp base 404.059.56, 30 cm high, base 15 cm, net 0.62 kg (https://www.ikea.com.tw/en/products/luminaires/table-lamps/skaftet-art-40405956); RINGSTA shade 904.040.92, 19 cm wide, 15 cm high (https://www.ikea.com/gb/en/p/ringsta-lamp-shade-white-90404092/), its 0.19 kg net seen only in search results";
 
@@ -34,7 +37,9 @@ const LANTERN: string =
   "Dietz #20 Junior cold blast lantern: 12 in high, a 5 1/4 in base, 2 lb, its globe 5 1/2 in high and 2 3/8 in across its top and 2 13/16 in across its bottom (https://lanternnet.com/product/dietz-20-junior-cold-blast-lantern/); 16 in high with its handle extended (https://scholarworks.moreheadstate.edu/mh_and_rm_artifacts/23)";
 
 /**
- * The band of each free dimension of `createLight`, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size.
+ * The band of each free dimension of `createLight`, by kind, with the sources
+ * they are read at: kept apart from the producer so each file stays within its
+ * size.
  */
 export const LIGHT_BANDS: Readonly<
   Record<

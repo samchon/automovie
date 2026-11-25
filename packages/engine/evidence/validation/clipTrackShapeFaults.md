@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Supported interpolation is checked before array traversal; finite value/time and monotone-clock findings precede whole-number stride, cubic triplet and canonical fixed-width checks. Positive finite duration bounds key times, while zero-duration sampler semantics stay separate.
+Finite value/time and monotone-clock findings precede whole-number stride, cubic triplet and canonical fixed-width checks. Positive finite duration bounds key times, while zero-duration sampler semantics stay separate.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -10,11 +10,11 @@ The artifact gate reports this ordered fault list and sampleClip throws its firs
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Missing arrays stop population checks after interpolation admission; indexed walks inspect every declared slot, so resident holes produce located nonfinite findings. No padded keyframe, rounded stride or guessed weights width repairs malformed input.
+Indexed walks inspect every declared slot. No padded keyframe, rounded stride or guessed weights width repairs malformed input.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents ordered findings, structural fields, interpolation and scalar-count diagnostics; missing numeric slots are refused by both gate and sampler rather than being skipped by array iteration.
+Documents ordered findings and scalar-count diagnostics, shared by gate and sampler.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -22,7 +22,7 @@ K times and V values require O(K+V) passes and O(F) findings, with constant stri
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Canonical interpolation and width owners serve both gate and sampler; the same borrowed arrays drive all shape decisions without a retained admission cache.
+The canonical width owner serves both gate and sampler; the same borrowed arrays drive all shape decisions without a retained admission cache.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

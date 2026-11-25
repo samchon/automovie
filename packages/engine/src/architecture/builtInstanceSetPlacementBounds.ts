@@ -27,11 +27,24 @@ type IGridLayout = Extract<
 /**
  * The world box one compact population and its prototype geometry occupy.
  *
- * The placement law and authored prototype-local box define an envelope. Grid and lattice folds use occupied hull slots, including a short final row; scatter uses its declared disk, independent of realized seed samples. Prototype-box corners use fixed rotations directly, or an enclosing origin-centred sphere for a varying rotation range. Explicit layouts fold the first count stored transforms, while validation reads all stored transforms. These envelopes may include empty space, and binary64 arithmetic is not outward rounded. Visibility variation does not shrink the envelope.
+ * The placement law and authored prototype-local box define an envelope. Grid
+ * and lattice folds use occupied hull slots, including a short final row;
+ * scatter uses its declared disk, independent of realized seed samples.
+ * Prototype-box corners use fixed rotations directly, or an enclosing
+ * origin-centred sphere for a varying rotation range. Explicit layouts fold the
+ * first count stored transforms, while validation reads all stored transforms.
+ * These envelopes may include empty space, and binary64 arithmetic is not
+ * outward rounded. Visibility variation does not shrink the envelope.
  *
- * `along-route` throws an `Error`: its slots follow a production-world route, and a building record carries no field that can reach one. `validateBuiltEnvironment` refuses such a population outright, so this throws only for a caller handing over a world set directly.
+ * `along-route` throws an `Error`: its slots follow a production-world route,
+ * and a building record carries no field that can reach one.
+ * `validateBuiltEnvironment` refuses such a population outright, so this throws
+ * only for a caller handing over a world set directly.
  *
- * Every other input is checked by {@link validateBuiltPopulation}, the same rules the building validator applies, and the first violation is thrown as a `RangeError` naming its path under `$input`. The box is world-space, in metres, and inclusive.
+ * Every other input is checked by {@link validateBuiltPopulation}, the same
+ * rules the building validator applies, and the first violation is thrown as a
+ * `RangeError` naming its path under `$input`. The box is world-space, in
+ * metres, and inclusive.
  *
  * @param set The population's instance-set design.
  * @param prototypeBounds The prototype's model-local box, in metres.
@@ -234,7 +247,13 @@ const prototypeOffsetBounds: (
 /**
  * The set-local points that can carry a deterministic layout's extremes.
  *
- * A rotated point set's world box is the box of its convex hull's corners, so a lattice needs its corners rather than its slots. The last row of a grid may be short, which is why the corner list is not simply four: the hull then has the full rows' far corner and the short row's own end, and taking the full rectangle instead would report a column of slate nobody laid. A lattice's top layer reuses the full layer's corners; the heading turns only about the vertical, so the full layer below already sets the horizontal extent.
+ * A rotated point set's world box is the box of its convex hull's corners, so a
+ * lattice needs its corners rather than its slots. The last row of a grid may
+ * be short, which is why the corner list is not simply four: the hull then has
+ * the full rows' far corner and the short row's own end, and taking the full
+ * rectangle instead would report a column of slate nobody laid. A lattice's top
+ * layer reuses the full layer's corners; the heading turns only about the
+ * vertical, so the full layer below already sets the horizontal extent.
  */
 const instanceSetExtremeSlots: (
   set: IAutoMovieInstanceSetDesign,

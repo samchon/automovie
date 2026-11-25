@@ -3,12 +3,13 @@ import type { IAutoMovieResolveCenterOfMass } from "../../../pose/IAutoMovieReso
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
-/**
- * Contracts used by GymnasticsMat.lie.
- */
+/** Contracts used by GymnasticsMat.lie. */
 export namespace IAutoMovieMotionHumanGymnasticsMat {
   /**
-   * The posture after a touchdown on the back. Input props of GymnasticsMat.lie. The body, its mass model, the touchdown posture written by joints with no roll, the centre's velocity at the touchdown, m/s, and the surface's height, world metres.
+   * The posture after a touchdown on the back. Input props of
+   * GymnasticsMat.lie. The body, its mass model, the touchdown posture written
+   * by joints with no roll, the centre's velocity at the touchdown, m/s, and
+   * the surface's height, world metres.
    */
   export type ILieProps = {
     /** Borrowed body used to settle onto the mat. */

@@ -1,7 +1,9 @@
 import type { IAutoMovieFilmTime } from "./IAutoMovieFilmTime";
 
 /**
- * Frame-grid placement and trim of one declared audio asset in the film. Source and film intervals must fit their respective durations; fades together cannot exceed the cue span. Gain is a finite linear multiplier in `[0, 4]`.
+ * Frame-grid placement and trim of one declared audio asset in the film. Source
+ * and film intervals must fit their respective durations; fades together cannot
+ * exceed the cue span. Gain is a finite linear multiplier in `[0, 4]`.
  */
 export interface IAutoMovieAudioCue {
   /** Stable cue id. */

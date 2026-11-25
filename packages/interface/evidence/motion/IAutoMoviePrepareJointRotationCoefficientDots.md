@@ -1,21 +1,3 @@
-# src/motion/IAutoMoviePrepareJointRotationCoefficientDots.ts#IAutoMoviePrepareJointRotationCoefficientDots
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the dot readers and the swivel proposal with its decline.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Four quaternion dot callables per reference joint and the swivels they propose.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The joint rotation projector's swivel proposer reads it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Proposals only; angle ranges, clamps and goals are still checked by their owners.
-
 # src/motion/IAutoMoviePrepareJointRotationCoefficientDots.ts#IAutoMoviePrepareJointRotationCoefficientDots.IDot
 
 ## @evidence contracts/development/common.md#meaningful-documentation

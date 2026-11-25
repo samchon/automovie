@@ -3,8 +3,7 @@ import type {
   IAutoMovieSimplexAtom,
 } from "../../index";
 
-/** Complete optional factor/row pair or explicit pre-return arithmetic absence.
- */
+/** Complete optional factor/row pair or explicit pre-return arithmetic absence. */
 export interface IAutoMovieRecoveryMapCurvatureFit {
   /** Complete current numerical metric, or null when unsupported before return. */
   metric: IAutoMovieRecoveryMapMetric | null;

@@ -191,7 +191,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
     human: {
       "staged-catch": {
         seed: "staged-foam-catch",
-        laws: [release, AutoMovieMotionHumanThrowCatch.stageCatch],
+        laws: [release],
         performers: [
           {
             subject: "emitter",

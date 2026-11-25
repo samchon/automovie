@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidBlendChain.ts#IAutoMovieSolidBlendChain
-
-## @evidence contracts/development/design.md#principled-representation
-
-World millimetre ribbons become physical-station chain derivatives through the mean rail chord length; phase indexes uniform columns.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-BlendChain serves join publication and split/port strip construction, with Body and Clip consuming its shared chart records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Periodic interpolation and a single outward anchor do not certify global regularity, exact analytic contact or immutable factory frames.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the shared strip purpose, units and publication limitations.
-
 # src/construction/IAutoMovieSolidBlendChain.ts#IAutoMovieSolidBlendChain.IBlend
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -18,12 +18,12 @@ All entries keep the original plane and edge admission, order, comparisons and v
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-The prepared scalar reader packs planes and edges once. Each query keeps the linear plane scan, the actual facing-edge tests and the same square-root work. Scalar probes of tapered hulls avoid the final contact wrapper at each search step.
+The prepared scalar reader borrows the shape-owned flat form or packs the fixed faces once. Each query keeps the linear plane scan, the actual facing-edge tests and the same square-root work. Scalar probes of tapered hulls avoid the final contact wrapper at each search step.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The original modes share the existing hull and flat geometry owners. The prepared reader shares only its fixed packed representation across changing points.
+The single-query modes share the same hull and flat geometry owners. The prepared reader shares its fixed packed representation and fully overwrites its working distances for every point.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The original weak backing follows its hull and the existing distance buffer grows with the largest queried hull. The prepared reader owns its packed arrays and working distances until release. A scalar read returns only a number.
+A direct read owns one distance array for the duration of its call. The prepared reader owns the fixed flat representation and one distance array for its operation. A scalar read returns only a number.

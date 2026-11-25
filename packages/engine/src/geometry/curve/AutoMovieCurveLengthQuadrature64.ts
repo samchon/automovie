@@ -3,10 +3,12 @@ import type {
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
+
 /**
  * Internal shared GL8 computation for original curve derivatives, with numeric
- * observations separated from each public length owner's admission policy.
- * This module is not re-exported by the curve barrel or a scalar integrator.
+ * observations separated from each public length owner's admission policy. This
+ * module is not re-exported by the curve barrel or a scalar integrator.
  */
 export namespace AutoMovieCurveLengthQuadrature64 {
   /** Exact closed-domain addresses requested by the two composite rules. */
@@ -27,9 +29,9 @@ export namespace AutoMovieCurveLengthQuadrature64 {
   /**
    * Observe two bounded composite rules without choosing the public policy.
    * Callers admit nonempty pieces, finite increasing representable domains and
-   * integer K in [1,1024]. Derivatives use mm per domain-parameter unit.
-   * Zero speed is valid. Endpoint reads are requested only by the strict owner;
-   * the legacy cubic owner keeps its original interior-only finite-final test.
+   * integer K in [1,1024]. Derivatives use mm per domain-parameter unit. Zero
+   * speed is valid. Endpoint reads are requested only by the strict owner; the
+   * legacy cubic owner keeps its original interior-only finite-final test.
    * Callback exceptions propagate, while arithmetic observations accompany the
    * actual computed coarse/fine sums. Their difference is not an error bound.
    */
@@ -58,19 +60,26 @@ export namespace AutoMovieCurveLengthQuadrature64 {
       collapsedNode,
     };
 
-    /** Observe each original norm without applying either public owner's failure policy. */
+    /**
+     * Observe each original norm without applying either public owner's failure
+     * policy.
+     */
     function speed(
       read: (parameter: number) => readonly [number, number, number],
       parameter: number,
     ): number {
       const derivative: readonly [number, number, number] = read(parameter);
       const value: number = Math.hypot(...derivative);
+      // A callback supplies the derivative, and a finite one can still overflow its norm.
       nonfiniteDerivative ||=
-        !derivative.every(Number.isFinite) || !Number.isFinite(value);
+        !derivative.every(Number.isFinite) || overflowsBinary64(value);
       return value;
     }
 
-    /** Keep local [0,1] cubic arithmetic and accumulation unchanged, including underflow observations. */
+    /**
+     * Keep local [0,1] cubic arithmetic and accumulation unchanged, including
+     * underflow observations.
+     */
     function integral(count: number): number {
       let length: number = 0;
       for (const piece of pieces) {
@@ -92,7 +101,7 @@ export namespace AutoMovieCurveLengthQuadrature64 {
             const contribution: number =
               (WEIGHTS[i]! * value * width) / (2 * count);
             underflowingContribution ||= value > 0 && contribution === 0;
-            nonfiniteContribution ||= !Number.isFinite(contribution);
+            nonfiniteContribution ||= overflowsBinary64(contribution);
             length += contribution;
           }
         }

@@ -28,10 +28,17 @@ const STEP: number = 1 / 120;
 /** Seconds a foot takes to reach the ground or leave it (provisional staging). */
 const PLACE: number = 0.25;
 
-/** How high a foot arcs over the ground as it is placed or lifted, metres (provisional staging). */
+/**
+ * How high a foot arcs over the ground as it is placed or lifted, metres
+ * (provisional staging).
+ */
 const LIFT: number = 0.05;
 
-/** How far ahead of the seat a planted ankle lies, thigh lengths: short of the hanging knee, so the leg keeps slack as the seat rises to the end of its low interval (provisional staging). */
+/**
+ * How far ahead of the seat a planted ankle lies, thigh lengths: short of the
+ * hanging knee, so the leg keeps slack as the seat rises to the end of its low
+ * interval (provisional staging).
+ */
 const SLACK: number = 0.9;
 
 /** One interval with the feet on the ground, ride seconds. */
@@ -48,24 +55,16 @@ interface ILow {
 
 /**
  * Ride a seesaw seat: the seated ride with the hands on the handles
- * (`HumanRide`), and the feet planted on the ground while the seat is so
- * low that the soles, hanging below it as the seated entry holds them,
- * would meet the ground, so the rider can push off. Each foot is placed
- * where its knee is ahead of the seat just before it comes that low,
- * stays while it is, and is lifted just after it rises again; no ankle
- * ever goes below its height over the ground.
+ * (`HumanRide`), and the feet planted on the ground while the seat is so low
+ * that the soles, hanging below it as the seated entry holds them, would meet
+ * the ground, so the rider can push off. Each foot is placed where its knee is
+ * ahead of the seat just before it comes that low, stays while it is, and is
+ * lifted just after it rises again; no ankle ever goes below its height over
+ * the ground.
  *
  * @param context The seated entry, the beam and its points.
  * @returns The ride with the ground contacts of the low end.
  * @throws {HumanRefusal} For a ride the seat refuses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ride it wraps, the reach rule and the plant.
- * @evidence contracts/development/implementation.md#principled-implementation The scene's seat height against the entry's hanging soles decides each low interval; the feet bear on the world while it lasts and are placed and lifted outside it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the seated ride, find the low intervals once, then place the feet per sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The beam's angle is never authored here. The placing time is a named provisional staging value.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pass at `STEP` over the duration; each sample scans the few low intervals.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the seated ride's seat and grip fit.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the low intervals and the ride plan for the action.
  */
 export function HumanSeesawRide(
   context: IAutoMovieMotionHumanActionContext<Params>,

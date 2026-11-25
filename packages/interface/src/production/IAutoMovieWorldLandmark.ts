@@ -1,7 +1,8 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Named world-meter point with authored selection/clearance radius and semantic meaning.
+ * Named world-meter point with authored selection/clearance radius and semantic
+ * meaning.
  */
 export interface IAutoMovieWorldLandmark {
   /** Stable landmark id. */

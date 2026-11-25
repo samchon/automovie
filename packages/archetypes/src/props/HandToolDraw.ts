@@ -8,13 +8,9 @@ import {
 } from "../core";
 import { TOOL_BANDS } from "./TOOL_BANDS";
 
-/**
- * The seeded recipes originally published as `createTool`.
- */
+/** The seeded recipes originally published as `createTool`. */
 export namespace HandToolDraw {
-  /**
-   * The kinds of tool.
-   */
+  /** The kinds of tool. */
   export type Kind =
     | "hammer"
     | "saw"
@@ -37,12 +33,13 @@ export namespace HandToolDraw {
     "primingWire",
   ];
 
-  /** A table knife blade's thickness as a share of its read width from spine to edge: a construction estimate that no act reads and no band declares. */
+  /**
+   * A table knife blade's thickness as a share of its read width from spine to
+   * edge: a construction estimate that no act reads and no band declares.
+   */
   export const KNIFE_THICKNESS: number = 0.1;
 
-  /**
-   * The shape of {@link TINES}.
-   */
+  /** The shape of {@link TINES}. */
   export interface ITines {
     /** The `width` entry. */
     width: number;
@@ -51,26 +48,45 @@ export namespace HandToolDraw {
     length: number;
   }
 
-  /** A fork's tines as one plate, across and along, metres: an estimate, not read at a source. */
+  /**
+   * A fork's tines as one plate, across and along, metres: an estimate, not
+   * read at a source.
+   */
   export const TINES: Readonly<ITines> = {
     width: 0.025,
     length: 0.045,
   };
 
-  /** A saw blade's depth from its spine to its teeth, metres: an estimate, not read at a source. */
+  /**
+   * A saw blade's depth from its spine to its teeth, metres: an estimate, not
+   * read at a source.
+   */
   export const BLADE_DEPTH: number = 0.1;
 
-  /** The length of handle a hand holds, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
+  /**
+   * The length of handle a hand holds, metres: the 120 mm CCOHS recommends for
+   * a tool handle
+   * (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html).
+   */
   export const GRIP: number = 0.12;
 
-  /** The radius of a spoon's bowl, metres: the bowl is a disc of this radius whose far rim ends the spoon, and the handle is the rest of the length. An estimate, not read at a source. */
+  /**
+   * The radius of a spoon's bowl, metres: the bowl is a disc of this radius
+   * whose far rim ends the spoon, and the handle is the rest of the length. An
+   * estimate, not read at a source.
+   */
   export const BOWL: number = 0.02;
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others; a priming wire's ring, pinched.
-   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a ladle's bowl, a table knife's edge, a priming wire's point.
+   * - `grip`: the handle, held at its butt end on a hammer, across the heel on a
+   *   saw and next to the working part on the others; a priming wire's ring,
+   *   pinched.
+   * - `face`: the working end: a hammer's striking face, the edge of a saw's
+   *   teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a
+   *   fork's tines, a ladle's bowl, a table knife's edge, a priming wire's
+   *   point.
    */
   export type Affordance = "grip" | "face";
 
@@ -78,8 +94,10 @@ export namespace HandToolDraw {
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
-   * - `gripDiameter`: the handle's diameter; a spoon's or a fork's handle's width.
-   * - `blade`: the length of a saw's or a table knife's blade, a screwdriver's shank.
+   * - `gripDiameter`: the handle's diameter; a spoon's or a fork's handle's
+   *   width.
+   * - `blade`: the length of a saw's or a table knife's blade, a screwdriver's
+   *   shank.
    * - `bladeWidth`: a table knife's blade from its spine to its edge.
    * - `bowl`: a ladle's bowl, across.
    * - `mass`: kilograms.
@@ -105,7 +123,8 @@ export namespace HandToolDraw {
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside its band.
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which tool. */
@@ -118,17 +137,20 @@ export namespace HandToolDraw {
     id?: string;
   }
 
-  /**
-   * A model's read figures, by dimension.
-   */
+  /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
-   * The table knives read: Eichenlaub's Altdeutsch and Robert Welch's Malvern.
-   */
+  /** The table knives read: Eichenlaub's Altdeutsch and Robert Welch's Malvern. */
   export type Model = "eichenlaub" | "robertWelch";
 
-  /** Each kind's models whole, the default first, length, blade, blade width and mass: Eichenlaub's Altdeutsch 22.5 cm, 12.5 cm, 1.7 cm and 60 g (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood), and Robert Welch's Malvern 24.6 cm, 12 cm, 2.1 cm, the blade the knife's widest part, and 130 g (https://www.johnlewis.com/robert-welch-malvern-stainless-steel-table-knife-12cm/p707599). */
+  /**
+   * Each kind's models whole, the default first, length, blade, blade width and
+   * mass: Eichenlaub's Altdeutsch 22.5 cm, 12.5 cm, 1.7 cm and 60 g
+   * (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood),
+   * and Robert Welch's Malvern 24.6 cm, 12 cm, 2.1 cm, the blade the knife's
+   * widest part, and 130 g
+   * (https://www.johnlewis.com/robert-welch-malvern-stainless-steel-table-knife-12cm/p707599).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
@@ -153,9 +175,7 @@ export namespace HandToolDraw {
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = TOOL_BANDS;
 
-  /**
-   * What {@link prepare} prepares for its caller.
-   */
+  /** What {@link prepare} prepares for its caller. */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
@@ -167,16 +187,19 @@ export namespace HandToolDraw {
   /**
    * Prepare an empty builder and the previously recorded tool dimensions.
    *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+   * @param params Fixed dimensions in metres or kilograms, an optional scene
+   *   ID, and a model where the saved recipe has one.
+   * @param seed The seed that draws the saved dimensions and model, or
+   *   undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
+   *   lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
     params: Omit<IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IPrepareResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>("tool", UNITS, seed, params);
@@ -203,9 +226,7 @@ export namespace HandToolDraw {
     return { builder, d };
   }
 
-  /**
-   * The contact ids {@link handle} builds or reads.
-   */
+  /** The contact ids {@link handle} builds or reads. */
   export type HandleContact = "grip" | "face";
 
   /**

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
@@ -13,17 +14,18 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = {
+  primitives: IAutoMovieMotionHumanPrimitive[];
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};
+
 /**
  * The forward lunge of `exercise`: the hips come down until the lead thigh is
- * level over an upright shank and travel forward until the trailing thigh
- * hangs under its hip, that leg's shank level behind it on a foot stood on
- * its toes with the ankle at its dorsiflexion range; the lead foot steps out
- * to stand a thigh ahead of the hips there, and steps back.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the lunge's bottom, the travel and the step.
- * @evidence contracts/development/design.md#principled-representation The lunge as the root's travel, the lead leg's step and the trailing foot's turn about its toes, over the exercise's repetition clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs the exercise hands over and one builder of the lunge's primitives and plant.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is a share of the body's measures; the ankle's range is the rig's.
+ * level over an upright shank and travel forward until the trailing thigh hangs
+ * under its hip, that leg's shank level behind it on a foot stood on its toes
+ * with the ankle at its dorsiflexion range; the lead foot steps out to stand a
+ * thigh ahead of the hips there, and steps back.
  */
 export namespace exerciseLunge {
   /** What the exercise hands the lunge. */
@@ -35,13 +37,13 @@ export namespace exerciseLunge {
     entry: IAutoMovieMotionHumanPosture;
 
     /** The feet at the entry. */
-    stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    stance: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The heading's forward, world. */
     forward: IAutoMovieVector3;
 
     /** The leg that steps out. */
-    lead: "left" | "right";
+    lead: AutoMovieHumanSide;
 
     /** The share of the way into any repetition's low position at a second. */
     any: (seconds: number) => number;
@@ -56,24 +58,14 @@ export namespace exerciseLunge {
   /**
    * The lunge's primitives and the trailing foot's plant.
    *
-   * @param props The body, the entry and its feet, the heading, the lead leg, the depth share, the extent and the duration.
+   * @param props The body, the entry and its feet, the heading, the lead leg,
+   *   the depth share, the extent and the duration.
    * @returns The primitives and the contact windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The bottom read off the measures: the sink from the lead hip to a level thigh over an upright shank, the travel that hangs the trailing thigh under its hip over a tiptoed foot, and the stride that stands the lead foot a thigh ahead.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The bottom, then the root, the lead leg and the trailing foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ankle's dorsiflexion is the rig's limit, not a stated angle.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed lead-foot swing prepares its vector and spherical-rotation prerequisites once through Leg.prepareArc, and the additive root row observes only current root. Its two original arbitrary envelope calls remain separate at their original expression positions; every current ankle, root and actual leg goal is still evaluated.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanFoot.preparePivot holds the unchanged trailing contact, heading and socket geometry across independent heel-pitch queries; Leg.prepareArc shares only the fixed lead-foot endpoints and clearance, retaining the original progress clamp and lift formula.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives retain their fixed stance/bottom geometry and bounded pivot/arc readers until the plan ends; no current pose, goal, time or query history is stored.
    */
-  export function plan(props: IProps): {
-    primitives: IAutoMovieMotionHumanPrimitive[];
-    contacts: IAutoMovieMotionHumanContactWindow[];
-  } {
+  export function plan(props: IProps): IPlanResult {
     const { body, entry, stance, forward, lead, any, extent, duration } = props;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const trail: "left" | "right" = lead === "right" ? "left" : "right";
+    const trail: AutoMovieHumanSide = lead === "right" ? "left" : "right";
     const hip: IAutoMovieVector3 = HumanFrame.point(
       { origin: entry.root, yaw: entry.yaw },
       body.rest.get(`${lead}UpperLeg`)!,
@@ -120,7 +112,10 @@ export namespace exerciseLunge {
         reads: ["root"],
         from: 0,
         to: duration,
-        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           root: Vector3.add(
             posture.root,
@@ -137,7 +132,10 @@ export namespace exerciseLunge {
         side: lead,
         from: 0,
         to: duration,
-        placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement =>
           step(Math.min(1, 2 * any(s))),
         planted: (s: number): boolean => any(s) <= 0 || any(s) >= 0.5,
       }),
@@ -146,7 +144,10 @@ export namespace exerciseLunge {
         channels: [`${trail}Leg`],
         from: 0,
         to: duration,
-        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => {
           const share: number = any(s) * extent;
           return {
             ...posture,

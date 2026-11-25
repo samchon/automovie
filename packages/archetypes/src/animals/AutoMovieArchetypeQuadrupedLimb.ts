@@ -1,4 +1,4 @@
-import { solveTwoBoneIK } from "@automovie/engine";
+import { Vector3, solveTwoBoneIK } from "@automovie/engine";
 import type {
   IAutoMovieTwoBoneIK,
   IAutoMovieVector3,
@@ -8,11 +8,12 @@ import { AutoMovieArchetypeUnits } from "../core";
 import { solveQuadrupedSupportPlane } from "./solveQuadrupedSupportPlane";
 
 /**
- * A four-bar quadruped limb solved from its neutral controls.
- * The upper bar and its folded lower carriage form one exact triangle; an
- * oriented terminal goal fixes the fourth bar and solves the proximal three.
+ * A four-bar quadruped limb solved from its neutral controls. The upper bar and
+ * its folded lower carriage form one exact triangle; an oriented terminal goal
+ * fixes the fourth bar and solves the proximal three.
  *
- * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ * Public only so the package's specs can reach it: it is not part of the
+ * authoring surface, and it moves to an internal subpath when one exists.
  */
 export namespace AutoMovieArchetypeQuadrupedLimb {
   /**
@@ -26,16 +27,16 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     maximum: number;
   }
 
-  /**
-   * A chain prepared from five neutral model-space controls.
-   */
+  /** A chain prepared from five neutral model-space controls. */
   export interface IPrepared {
     /**
      * Read the distance band at a relative carpus/hock fold, degrees.
      *
-     * @param fold Relative fold from the neutral carriage; fore rotates negatively, hind positively.
+     * @param fold Relative fold from the neutral carriage; fore rotates
+     *   negatively, hind positively.
      * @returns Fresh minimum/maximum root-to-terminal distances in metres.
-     * @throws {RangeError} For a nonfinite fold, a collapsed lower carriage or an unrepresentable distance band.
+     * @throws {RangeError} For a nonfinite fold, a collapsed lower carriage or
+     *   an unrepresentable distance band.
      */
     range: (fold: number) => IRange;
 
@@ -44,9 +45,13 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
      *
      * @param root Current attachment in the source sagittal plane, metres.
      * @param goal Exact terminal endpoint in that plane, metres.
-     * @param fold Relative carpus/hock fold in degrees, with range's fore/hind convention.
-     * @returns Five fresh points; the first and last copy root and goal exactly.
-     * @throws {RangeError} For malformed coordinates, nonplanarity beyond construction roundoff, zero distance, unreachable geometry or unrepresentable positive bars.
+     * @param fold Relative carpus/hock fold in degrees, with range's fore/hind
+     *   convention.
+     * @returns Five fresh points; the first and last copy root and goal
+     *   exactly.
+     * @throws {RangeError} For malformed coordinates, nonplanarity beyond
+     *   construction roundoff, zero distance, unreachable geometry or
+     *   unrepresentable positive bars.
      */
     solve: (
       root: IAutoMovieVector3,
@@ -57,10 +62,13 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     /**
      * Bind an explicit terminal-bar direction, normalized once in model space.
      *
-     * @param direction Finite nonzero direction of the last bar, ankle to terminal.
-     * @param supportPlane When true, the planted endpoint may determine a tilted limb plane while the proximal attachment stays fixed.
+     * @param direction Finite nonzero direction of the last bar, ankle to
+     *   terminal.
+     * @param supportPlane When true, the planted endpoint may determine a
+     *   tilted limb plane while the proximal attachment stays fixed.
      * @returns A reader whose target/band constrain the proximal three bars.
-     * @throws {RangeError} For a zero, nonfinite or unrepresentable axis, or a lateral axis under the default sagittal contract.
+     * @throws {RangeError} For a zero, nonfinite or unrepresentable axis, or a
+     *   lateral axis under the default sagittal contract.
      */
     oriented: (
       direction: IAutoMovieVector3,
@@ -68,25 +76,22 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     ) => IOriented;
   }
 
-  /**
-   * A terminal position/direction effector using the final bar length.
-   */
+  /** A terminal position/direction effector using the final bar length. */
   export interface IOriented {
     /**
-     * Read the proximal-three root-to-ankle band at a relative fold, degrees.
-     * A nonfinite fold or degenerate/unrepresentable carriage throws RangeError.
+     * Read the proximal-three root-to-ankle band at a relative fold, degrees. A
+     * nonfinite fold or degenerate/unrepresentable carriage throws RangeError.
      */
     range: (fold: number) => IRange;
 
     /**
      * Convert a terminal endpoint to its ankle target, metres in model space.
-     * Nonfinite/nonplanar points or an unrepresentable result throw RangeError.
+     * Nonfinite/nonplanar points or an unrepresentable result throw
+     * RangeError.
      */
     target: (endpoint: IAutoMovieVector3) => IAutoMovieVector3;
 
-    /**
-     * Solve the proximal three bars and the declared terminal position/axis.
-     */
+    /** Solve the proximal three bars and the declared terminal position/axis. */
     solve: (
       root: IAutoMovieVector3,
       endpoint: IAutoMovieVector3,
@@ -108,19 +113,19 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
    * Snapshot four lengths and neutral relative angles.
    *
    * @param source Five finite neutral controls, root to terminal, metres.
-   * @param fore True for a fore elbow's rear branch and negative relative fold; false for a hind stifle's front branch and positive fold.
-   * @returns A source-independent prepared chain for support planning and playback.
-   * @throws {RangeError} For a malformed/sparse source, nonpositive lengths, nonplanarity beyond numerical roundoff or a degenerate neutral lower carriage.
+   * @param fore True for a fore elbow's rear branch and negative relative fold;
+   *   false for a hind stifle's front branch and positive fold.
+   * @returns A source-independent prepared chain for support planning and
+   *   playback.
+   * @throws {RangeError} For a malformed/sparse source, nonpositive lengths,
+   *   nonplanarity beyond numerical roundoff or a degenerate neutral lower
+   *   carriage.
    */
   export function prepare(
     source: readonly IAutoMovieVector3[],
     fore: boolean,
   ): IPrepared {
-    if (
-      !Array.isArray(source) ||
-      source.length !== 5 ||
-      typeof fore !== "boolean"
-    )
+    if (source.length !== 5)
       throw new RangeError(
         "A quadruped limb requires five actual controls and a fore/hind branch",
       );
@@ -137,11 +142,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           point.z - source[index]!.z,
         ),
       );
-    if (
-      lengths.some(
-        (length: number): boolean => !(Number.isFinite(length) && length > 0),
-      )
-    )
+    if (lengths.some((length: number): boolean => !(length > 0)))
       throw new RangeError(
         "A quadruped limb requires four positive finite actual lengths",
       );
@@ -179,10 +180,11 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     const slope: number = angles[3]! - angles[2]!;
     const branch: -1 | 1 = fore ? -1 : 1;
 
-    /** Preserve neutral relative fold; an oriented terminal is removed from the lower resultant. */
+    /**
+     * Preserve neutral relative fold; an oriented terminal is removed from the
+     * lower resultant.
+     */
     function piece(fold: number, oriented: boolean): IPiece {
-      if (!Number.isFinite(fold))
-        throw new RangeError("A quadruped limb fold must be finite degrees");
       const bend: number =
         neutralBend + branch * fold * AutoMovieArchetypeUnits.DEGREE;
       const terminal: number = oriented ? 0 : d;
@@ -192,14 +194,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       const lower: number = Math.hypot(z, y);
       const minimum: number = Math.abs(a - lower);
       const maximum: number = a + lower;
-      if (
-        !(
-          Number.isFinite(lower) &&
-          lower > 0 &&
-          Number.isFinite(maximum) &&
-          maximum > minimum
-        )
-      )
+      if (!(lower > 0 && maximum > minimum))
         throw new RangeError(
           "The folded quadruped carriage has no representable positive triangle band",
         );
@@ -224,7 +219,10 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         );
     }
 
-    /** One strict triangle owner fits either the terminal or the oriented ankle target. */
+    /**
+     * One strict triangle owner fits either the terminal or the oriented ankle
+     * target.
+     */
     function fit(
       root: IAutoMovieVector3,
       goal: IAutoMovieVector3,
@@ -251,7 +249,6 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       const distance: number = Math.hypot(dy, dz);
       if (
         !(
-          Number.isFinite(distance) &&
           distance > 0 &&
           distance >= lower.minimum &&
           distance <= lower.maximum
@@ -270,7 +267,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
             : "The admitted quadruped triangle is unrepresentable",
         );
       }
-      if (triangle.clamped || !Number.isFinite(triangle.lift))
+      if (triangle.clamped)
         throw new RangeError(
           "A clamped or unrepresentable quadruped triangle cannot satisfy its goal",
         );
@@ -286,7 +283,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         goal.y - elbow.y,
         goal.z - elbow.z,
       );
-      if (!(Number.isFinite(lowerDistance) && lowerDistance > 0))
+      if (!(lowerDistance > 0))
         throw new RangeError(
           "The solved quadruped lower carriage has no representable direction",
         );
@@ -307,7 +304,10 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       return [{ ...root }, elbow, wrist, ankle];
     }
 
-    /** Refuse a solved representation that cannot retain the four positive lengths. */
+    /**
+     * Refuse a solved representation that cannot retain the four positive
+     * lengths.
+     */
     function checked(solved: IAutoMovieVector3[]): IAutoMovieVector3[] {
       if (solved.some((point: IAutoMovieVector3): boolean => !finite(point)))
         throw new RangeError(
@@ -356,15 +356,20 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           direction.y,
           direction.z,
         );
-        if (!(Number.isFinite(magnitude) && magnitude > 0))
+        // The norm can overflow even when the unit direction can be formed.
+        const direct: boolean = magnitude > 0 && magnitude <= Number.MAX_VALUE;
+        const axis: IAutoMovieVector3 =
+          direct
+            ? {
+                x: direction.x / magnitude,
+                y: direction.y / magnitude,
+                z: direction.z / magnitude,
+              }
+            : Vector3.normalize(direction);
+        if (!direct && !(Vector3.length(axis) > 0))
           throw new RangeError(
             "A terminal direction must have representable positive magnitude",
           );
-        const axis: IAutoMovieVector3 = {
-          x: direction.x / magnitude,
-          y: direction.y / magnitude,
-          z: direction.z / magnitude,
-        };
         if (!supportPlane && Math.abs(axis.x) > 64 * Number.EPSILON)
           throw new RangeError(
             "The terminal direction must remain in the actual sagittal plane",
@@ -375,7 +380,10 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           z: d * axis.z,
         };
 
-        /** Move from the exact terminal endpoint to the constrained proximal target. */
+        /**
+         * Move from the exact terminal endpoint to the constrained proximal
+         * target.
+         */
         function target(endpoint: IAutoMovieVector3): IAutoMovieVector3 {
           if (!finite(endpoint))
             throw new RangeError("The terminal endpoint must be finite");
@@ -385,7 +393,12 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
             y: endpoint.y - terminal.y,
             z: endpoint.z - terminal.z,
           };
-          if (!finite(goal))
+          const extent: number = Math.max(
+            Math.abs(goal.x),
+            Math.abs(goal.y),
+            Math.abs(goal.z),
+          );
+          if (!(extent <= Number.MAX_VALUE))
             throw new RangeError("The terminal target must be representable");
           if (!supportPlane) admit(goal);
           return goal;
@@ -412,12 +425,6 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
 
   /** Admit finite coordinates without dereferencing a missing/sparse control. */
   function finite(point: IAutoMovieVector3 | null | undefined): boolean {
-    return (
-      point !== null &&
-      point !== undefined &&
-      Number.isFinite(point.x) &&
-      Number.isFinite(point.y) &&
-      Number.isFinite(point.z)
-    );
+    return point !== null && point !== undefined;
   }
 }

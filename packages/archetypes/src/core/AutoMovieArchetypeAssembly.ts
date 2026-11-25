@@ -16,13 +16,28 @@ import { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
+import { ownArchetypeRecordKeys } from "./ownArchetypeRecordKeys";
 
 /**
- * Several archetypes as one placed and ridden object: a chariot of a platform, wheels and a pole, a railway carriage of a floor, seats, bars and doors, a limbered gun.
+ * Several archetypes as one placed and ridden object: a chariot of a platform,
+ * wheels and a pole, a railway carriage of a floor, seats, bars and doors, a
+ * limbered gun.
  *
- * An assembly is an `AutoMovieArchetype` of its members, each placed in the assembly's space and named by a key. Its parts, affordances and spans are the members', their ids prefixed `<key>/`, so a seat inside it is named as `bench2/seat`; its materials are the union of theirs; its mass properties are theirs combined. It goes wherever an archetype goes: a ride moves it along a course, a prop or a seat of a performance reads its affordances, and it serialises as one model. Its `articulate` takes prefixed ids, and an articulation follows one of another member only through the assembly's own couplings (`couple`), so no member's own model is changed. `member(key)` gives a member as it is posed in the assembly, with the member's own typed accessors.
+ * An assembly is an `AutoMovieArchetype` of its members, each placed in the
+ * assembly's space and named by a key. Its parts, affordances and spans are the
+ * members', their ids prefixed `<key>/`, so a seat inside it is named as
+ * `bench2/seat`; its materials are the union of theirs; its mass properties are
+ * theirs combined. It goes wherever an archetype goes: a ride moves it along a
+ * course, a prop or a seat of a performance reads its affordances, and it
+ * serialises as one model. Its `articulate` takes prefixed ids, and an
+ * articulation follows one of another member only through the assembly's own
+ * couplings (`couple`), so no member's own model is changed. `member(key)`
+ * gives a member as it is posed in the assembly, with the member's own typed
+ * accessors.
  *
- * An assembly is composed in a production's own source: it adds no dimension of its own and is not a producer, so no finished set enters the package. The same members, placements and seeds give the same assembly.
+ * An assembly is composed in a production's own source: it adds no dimension of
+ * its own and is not a producer, so no finished set enters the package. The
+ * same members, placements and seeds give the same assembly.
  *
  * @template M The members by key.
  */
@@ -44,7 +59,8 @@ export class AutoMovieArchetypeAssembly<
    * @param members The members by key.
    * @param props The merged model at rest.
    * @param state The travel of each leader articulation, by prefixed id.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetype`'s constructor does.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetype`'s constructor
+   *   does.
    */
   private constructor(
     members: M,
@@ -61,14 +77,17 @@ export class AutoMovieArchetypeAssembly<
    *
    * @param id The model's id, unique in a scene.
    * @param name Its readable name, such as `railway carriage`.
-   * @param members The members by key, each an archetype and its placement in the assembly's space with unit scale; a member's own articulation state is kept.
+   * @param members The members by key, each an archetype and its placement in
+   *   the assembly's space with unit scale; a member's own articulation state
+   *   is kept.
    * @returns The assembly.
-   * @throws {AutoMovieArchetypeRefusal} When there is no member, a key is empty or contains `/`, or a placement is not rigid with unit scale.
+   * @throws {AutoMovieArchetypeRefusal} When there is no member, a key is empty
+   *   or contains `/`, or a placement is not rigid with unit scale.
    */
   public static of<
     M extends Readonly<Record<string, AutoMovieArchetypeAssembly.IMember>>,
   >(id: string, name: string, members: M): AutoMovieArchetypeAssembly<M> {
-    const keys: string[] = Object.keys(members);
+    const keys: (keyof M & string)[] = ownArchetypeRecordKeys(members);
     const refuse = (
       axis: string,
       value: unknown,
@@ -103,8 +122,10 @@ export class AutoMovieArchetypeAssembly<
     let material: AutoMovieArchetypeMaterial.Kind | null | undefined;
     let restitution: number | null | undefined;
     const surfaces: Record<string, AutoMovieArchetypeFriction.Material> = {};
-    for (const key of keys) {
-      const member: AutoMovieArchetypeAssembly.IMember = members[key]!;
+    // One member at a time, through its own key, so the key and its ids stay
+    // correlated in `Ids<M>`.
+    const absorb = <K extends keyof M & string>(key: K): void => {
+      const member: M[K] = members[key];
       const placement: IAutoMovieTransform = member.placement;
       if (key.length === 0 || key.includes("/"))
         refuse(
@@ -128,7 +149,8 @@ export class AutoMovieArchetypeAssembly<
       // The member at rest, every id prefixed and every frame placed.
       const rest: AutoMovieArchetype = member.archetype.articulate({});
       const memberCells: AutoMovieArchetypeConvexCell.Table = rest.convexCells;
-      const prefix = (own: string): string => `${key}/${own}`;
+      const prefix = <Own extends string>(own: Own): `${K}/${Own}` =>
+        `${key}/${own}`;
       const end = (
         e: AutoMovieArchetypeSpan.End,
       ): AutoMovieArchetypeSpan.End =>
@@ -152,10 +174,10 @@ export class AutoMovieArchetypeAssembly<
           ),
         });
       }
-      for (const affordance of rest.affordances)
+      for (const [at, affordance] of rest.affordances.entries())
         affordances.push({
           ...affordance,
-          id: prefix(affordance.id) as AutoMovieArchetypeAssembly.Ids<M>,
+          id: prefix(member.archetype.affordances[at]!.id),
           frame: AutoMovieArchetypeFrame.compose(placement, affordance.frame),
           ...(affordance.parts === undefined
             ? {}
@@ -201,10 +223,15 @@ export class AutoMovieArchetypeAssembly<
         )
           restitution = null;
       }
-      for (const [own, travel] of Object.entries(member.archetype.state))
-        if (travel !== undefined)
-          state[prefix(own) as AutoMovieArchetypeAssembly.Ids<M>] = travel;
-    }
+      // A member's state record is keyed by the archetype's own affordance id,
+      // the same `Id` its `affordances` carry, so every configured entry is
+      // found by walking the affordances.
+      for (const named of member.archetype.affordances) {
+        const travel: number | undefined = member.archetype.state[named.id];
+        if (travel !== undefined) state[prefix(named.id)] = travel;
+      }
+    };
+    for (const key of keys) absorb(key);
     const properties: AutoMovieArchetypeMass.IProperties =
       AutoMovieArchetypeMass.combine(placed);
     const weights: number[] = placed.map(
@@ -258,12 +285,19 @@ export class AutoMovieArchetypeAssembly<
   }
 
   /**
-   * This assembly with an articulation of one member following an articulation of another, as the members' own `follows` would within one member: a chariot's wheel turning with its pole, a gun's elevation with a limber's crank.
+   * This assembly with an articulation of one member following an articulation
+   * of another, as the members' own `follows` would within one member: a
+   * chariot's wheel turning with its pole, a gun's elevation with a limber's
+   * crank.
    *
-   * @param follower The follower's prefixed id; it must not already follow, by its member's own declaration or an earlier coupling.
+   * @param follower The follower's prefixed id; it must not already follow, by
+   *   its member's own declaration or an earlier coupling.
    * @param follows Its rule, with the leader's prefixed id.
    * @returns A new assembly at the same state; this one is unchanged.
-   * @throws {AutoMovieArchetypeRefusal} When the follower is no articulation of the assembly, already follows, or the coupling makes a chain of leaders return to itself or takes the follower outside its range at the current state, as the articulation pose refuses.
+   * @throws {AutoMovieArchetypeRefusal} When the follower is no articulation of
+   *   the assembly, already follows, or the coupling makes a chain of leaders
+   *   return to itself or takes the follower outside its range at the current
+   *   state, as the articulation pose refuses.
    */
   public couple(
     follower: AutoMovieArchetypeAssembly.Ids<M>,
@@ -322,11 +356,14 @@ export class AutoMovieArchetypeAssembly<
   }
 
   /**
-   * One member as it is posed in this assembly, in the member's own space, with its own typed accessors.
+   * One member as it is posed in this assembly, in the member's own space, with
+   * its own typed accessors.
    *
    * @param key The member's key.
-   * @returns The member archetype at the travels this assembly gives its articulations, a coupled follower's included.
-   * @throws {AutoMovieArchetypeRefusal} When the assembly has no such member, listing its keys.
+   * @returns The member archetype at the travels this assembly gives its
+   *   articulations, a coupled follower's included.
+   * @throws {AutoMovieArchetypeRefusal} When the assembly has no such member,
+   *   listing its keys.
    */
   public member<K extends keyof M & string>(
     key: K,
@@ -348,10 +385,7 @@ export class AutoMovieArchetypeAssembly<
     const archetype: AutoMovieArchetype<
       AutoMovieArchetypeAssembly.MemberId<M[K]>,
       AutoMovieArchetypeAssembly.MemberDimension<M[K]>
-    > = member.archetype as AutoMovieArchetype<
-      AutoMovieArchetypeAssembly.MemberId<M[K]>,
-      AutoMovieArchetypeAssembly.MemberDimension<M[K]>
-    >;
+    > = member.archetype;
     const state: Partial<
       Record<AutoMovieArchetypeAssembly.MemberId<M[K]>, number>
     > = {};
@@ -362,21 +396,21 @@ export class AutoMovieArchetypeAssembly<
       )
         continue;
       const travel: number = this.travel(
-        `${key}/${affordance.id}` as AutoMovieArchetypeAssembly.Ids<M>,
+        `${key}/${affordance.id}`,
       );
-      if (travel !== 0)
-        state[affordance.id as AutoMovieArchetypeAssembly.MemberId<M[K]>] =
-          travel;
+      if (travel !== 0) state[affordance.id] = travel;
     }
     return archetype.articulate(state);
   }
 
   /**
-   * This assembly with its articulations at stated travels, by prefixed id, as `AutoMovieArchetype.articulate` documents.
+   * This assembly with its articulations at stated travels, by prefixed id, as
+   * `AutoMovieArchetype.articulate` documents.
    *
    * @param state The travel of each leader articulation by prefixed id.
    * @returns A new assembly; this one is unchanged.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetype.articulate` does, listing the prefixed ids for an unknown one.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetype.articulate`
+   *   does, listing the prefixed ids for an unknown one.
    */
   public override articulate(
     state: Partial<Record<AutoMovieArchetypeAssembly.Ids<M>, number>>,
@@ -386,7 +420,10 @@ export class AutoMovieArchetypeAssembly<
 }
 
 /**
- * Companion types and constant of {@link AutoMovieArchetypeAssembly}: a member is an archetype and a rigid placement, and the id unions are derived from the members' own closed unions, read by the assembly's methods' signatures; the class's own claims cover them.
+ * Companion types and constant of {@link AutoMovieArchetypeAssembly}: a member
+ * is an archetype and a rigid placement, and the id unions are derived from the
+ * members' own closed unions, read by the assembly's methods' signatures; the
+ * class's own claims cover them.
  */
 export namespace AutoMovieArchetypeAssembly {
   /** The name refusals carry for an assembly, which is no producer's. */
@@ -409,18 +446,11 @@ export namespace AutoMovieArchetypeAssembly {
     placement: IAutoMovieTransform;
   }
 
-  /**
-   * A member's affordance ids, read from its archetype's type.
-   */
-  export type MemberId<T> = T extends {
-    archetype: AutoMovieArchetype<infer I, string>;
-  }
-    ? I
-    : never;
+  /** A member's affordance ids, read from its archetype's type. */
+  export type MemberId<T extends IMember> =
+    T["archetype"]["affordances"][number]["id"];
 
-  /**
-   * A member's free dimensions, read from its archetype's type.
-   */
+  /** A member's free dimensions, read from its archetype's type. */
   export type MemberDimension<T> = T extends {
     archetype: AutoMovieArchetype<string, infer D>;
   }
@@ -428,9 +458,10 @@ export namespace AutoMovieArchetypeAssembly {
     : never;
 
   /**
-   * Every id an assembly gives: each member's affordance ids under its key, as `<key>/<id>`.
+   * Every id an assembly gives: each member's affordance ids under its key, as
+   * `<key>/<id>`.
    */
-  export type Ids<M> = {
+  export type Ids<M extends Readonly<Record<string, IMember>>> = {
     [K in keyof M & string]: `${K}/${MemberId<M[K]>}`;
   }[keyof M & string];
 }

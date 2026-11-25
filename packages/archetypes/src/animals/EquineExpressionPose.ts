@@ -9,9 +9,11 @@ import type {
 
 import {
   type AutoMovieArchetype,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
 } from "../core";
+import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineHeadReach } from "./EquineHeadReach";
@@ -19,7 +21,7 @@ import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /** The rig's own bones, which carry themselves. */
-const BONES: ReadonlySet<string> = new Set<string>([
+const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   "trunk",
   "hindquarters",
   "neck",
@@ -27,46 +29,67 @@ const BONES: ReadonlySet<string> = new Set<string>([
   "tail",
   ...Object.values(QuadrupedScapula.BONES),
   ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
-    (limb: AutoMovieArchetypeQuadrupedBody.Limb): readonly string[] =>
+    (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): readonly AutoMovieArchetypeQuadrupedBody.Bone[] =>
       AutoMovieArchetypeQuadrupedBody.BONES[limb],
   ),
-]);
+];
 
 /** The identity turn. */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 /**
- * Re-pose one sample of an equid's ride through its rig: the neck and head, each ear about its root, the jaw about its hinge, the upper lip about its root and the tail about its dock.
+ * Re-pose one sample of an equid's ride through its rig: the neck and head,
+ * each ear about its root, the jaw about its hinge, the upper lip about its
+ * root and the tail about its dock.
  *
- * The sample's own bone frames are read by the shared FK reader; the neck, head and tail get new frames and every other bone keeps its own, and a part or contact whose carrier keeps its frame keeps its own transform untouched, so the limbs, the trunk and everything they carry are the base sample's exactly. Each non-bone part rides its declared carrier (`AutoMovieArchetypeQuadrupedSkeleton.apply`'s rigid delta), the head's tack, ears and jaw riding the head; an ear is then turned about its root and the jaw about its hinge. Spans such as the lead and the reins are laid again by the model between their ends, so a rope stays on its halter and its held point.
+ * The sample's own bone frames are read by the shared FK reader; the neck, head
+ * and tail get new frames and every other bone keeps its own, and a part or
+ * contact whose carrier keeps its frame keeps its own transform untouched, so
+ * the limbs, the trunk and everything they carry are the base sample's exactly.
+ * Each non-bone part rides its declared carrier
+ * (`AutoMovieArchetypeQuadrupedSkeleton.apply`'s rigid delta), the head's tack,
+ * ears and jaw riding the head; an ear is then turned about its root and the
+ * jaw about its hinge. Spans such as the lead and the reins are laid again by
+ * the model between their ends, so a rope stays on its halter and its held
+ * point.
  */
 export namespace EquineExpressionPose {
-  /**
-   * What one sample's channels ask for, already weighted by their cues' shares.
-   */
+  /** What one sample's channels ask for, already weighted by their cues' shares. */
   export interface IChannels {
     /** The neck's and head's full turns and the share of them shown. */
     head?: IHead;
 
-    /** Each ear's target carriage, a direction in the rest model's space for the left ear (the right mirrors X), and its share. */
+    /**
+     * Each ear's target carriage, a direction in the rest model's space for the
+     * left ear (the right mirrors X), and its share.
+     */
     ears: Partial<Record<AutoMovieArchetypeEquineExpressionCue.Side, IEar>>;
 
     /** The jaw's opening about its hinge, degrees, ventral positive. */
     jaw: number;
 
-    /** The upper lip's curl about its root on the head's lateral axis, degrees, dorsal positive. */
+    /**
+     * The upper lip's curl about its root on the head's lateral axis, degrees,
+     * dorsal positive.
+     */
     lip: number;
 
-    /** The neck's roll about its own bar at its root, carrying the head, degrees. */
+    /**
+     * The neck's roll about its own bar at its root, carrying the head,
+     * degrees.
+     */
     roll: number;
 
-    /** The tail's raise about the trunk's lateral axis and its swing about the trunk's long axis, degrees. */
+    /**
+     * The tail's raise about the trunk's lateral axis and its swing about the
+     * trunk's long axis, degrees.
+     */
     tail: ITail;
   }
 
-  /**
-   * The head channel's turns and share.
-   */
+  /** The head channel's turns and share. */
   export interface IHead {
     /** The full turns. */
     turn: EquineHeadReach.ITurn;
@@ -75,9 +98,7 @@ export namespace EquineExpressionPose {
     share: number;
   }
 
-  /**
-   * One ear's target and share.
-   */
+  /** One ear's target and share. */
   export interface IEar {
     /** The carriage's direction for the left ear, rest model space. */
     direction: IAutoMovieVector3;
@@ -86,9 +107,7 @@ export namespace EquineExpressionPose {
     share: number;
   }
 
-  /**
-   * The tail's raise and swing.
-   */
+  /** The tail's raise and swing. */
   export interface ITail {
     /** Raise, degrees: positive lifts a tail that hangs back. */
     raise: number;
@@ -97,9 +116,7 @@ export namespace EquineExpressionPose {
     swing: number;
   }
 
-  /**
-   * The source's rest frames and carriers, prepared once.
-   */
+  /** The source's rest frames and carriers, prepared once. */
   export interface IPrepared {
     /** The trunk bar's rest rotation. */
     trunk: IAutoMovieQuaternion;
@@ -118,11 +135,13 @@ export namespace EquineExpressionPose {
    * Re-pose one sample.
    *
    * @param sample The base ride's sample.
-   * @param current The sample's own bone frames, as the shared FK reader reads them from its model.
+   * @param current The sample's own bone frames, as the shared FK reader reads
+   *   them from its model.
    * @param prepared The source's rest frames and carriers.
    * @param channels The channels' values.
    * @returns The re-posed sample, at the base sample's placement.
-   * @throws {RangeError} As the shared FK reader and carrier deltas refuse a malformed model.
+   * @throws {RangeError} As the shared FK reader and carrier deltas refuse a
+   *   malformed model.
    */
   export function pose<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.IPose<Id, D>,
@@ -225,12 +244,14 @@ export namespace EquineExpressionPose {
       posed.get("head")!.rotation,
       Quaternion.inverse(prepared.head),
     );
+    const cells: AutoMovieArchetypeConvexCell.Table = animal.convexCells;
     const parts: IAutoMovieModelPart[] = animal.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
         const carrier: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
-          BONES.has(part.id)
-            ? (part.id as AutoMovieArchetypeQuadrupedBody.Bone)
-            : prepared.parts[part.id];
+          BONES.find(
+            (bone: AutoMovieArchetypeQuadrupedBody.Bone): boolean =>
+              bone === part.id,
+          ) ?? prepared.parts[part.id];
         const source: IAutoMovieTransform =
           part.transform ??
           AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
@@ -264,7 +285,7 @@ export namespace EquineExpressionPose {
               -channels.lip,
             ),
           );
-        return { ...structuredClone(part), transform: frame };
+        return { ...ApplyQuadrupedCarrierPose.copy(part, cells), transform: frame };
       },
     );
     const frames: Map<string, IAutoMovieTransform> = new Map(
@@ -292,7 +313,10 @@ export namespace EquineExpressionPose {
     };
   }
 
-  /** Turn an ear about its root toward its carriage, carried into the current head's frame. */
+  /**
+   * Turn an ear about its root toward its carriage, carried into the current
+   * head's frame.
+   */
   function ear(
     part: IAutoMovieModelPart,
     frame: IAutoMovieTransform,
@@ -321,7 +345,10 @@ export namespace EquineExpressionPose {
     );
   }
 
-  /** The end of a part's local +Y from which it hangs: a bar's start, a plate's root. */
+  /**
+   * The end of a part's local +Y from which it hangs: a bar's start, a plate's
+   * root.
+   */
   function start(
     part: IAutoMovieModelPart,
     frame: IAutoMovieTransform,

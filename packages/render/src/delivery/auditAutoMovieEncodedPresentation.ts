@@ -1,47 +1,49 @@
 import type { IAutoMovieAuditEncodedPresentationExpected } from "@automovie/interface";
 
+/** The FFprobe stream fields the audit reads. */
+interface IProbedStream {
+  codec_type: string;
+  codec_name: string;
+  width?: number;
+  height?: number;
+  avg_frame_rate?: string;
+  sample_rate?: string;
+  channels?: number;
+  time_base: string;
+  duration_ts: number | string;
+  start_time: string;
+}
+
 /**
  * Check an encoded delivery's probe against its commissioned profile: exactly
- * one H.264 video stream of the raster and integer frame rate and one AAC
- * audio stream of the sample rate and channel count, each starting at zero
- * and presenting exactly the commissioned whole seconds in its own rational
- * time base, so AAC end padding never passes for film duration. Refuses
- * missing or extra streams, wrong codecs, rasters or rates, and truncated or
- * extended presentations. It cannot establish listening or picture quality.
+ * one H.264 video stream of the raster and integer frame rate and one AAC audio
+ * stream of the sample rate and channel count, each starting at zero and
+ * presenting exactly the commissioned whole seconds in its own rational time
+ * base, so AAC end padding never passes for film duration. Refuses missing or
+ * extra streams, wrong codecs, rasters or rates, and truncated or extended
+ * presentations. It cannot establish listening or picture quality.
  *
- * @param probe Unmodified FFprobe `-show_streams -of json` output, parsed.
+ * @param probe FFprobe `-show_streams -of json` output, parsed.
  * @param expected The commissioned profile.
  */
 export function auditAutoMovieEncodedPresentation(
-  probe: unknown,
+  probe: { streams: readonly IProbedStream[] },
   expected: IAutoMovieAuditEncodedPresentationExpected,
 ): void {
-  if (
-    probe === null ||
-    typeof probe !== "object" ||
-    !Number.isSafeInteger(expected.durationSeconds) ||
-    expected.durationSeconds < 1
-  )
+  if (expected.durationSeconds < 1)
     throw new Error("Invalid encoded presentation audit input");
-  const streams: unknown = (probe as Record<string, unknown>).streams;
-  if (!Array.isArray(streams) || streams.length !== 2)
+  const records: readonly IProbedStream[] = probe.streams;
+  if (records.length !== 2)
     throw new Error("Delivery requires exactly a video and an audio stream");
-  const records: Record<string, unknown>[] = streams.map(
-    (stream: unknown): Record<string, unknown> => {
-      if (stream === null || typeof stream !== "object")
-        throw new Error("Invalid encoded stream");
-      return stream as Record<string, unknown>;
-    },
+  const video: IProbedStream | undefined = records.find(
+    (s: IProbedStream): boolean => s.codec_type === "video",
   );
-  const video: Record<string, unknown> | undefined = records.find(
-    (s: Record<string, unknown>): boolean => s.codec_type === "video",
-  );
-  const audio: Record<string, unknown> | undefined = records.find(
-    (s: Record<string, unknown>): boolean => s.codec_type === "audio",
+  const audio: IProbedStream | undefined = records.find(
+    (s: IProbedStream): boolean => s.codec_type === "audio",
   );
   if (
-    !video ||
-    !audio ||
+    video === undefined ||
+    audio === undefined ||
     video.codec_name !== "h264" ||
     video.width !== expected.width ||
     video.height !== expected.height ||

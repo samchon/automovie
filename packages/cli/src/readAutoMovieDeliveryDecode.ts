@@ -30,7 +30,8 @@ interface IMarker {
  *
  * @param log Complete stderr from a successful video decode.
  * @param expected Commissioned rational frame rate and frame count.
- * @returns Decoded video evidence and the independently observed audio stream status.
+ * @returns Decoded video evidence and the independently observed audio stream
+ *   status.
  */
 export function readAutoMovieDeliveryDecode(
   log: string,
@@ -177,7 +178,10 @@ export function readAutoMovieDeliveryDecode(
   };
 }
 
-/** Checks every frame index, native presentation tick and native duration on the rational grid. */
+/**
+ * Checks every frame index, native presentation tick and native duration on the
+ * rational grid.
+ */
 function isCommissionedGrid(
   frames: IFrame[],
   timeBase: Ratio,
@@ -195,7 +199,10 @@ function isCommissionedGrid(
   );
 }
 
-/** Resolves paired transitions to exact decoded frame starts, allowing an open range at verified EOF. */
+/**
+ * Resolves paired transitions to exact decoded frame starts, allowing an open
+ * range at verified EOF.
+ */
 function readMarkers(
   markers: IMarker[],
   frames: IFrame[],

@@ -5,9 +5,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Normalize the saved open-course phase and optionally reverse its declared direction.
- * Physical coefficients remain unchanged; reversing a span reverses its control order
- * and widths together. The last normalized width closes the binary64 prefix exactly.
+ * Normalize the saved open-course phase and optionally reverse its declared
+ * direction. Physical coefficients remain unchanged; reversing a span reverses
+ * its control order and widths together. The last normalized width closes the
+ * binary64 prefix exactly.
  */
 export function normalizeRecoveryCourse(
   curve: IAutoMovieCubicBezierCurve64,
@@ -26,14 +27,13 @@ export function normalizeRecoveryCourse(
     (sum: number, h: number): number => sum + h,
     0,
   );
-  if (!(total > 0 && Number.isFinite(total)))
-    throw new Error("Open curve phase cannot be normalized");
+  if (!(total > 0)) throw new Error("Open curve phase cannot be normalized");
   let prefix: number = 0;
   const phaseIntervals: number[] = widths.map(
     (width: number, i: number): number => {
       const value: number =
         i + 1 === widths.length ? 1 - prefix : width / total;
-      if (!(value > 0 && Number.isFinite(value)))
+      if (!(value > 0))
         throw new Error("Normalized open phase interval is not representable");
       prefix += value;
       return value;

@@ -1,21 +1,3 @@
-# src/props/TabletopStack.ts#TabletopStack
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the frame and the three shared contacts and how a stack mounts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Model-local frames in metres from the prop's own height and pinch aperture.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Used by the card, chip, banknote and die producers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No geometry is laid here; each producer builds its own part.
-
 # src/props/TabletopStack.ts#TabletopStack.Contact
 
 ## @evidence contracts/development/common.md#meaningful-documentation

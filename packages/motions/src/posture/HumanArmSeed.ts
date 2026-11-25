@@ -1,530 +1,205 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanArmClearance,
-  IAutoMovieMotionHumanArmGeometry,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
+import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmConnect } from "./HumanArmConnect";
-import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmOptimiser } from "./HumanArmOptimiser";
-import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
+import { HumanArmSeedHold } from "./HumanArmSeedHold";
+import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
+import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
- * The seed of an arms' trajectory, as a manipulation planner seeds its
- * optimiser (MoveIt's pipeline: a goal by inverse kinematics, a path to it by
- * a sampling planner, then trajectory optimisation, Schulman et al. 2014,
- * IJRR 33:1251, which starts from a collision-free path where a straight line
- * fails).
- *
- * The goal is the hold's first waypoint: the arms' configuration with every
- * hand on its site and every arm clear, solved as a still problem of that
- * one instant (`HumanArmTrajectoryModel`, its ends left out) from starts in
- * a fixed order, the goal's own arm, the rest arm, then configurations drawn
- * from a seeded generator within the ranges, the first feasible kept (random
- * restarts, Beeson and Ames 2015, "TRAC-IK", Humanoids). The hold's later
- * waypoints carry it by the sites' motion (differential inverse kinematics,
- * the map the follower uses), and the trajectory's optimiser solves them.
- * The reach is RRT-Connect's path in the arms' joint space, indexed by the
- * share of the reach, from the rest arms to the hold's first configuration
- * (`HumanArmConnect`), the return its path from the exit arms to the hold's
- * last, each state valid by the one reading the trajectory refuses by
- * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, the
- * hold's task points only for the hold itself, so every state is read where
- * it happens (time-indexed RRT-Connect, EXOTica). A
- * reach waypoint is the path's state at the share the carry has made at its
- * second.
+ * Hold poses solved by inverse kinematics, plus the initial path connecting
+ * them. MoveIt's CHOMP adapter seeds its optimiser with a sampling planner
+ * (`OptimizerAdapter::adaptAndPlan`, moveit/moveit, BSD-3-Clause,
+ * 811328b1ba700f5d2dff69afc9737ac6cab66c9b). RRT-Connect reads valid poses
+ * at their own times as in EXOTica's `TimeIndexedSamplingProblem::Update`.
  */
 export namespace HumanArmSeed {
   /** What the seed reads. */
   export interface IProblem extends HumanArmTrajectoryContext.IProblem {
-    /** The arms, each with the arm its inverse kinematics starts from first. */
+    /** Each arm and its optional first inverse-kinematics seed. */
     arms: readonly (HumanArmTrajectoryContext.IProblem["arms"][number] & {
-      /** The arm the goal's own solution gives at the hold's start, the first start of its inverse kinematics. */
+      /** The law's goal pose for the arm. */
       guess?: IAutoMovieMotionHumanArmClearance.IArm;
     })[];
-    /** The share of the reach made at a second of the reach, and of the return left at a second of the return, 0 at rest and 1 on the hold. */
-    share: (seconds: number) => number;
   }
 
+  /** Each hold waypoint's arm coordinates, indexed by its seconds. */
+  export type IHolds = ReadonlyMap<number, number[][]>;
+
   /**
-   * Each arm's coordinates at each waypoint.
+   * Solve at each hold knot where an arm has a site. Carry the preceding
+   * pose into the next solve, and reuse exact poses at existing knots during
+   * refinement.
    *
    * @param problem The problem.
    * @param context Its context.
-   * @param hold The arms' configuration at the hold's first waypoint of this context, already solved for this problem (`held`); solved here when absent.
-   * @returns The seed.
-   * @throws {HumanRefusal} When no start gives a feasible hold, or no path joins the rest arms to it.
+   * @param from A proposed course's coordinates at these knots, by arm.
+   * @param fixed Hold poses already solved on a subset of these knots.
+   * @returns The hold poses.
+   * @throws {HumanRefusal} When a hold waypoint has no feasible pose.
+   */
+  export function holds(
+    problem: IProblem,
+    context: M.IContext,
+    from?: readonly (readonly (readonly number[])[])[],
+    fixed?: IHolds,
+  ): IHolds {
+    const out: Map<number, number[][]> = new Map(fixed);
+    let previous: number[][] | undefined;
+    for (let k: number = 1; k < context.n; ++k) {
+      if (
+        !M.inner(context, k) ||
+        !context.sites.some(
+          (sites: readonly (M.ISite | undefined)[]): boolean =>
+            sites[k] !== undefined,
+        )
+      ) {
+        previous = undefined;
+        continue;
+      }
+      const seconds: number = context.times[k]!;
+      const proposed: readonly (readonly number[])[] | undefined = from?.map(
+        (arm: readonly (readonly number[])[]): readonly number[] => arm[k]!,
+      );
+      previous =
+        out.get(seconds) ??
+        HumanArmSeedHold(problem, context, k, previous, proposed);
+      out.set(seconds, previous);
+    }
+    return out;
+  }
+
+  /**
+   * Build one seed through the fixed poses. Run the sampling planner once
+   * for each reach, return or gap that contains free knots.
+   *
+   * @param context The context on the seed's knots.
+   * @param pinned The hold poses.
+   * @param fine The context on the finer frame grid.
+   * @returns Each arm's coordinates at every knot.
    */
   export function seed(
-    problem: IProblem,
     context: M.IContext,
-    hold?: readonly (readonly number[])[],
+    pinned: IHolds,
+    fine: M.IContext,
   ): number[][][] {
-    const n: number = context.n;
     const times: readonly number[] = context.times;
-    const holds: number[] = holdWindow(problem, context);
-    if (holds.length === 0)
-      throw new Error(
-        "An arm seed needs a hold: no waypoint inside the action has a site for every arm",
-      );
-    const first: number = holds[0]!;
-    const last: number = holds[holds.length - 1]!;
-    const held: number[][][] = goal(problem, context, first, last, hold);
-    const space: ISpace = sampler(context);
-    // A path from an end of the action to the hold, through the waypoints
-    // `passes` from that end's to the hold's: each configuration carries its
-    // share of the reach (0 at rest, 1 on the hold) as its last coordinate,
-    // and is valid where that share puts it, at the waypoint whose share is
-    // nearest, so the rest arm is read where it rests and the hold where it
-    // holds (time-indexed RRT-Connect, `HumanArmConnect`). The hold's task
-    // points bind the hold itself alone, at share 1: an approach read at the
-    // hold's waypoint keeps its contact allowances, as a pick's approach is
-    // allowed its grasp's contact (MoveIt's pick approach), but not the hold's
-    // task points, which would wall the hold off from every edge that leaves
-    // it; read before the hold's waypoint instead, the contact itself would.
-    const path = (
-      from: number[][],
-      to: number[][],
-      passes: readonly number[],
-    ): number[][] => {
-      const k: number = passes[passes.length - 1]!;
-      const shares: number[] = passes.map((j: number, i: number): number =>
-        i === 0
-          ? 0
-          : i === passes.length - 1
-            ? 1
-            : Math.min(1, Math.max(0, problem.share(times[j]!))),
-      );
-      const dims: number = from.length * G.DIMENSIONS;
-      const where: (s: number) => number = (s: number): number => {
-        let best: number = 0;
-        shares.forEach((v: number, i: number): void => {
-          if (Math.abs(v - s) < Math.abs(shares[best]! - s)) best = i;
-        });
-        return passes[best]!;
-      };
-      const found: number[][] | null = HumanArmConnect.connect({
-        start: [...from.flat(), 0],
-        goal: [...to.flat(), 1],
-        sample: (random: () => number): number[] => [
-          ...space.sample(random),
-          random(),
-        ],
-        valid: (q: readonly number[]): boolean =>
-          M.invalid(
-            context,
-            where(q[dims]!),
-            split(q.slice(0, dims)),
-            false,
-            q[dims]! >= 1,
-          ).value <= M.TOLERANCE,
-        extent: space.extent,
-        rising: dims,
-      });
-      if (found === null) {
-        // Name the end that cannot be joined: an end that is itself invalid
-        // is the cause, not the path between them.
-        const start: { value: number; what: string } = M.invalid(
-          context,
-          passes[0]!,
-          from,
-        );
-        const end: { value: number; what: string } = M.invalid(context, k, to);
-        const worst: { value: number; what: string; at: number } =
-          end.value > start.value
-            ? { ...end, at: times[k]! }
-            : { ...start, at: times[passes[0]!]! };
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "region",
-          value: worst.value,
-          feasible: null,
-          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s: ${worst.value > M.TOLERANCE ? `at ${worst.at.toFixed(3)} s ${worst.what}` : "both ends are valid"}`,
-          fix: "put the hand on a site its arm reaches with the body clear",
-        });
+    const space: Space.ISpace = Space.sampler(context);
+    const last: number = context.n - 1;
+    const knots: number[][][] = [context.rest];
+    let previous: number = 0;
+    for (let k: number = 1; k <= last; ++k) {
+      const held: number[][] | undefined = pinned.get(times[k]!);
+      if (held === undefined && k !== last) continue;
+      const destination: number[][] = held ?? context.back;
+      if (k - previous > 1) {
+        // Search a return backwards from its fixed rest, as an approach to
+        // the last hold. Search the other intervals in playback order.
+        const back: boolean = k === last && held === undefined && previous > 0;
+        const begin: number = times[back ? k : previous]!;
+        const end: number = times[back ? previous : k]!;
+        const start: number[][] = knots[previous]!;
+        const route: number[][] = back
+          ? path(space, fine, destination, start, begin, end, true)
+          : path(space, fine, start, destination, begin, end, held !== undefined);
+        for (let j: number = previous + 1; j < k; ++j) {
+          const share: number = (times[j]! - begin) / (end - begin);
+          knots[j] = Space.split(Space.at(route, share));
+        }
       }
-      return found;
-    };
-    const span: (a: number, b: number) => number[] = (
-      a: number,
-      b: number,
-    ): number[] =>
-      Array.from(
-        { length: b - a + 1 },
-        (_: unknown, i: number): number => a + i,
-      );
-    // A hold from the first instant has no reach: the arm already holds its
-    // site as it enters (its hold was started from that rest), so the rest
-    // and the hold's first configuration are joined directly, never searched
-    // for as a reach that has no time.
-    const reach: number[][] =
-      first === 1 && problem.share(times[1]!) >= 1
-        ? [
-            [...context.rest.flat(), 0],
-            [...held[0]!.flat(), 1],
-          ]
-        : path(context.rest, held[0]!, span(0, first));
-
-    // A hold that lasts to the end has no return to join.
-    const back: number[][] = context.open
-      ? []
-      : path(context.back, held[held.length - 1]!, span(last, n - 1).reverse());
-    return problem.arms.map(
-      (_: IProblem["arms"][number], a: number): number[][] =>
-        times.map((t: number, k: number): number[] => {
-          if (k === 0) return [...context.rest[a]!];
-          if (!M.inner(context, k)) return [...context.back[a]!];
-          if (k >= first && k <= last) return [...held[k - first]![a]!];
-          const along: number[] = at(
-            k < first ? reach : back,
-            Math.min(1, Math.max(0, problem.share(t))),
-          );
-          return along.slice(a * G.DIMENSIONS, (a + 1) * G.DIMENSIONS);
-        }),
+      knots[k] = destination;
+      previous = k;
+    }
+    return context.rest.map(
+      (_: number[], a: number): number[][] =>
+        knots.map((pose: number[][]): number[] => [...pose[a]!]),
     );
   }
 
   /**
-   * The hold's configurations, each a list of the arms' coordinates: the
-   * inverse kinematics of the hold's first waypoint, carried across the hold
-   * by the sites' motion. The return's path and the optimiser need a valid
-   * end, so a carried last configuration that is not clear is projected onto
-   * the feasible set by the last waypoint's own inverse kinematics, started
-   * from the carried configuration (the endpoint repair of a sampling
-   * planner's goal).
-   */
-  function goal(
-    problem: IProblem,
-    context: M.IContext,
-    first: number,
-    last: number,
-    known?: readonly (readonly number[])[],
-  ): number[][][] {
-    const hold: number[][][] = carried(
-      context,
-      known === undefined
-        ? instant(problem, context, first)
-        : known.map((v: readonly number[]): number[] => [...v]),
-      first,
-      last,
-    );
-    if (M.invalid(context, last, hold[hold.length - 1]!).value > M.TOLERANCE)
-      hold[hold.length - 1] = instant(
-        problem,
-        context,
-        last,
-        hold[hold.length - 1]!,
-      );
-    return hold;
-  }
-
-  /**
-   * Refuse a problem whose hold no configuration meets, before any
-   * trajectory is optimised: the arms at the hold's first waypoint are
-   * solved as the still problem of that waypoint (`instant`), started from a
-   * given configuration first. A trajectory's hold waypoint is itself such a
-   * configuration, so a hold with none has no trajectory, and the still
-   * problem of three waypoints says so at a small fraction of what the
-   * whole trajectory's penalty ladder costs to fail.
+   * Read the first shared hold's feasibility without solving its trajectory.
    *
    * @param problem The problem.
    * @param context Its context.
-   * @param from Each arm's coordinates at each waypoint of a course, whose hold arm is the first start.
-   * @returns The configuration found, each arm's coordinates at the hold's first waypoint, which `seed` of the same problem and context takes as its hold; none for a problem without a hold.
-   * @throws {HumanRefusal} When no start gives the hold a feasible configuration, as `seed` refuses it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, why its failure refuses the whole problem and what it starts from.
-   * @evidence contracts/development/implementation.md#principled-implementation Feasibility of the trajectory implies feasibility of its hold waypoint alone, so the necessary condition is tested first, by the same still problem, starts and refusal the sampling seed uses.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The hold's first waypoint, then the seed's own instant solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed and no start is dropped: the given configuration is tried before the seed's own starts, and the refusal is the seed's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One still problem of three waypoints, feasible from its first start for a course whose hold is fitted on its sites.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `instant` with `seed`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @param from A proposed course's coordinates at these knots, by arm.
+   * @returns The solved pose, or undefined if there is no shared hold.
+   * @throws {HumanRefusal} When the first shared hold has no feasible pose.
    */
   export function held(
     problem: IProblem,
     context: M.IContext,
     from: readonly (readonly (readonly number[])[])[],
   ): number[][] | undefined {
-    for (const k of holdWindow(problem, context))
-      return instant(
-        problem,
-        context,
-        k,
-        from.map((arm: readonly (readonly number[])[]): number[] => [
-          ...arm[k]!,
-        ]),
-      );
-    return undefined;
-  }
-  /**
-   * The arms' configuration at one waypoint of the hold with every hand on
-   * its site and every arm clear: the first feasible from the starts in
-   * order, a given one, the goal's own arm, the rest arm, then the seeded
-   * draws.
-   */
-  function instant(
-    problem: IProblem,
-    context: M.IContext,
-    k: number,
-    given?: number[][],
-  ): number[][] {
-    // The waypoint between its neighbours; the last one, where a hold lasts
-    // to the end, with itself after it: a still configuration reads neither
-    // end's time nor its arm.
-    const around: number[] = [k - 1, k, Math.min(k + 1, context.n - 1)];
-    const point: M.IContext = HumanArmTrajectoryContext.of({
-      body: problem.body,
-      times: around.map((j: number): number => problem.times[j]!),
-      bases: around.map(
-        (j: number): IProblem["bases"][number] => problem.bases[j]!,
-      ),
-      arms: problem.arms.map(
-        (
-          arm: IProblem["arms"][number],
-        ): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
-          side: arm.side,
-          rest: arm.rest,
-          ...(arm.back === undefined ? {} : { back: arm.back }),
-          ...(arm.rests === undefined ? {} : { rests: arm.rests }),
-          ...(arm.grasp === undefined ? {} : { grasp: arm.grasp }),
-          sites: around.map(
-            (j: number): IProblem["arms"][number]["sites"][number] =>
-              arm.sites[j],
-          ),
-        }),
-      ),
-      still: true,
-    });
-    const random: () => number = HumanArmConnect.generator(SEED);
-    const space: ISpace = sampler(context);
-    function* starts(): Generator<number[][]> {
-      if (given !== undefined)
-        yield given.map((v: number[]): number[] => [...v]);
+    for (let k: number = 1; k < context.n; ++k)
       if (
-        problem.arms.every(
-          (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
+        M.inner(context, k) &&
+        context.sites.every(
+          (sites: readonly (M.ISite | undefined)[]): boolean =>
+            sites[k] !== undefined,
         )
       )
-        yield problem.arms.map(
-          (arm: IProblem["arms"][number], a: number): number[] =>
-            G.encode(context.setups[a]!, arm.guess!),
+        return HumanArmSeedHold(
+          problem,
+          context,
+          k,
+          undefined,
+          from.map((arm: readonly (readonly number[])[]): readonly number[] =>
+            arm[k]!,
+          ),
         );
-      yield context.rest.map((v: number[]): number[] => [...v]);
-      for (let r: number = 0; r < RESTARTS; ++r)
-        yield split(space.sample(random));
-    }
-    const frame = (
-      c: M.IContext,
-      q: readonly (readonly number[])[],
-    ): number[][][] =>
-      q.map((v: readonly number[], a: number): number[][] =>
-        Array.from({ length: c.n }, (_: unknown, k: number): number[] =>
-          k === 0
-            ? [...c.rest[a]!]
-            : k === c.n - 1
-              ? [...c.back[a]!]
-              : M.ranged(c, a, v),
-        ),
-      );
-    let closest: M.IEvaluation | undefined;
-    let tried: number = 0;
-    for (const q of starts()) {
-      ++tried;
-      const candidate: number[][][] = frame(point, q);
-      if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
-        return candidate.map((arm: number[][]): number[] => arm[1]!);
-      const at: { x: number[][][]; evaluation: M.IEvaluation } =
-        HumanArmOptimiser.optimise(point, candidate);
-      if (at.evaluation.worst.value <= M.TOLERANCE)
-        return at.x.map((arm: number[][]): number[] => arm[1]!);
-      if (
-        closest === undefined ||
-        at.evaluation.worst.value < closest.worst.value
-      )
-        closest = at.evaluation;
-    }
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: closest!.worst.axis,
-      value: closest!.worst.value,
-      feasible: null,
-      reason: `no configuration of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from any of ${tried} starts; the closest: ${closest!.worst.what}`,
-      fix: "put the hand on a site its arm reaches with the body clear",
-    });
-  }
-
-  /**
-   * The hold's first configuration carried to its last waypoint: at each
-   * waypoint one damped least-squares step of every arm
-   * (`HumanArmDifferential.step`, the follower's map) toward its site,
-   * driven by the error at that waypoint, the site less the contact where
-   * the arm before puts it there, less the offset the inverse kinematics left
-   * at the first (closed-loop inverse kinematics, Sciavicco and Siciliano
-   * 1988, IEEE J Robot Autom 4:403), so a still site keeps the configuration,
-   * a moving one is followed and no step's linearisation accumulates. Nothing
-   * is solved here; the trajectory's optimiser keeps the hand on its site
-   * and the arm clear.
-   */
-  function carried(
-    context: M.IContext,
-    start: number[][],
-    first: number,
-    last: number,
-  ): number[][][] {
-    const contact = (
-      a: number,
-      k: number,
-      q: readonly number[],
-      site: M.ISite,
-    ): IAutoMovieVector3 => {
-      const p: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
-        context.setups[a]!,
-        context.frames[a]![k]!,
-        q,
-        false,
-      );
-      return Vector3.add(
-        p.wrist,
-        Quaternion.rotateVector(p.hand, site.contact),
-      );
-    };
-    const offsets: (IAutoMovieVector3 | undefined)[] = start.map(
-      (q: number[], a: number): IAutoMovieVector3 | undefined => {
-        const site: M.ISite | undefined = context.sites[a]![first];
-        return site === undefined
-          ? undefined
-          : Vector3.subtract(site.point, contact(a, first, q, site));
-      },
-    );
-    const out: number[][][] = [start];
-    for (let k: number = first + 1; k <= last; ++k) {
-      const previous: number[][] = out[out.length - 1]!;
-      out.push(
-        previous.map((q: number[], a: number): number[] => {
-          const site: M.ISite | undefined = context.sites[a]![k];
-          const offset: IAutoMovieVector3 | undefined = offsets[a];
-          if (site === undefined || offset === undefined) return [...q];
-          const error: IAutoMovieVector3 = Vector3.subtract(
-            Vector3.subtract(site.point, contact(a, k, q, site)),
-            offset,
-          );
-          const step: number[] = HumanArmDifferential.step(
-            context.setups[a]!,
-            context.frames[a]![k]!,
-            q,
-            site.contact,
-            error,
-          );
-          // Kept in the hard ranges, as every iterate of the optimiser is.
-          return M.ranged(
-            context,
-            a,
-            q.map((v: number, d: number): number => v + step[d]!),
-          );
-        }),
-      );
-    }
-    return out;
-  }
-
-  /** A uniform draw of the arms' coordinates within their ranges, and the space's largest extent. */
-  function sampler(c: M.IContext): ISpace {
-    const radius: number[] = c.rest.map((rest: number[], a: number): number =>
-      Math.max(
-        G.SCALE,
-        Math.hypot(rest[0]!, rest[1]!),
-        Math.hypot(c.back[a]![0]!, c.back[a]![1]!),
-      ),
-    );
-    let extent: number = 0;
-    c.free.forEach((free: number[], a: number): void => {
-      for (const d of free) {
-        const b: [number, number] | null | undefined = c.bounds[a]![d];
-        if (d < 2) extent += (2 * radius[a]!) ** 2;
-        else if (b !== null && b !== undefined) extent += (b[1] - b[0]) ** 2;
-      }
-    });
-    return {
-      extent: Math.sqrt(extent),
-      sample: (random: () => number): number[] =>
-        c.rest.flatMap((rest: number[], a: number): number[] => {
-          const out: number[] = [...rest];
-          const free: number[] = c.free[a]!;
-          if (free.includes(0) || free.includes(1)) {
-            const r: number = radius[a]! * Math.sqrt(random());
-            const theta: number = 2 * Math.PI * random();
-            if (free.includes(0)) out[0] = r * Math.cos(theta);
-            if (free.includes(1)) out[1] = r * Math.sin(theta);
-          }
-          for (const d of free) {
-            const b: [number, number] | null | undefined = c.bounds[a]![d];
-            if (d >= 2 && b !== null && b !== undefined)
-              out[d] = b[0] + (b[1] - b[0]) * random();
-          }
-          return out;
-        }),
-    };
-  }
-
-  /** Each arm's coordinates from a concatenation. */
-  function split(q: readonly number[]): number[][] {
-    const out: number[][] = [];
-    for (let i: number = 0; i < q.length; i += G.DIMENSIONS)
-      out.push(q.slice(i, i + G.DIMENSIONS));
-    return out;
-  }
-
-  /** The configuration of a path, without its share coordinate, where its share (its last coordinate, rising along it) reaches a value. */
-  function at(path: readonly (readonly number[])[], share: number): number[] {
-    const s: (q: readonly number[]) => number = (
-      q: readonly number[],
-    ): number => q[q.length - 1]!;
-    for (let i: number = 1; i < path.length; ++i)
-      if (share <= s(path[i]!) || i === path.length - 1) {
-        const piece: number = s(path[i]!) - s(path[i - 1]!);
-        return HumanArmConnect.lerp(
-          path[i - 1]!,
-          path[i]!,
-          piece > 0
-            ? Math.min(1, Math.max(0, (share - s(path[i - 1]!)) / piece))
-            : 1,
-        ).slice(0, -1);
-      }
-    return path[0]!.slice(0, -1);
+    return undefined;
   }
 }
 
-/** A uniform draw of the arms' coordinates within their ranges, and the space's largest extent, coordinate units. */
-interface ISpace {
-  sample: (random: () => number) => number[];
-  extent: number;
+/**
+ * Search in joint space and time. A state approaching a hold uses the
+ * allowances at that frame, with task points enforced at the goal itself.
+ * Where the sampler finds no path, TrajOpt's straight line is its initial
+ * iterate (Schulman et al. 2014, IJRR 33:1251, section VIII-A).
+ */
+function path(
+  space: Space.ISpace,
+  scene: M.IContext,
+  from: number[][],
+  to: number[][],
+  begin: number,
+  end: number,
+  hold: boolean,
+): number[][] {
+  const dims: number = from.length * G.DIMENSIONS;
+  const start: number[] = [...from.flat(), 0];
+  const goal: number[] = [...to.flat(), 1];
+  return (
+    HumanArmConnect.connect({
+      start,
+      goal,
+      low: space.low,
+      high: space.high,
+      discs: space.discs,
+      valid: (q: readonly number[]): boolean =>
+        M.invalid(
+          scene,
+          nearest(scene.times, begin + q[dims]! * (end - begin)),
+          Space.split(q.slice(0, dims)),
+          false,
+          hold && q[dims]! >= 1,
+        ).value <= M.TOLERANCE,
+      seconds: Math.abs(end - begin),
+      velocities: from.flatMap((): readonly number[] => RATES),
+    }) ?? [start, goal]
+  );
 }
 
-/** Random starts of the hold's inverse kinematics after the goal's own arm and the rest arm. */
-const RESTARTS: number = 8;
-
-/** The restarts' generator's seed. */
-const SEED: number = 2;
-
-/** The waypoints inside the action at which every arm has a site, in order: the hold the seed reaches, read for all arms together as the laid course reads it. */
-function holdWindow(
-  problem: HumanArmSeed.IProblem,
-  context: M.IContext,
-): number[] {
-  const out: number[] = [];
-  for (let k: number = 1; k < context.n; ++k)
-    if (
-      M.inner(context, k) &&
-      problem.arms.every(
-        (arm: HumanArmSeed.IProblem["arms"][number]): boolean =>
-          arm.sites[k] !== undefined,
-      )
-    )
-      out.push(k);
-  return out;
+/** Find the nearest frame to a sample on the ascending frame grid. */
+function nearest(times: readonly number[], seconds: number): number {
+  let low: number = 0;
+  let high: number = times.length - 1;
+  while (high - low > 1) {
+    const middle: number = Math.floor((low + high) / 2);
+    if (times[middle]! < seconds) low = middle;
+    else high = middle;
+  }
+  return seconds - times[low]! <= times[high]! - seconds ? low : high;
 }

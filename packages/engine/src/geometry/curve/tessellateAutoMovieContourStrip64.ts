@@ -7,13 +7,17 @@ import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 } from "./AutoMovieCurveMath64";
 
 /**
- * Finds a fixed-seam periodic tiling and reports sheet qualification separately from displayable geometry.
- * The first seam lies on its exterior; the other starts at its nearest existing knot.
- * This discrete dynamic-program optimum does not certify a global cyclic optimum or injectivity.
- * Each walk may contain an explicitly doubled branch slit with distinct sheet ownership.
- * If no qualified path exists, its finite positive-area candidate remains displayable with an unqualified observation.
- * A zero-length slit retains distinct sheet identities; only its zero-area tiles are omitted, with explicit partial-output diagnostics.
- * The optional observer receives input sizes, search work, qualification and diagnostics; elapsed time is measured only when requested.
+ * Finds a fixed-seam periodic tiling and reports sheet qualification separately
+ * from displayable geometry. The first seam lies on its exterior; the other
+ * starts at its nearest existing knot. This discrete dynamic-program optimum
+ * does not certify a global cyclic optimum or injectivity. Each walk may
+ * contain an explicitly doubled branch slit with distinct sheet ownership. If
+ * no qualified path exists, its finite positive-area candidate remains
+ * displayable with an unqualified observation. A zero-length slit retains
+ * distinct sheet identities; only its zero-area tiles are omitted, with
+ * explicit partial-output diagnostics. The optional observer receives input
+ * sizes, search work, qualification and diagnostics; elapsed time is measured
+ * only when requested.
  */
 export function tessellateAutoMovieContourStrip64(
   rawA: AutoMovieVector3Tuple[],
@@ -33,15 +37,8 @@ export function tessellateAutoMovieContourStrip64(
     peakQueue: number = 0;
   const diagnostics: Set<string> = new Set();
   for (const ring of [rawA, rawB])
-    if (
-      !AutoMovieContourLoftCurves64.hasArea(ring) ||
-      ring.some(
-        (p: AutoMovieVector3Tuple): boolean => !p.every(Number.isFinite),
-      )
-    )
-      throw new Error(
-        "A contour strip needs two finite area-spanning boundaries",
-      );
+    if (!AutoMovieContourLoftCurves64.hasArea(ring))
+      throw new Error("A contour strip needs two area-spanning boundaries");
   const a: AutoMovieVector3Tuple[] =
     AutoMovieContourLoftCurves64.exterior(rawA);
   let offset: number = 0;
@@ -86,13 +83,11 @@ export function tessellateAutoMovieContourStrip64(
     for (let j: number = 0; j <= m; j++) {
       if (i < n) {
         const value: number = area(a[i], a[(i + 1) % n], b[j % m]);
-        if (value >= 0 && Number.isFinite(value))
-          areas[(i * stride + j) * 2] = value;
+        if (value >= 0) areas[(i * stride + j) * 2] = value;
       }
       if (j < m) {
         const value: number = area(a[i % n], b[(j + 1) % m], b[j]);
-        if (value >= 0 && Number.isFinite(value))
-          areas[(i * stride + j) * 2 + 1] = value;
+        if (value >= 0) areas[(i * stride + j) * 2 + 1] = value;
       }
     }
   interface Path {
@@ -118,7 +113,6 @@ export function tessellateAutoMovieContourStrip64(
       for (let j: number = 0; j <= m; j++) {
         for (let flags: number = 0; flags < 4; flags++) {
           const current: number = cost[(i * stride + j) * 4 + flags];
-          if (!Number.isFinite(current)) continue;
           for (const direction of [1, 2] as const) {
             if (direction === 1 ? i === n : j === m) continue;
             const step: number = (i * stride + j) * 2 + direction - 1;
@@ -155,7 +149,6 @@ export function tessellateAutoMovieContourStrip64(
     let j: number = m;
     let flags: number = 3;
     const score: number = cost[(n * stride + m) * 4 + flags];
-    if (!Number.isFinite(score)) return undefined;
     const tiles: [
       AutoMovieVector3Tuple,
       AutoMovieVector3Tuple,
@@ -258,7 +251,7 @@ export function tessellateAutoMovieContourStrip64(
         .sort((p: number, q: number): number => p - q)
         .join(",");
       const measure: number = area(...tile);
-      if (new Set(ids).size !== 3 || !(measure > 0 && Number.isFinite(measure)))
+      if (new Set(ids).size !== 3 || !(measure > 0))
         fail([ti], "A contour tiling has a repeated or unresolved-area face");
       const previous: number | undefined = faces.get(face);
       if (previous !== undefined)

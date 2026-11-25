@@ -5,9 +5,14 @@ import {
 } from "@automovie/interface";
 
 /**
- * Whether a camera-local segment meets a perspective frustum, its faces included.
+ * Whether a camera-local segment meets a perspective frustum, its faces
+ * included.
  *
- * Both ends are already in the camera's frame, looking down −Z with +Y up, so a caller testing many segments of one body transforms each corner once rather than once per segment. The frustum is bounded by the `near` and `far` depths and by the side planes through the lens and the crop's NDC edges at `halfX` and `halfY` tangents. A segment touching a face counts as meeting it.
+ * Both ends are already in the camera's frame, looking down −Z with +Y up, so a
+ * caller testing many segments of one body transforms each corner once rather
+ * than once per segment. The frustum is bounded by the `near` and `far` depths
+ * and by the side planes through the lens and the crop's NDC edges at `halfX`
+ * and `halfY` tangents. A segment touching a face counts as meeting it.
  *
  * @param props.from Segment start in camera-local metres.
  * @param props.to Segment end in camera-local metres.
@@ -42,7 +47,8 @@ export function localSegmentMeetsPerspectiveFrustum(
 }
 
 /**
- * One of the six frustum half-spaces at a camera-local point, written so the inside is `<= 0`: near, far, right, left, top, bottom in that order.
+ * One of the six frustum half-spaces at a camera-local point, written so the
+ * inside is `<= 0`: near, far, right, left, top, bottom in that order.
  */
 function planeValue(
   frustum: {

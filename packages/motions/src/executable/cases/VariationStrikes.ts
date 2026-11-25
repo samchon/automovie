@@ -28,17 +28,28 @@ import { StrikingLimb } from "./StrikingLimb";
 import { VariationSeries } from "./VariationSeries";
 import { strikingScenarios } from "./strikingScenarios";
 
+/** The record of `IReadResult`'s site. */
+type IReadResult = {
+  verdicts: IMotionCaptureCase.IVerdict[];
+  metrics: IReadMetricsResult;
+};
+
+/** The record of `IReadMetricsResult`'s site. */
+type IReadMetricsResult = { radius: number; wide: number; narrow: number };
+
 /**
  * The strike verdicts of the variation capture: the points a straight punch
- * aims at within the partner's abdomen over `VariationSeries.REPEATS`
- * repeats at `variation` 1, and one performed, varied punch with its
- * defence.
+ * aims at within the partner's abdomen over `VariationSeries.REPEATS` repeats
+ * at `variation` 1, and one performed, varied punch with its defence.
  */
 export namespace VariationStrikes {
   /** The least span of the strike points on each tangent axis, region radii. */
   export const SPAN: number = 0.5;
 
-  /** The bound on a strike point's distance from the collider surface and from the record's aim, metres. */
+  /**
+   * The bound on a strike point's distance from the collider surface and from
+   * the record's aim, metres.
+   */
   export const ON: number = 0.001;
 
   /**
@@ -46,15 +57,13 @@ export namespace VariationStrikes {
    *
    * @param body The striker.
    * @param struck The partner.
-   * @returns The verdicts, and the region's radius with the two dispersions, metres.
+   * @returns The verdicts, and the region's radius with the two dispersions,
+   *   metres.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
     struck: IAutoMovieMotionHumanBody,
-  ): {
-    verdicts: IMotionCaptureCase.IVerdict[];
-    metrics: { radius: number; wide: number; narrow: number };
-  } {
+  ): IReadResult {
     const verdicts: IMotionCaptureCase.IVerdict[] = [];
     const radius: number = StrikingBody.radius(struck, "abdomen");
     const novice = strikes(body, struck, 0);
@@ -155,9 +164,9 @@ function range(body: IAutoMovieMotionHumanBody): number {
 
 /**
  * The offset one repeat of a punch aims at within the abdomen: the owner's
- * strike offset on the series the performance gives the punch's repeat, so
- * it is the offset a performed punch carries on its plan (`defended`
- * compares the two on a performed punch).
+ * strike offset on the series the performance gives the punch's repeat, so it
+ * is the offset a performed punch carries on its plan (`defended` compares the
+ * two on a performed punch).
  */
 function aimed(
   struck: IAutoMovieMotionHumanBody,
@@ -170,7 +179,7 @@ function aimed(
     "variation",
   );
   return AutoMovieMotionHumanVariation.strike(
-    AutoMovieMotionHumanVariation.of(
+    AutoMovieMotionHumanVariation(
       {
         skill,
         series: (channel: string) => ({
@@ -186,9 +195,9 @@ function aimed(
 }
 
 /**
- * The strike points of the repeats of a punch at the partner's abdomen, on
- * the partner standing in their guard. A performed punch at a person costs
- * its whole contact search, so the repeats are read from the owner and one
+ * The strike points of the repeats of a punch at the partner's abdomen, on the
+ * partner standing in their guard. A performed punch at a person costs its
+ * whole contact search, so the repeats are read from the owner and one
  * performed punch is checked against it in `defended`.
  */
 function strikes(
@@ -260,16 +269,21 @@ function strikes(
   }
   return out;
 }
+/** The record of `IDefendedReadResult`'s site. */
+type IDefendedReadResult = {
+  carried: IAutoMovieHumanoidSurfaces.ITangent | undefined;
+  audit: IAutoMovieVector3;
+  point: IAutoMovieVector3;
+};
 
 /**
- * Two performed, varied punches at the abdomen. Against a partner standing
- * in their guard, the plan carries the owner's offset for that repeat, and
- * the record's aim (its planned point less its landing offset) moves from
- * that of the same punch without variation by what the varied point moves
- * from the region's own point. The two are compared as moves because the
- * record's plan is a prediction made at the launch, not the partner's point
- * at the contact. Against a cover forced in time, the cover classes as
- * declared.
+ * Two performed, varied punches at the abdomen. Against a partner standing in
+ * their guard, the plan carries the owner's offset for that repeat, and the
+ * record's aim (its planned point less its landing offset) moves from that of
+ * the same punch without variation by what the varied point moves from the
+ * region's own point. The two are compared as moves because the record's plan
+ * is a prediction made at the launch, not the partner's point at the contact.
+ * Against a cover forced in time, the cover classes as declared.
  */
 function defended(
   body: IAutoMovieMotionHumanBody,
@@ -280,13 +294,7 @@ function defended(
     at: ABDOMEN,
     manner: { variation: 1, proficiency: 0 },
   } as const;
-  const read = (
-    manner: boolean,
-  ): {
-    carried: IAutoMovieHumanoidSurfaces.ITangent | undefined;
-    audit: IAutoMovieVector3;
-    point: IAutoMovieVector3;
-  } => {
+  const read = (manner: boolean): IDefendedReadResult => {
     const standing: IAutoMovieMotionHumanPerformance = VariationSeries.perform(
       body,
       ready(2)
@@ -298,7 +306,7 @@ function defended(
       .segments("a")
       .find((g: IAutoMovieMotionHumanSegment): boolean => g.name === "punch")!;
     const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
-      StrikingRecord.of(punch.plan);
+      StrikingRecord(punch.plan);
     if (record === undefined || punch.plan.contact === undefined)
       throw new Error("A punch records its aim and has a contact");
     return {

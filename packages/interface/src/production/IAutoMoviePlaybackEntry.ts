@@ -2,10 +2,10 @@
  * One sequence entry's placement on the output clock: where it starts globally,
  * how long it plays, and the shot-local second its playback begins at.
  *
- * `sequenceTimeline` produces one per `sequence.shots` entry, in sequence order.
- * For a sequence that passed `cutSequence`, which keeps every transition within
- * the previous entry's played span, starts never decrease, and two adjacent
- * starts are equal only for a transition as long as that span.
+ * `sequenceTimeline` produces one per `sequence.shots` entry, in sequence
+ * order. For a sequence that passed `cutSequence`, which keeps every transition
+ * within the previous entry's played span, starts never decrease, and two
+ * adjacent starts are equal only for a transition as long as that span.
  */
 export interface IAutoMoviePlaybackEntry {
   /** Index of this entry in `sequence.shots`. */

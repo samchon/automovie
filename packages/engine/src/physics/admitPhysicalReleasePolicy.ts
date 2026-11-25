@@ -5,9 +5,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-/**
- * Contact withdrawal names actual other-body geometry and a finite local-time window.
- */
+/** Contact withdrawal names actual other-body geometry and a local-time window. */
 export function admitPhysicalReleasePolicy(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   body: IAutoMoviePhysicalSimulationInput.IBody,
@@ -16,8 +14,6 @@ export function admitPhysicalReleasePolicy(
   const policy: NonNullable<
     IAutoMoviePhysicalSimulationInput.IBody["releaseOnContact"]
   > = body.releaseOnContact;
-  if (!policy || typeof policy !== "object")
-    throw new Error(`${body.id}: invalid contact-triggered release policy`);
   const other: IAutoMoviePhysicalSimulationInput.IBody | undefined =
     input.bodies.find(
       (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
@@ -30,22 +26,17 @@ export function admitPhysicalReleasePolicy(
     profile: IAutoMoviePhysicalProfile,
     selected: readonly string[],
   ): boolean =>
-    Array.isArray(selected) &&
     selected.length > 0 &&
     new Set(selected).size === selected.length &&
-    Array.from(selected).every(
-      (id: string): boolean =>
-        typeof id === "string" &&
-        profile.segments.some((segment: IAutoMoviePhysicalSegment): boolean =>
-          segment.shapes.some(
-            (shape: IAutoMoviePhysicalShape): boolean => shape.id === id,
-          ),
+    selected.every((id: string): boolean =>
+      profile.segments.some((segment: IAutoMoviePhysicalSegment): boolean =>
+        segment.shapes.some(
+          (shape: IAutoMoviePhysicalShape): boolean => shape.id === id,
         ),
+      ),
     );
   if (
     body.mode.kind === "kinematic" ||
-    !Number.isFinite(policy.earliest) ||
-    !Number.isFinite(policy.latest) ||
     policy.earliest < 0 ||
     policy.latest < policy.earliest ||
     policy.latest > input.duration ||

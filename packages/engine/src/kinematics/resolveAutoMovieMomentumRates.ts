@@ -16,25 +16,27 @@ import type { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
  *
  * The model, posed parts, bones and rates must describe the same instant and
  * the same unchanged mass model, in one common frame. Bone linear rates are
- * metres per second and angular rates radians per second in that frame.
- * Parts and their centre come from the existing mass-model pose owner;
- * principal axes retain that owner's actual principal-to-common rotation.
- * A part's centre moves at `v_bone + omega_bone cross (c_part - p_bone)`.
- * The result has the existing momentum shape, with centre and rates at this
- * instant rather than at the middle of a finite interval.
+ * metres per second and angular rates radians per second in that frame. Parts
+ * and their centre come from the existing mass-model pose owner; principal axes
+ * retain that owner's actual principal-to-common rotation. A part's centre
+ * moves at `v_bone + omega_bone cross (c_part - p_bone)`. The result has the
+ * existing momentum shape, with centre and rates at this instant rather than at
+ * the middle of a finite interval.
  *
- * Every part remains present, including zero-mass parts whose intrinsic
- * inertia can still contribute spin under the existing mass-model contract.
- * The whole body needs finite positive mass. Inputs are borrowed for this
- * synchronous reduction, and every returned vector is fresh. This function
- * does not replace the two-pose momentum API or certify callback derivatives.
+ * Every part remains present, including zero-mass parts whose intrinsic inertia
+ * can still contribute spin under the existing mass-model contract. The whole
+ * body needs finite positive mass. Inputs are borrowed for this synchronous
+ * reduction, and every returned vector is fresh. This function does not replace
+ * the two-pose momentum API or certify callback derivatives.
  *
  * @param model The same ordered SI mass model that produced posed.
  * @param posed Its rigid parts and mass-weighted centre at this instant.
  * @param bones The actual common-frame bone poses used to produce posed.
  * @param rates Actual common-frame origin and angular derivatives of bones.
  * @returns Instantaneous centre, centre velocity and linear/angular momentum.
- * @throws {Error} When mass, rates or results are nonfinite, total mass is not positive, part count/masses do not match, or a segment's bone/rate is missing.
+ * @throws {Error} When mass, rates or results are nonfinite, total mass is not
+ *   positive, part count/masses do not match, or a segment's bone/rate is
+ *   missing.
  */
 export function resolveAutoMovieMomentumRates(
   model: IAutoMovieResolveCenterOfMass.IModel,
@@ -42,12 +44,12 @@ export function resolveAutoMovieMomentumRates(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
 ): IAutoMovieBodyMomentum {
-  if (!(Number.isFinite(model.mass) && model.mass > 0))
+  if (!(model.mass > 0))
     throw new Error("Instantaneous momentum needs finite positive total mass");
   if (posed.parts.length !== model.segments.length)
-    throw new Error("Instantaneous momentum needs this model's ordered posed parts");
-  if (!finiteVector(posed.centre))
-    throw new Error("Instantaneous momentum needs a finite centre of mass");
+    throw new Error(
+      "Instantaneous momentum needs this model's ordered posed parts",
+    );
 
   const partRates: IPartRate[] = [];
   let mass: number = 0;
@@ -58,11 +60,17 @@ export function resolveAutoMovieMomentumRates(
     const segment: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
     const part: IAutoMovieCombinePhysicalMassProperties.IPart = posed.parts[i]!;
     const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
-    const rate: resolveAutoMovieBoneRates.IRate | undefined = rates.get(segment.bone);
+    const rate: resolveAutoMovieBoneRates.IRate | undefined = rates.get(
+      segment.bone,
+    );
     if (bone === undefined || rate === undefined)
-      throw new Error(`Instantaneous momentum needs the posed bone and rate ${segment.bone}`);
-    if (!(Number.isFinite(part.mass) && part.mass >= 0 && Object.is(part.mass, segment.mass)))
-      throw new Error(`Instantaneous momentum needs this model's finite part mass for ${segment.bone}`);
+      throw new Error(
+        `Instantaneous momentum needs the posed bone and rate ${segment.bone}`,
+      );
+    if (!(part.mass >= 0 && Object.is(part.mass, segment.mass)))
+      throw new Error(
+        `Instantaneous momentum needs this model's finite part mass for ${segment.bone}`,
+      );
 
     // The posed COM already contains the actual rotated bone-local offset.
     // Its difference from the bone origin is in the rate's common frame.
@@ -79,8 +87,6 @@ export function resolveAutoMovieMomentumRates(
       y: rate.linear.y + (angular.z * x - angular.x * z),
       z: rate.linear.z + (angular.x * y - angular.y * x),
     };
-    if (!finiteVector(angular) || !finiteVector(linear))
-      throw new Error(`Instantaneous momentum needs finite rates for ${segment.bone}`);
     partRates.push({ velocity: linear, angular });
     mass += part.mass;
     linearX += part.mass * linear.x;
@@ -88,7 +94,9 @@ export function resolveAutoMovieMomentumRates(
     linearZ += part.mass * linear.z;
   }
   if (!Object.is(mass, model.mass))
-    throw new Error("Instantaneous momentum needs the model's exact ordered mass sum");
+    throw new Error(
+      "Instantaneous momentum needs the model's exact ordered mass sum",
+    );
 
   const velocity: IAutoMovieVector3 = {
     x: linearX / model.mass,
@@ -121,8 +129,6 @@ export function resolveAutoMovieMomentumRates(
   }
   const linear: IAutoMovieVector3 = { x: linearX, y: linearY, z: linearZ };
   const angular: IAutoMovieVector3 = { x: angularX, y: angularY, z: angularZ };
-  if (!finiteVector(velocity) || !finiteVector(linear) || !finiteVector(angular))
-    throw new Error("Instantaneous momentum exceeds finite arithmetic");
   return {
     centre: { x: posed.centre.x, y: posed.centre.y, z: posed.centre.z },
     velocity,
@@ -138,9 +144,4 @@ interface IPartRate {
 
   /** Its bone's unchanged angular velocity, common-frame radians per second. */
   angular: IAutoMovieVector3;
-}
-
-/** Admit the current numeric vector without changing its frame or scale. */
-function finiteVector(value: IAutoMovieVector3): boolean {
-  return Number.isFinite(value.x) && Number.isFinite(value.y) && Number.isFinite(value.z);
 }

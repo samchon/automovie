@@ -32,18 +32,37 @@ interface ISegment<Id extends string, D extends string> {
 }
 
 /**
- * An equid lunged on a circle round its handler: each rein a ride round the circle at its gaits, a halt, a quarter turn in on the centre to stand facing the handler, and, before the next rein, a further quarter turn on the centre out onto the other rein.
+ * An equid lunged on a circle round its handler: each rein a ride round the
+ * circle at its gaits, a halt, a quarter turn in on the centre to stand facing
+ * the handler, and, before the next rein, a further quarter turn on the centre
+ * out onto the other rein.
  *
- * Each rein publishes `rein<k>:face` where it stands facing the handler, and every instant of its ride and stance prefixed `rein<k>:`. A rein's course starts on the circle at the equid's bearing from the centre, heading along it with the centre on the rein's side: it moves off, takes each work's laps at its gait and speed (the middle of the gait's admitted speeds when unstated), changes speed between works over the distance its acceleration needs, and brakes to a halt the same way. Its body leans into the circle by the ride's own steady-turn balance (`rideQuadruped`). At the halt the stance turns it on the centre toward the handler (`AutoMovieArchetypeEquineStance`, a spin `about` the centre), holds it facing for `face` seconds, and, between reins, turns it on to the opposite heading, the centre now on its other side, where the next rein moves off. Two turns on the centre carry its root to the far side of the hooves' middle, so each rein starts from where the turns put it.
+ * Each rein publishes `rein<k>:face` where it stands facing the handler, and
+ * every instant of its ride and stance prefixed `rein<k>:`. A rein's course
+ * starts on the circle at the equid's bearing from the centre, heading along it
+ * with the centre on the rein's side: it moves off, takes each work's laps at
+ * its gait and speed (the middle of the gait's admitted speeds when unstated),
+ * changes speed between works over the distance its acceleration needs, and
+ * brakes to a halt the same way. Its body leans into the circle by the ride's
+ * own steady-turn balance (`rideQuadruped`). At the halt the stance turns it on
+ * the centre toward the handler (`AutoMovieArchetypeEquineStance`, a spin
+ * `about` the centre), holds it facing for `face` seconds, and, between reins,
+ * turns it on to the opposite heading, the centre now on its other side, where
+ * the next rein moves off. Two turns on the centre carry its root to the far
+ * side of the hooves' middle, so each rein starts from where the turns put it.
  *
- * A circle is refused when it is tighter than a work's gait admits: on a circle of radius r at speed v the hooves `d` either side of the path's line travel at v(r ∓ d)/r, and both must stay within the gait's admitted speeds (`AutoMovieArchetypeQuadrupedGait.range`), so r ≥ max(d·v/(v − v_min), d·v/(v_max − v)), the bound a team horse's turn is held to. Two consecutive reins on the same side, which no change of rein joins, are refused.
+ * A circle is refused when it is tighter than a work's gait admits: on a circle
+ * of radius r at speed v the hooves `d` either side of the path's line travel
+ * at v(r ∓ d)/r, and both must stay within the gait's admitted speeds
+ * (`AutoMovieArchetypeQuadrupedGait.range`), so r ≥ max(d·v/(v − v_min),
+ * d·v/(v_max − v)), the bound a team horse's turn is held to. Two consecutive
+ * reins on the same side, which no change of rein joins, are refused.
  *
- * `AutoMovieArchetypeEquineLungeLine` lays the equid's lead out as the lunge line to the handler's line hand at the centre.
+ * `AutoMovieArchetypeEquineLungeLine` lays the equid's lead out as the lunge
+ * line to the handler's line hand at the centre.
  */
 export namespace AutoMovieArchetypeEquineLunge {
-  /**
-   * A point on the floor.
-   */
+  /** A point on the floor. */
   export interface IPoint {
     /** World X, metres. */
     x: number;
@@ -53,13 +72,12 @@ export namespace AutoMovieArchetypeEquineLunge {
   }
 
   /**
-   * Which side the centre is on: the left rein circles with the centre on the equid's left, turning left.
+   * Which side the centre is on: the left rein circles with the centre on the
+   * equid's left, turning left.
    */
   export type Side = "left" | "right";
 
-  /**
-   * One work on a rein: laps at a gait.
-   */
+  /** One work on a rein: laps at a gait. */
   export interface IWork {
     /** The gait. */
     gait: AutoMovieArchetypeQuadrupedGait.Gait;
@@ -67,13 +85,14 @@ export namespace AutoMovieArchetypeEquineLunge {
     /** Laps of the circle, positive, fractions allowed. */
     laps: number;
 
-    /** The speed along the circle, metres per second, within the gait's admitted speeds; their middle when absent. */
+    /**
+     * The speed along the circle, metres per second, within the gait's admitted
+     * speeds; their middle when absent.
+     */
     speed?: number;
   }
 
-  /**
-   * One rein: its side and its works in order.
-   */
+  /** One rein: its side and its works in order. */
   export interface IRein {
     /** The side the centre is on. */
     side: Side;
@@ -82,9 +101,7 @@ export namespace AutoMovieArchetypeEquineLunge {
     work: readonly IWork[];
   }
 
-  /**
-   * A lunge.
-   */
+  /** A lunge. */
   export interface IParams {
     /** The circle's centre, where the handler stands. */
     centre: IPoint;
@@ -92,7 +109,10 @@ export namespace AutoMovieArchetypeEquineLunge {
     /** The circle's radius, the equid's root path, metres. */
     radius: number;
 
-    /** The equid's bearing from the centre where it starts, degrees, 0 along +Z, positive toward +X. */
+    /**
+     * The equid's bearing from the centre where it starts, degrees, 0 along +Z,
+     * positive toward +X.
+     */
     bearing: number;
 
     /** The reins in order, alternating sides, at least one. */
@@ -114,7 +134,9 @@ export namespace AutoMovieArchetypeEquineLunge {
    * @param animal The equid at rest, as its producer built it.
    * @param params The lunge.
    * @returns The ride on the film clock from 0.
-   * @throws {AutoMovieArchetypeRefusal} For malformed parameters, two reins on one side in a row, or a circle tighter than a work's gait admits; as the ride and the stance refuse.
+   * @throws {AutoMovieArchetypeRefusal} For malformed parameters, two reins on
+   *   one side in a row, or a circle tighter than a work's gait admits; as the
+   *   ride and the stance refuse.
    */
   export function ride<Id extends string, D extends string>(
     animal: AutoMovieArchetype<
@@ -132,9 +154,6 @@ export namespace AutoMovieArchetypeEquineLunge {
     >;
     const { centre, radius, bearing, reins, acceleration, turn, face } = params;
     if (
-      ![centre.x, centre.z, radius, bearing, acceleration, turn, face].every(
-        Number.isFinite,
-      ) ||
       !(radius > 0 && acceleration > 0 && turn > 0 && face >= 0) ||
       reins.length === 0 ||
       reins.some((rein: IRein): boolean => rein.work.length === 0)
@@ -165,7 +184,7 @@ export namespace AutoMovieArchetypeEquineLunge {
           AutoMovieArchetypeQuadrupedGait.range(species, work.gait, withers);
         const speed: number = work.speed ?? (range.minimum + range.maximum) / 2;
         if (
-          !(Number.isFinite(work.laps) && work.laps > 0) ||
+          !(work.laps > 0) ||
           !(speed >= range.minimum && speed <= range.maximum)
         )
           refuse(
@@ -385,7 +404,10 @@ export namespace AutoMovieArchetypeEquineLunge {
     );
   }
 
-  /** A limb's terminal endpoint in the model's space: the far end of its last bar. */
+  /**
+   * A limb's terminal endpoint in the model's space: the far end of its last
+   * bar.
+   */
   function endpoint(
     parts: readonly IAutoMovieModelPart[],
     limb: AutoMovieArchetypeQuadrupedBody.Limb,

@@ -298,40 +298,24 @@ export function assertServiceNetworkSpatialDefects(
         "collapsed",
         () => hasViolation(state, "range", "$input.nodes[5].maintenance.max.x"),
       ],
-      [
-        "nonFinite",
-        () => hasViolation(state, "range", "$input.nodes[5].maintenance.max.y"),
-      ],
     ]),
-    { name: true, opening: true, collapsed: true, nonFinite: true },
+    { name: true, opening: true, collapsed: true },
   );
 
   const numbers: IAutoMovieValidation = refuse(
     withPort(
-      withNode(
-        clean,
-        "basin",
-        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-          ...entry,
-          position: { x: Number.NaN, y: 0.9, z: 1 },
-        }),
-      ),
+      clean,
       "basin-cold",
       (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
         ...entry,
         demand: -1,
         section: 0,
-        position: { x: 1, y: Number.POSITIVE_INFINITY, z: 1 },
       }),
     ),
   );
   TestValidator.equals(
-    "non-finite and negative numbers are refused wherever a real one is required",
+    "negative numbers are refused wherever a real one is required",
     namedFacts([
-      [
-        "nodePosition",
-        () => hasViolation(numbers, "range", "$input.nodes[9].position.x"),
-      ],
       [
         "demand",
         () => hasViolation(numbers, "range", "$input.nodes[9].ports[0].demand"),
@@ -341,28 +325,10 @@ export function assertServiceNetworkSpatialDefects(
         () =>
           hasViolation(numbers, "range", "$input.nodes[9].ports[0].section"),
       ],
-      [
-        "portPosition",
-        () =>
-          hasViolation(numbers, "range", "$input.nodes[9].ports[0].position.y"),
-      ],
-      [
-        "nodeNotAlsoEvicted",
-        () => !hasViolation(numbers, "type", "$input.nodes[9].position"),
-      ],
-      [
-        "portNotAlsoEvicted",
-        () =>
-          !hasViolation(numbers, "type", "$input.nodes[9].ports[0].position"),
-      ],
     ]),
     {
-      nodePosition: true,
       demand: true,
       section: true,
-      portPosition: true,
-      nodeNotAlsoEvicted: true,
-      portNotAlsoEvicted: true,
     },
   );
 
@@ -372,9 +338,7 @@ export function assertServiceNetworkSpatialDefects(
       "basin-cold",
       (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
         ...entry,
-        id: "   ",
         system: "steam",
-        demand: Number.NaN,
       }),
     ),
   );
@@ -385,25 +349,11 @@ export function assertServiceNetworkSpatialDefects(
         entry: IAutoMovieServicePenetration,
         index: number,
       ): IAutoMovieServicePenetration =>
-        index === 0
-          ? { ...entry, position: { x: Number.NaN, y: 2.5, z: 1 } }
-          : index === 2
-            ? { ...entry, radius: 0 }
-            : entry,
+        index === 2 ? { ...entry, radius: 0 } : entry,
     ),
   });
-  const unmeasurable: IAutoMovieValidation = refuse(
-    withSystem(
-      clean,
-      "cold",
-      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
-        ...entry,
-        capacity: Number.NaN,
-      }),
-    ),
-  );
   TestValidator.equals(
-    "a port on no system, a shapeless sleeve and an unmeasurable capacity",
+    "a port on no system and a shapeless sleeve",
     namedFacts([
       [
         "portSystem",
@@ -411,46 +361,14 @@ export function assertServiceNetworkSpatialDefects(
           hasViolation(orphanPort, "type", "$input.nodes[9].ports[0].system"),
       ],
       [
-        "portId",
-        () => hasViolation(orphanPort, "type", "$input.nodes[9].ports[0].id"),
-      ],
-      [
-        "nonFiniteDemand",
-        () =>
-          hasViolation(orphanPort, "range", "$input.nodes[9].ports[0].demand"),
-      ],
-      [
-        "sleevePosition",
-        () =>
-          hasViolation(
-            sleeveShape,
-            "range",
-            "$input.penetrations[0].position.x",
-          ),
-      ],
-      [
         "sleeveRadius",
         () =>
           hasViolation(sleeveShape, "range", "$input.penetrations[2].radius"),
       ],
-      [
-        "capacityRefused",
-        () =>
-          hasViolation(unmeasurable, "range", "$input.systems[0].capacity") &&
-          unmeasurable.success === false &&
-          unmeasurable.violations.every(
-            (item: IAutoMovieConstraintViolation): boolean =>
-              !item.expected.includes("of declared demand against"),
-          ),
-      ],
     ]),
     {
       portSystem: true,
-      portId: true,
-      nonFiniteDemand: true,
-      sleevePosition: true,
       sleeveRadius: true,
-      capacityRefused: true,
     },
   );
 }

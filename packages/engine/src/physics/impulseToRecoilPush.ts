@@ -21,10 +21,6 @@ export const impulseToRecoilPush: (
   impulse: IAutoMovieVector3,
   gainDegPerImpulse: number,
 ): IAutoMovieRecoilPush => {
-  if (!Number.isFinite(gainDegPerImpulse))
-    throw new RangeError(
-      `recoil push gain must be finite, but was ${gainDegPerImpulse}`,
-    );
   if (gainDegPerImpulse < 0)
     throw new RangeError(
       `recoil push gain must be >= 0, but was ${gainDegPerImpulse}`,

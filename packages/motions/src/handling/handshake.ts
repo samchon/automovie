@@ -21,7 +21,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -39,44 +38,43 @@ import { handshakePlayback } from "./handshakePlayback";
 import { handshakeStance } from "./handshakeStance";
 
 /**
- * Shaking hands with a partner: both bring the same hand's palm to one
- * shared point, clasp, pump together and let go.
+ * Shaking hands with a partner: both bring the same hand's palm to one shared
+ * point, clasp, pump together and let go.
  *
  * The goal is the meeting, not the arm: each palm socket is brought to the
- * point `handshakeOffer.point` places between the two offering elbows, where both forearms
- * reach it with the upper arms as they offer (the taller of two unequal
- * partners extends the elbow and reaches down, lowering the upper arm toward
- * hanging before the arm straightens, the shorter flexes the elbow and
+ * point `handshakeOffer.point` places between the two offering elbows, where
+ * both forearms reach it with the upper arms as they offer (the taller of two
+ * unequal partners extends the elbow and reaches down, lowering the upper arm
+ * toward hanging before the arm straightens, the shorter flexes the elbow and
  * raises the forearm, and neither raises the upper arm), with the palm facing
- * the partner's palm across the line between the two people and the
- * fingers pointing at the partner along the line that halves the angle
- * between the two forearms, so two right hands meet web to web with
- * their thumbs up; the two hands then turn in their palms' planes together,
- * the palms' contact unchanged, to the pair of turns whose open hands keep
- * every phalanx off the other's forearm and which both arms reach best at the
- * clasp and at the pump's top and bottom alike (`HumanClasp.choose`), so each
- * hand's fingers close round the other's hand rather than lie along its
- * wrist. Inverse kinematics
+ * the partner's palm across the line between the two people and the fingers
+ * pointing at the partner along the line that halves the angle between the two
+ * forearms, so two right hands meet web to web with their thumbs up; the two
+ * hands then turn in their palms' planes together, the palms' contact
+ * unchanged, to the pair of turns whose open hands keep every phalanx off the
+ * other's forearm and which both arms reach best at the clasp and at the pump's
+ * top and bottom alike (`HumanClasp.choose`), so each hand's fingers close
+ * round the other's hand rather than lie along its wrist. Inverse kinematics
  * solves each arm (`HumanHand.place`, the Final IK and Unreal Control Rig
- * practice of an effector socket on a world target), and through the clasp
- * and the pump the arm keeps the configuration it clasped in
+ * practice of an effector socket on a world target), and through the clasp and
+ * the pump the arm keeps the configuration it clasped in
  * (`HumanPosture.IGoal.reference`); the feet stay planted as the stand law
  * places them. Both partners read the point from one meeting record
- * (`handshakeMeeting`), computed once from the two shoulders, so the palms
- * meet without either reading the other's moving hand. A seated pair whose
- * arms alone fall short leans its trunks forward over the seat, the hand's
- * target first (`HumanSeatedReach`, Chan and Dubey 1995), the lean coming in
- * over the reach and going over the return. The comfortable reach is the shoulder-to-palm distance of an arm
- * offering a hand: the upper arm 30 degrees forward of hanging and the elbow
- * flexed 45 degrees, which slopes the forearm 15 degrees down to the hand,
- * both provisional, as no measurement of the offering arm was located. The
- * slope is what lets two hands clasp with both elbows low: each hand's
- * fingers clear the partner's forearm only when they point about 65 degrees
- * off it (measured on the sweep's bodies between two turns of 30 and two of
- * 37.5 degrees), the wrist deviates 30 degrees less the 5.5 the pump takes,
- * and two level forearms leave the rest to a raised elbow; two forearms each
- * sloping 15 degrees down supply it. `gap` is the chest gap at
- * which both such arms meet, the distance partners stand at to shake hands.
+ * (`handshakeMeeting`), computed once from the two shoulders, so the palms meet
+ * without either reading the other's moving hand. A seated pair whose arms
+ * alone fall short leans its trunks forward over the seat, the hand's target
+ * first (`HumanSeatedReach`, Chan and Dubey 1995), the lean coming in over the
+ * reach and going over the return. The comfortable reach is the
+ * shoulder-to-palm distance of an arm offering a hand: the upper arm 30 degrees
+ * forward of hanging and the elbow flexed 45 degrees, which slopes the forearm
+ * 15 degrees down to the hand, both provisional, as no measurement of the
+ * offering arm was located. The slope is what lets two hands clasp with both
+ * elbows low: each hand's fingers clear the partner's forearm only when they
+ * point about 65 degrees off it (measured on the sweep's bodies between two
+ * turns of 30 and two of 37.5 degrees), the wrist deviates 30 degrees less the
+ * 5.5 the pump takes, and two level forearms leave the rest to a raised elbow;
+ * two forearms each sloping 15 degrees down supply it. `gap` is the chest gap
+ * at which both such arms meet, the distance partners stand at to shake hands.
  * The limit is the straight arm less the pump's amplitude, so the pump stays
  * within reach above and below the meeting point.
  *
@@ -84,16 +82,16 @@ import { handshakeStance } from "./handshakeStance";
  * reviewed by Prasad et al. 2022, Human-Robot Handshaking: A Review, Int. J.
  * Soc. Robot.): the reach is a minimum-jerk transport whose time is the
  * reach-to-grasp movement time over the comfortable reach (`HumanPrehension`),
- * the longer of the two partners' so both palms arrive together; the hand
- * opens during the reach to the offered hand of `HumanClasp.open` and its
- * digits close from there on the partner's hand by the clasp (`HumanGrip`);
- * the shake moves the shared point up and down at 2.43 Hz for
- * two cycles, the greeting handshake of Tagne et al. 2016 (0.90 s of main
- * shaking at 2.43 Hz, as tabulated by Prasad et al.), with a vertical
- * amplitude of 25 mm about the point that is provisional (no study located
- * reports the amplitude; the robot reference of Wang et al. used 10 cm peak to
- * peak) and a `sin^2` envelope so the pump starts and stops at rest; then the
- * fingers open and the hand returns to where it hung over another reach time.
+ * the longer of the two partners' so both palms arrive together; the hand opens
+ * during the reach to the offered hand of `HumanClasp.open` and its digits
+ * close from there on the partner's hand by the clasp (`HumanGrip`); the shake
+ * moves the shared point up and down at 2.43 Hz for two cycles, the greeting
+ * handshake of Tagne et al. 2016 (0.90 s of main shaking at 2.43 Hz, as
+ * tabulated by Prasad et al.), with a vertical amplitude of 25 mm about the
+ * point that is provisional (no study located reports the amplitude; the robot
+ * reference of Wang et al. used 10 cm peak to peak) and a `sin^2` envelope so
+ * the pump starts and stops at rest; then the fingers open and the hand returns
+ * to where it hung over another reach time.
  *
  * Events: `clasp` and `gripClosed` when the palms meet and the fingers close,
  * `shakeEnd` when the pump ends, `release` as the hand opens. The hand grips
@@ -103,14 +101,9 @@ import { handshakeStance } from "./handshakeStance";
  * once the blend ends.
  *
  * Both partners must stand, or sit leaning, within reach when the handshake
- * starts; the mutual goal refuses a gap neither arm can close. The partner's shoulder is
- * read at the start, so the partner's earlier actions must be placed first,
- * which `HumanChain.pair` arranges.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared meeting, the offering arm and its provisional angles, the clasp, the phases with their sources, the events, the declined cut and the refusal.
- * @evidence contracts/development/design.md#principled-representation A mutual law: both partners read one meeting record and solve their own arm onto its point with an effector socket.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the pump's two constants, the plan, the stance offsets, the standing gap and the offering arm the meeting, the high five and the handover read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither partner derives the other's hand: both read the meeting, computed once from both shoulders.
+ * starts; the mutual goal refuses a gap neither arm can close. The partner's
+ * shoulder is read at the start, so the partner's earlier actions must be
+ * placed first, which `HumanChain.pair` arranges.
  */
 export namespace handshake {
   /** The action's name. */
@@ -153,22 +146,14 @@ export namespace handshake {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The law states actual partner/hand, shared meeting, peak/pump timing and refusal; this method returns the original grasp/pump/release contacts and pose course.
-   * @evidence contracts/development/implementation.md#principled-implementation Both hands use the same meeting and actual constrained clasp choice; original minimum-jerk transports and cited sinusoidal pump carry the hand, fingers and grasp reference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry observations and meeting precede original shared timing, clasp selection, transports and the complete posture request.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original pumps, amplitudes, grip windows, actual paired candidate fits/clearance, references, seated/standing behavior and all refusals remain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each entry observation requests only hips/feet/acting shoulder/hand; the same unchanged partner/start observation serves shoulder and standing prediction. Every original meeting/clasp solve remains, while runtime shape schedules reuse fixed phase geometry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed partner/start entry observations and shared meeting-role computation retain their original owners. Runtime current-person FK/ROM loans reach only its own original full base/leaned wrapper; partner planning never borrows that source and no pose/time result history is added.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Entry maps/clasp workspaces release with planning; the plan owns original base/transports/shapes/wrist/reference/timing. Runtime loans stay inside the current full-base call and no returned goal, partner reader or history retains them.
+   * @throws {HumanRefusal} When the partners stand beyond reach of each other,
+   *   or the pump count is not a positive integer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandshake.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
-    const pumps: number = context.params.count ?? 2;
-    HumanBound.whole("count", pumps);
+    const pumps: number = HumanBound.whole("count", context.params.count ?? 2);
     const body: IAutoMovieMotionHumanBody = context.body;
     const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       context.params.partner,
@@ -373,30 +358,21 @@ export namespace handshake {
     // fitted afresh at each second, where two nearly tied arm solutions let
     // one instant take the other branch.
     return courseArmGoal({
-      body,
+      context,
       plan: goals,
       side,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
       span: { start: 0, ready: reach, relax: release, end: duration },
     });
   }
 
   /**
-   * A body's chest and shoulder offsets in the stand law's own posture, read
-   * on the body itself and not estimated from its measures, so a case or an
+   * A body's chest and shoulder offsets in the stand law's own posture, read on
+   * the body itself and not estimated from its measures, so a case or an
    * approach places partners by the geometry the handshake will meet.
    *
    * @param body The body.
    * @param side The acting arm; `right` when absent.
    * @returns The offsets.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and on which posture.
-   * @evidence contracts/development/implementation.md#principled-implementation The stand law's own posture, read by forward kinematics (`handshakeStance`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No offset is estimated from the body's measures.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded trunk reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `handshakeStance` owns the reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function stance(
     body: IAutoMovieMotionHumanBody,
@@ -409,30 +385,22 @@ export namespace handshake {
    * The horizontal sternum-to-sternum gap at which two partners facing each
    * other shake hands, the gap an approach stops at.
    *
-   * Each offering arm reaches forward `u sin(handshakeOffer.SHOULDER) + l cos(slope)` from
-   * its shoulder, the forearm `l` carrying the palm socket as `handshakeOffer.forearm` does
-   * and sloping `90 - SHOULDER - ELBOW` degrees below level, further down by
-   * `handshakeOffer.shape` under the higher elbow and less under the lower,
-   * the higher upper arm lowered as that shape says; the two reaches sum to
-   * the shoulders' horizontal distance,
-   * across which the shaking shoulders sit each to its own side, and each
-   * sternum leads its shoulder as the standing body places them
-   * ({@link stance}). Partners whose floor points stand this gap plus both
-   * sternum offsets apart therefore meet palm to palm where `handshakeOffer.point`
-   * places the point, both upper arms in the offering shape.
+   * Each offering arm reaches forward `u sin(handshakeOffer.SHOULDER) + l
+   * cos(slope)` from its shoulder, the forearm `l` carrying the palm socket as
+   * `handshakeOffer.forearm` does and sloping `90 - SHOULDER - ELBOW` degrees
+   * below level, further down by `handshakeOffer.shape` under the higher elbow
+   * and less under the lower, the higher upper arm lowered as that shape says;
+   * the two reaches sum to the shoulders' horizontal distance, across which the
+   * shaking shoulders sit each to its own side, and each sternum leads its
+   * shoulder as the standing body places them ({@link stance}). Partners whose
+   * floor points stand this gap plus both sternum offsets apart therefore meet
+   * palm to palm where `handshakeOffer.point` places the point, both upper arms
+   * in the offering shape.
    *
    * @param a One partner.
    * @param b The other.
    * @param side The shaking hand of both; `right` when absent.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the geometry summed and how it matches the meeting's rule.
-   * @evidence contracts/development/implementation.md#principled-implementation Each offering arm's forward reach in the plane through the shoulders, shaped by `handshakeOffer.shape` for a height difference, summed and laid against the shoulders' lateral offsets by Pythagoras, less both sternum leads.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two stances, one shape, two reaches, one distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the bodies' own; the shape is the meeting's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work but for the shape's bisections.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stance` and `handshakeOffer`'s shape and forearm.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gap(
     a: IAutoMovieMotionHumanBody,
@@ -483,22 +451,14 @@ export namespace handshake {
   }
 
   /**
-   * One partner's acting arm for the mutual goal: the shoulder, the
-   * comfortable reach to the palm at the handshake's elbow flexion, and the
-   * straight arm's reach less the pump's amplitude.
+   * One partner's acting arm for the mutual goal: the shoulder, the comfortable
+   * reach to the palm at the handshake's elbow flexion, and the straight arm's
+   * reach less the pump's amplitude.
    *
    * @param body The body.
    * @param side The arm.
    * @param shoulder The shoulder joint, world metres.
    * @returns The side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two reaches and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The law of cosines on the upper arm and the forearm to the palm socket at the offering elbow's flexion; the limit is the straight arm less the pump.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's own.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The forearm is `handshakeOffer.forearm`'s.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,

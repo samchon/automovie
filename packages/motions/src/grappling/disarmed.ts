@@ -16,11 +16,11 @@ import { HumanHand } from "../posture/HumanHand";
 
 /**
  * The armed partner of a disarm (`IAutoMovieMotionHumanDisarm.IYield`). The
- * partner keeps the posture it entered with; its armed forearm turns with
- * the lever from the defender's grip to the take, and its hand opens at the
- * defender's `taken` instant, read from the disarm's own placed plan, where
- * its grip on the weapon ends, so the weapon passes to the defender's hand
- * with one owner at every instant.
+ * partner keeps the posture it entered with; its armed forearm turns with the
+ * lever from the defender's grip to the take, and its hand opens at the
+ * defender's `taken` instant, read from the disarm's own placed plan, where its
+ * grip on the weapon ends, so the weapon passes to the defender's hand with one
+ * owner at every instant.
  */
 export namespace disarmed {
   /** The action's name. */
@@ -36,11 +36,36 @@ export namespace disarmed {
   export const AFTER: number = 0.4;
 
   /**
+   * When a placed action's named cue falls on the film clock.
+   *
+   * @param placed The placed action: its start and its plan's cues and length.
+   * @param name The cue.
+   * @returns Film seconds, or `undefined` when the plan has no such cue.
+   */
+  export function instant(
+    placed: Pick<IAutoMovieMotionHumanPlacedAction, "start"> & {
+      plan: Pick<
+        IAutoMovieMotionHumanPlacedAction["plan"],
+        "events" | "duration"
+      >;
+    },
+    name: string,
+  ): number | undefined {
+    const event: IAutoMovieMotionEvent | undefined = placed.plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === name,
+    );
+    return event === undefined
+      ? undefined
+      : placed.start + event.share * placed.plan.duration;
+  }
+  /**
    * Plan the partner's yield.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `of` when no disarm by that defender is anchored there or it has no `taken` instant, and on `prop` when this performer holds nothing.
+   * @throws {HumanRefusal} On `of` when no disarm by that defender is anchored
+   *   there or it has no `taken` instant, and on `prop` when this performer
+   *   holds nothing.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IYield>,
@@ -50,14 +75,7 @@ export namespace disarmed {
     );
     const instant: (name: string) => number | undefined = (
       name: string,
-    ): number | undefined => {
-      const event: IAutoMovieMotionEvent | undefined = placed.plan.events.find(
-        (e: IAutoMovieMotionEvent): boolean => e.name === name,
-      );
-      return event === undefined
-        ? undefined
-        : placed.start + event.share * placed.plan.duration;
-    };
+    ): number | undefined => disarmed.instant(placed, name);
     const taken: number | undefined = instant("taken");
     const gripped: number | undefined = instant("gripped");
     if (

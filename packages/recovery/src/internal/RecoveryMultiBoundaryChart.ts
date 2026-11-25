@@ -13,13 +13,13 @@ import { analyzeRecoveryMultiBoundarySurface } from "./analyzeRecoveryMultiBound
  * Dijkstra joins the nearest remaining boundary through interior edges only.
  * Removing those edges from incident-face links duplicates disconnected fans.
  * Input source keys are unique. Coordinates stay in input millimetres and
- * duplicated fans share source keys, while their private vertex ordinals differ.
- * The output boundary starts at its smallest source-key and incident-face pair.
- * All input arrays stay immutable.
- * The result retains every affine source triangle exactly, solely for subsequent
- * curve/field fitting. It is not a source-free reconstruction or a publication.
- * Nonmanifold, disconnected, positive-genus, incomplete-boundary and arithmetic
- * cases fail explicitly. No embedding, surface fit, or shared-arc C0 is certified.
+ * duplicated fans share source keys, while their private vertex ordinals
+ * differ. The output boundary starts at its smallest source-key and
+ * incident-face pair. All input arrays stay immutable. The result retains every
+ * affine source triangle exactly, solely for subsequent curve/field fitting. It
+ * is not a source-free reconstruction or a publication. Nonmanifold,
+ * disconnected, positive-genus, incomplete-boundary and arithmetic cases fail
+ * explicitly. No embedding, surface fit, or shared-arc C0 is certified.
  */
 export function RecoveryMultiBoundaryChart(
   input: Parameters<IAutoMovieRecoveryMultiBoundaryChart.Operation>[0],
@@ -37,12 +37,9 @@ export function RecoveryMultiBoundaryChart(
     !input.triangles.length ||
     input.vertexKeys.length !== count ||
     new Set(input.vertexKeys).size !== count ||
-    input.vertexKeys.some(
-      (key: string): boolean => typeof key !== "string" || !key.length,
-    ) ||
+    input.vertexKeys.some((key: string): boolean => !key.length) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3,
     )
   )
     fail("finite positions and unique nonempty source keys are required");
@@ -85,12 +82,7 @@ export function RecoveryMultiBoundaryChart(
     for (let i: number = 0; i < cycle.length; i++) {
       const a: number = cycle[i]!,
         b: number = cycle[(i + 1) % cycle.length]!;
-      if (
-        !Number.isSafeInteger(a) ||
-        a < 0 ||
-        a >= count ||
-        boundaryCycleOf.has(a)
-      )
+      if (a < 0 || a >= count || boundaryCycleOf.has(a))
         fail("supplied boundary cycles repeat or intersect vertices");
       const rows: { a: number; b: number; face: number }[] | undefined =
         source.edges.get(edgeKey(a, b));
@@ -109,8 +101,7 @@ export function RecoveryMultiBoundaryChart(
       perimeter += source.adjacency[cycle[(at + i) % cycle.length]!]!.get(
         cycle[(at + i + 1) % cycle.length]!,
       )!;
-    if (!(perimeter > 0 && Number.isFinite(perimeter)))
-      fail("a boundary perimeter is unrepresentable");
+    if (!(perimeter > 0)) fail("a boundary perimeter is unrepresentable");
     cyclePerimeters.push(perimeter);
   });
   if (
@@ -209,7 +200,7 @@ export function RecoveryMultiBoundaryChart(
         )
           continue;
         const candidate: number = current.distance + length;
-        if (!(candidate > current.distance && Number.isFinite(candidate)))
+        if (!(candidate > current.distance))
           fail("an accumulated interior-edge path length is unrepresentable");
         if (
           candidate < distance[next]! ||
@@ -304,10 +295,10 @@ export function RecoveryMultiBoundaryChart(
       triangle: readonly [number, number, number],
       face: number,
     ): [number, number, number] =>
-      triangle.map((vertex: number): number => remap[vertex]!.get(face)!) as [
-        number,
-        number,
-        number,
+      [
+        remap[triangle[0]]!.get(face)!,
+        remap[triangle[1]]!.get(face)!,
+        remap[triangle[2]]!.get(face)!,
       ],
   );
   const result: ReturnType<typeof analyze> = analyze(verticesMm, triangles),

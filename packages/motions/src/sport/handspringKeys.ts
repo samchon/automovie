@@ -7,8 +7,8 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
 
 /**
  * The handspring's two body-dependent key shapes, shared by its wheel and
- * flight. Their provisional joint angles are the handspring's existing
- * lunge and arched line; unspecified angles belong to the body's standing.
+ * flight. Their provisional joint angles are the handspring's existing lunge
+ * and arched line; unspecified angles belong to the body's standing.
  */
 export namespace handspringKeys {
   /**
@@ -31,8 +31,8 @@ export namespace handspringKeys {
   }
 
   /**
-   * The arched line, the legs together and arms overhead, used on support
-   * and in flight (provisional angles).
+   * The arched line, the legs together and arms overhead, used on support and
+   * in flight (provisional angles).
    *
    * @param body The body.
    * @returns The key.

@@ -1,7 +1,9 @@
 import type { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 
 /**
- * One authoritative scalar predicate beside its measured value and result. An unresolved operand records null and fails rather than becoming a zero measurement.
+ * One authoritative scalar predicate beside its measured value and result. An
+ * unresolved operand records null and fails rather than becoming a zero
+ * measurement.
  */
 export interface IAutoMovieCompiledPredicateResult {
   /** Exact authoritative predicate. */

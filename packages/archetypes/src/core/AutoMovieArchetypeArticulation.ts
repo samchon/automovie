@@ -12,18 +12,32 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeArticulationState } from "./ArchetypeArticulationState";
-import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
- * How a model's articulations move its parts and its other affordances: the rigid motion each articulation kind makes at a travel, and the model those motions leave.
+ * How a model's articulations move its parts and its other affordances: the
+ * rigid motion each articulation kind makes at a travel, and the model those
+ * motions leave.
  *
- * The model declares the articulation itself (`IAutoMovieAffordance.parts`, `rides` and `follows`), so this reads any `IAutoMovieModel`'s affordances, not only an archetype's. Each kind moves about or along an axis of its own rest frame, as `AutoMovieAffordanceKind` states: a `hinge`, `knob`, `crank` and `wheel` turn about `+Y`, a `slider` runs along `+X`, a `button`, a `pedal` and a `trigger` go in along `-Y`. A carried affordance takes its carrier's motion after its own, up the chain of `rides`, so a door's lever turns on the leaf and swings with it. An articulation's own frame moves with its own travel, so a drawer's grip is where the hand holds it at every travel.
+ * The model declares the articulation itself (`IAutoMovieAffordance.parts`,
+ * `rides` and `follows`), so this reads any `IAutoMovieModel`'s affordances,
+ * not only an archetype's. Each kind moves about or along an axis of its own
+ * rest frame, as `AutoMovieAffordanceKind` states: a `hinge`, `knob`, `crank`
+ * and `wheel` turn about `+Y`, a `slider` runs along `+X`, a `button`, a
+ * `pedal` and a `trigger` go in along `-Y`. A carried affordance takes its
+ * carrier's motion after its own, up the chain of `rides`, so a door's lever
+ * turns on the leaf and swings with it. An articulation's own frame moves with
+ * its own travel, so a drawer's grip is where the hand holds it at every
+ * travel.
  *
- * A follower's travel is set by its leader's (`follows`), resolved before any motion. A state names independent leaders, or explicitly reversible followers whose requested travels uniquely determine their leaders. Spatial parentage (`rides`) is resolved afterwards as a separate dependency graph.
+ * A follower's travel is set by its leader's (`follows`), resolved before any
+ * motion. A state names independent leaders, or explicitly reversible followers
+ * whose requested travels uniquely determine their leaders. Spatial parentage
+ * (`rides`) is resolved afterwards as a separate dependency graph.
  *
- * A `pedal` carried by a `crank` goes round with it and keeps its orientation, since a pedal turns freely on its spindle and the foot holds it level.
+ * A `pedal` carried by a `crank` goes round with it and keeps its orientation,
+ * since a pedal turns freely on its spindle and the foot holds it level.
  */
 export namespace AutoMovieArchetypeArticulation {
   /** The kinds whose travel moves parts and carried affordances. */
@@ -31,7 +45,8 @@ export namespace AutoMovieArchetypeArticulation {
     AffordanceArticulation.KINDS;
 
   /**
-   * A model's moving data: its parts and its affordances, both in the model's space.
+   * A model's moving data: its parts and its affordances, both in the model's
+   * space.
    */
   export interface IPosed {
     /** The parts, each at its transform. */
@@ -42,10 +57,14 @@ export namespace AutoMovieArchetypeArticulation {
   }
 
   /**
-   * A model's parts and affordances at an articulation state, with the travel every articulation took.
+   * A model's parts and affordances at an articulation state, with the travel
+   * every articulation took.
    */
   export interface IResult extends IPosed {
-    /** Every articulation's travel by id: the state's for a leader, 0 for one not set, the rule's for a follower. */
+    /**
+     * Every articulation's travel by id: the state's for a leader, 0 for one
+     * not set, the rule's for a follower.
+     */
     travels: ReadonlyMap<string, number>;
   }
 
@@ -53,7 +72,12 @@ export namespace AutoMovieArchetypeArticulation {
    * The travel range of an articulation, in its kind's unit.
    *
    * @param affordance The articulation.
-   * @returns The least and greatest travel; null for an end without a limit, as the engine's `affordanceTravelRange` gives them: a `wheel` turns `travel` to either side, a `crank` without `travel` has no limit, a `hinge`, `knob` or `slider` runs from minus its `reverse` to `travel`, every other kind runs from 0 to `travel`, and one without `travel` does not move forward.
+   * @returns The least and greatest travel; null for an end without a limit, as
+   *   the engine's `affordanceTravelRange` gives them: a `wheel` turns `travel`
+   *   to either side, a `crank` without `travel` has no limit, a `hinge`,
+   *   `knob` or `slider` runs from minus its `reverse` to `travel`, every other
+   *   kind runs from 0 to `travel`, and one without `travel` does not move
+   *   forward.
    */
   export function range(affordance: IAutoMovieAffordance): {
     minimum: number | null;
@@ -63,11 +87,14 @@ export namespace AutoMovieArchetypeArticulation {
   }
 
   /**
-   * The rigid motion one articulation makes at a travel, in the model's space, from its rest frame.
+   * The rigid motion one articulation makes at a travel, in the model's space,
+   * from its rest frame.
    *
    * @param affordance The articulation at rest.
-   * @param travel The travel, degrees for the turning kinds and metres for the others.
-   * @returns The motion; the motion that moves nothing for a kind that does not travel.
+   * @param travel The travel, degrees for the turning kinds and metres for the
+   *   others.
+   * @returns The motion; the motion that moves nothing for a kind that does not
+   *   travel.
    */
   export function motion(
     affordance: IAutoMovieAffordance,
@@ -101,9 +128,17 @@ export namespace AutoMovieArchetypeArticulation {
    *
    * @param archetype The name refusals carry.
    * @param rest The model's parts and affordances at rest.
-   * @param state One travel per coupled degree of freedom, named by its leader or an explicitly reversible follower; an independent articulation not listed stays at rest.
-   * @returns New parts and affordances and every articulation's travel; the rest records are not changed.
-   * @throws {AutoMovieArchetypeRefusal} For an unknown articulation, a non-finite or out-of-range travel, an unmarked follower input, a non-invertible reverse input, duplicate inputs for one coupled degree of freedom, an unresolved or cyclic follows chain, or a followed travel outside its range. Model admission owns the separate acyclic rides graph.
+   * @param state One travel per coupled degree of freedom, named by its leader
+   *   or an explicitly reversible follower; an independent articulation not
+   *   listed stays at rest.
+   * @returns New parts and affordances and every articulation's travel; the
+   *   rest records are not changed.
+   * @throws {AutoMovieArchetypeRefusal} For an unknown articulation, a
+   *   non-finite or out-of-range travel, an unmarked follower input, a
+   *   non-invertible reverse input, duplicate inputs for one coupled degree of
+   *   freedom, an unresolved or cyclic follows chain, or a followed travel
+   *   outside its range. Model admission owns the separate acyclic rides
+   *   graph.
    */
   export function pose(
     archetype: string,
@@ -119,10 +154,7 @@ export namespace AutoMovieArchetypeArticulation {
         return { ...a, frame: AutoMovieArchetypeFrame.move(by, a.frame) };
       },
     );
-    const original: IPosed["parts"] = rest.parts;
-    const ownership: object | undefined =
-      ArchetypePartOwnership.beforeMap(original);
-    const parts: IAutoMovieModelPart[] = original.map(
+    const parts: IAutoMovieModelPart[] = rest.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
         const by: AutoMovieArchetypeFrame.IMotion | undefined = moved.get(
           part.id,
@@ -139,41 +171,34 @@ export namespace AutoMovieArchetypeArticulation {
             };
       },
     );
-    ArchetypePartOwnership.afterMap(ownership, parts);
     return { parts, affordances, travels: selected.travels };
   }
 
-  /**
-   * Absolute travel inputs, omitting unspecified entries before admission.
-   */
+  /** Absolute travel inputs, omitting unspecified entries before admission. */
   export function travels<Id extends string>(
     state: Partial<Record<Id, number>>,
   ): Map<string, number> {
     const inputs: Map<string, number> = new Map();
-    for (const id of Object.keys(state) as Id[]) {
-      const value: number | undefined = state[id];
+    for (const [id, value] of Object.entries<number | undefined>(state))
       if (value !== undefined) inputs.set(id, value);
-    }
     return inputs;
   }
   /**
-   * One admitted travel state, whose contact frames can be evaluated independently.
+   * One admitted travel state, whose contact frames can be evaluated
+   * independently.
    */
   export interface IProjection {
     /** Admitted travel of every articulation, including followers. */
     travels: ReadonlyMap<string, number>;
-    /**
-     * Model-space motion taking the supplied rest contact to its posed frame.
-     */
+    /** Model-space motion taking the supplied rest contact to its posed frame. */
     motion: (contact: IAutoMovieAffordance) => AutoMovieArchetypeFrame.IMotion;
-    /**
-     * Model-space frame at the admitted travels, absent for an unknown id.
-     */
+    /** Model-space frame at the admitted travels, absent for an unknown id. */
     frame: (id: string) => IAutoMovieTransform | undefined;
   }
 
   /**
-   * Index a rest model for independent travel queries and selected contact frames.
+   * Index a rest model for independent travel queries and selected contact
+   * frames.
    */
   export function prepare(
     archetype: string,
@@ -216,7 +241,6 @@ export namespace AutoMovieArchetypeArticulation {
       ): boolean => {
         const { minimum, maximum } = range(affordance);
         return (
-          Number.isFinite(travel) &&
           (minimum === null || travel >= minimum) &&
           (maximum === null || travel <= maximum)
         );

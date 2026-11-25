@@ -1,7 +1,8 @@
 /**
  * Production-selected bounded direct-path propagation model.
  *
- * The production selects every physical scalar and the cut-boundary decision; the engine applies the declared bounded calculation.
+ * The production selects every physical scalar and the cut-boundary decision;
+ * the engine applies the declared bounded calculation.
  */
 export interface IAutoMovieSoundPropagationProfile {
   /** Stable profile identity within the production. */
@@ -33,9 +34,7 @@ export interface IAutoMovieSoundPropagationProfile {
         absorptionDbPerMeter: number;
       };
 
-  /**
-   * Authored edit decision when arrival lies beyond the source shot segment.
-   */
+  /** Authored edit decision when arrival lies beyond the source shot segment. */
   segmentBoundary: "carry-across-cut" | "trim-at-segment";
 
   /** Non-empty statements of the physical assumptions this profile adopts. */

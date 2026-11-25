@@ -1,11 +1,11 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Type contracts exchanged by AutoMovieHumanLegAxis; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanLegAxis; runtime evaluation remains
+ * in Human.
  */
 export namespace IAutoMovieHumanLegAxis {
-  /** A section plane, canonical, with its normal.
-   */
+  /** A section plane, canonical, with its normal. */
   export interface IFrame {
     /** Origin, on the axis. */
     origin: AutoMovieVector3Tuple;
@@ -20,8 +20,7 @@ export namespace IAutoMovieHumanLegAxis {
     n: AutoMovieVector3Tuple;
   }
 
-  /** The joints the axis passes through.
-   */
+  /** The joints the axis passes through. */
   export interface IJoints {
     /** Hip centre. */
     hip: AutoMovieVector3Tuple;
@@ -33,8 +32,7 @@ export namespace IAutoMovieHumanLegAxis {
     ankle: AutoMovieVector3Tuple;
   }
 
-  /** One eased turn of the section normal about a fixed axis.
-   */
+  /** One eased turn of the section normal about a fixed axis. */
   export interface ITurn {
     /** Station where the turn starts. */
     from: number;
@@ -49,8 +47,7 @@ export namespace IAutoMovieHumanLegAxis {
     angle: number;
   }
 
-  /** The leg's frames along its stations.
-   */
+  /** The leg's frames along its stations. */
   export interface IFrames {
     /** Station of the ankle ring. */
     s0: number;
@@ -58,7 +55,10 @@ export namespace IAutoMovieHumanLegAxis {
     /** Station of the crotch ring. */
     s1: number;
 
-    /** The three turns: ankle ring to shank, shank to thigh, thigh to the crotch ring. */
+    /**
+     * The three turns: ankle ring to shank, shank to thigh, thigh to the crotch
+     * ring.
+     */
     turns: ITurn[];
 
     /** Residual twist about the vertical, radians. */
@@ -71,11 +71,14 @@ export namespace IAutoMovieHumanLegAxis {
     origins: AutoMovieVector3Tuple[];
   }
 
-  /** The rate argument of AutoMovieHumanLegAxis.interpolated. A table's value at s by cubic Hermite, with derivatives from `rate`.
-  @param table Values at whole millimetres from `first`.
-  @param rate Derivative at a station.
-  @param first Station of the table's first value.
-  @param s Station read.
- */
+  /**
+   * The rate argument of AutoMovieHumanLegAxis.interpolated. A table's value at
+   * s by cubic Hermite, with derivatives from `rate`.
+   *
+   * @param table Values at whole millimetres from `first`.
+   * @param rate Derivative at a station.
+   * @param first Station of the table's first value.
+   * @param s Station read.
+   */
   export type InterpolatedRate = (s: number) => AutoMovieVector3Tuple;
 }

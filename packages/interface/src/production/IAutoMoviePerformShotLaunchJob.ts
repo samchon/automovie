@@ -5,8 +5,9 @@ import type { IAutoMovieLaunchAction } from "../harness/IAutoMovieLaunchAction";
  * One gated `launch` action, ready for its flight to be solved.
  *
  * `gatePerformShotActions` records one only when the projectile is a staged
- * node and the aim resolved to a point; `compilePerformShotLaunches` then solves
- * the flight, bakes it onto the shot clock, and schedules the target's recoil.
+ * node and the aim resolved to a point; `compilePerformShotLaunches` then
+ * solves the flight, bakes it onto the shot clock, and schedules the target's
+ * recoil.
  */
 export interface IAutoMoviePerformShotLaunchJob {
   /** The `launch` action, the same object as in the action list. */

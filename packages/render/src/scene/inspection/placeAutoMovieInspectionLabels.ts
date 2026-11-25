@@ -6,9 +6,19 @@ import type {
 import * as THREE from "three";
 
 /**
- * Place labels on a picture: project each labelled path's centre through the camera into pixels and keep a label only where its box overlaps no label kept before it.
+ * Place labels on a picture: project each labelled path's centre through the
+ * camera into pixels and keep a label only where its box overlaps no label kept
+ * before it.
  *
- * Each path is given as its world box, and its label reads the path's last name, `(root)` for the empty path. A label's anchor is the pixel the centre of its box projects to, with the top-left of the picture at (0, 0), x to the right and y down, and its box is the box `stampAutoMovieRasterLabel` stamps at `scale` with its top-left corner on the anchor: `scale * (4 * length + 3)` pixels wide and `9 * scale` high. Labels are taken in the order given; one whose box overlaps a kept box, or whose anchor lies behind the camera or outside the picture, is listed in `dropped` with its projected anchor instead, so a reader knows it was asked for.
+ * Each path is given as its world box, and its label reads the path's last
+ * name, `(root)` for the empty path. A label's anchor is the pixel the centre
+ * of its box projects to, with the top-left of the picture at (0, 0), x to the
+ * right and y down, and its box is the box `stampAutoMovieRasterLabel` stamps
+ * at `scale` with its top-left corner on the anchor: `scale * (4 * length + 3)`
+ * pixels wide and `9 * scale` high. Labels are taken in the order given; one
+ * whose box overlaps a kept box, or whose anchor lies behind the camera or
+ * outside the picture, is listed in `dropped` with its projected anchor
+ * instead, so a reader knows it was asked for.
  *
  * The camera's world matrix and projection must be current.
  *
@@ -39,7 +49,7 @@ export function placeAutoMovieInspectionLabels(props: {
     ["height", props.height],
     ["scale", props.scale],
   ] as const)
-    if (!(Number.isSafeInteger(value) && value > 0))
+    if (!(value > 0))
       throw new Error(`Label ${name} ${value} is not a positive integer`);
 
   const labels: IAutoMovieInspectionLabel[] = [];
@@ -67,7 +77,6 @@ export function placeAutoMovieInspectionLabels(props: {
       label.y + 9 * props.scale,
     ];
     const visible: boolean =
-      Number.isFinite(point.z) &&
       point.z >= -1 &&
       point.z <= 1 &&
       label.x >= 0 &&

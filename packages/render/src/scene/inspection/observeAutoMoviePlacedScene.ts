@@ -42,7 +42,10 @@ const CHECK_NAMES: Readonly<Record<IInput["kind"], string>> = {
   track: "authored-track",
 };
 
-/** Source checks reported as optional and unsupported when no rule supplies them. */
+/**
+ * Source checks reported as optional and unsupported when no rule supplies
+ * them.
+ */
 const SOURCE_CHECKS: readonly string[] = [
   "support",
   "grip",
@@ -195,17 +198,11 @@ function withReceivedContact(
         { name: "received-contacts", value: 0, unit: "count" },
       ],
     };
-  if (touch.status !== "measured" || !Number.isFinite(touch.separation))
-    return witness;
+  if (touch.status !== "measured") return witness;
   const received: IMeasurement[] = [
     { name: "received-separation", value: touch.separation, unit: "m" },
   ];
-  if (
-    touch.separation <= 0 &&
-    touch.impulse !== null &&
-    Number.isFinite(touch.impulse) &&
-    touch.impulse >= 0
-  )
+  if (touch.separation <= 0 && touch.impulse !== null && touch.impulse >= 0)
     received.push({
       name: "received-normal-impulse",
       value: touch.impulse,

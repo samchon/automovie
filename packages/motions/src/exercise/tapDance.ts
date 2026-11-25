@@ -1,8 +1,4 @@
-import {
-  ANKLE_DORSIFLEXION,
-  AutoMovieGravity,
-  Vector3,
-} from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -29,44 +25,46 @@ import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
+import { tapDanceFlights } from "./tapDanceFlights";
 import { tapDanceSteps } from "./tapDanceSteps";
 
+/** The alternatives of `SetSocket`'s site. */
+type SetSocket = "ball" | "heel";
+
 /**
- * Tap dance on the dance law's beat clock (#3991). Each step is a table of
- * strikes in quarter beats from its first beat (`tapDanceSteps.STEPS`): which foot (the
- * leading one or the other), how it is set down (on the ball with the heel
- * up `PITCH` degrees, on the heel with the toes up, or flat), where (in
- * place, or `REACH` foot lengths ahead or behind where it stood), whether it
- * then bears, and the part that sounds, if any. A brush passes through its
- * strike without bearing.
+ * Tap dance on the dance law's beat clock. Each step is a table of strikes in
+ * quarter beats from its first beat (`tapDanceSteps.STEPS`): which foot (the
+ * leading one or the other), how it is set down (on the ball with the heel up
+ * `PITCH` degrees, on the heel with the toes up, or flat), where (in place, or
+ * `REACH` foot lengths ahead or behind where it stood), whether it then bears,
+ * and the part that sounds, if any. A brush passes through its strike without
+ * bearing.
  *
  * - Shuffle: the ball brushes forward on the "and" and back on the beat.
  * - Flap: a forward brush, then the ball steps down ahead and takes the weight.
  * - Ball change: weight to the ball behind, then back onto the other foot.
  * - Heel drop: up onto the ball, the heel dropped on the beat.
  * - Cramp roll: ball, ball, heel, heel, one a quarter beat.
- * - Time step (single): a shuffle, a hop on the other foot, a step, a flap
- *   and a step.
+ * - Time step (single): a shuffle, a hop on the other foot, a step, a flap and a
+ *   step.
  *
- * A foot travels to a strike over at most `TRAVEL` of a beat, lifted
- * `LIFT` of the stature. The hips ride over the feet's midpoint, `CROUCH`
- * of the stature low on soft knees, no lower than a flat step's shank
- * allows its unloaded ankle as it lands; while no foot bears (the hop) they fly
- * the ballistic arc whose flight time that span is. Repeats alternate the
- * leading foot, each starting where the last left the feet.
+ * A foot travels to a strike over at most `TRAVEL` of a beat, lifted `LIFT` of
+ * the stature. The hips ride over the feet's midpoint, `CROUCH` of the stature
+ * low on soft knees, no lower than a flat step's shank allows its unloaded
+ * ankle as it lands; while no foot bears (the hop) they fly the ballistic arc
+ * whose flight time that span is. Repeats alternate the leading foot, each
+ * starting where the last left the feet.
  *
  * Events: `beat{k}`, each sounding strike's `strike{n}{Side}{Part}`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the strike table, each step, the travel, the hips and the events.
- * @evidence contracts/development/design.md#principled-representation A law record whose steps are strike tables over the shared beat clock and footwork.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the constants and the plan; the step table is tapDanceSteps'.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; times are the beat's.
  */
 export namespace tapDance {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "tapDance";
 
-  /** Cancel table: from the last beat, into standing, another tap step or a dance. */
+  /**
+   * Cancel table: from the last beat, into standing, another tap step or a
+   * dance.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -78,7 +76,10 @@ export namespace tapDance {
   /** The foot's pitch on its ball or its heel, degrees (provisional). */
   export const PITCH: number = 20;
 
-  /** How far a brush or a step reaches ahead or behind, foot lengths (provisional). */
+  /**
+   * How far a brush or a step reaches ahead or behind, foot lengths
+   * (provisional).
+   */
   export const REACH: number = 0.4;
 
   /** The longest travel into a strike, a share of a beat. */
@@ -95,15 +96,8 @@ export namespace tapDance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the tempo is not positive, the repeat count is not a positive whole number, or the locked track has too few beats.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Strikes placed on the beat's quarter subdivisions; each foot keyed through them; the hips over the feet with a ballistic flight where none bears.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, keys per foot, flights, carriage, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A strike's time is its subdivision; nothing nudges it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in strikes; per sample, a key search per foot and a scan of the flights.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared beat clock, footwork and foot pivots.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys, the flights and the clock.
+   * @throws {HumanRefusal} When the tempo is not positive, the repeat count is
+   *   not a positive whole number, or the locked track has too few beats.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTapDance.IParams>,
@@ -111,8 +105,7 @@ export namespace tapDance {
     const p: IAutoMovieMotionHumanTapDance.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const repeats: number = p.repeats ?? 1;
-    HumanBound.whole("repeats", repeats);
+    const repeats: number = HumanBound.whole("repeats", p.repeats ?? 1);
     const step: tapDanceSteps.IStep = tapDanceSteps.STEPS[p.step];
     const beats: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
       context,
@@ -217,7 +210,10 @@ export namespace tapDance {
       end,
       support,
     );
-    const flights: readonly IFlight[] = unsupported(keys, end);
+    const flights: readonly tapDanceFlights.IFlight[] = tapDanceFlights(
+      keys,
+      end,
+    );
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const ankle: number = body.rest.get("leftFoot")!.y;
     // The hips ride `CROUCH` low, no lower than lets each flat step's foot
@@ -269,7 +265,7 @@ export namespace tapDance {
           );
           return {
             x: mid.x,
-            y: floor + rest.y - crouch + hop(flights, t),
+            y: floor + rest.y - crouch + tapDanceFlights.hop(flights, t),
             z: mid.z,
           };
         },
@@ -280,7 +276,10 @@ export namespace tapDance {
       support,
     );
   }
-  /** A flat step that takes the weight: when it lands and where its ankle is set. */
+  /**
+   * A flat step that takes the weight: when it lands and where its ankle is
+   * set.
+   */
   interface IFlat {
     /** Action seconds it lands. */
     at: number;
@@ -289,23 +288,14 @@ export namespace tapDance {
     ankle: IAutoMovieVector3;
   }
 
-  /** A span with no foot bearing, action seconds. */
-  interface IFlight {
-    /** When the last bearing foot leaves. */
-    from: number;
-
-    /** When the next lands. */
-    to: number;
-  }
-
   /**
-   * The deepest crouch below straight legs at which a foot set down flat
-   * keeps its shank within the unloaded ankle's dorsal range, less the
-   * walk's margin (`ANKLE_DORSIFLEXION.unloaded − walkLeg.ANKLE`), with the
-   * hip `ahead` of the ankle along the heading: the knee `s` from the ankle
-   * at that lean φ, the hip `t` from the knee, so the hip stands
-   * `H = s·cos φ + √(t² − (ahead − s·sin φ)²)` above the ankle at least
-   * (law of cosines on the leg's two segments).
+   * The deepest crouch below straight legs at which a foot set down flat keeps
+   * its shank within the unloaded ankle's dorsal range, less the walk's margin
+   * (`ANKLE_DORSIFLEXION.unloaded − walkLeg.ANKLE`), with the hip `ahead` of
+   * the ankle along the heading: the knee `s` from the ankle at that lean φ,
+   * the hip `t` from the knee, so the hip stands `H = s·cos φ + √(t² − (ahead −
+   * s·sin φ)²)` above the ankle at least (law of cosines on the leg's two
+   * segments).
    */
   function flat(body: IAutoMovieMotionHumanBody, ahead: number): number {
     const t: number = body.measure.thigh;
@@ -346,7 +336,7 @@ export namespace tapDance {
   ): IAutoMovieMotionHumanFoot.IPlacement {
     const heading: number = HumanFoot.heading(moved.rotation);
     if (mode === "flat") return moved;
-    const socket: "ball" | "heel" = mode;
+    const socket: SetSocket = mode;
     return HumanFoot.pivot(
       body,
       side,
@@ -355,53 +345,6 @@ export namespace tapDance {
       heading,
       mode === "ball" ? -PITCH : PITCH,
     );
-  }
-
-  /** Where no foot bears between its keys. */
-  function unsupported(
-    keys: Record<
-      AutoMovieHumanSide,
-      readonly IAutoMovieMotionHumanDanceFootKey[]
-    >,
-    end: number,
-  ): IFlight[] {
-    const spans: (
-      list: readonly IAutoMovieMotionHumanDanceFootKey[],
-    ) => IFlight[] = (
-      list: readonly IAutoMovieMotionHumanDanceFootKey[],
-    ): IFlight[] =>
-      list
-        .filter((k: IAutoMovieMotionHumanDanceFootKey): boolean => k.bears)
-        .map(
-          (k: IAutoMovieMotionHumanDanceFootKey): IFlight => ({
-            from: k.at,
-            to: Math.min(end, k.leave),
-          }),
-        );
-    const borne: IFlight[] = [...spans(keys.left), ...spans(keys.right)].sort(
-      (a: IFlight, b: IFlight): number => a.from - b.from,
-    );
-    const flights: IFlight[] = [];
-    let covered: number = 0;
-    for (const span of borne) {
-      if (span.from > covered + 1e-9)
-        flights.push({ from: covered, to: span.from });
-      covered = Math.max(covered, span.to);
-    }
-    return flights;
-  }
-
-  /** The hips' rise on the ballistic arc of the flight they are in. */
-  function hop(flights: readonly IFlight[], t: number): number {
-    for (const f of flights)
-      if (t > f.from && t < f.to) {
-        const u: number = (t - f.from) / (f.to - f.from);
-        const span: number = f.to - f.from;
-        return (
-          4 * ((AutoMovieGravity.STANDARD * span * span) / 8) * u * (1 - u)
-        );
-      }
-    return 0;
   }
 
   /** A word with its first letter capital. */

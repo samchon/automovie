@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryLinkedTrack } from "../../index";
 
-/** Linked-only appearance populations and explicit duplicate-view exclusions.
- */
+/** Linked-only appearance populations and explicit duplicate-view exclusions. */
 export interface IAutoMovieRecoveryTrackLinkage {
   /** Owned nonconflicting components, before any geometric point acceptance. */
   tracks: IAutoMovieRecoveryLinkedTrack[];

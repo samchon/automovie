@@ -1,21 +1,3 @@
-# src/kinematics/swivelArcs.ts#swivelArcs
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States why each reading is a sinusoid, how one is fitted, where it exceeds a margin and what a union of arcs answers.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A sinusoid is its three coefficients and an arc its two ends, degrees; a union is disjoint arcs over a turn and the one after it, or every swivel.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two records and the fit, the two combinations, the arc of one sinusoid, the union and its two readings: what `boxExcludedSwivels` and a point's bound share.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Exact roots, never sampling; the margin is the caller's.
-
 # src/kinematics/swivelArcs.ts#swivelArcs.fitted
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -127,6 +109,64 @@ Constant work.
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
 Shared by every bound.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A pure function that retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.least
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result's unit and range and the constant case.
+
+## @evidence contracts/development/implementation.md#principled-implementation `a + R cos(ψ - φ)` is least where the cosine is -1, at `φ + 180`, which `atan2(-c, -b)` gives in one call.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One test and one `atan2`.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Exact; a constant returns none rather than an arbitrary swivel.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its argument.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A pure function that retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.lowest
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result and when the trough is taken.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A sinusoid has one trough a turn, so over an interval it is least at that trough when the interval holds it, and otherwise at an end.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One test and two evaluations.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Exact; never sampled between the ends.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its arguments.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -249,3 +289,63 @@ Reads `union`'s cover.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 A pure function that retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.complement
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result's form, the gap across 360 and the empty and full cases.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Merged arcs are disjoint and ordered over the turn, so the swivels outside them are the gaps between neighbours and the one across 360.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Clip to the turn, take the gaps, keep each in the turn from 0.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The ends are the union's own, never resampled.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the few merged arcs.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its argument.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh list and retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.holding
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result's turn and the case with none.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+An arc no wider than a turn holds a swivel exactly where the swivel, taken into the arc's turn, lies between its ends.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One shift and one comparison an arc.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+None.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the few arcs.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh arc and retains nothing.

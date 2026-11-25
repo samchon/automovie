@@ -11,13 +11,9 @@ import type {
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
-/**
- * Shared projective G2 geometry at an already selected numeric clock.
- */
+/** Shared projective G2 geometry at an already selected numeric clock. */
 export namespace AutoMovieConicHermiteField {
-  /**
-   * Stable logarithm of a positive sum with a primal scaling gauge.
-   */
+  /** Stable logarithm of a positive sum with a primal scaling gauge. */
   export function logSum<T>(
     ops: IAutoMovieAlgebra<T>,
     values: readonly T[],
@@ -29,7 +25,10 @@ export namespace AutoMovieConicHermiteField {
     return sumAtMaximum(ops, values, largest);
   }
 
-  /** Preserve the ordered log-sum arithmetic while reusing an already read primal gauge. */
+  /**
+   * Preserve the ordered log-sum arithmetic while reusing an already read
+   * primal gauge.
+   */
   function sumAtMaximum<T>(
     ops: IAutoMovieAlgebra<T>,
     values: readonly T[],
@@ -42,9 +41,7 @@ export namespace AutoMovieConicHermiteField {
     return ops.add(gauge, ops.log(sum));
   }
 
-  /**
-   * Rational cubic point at a fixed log-odds clock or an explicit endpoint.
-   */
+  /** Rational cubic point at a fixed log-odds clock or an explicit endpoint. */
   export function projective<T>(
     ops: IAutoMovieAlgebra<T>,
     patch: IAutoMovieConicHermite.IPatch<T>,
@@ -96,9 +93,7 @@ export namespace AutoMovieConicHermiteField {
     };
   }
 
-  /**
-   * Unit tangent from positive projective pair sums.
-   */
+  /** Unit tangent from positive projective pair sums. */
   export function direction<T>(
     ops: IAutoMovieAlgebra<T>,
     patch: IAutoMovieConicHermite.IPatch<T>,
@@ -152,17 +147,12 @@ export namespace AutoMovieConicHermiteField {
     };
   }
 
-  /**
-   * Prepared G2 source partials at the final primal clock.
-   */
+  /** Prepared G2 source partials at the final primal clock. */
   export function read(
     patch: IAutoMovieConicHermite.IPatch<IAutoMovieConicFieldJet.IJet>,
     ray: IAutoMovieConicArc.IRay,
   ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
-    if (
-      ray.position === "interior" &&
-      (ray.clock === null || !Number.isFinite(ray.clock))
-    )
+    if (ray.position === "interior" && ray.clock === null)
       return {
         kind: "failure",
         detail:
@@ -189,9 +179,7 @@ export namespace AutoMovieConicHermiteField {
     );
   }
 
-  /**
-   * Numeric phase geometry from the final shared projective reading.
-   */
+  /** Numeric phase geometry from the final shared projective reading. */
   export function ray(
     patch: IAutoMovieConicHermite.IPatch,
     reading: IAutoMovieConicHermiteField.IProjective<number>,
@@ -248,15 +236,6 @@ export namespace AutoMovieConicHermiteField {
             patch.extent - patch.curvature * patch.extent * patch.extent,
           ]
         : polarGeometry(reading.point, directionValue.tangent, logCurvature);
-    if (
-      ![
-        ...reading.point,
-        ...directionValue.tangent,
-        ...radial,
-        logCurvature,
-      ].every(Number.isFinite)
-    )
-      return null;
 
     return {
       point: reading.point,
@@ -270,7 +249,10 @@ export namespace AutoMovieConicHermiteField {
     };
   }
 
-  /** Polar slope and second derivative from unit direction and logarithmic geometric curvature. */
+  /**
+   * Polar slope and second derivative from unit direction and logarithmic
+   * geometric curvature.
+   */
   function polarGeometry(
     point: readonly [number, number],
     tangent: readonly [number, number],
@@ -281,7 +263,7 @@ export namespace AutoMovieConicHermiteField {
       (point[0] / rho) * tangent[0] + (point[1] / rho) * tangent[1];
     const cross: number =
       (point[0] / rho) * tangent[1] - (point[1] / rho) * tangent[0];
-    if (!(Number.isFinite(cross) && cross > 0)) return [NaN, NaN, NaN];
+    if (!(cross > 0)) return [NaN, NaN, NaN];
     const ratio: number = dot / cross;
     return [
       rho,

@@ -12,15 +12,14 @@ import { Vector3 } from "../math/Vector3";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
- * Derive a closed room-path receipt from explicit space bindings and an acoustic profile.
+ * Derive a closed room-path receipt from explicit space bindings and an
+ * acoustic profile.
  */
 export const deriveAutoMovieInteriorAcousticResponse: (
   props: IAutoMovieDeriveInteriorAcousticResponse.IProps,
 ) => IAutoMovieProductionAcousticResponse = (
   props: IAutoMovieDeriveInteriorAcousticResponse.IProps,
 ): IAutoMovieProductionAcousticResponse => {
-  if (props.profile.id.trim().length === 0)
-    throw new Error("acoustic response profile id must not be blank");
   if (SHA256_DIGEST_PATTERN.test(props.inputRevision) === false)
     throw new Error(
       "acoustic response input revision must be a SHA-256 digest",
@@ -146,7 +145,10 @@ export const deriveAutoMovieInteriorAcousticResponse: (
   };
 };
 
-/** Read one fixed analyzer metric key and return null for a sealed metric gap; the analyzer's complete fixed-key population is required. */
+/**
+ * Read one fixed analyzer metric key and return null for a sealed metric gap;
+ * the analyzer's complete fixed-key population is required.
+ */
 const metricValue: (
   metrics: IAutoMovieAnalysisMetric[],
   key: string,
@@ -161,7 +163,10 @@ const metricValue: (
     (metric: IAutoMovieAnalysisMetric): boolean => metric.key === key,
   )!.value ?? null;
 
-/** Read the corresponding fixed-key gap reason only after the response branch established that metric is unavailable. */
+/**
+ * Read the corresponding fixed-key gap reason only after the response branch
+ * established that metric is unavailable.
+ */
 const metricGap: (
   metrics: IAutoMovieAnalysisMetric[],
   key: string,

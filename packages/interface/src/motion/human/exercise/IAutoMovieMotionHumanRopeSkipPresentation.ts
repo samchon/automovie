@@ -3,9 +3,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieRenderSoftPropFrame } from "../../../render/IAutoMovieRenderSoftPropFrame";
 import type { IAutoMovieMotionHumanPerformance } from "../perform/IAutoMovieMotionHumanPerformance";
 
-/**
- * Dimensions and film address of a driven skipping rope.
- */
+/** Dimensions and film address of a driven skipping rope. */
 export interface IAutoMovieMotionHumanRopeSkipPresentation {
   /** Performance containing the registered `ropeSkip` action. */
   performance: IAutoMovieMotionHumanPerformance;
@@ -25,22 +23,27 @@ export interface IAutoMovieMotionHumanRopeSkipPresentation {
   /** Cord radius, in metres. */
   radius: number;
 
-  /** Length of either rigid handle, in metres. Its barrel is centered at the origin on local Z. */
+  /**
+   * Length of either rigid handle, in metres. Its barrel is centered at the
+   * origin on local Z.
+   */
   handleLength: number;
 
-  /** Rigid handle diameter in metres, used to place the barrel beside the palm. Defaults to the measured 7/8-inch handle. */
+  /**
+   * Rigid handle diameter in metres, used to place the barrel beside the palm.
+   * Defaults to the measured 7/8-inch handle.
+   */
   handleDiameter?: number;
 }
 
-/**
- * Presentation records for a driven rope.
- */
+/** Presentation records for a driven rope. */
 export namespace IAutoMovieMotionHumanRopeSkipPresentation {
-  /**
-   * Rigid handle placements and the derived tube path at one film instant.
-   */
+  /** Rigid handle placements and the derived tube path at one film instant. */
   export interface IFrame {
-    /** Derived unindexed cord surface, ready for the host's soft-prop draw binding. */
+    /**
+     * Derived unindexed cord surface, ready for the host's soft-prop draw
+     * binding.
+     */
     cord: IAutoMovieRenderSoftPropFrame;
 
     /** Rigid barrels fitted to each grasp, with the cord attached on local +Z. */

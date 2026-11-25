@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -27,35 +28,37 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { courtStroke } from "./courtStroke";
+import { racketClock } from "./racketClock";
 import { racketStance } from "./racketStance";
 
+/** The alternatives of `PlanGripBend2`'s site. */
+type PlanGripBend2 = "front" | "forward";
+
+/** The alternatives of `PlanGripBend`'s site. */
+type PlanGripBend = "front" | "forward";
+
 /**
- * Racket stroke dispatch (#3725, #3726) and the original solo racket or
- * golf positions (#3249). The following positions use an implied handle.
+ * Racket stroke dispatch and the original solo racket or golf positions. The
+ * following positions use an implied handle.
  *
  * - Ready position: the feet step in sequence to two shoulder widths, the pelvis
- *   lowers by 4 % of stature and the trunk leans 15 degrees, the racket hand
- *   on the handle at waist height before the body and the other hand a hand
- *   ahead on the throat (provisional places).
+ *   lowers by 4 % of stature and the trunk leans 15 degrees, the racket hand on
+ *   the handle at waist height before the body and the other hand a hand ahead
+ *   on the throat (provisional places).
  * - Split step: from the ready position's width, a small hop of 3 % of the
- *   stature (provisional) in 0.3 s, landing a quarter shoulder width wider
- *   on each side, the step that precedes every stroke (Elliott et al. 1986
- *   place it before the serve's backswing; here before any stroke).
- * - Golf address: the trunk hinges 35 degrees at the hips over slightly
- *   flexed knees (provisional), the two hands together on the grip hanging
- *   `HANG` of the arm below the shoulders, and the waggle moves them a
- *   twentieth of the arm forward and back twice.
+ *   stature (provisional) in 0.3 s, landing a quarter shoulder width wider on
+ *   each side, the step that precedes every stroke (Elliott et al. 1986 place
+ *   it before the serve's backswing; here before any stroke).
+ * - Golf address: the trunk hinges 35 degrees at the hips over slightly flexed
+ *   knees (provisional), the two hands together on the grip hanging `HANG` of
+ *   the arm below the shoulders, and the waggle moves them a twentieth of the
+ *   arm forward and back twice.
  *
  * Each is a phrase: into the position in 0.6 s, the stroke (the hop or the
  * waggle), held, and back in 0.6 s.
  *
- * Court strokes delegate to `courtStroke`, which can read a previously
- * held racket's frame and targets a timed contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each position's geometry, timing, sources and provisional values, and the gaps with their owner.
- * @evidence contracts/development/design.md#principled-representation A law record of crouch, leg, root and placed-arm rows over one phrase.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares of the body and named grid places.
+ * Court strokes delegate to `courtStroke`, which can read a previously held
+ * racket's frame and targets a timed contact.
  */
 export namespace racket {
   /** The action's name. */
@@ -70,7 +73,10 @@ export namespace racket {
       run: ["fromRelax", "smooth"],
     });
 
-  /** How far below the shoulders the golfer's upper hand grips, arm lengths (provisional): the elbows a little soft. */
+  /**
+   * How far below the shoulders the golfer's upper hand grips, arm lengths
+   * (provisional): the elbows a little soft.
+   */
   export const HANG: number = 0.8;
 
   /**
@@ -79,14 +85,6 @@ export namespace racket {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, feet and hands on its envelope, the hop or the waggle on the stroke.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, shared rows, then one branch per position.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each hand supplies the actual phrase span to the existing arm trajectory planner, preparing reach/hold/return work once; the original crouch, footwork and active-time goals remain with their shared primitives.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, leg arc and placed arm's existing span-driven planner rather than re-entering deprecated share-only arm clearance on every displayed second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRacket.IParams>,
@@ -106,23 +104,13 @@ export namespace racket {
       body.measure;
     const hold: number = p.hold ?? 0.6;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
-    const side: "left" | "right" = p.hand ?? "right";
-    const other: "left" | "right" = side === "right" ? "left" : "right";
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
-        prepare: 0.6,
-        attack: p.kind === "golfAddress" ? 1.2 : 0.3,
-        hold,
-        retract: 0.6,
-      }),
-      modifiers,
-      {
-        holds: ["strokeEnd"],
-        fixed: p.kind === "splitStep" ? ["strokeStart"] : [],
-      },
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
     );
+    const side: AutoMovieHumanSide = p.hand ?? "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
+    const clock: IAutoMovieMotionClock = racketClock(p.kind, hold, modifiers);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
@@ -147,19 +135,19 @@ export namespace racket {
     let contacts: IAutoMovieMotionHumanContactWindow[] =
       AutoMovieMotionHumanBase.plants();
     const grip: (
-      hand: "left" | "right",
+      hand: AutoMovieHumanSide,
       place: (
         posture: IAutoMovieMotionHumanPosture,
         s: number,
       ) => IAutoMovieVector3,
-      bend: "front" | "forward",
+      bend: PlanGripBend,
     ) => IAutoMovieMotionHumanPrimitive[] = (
-      hand: "left" | "right",
+      hand: AutoMovieHumanSide,
       place: (
         posture: IAutoMovieMotionHumanPosture,
         s: number,
       ) => IAutoMovieVector3,
-      bend: "front" | "forward",
+      bend: PlanGripBend2,
     ): IAutoMovieMotionHumanPrimitive[] =>
       AutoMovieMotionHumanPlaced.arm({
         body,
@@ -197,7 +185,7 @@ export namespace racket {
       );
       contacts = stance.contacts;
       if (p.implement !== undefined)
-        held = AutoMovieMotionHumanHeld.of(context, side, p.implement);
+        held = AutoMovieMotionHumanHeld(context, side, p.implement);
       primitives.push(
         ...stance.primitives,
         ...grip(

@@ -12,7 +12,8 @@ import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 /**
  * Fit a normalized DLT image homography and its independently representable
  * inverse for a competing planar/pure-rotation explanation. It maps first-image
- * pixel centres to second-image pixel centres; it does not identify scene depth.
+ * pixel centres to second-image pixel centres; it does not identify scene
+ * depth.
  */
 export function fitRecoveryHomography(
   first: Parameters<IAutoMovieRecoveryHomographyFittingOperation.Operation>[0],
@@ -45,7 +46,7 @@ export function fitRecoveryHomography(
   const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
     decomposeAutoMovieSingularMatrix(rows, options);
   const ratio: number = factors.singularValues[7]! / factors.singularValues[0]!;
-  if (!Number.isFinite(ratio) || ratio < minimumRatio)
+  if (factors.singularValues[0] === 0 || ratio < minimumRatio)
     throw new Error("camera-homography: rank-degenerate design");
   // Hartley normalization is a similarity: its inverse can be written directly
   // without a general matrix inverse or fitting any additional observations.
@@ -66,8 +67,7 @@ export function fitRecoveryHomography(
     AutoMovieMatrix3.multiply(factors.rightColumns[8]!, a.transform),
   );
   const norm: number = Math.hypot(...raw);
-  if (!(norm > 0) || !Number.isFinite(norm))
-    throw new Error("camera-homography: nonrepresentable map");
+  if (!(norm > 0)) throw new Error("camera-homography: nonrepresentable map");
   const matrix: number[] = raw.map((value: number): number => value / norm);
   const singular: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
     decomposeAutoMovieSingularMatrix(
@@ -89,7 +89,5 @@ export function fitRecoveryHomography(
           (singular.rightColumns[at]![row]! *
             singular.leftColumns[at]![column]!) /
           singular.singularValues[at]!;
-  if (!inverse.every(Number.isFinite))
-    throw new Error("camera-homography: nonrepresentable inverse");
   return { matrix, inverse, designSingularRatio: ratio };
 }

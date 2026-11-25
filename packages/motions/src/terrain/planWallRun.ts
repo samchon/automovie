@@ -1,9 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -12,8 +7,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanLieDown,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionHumanWallRun,
@@ -23,30 +16,47 @@ import type {
 } from "@automovie/interface";
 
 import { support } from "../actions/support";
-import { getUp } from "../floor/getUp";
 import { coverWall } from "../cover/coverWall";
+import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { GymnasticsFlight } from "../sport/GymnasticsFlight";
+import { planWallRunFlight } from "./planWallRunFlight";
 
-/** How far from the wall's face the take-off foot plants, hip heights (provisional: a step in, under half a leg). */
+/**
+ * How far from the wall's face the take-off foot plants, hip heights
+ * (provisional: a step in, under half a leg).
+ */
 const STEP_IN: number = 0.45;
 
-/** The first wall step's toe height, hip heights (provisional: a running step planted about knee high). */
+/**
+ * The first wall step's toe height, hip heights (provisional: a running step
+ * planted about knee high).
+ */
 const FIRST: number = 0.55;
 
 /** The second wall step's toe height, hip heights (provisional). */
 const SECOND: number = 1.05;
 
-/** The toe joint's distance off the face, metres (provisional: the sole's thickness ahead of the joint). */
+/**
+ * The toe joint's distance off the face, metres (provisional: the sole's
+ * thickness ahead of the joint).
+ */
 const SOLE: number = 0.03;
 
-/** The toes' depth below the hands that grip the top in a hang on the face, statures (provisional: the body near straight along the wall, its arms bent). */
+/**
+ * The toes' depth below the hands that grip the top in a hang on the face,
+ * statures (provisional: the body near straight along the wall, its arms
+ * bent).
+ */
 const HANG: number = 0.95;
 
-/** Stepping in and onto the wall: the arms carried forward and out from the hips, clear of the thigh the stepping leg raises and of each other (provisional angles, degrees). */
+/**
+ * Stepping in and onto the wall: the arms carried forward and out from the
+ * hips, clear of the thigh the stepping leg raises and of each other
+ * (provisional angles, degrees).
+ */
 const STEPPING: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -58,7 +68,11 @@ const STEPPING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** Hanging from the top: the arms up and out over the head, the elbows a little bent and clear of it, the fists closed on the edge and the legs hanging (provisional angles, degrees). */
+/**
+ * Hanging from the top: the arms up and out over the head, the elbows a little
+ * bent and clear of it, the fists closed on the edge and the legs hanging
+ * (provisional angles, degrees).
+ */
 const HANGING: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -76,7 +90,10 @@ const HANGING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** The cat hang: hanging from the top with both feet drawn up onto the face (provisional angles, degrees). */
+/**
+ * The cat hang: hanging from the top with both feet drawn up onto the face
+ * (provisional angles, degrees).
+ */
 const CAT: IAutoMovieMotionHumanLieDown.IPose = {
   ...HANGING,
   joints: {
@@ -88,38 +105,37 @@ const CAT: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** Static friction of a shoe sole on a wall, dimensionless (provisional: rubber on concrete). */
+/**
+ * Static friction of a shoe sole on a wall, dimensionless (provisional: rubber
+ * on concrete).
+ */
 const FRICTION: number = 0.8;
 
 /** Seconds per support change (provisional: a running wall step). */
 const BEAT: number = 0.35;
 
-/** Seconds the opening stance holds both feet where they stand (provisional: the edge rescue's own opening stance). */
+/**
+ * Seconds the opening stance holds both feet where they stand (provisional: the
+ * edge rescue's own opening stance).
+ */
 const SET: number = 0.3;
 
 /**
- * Use a wall's face as a brief foot support: a wall step plants one foot on
- * the face beside the other on the floor; a wall run plants it, pushes off
- * it to catch the wall's top edge with both hands, hangs, and walks both
- * feet onto the face, a cat hang. The shared support law fits the stances on points of the named
- * face and top; standing, the body keeps the upright stood pose. Every foot window on the face is then checked against its
- * friction cone while the foot carries the body alone, before the hands
- * take the top: the line from the planted toe to the hips must lean off the
- * face's normal by no more than `atan(FRICTION)` (a static stand-in for the
- * contact force's direction). A top beyond the hands' reach from the first
- * step is refused with the shortfall.
+ * Use a wall's face as a brief foot support: a wall step plants one foot on the
+ * face beside the other on the floor; a wall run plants it, pushes off it to
+ * catch the wall's top edge with both hands, hangs, and walks both feet onto
+ * the face, a cat hang. The shared support law fits the stances on points of
+ * the named face and top; standing, the body keeps the upright stood pose.
+ * Every foot window on the face is then checked against its friction cone while
+ * the foot carries the body alone, before the hands take the top: the line from
+ * the planted toe to the hips must lean off the face's normal by no more than
+ * `atan(FRICTION)` (a static stand-in for the contact force's direction). A top
+ * beyond the hands' reach from the first step is refused with the shortfall.
  *
  * @param context The action's context, standing before the wall and facing it.
  * @returns The wall step or run.
- * @throws {HumanRefusal} For a missing top, an unreachable top or a wall contact outside its friction cone.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both moves, the fit, the cone check with its stand-in and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Contacts are points of the named face and top; the support law fits and orders them; the cone test is the Coulomb bound on the stand-in force line.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Stage the points, build the stances, plan, then check the face windows.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact outside the cone or a top out of reach refuses; the constants are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms A handful of stances fitted once; one posture resolve per face window for the cone check.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The staged points are computed once and looked up by name.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the staged points for the plan's lifetime.
+ * @throws {HumanRefusal} For a missing top, an unreachable top or a wall
+ *   contact outside its friction cone.
  */
 export function planWallRun(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWallRun.IParams>,
@@ -198,9 +214,19 @@ export function planWallRun(
   };
   const stances: IAutoMovieMotionHumanSupport.IStance[] = [
     // Both feet where they stand, so the step in is a swing, not a slide.
-    { contacts: [foot(lead), foot(trail)], seconds: SET, event: "set", prefer: getUp.POSES.stood },
+    {
+      contacts: [foot(lead), foot(trail)],
+      seconds: SET,
+      event: "set",
+      prefer: getUp.POSES.stood,
+    },
     // The take-off foot steps in to the wall, where the wall step reaches.
-    { contacts: [foot(lead), takeOff], seconds: BEAT, event: "approach", prefer: STEPPING },
+    {
+      contacts: [foot(lead), takeOff],
+      seconds: BEAT,
+      event: "approach",
+      prefer: STEPPING,
+    },
     {
       contacts: [foot(lead, FIRST * measure.hipHeight), takeOff],
       seconds: BEAT,
@@ -210,20 +236,7 @@ export function planWallRun(
   ];
   if (p.kind === "run") {
     const top: IAutoMovieVector3 = topEdge(context, p.wall, p.top);
-    const reach: number =
-      FIRST * measure.hipHeight +
-      measure.shoulderHeight +
-      measure.upperArm +
-      measure.forearm;
-    if (top.y > reach)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "top",
-        value: p.top,
-        feasible: { kind: "range", minimum: 0, maximum: reach, unit: "m" },
-        reason: `the wall's top is ${(top.y - reach).toFixed(3)} m beyond the hands' reach from the wall step`,
-        fix: "run at a lower wall",
-      });
+    planWallRun.admitTop(top.y, floor, measure, p.top);
     // Each hand takes the top on its own side, the climber's left read off
     // the feet as they enter, whichever way the face's axis runs: a hand
     // sent to the other side crosses the forearms.
@@ -302,7 +315,7 @@ export function planWallRun(
   // hang's under standard gravity, its arms reaching for the top over the
   // first half of the flight and the rest of it shaping into the hang.
   const shown: IAutoMovieMotionHumanActionPlan =
-    p.kind === "run" ? flown(body, plan) : plan;
+    p.kind === "run" ? planWallRunFlight(body, plan) : plan;
 
   // Each foot on the face stays within its friction cone while it carries
   // the body alone, at the middle of its window before the hands take the
@@ -351,99 +364,36 @@ export function planWallRun(
   return { ...shown, base: { kind: "standing" } };
 }
 
-/**
- * A wall run's catch flown: between the wall step's key and the hang's the
- * support plan's posture is replaced by a projectile of the root under
- * standard gravity that leaves the one key and arrives at the other in the
- * stances' time, the joints taken from both keys' solved angles, the arms
- * reaching for the top over the flight's first half.
- *
- * @param body The body.
- * @param plan The support plan with its `wallStep` and `catch` events.
- * @returns The plan with the catch flown.
- */
-function flown(
-  body: IAutoMovieMotionHumanBody,
-  plan: IAutoMovieMotionHumanActionPlan,
-): IAutoMovieMotionHumanActionPlan {
-  const at: (name: string) => number = (name: string): number =>
-    plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === name)!
-      .share * plan.duration;
-  const t0: number = at("wallStep");
-  const t1: number = at("catch");
-  const span: number = t1 - t0;
-  const from: IAutoMovieMotionHumanPosture = plan.posture(t0);
-  const to: IAutoMovieMotionHumanPosture = plan.posture(t1);
-  const a: IAutoMovieMotionHumanPosture["joints"] = GymnasticsFlight.frozen(
-    body,
-    from,
-  ).joints;
-  const b: IAutoMovieMotionHumanPosture["joints"] = GymnasticsFlight.frozen(
-    body,
-    to,
-  ).joints;
-  const g: number = AutoMovieGravity.STANDARD;
-  // The take-off velocity that lands the projectile on the hang's root.
-  const v: IAutoMovieVector3 = {
-    x: (to.root.x - from.root.x) / span,
-    y: (to.root.y - from.root.y + 0.5 * g * span * span) / span,
-    z: (to.root.z - from.root.z) / span,
-  };
-  // Nothing bears in the air: a contact still declared into the flight (the
-  // feet leaving the wall and the floor) ends at the take-off, and one
-  // declared from within it (the hands) starts at the catch.
-  const off: number = t0 / plan.duration;
-  const on: number = t1 / plan.duration;
-  const contacts: IAutoMovieMotionHumanContactWindow[] = plan.contacts.map(
-    (window: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow =>
-      window.from < on && window.to > off
-        ? window.from <= off
-          ? { ...window, to: off }
-          : { ...window, from: on }
-        : window,
-  );
-  return {
-    ...plan,
-    contacts,
-    posture: (
-      seconds: number,
-      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): IAutoMovieMotionHumanPosture => {
-      if (!(seconds > t0 && seconds < t1))
-        return plan.posture(seconds, channels, resolution, projection);
-      const tau: number = seconds - t0;
-      const s: number = tau / span;
-      const shaped: number = minimumJerk.share(s);
-      const reached: number = minimumJerk.share(Math.min(1, 2 * s));
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-      for (const bone of new Set([...Object.keys(a), ...Object.keys(b)]) as Set<
-        keyof IAutoMovieMotionHumanPosture["joints"]
-      >) {
-        const p: readonly [number, number, number] = a[bone] ?? [0, 0, 0];
-        const q: readonly [number, number, number] = b[bone] ?? [0, 0, 0];
-        const w: number = /Arm$/.test(bone) ? reached : shaped;
-        joints[bone] = [
-          p[0] + (q[0] - p[0]) * w,
-          p[1] + (q[1] - p[1]) * w,
-          p[2] + (q[2] - p[2]) * w,
-        ];
-      }
-      return {
-        root: {
-          x: from.root.x + v.x * tau,
-          y: from.root.y + v.y * tau - 0.5 * g * tau * tau,
-          z: from.root.z + v.z * tau,
-        },
-        yaw: from.yaw + (to.yaw - from.yaw) * shaped,
-        pitch: from.pitch + (to.pitch - from.pitch) * shaped,
-        roll: from.roll + (to.roll - from.roll) * shaped,
-        joints,
-        limbs: {},
-      };
-    },
-  };
+/** Admission of the top from the entering floor of the wall-run stage. */
+export namespace planWallRun {
+  /** Measurements setting the furthest vertical hand contact. */
+  export type IReachMeasure = Pick<
+    IAutoMovieMotionHumanBody["measure"],
+    "hipHeight" | "shoulderHeight" | "upperArm" | "forearm"
+  >;
+
+  /** Require the top to be in reach from the first wall step. */
+  export function admitTop(
+    worldHeight: number,
+    floor: number,
+    measure: IReachMeasure,
+    id: string,
+  ): void {
+    const reach: number =
+      FIRST * measure.hipHeight +
+      measure.shoulderHeight +
+      measure.upperArm +
+      measure.forearm;
+    if (worldHeight > floor + reach)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "top",
+        value: id,
+        feasible: { kind: "range", minimum: 0, maximum: reach, unit: "m" },
+        reason: `the wall's top is ${(worldHeight - floor - reach).toFixed(3)} m beyond the hands' reach from the wall step`,
+        fix: "run at a lower wall",
+      });
+  }
 }
 
 /** The middle of a wall's top front edge, world metres. */

@@ -1,36 +1,29 @@
 import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 
 /**
- * The coupled groups of a simulated window at each step (#3834): performers
- * who grip each other while both still track are fitted together against
- * one snapshot, each connected set of such pairs one group.
+ * The coupled groups of a simulated window at each step: performers who grip
+ * each other while both still track are fitted together against one snapshot,
+ * each connected set of such pairs one group.
  *
  * A one-way grip is no group: its receiver is read where the solver put it,
- * which the engine's individual fit already does. The label names the
- * group's members, so a step's group is the same string wherever it holds.
+ * which the engine's individual fit already does. The label names the group's
+ * members, so a step's group is the same string wherever it holds.
  *
  * @param grips Every grip of the window.
- * @param releases Each simulated performer's release step; past the interval count for one never released.
+ * @param releases Each simulated performer's release step; past the interval
+ *   count for one never released.
  * @param end The last step the solver may own a segment.
  * @returns Each step's labels by performer; a step without a group is absent.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States who is grouped, why a one-way grip is not, and the label.
- * @evidence contracts/development/implementation.md#principled-implementation The engine admits a group only with reciprocal adjustable receivers (`preparePhysicalCoupledTargetSchedule`), so a group is a connected set of mutual grips between tracking bodies, found by union-find.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Per step: the active grips, their mutual pairs joined, the sets labelled.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A released performer joins no group, since the engine refuses an inactive member.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(S * G^2) for S steps and G grips, G a handful per window.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh maps; retains nothing.
  */
 export function coupleHumanSimulationGrips(
-  grips: readonly bindHumanSimulationGrips.IGrip[],
+  grips: readonly coupleHumanSimulationGrips.IGrip[],
   releases: ReadonlyMap<string, number>,
   end: number,
 ): Map<number, Map<string, string>> {
   const groups: Map<number, Map<string, string>> = new Map();
   for (let step: number = 1; step <= end; step++) {
-    const active: readonly bindHumanSimulationGrips.IGrip[] = grips.filter(
-      (grip: bindHumanSimulationGrips.IGrip): boolean =>
+    const active: readonly coupleHumanSimulationGrips.IGrip[] = grips.filter(
+      (grip: coupleHumanSimulationGrips.IGrip): boolean =>
         grip.from <= step &&
         step <= grip.to &&
         step < releases.get(grip.subject)! &&
@@ -44,7 +37,7 @@ export function coupleHumanSimulationGrips(
     for (const grip of active)
       if (
         active.some(
-          (other: bindHumanSimulationGrips.IGrip): boolean =>
+          (other: coupleHumanSimulationGrips.IGrip): boolean =>
             other.subject === grip.partner && other.partner === grip.subject,
         )
       ) {
@@ -68,6 +61,15 @@ export function coupleHumanSimulationGrips(
     groups.set(step, labels);
   }
   return groups;
+}
+
+/** What a coupling reads of a grip. */
+export namespace coupleHumanSimulationGrips {
+  /** A grip's two performers and its steps. */
+  export type IGrip = Pick<
+    bindHumanSimulationGrips.IGrip,
+    "subject" | "partner" | "from" | "to"
+  >;
 }
 
 /** Code-unit order of two ids, the deterministic order of a label. */

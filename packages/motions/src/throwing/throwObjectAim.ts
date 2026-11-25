@@ -50,7 +50,10 @@ interface IThrowObjectAim {
   /** The grip point at release, in world metres. */
   release: IAutoMovieVector3;
 
-  /** The optional authored implement used to transfer the grip's motion to the projectile. */
+  /**
+   * The optional authored implement used to transfer the grip's motion to the
+   * projectile.
+   */
   implement: IAutoMovieMotionHumanThrowObjectLever.IImplement | undefined;
 
   /** The released point, its velocity and the grip's share of the launch. */
@@ -59,7 +62,10 @@ interface IThrowObjectAim {
   /** The hand velocity carried through release, in world metres per second. */
   velocity: IAutoMovieVector3;
 
-  /** The acceleration phase duration, in seconds, including the carry to release. */
+  /**
+   * The acceleration phase duration, in seconds, including the carry to
+   * release.
+   */
   accelerate: number;
 
   /** The grip point immediately before the release carry, in world metres. */
@@ -80,14 +86,6 @@ interface IThrowObjectAim {
  * @param arm The combined upper arm and forearm lengths, in metres.
  * @returns The solved release and the geometry needed by the later phases.
  * @throws {HumanRefusal} When the release angle cannot reach the target.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the geometry, target, frames, output and reach refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Measures each place from the probed shoulder in arm lengths, places the grip on the trunk's release pose and solves launch through the lever.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the probe and target, place the grip at release and solve the lever before building the clock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the style and carrier probe, authored angle and target, shoulder demand, release pose and unreachable-target refusal.
- * @evidence contracts/development/implementation.md#efficient-algorithms The probe requests only the throwing shoulder. Release and lever retain their own geometry and launch solve.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the style table, precision stance, throw release and lever owners. Chamber and finish share the shoulder frame and arm length.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the resolved geometry and stance and lever readers. Probe FK retains no workspace or sample history.
  */
 export function throwObjectAim(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowObjectParams>,
@@ -171,7 +169,7 @@ export function throwObjectAim(
   const implement:
     | IAutoMovieMotionHumanThrowObjectLever.IImplement
     | undefined = context.params.implement;
-  const lever: throwObjectLever.ILever | undefined = throwObjectLever.of({
+  const lever: throwObjectLever.ILever | undefined = throwObjectLever({
     context,
     side,
     shoulder: from,

@@ -23,13 +23,14 @@ import { builtSpaceSubtree } from "./builtSpaceSubtree";
  * the state is applied, the element the carriage drives is placed, and its own
  * origin has to land inside the space or a space below it, by
  * `builtEnvironmentContainsPoint`. A space whose subtree states no volume is
- * skipped rather than failed, because a purely semantic container has no
- * stated interior for the car to be in. A stated but unbounded cell is not skipped merely because it has no finite bounds.
+ * skipped rather than failed, because a purely semantic container has no stated
+ * interior for the car to be in. A stated but unbounded cell is not skipped
+ * merely because it has no finite bounds.
  *
  * Every other member stands where its own current state puts it, the same rule
- * the swept envelope follows, so a state is measured as the one change it
- * makes rather than against a configuration nothing declared. Findings are
- * pushed at the claiming value's `serves` path.
+ * the swept envelope follows, so a state is measured as the one change it makes
+ * rather than against a configuration nothing declared. Findings are pushed at
+ * the claiming value's `serves` path.
  *
  * @param environment Building already free of validation errors.
  * @param root Violation path of the building record, `$input`.

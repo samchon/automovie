@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieHoldSurfaceGirths.ts#IAutoMovieHoldSurfaceGirths
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Named closed cage rings constrain rest perimeter in metres through live dimensionless sweep girth factors. Supported regular ring incidence is admitted by the solver; failure can leave the last evaluated trial in rigs and positions, with no whole-solve rollback.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Named closed cage rings constrain rest perimeter in metres through live dimensionless sweep girth factors.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-holdAutoMovieSurfaceGirths uses the owning network's rig resolver and rest fitter against shared control storage.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Supported regular ring incidence is admitted by the solver; failure can leave the last evaluated trial in rigs and positions, with no whole-solve rollback.
-
 # src/geometry/sweep/IAutoMovieHoldSurfaceGirths.ts#IAutoMovieHoldSurfaceGirths.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

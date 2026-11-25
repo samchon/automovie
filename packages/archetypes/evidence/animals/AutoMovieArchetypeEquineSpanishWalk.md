@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineSpanishWalk.ts#AutoMovieArchetypeEquineSpanishWalk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is kept, how a swing and its progress are read and how the limb is turned.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in and a ride out on the same clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One layer read by a scene staging the Spanish walk.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The swing is read from the displayed walk, never from a separate clock.
-
 # src/animals/AutoMovieArchetypeEquineSpanishWalk.ts#AutoMovieArchetypeEquineSpanishWalk.layer
 
 ## @evidence contracts/development/common.md#meaningful-documentation

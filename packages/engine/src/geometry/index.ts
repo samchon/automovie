@@ -1,4 +1,5 @@
 export * from "./AutoMovieMeshCrossingGeometry";
+export * from "./AutoMovieMotionBound";
 export * from "./admitAutoMovieBicubicAtlas";
 export * from "./admitSubdivisionCage";
 export * from "./assertAutoMovieDeformedTriangles";
@@ -40,8 +41,6 @@ export * from "./evaluateSubdivisionLevel";
 export * from "./extract";
 export * from "./extrudeAutoMovieProfile";
 export * from "./extrudeAutoMovieRegion";
-export * from "./finitePoint";
-export * from "./finiteVector";
 export * from "./fitAutoMovieSubdivisionDomain";
 export * from "./fitAutoMovieSubdivisionRegions";
 export * from "./inspectAutoMovieMeshTopology";

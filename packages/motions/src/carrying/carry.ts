@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -13,7 +13,6 @@ import type {
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarry,
-  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -23,72 +22,94 @@ import { walk } from "../actions/walk";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../everyday/HumanTrunk";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
+import { carryPlace } from "./carryPlace";
 import { loadedWalkPace } from "./loadedWalkPace";
 
+/** The record of `IPlanClockResult`'s site. */
+type IPlanClockResult = { name: string; seconds: number };
+
+/** The measures a load's lean reads (`carry.tilt`). */
+type TiltMeasure =
+  | "shoulderHalfWidth"
+  | "hipHalfWidth"
+  | "upperArm"
+  | "forearm"
+  | "shoulderHeight"
+  | "hipHeight";
+
+/** The measures a hanging arm reads (`carry.hang`). */
+type HangMeasure =
+  | "hipHalfWidth"
+  | "thighRadius"
+  | "forearmRadius"
+  | "shoulderHalfWidth"
+  | "upperArm"
+  | "forearm";
+
+/** The record of `IHangResult`'s site. */
+type IHangResult = {
+  upper: readonly [number, number, number];
+  lower: readonly [number, number, number];
+};
+
 /**
- * Walking to a floor point while carrying a load or pushing a wheeled one:
- * a bag in one hand, a box in both hands before the body, a child on the
- * hip, or a cart or stroller pushed by its handle.
+ * Walking to a floor point while carrying a load or pushing a wheeled one: a
+ * bag in one hand, a box in both hands before the body, a child on the hip, or
+ * a cart or stroller pushed by its handle.
  *
  * The walk is the walk law's own (`walk.plan`), the base every unclaimed
- * channel keeps, so footfalls, pelvis and the free arm's swing are the
- * walk's; the load claims the arms that hold it, which stop swinging (arm
- * swing is suppressed on the loaded side), slows a held load's walk by its
- * mass (`loadedWalkPace`), and leans the trunk by its mass,
- * a share of the body's mass in [0, 0.25] (the issue's band):
+ * channel keeps, so footfalls, pelvis and the free arm's swing are the walk's;
+ * the load claims the arms that hold it, which stop swinging (arm swing is
+ * suppressed on the loaded side), slows a held load's walk by its mass
+ * (`loadedWalkPace`), and leans the trunk by its mass, a share of the body's
+ * mass in [0, 0.25] (the issue's band):
  *
- * - `oneHand`: the loaded arm hangs straight beside the body with the hand
- *   closed on the handle, and the trunk leans laterally away from the load
- *   (Zhang, Ye and Wang 2010, Comput Methods Biomech Biomed Engin 13:339).
+ * - `oneHand`: the loaded arm hangs straight beside the body with the hand closed
+ *   on the handle, and the trunk leans laterally away from the load (Zhang, Ye
+ *   and Wang 2010, Comput Methods Biomech Biomed Engin 13:339).
  * - `twoHands`: both palms press the sides of a box as wide as 0.8 of the
  *   shoulders, held at waist height a third of the arm before the root or
- *   beyond the abdomen by the forearm's radius, and
- *   the trunk leans back over it (Chaffin et al. 2006's front load).
- * - `hip`: the hand of the hip side lies palm up under the child's seat
- *   before that hip, and the trunk leans away to the other side.
- * - `push`: both hands grip a handle at the elbow's height a forearm
- *   before the shoulders, the upper arms hanging, a shoulder width apart,
- *   and the trunk leans forward (Hoozemans et al. 1998 on handle height in
- *   pushing).
+ *   beyond the abdomen by the forearm's radius, and the trunk leans back over
+ *   it (Chaffin et al. 2006's front load).
+ * - `hip`: the hand of the hip side lies palm up under the child's seat before
+ *   that hip, and the trunk leans away to the other side.
+ * - `push`: both hands grip a handle at the elbow's height a forearm before the
+ *   shoulders, the upper arms hanging, a shoulder width apart, and the trunk
+ *   leans forward (Hoozemans et al. 1998 on handle height in pushing).
  *
- * A held load's lean is the trunk's balance over the hips (`tilt`): the
- * trunk leans until its own weight's moment about the hips matches the
- * load's, the head, arms and trunk weighing 0.678 of the body with their
- * centre 0.626 of the way from the hips to the shoulders (Winter 2009,
- * Biomechanics and Motor Control of Human Movement, Table 4.1). It is an
- * upper bound: the legs also tilt toward the free side (Zhang, Ye and Wang
- * 2010). A pushed handle's forward lean is `PUSH` degrees per unit of the
- * cart's mass share, with no located study of the slope (a push's force is
- * the cart's rolling resistance, which the law does not know). The lean is
- * shared between the chest and the spine and grows in over the first
- * `RAMP` seconds. The load
- * itself is not a prop yet, so no grip window is declared. Events: the
- * walk's. An overlay may take the head and, under a one-hand or hip load,
- * the free arm and hand (the plan's `yields`), so a wave or a phone rides a
- * carry as it rides a walk.
+ * A held load's lean is the trunk's balance over the hips (`tilt`): the trunk
+ * leans until its own weight's moment about the hips matches the load's, the
+ * head, arms and trunk weighing 0.678 of the body with their centre 0.626 of
+ * the way from the hips to the shoulders (Winter 2009, Biomechanics and Motor
+ * Control of Human Movement, Table 4.1). It is an upper bound: the legs also
+ * tilt toward the free side (Zhang, Ye and Wang 2010). A pushed handle's
+ * forward lean is `PUSH` degrees per unit of the cart's mass share, with no
+ * located study of the slope (a push's force is the cart's rolling resistance,
+ * which the law does not know). The lean is shared between the chest and the
+ * spine and grows in over the first `RAMP` seconds. The load itself is not a
+ * prop yet, so no grip window is declared. Events: the walk's. An overlay may
+ * take the head and, under a one-hand or hip load, the free arm and hand (the
+ * plan's `yields`), so a wave or a phone rides a carry as it rides a walk.
  *
- * Not yet: shoulder straps, backpacks, overhead and head loads, a level
- * tray, the child in the arms, on the shoulders or in a carrier, pulling a
- * trolley or a suitcase, the cart as a moving support (A2), changing hands
- * (`shiftLoad`) and the frozen hand offset of a held prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the base, each way of carrying with its source, the lean law, the mass band, the events and what is missing, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record composed over the walk's plan: arm rows and a trunk row on the walk's clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the balance lean with its segment data, the hanging arm, the hold places and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a share of the body's measure in its moving floor frame.
+ * Not yet: shoulder straps, backpacks, overhead and head loads, a level tray,
+ * the child in the arms, on the shoulders or in a carrier, pulling a trolley or
+ * a suitcase, the cart as a moving support (A2), changing hands (`shiftLoad`)
+ * and the frozen hand offset of a held prop.
  */
 export namespace carry {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "carry";
 
-  /** Cancel table: a carry ends into standing, putting down or handing over at its last footfall. */
+  /**
+   * Cancel table: a carry ends into standing, putting down or handing over at
+   * its last footfall.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -116,35 +137,46 @@ export namespace carry {
     ],
   };
 
-  /** The head, arms and trunk's share of the body's mass (Winter 2009, Table 4.1). */
+  /**
+   * The head, arms and trunk's share of the body's mass (Winter 2009, Table
+   * 4.1).
+   */
   export const HAT_MASS: number = 0.678;
 
-  /** Where the head, arms and trunk's centre of mass lies from the hips to the shoulders, as a share (Winter 2009, Table 4.1). */
+  /**
+   * Where the head, arms and trunk's centre of mass lies from the hips to the
+   * shoulders, as a share (Winter 2009, Table 4.1).
+   */
   export const HAT_CENTRE: number = 0.626;
 
-  /** A pushed handle's forward trunk lean per unit of the cart's mass share, degrees; no located study gives it. */
+  /**
+   * A pushed handle's forward trunk lean per unit of the cart's mass share,
+   * degrees; no located study gives it.
+   */
   export const PUSH: number = 40;
 
   /**
    * The trunk's lean that balances a held load over the hips, degrees: the
-   * head, arms and trunk tip by `asin(s d / (HAT_MASS h))`, with `s` the
-   * load's mass share, `d` the load's offset from the hips' midline (the
-   * shoulder's half width for a hanging bag, the hip's for a child, the
-   * box's reach ahead) and `h` the height of the trunk's centre above the
-   * hips. A pushed handle leans by `PUSH`.
+   * head, arms and trunk tip by `asin(s d / (HAT_MASS h))`, with `s` the load's
+   * mass share, `d` the load's offset from the hips' midline (the shoulder's
+   * half width for a hanging bag, the hip's for a child, the box's reach ahead)
+   * and `h` the height of the trunk's centre above the hips. A pushed handle
+   * leans by `PUSH`.
    *
    * @param body The body.
    * @param how How the load is held.
    * @param load The load's mass share.
-   * @returns Degrees of lean, away from a side load, back from a front one, forward over a pushed handle.
+   * @returns Degrees of lean, away from a side load, back from a front one,
+   *   forward over a pushed handle.
    */
   export function tilt(
-    body: IAutoMovieMotionHumanBody,
+    body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], TiltMeasure> },
     how: IAutoMovieMotionHumanCarry.How,
     load: number,
   ): number {
     if (how === "push") return PUSH * load;
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieMotionHumanBody["measure"], TiltMeasure> =
+      body.measure;
     const offset: number =
       how === "oneHand"
         ? m.shoulderHalfWidth
@@ -169,8 +201,7 @@ export namespace carry {
    * wrist's line, a forearm's radius in from the wrist's outer side, lies
    * beside the thigh's outer surface (the hip joint's half width plus the
    * thigh's radius), reached from the shoulder's half width over the arm's
-   * length. A body whose shoulders stand wider than that hangs its arm
-   * plumb.
+   * length. A body whose shoulders stand wider than that hangs its arm plumb.
    *
    * @param body The body.
    * @param side The loaded arm.
@@ -178,13 +209,11 @@ export namespace carry {
    * @throws {Error} When the range-of-motion table gives the elbow no flexion.
    */
   export function hang(
-    body: IAutoMovieMotionHumanBody,
+    body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], HangMeasure> },
     side: AutoMovieHumanSide,
-  ): {
-    upper: readonly [number, number, number];
-    lower: readonly [number, number, number];
-  } {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  ): IHangResult {
+    const m: Pick<IAutoMovieMotionHumanBody["measure"], HangMeasure> =
+      body.measure;
     const elbow: IAutoMovieAngleRange | null | undefined =
       DEFAULT_HUMANOID_ROM[`${side}LowerArm`]?.flexion;
     if (elbow === null || elbow === undefined)
@@ -199,114 +228,12 @@ export namespace carry {
   }
 
   /**
-   * A hand's hold place in the performer's moving floor frame.
-   *
-   * @param body The body.
-   * @param posture The posture whose root and heading carry the frame.
-   * @param how How the load is held.
-   * @param side The hand.
-   * @param loaded The loaded side.
-   * @param resolution The existing same-body FK reader when the handle rides the shoulders.
-   * @returns The point and the outward normal of the place, world, or undefined for a free hand.
-   */
-  export function place(
-    body: IAutoMovieMotionHumanBody,
-    posture: CarryPosture,
-    how: IAutoMovieMotionHumanCarry.How,
-    side: AutoMovieHumanSide,
-    loaded: AutoMovieHumanSide,
-    resolution?: FK,
-  ): IAutoMovieMotionHumanCarry.IPlaceResult {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const arm: number = m.upperArm + m.forearm;
-    const out: number = side === "left" ? 1 : -1;
-    const frame: IAutoMovieMotionHumanFrame = {
-      origin: { x: posture.root.x, y: 0, z: posture.root.z },
-      yaw: posture.yaw,
-    };
-    const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
-      v: IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
-    // A pushed handle at the elbow's height (Hoozemans et al. 1998) is held
-    // with the upper arm hanging and the forearm level, so the grip lies the
-    // shoulder less the upper arm high and a forearm ahead, a shoulder width
-    // apart. The box's and the child's places are shares of the body's
-    // measures standing in for the load's own size, which a load that is not
-    // yet a prop cannot give (the namespace's "not yet").
-    switch (how) {
-      case "twoHands":
-        return {
-          point: HumanFrame.point(frame, {
-            x: out * 0.8 * m.shoulderHalfWidth,
-            y: m.waistHeight,
-            z: Math.max(
-              arm / 3,
-              forwardAbdomen(body, posture, frame, resolution) +
-                m.forearmRadius,
-            ),
-          }),
-          normal: turn({ x: -out, y: 0, z: 0 }),
-        };
-      case "push": {
-        // The handle is carried from the shoulder line. A root-relative
-        // handle lets forward trunk inclination drive the arm through it.
-        const shoulder: IAutoMovieVector3 = measuredShoulder(
-          body,
-          posture,
-          side,
-          resolution,
-        );
-        return {
-          point: Vector3.add(
-            shoulder,
-            turn({
-              x: out * m.forearmRadius,
-              y: -m.upperArm,
-              z: m.forearm,
-            }),
-          ),
-          normal: { x: 0, y: 1, z: 0 },
-        };
-      }
-      case "hip": {
-        if (side !== loaded) return undefined;
-        // The child's seat rides beside the hip joint. The palm lies one
-        // extended finger span outside the outer thigh, leaving room for the
-        // hand that slides inward beneath the seat.
-        const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
-        const hip: IAutoMovieVector3 = HumanTrunk.resolve(
-          body,
-          trunkOf(posture),
-          undefined,
-          resolution,
-          new Set([bone]),
-        ).get(bone)!.worldPosition;
-        const palm: IAutoMovieVector3 = HumanHand.offset(
-          body,
-          side,
-          "palm",
-        ).point;
-        const finger: number = m.hand - Vector3.length(palm);
-        return {
-          point: Vector3.add(
-            hip,
-            turn({ x: out * (m.thighRadius + finger), y: 0, z: 0.2 * arm }),
-          ),
-          normal: { x: 0, y: -1, z: 0 },
-        };
-      }
-      case "oneHand":
-        return undefined;
-    }
-  }
-
-  /**
    * Plan a carry.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the load's share lies outside [0, 0.25], or the walk refuses its destination.
+   * @throws {HumanRefusal} When the load's share lies outside [0, 0.25], or the
+   *   walk refuses its destination.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarry.IParams>,
@@ -333,12 +260,12 @@ export namespace carry {
       },
     });
     const duration: number = base.duration;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       duration,
       base.events.map(
         (
           e: IAutoMovieMotionHumanActionPlan["events"][number],
-        ): { name: string; seconds: number } => ({
+        ): IPlanClockResult => ({
           name: e.name,
           seconds: e.share * duration,
         }),
@@ -498,7 +425,7 @@ export namespace carry {
             resolution?: FK,
           ): IAutoMovieHumanLimbGoal => {
             const at: NonNullable<IAutoMovieMotionHumanCarry.IPlaceResult> =
-              place(body, posture, how, side, loaded, resolution)!;
+              carryPlace(body, posture, how, side, loaded, resolution)!;
             // The child's seat is supported from the outer side, with the fingers
             // pointing inward. On a cart this same transverse direction is the
             // grip socket's bar axis, so the fingers wrap a horizontal handle.
@@ -542,57 +469,8 @@ export namespace carry {
     };
   }
 }
-
-/** Root and heading with the optional authored trunk channels that move a hand's support frame. */
-type CarryPosture = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
-  Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll" | "joints">>;
-
 /** A same-body FK loan scoped to the current posture evaluation. */
 type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
 /** One joint's immutable start-to-end interpolation. */
 type JointBlend = ReturnType<typeof blendHumanJoint.between>;
-
-/** The current abdomen's front in the walking floor frame. */
-function forwardAbdomen(
-  body: IAutoMovieMotionHumanBody,
-  posture: CarryPosture,
-  frame: IAutoMovieMotionHumanFrame,
-  resolution?: FK,
-): number {
-  const abdomen: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(
-    body,
-    trunkOf(posture),
-    "abdomen",
-    resolution,
-  );
-  return HumanFrame.local(frame, abdomen.point).z;
-}
-
-/** The pushing arm's current shoulder, carried by the actual girdle. */
-function measuredShoulder(
-  body: IAutoMovieMotionHumanBody,
-  posture: CarryPosture,
-  side: AutoMovieHumanSide,
-  resolution?: FK,
-): IAutoMovieVector3 {
-  const bone: AutoMovieHumanoidBone = `${side}UpperArm`;
-  return HumanTrunk.resolve(
-    body,
-    trunkOf(posture),
-    undefined,
-    resolution,
-    new Set([bone]),
-  ).get(bone)!.worldPosition;
-}
-
-/** A root-only caller uses the upright rest frame; a shown trunk keeps its articulation. */
-function trunkOf(posture: CarryPosture): IAutoMovieMotionHumanPosture {
-  return {
-    ...posture,
-    pitch: posture.pitch ?? 0,
-    roll: posture.roll ?? 0,
-    joints: posture.joints ?? {},
-    limbs: {},
-  };
-}

@@ -2,7 +2,7 @@ import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 
 /**
  * Apply ten bounded Ruiz diagonal equilibration passes to owned conic arrays.
- * The change x=D*xhat, z=E*zhat/c is invertible; it alters neither the authored
+ * The change x=D_xhat, z=E_zhat/c is invertible; it alters neither the authored
  * objective nor constraints. Original-coordinate residuals undo every scale.
  * Bounds and pass count retain the preceding Clarabel configuration.
  */

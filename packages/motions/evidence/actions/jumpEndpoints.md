@@ -1,21 +1,3 @@
-# src/actions/jumpEndpoints.ts#jumpEndpoints
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes unlowered phase roots, authored plants and finalized endpoint states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Start and end are canonical states of the existing planted phase demands, not separately reconstructed airborne foot poses.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One pair and one constructor keep endpoint values independent of the push's timed entry curves and ballistic velocities.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses each phase's actual targets and existing lowering/resolution owners; no provisional fixed flight ankle or alternate support is substituted.
-
 # src/actions/jumpEndpoints.ts#jumpEndpoints.IEnds
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -34,7 +16,7 @@ Only the start and end states are returned.
 
 Reuses jumpState rather than another pose or FK representation.
 
-# src/actions/jumpEndpoints.ts#jumpEndpoints.of
+# src/actions/jumpEndpoints.ts#jumpEndpoints
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

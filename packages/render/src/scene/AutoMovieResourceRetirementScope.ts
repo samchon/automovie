@@ -26,15 +26,14 @@ export class AutoMovieResourceRetirementScope {
     Promise<{ success: true } | { success: false; error: unknown }>
   >();
 
-  /**
-   * Refuse preparation or publication after this resource owner was closed.
-   */
+  /** Refuse preparation or publication after this resource owner was closed. */
   public requireOpen(): void {
     if (this.closed) throw new Error("This resource owner has been closed.");
   }
 
   /**
-   * Admit new allocation only after prior retirement succeeded and ownership is open.
+   * Admit new allocation only after prior retirement succeeded and ownership is
+   * open.
    */
   public async ready(): Promise<void> {
     this.requireOpen();
@@ -44,9 +43,7 @@ export class AutoMovieResourceRetirementScope {
     this.requireOpen();
   }
 
-  /**
-   * Register a resource before asynchronous preparation can be interrupted.
-   */
+  /** Register a resource before asynchronous preparation can be interrupted. */
   public own(resource: object, retire: () => Promise<void>): void {
     this.requireOpen();
     if (this.owned.has(resource))
@@ -54,9 +51,7 @@ export class AutoMovieResourceRetirementScope {
     this.owned.set(resource, retire);
   }
 
-  /**
-   * Withdraw one registered resource; repeat requests do not repeat retirement.
-   */
+  /** Withdraw one registered resource; repeat requests do not repeat retirement. */
   public release(resource: object): void {
     const retire: (() => Promise<void>) | undefined = this.owned.get(resource);
     if (retire !== undefined) {
@@ -85,7 +80,8 @@ export class AutoMovieResourceRetirementScope {
   }
 
   /**
-   * Await all actual attempts, preserving failed entries for every later caller.
+   * Await all actual attempts, preserving failed entries for every later
+   * caller.
    */
   public async settle(): Promise<void> {
     const failures: unknown[] = [];
@@ -129,7 +125,8 @@ export class AutoMovieResourceRetirementScope {
   }
 
   /**
-   * Close all owned resources, including pending preparation, with one completion.
+   * Close all owned resources, including pending preparation, with one
+   * completion.
    */
   public close(): Promise<void> {
     if (this.closing === undefined) {

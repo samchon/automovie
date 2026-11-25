@@ -1,21 +1,3 @@
-# src/posture/HumanArmShapes.ts#HumanArmShapes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what an arm placed by the coordinates meets and which owner places the arm.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Shapes are indices into the frame's placed shapes, each with its bounding sphere, so a query returns indices the trajectory's pairs key on.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The probe's segment, the screens, the arm's colliders as shapes, and one shape's normal and distance, read by the trajectory's context, model, pairs, refinement, waypoints and Jacobians.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No shape is named: every query reads the frame it is given.
-
 # src/posture/HumanArmShapes.ts#HumanArmShapes.segment
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -2,22 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the projection, its premise of a nonempty convex floor outline and its readers.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Floor points in one metre frame; a prepared outline keeps its copied corners and each edge's difference and squared span, never a projected answer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `of` for one query and `prepare` for the settling loop's many queries on one fixed outline.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No margin, sampled pressure or remembered answer is stored.
-
-# src/reaction/staggerNearest.ts#staggerNearest.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the frame, the inside rule and the tie rule.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

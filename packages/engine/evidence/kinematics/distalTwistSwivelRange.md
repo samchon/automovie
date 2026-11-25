@@ -1,21 +1,3 @@
-# src/kinematics/distalTwistSwivelRange.ts#distalTwistSwivelRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the premise, the equation the twist solves, which root is kept, why each reading is a sinusoid of the swivel, the four kinds of breakpoint and what one test decides.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The breakpoints as swivels in degrees and the admission as a predicate of the swivel: the two things a nearest-admissible choice needs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two records and one reader, read by `distalEndSwivelNearest`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Exact roots and an exact test, never sampling; the equation is the twist solver's own, with its rest-carried axes and its zero.
-
 # src/kinematics/distalTwistSwivelRange.ts#distalTwistSwivelRange.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -26,31 +26,21 @@ const VASE: string =
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 
-/** A saved recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createVessel.IParams,
-  seed?: number | string,
-) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
-
 /**
- * Replay a saved vessel variant with the original dimensions, identifier and model choices.
+ * Replay a saved vessel variant with the original dimensions, identifier and
+ * model choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved vessel variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the vessel draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createVessel(
   params: createVessel.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension> {
   const kind: createVessel.Kind = ArchetypeDraw.choice(
     "vessel",
@@ -60,18 +50,27 @@ export function createVessel(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createVessel.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createVessel.Kind,
+      (
+        params: createVessel.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>
+    >
+  > = {
+    bowl: (p, s) => createBowl({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["ikea365", "sunnyDay18", "sunnyDayCereal"] as const) }, s),
+    ashtray: (p, s) => createAshtray({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["nachtmann", "harris"] as const) }, s),
+    saucepan: ({ model: _model, ...rest }, s) => createCookingPot({ ...rest, kind: "saucepan" }, s),
+    stockpot: ({ model: _model, ...rest }, s) => createCookingPot({ ...rest, kind: "stockpot" }, s),
+    vase: ({ model: _model, ...rest }, s) => createVase(rest, s),
+  };
+  return variants[kind](params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createVessel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the five vessels: a bowl and an ashtray each one read model whole, the others one band per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rim, the inside and the hold each vessel is used by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, never a size between two models; the IKEA bowl's and a pan's weight alone is not given, so that model's mass and those bands are provisional; the wall's and the handles' sizes are named estimates.
- */
+/** Companion types, constants and bands of {@link createVessel}. */
 export namespace createVessel {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -128,7 +127,10 @@ export namespace createVessel {
   /** A handle's diameter, metres: an estimate. */
   export const GRIP: number = 0.025;
 
-  /** A saucepan handle's length, metres: the IKEA saucepan's 35 cm with its handle less its 17 cm across. */
+  /**
+   * A saucepan handle's length, metres: the IKEA saucepan's 35 cm with its
+   * handle less its 17 cm across.
+   */
   export const HANDLE: number = 0.18;
 
   /** Each kind's flat colour, sRGB. */
@@ -147,7 +149,8 @@ export namespace createVessel {
    * - `inside`: the floor inside, facing up.
    * - `body`: a bowl or an ashtray held from beneath; a vase round its middle.
    * - `handle`: a saucepan's long handle along `+X`.
-   * - `leftHandle`, `rightHandle`: a stockpot's two side handles at `+X` and `-X`.
+   * - `leftHandle`, `rightHandle`: a stockpot's two side handles at `+X` and
+   *   `-X`.
    */
   export type Affordance =
     | "rim"
@@ -175,7 +178,10 @@ export namespace createVessel {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which vessel. */
     kind: Kind;
@@ -190,7 +196,10 @@ export namespace createVessel {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The models read: IKEA 365+'s bowl and Thomas's Sunny Day bowl 18 cm and cereal bowl; Nachtmann's Cigar Cuba and Harris's glass ashtrays. */
+  /**
+   * The models read: IKEA 365+'s bowl and Thomas's Sunny Day bowl 18 cm and
+   * cereal bowl; Nachtmann's Cigar Cuba and Harris's glass ashtrays.
+   */
   export type Model =
     | "ikea365"
     | "sunnyDay18"
@@ -199,9 +208,20 @@ export namespace createVessel {
     | "harris";
 
   /**
-   * Each kind's models whole, the default first. The bowls: IKEA 365+ bowl, rounded sides, 16 cm across and 7 cm high, 0.44 kg packed, a provisional mass the bowl alone is lighter than by an unread amount (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/); Thomas Sunny Day bowl 18 cm, 16.60 cm across, 7.90 cm high, 477 g (https://www.thomas-porzellan.de/en-de/bowl-18-cm/10850-408547-13388.html); Thomas Sunny Day cereal bowl, 12.20 cm across, 8.00 cm high, 300 g (https://www.thomas-porzellan.de/en-de/cereal-bowl/10850-408530-15456.html).
+   * Each kind's models whole, the default first. The bowls: IKEA 365+ bowl,
+   * rounded sides, 16 cm across and 7 cm high, 0.44 kg packed, a provisional
+   * mass the bowl alone is lighter than by an unread amount
+   * (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/);
+   * Thomas Sunny Day bowl 18 cm, 16.60 cm across, 7.90 cm high, 477 g
+   * (https://www.thomas-porzellan.de/en-de/bowl-18-cm/10850-408547-13388.html);
+   * Thomas Sunny Day cereal bowl, 12.20 cm across, 8.00 cm high, 300 g
+   * (https://www.thomas-porzellan.de/en-de/cereal-bowl/10850-408530-15456.html).
    *
-   * The ashtrays: 10 cm across, 3 cm high and 258 g (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053) and 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992), retailer listings.
+   * The ashtrays: 10 cm across, 3 cm high and 258 g
+   * (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053)
+   * and 16.8 cm across, 3.5 cm high and 1.7 kg
+   * (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992),
+   * retailer listings.
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
@@ -217,7 +237,10 @@ export namespace createVessel {
     },
   };
 
-  /** The band of each free dimension, by kind; a bowl's and an ashtray's are its model's. */
+  /**
+   * The band of each free dimension, by kind; a bowl's and an ashtray's are its
+   * model's.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {

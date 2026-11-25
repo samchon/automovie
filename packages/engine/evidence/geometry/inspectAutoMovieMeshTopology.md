@@ -10,15 +10,15 @@ Measurement only; the pass/fail verdict lives in `validateMeshTopology`, and the
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The standalone and paired paths apply the same index, finiteness and physical-correspondence admissions. The weld grid is the shared `MESH_WELD_GRID` constant rather than a local tolerance, degenerate triangles are reported instead of dropped silently, and an empty mesh is not watertight because having no edges is not having no holes.
+The standalone and paired paths apply the same index and physical-correspondence admissions. The weld grid is the shared `MESH_WELD_GRID` constant rather than a local tolerance, degenerate triangles are reported instead of dropped silently, and an empty mesh is not watertight because having no edges is not having no holes.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States identity modes, coordinate-weld degeneracy, attribute finiteness, edge-census limits, units and signed volume, the separate validator and named index/physical-source refusals. The paired API documents use of the shared corner weld and the piece reader.
+States identity modes, coordinate-weld degeneracy, edge-census limits, units and signed volume, the separate validator and named index/physical-source refusals. The paired API documents use of the shared corner weld and the piece reader.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in vertices and triangles: one finiteness pass per attribute without concatenating them, and one hashed edge count per triangle edge keyed by the welded identity pair. The paired entry point computes the weld once and reads piece incidence only when requested.
+Linear in vertices and triangles, with one hashed edge count per triangle edge keyed by the welded identity pair. The paired entry point computes the weld once and reads piece incidence only when requested.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

@@ -1,19 +1,3 @@
-# src/vehicles/CartFit.ts#CartFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what fits a cart to its horse and why it is its own file.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two steps of the cart's draw: the models a fixed horse admits, and the dimensions the drawn horse gives.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `models` and `harness`, which `createCart` calls for a horse's cart, and `lines`, which `createCart.lines` gives the towing ride.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The horse's sizes come from `createHorse` itself, never a copy.
-
 # src/vehicles/CartFit.ts#CartFit.models
 
 ## @evidence contracts/development/common.md#meaningful-documentation

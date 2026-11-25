@@ -30,7 +30,16 @@ import { observeRecoverySourceTerminals } from "../internal/observeRecoverySourc
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
 
 /**
- * Observe all source contours at a finite collection of caller-defined physical planes. Admission, scalar face indexing, incidence, cutting and material orientation are prepared once for the collection. Original coordinates and request order survive. Optional terminalSeeds follow existing source-loop incidence toward increasing coordinates and append actual source critical coordinates and brackets; default requests add no planes. Semantic component selection and between-plane continuation are not inferred. Hermite selection uses the official algebraic converter. Delivered lineage records remain provisional until the terminal result; observer exceptions fail the collection and cancellation is checked at each plane and lineage callback.
+ * Observe all source contours at a finite collection of caller-defined physical
+ * planes. Admission, scalar face indexing, incidence, cutting and material
+ * orientation are prepared once for the collection. Original coordinates and
+ * request order survive. Optional terminalSeeds follow existing source-loop
+ * incidence toward increasing coordinates and append actual source critical
+ * coordinates and brackets; default requests add no planes. Semantic component
+ * selection and between-plane continuation are not inferred. Hermite selection
+ * uses the official algebraic converter. Delivered lineage records remain
+ * provisional until the terminal result; observer exceptions fail the
+ * collection and cancellation is checked at each plane and lineage callback.
  */
 export function observeAutoMovieRecoverySections<
   Format extends AutoMovieRecoveryCurveFormat,
@@ -53,21 +62,11 @@ export function observeAutoMovieRecoverySections<
   let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
+    probe = options.cancelled;
 
     if (cancelled())
       return {
@@ -75,75 +74,32 @@ export function observeAutoMovieRecoverySections<
         status: "cancelled",
         diagnostics: ["Cancelled before section observation"],
       };
-    const vector: (value: unknown) => boolean = (value: unknown): boolean =>
-      Array.isArray(value) &&
-      value.length === 3 &&
-      [0, 1, 2].every((i: number): boolean => Number.isFinite(value[i]));
     if (
-      !options ||
-      (options.curveFormat !== "bezier" && options.curveFormat !== "hermite") ||
-      (options.onSourceLineage !== undefined &&
-        typeof options.onSourceLineage !== "function") ||
-      (options.onSourceSlab !== undefined &&
-        typeof options.onSourceSlab !== "function") ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function") ||
-      !input ||
-      typeof input.name !== "string" ||
-      !input.name.trim() ||
-      !Array.isArray(input.coordinatesMm) ||
-      !input.coordinatesMm.length ||
-      !Array.from(input.coordinatesMm).every(Number.isFinite) ||
+      input.coordinatesMm.length === 0 ||
       new Set(input.coordinatesMm).size !== input.coordinatesMm.length ||
-      !Array.isArray(input.verticesMm) ||
-      !input.verticesMm.length ||
-      !Array.from(input.verticesMm).every(vector) ||
-      !Array.isArray(input.triangles) ||
-      !input.triangles.length ||
-      !Array.from(input.triangles).every(
-        (t: number[]): boolean =>
-          Array.isArray(t) &&
-          t.length === 3 &&
-          [0, 1, 2].every(
-            (i: number): boolean =>
-              Number.isSafeInteger(t[i]) &&
-              t[i]! >= 0 &&
-              t[i]! < input.verticesMm.length,
-          ),
+      input.verticesMm.length === 0 ||
+      input.triangles.length === 0 ||
+      !Array.from(input.triangles).every((t: number[]): boolean =>
+        [0, 1, 2].every(
+          (i: number): boolean => t[i]! >= 0 && t[i]! < input.verticesMm.length,
+        ),
       ) ||
-      !vector(input.axis) ||
-      !vector(input.reference) ||
-      !(input.toleranceMm > 0 && Number.isFinite(input.toleranceMm)) ||
-      !Number.isSafeInteger(input.maxSpans) ||
+      !(input.toleranceMm > 0) ||
       input.maxSpans < 1 ||
-      typeof input.exactCoordinateAliases !== "boolean" ||
-      (input.includeExactSourceLineage !== undefined &&
-        typeof input.includeExactSourceLineage !== "boolean") ||
-      (input.sourceOrientationSign !== 1 &&
-        input.sourceOrientationSign !== -1) ||
       !(input.cornerDegrees > 0 && input.cornerDegrees < 180) ||
       (input.terminalSeeds !== undefined &&
-        (!Array.isArray(input.terminalSeeds) ||
-          !Array.from(input.terminalSeeds).every(
-            (seed: IAutoMovieRecoveryTerminalSeed): boolean =>
-              !!seed &&
-              Number.isFinite(seed.coordinateMm) &&
-              input.coordinatesMm.includes(seed.coordinateMm) &&
-              Number.isSafeInteger(seed.loopIndex) &&
-              seed.loopIndex >= 0,
-          ))) ||
+        !Array.from(input.terminalSeeds).every(
+          (seed: IAutoMovieRecoveryTerminalSeed): boolean =>
+            input.coordinatesMm.includes(seed.coordinateMm) &&
+            seed.loopIndex >= 0,
+        )) ||
       (input.slabPairs !== undefined &&
-        (!Array.isArray(input.slabPairs) ||
-          !Array.from(input.slabPairs).every(
-            (pair: IAutoMovieRecoverySlabPair): boolean =>
-              !!pair &&
-              Number.isFinite(pair.beforeMm) &&
-              Number.isFinite(pair.afterMm) &&
-              pair.beforeMm < pair.afterMm &&
-              Number.isFinite(pair.afterMm - pair.beforeMm) &&
-              input.coordinatesMm.includes(pair.beforeMm) &&
-              input.coordinatesMm.includes(pair.afterMm),
-          )))
+        !Array.from(input.slabPairs).every(
+          (pair: IAutoMovieRecoverySlabPair): boolean =>
+            pair.beforeMm < pair.afterMm &&
+            input.coordinatesMm.includes(pair.beforeMm) &&
+            input.coordinatesMm.includes(pair.afterMm),
+        ))
     )
       return {
         operator,
@@ -157,11 +113,10 @@ export function observeAutoMovieRecoverySections<
       planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
-        (axis: [number, number, number]): boolean =>
-          vector(axis) && Math.hypot(...axis) > 0,
+        (axis: [number, number, number]): boolean => Math.hypot(...axis) > 0,
       )
     )
-      throw new Error("Section frame has no finite nonzero axis");
+      throw new Error("Section frame has no nonzero axis");
     options.onProgress?.("fixed-sections", 0, input.coordinatesMm.length);
     if (cancelled()) throw new Error("Section observation cancelled");
     const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
@@ -198,14 +153,12 @@ export function observeAutoMovieRecoverySections<
       if (cancelled()) throw new Error("Section observation cancelled");
       const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
         ...frame,
-        origin: frame.n.map((x: number): number => x * coordinateMm) as [
-          number,
-          number,
-          number,
+        origin: [
+          frame.n[0] * coordinateMm,
+          frame.n[1] * coordinateMm,
+          frame.n[2] * coordinateMm,
         ],
       };
-      if (!vector(plane.origin))
-        throw new Error("Section origin exceeds finite millimetre coordinates");
       const observed: ReturnType<IAutoMovieRecoverySectionObservationOperation.Operation> =
         observeRecoverySection({
           coordinateMm,

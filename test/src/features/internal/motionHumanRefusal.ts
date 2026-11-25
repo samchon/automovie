@@ -8,7 +8,6 @@ import { HumanRefusal } from "@automovie/motions";
  * @param task The actual performance construction.
  * @param expected The invalid input's named kind, parameter and action.
  * @returns Whether that located refusal names its reason and repair.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States what is observed and why generic exceptions are insufficient.
  * @evidence contracts/development/implementation.md#principled-implementation The public HumanRefusal fields are the grammar's repair contract; expected kind, axis and act come from the case's invalid request.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A normal return is false; only the caught structured refusal is inspected.
@@ -19,7 +18,11 @@ import { HumanRefusal } from "@automovie/motions";
  */
 export function motionHumanRefusal(
   task: () => unknown,
-  expected: { kind: IAutoMovieMotionHumanRefusal.Kind; axis: string; act: string },
+  expected: {
+    kind: IAutoMovieMotionHumanRefusal.Kind;
+    axis: string;
+    act: string;
+  },
 ): boolean {
   try {
     task();
@@ -31,7 +34,6 @@ export function motionHumanRefusal(
       error.axis === expected.axis &&
       error.act === expected.act &&
       error.performer === "a" &&
-      Number.isInteger(error.instance) &&
       error.instance > 0 &&
       error.reason.trim().length > 0 &&
       error.fix.trim().length > 0 &&

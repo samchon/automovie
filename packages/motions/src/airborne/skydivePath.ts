@@ -7,16 +7,29 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 
-/** Belly-to-earth terminal speed, metres per second (provisional: about 120 mph, the figure the USPA Skydiver's Information Manual teaches for a stable arch). */
+/**
+ * Belly-to-earth terminal speed, metres per second (provisional: about 120 mph,
+ * the figure the USPA Skydiver's Information Manual teaches for a stable
+ * arch).
+ */
 const TERMINAL: number = 53;
 
-/** The forward speed the exit leaves the edge with, metres per second (provisional: a step off). */
+/**
+ * The forward speed the exit leaves the edge with, metres per second
+ * (provisional: a step off).
+ */
 const EXIT: number = 1;
 
-/** Seconds the canopy takes to open (provisional: a ram-air canopy's snatch to full inflation). */
+/**
+ * Seconds the canopy takes to open (provisional: a ram-air canopy's snatch to
+ * full inflation).
+ */
 const OPEN: number = 3;
 
-/** The open canopy's sink and forward speeds, metres per second (provisional: a student canopy). */
+/**
+ * The open canopy's sink and forward speeds, metres per second (provisional: a
+ * student canopy).
+ */
 const SINK: number = 5;
 const FORWARD: number = 10;
 
@@ -26,34 +39,25 @@ const TURN: number = 30;
 /** The height the flare starts at, metres (provisional). */
 const FLARE: number = 3;
 
-/** The sink and forward speeds at touchdown after the flare, metres per second (provisional). */
+/**
+ * The sink and forward speeds at touchdown after the flare, metres per second
+ * (provisional).
+ */
 const TOUCH_SINK: number = 1.5;
 const TOUCH_FORWARD: number = 2;
 
 /**
- * A parachute jump's hips path, closed form phase by phase: the freefall
- * falls with quadratic drag toward `TERMINAL` (`v = vt tanh(g t / vt)`,
- * `drop = vt^2 / g ln cosh(g t / vt)`) gliding at the exit and track speed
- * along a heading turning at the freefall rate; the opening eases the
- * speeds to the canopy's over `OPEN`; the canopy sinks and flies forward at
- * constant speeds along a heading the held toggles turn; the flare eases
- * them to the touchdown speeds from `FLARE` to the ground. An eased speed's
- * distance is the minimum-jerk share's integral, `2.5 u^4 - 3 u^5 + u^6`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each phase's law and the eased-distance integral.
- * @evidence contracts/development/design.md#principled-representation Phase boundaries in seconds and the hips and heading as closed forms of time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The path planSkydive samples.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every speed is a stated constant; nothing is simulated.
+ * A parachute jump's hips path, closed form phase by phase: the freefall falls
+ * with quadratic drag toward `TERMINAL` (`v = vt tanh(g t / vt)`, `drop = vt^2
+ * / g ln cosh(g t / vt)`) gliding at the exit and track speed along a heading
+ * turning at the freefall rate; the opening eases the speeds to the canopy's
+ * over `OPEN`; the canopy sinks and flies forward at constant speeds along a
+ * heading the held toggles turn; the flare eases them to the touchdown speeds
+ * from `FLARE` to the ground. An eased speed's distance is the minimum-jerk
+ * share's integral, `2.5 u^4 - 3 u^5 + u^6`.
  */
 export namespace skydivePath {
-  /**
-   * One instant of the path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The hips, the heading, the phase and its progress.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the posture writer reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by the path.
-   */
+  /** One instant of the path. */
   export interface IAt {
     /** The hips, world metres. */
     hips: IAutoMovieVector3;
@@ -68,24 +72,10 @@ export namespace skydivePath {
     share: number;
   }
 
-  /**
-   * The flight's phases.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names them.
-   * @evidence contracts/development/design.md#principled-representation A closed choice.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the posture writer switches on.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Declared here directly.
-   */
+  /** The flight's phases. */
   export type Phase = "freefall" | "opening" | "canopy" | "flare";
 
-  /**
-   * The path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation Phase start times, the touchdown and the sampler.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What planSkydive reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by prepare.
-   */
+  /** The path. */
   export interface IPath {
     /** The opening's start, the deployment. */
     deploy: number;
@@ -114,15 +104,9 @@ export namespace skydivePath {
    * @param yaw The exit heading, degrees.
    * @param ground The landing ground's height, world metres.
    * @returns The path.
-   * @throws {HumanRefusal} If the exit is not above the deployment, the deployment leaves too little height for the canopy to open and slow the body before the flare, or the toggles overlap.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The freefall time inverts the drag drop (`t = vt / g acosh(exp(d g / vt^2))`); each later phase's length follows from its distance and its speeds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Time the phases, admit them, then the sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A deployment too low refuses with the altitude and the least admitted; the constants are provisional and stated as such.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work at plan time; per sample, linear in the toggles.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the phase times and toggles.
+   * @throws {HumanRefusal} If the exit is not above the deployment, the
+   *   deployment leaves too little height for the canopy to open and slow the
+   *   body before the flare, or the toggles overlap.
    */
   export function prepare(
     p: IAutoMovieMotionHumanSkydive.IParams,
@@ -283,7 +267,10 @@ export namespace skydivePath {
     heading: number;
   }
 
-  /** The horizontal offset of a constant speed along a heading turning at a constant rate, over a time. */
+  /**
+   * The horizontal offset of a constant speed along a heading turning at a
+   * constant rate, over a time.
+   */
   function arc(
     speed: number,
     heading: number,
@@ -302,7 +289,10 @@ export namespace skydivePath {
     };
   }
 
-  /** The distance share of a speed eased from one value to another by minimum jerk, per unit time, at progress u. */
+  /**
+   * The distance share of a speed eased from one value to another by minimum
+   * jerk, per unit time, at progress u.
+   */
   function eased(from: number, to: number, u: number): number {
     const w: number = Math.max(0, Math.min(1, u));
     return from * w + (to - from) * (2.5 * w ** 4 - 3 * w ** 5 + w ** 6);

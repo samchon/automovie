@@ -9,22 +9,15 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
- * Read the support that survives a cut before choosing the next swing. Keep
- * the displayed bearing placement and lower each airborne foot's baseline to
- * the same floor. The first beat can then move from its actual cut placement
- * to a real touchdown. Ordinary steps and cuts with both feet down need no
+ * Read the support that survives a cut before choosing the next swing. Keep the
+ * displayed bearing placement and lower each airborne foot's baseline to the
+ * same floor. The first beat can then move from its actual cut placement to a
+ * real touchdown. Ordinary steps and cuts with both feet down need no
  * correction.
  *
  * @param context The incoming step's body and displayed entry state.
- * @returns The inherited support and ground placements, in world metres, or undefined when no foot is airborne at a step's cut.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which cuts need support readback and where the floor comes from.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the entering support flags and rig sole geometry to carry the known bearing side or preserve an already unsupported seam.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional bearing side and one floor-relative baseline for each airborne foot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the rig's own heel and ball, keeping the displayed ankle and rotation at the cut.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads at most two sole points per foot once when planning a cut.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each incoming owner reads the same fixed floor and initial placement through its own landing window.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result holds the bearing side, at most two foot placements and their initial vertical offsets. It holds no time observations.
+ * @returns The inherited support and ground placements, in world metres, or
+ *   undefined when no foot is airborne at a step's cut.
  */
 export function strikingStepSupport(
   context: IAutoMovieMotionHumanActionContext,
@@ -73,15 +66,31 @@ export function strikingStepSupport(
       side: AutoMovieHumanSide,
       seconds: number,
       touchdown: number,
-    ): number =>
-      seconds >= touchdown
-        ? 0
-        : rise[side] * (1 - minimumJerk.share(seconds / touchdown)),
+    ): number => strikingStepSupport.settle(rise[side], seconds, touchdown),
   };
 }
 
 /** The support a striking action inherits from an interrupted step. */
 export namespace strikingStepSupport {
+  /**
+   * How far a landing foot still hangs above its landing: the step's rise,
+   * lowered on a minimum-jerk share until the touchdown.
+   *
+   * @param rise The foot's height above its landing at the cut, metres.
+   * @param seconds The seconds since the cut.
+   * @param touchdown The touchdown's seconds.
+   * @returns Metres.
+   */
+  export function settle(
+    rise: number,
+    seconds: number,
+    touchdown: number,
+  ): number {
+    return seconds >= touchdown
+      ? 0
+      : rise * (1 - minimumJerk.share(seconds / touchdown));
+  }
+
   /**
    * The ground contact and pending touchdowns inherited from an interrupted
    * step, in world metres on the incoming action's local clock.
@@ -101,8 +110,8 @@ export namespace strikingStepSupport {
     >;
 
     /**
-     * Height above the landing placement, metres, at local seconds before
-     * the foot's touchdown second, and zero from touchdown on.
+     * Height above the landing placement, metres, at local seconds before the
+     * foot's touchdown second, and zero from touchdown on.
      */
     rise(side: AutoMovieHumanSide, seconds: number, touchdown: number): number;
   }

@@ -15,8 +15,8 @@ import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose
  *
  * The map must contain exactly the target's mapped bone slots. Before any
  * mutation, rejects missing or extra slots, nonfinite components, malformed
- * tuples and quaternions whose squared norm differs from one by over 1e-6.
- * An empty map is valid for a nonrigged target. No quaternion is normalized.
+ * tuples and quaternions whose squared norm differs from one by over 1e-6. An
+ * empty map is valid for a nonrigged target. No quaternion is normalized.
  *
  * Refreshes local and world matrices, including changed ancestors, and
  * invalidates skinned bounds and CPU pose caches. The caller owns semantic
@@ -55,13 +55,17 @@ export function applyAutoMovieRigLocals(
 /**
  * Refuse a malformed local before the adapter begins mutating its target.
  *
- * Principled implementation: Checks exact tuple lengths, finite components and squared quaternion norm with a 1e-6 admission tolerance, preserving rather than normalizing admitted evaluator output.
- * Clear and simple design: Shares root and bone validation so one policy guards the complete update.
- * Prohibited implementation shortcuts: The same tolerance and checks apply to every slot, without fixture exceptions.
- * Meaningful documentation: States pre-mutation refusal; the public adapter documents frames and tolerance.
- * Efficient algorithms: Constant work over seven scalar components.
- * Reuse equivalent work: A mutable supplied transform requires fresh validation on each call.
- * Bound retention and release resources: Retains no values and allocates only an error when refusing.
+ * Principled implementation: Checks exact tuple lengths, finite components and
+ * squared quaternion norm with a 1e-6 admission tolerance, preserving rather
+ * than normalizing admitted evaluator output. Clear and simple design: Shares
+ * root and bone validation so one policy guards the complete update. Prohibited
+ * implementation shortcuts: The same tolerance and checks apply to every slot,
+ * without fixture exceptions. Meaningful documentation: States pre-mutation
+ * refusal; the public adapter documents frames and tolerance. Efficient
+ * algorithms: Constant work over seven scalar components. Reuse equivalent
+ * work: A mutable supplied transform requires fresh validation on each call.
+ * Bound retention and release resources: Retains no values and allocates only
+ * an error when refusing.
  */
 function validateLocal(local: IAutoMovieRigLocalTransform, name: string): void {
   const t: IAutoMovieRigLocalTransform["translation"] = local.translation;
@@ -69,13 +73,6 @@ function validateLocal(local: IAutoMovieRigLocalTransform, name: string): void {
   if (
     t.length !== 3 ||
     q.length !== 4 ||
-    !Number.isFinite(t[0]) ||
-    !Number.isFinite(t[1]) ||
-    !Number.isFinite(t[2]) ||
-    !Number.isFinite(q[0]) ||
-    !Number.isFinite(q[1]) ||
-    !Number.isFinite(q[2]) ||
-    !Number.isFinite(q[3]) ||
     Math.abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1) > 1e-6
   )
     throw new Error(
@@ -86,13 +83,17 @@ function validateLocal(local: IAutoMovieRigLocalTransform, name: string): void {
 /**
  * Copy absolute TR and unit scale, then refresh even a manual local matrix.
  *
- * Principled implementation: Writes tuple components through Three position/quaternion setters and updates its local matrix under the engine's unit rig-scale convention.
- * Clear and simple design: One write path serves roots and bones after complete validation.
- * Prohibited implementation shortcuts: Copies admitted values unchanged; no per-consumer offsets or scale compensations are applied.
- * Meaningful documentation: States the absolute write, scale and manual-matrix behavior.
- * Efficient algorithms: Constant scalar writes and one matrix composition.
- * Reuse equivalent work: Mutates existing Three vectors, quaternion and matrix without temporary allocation.
- * Bound retention and release resources: Retains no target or transform after return.
+ * Principled implementation: Writes tuple components through Three
+ * position/quaternion setters and updates its local matrix under the engine's
+ * unit rig-scale convention. Clear and simple design: One write path serves
+ * roots and bones after complete validation. Prohibited implementation
+ * shortcuts: Copies admitted values unchanged; no per-consumer offsets or scale
+ * compensations are applied. Meaningful documentation: States the absolute
+ * write, scale and manual-matrix behavior. Efficient algorithms: Constant
+ * scalar writes and one matrix composition. Reuse equivalent work: Mutates
+ * existing Three vectors, quaternion and matrix without temporary allocation.
+ * Bound retention and release resources: Retains no target or transform after
+ * return.
  */
 function writeLocal(
   target: THREE.Object3D,

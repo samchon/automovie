@@ -11,7 +11,15 @@ import { sequenceTimeline } from "./sequenceTimeline";
 /**
  * The whole film as one on-screen sample per output frame.
  *
- * There are `round(runtime × fps)` frames sampled at `i / fps`, the same schedule as the render plan's frameTimes. For a feasible nonempty frame population, the final scheduled instant precedes runtime up to floating rounding. A render host drives its per-frame capture from this list: pose the live shot's scene at `time`, blend the outgoing tail when a dissolve is in flight, and write the frame. A non-finite or non-positive `fps` throws an `Error`, and {@link sequenceTimeline} throws for a sequence it cannot lay out, such as an empty one or an unknown shot. Frame storage is uncapped; an excessive count can exceed Array.from's allocation limits.
+ * There are `round(runtime × fps)` frames sampled at `i / fps`, the same
+ * schedule as the render plan's frameTimes. For a feasible nonempty frame
+ * population, the final scheduled instant precedes runtime up to floating
+ * rounding. A render host drives its per-frame capture from this list: pose the
+ * live shot's scene at `time`, blend the outgoing tail when a dissolve is in
+ * flight, and write the frame. A non-finite or non-positive `fps` throws an
+ * `Error`, and {@link sequenceTimeline} throws for a sequence it cannot lay out,
+ * such as an empty one or an unknown shot. Frame storage is uncapped; an
+ * excessive count can exceed Array.from's allocation limits.
  *
  * @param sequence The cut to play.
  * @param shots The compiled shots the cut references.
@@ -21,7 +29,7 @@ export function playbackFrameSamples(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
 ): IAutoMoviePlaybackSample[] {
-  if (!Number.isFinite(sequence.fps) || !(sequence.fps > 0))
+  if (!(sequence.fps > 0))
     throw new Error(
       `sequence fps must be a finite number > 0, but was ${sequence.fps}`,
     );

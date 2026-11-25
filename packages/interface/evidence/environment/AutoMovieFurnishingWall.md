@@ -6,7 +6,7 @@ A closed literal union names the four inner wall faces of a rectangular room by 
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns it beside the furnishing layout. The `wall` relation names the wall a piece rests on, and the furnishing producer maps it to a heading, a run direction and the wall's inner face for the mount record.
+The interface package owns it beside the furnishing layout. The `wall` relation names the wall a piece rests on, and the furnishing producer maps it to a heading, a run direction and the wall's inner face for the mount record.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -7,9 +7,13 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 /**
  * Project one bounded spray sample into a `three.js` point cloud.
  *
- * The Engine's admitted sample supplies the capped and distance-thinned particle population. Structural guide passes hide this Points node because decorative mist does not represent solid mask/depth geometry.
+ * The Engine's admitted sample supplies the capped and distance-thinned
+ * particle population. Structural guide passes hide this Points node because
+ * decorative mist does not represent solid mask/depth geometry.
  *
- * The default PointsMaterial uses normal blending, one fixed point size and opacity. Uploaded `aSize` and `aAge` require a supplied shader to affect beauty.
+ * The default PointsMaterial uses normal blending, one fixed point size and
+ * opacity. Uploaded `aSize` and `aAge` require a supplied shader to affect
+ * beauty.
  */
 export const buildFluidSprayObject: (props: {
   sample: IAutoMovieFluidSpraySample;

@@ -1,9 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 
-/**
- * One bounded slot range regenerated independently by viewer workers.
- */
+/** One bounded slot range regenerated independently by viewer workers. */
 export interface IAutoMovieFormationChunk {
   /** Zero-based stable chunk index. */
   index: number;

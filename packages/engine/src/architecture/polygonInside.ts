@@ -7,11 +7,11 @@ import { segmentsCross } from "./segmentsCross";
 /**
  * Whether an inner polygon stays within an outer one, flush edges allowed.
  *
- * Boundary contact is allowed, so a void whose sill lies exactly
- * on the wall's own bottom edge is contained, while a void whose corner pokes
- * through the wall's side is not. Every inner corner must be inside or on the
- * outer ring by {@link pointInPolygon}, and no inner edge may properly cross an
- * outer edge by {@link segmentsCross} or leave through its vertices.
+ * Boundary contact is allowed, so a void whose sill lies exactly on the wall's
+ * own bottom edge is contained, while a void whose corner pokes through the
+ * wall's side is not. Every inner corner must be inside or on the outer ring by
+ * {@link pointInPolygon}, and no inner edge may properly cross an outer edge by
+ * {@link segmentsCross} or leave through its vertices.
  *
  * Both polygons are closed rings in one planar frame and are assumed simple.
  * Outer vertices on an inner edge split it into intervals. Testing each

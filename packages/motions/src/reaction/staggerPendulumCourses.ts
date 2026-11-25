@@ -5,10 +5,44 @@ import { StaggerPendulum } from "./StaggerPendulum";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
 
+/** The record of `IStaggerPendulumCoursesStateAtStart`'s site. */
+type IStaggerPendulumCoursesStateAtStart = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesStateAtResult`'s site. */
+type IStaggerPendulumCoursesStateAtResult = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesStateAt`'s site. */
+type IStaggerPendulumCoursesStateAt = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesPhaseAtResult`'s site. */
+type IStaggerPendulumCoursesPhaseAtResult = {
+  phase: staggerRecover.IPhase;
+  u: number;
+};
+
+/** The record of `IStaggerPendulumCoursesPhaseAt`'s site. */
+type IStaggerPendulumCoursesPhaseAt = {
+  phase: staggerRecover.IPhase;
+  u: number;
+};
+
 /**
  * Read the pendulum's held-pressure spans at action-local seconds.
  *
- * @param phases The pendulum's spans, in the order it integrated them, their starts nondecreasing.
+ * @param phases The pendulum's spans, in the order it integrated them, their
+ *   starts nondecreasing.
  * @param w The pendulum frequency, radians per second.
  * @param centre The entry centre, world metres.
  * @returns Readers of travel, pressure and extrapolation.
@@ -20,7 +54,9 @@ export function staggerPendulumCourses(
 ): staggerRecover.ICourses {
   // The last span whose start is at or before the second: the spans' starts
   // never decrease, as the pendulum appends each at its own clock.
-  const phaseAt: (seconds: number) => { phase: staggerRecover.IPhase; u: number } = (seconds: number): { phase: staggerRecover.IPhase; u: number } => {
+  const phaseAt: (seconds: number) => IStaggerPendulumCoursesPhaseAt = (
+    seconds: number,
+  ): IStaggerPendulumCoursesPhaseAtResult => {
     let lo: number = 0;
     let hi: number = phases.length - 1;
     while (lo < hi) {
@@ -35,14 +71,15 @@ export function staggerPendulumCourses(
   // A span's state u seconds in: a weight shift's closed form up to its
   // end (`staggerTransfer`), then the held pressure at its end; a held span
   // in closed form throughout.
-  const stateAt: (seconds: number) => { s: IAutoMovieVector3; v: IAutoMovieVector3; p: IAutoMovieVector3 } = (
+  const stateAt: (seconds: number) => IStaggerPendulumCoursesStateAt = (
     seconds: number,
-  ): { s: IAutoMovieVector3; v: IAutoMovieVector3; p: IAutoMovieVector3 } => {
+  ): IStaggerPendulumCoursesStateAtResult => {
     const { phase, u }: ReturnType<typeof phaseAt> = phaseAt(seconds);
-    let start: { s: IAutoMovieVector3; v: IAutoMovieVector3; p: IAutoMovieVector3 } = phase;
+    let start: IStaggerPendulumCoursesStateAtStart = phase;
     let rest: number = u;
     if (phase.to !== undefined && phase.span !== undefined) {
-      if (u <= phase.span) return staggerTransfer(phase, phase.to, phase.span, w, u);
+      if (u <= phase.span)
+        return staggerTransfer(phase, phase.to, phase.span, w, u);
       start = staggerTransfer(phase, phase.to, phase.span, w, phase.span);
       rest = u - phase.span;
     }
@@ -51,7 +88,10 @@ export function staggerPendulumCourses(
     const off: IAutoMovieVector3 = Vector3.subtract(start.s, start.p);
     return {
       p: start.p,
-      s: Vector3.add(Vector3.add(start.p, Vector3.scale(off, ch)), Vector3.scale(start.v, sh / w)),
+      s: Vector3.add(
+        Vector3.add(start.p, Vector3.scale(off, ch)),
+        Vector3.scale(start.v, sh / w),
+      ),
       v: Vector3.add(Vector3.scale(off, w * sh), Vector3.scale(start.v, ch)),
     };
   };
@@ -61,7 +101,9 @@ export function staggerPendulumCourses(
       StaggerPendulum.flat(Vector3.add(centre, stateAt(seconds).p)),
     extrapolated: (seconds: number): IAutoMovieVector3 => {
       const { s, v }: ReturnType<typeof stateAt> = stateAt(seconds);
-      return StaggerPendulum.flat(Vector3.add(centre, Vector3.add(s, Vector3.scale(v, 1 / w))));
+      return StaggerPendulum.flat(
+        Vector3.add(centre, Vector3.add(s, Vector3.scale(v, 1 / w))),
+      );
     },
   };
 }

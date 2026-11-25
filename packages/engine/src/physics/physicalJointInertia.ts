@@ -8,7 +8,8 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
 /**
- * Project both bodies' world inverse inertia tensors onto each joint axis, giving relative-rotation inertia.
+ * Project both bodies' world inverse inertia tensors onto each joint axis,
+ * giving relative-rotation inertia.
  */
 export function physicalJointInertia(
   frame: IAutoMovieQuaternion,
@@ -31,10 +32,8 @@ export function physicalJointInertia(
     }
   const result: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const axis of ["x", "y", "z"] as const) {
-    if (!(inverse[axis] > 0) || !Number.isFinite(inverse[axis]))
-      throw new Error(
-        "Angular tracking needs a finite positive dynamic inertia",
-      );
+    if (inverse[axis] <= 0)
+      throw new Error("Angular tracking needs a positive dynamic inertia");
     result[axis] = 1 / inverse[axis];
   }
   return result;

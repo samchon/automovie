@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftPoint.ts#AutoMovieLoftPoint
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Public readers state physical units and how preparation scopes follow the chain and each fixed station.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The namespace reads complete world Point0 and phase tangents at millimetre stations and radian phases. A fixed-station sampler retains exactly one station's section, frame and lift.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftPoint` in packages/engine/src/geometry/construction/AutoMovieLoftPoint.ts; its surface is the 8 members listed and the text shows 2 other files naming it, mostly packages/engine (1), packages/human (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftPoint.ts#AutoMovieLoftPoint.sampler
 
 ## @evidence contracts/development/implementation.md#principled-implementation

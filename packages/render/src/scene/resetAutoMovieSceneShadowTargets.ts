@@ -1,5 +1,8 @@
 import type * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+import type { IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
+import type { IAutoMovieShadowRetirementHost } from "./IAutoMovieShadowRetirementHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { readAutoMovieCubeShadowDepth } from "./readAutoMovieCubeShadowDepth.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
@@ -8,12 +11,29 @@ import { retireAutoMovieCubeShadowDepth } from "./retireAutoMovieCubeShadowDepth
 /**
  * Retire every scene light's retained shadow attachment after a filter change.
  *
- * PCF comparison depth and VSM ordinary depth/distribution attachments are different GPU products. Three's previous filter is renderer-global while targets belong to individual lights, so a light hidden during a switch can retain the wrong product. Include hidden lights, clear public target slots, and mark their next shadow draw dirty. Disposal attempts every unique target and depth texture even if an independent resource listener fails. Retained targets belong exclusively to this renderer context and the scene's complete light population. External depth borrowers must be detached before retirement; an observable caller destination borrowing these resources is rejected before mutation. Native cube depth is queried before disposal and its still-live handle is released once without changing SDK bookkeeping. A cube depth with version zero is known uninitialized in Three r186 and is disposed without binding or allocating it. Positive version is not evidence of GPU residency; all other queried cubes must be actual retained draws in this context, not manually assigned CPU-only maps dirtied with needsUpdate.
+ * PCF comparison depth and VSM ordinary depth/distribution attachments are
+ * different GPU products. Three's previous filter is renderer-global while
+ * targets belong to individual lights, so a light hidden during a switch can
+ * retain the wrong product. Include hidden lights, clear public target slots,
+ * and mark their next shadow draw dirty. Disposal attempts every unique target
+ * and depth texture even if an independent resource listener fails. Retained
+ * targets belong exclusively to this renderer context and the scene's complete
+ * light population. External depth borrowers must be detached before
+ * retirement; an observable caller destination borrowing these resources is
+ * rejected before mutation. Native cube depth is queried before disposal and
+ * its still-live handle is released once without changing SDK bookkeeping. A
+ * cube depth with version zero is known uninitialized in Three r186 and is
+ * disposed without binding or allocating it. Positive version is not evidence
+ * of GPU residency; all other queried cubes must be actual retained draws in
+ * this context, not manually assigned CPU-only maps dirtied with needsUpdate.
  */
 export const resetAutoMovieSceneShadowTargets: (
   scene: THREE.Scene,
-  renderer: THREE.WebGLRenderer,
-) => void = (scene: THREE.Scene, renderer: THREE.WebGLRenderer): void => {
+  renderer: IAutoMovieFramebufferRenderer & IAutoMovieShadowRetirementHost,
+) => void = (
+  scene: THREE.Scene,
+  renderer: IAutoMovieFramebufferRenderer & IAutoMovieShadowRetirementHost,
+): void => {
   guardAutoMovieSceneShadowRetirement(scene, renderer);
   const resources: Set<THREE.RenderTarget | THREE.Texture> = new Set<
     THREE.RenderTarget | THREE.Texture
@@ -23,11 +43,14 @@ export const resetAutoMovieSceneShadowTargets: (
   const shadows: Array<THREE.LightShadow> = [];
   const targets: Set<THREE.RenderTarget> = new Set<THREE.RenderTarget>();
   scene.traverse((object: THREE.Object3D): void => {
-    if ((object as THREE.Light).isLight !== true) return;
-    const shadow: THREE.DirectionalLight["shadow"] | undefined = (
-      object as THREE.DirectionalLight
-    ).shadow;
-    if (shadow === undefined) return;
+    // The lights that own a shadow: directional, point and spot.
+    if (
+      !AutoMovieThreeKind.isDirectionalLight(object) &&
+      !AutoMovieThreeKind.isPointLight(object) &&
+      !AutoMovieThreeKind.isSpotLight(object)
+    )
+      return;
+    const shadow: THREE.LightShadow = object.shadow;
     shadows.push(shadow);
     for (const target of [shadow.map, shadow.mapPass])
       if (target !== null) {
@@ -49,8 +72,7 @@ export const resetAutoMovieSceneShadowTargets: (
     );
   for (const target of targets) {
     if (
-      "isWebGLCubeRenderTarget" in target &&
-      target.isWebGLCubeRenderTarget === true &&
+      AutoMovieThreeKind.isWebGLCubeRenderTarget(target) &&
       target.depthTexture !== null &&
       target.depthTexture.version !== 0
     ) {

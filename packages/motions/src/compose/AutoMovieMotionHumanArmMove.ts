@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEvaluation,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -13,9 +14,24 @@ import type {
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
-import { HumanBendRead } from "./HumanBendRead";
+
+/** A named target hand's literal finger shape. */
+type Shape = IAutoMovieMotionHumanHand.Shape;
+
+/** The original finger interpolation in an owned joint record. */
+type FingerWriter = ReturnType<
+  typeof AutoMovieMotionHumanHand.prepareFingerWriter
+>;
+
+/** A move may name a form known to the law during preparation. */
+type Move = IAutoMovieMotionHumanArmTarget.IMove & {
+  /** The expected fixed form, when the target owns one. */
+  fixedShape?: Shape;
+};
+
+/** The alternatives of `MoveLimb`'s site. */
+type MoveLimb = "leftArm" | "rightArm";
 
 /**
  * An arm moved between an origin and a target by a weight, and the three
@@ -30,57 +46,27 @@ export namespace AutoMovieMotionHumanArmMove {
    * @param props The movement.
    * @returns The primitive, on the arm's and the hand's channels.
    */
-  export function move(
-    props: IAutoMovieMotionHumanArmTarget.IMove,
-    contextual?: (
-      loan: AutoMovieMotionHumanBendRepeat.IRead,
-      ...args: Parameters<IAutoMovieMotionHumanArmTarget.IMove["target"]>
-    ) => IAutoMovieMotionHumanArmTarget.ITarget,
-  ): IAutoMovieMotionHumanPrimitive {
-    const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
-    // The side is the move's; the shape is the target's at each second, so
-    // the writer is rebuilt only when the target names another shape.
-    let shaped:
-      | {
-          shape: IAutoMovieMotionHumanHand.Shape;
-          write: ReturnType<
-            typeof AutoMovieMotionHumanHand.prepareFingerWriter
-          >;
-        }
-      | undefined;
-    const fingers: (
-      joints: IAutoMovieMotionHumanPosture["joints"],
-      shape: IAutoMovieMotionHumanHand.Shape,
-      curl: number,
-      weight: number,
-    ) => void = (
-      joints: IAutoMovieMotionHumanPosture["joints"],
-      shape: IAutoMovieMotionHumanHand.Shape,
-      curl: number,
-      weight: number,
-    ): void => {
-      if (shaped === undefined || shaped.shape !== shape)
-        shaped = {
-          shape,
-          write: AutoMovieMotionHumanHand.prepareFingerWriter(
-            props.side,
-            shape,
-          ),
-        };
-      shaped.write(joints, curl, weight);
-    };
+  export function move(props: Move): IAutoMovieMotionHumanPrimitive {
+    const limb: MoveLimb = `${props.side}Arm`;
+    const fingers: (shape: Shape) => FingerWriter = prepareMoveFingers(
+      props.side,
+      props.fixedShape,
+    );
     const write = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       _before?: IAutoMovieMotionHumanPrimitive.Reader,
       resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
       projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
-      loan?: AutoMovieMotionHumanBendRepeat.IRead,
+      evaluation?: IAutoMovieMotionHumanEvaluation,
     ): IAutoMovieMotionHumanPosture => {
-      const target: IAutoMovieMotionHumanArmTarget.ITarget =
-        loan === undefined
-          ? props.target(posture, seconds, resolution, projection)
-          : contextual!(loan, posture, seconds, resolution, projection);
+      const target: IAutoMovieMotionHumanArmTarget.ITarget = props.target(
+        posture,
+        seconds,
+        resolution,
+        projection,
+        evaluation,
+      );
       const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
       const placed: IAutoMovieMotionHumanArmTarget.ITarget =
         s >= 1
@@ -107,7 +93,7 @@ export namespace AutoMovieMotionHumanArmMove {
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...posture.joints,
       };
-      fingers(joints, target.shape, target.curl ?? 0, s);
+      fingers(target.shape)(joints, target.curl ?? 0, s);
       return {
         ...posture,
         joints,
@@ -121,27 +107,20 @@ export namespace AutoMovieMotionHumanArmMove {
         },
       };
     };
-    const primitive: IAutoMovieMotionHumanPrimitive = {
+    return {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
       to: props.to,
       write,
     };
-    if (contextual !== undefined)
-      HumanBendRead.writes.set(primitive, {
-        original: write,
-        invoke: (loan, posture, seconds, before, source, projection) =>
-          write(posture, seconds, before, source, projection, loan),
-      });
-    return primitive;
   }
 
   /**
-   * A point of a path from one point to another that bows out to the arm's
-   * own side: the straight path's point plus a sideways deviation that is
-   * greatest at the middle and none at both ends (EMOTE's indirect Space).
-   * The side is the performer's left for the left arm and right for the
-   * right, less its part along the path; a path that runs sideways bows up.
+   * A point of a path from one point to another that bows out to the arm's own
+   * side: the straight path's point plus a sideways deviation that is greatest
+   * at the middle and none at both ends (EMOTE's indirect Space). The side is
+   * the performer's left for the left arm and right for the right, less its
+   * part along the path; a path that runs sideways bows up.
    */
   const bowed = (
     posture: Pick<IAutoMovieMotionHumanPosture, "yaw">,
@@ -237,8 +216,8 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 
   /**
-   * A hand taken from its target back to an origin between two instants, on
-   * the clock's minimum-jerk progress.
+   * A hand taken from its target back to an origin between two instants, on the
+   * clock's minimum-jerk progress.
    *
    * @param body The body.
    * @param clock The action's clock.
@@ -269,7 +248,32 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 }
 
-/** The window's minimum-jerk progress, its two instants resolved once (`AutoMovieMotionClock.prepare`). */
+/** Prepare the law's one fixed form or the named forms of a varying target. */
+function prepareMoveFingers(
+  side: AutoMovieHumanSide,
+  fixed: Shape | undefined,
+): (shape: Shape) => FingerWriter {
+  const prepare: typeof AutoMovieMotionHumanHand.prepareFingerWriter =
+    AutoMovieMotionHumanHand.prepareFingerWriter;
+  if (fixed !== undefined) {
+    const writer: FingerWriter = prepare(side, fixed);
+    return (shape: Shape): FingerWriter =>
+      shape === fixed ? writer : prepare(side, shape);
+  }
+  const writers: Record<Shape, FingerWriter> = {
+    relaxed: prepare(side, "relaxed"),
+    flat: prepare(side, "flat"),
+    point: prepare(side, "point"),
+    fist: prepare(side, "fist"),
+    bridge: prepare(side, "bridge"),
+  };
+  return (shape: Shape): FingerWriter => writers[shape];
+}
+
+/**
+ * The window's minimum-jerk progress, its two instants resolved once
+ * (`AutoMovieMotionClock.prepare`).
+ */
 function progressOn(
   clock: IAutoMovieMotionClock,
   window: readonly [string, string],

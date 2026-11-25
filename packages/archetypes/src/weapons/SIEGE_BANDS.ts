@@ -24,10 +24,16 @@ const UNREAD: string =
 /** A traction trebuchet's beam, 16 ft at al-Tarsusi's six to one. */
 const BEAM: number = 16 * AutoMovieArchetypeUnits.FOOT;
 
-/** A traction trebuchet's pullers: twenty threw its 2.5 kg stones 100 m on average (Tarver, p. 161). */
+/**
+ * A traction trebuchet's pullers: twenty threw its 2.5 kg stones 100 m on
+ * average (Tarver, p. 161).
+ */
 const PULLERS: number = 20;
 
-/** A puller's steady haul, kilograms of weight: an estimate, no reconstruction measuring a puller's force (searched: Tarver 1995, Chevedden et al. 1995). */
+/**
+ * A puller's steady haul, kilograms of weight: an estimate, no reconstruction
+ * measuring a puller's force (searched: Tarver 1995, Chevedden et al. 1995).
+ */
 const HAUL: number = 25;
 
 /** The band of each dimension of a siege engine, by kind. */

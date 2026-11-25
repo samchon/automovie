@@ -1,4 +1,6 @@
-/** Two pinhole derivatives in one observation's current local camera/point chart.
+/**
+ * Two pinhole derivatives in one observation's current local camera/point
+ * chart.
  */
 export interface IAutoMovieRecoveryMapLocalCurvature {
   /** Original calibrated pixel coordinates. */

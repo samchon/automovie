@@ -1,6 +1,4 @@
-/**
- * Maps one contiguous protected byte span back to the immutable source.
- */
+/** Maps one contiguous protected byte span back to the immutable source. */
 export interface IProjectionSegment {
   /** Byte offset of the protected span in the original file. */
   originalStart: number;

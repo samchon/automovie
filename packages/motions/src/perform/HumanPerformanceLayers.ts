@@ -13,24 +13,20 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 
 /**
- * The instants of a performance and the windows of its layers: an instant
- * named by film seconds, by an action's event, by a cue or by another
- * layer, and a scheduled layer placed between two of them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what an instant may name and what a window is.
- * @evidence contracts/development/design.md#principled-representation An instant resolves to film seconds through the schedule's own anchors and cue tracks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The instant reader `HumanPerformance` exposes, a layer's four instants and its window (#3399).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An unknown anchor or an instant not yet placed is refused, never read as zero.
+ * The instants of a performance and the windows of its layers: an instant named
+ * by film seconds, by an action's event, by a cue or by another layer, and a
+ * scheduled layer placed between two of them.
  */
 export namespace HumanPerformanceLayers {
   /**
-   * The film second of an instant: a second as given, or a named instant of
-   * an anchored action or of a cue track.
+   * The film second of an instant: a second as given, or a named instant of an
+   * anchored action or of a cue track.
    *
    * @param at The instant.
    * @param entries Earlier schedule entries available while placing an action.
    * @returns The film second.
-   * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
+   * @throws {HumanRefusal} When nothing is anchored or tracked under the name,
+   *   or it has no such event.
    */
   export function instant(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -129,17 +125,19 @@ export namespace HumanPerformanceLayers {
 
   /**
    * A layer window's own named instants: it starts coming in at `onset`, is
-   * fully in at `full`, starts going out at `offset` and is gone at `end`.
-   * The fade is the one the window is displayed with: the one asked, an
-   * overlay's (`HumanSegment.FADE`) when none is, and never more than half
-   * the window.
+   * fully in at `full`, starts going out at `offset` and is gone at `end`. The
+   * fade is the one the window is displayed with: the one asked, an overlay's
+   * (`HumanSegment.FADE`) when none is, and never more than half the window.
    */
   export function instants(
     from: number,
     to: number,
     fade: number | undefined,
   ): IAutoMovieScheduleCue[] {
-    const ramp: number = Math.max(0, Math.min(fade ?? HumanSegment.FADE, (to - from) / 2));
+    const ramp: number = Math.max(
+      0,
+      Math.min(fade ?? HumanSegment.FADE, (to - from) / 2),
+    );
     return [
       { name: "onset", seconds: from },
       { name: "full", seconds: from + ramp },
@@ -148,7 +146,10 @@ export namespace HumanPerformanceLayers {
     ];
   }
 
-  /** A scheduled layer's window in film seconds, refused where one of the person's actions holds a channel it writes. */
+  /**
+   * A scheduled layer's window in film seconds, refused where one of the
+   * person's actions holds a channel it writes.
+   */
   export function window(
     self: IAutoMovieMotionHumanPerformanceState,
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -178,7 +179,10 @@ export namespace HumanPerformanceLayers {
         reason: `the layer ${layer.name} would run from ${from.toFixed(2)} s to ${to.toFixed(2)} s`,
         fix: "end the layer after it starts",
       });
-    const fade: number = Math.min(scheduled.fade ?? HumanSegment.FADE, (to - from) / 2);
+    const fade: number = Math.min(
+      scheduled.fade ?? HumanSegment.FADE,
+      (to - from) / 2,
+    );
     for (const segment of person.segments) {
       const D: number = segment.plan.duration;
       for (const contact of segment.plan.contacts) {

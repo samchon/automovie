@@ -42,7 +42,10 @@ interface IPhysicalPoseObservation {
   carrierGaps: Record<string, Record<string, number>>;
 }
 
-/** Prepare the same bounded native controller over each declared starting stance. */
+/**
+ * Prepare the same bounded native controller over each declared starting
+ * stance.
+ */
 export function preparePhysicalSupportInput(
   profile: IAutoMoviePhysicalProfile,
   stance: Stance,
@@ -71,8 +74,6 @@ export function preparePhysicalSupportInput(
         tracePhysicalSupportOnset.patchHeight(profile, limb, initial.segments),
       ),
     );
-    if (!Number.isFinite(floorOffset))
-      throw new Error("Missing initial support patch");
     for (const target of body.targets)
       for (const pose of Object.values(target.segments))
         pose.position.y -= floorOffset;
@@ -104,15 +105,27 @@ export function preparePhysicalSupportInput(
   };
 }
 
-/** Read the source pose through the public Motions performer before native integration. */
+/**
+ * Read the source pose through the public Motions performer before native
+ * integration.
+ */
 export namespace preparePhysicalSupportInput {
   /** Public Stand observation and successful physical handoff, when admitted. */
   export interface IStand {
-    /** Canonical profile owned by the public performer and borrowed by simulation. */
+    /**
+     * Canonical profile owned by the public performer and borrowed by
+     * simulation.
+     */
     profile: IAutoMoviePhysicalProfile;
-    /** Strict physical targets in world metres. Target arrays clone them when present. */
+    /**
+     * Strict physical targets in world metres. Target arrays clone them when
+     * present.
+     */
     projected?: Record<string, IAutoMovieRigidTransform>;
-    /** Public clinical result and independently measured source and strict target poses. */
+    /**
+     * Public clinical result and independently measured source and strict
+     * target poses.
+     */
     observation: {
       /** Film second after the public settled event. */
       seconds: number;
@@ -122,9 +135,15 @@ export namespace preparePhysicalSupportInput {
       duration: number;
       /** Ordinary clinical schema and motion limits of the public pose. */
       clinical: IAutoMovieValidation;
-      /** Physical measurements before the handoff, including any native disagreement. */
+      /**
+       * Physical measurements before the handoff, including any native
+       * disagreement.
+       */
       authored: IPhysicalPoseObservation;
-      /** Independent measurements of the projected pose, when the fitter returned one. */
+      /**
+       * Independent measurements of the projected pose, when the fitter
+       * returned one.
+       */
       strictPhysical?: IPhysicalPoseObservation;
       /** Final fit residual in metres, when the handoff reached the solver. */
       residual?: number;
@@ -141,7 +160,10 @@ export namespace preparePhysicalSupportInput {
     body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Subtracted minimum support height in metres, zero for the public Stand. */
     floorOffset: number;
-    /** Initial position from which drift, loads and the explicit impulse are evaluated. */
+    /**
+     * Initial position from which drift, loads and the explicit impulse are
+     * evaluated.
+     */
     start: {
       /** Actual fixture or authored pose producer. */
       stance: Stance;
@@ -156,7 +178,10 @@ export namespace preparePhysicalSupportInput {
     };
   }
 
-  /** Fit the public settled Stand once using the Human provider, retaining both pose observations. */
+  /**
+   * Fit the public settled Stand once using the Human provider, retaining both
+   * pose observations.
+   */
   export function stand(human: IAutoMovieMotionHumanBody): IStand {
     const { profile }: IAutoMovieMotionHumanBody = human;
     const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
@@ -223,7 +248,10 @@ export namespace preparePhysicalSupportInput {
   }
 }
 
-/** Observe actual anchors, limits and signed carrier heights without changing a pose. */
+/**
+ * Observe actual anchors, limits and signed carrier heights without changing a
+ * pose.
+ */
 function observePhysicalPose(
   profile: IAutoMoviePhysicalProfile,
   poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
@@ -285,7 +313,10 @@ function findRoot(profile: IAutoMoviePhysicalProfile): string {
   return roots[0]!.bone;
 }
 
-/** Recompute the physical mass center from each segment's actual initial transform. */
+/**
+ * Recompute the physical mass center from each segment's actual initial
+ * transform.
+ */
 function centerOfMass(
   profile: IAutoMoviePhysicalProfile,
   poses: Readonly<Record<string, IAutoMovieRigidTransform>>,

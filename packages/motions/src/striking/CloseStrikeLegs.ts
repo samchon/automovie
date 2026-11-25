@@ -10,43 +10,40 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { StrikingFootPoint } from "./StrikingFootPoint";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { punchFootwork } from "./punchFootwork";
 
+/** The alternatives of `CloseStrikeLegsLeg`'s site. */
+type CloseStrikeLegsLeg = "leftLeg" | "rightLeg";
+
 /**
- * The lower body of a close strike: the pelvis turned about the vertical
- * and shifted along the line with both feet planted, or, for a spin, the
- * whole stance turned about the ball of the lead foot, which pivots in
- * place while the rear foot travels round it on a low arc.
+ * The lower body of a close strike: the pelvis turned about the vertical and
+ * shifted along the line with both feet planted, or, for a spin, the whole
+ * stance turned about the ball of the lead foot, which pivots in place while
+ * the rear foot travels round it on a low arc.
  *
- * The turn, the lean, the shift and the drop follow one share in [0, 1] of
- * the strike out and back, so the stance returns to the entry's when the
- * share does. A planted turn may pivot the rear foot on its ball by half the
- * turn with the heel raised, as a rear-hand punch does; a drop lowers the
- * hips for a low target; a jump lifts both feet and the root. The root is
- * lowered until both legs reach their feet (`resolveHumanPosture.lower`). A
- * kick's support may rise onto its ball with the share, and a tilt turns
- * the whole body about a world axis through the pivoting foot's hip, which
- * stays put. A leg another primitive writes (a kick's) is left out.
+ * The turn, the lean, the shift and the drop follow one share in [0, 1] of the
+ * strike out and back, so the stance returns to the entry's when the share
+ * does. A planted turn may pivot the rear foot on its ball by half the turn
+ * with the heel raised, as a rear-hand punch does; a drop lowers the hips for a
+ * low target; a jump lifts both feet and the root. The root is lowered until
+ * both legs reach their feet (`lowerHumanPosture`). A kick's support may rise
+ * onto its ball with the share, and a tilt turns the whole body about a world
+ * axis through the pivoting foot's hip, which stays put. A leg another
+ * primitive writes (a kick's) is left out.
  *
  * @param body The body.
  * @param entry The entry posture.
  * @param feet The entry's feet.
  * @param lead The pivoting side: the stance's lead, or a kick's support foot.
- * @param motion The turn, lean, shift, spin, hop and drop by second, the rear pivot and the free leg.
+ * @param motion The turn, lean, shift, spin, hop and drop by second, the rear
+ *   pivot and the free leg.
  * @returns The primitive writing the root, the trunk and the legs it owns.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds of carriage, the pivots, the drop, the jump, the return, the lowering and the free leg.
- * @evidence contracts/development/implementation.md#principled-implementation A planted turn changes the root's heading and place and may pivot the rear foot about its ball; a spin rotates the root and the rear foot rigidly about the lead ball and turns the lead foot about that ball, the forefoot rocker of a pivot.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One share, then the feet, the root and the lowered posture.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pivot ball is held exactly; the rear foot's arc height is a named share of the stance length.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the lowering fit.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the entry and the motion until plan release.
  */
 export function CloseStrikeLegs(
   body: IAutoMovieMotionHumanBody,
@@ -69,7 +66,7 @@ export function CloseStrikeLegs(
       "root",
       "trunk",
       ...(["leftLeg", "rightLeg"] as const).filter(
-        (leg: "leftLeg" | "rightLeg"): boolean => leg !== `${free}Leg`,
+        (leg: CloseStrikeLegsLeg): boolean => leg !== `${free}Leg`,
       ),
     ],
     from: 0,
@@ -78,7 +75,7 @@ export function CloseStrikeLegs(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       _before?: IAutoMovieMotionHumanPrimitive.Reader,
-      resolution?: Parameters<typeof resolveHumanPosture.lower>[3],
+      resolution?: Parameters<typeof lowerHumanPosture>[3],
     ): IAutoMovieMotionHumanPosture => {
       const share: number = motion.share(seconds);
       const spun: number = motion.spin(seconds);
@@ -107,14 +104,9 @@ export function CloseStrikeLegs(
         foot: IAutoMovieMotionHumanFoot.IPlacement,
         angle: number,
       ): IAutoMovieMotionHumanFoot.IPlacement => {
-        const u: number = Math.min(1, Math.abs(angle) / 360);
-        const going: number = minimumJerk.share(
-          (u - CloseStrikeLegs.ROUND[0]) /
-            (CloseStrikeLegs.ROUND[1] - CloseStrikeLegs.ROUND[0]),
-        );
         const by: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
-          Math.sign(angle) * 360 * going,
+          CloseStrikeLegs.round(angle),
         );
         return {
           ankle: Vector3.add(
@@ -199,11 +191,11 @@ export function CloseStrikeLegs(
           ? flat
           : {
               ...flat,
-              ...resolveHumanPosture.angles(
+              ...humanPostureHeading.angles(
                 Quaternion.normalize(
                   Quaternion.multiply(
                     Quaternion.fromAxisAngle(motion.tilt.axis, degrees),
-                    resolveHumanPosture.heading(flat),
+                    humanPostureHeading(flat),
                   ),
                 ),
               ),
@@ -221,7 +213,7 @@ export function CloseStrikeLegs(
                 ),
               ),
             };
-      const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+      const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(
         body,
         {
           ...tilted,
@@ -253,7 +245,7 @@ export function CloseStrikeLegs(
             ),
           },
         },
-        resolveHumanPosture.KNEE,
+        lowerHumanPosture.KNEE,
         resolution,
       );
       return lowered;
@@ -271,19 +263,35 @@ export function CloseStrikeLegs(
   }
 }
 
-/**
- * Companion types and constants of {@link CloseStrikeLegs}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the motion's members, units and the arc's source.
- * @evidence contracts/development/design.md#principled-representation Degrees, metres, a unit line and shares by action second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the close strike law gives its lower body.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
- */
+/** Companion types and constants of {@link CloseStrikeLegs}. */
 export namespace CloseStrikeLegs {
-  /** The rear foot's arc height on a spin, a share of the stance length (provisional). */
+  /**
+   * How far a spinning strike has carried the feet round: a whole turn on a
+   * minimum-jerk share over the `ROUND` part of the spin, signed with it, the
+   * spin read up to one turn.
+   *
+   * @param angle The spin, degrees.
+   * @returns Degrees.
+   */
+  export function round(angle: number): number {
+    const u: number = Math.min(1, Math.abs(angle) / 360);
+    return (
+      Math.sign(angle) *
+      360 *
+      minimumJerk.share((u - ROUND[0]) / (ROUND[1] - ROUND[0]))
+    );
+  }
+
+  /**
+   * The rear foot's arc height on a spin, a share of the stance length
+   * (provisional).
+   */
   export const LIFT: number = 0.25;
 
-  /** The shares of a spin's turn between which the rear foot travels round the pivot, after it rises and before it lands (provisional). */
+  /**
+   * The shares of a spin's turn between which the rear foot travels round the
+   * pivot, after it rises and before it lands (provisional).
+   */
   export const ROUND: readonly [number, number] = [0.2, 0.8];
 
   /** The lower body's carriage over a close strike. */
@@ -291,7 +299,10 @@ export namespace CloseStrikeLegs {
     /** The action's duration, seconds. */
     duration: number;
 
-    /** The pelvis turn at full share, degrees, positive toward the performer's left. */
+    /**
+     * The pelvis turn at full share, degrees, positive toward the performer's
+     * left.
+     */
     turn: number;
 
     /** The trunk's forward lean at full share, degrees. */
@@ -303,25 +314,46 @@ export namespace CloseStrikeLegs {
     /** The share of the strike out and back at an action second, in [0, 1]. */
     share: (seconds: number) => number;
 
-    /** The spin about the lead ball at an action second, degrees; 0 without a spin. */
+    /**
+     * The spin about the lead ball at an action second, degrees; 0 without a
+     * spin.
+     */
     spin: (seconds: number) => number;
 
-    /** The height both feet and the root are lifted at an action second, metres; none when absent. */
+    /**
+     * The height both feet and the root are lifted at an action second, metres;
+     * none when absent.
+     */
     hop?: (seconds: number) => number;
 
-    /** The hips' drop at full share, metres, the support knee bending for a low target; none when absent. */
+    /**
+     * The hips' drop at full share, metres, the support knee bending for a low
+     * target; none when absent.
+     */
     drop?: number;
 
-    /** Whether a planted turn pivots the rear foot on its ball by half the turn, the heel raised; it stays flat when absent. */
+    /**
+     * Whether a planted turn pivots the rear foot on its ball by half the turn,
+     * the heel raised; it stays flat when absent.
+     */
     pivot?: boolean;
 
-    /** The leg another primitive writes, left out of this one's channels and goals; none when absent. */
+    /**
+     * The leg another primitive writes, left out of this one's channels and
+     * goals; none when absent.
+     */
     free?: AutoMovieHumanSide;
 
-    /** The pivoting foot's heel raise onto its ball at full share, degrees, its toes bent as far; flat when absent. */
+    /**
+     * The pivoting foot's heel raise onto its ball at full share, degrees, its
+     * toes bent as far; flat when absent.
+     */
     raise?: number;
 
-    /** The whole body's tilt at full share about a world axis through the pivoting foot's hip; none when absent. */
+    /**
+     * The whole body's tilt at full share about a world axis through the
+     * pivoting foot's hip; none when absent.
+     */
     tilt?: ITilt;
   }
 

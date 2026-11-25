@@ -26,7 +26,10 @@ type Build = AutoMovieArchetypeBuilder<
   createDinghy.Dimension
 >;
 
-/** One transverse hull section: its station along +Z, half-beam at the rim and keel height, metres. */
+/**
+ * One transverse hull section: its station along +Z, half-beam at the rim and
+ * keel height, metres.
+ */
 interface ISection {
   /** Station along the hull, metres from midships. */
   z: number;
@@ -48,30 +51,23 @@ interface IRing {
 }
 
 /**
- * A two-person open sailing dinghy. The hull's reference waterline is Y = 0
- * and +Z points at the bow. Two standing areas share the footwell, the helm's
- * aft of the crew's. The boom pivots about the mast and carries the mainsail
- * and clew; the visible sheet runs from the clew to a floor block and its
- * tail up to the helm's hand end, which stays fixed in the hull. The tiller
- * and the rudder pivot together about the stern, and the tiller extension
- * swings and lifts on a universal joint at the tiller's end.
- * Hull envelope and club sail area follow the Feva Mk2. Intermediate
- * sections, the spars and prepared part dimensions are staged estimates.
+ * A two-person open sailing dinghy. The hull's reference waterline is Y = 0 and
+ * +Z points at the bow. Two standing areas share the footwell, the helm's aft
+ * of the crew's. The boom pivots about the mast and carries the mainsail and
+ * clew; the visible sheet runs from the clew to a floor block and its tail up
+ * to the helm's hand end, which stays fixed in the hull. The tiller and the
+ * rudder pivot together about the stern, and the tiller extension swings and
+ * lifts on a universal joint at the tiller's end. Hull envelope and club sail
+ * area follow the Feva Mk2. Intermediate sections, the spars and prepared part
+ * dimensions are staged estimates.
  *
  * @param params Optional scene identity and reference dimensions.
  * @param seed Provenance seed. The reference dimensions are fixed.
  * @returns A hull with an open footwell and the two independent controls.
- * @evidence contracts/development/common.md#meaningful-documentation States the reference, axes, contact-bearing parts and estimated dimensions.
- * @evidence contracts/development/implementation.md#principled-implementation Thin hull cells preserve the footwell, while native articulation carries rigid sail and helm parts and rebuilds the mainsheet between its own visible endpoints.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the reference, then draw the hull and its two independent rig branches.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The sheet remains attached through articulation. The floor, sail panels, control grips and rudder come from real posed geometry.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed authored parts and two independent degrees of freedom.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both side panels arise from the same hull sections. The moving sheet reuses the archetype span owner.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Model owns its mesh, physics and contact buffers.
  */
 export function createDinghy(
   params: createDinghy.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDinghy.Affordance, createDinghy.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDinghy.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -95,7 +91,10 @@ export function createDinghy(
   return builder.build(dimensions.mass);
 }
 
-/** Thin hull cells on one longitudinal section family beneath the common cockpit floor. */
+/**
+ * Thin hull cells on one longitudinal section family beneath the common cockpit
+ * floor.
+ */
 function hull(builder: Build, length: number, beam: number): void {
   const rim: number = 0.31;
   const panels: readonly ISection[] = [
@@ -290,11 +289,11 @@ function mainRig(builder: Build, length: number): void {
 }
 
 /**
- * The stern pivot carries the below-water blade and the tiller. At the
- * tiller's end a universal joint carries the extension: it swings about the
- * end's vertical (`extensionSwing`) and lifts about its horizontal
- * (`extensionLift`), so the helm's hand carries the extension's grip where
- * it holds it, as a real hinged tiller extension does.
+ * The stern pivot carries the below-water blade and the tiller. At the tiller's
+ * end a universal joint carries the extension: it swings about the end's
+ * vertical (`extensionSwing`) and lifts about its horizontal (`extensionLift`),
+ * so the helm's hand carries the extension's grip where it holds it, as a real
+ * hinged tiller extension does.
  */
 function helm(builder: Build, length: number): void {
   const pivot: IAutoMovieVector3 = v(0, 0.32, -length / 2);
@@ -357,14 +356,7 @@ function helm(builder: Build, length: number): void {
     rides: "extensionLift",
   });
 }
-/**
- * Reference dimensions and the model's named crew and rig contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines reference quantities and separate helm and sail controls.
- * @evidence contracts/development/design.md#principled-representation One fixed hull and club mainsail reference with two modeled rotations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The course moves the whole boat. Its own interface supplies foot supports, controls and line anchors.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The manufacturer hull mass is distinguished from the provisional loaded model mass.
- */
+/** Reference dimensions and the model's named crew and rig contacts. */
 export namespace createDinghy {
   /** Two deck stations, rotation drivers and real hand and line attachments. */
   export type Affordance =
@@ -381,7 +373,10 @@ export namespace createDinghy {
     | "sheetBlock"
     | "sheetSwing"
     | "sheetLift";
-  /** The tiller extension's length from its joint to its tip, metres: a staged estimate. */
+  /**
+   * The tiller extension's length from its joint to its tip, metres: a staged
+   * estimate.
+   */
   export const EXTENSION: number = 0.75;
 
   /** Overall length, beam and estimated rigged mass. */

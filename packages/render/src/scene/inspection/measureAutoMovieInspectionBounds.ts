@@ -1,13 +1,25 @@
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /**
- * Measure the world-space box of what a scene draws now, so a view can be framed on the selection instead of on the whole scene.
+ * Measure the world-space box of what a scene draws now, so a view can be
+ * framed on the selection instead of on the whole scene.
  *
- * An object counts when it and its ancestors are visible and it is on some layer, which is how an inspection leaves an object out. Meshes are measured by their posed vertices, morph targets and linear-blend skinning included. An instanced mesh is measured by the corners of its posed box under each instance, which contains the instances and can exceed them. Lines and points are measured by their position buffers, and a screen-space `LineSegments2`, such as an inspection mark, by its segment ends. Sprites and batched meshes are not measured, and neither is a vertex that is not finite. A section does not reduce the box.
+ * An object counts when it and its ancestors are visible and it is on some
+ * layer, which is how an inspection leaves an object out. Meshes are measured
+ * by their posed vertices, morph targets and linear-blend skinning included. An
+ * instanced mesh is measured by the corners of its posed box under each
+ * instance, which contains the instances and can exceed them. Lines and points
+ * are measured by their position buffers, and a screen-space `LineSegments2`,
+ * such as an inspection mark, by its segment ends. Sprites and batched meshes
+ * are not measured, and neither is a vertex that is not finite. A section does
+ * not reduce the box.
  *
- * It returns null when nothing measured is drawn. World matrices are brought up to date first.
+ * It returns null when nothing measured is drawn. World matrices are brought up
+ * to date first.
  */
 export function measureAutoMovieInspectionBounds(
   root: THREE.Object3D,
@@ -19,20 +31,15 @@ export function measureAutoMovieInspectionBounds(
     matrix: THREE.Matrix4,
   ): void => {
     point.applyMatrix4(matrix);
-    if (
-      Number.isFinite(point.x) &&
-      Number.isFinite(point.y) &&
-      Number.isFinite(point.z)
-    )
-      box.expandByPoint(point);
+    if (isAutoMovieFloat32Point(point)) box.expandByPoint(point);
   };
 
   root.traverseVisible((object: THREE.Object3D): void => {
     if (object.layers.mask === 0) return;
 
     // A screen-space line is a mesh of one widened quad per segment; its segments are its two instanced end attributes.
-    if ((object as { isLineSegments2?: boolean }).isLineSegments2 === true) {
-      const geometry: THREE.BufferGeometry = (object as THREE.Mesh).geometry;
+    if (AutoMovieThreeKind.isLineSegments2(object)) {
+      const geometry: THREE.BufferGeometry = object.geometry;
       for (const end of ["instanceStart", "instanceEnd"])
         if (geometry.hasAttribute(end)) {
           const ends: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
@@ -44,12 +51,11 @@ export function measureAutoMovieInspectionBounds(
         }
       return;
     }
-    if (object instanceof THREE.Mesh) {
-      if ((object as { isBatchedMesh?: boolean }).isBatchedMesh === true)
-        return;
+    if (AutoMovieThreeKind.isMesh(object)) {
+      if (AutoMovieThreeKind.isBatchedMesh(object)) return;
       if (!object.geometry.hasAttribute("position")) return;
       const count: number = object.geometry.getAttribute("position").count;
-      if (!(object instanceof THREE.InstancedMesh)) {
+      if (!AutoMovieThreeKind.isInstancedMesh(object)) {
         for (let i: number = 0; i < count; i++) {
           object.getVertexPosition(i, point);
           include(object.matrixWorld);
@@ -61,12 +67,7 @@ export function measureAutoMovieInspectionBounds(
       const local: THREE.Box3 = new THREE.Box3();
       for (let i: number = 0; i < count; i++) {
         object.getVertexPosition(i, point);
-        if (
-          Number.isFinite(point.x) &&
-          Number.isFinite(point.y) &&
-          Number.isFinite(point.z)
-        )
-          local.expandByPoint(point);
+        if (isAutoMovieFloat32Point(point)) local.expandByPoint(point);
       }
       if (local.isEmpty()) return;
       const placement: THREE.Matrix4 = new THREE.Matrix4();
@@ -82,7 +83,10 @@ export function measureAutoMovieInspectionBounds(
           include(placement);
         }
       }
-    } else if (object instanceof THREE.Line || object instanceof THREE.Points) {
+    } else if (
+      AutoMovieThreeKind.isLine(object) ||
+      AutoMovieThreeKind.isPoints(object)
+    ) {
       if (!object.geometry.hasAttribute("position")) return;
       const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
         object.geometry.getAttribute("position");

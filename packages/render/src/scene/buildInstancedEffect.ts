@@ -13,8 +13,8 @@ import type { IAutoMovieEffectViewerStats } from "./IAutoMovieEffectViewerStats.
  * Build a compiled effect as fixed-capacity camera-facing billboard instances.
  * Numeric particles come from the engine's absolute fixed-step sampler. The
  * current tree exposes this producer without a production scene/film caller.
- * Its returned native mesh exposes resources for caller-owned retirement;
- * no complete disposal handle or partial-setup rollback is supplied here.
+ * Its returned native mesh exposes resources for caller-owned retirement; no
+ * complete disposal handle or partial-setup rollback is supplied here.
  */
 export const buildInstancedEffect: (
   effect: IAutoMovieCompiledEffect,

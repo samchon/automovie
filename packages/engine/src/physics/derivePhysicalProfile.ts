@@ -25,8 +25,9 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  * declarations. Imported geometry requires a caller-supplied segment override.
  * Non-box primitives use conservative box colliders unless spherical/capsular
  * scale is uniform. Mass is analytic volume times density. Spheres use solid
- * sphere inertia; other primitives use their bounding-box inertia approximation.
- * Aggregation uses the parallel-axis theorem. Overrides replace entire segments.
+ * sphere inertia; other primitives use their bounding-box inertia
+ * approximation. Aggregation uses the parallel-axis theorem. Overrides replace
+ * entire segments.
  */
 export function derivePhysicalProfile(
   model: IAutoMovieModel,
@@ -51,7 +52,8 @@ export function derivePhysicalProfile(
 
   const segments: IAutoMoviePhysicalSegment[] = [];
   for (const [bone, neutral] of transforms) {
-    const override: IAutoMoviePhysicalSegment | undefined = options.overrides?.[bone];
+    const override: IAutoMoviePhysicalSegment | undefined =
+      options.overrides?.[bone];
     if (override) {
       if (override.bone !== bone)
         throw new Error(`Physical override bone must remain ${bone}`);
@@ -79,7 +81,7 @@ export function derivePhysicalProfile(
       const shape: typeof part.geometry.shape = part.geometry.shape;
       const density: number =
         options.densities[part.material ?? ""] ?? options.density;
-      if (!(density > 0) || !Number.isFinite(density))
+      if (density <= 0)
         throw new Error(`Physical density must be positive for ${part.id}`);
       const scale: IAutoMovieVector3 = part.transform?.scale ?? unit;
       let rotation: IAutoMovieQuaternion = part.transform?.rotation ?? identity;
@@ -95,7 +97,7 @@ export function derivePhysicalProfile(
       }
       const mass: number =
         primitiveVolume(shape) * scale.x * scale.y * scale.z * density;
-      if (!(mass > 0) || !Number.isFinite(mass))
+      if (mass <= 0)
         throw new Error(
           `Physical provider requires a solid positive-volume part: ${part.id}`,
         );
@@ -207,7 +209,8 @@ export function derivePhysicalProfile(
     });
   }
   const mass: number = segments.reduce(
-    (sum: number, segment: IAutoMoviePhysicalSegment): number => sum + segment.mass,
+    (sum: number, segment: IAutoMoviePhysicalSegment): number =>
+      sum + segment.mass,
     0,
   );
   let centerX: number = 0;

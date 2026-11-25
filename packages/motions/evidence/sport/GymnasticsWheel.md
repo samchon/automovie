@@ -1,21 +1,3 @@
-# src/sport/GymnasticsWheel.ts#GymnasticsWheel
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the rolling rule, the hand-over of the place, the pair rule and the relation to the cartwheel.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A table of root and bearing spoke by angle, built from the body's own joints, so every body rolls by its own spokes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The spoke and row records, the table, its reading, its contact windows and the laid wrist's height the laws bear hands at.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No length in metres: every place follows from the spokes.
-
 # src/sport/GymnasticsWheel.ts#GymnasticsWheel.roll
 
 ## @evidence contracts/development/common.md#meaningful-documentation

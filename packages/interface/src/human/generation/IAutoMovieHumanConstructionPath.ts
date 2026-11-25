@@ -1,4 +1,6 @@
-/** A construction path sampled by the same evaluation that emitted skin vertices.
+/**
+ * A construction path sampled by the same evaluation that emitted skin
+ * vertices.
  */
 export interface IAutoMovieHumanConstructionPath {
   /** Owning skin chain, slash, then a stable named guide address. */

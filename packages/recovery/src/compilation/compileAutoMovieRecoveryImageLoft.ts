@@ -8,14 +8,23 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
+/** Scale each coefficient of one four-coefficient span row. */
+function scale4(
+  row: Readonly<[number, number, number, number]>,
+  factor: number,
+): [number, number, number, number] {
+  return [row[0] * factor, row[1] * factor, row[2] * factor, row[3] * factor];
+}
+
 /**
  * Generate an ordinary AutoMovie bicubic model and its actual construction from
  * saved section coefficients alone. Positive axis scales preserve the other two
- * coordinate extents; height edits anchor at the lowest saved station. Construction
- * evaluates the generated atlas coefficients, including its declared circular-cubic
- * approximation. The viewer and numerical mesh consumer use that same atlas.
- * Partial describes unobserved caps/interior, independently of the engine's later
- * tessellation completion or source/image fidelity.
+ * coordinate extents; height edits anchor at the lowest saved station.
+ * Construction evaluates the generated atlas coefficients, including its
+ * declared circular-cubic approximation. The viewer and numerical mesh consumer
+ * use that same atlas. Partial describes unobserved caps/interior,
+ * independently of the engine's later tessellation completion or source/image
+ * fidelity.
  */
 export function compileAutoMovieRecoveryImageLoft(
   recipe: IAutoMovieRecoveryImageLoft,
@@ -27,22 +36,16 @@ export function compileAutoMovieRecoveryImageLoft(
     if (
       !recipe ||
       recipe.family !== "aligned-elliptical-sections" ||
-      typeof recipe.objectId !== "string" ||
       !recipe.objectId.trim() ||
-      typeof recipe.frame !== "string" ||
       !recipe.frame.trim() ||
       !recipe.loft ||
-      !Array.isArray(recipe.loft.spans) ||
       !recipe.loft.spans.length ||
       !recipe.dimensions ||
       ![
         recipe.dimensions.widthScale,
         recipe.dimensions.depthScale,
         recipe.dimensions.heightScale,
-      ].every(
-        (value: number): boolean =>
-          Number.isFinite(value) && value >= 0.25 && value <= 4,
-      ) ||
+      ].every((value: number): boolean => value >= 0.25 && value <= 4) ||
       recipe.coverage?.lateralSurface !==
         "inferred-under-aligned-ellipse-prior" ||
       recipe.coverage.endCaps !== "unobserved" ||
@@ -58,22 +61,16 @@ export function compileAutoMovieRecoveryImageLoft(
         (
           span: IAutoMovieEllipticLoft["spans"][number],
         ): IAutoMovieEllipticLoft["spans"][number] => ({
-          interval: span.interval.map(
-            (y: number): number =>
-              anchor + (y - anchor) * recipe.dimensions.heightScale,
-          ) as [number, number],
-          radiusX: span.radiusX.map(
-            (value: number): number => value * recipe.dimensions.widthScale,
-          ) as [number, number, number, number],
-          radiusZ: span.radiusZ.map(
-            (value: number): number => value * recipe.dimensions.depthScale,
-          ) as [number, number, number, number],
-          centreX: span.centreX.map(
-            (value: number): number => value * recipe.dimensions.widthScale,
-          ) as [number, number, number, number],
-          centreZ: span.centreZ.map(
-            (value: number): number => value * recipe.dimensions.depthScale,
-          ) as [number, number, number, number],
+          interval: [
+            anchor +
+              (span.interval[0] - anchor) * recipe.dimensions.heightScale,
+            anchor +
+              (span.interval[1] - anchor) * recipe.dimensions.heightScale,
+          ],
+          radiusX: scale4(span.radiusX, recipe.dimensions.widthScale),
+          radiusZ: scale4(span.radiusZ, recipe.dimensions.depthScale),
+          centreX: scale4(span.centreX, recipe.dimensions.widthScale),
+          centreZ: scale4(span.centreZ, recipe.dimensions.depthScale),
         }),
       ),
     };

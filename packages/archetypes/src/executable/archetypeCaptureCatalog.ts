@@ -15,11 +15,7 @@ import {
   createSanitary,
   createWindow,
 } from "../architecture";
-import {
-  type AutoMovieArchetype,
-  type AutoMovieArchetypeCourse,
-  AutoMovieArchetypeRide,
-} from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
 import {
   createBarrel,
   createBed,
@@ -89,6 +85,7 @@ import { archetypeCaptureAnimals } from "./archetypeCaptureAnimals";
 import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
 import { archetypeCaptureBreakage } from "./archetypeCaptureBreakage";
 import { archetypeCaptureCarOpenings } from "./archetypeCaptureCarOpenings";
+import { archetypeCaptureCourse } from "./archetypeCaptureCourse";
 import { archetypeCaptureDogGaits } from "./archetypeCaptureDogGaits";
 import { archetypeCaptureExtendedArmoury } from "./archetypeCaptureExtendedArmoury";
 import { archetypeCaptureFixtures } from "./archetypeCaptureFixtures";
@@ -98,33 +95,16 @@ import { archetypeCaptureRest } from "./archetypeCaptureRest";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
 
-/** A course for the moving subjects: a short straight, a quarter turn to the left, a short straight. */
-const COURSE: AutoMovieArchetypeCourse.ICourse = {
-  start: { x: 0, z: 0, heading: 0 },
-  legs: [
-    { kind: "straight", length: 8 },
-    { kind: "turn", radius: 8, angle: 90 },
-    { kind: "straight", length: 6 },
-  ],
-  cruise: 4,
-  acceleration: 2,
-  deceleration: 2,
-};
-
 /**
- * The archetypes the capture subjects module draws, by subject name: subjects that each hold every kind of a few related producers at the middle of their bands (a family's props take three), one holding the articulated states a visual check has to see, and one per ride.
+ * The archetypes the capture subjects module draws, by subject name: subjects
+ * that each hold every kind of a few related producers at the middle of their
+ * bands (a family's props take three), one holding the articulated states a
+ * visual check has to see, and one per ride.
  *
- * This is an inspection list, not a registry: nothing in the package reads it but `subjects.ts`, and a production calls the producers themselves.
+ * This is an inspection list, not a registry: nothing in the package reads it
+ * but `subjects.ts`, and a production calls the producers themselves.
  *
  * @returns The subjects by name.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the list is for and that nothing else reads it.
- * @evidence contracts/development/implementation.md#principled-implementation Every producer and kind through its own public call at the middle of its bands, each vehicle's ride over one shared course and each gait down one 40 m straight.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The three `archetypeCaptureSubject` helpers (a still subject, a producer's kinds, a ride) and one literal of subjects, the building subjects from `archetypeCaptureFixtures` and the armoury from `archetypeCaptureArmoury`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No archetype is built here by hand; an inspection list, never a registry a production reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds about a hundred small models once per page load.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once by the subjects module.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds plain data only.
  */
 export function archetypeCaptureCatalog(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -162,7 +142,7 @@ export function archetypeCaptureCatalog(): Readonly<
       rideHorse(
         horse,
         {
-          ...COURSE,
+          ...archetypeCaptureCourse,
           legs: [{ kind: "straight", length: 40 }],
           cruise: gait === "walk" ? 1.5 : gait === "trot" ? 4 : 6,
         },
@@ -440,16 +420,22 @@ export function archetypeCaptureCatalog(): Readonly<
           createMicrophone({ kind }),
       ),
     }),
-    "ride-car": moving("car", driveCar(car, COURSE)),
-    "ride-bicycle": moving("bicycle", rideBicycle(bicycle, COURSE)),
+    "ride-car": moving("car", driveCar(car, archetypeCaptureCourse)),
+    "ride-bicycle": moving(
+      "bicycle",
+      rideBicycle(bicycle, archetypeCaptureCourse),
+    ),
     "ride-motorcycle": moving(
       "motorcycle",
-      rideMotorcycle(createMotorcycle({ kind: "motorcycle" }), COURSE),
+      rideMotorcycle(
+        createMotorcycle({ kind: "motorcycle" }),
+        archetypeCaptureCourse,
+      ),
     ),
     "ride-trolley": moving(
       "trolley",
       AutoMovieArchetypeRide.along(createCart({ kind: "trolley" }), {
-        ...COURSE,
+        ...archetypeCaptureCourse,
         cruise: 1.3,
       }),
     ),
@@ -457,28 +443,33 @@ export function archetypeCaptureCatalog(): Readonly<
   };
 }
 
-/**
- * Companion types of {@link archetypeCaptureCatalog}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states what it names.
- * @evidence contracts/development/design.md#principled-representation A subject as members sampled by film second, the form the draw page seeks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `subjects.ts` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A still member and a moving one share one sampler, so the page has one path.
- */
+/** Companion types of {@link archetypeCaptureCatalog}. */
 export namespace archetypeCaptureCatalog {
   /** One archetype drawn in a subject, under its own object name. */
   export interface IMember {
-    /** The object's name in the scene, the first segment of its parts' and marks' paths. */
+    /**
+     * The object's name in the scene, the first segment of its parts' and
+     * marks' paths.
+     */
     name: string;
 
-    /** Immutable neutral model; quadruped sources enable independent rig observations. */
+    /**
+     * Immutable neutral model; quadruped sources enable independent rig
+     * observations.
+     */
     reference?: AutoMovieArchetype;
 
-    /** The archetype at a second of the subject's clock, and its root's placement in the world when it moves. */
+    /**
+     * The archetype at a second of the subject's clock, and its root's
+     * placement in the world when it moves.
+     */
     at(seconds: number): {
       archetype: AutoMovieArchetype;
       placement?: IAutoMovieTransform;
-      /** Authored/solved terminal axis goals from this same sample, model metres; absent when the consumer exposes none. */
+      /**
+       * Authored/solved terminal axis goals from this same sample, model
+       * metres; absent when the consumer exposes none.
+       */
       goals?: ReadonlyMap<
         AutoMovieArchetypeQuadrupedBody.Bone,
         IAutoMovieVector3
@@ -486,7 +477,10 @@ export namespace archetypeCaptureCatalog {
     };
   }
 
-  /** One drawn subject: its members, which the subjects module sets apart along a diagonal when there are several. */
+  /**
+   * One drawn subject: its members, which the subjects module sets apart along
+   * a diagonal when there are several.
+   */
   export interface ISubject {
     /** The archetypes drawn. */
     members: readonly IMember[];

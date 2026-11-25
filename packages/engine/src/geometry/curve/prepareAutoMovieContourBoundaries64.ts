@@ -11,15 +11,16 @@ import type {
 import { refineAutoMovieContourInteractions64 } from "./refineAutoMovieContourInteractions64";
 
 /**
- * Reach one shared-boundary refinement state before choosing and freezing any branch slit.
- * A later interaction can refine a course shared with an earlier group, so all groups are
- * revisited until no source restriction changes. Source-authoritative slit insertion can
- * change chords again, so its final rings pass through the same refinement fixed point.
- * Slit phases remain fixed while cached walks expand through these shared refinements.
- * Every incident slab then uses the same ring
- * objects and inherited phase identities; separate coordinates are never welded.
- * Unresolved geometric qualification remains diagnostic while finite geometry stays admissible.
- * Per-pass timings are opt-in observations and never influence refinement or publication.
+ * Reach one shared-boundary refinement state before choosing and freezing any
+ * branch slit. A later interaction can refine a course shared with an earlier
+ * group, so all groups are revisited until no source restriction changes.
+ * Source-authoritative slit insertion can change chords again, so its final
+ * rings pass through the same refinement fixed point. Slit phases remain fixed
+ * while cached walks expand through these shared refinements. Every incident
+ * slab then uses the same ring objects and inherited phase identities; separate
+ * coordinates are never welded. Unresolved geometric qualification remains
+ * diagnostic while finite geometry stays admissible. Per-pass timings are
+ * opt-in observations and never influence refinement or publication.
  */
 export function prepareAutoMovieContourBoundaries64<
   R extends IAutoMoviePrepareContourBoundaries64Ring,

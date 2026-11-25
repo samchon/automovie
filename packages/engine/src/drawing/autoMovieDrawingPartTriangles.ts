@@ -14,17 +14,17 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * Triangles of one model part in the model's frame, with the part's own
  * transform applied.
  *
- * A primitive is tessellated by the engine's own kernel, so the drawing and
- * the renderer read one description of a box. An imported mesh is taken as
- * written, indexed or not, and its winding is kept because the silhouette pass
- * reads it. Bicubic recipes use the same canonical engine realization as display,
- * including finite partial output; processing qualification is not a drawing gate.
+ * A primitive is tessellated by the engine's own kernel, so the drawing and the
+ * renderer read one description of a box. An imported mesh is taken as written,
+ * indexed or not, and its winding is kept because the silhouette pass reads it.
+ * Bicubic recipes use the same canonical engine realization as display,
+ * including finite partial output; processing qualification is not a drawing
+ * gate.
  *
  * Throws an `Error` naming the model and part when the position array is not
  * whole `x, y, z` triples, the index array is not whole triangles, or an index
- * is not an integer naming one of the vertices: drawing whatever prefix
- * happens to divide evenly would hide an authoring defect behind a plausible
- * outline.
+ * is not an integer naming one of the vertices: drawing whatever prefix happens
+ * to divide evenly would hide an authoring defect behind a plausible outline.
  *
  * @param model Model owning the part; used for its id in failures.
  * @param part Part whose geometry and transform are read.
@@ -57,7 +57,7 @@ export const autoMovieDrawingPartTriangles: (
   const corner: (index: number) => IAutoMovieVector3 = (
     index: number,
   ): IAutoMovieVector3 => {
-    if (!Number.isInteger(index) || index < 0 || index >= vertexCount)
+    if (index < 0 || index >= vertexCount)
       throw new Error(
         `model "${model.id}" part "${part.id}" index ${index} is outside its ${vertexCount} vertices`,
       );

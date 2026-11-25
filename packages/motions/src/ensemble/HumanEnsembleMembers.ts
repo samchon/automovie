@@ -15,26 +15,23 @@ import { HumanAttribute } from "./HumanAttribute";
 import { HumanFormation } from "./HumanFormation";
 
 /**
- * How an ensemble's members are resolved from its input (`HumanEnsemble.of`):
- * each member's attributes and proficiency drawn from the group's
- * distributions by its own keys, its body drawn from the pool, its place
- * its formation slot at second 0 or the place given, then the roles filled
- * in the order given from the members each pick names, and each member's
- * detail read once its role is known.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order of the resolution and what each step draws or reads.
- * @evidence contracts/development/design.md#principled-representation One function over the ensemble's input returning its members.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `resolve`, split from `HumanEnsemble` by responsibility; `HumanEnsemble.of` is its one caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No draw consumes a shared counter: every draw is keyed by the member's index.
+ * How an ensemble's members are resolved from its input (`HumanEnsemble`):
+ * each member's attributes and proficiency drawn from the group's distributions
+ * by its own keys, its body drawn from the pool, its place its formation slot
+ * at second 0 or the place given, then the roles filled in the order given from
+ * the members each pick names, and each member's detail read once its role is
+ * known.
  */
 export namespace HumanEnsembleMembers {
   /**
-   * Resolve an ensemble's members, as `HumanEnsemble.of` documents.
+   * Resolve an ensemble's members, as `HumanEnsemble` documents.
    *
    * @param input The ensemble.
-   * @param read Reads a guide's placed root, when the formation follows a guide.
+   * @param read Reads a guide's placed root, when the formation follows a
+   *   guide.
    * @returns The ensemble.
-   * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a place cannot be met, naming the ensemble and the axis.
+   * @throws {HumanRefusal} When the count, the pool, a distribution, a role or
+   *   a place cannot be met, naming the ensemble and the axis.
    */
   export function resolve(
     input: IAutoMovieMotionHumanEnsemble.IInput,
@@ -56,7 +53,7 @@ export namespace HumanEnsembleMembers {
         fix,
       });
     };
-    if (!(Number.isInteger(input.count) && input.count > 0))
+    if (!(input.count > 0))
       refuse(
         "count",
         input.count,
@@ -73,7 +70,9 @@ export namespace HumanEnsembleMembers {
     const formation: IAutoMovieMotionHumanFormation | undefined =
       input.formation === undefined
         ? undefined
-        : HumanFormation.of(input.formation);
+        : HumanFormation(input.formation);
+    const prepared: HumanFormation.IPrepared | undefined =
+      formation === undefined ? undefined : HumanFormation.prepare(formation);
     if (
       formation !== undefined &&
       HumanFormation.count(formation) < input.count
@@ -151,8 +150,8 @@ export namespace HumanEnsembleMembers {
       const slot: IAutoMovieMotionHumanFormation.ILocal | null =
         formation === undefined ? null : HumanFormation.local(formation, index);
       const place: IAutoMovieMotionHumanEnsemble.IPlace =
-        formation !== undefined
-          ? placeOf(HumanFormation.slot(formation, index, 0, read))
+        prepared !== undefined
+          ? placeOf(prepared.slot(index, 0, read))
           : typeof input.places === "function"
             ? input.places(index)
             : (input.places![index] ??
@@ -221,7 +220,7 @@ export namespace HumanEnsembleMembers {
                 ? flank(free, formation)
                 : free;
       if (
-        !(Number.isInteger(spec.count) && spec.count >= 0) ||
+        !(spec.count >= 0) ||
         spec.count > candidates.length
       )
         refuse(
@@ -254,7 +253,10 @@ function placeOf(
   return { at: slot.at, yaw: slot.heading };
 }
 
-/** The free members on a flank: file 0 first, then the last file of each block; without a formation, the first and the last. */
+/**
+ * The free members on a flank: file 0 first, then the last file of each block;
+ * without a formation, the first and the last.
+ */
 function flank(
   free: readonly IAutoMovieMotionHumanEnsemble.IMember[],
   formation: IAutoMovieMotionHumanFormation | undefined,

@@ -1,6 +1,4 @@
-/**
- * Retained triangle interval and chart bounds for one atlas patch.
- */
+/** Retained triangle interval and chart bounds for one atlas patch. */
 
 export interface IAutoMovieRecoveryAtlasPrimitiveRange {
   /** Generating patch identity. */

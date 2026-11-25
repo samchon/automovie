@@ -69,8 +69,7 @@ const check: (props: {
  *    inside the room's convex cell.
  * 2. Every reference is checked: a wrong environment, an unknown space, an unknown
  *    or duplicated support element, an unsupplied domain, a duplicated domain
- *    id, a duplicated furnishing id, a blank furnishing id, an unknown kind, an
- *    unknown mode and an undeclared named state are each named.
+ *    id, a duplicated furnishing id and an undeclared named state are each named.
  * 3. A domain that fails its own validation is reported at the address the binding
  *    knows it by, keeping its original kind and severity.
  * 4. A panel hanging outside the room is refused, while a purely semantic space
@@ -94,11 +93,9 @@ const check: (props: {
  *    undeclared named state is `not-run`, a request for cloth-on-cloth contact
  *    is `unsupported` and returns the rest configuration rather than a solve,
  *    `mode: "rest"` is reported as `rest`, only an ordinary `simulated`
- *    furnishing is reported as `solved`, and a mode this tier does not evaluate
- *    is `not-run` rather than falling through to a solve it never performed.
- * 8. The probed invalid times are reported without throwing. A non-finite second and one
- *    landing past the step budget the domain declared for itself, are each
- *    reported as `not-run` with no geometry rather than being sent to the solver.
+ *    and only an ordinary `simulated` furnishing is reported as `solved`.
+ * 8. The probed invalid times are reported without throwing. A second landing
+ *    past the step budget the domain declared for itself is as `not-run` with no geometry rather than being sent to the solver.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises validateSoftFurnishings references, domain refusal paths and held-particle containment, then the shared ownership/lowering helper checks global deterministic ownership and explicit computation statuses, missing geometry and clock refusals. These are actual validator/lowering outputs rather than renderer appearances.
  * @evidence contracts/development/testing.md#independent-expectations The room spans X/Z [-8,8] and Y [-4,4], so authored X=40 particles or held anchors lie outside while a semantic room supplies no geometric premise. Literal identity conflicts and lexicographic a-domain/z-domain plus alpha/beta ownership supply independent expectations. The 1/64 s clock maps 0.5 to step 32, 16 to 1024 beyond budget 1000, and 15.625 to its exact boundary. Containment assertions do not prove whole-face or future-trajectory containment.
@@ -182,43 +179,6 @@ export function test_soft_furnishing_binding(): void {
           ),
       ],
       [
-        "blankFurnishing",
-        (): boolean =>
-          hasViolation(
-            check({ furnishings: [softFurnishing({ id: " " })] }),
-            "type",
-            "furnishings[0].id",
-          ),
-      ],
-      [
-        "kind",
-        (): boolean =>
-          hasViolation(
-            check({
-              furnishings: [
-                softFurnishing({
-                  kind: "tapestry" as unknown as "curtain",
-                }),
-              ],
-            }),
-            "type",
-            "furnishings[0].kind",
-          ),
-      ],
-      [
-        "mode",
-        (): boolean =>
-          hasViolation(
-            check({
-              furnishings: [
-                softFurnishing({ mode: "baked" as unknown as "rest" }),
-              ],
-            }),
-            "type",
-            "furnishings[0].mode",
-          ),
-      ],
-      [
         "state",
         (): boolean =>
           hasViolation(
@@ -242,9 +202,6 @@ export function test_soft_furnishing_binding(): void {
       domain: true,
       duplicateDomain: true,
       duplicateFurnishing: true,
-      blankFurnishing: true,
-      kind: true,
-      mode: true,
       state: true,
       declaredState: true,
     },

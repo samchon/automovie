@@ -3,6 +3,20 @@ import type {
   IAutoMovieScript,
 } from "@automovie/interface";
 
+/** The lookup reads the requested beat id and reports into the shot's collector. */
+type IScriptGateContext = Pick<
+  IAutoMovieEnginePerformShotGateContext,
+  "out"
+> & {
+  performance: Pick<
+    IAutoMovieEnginePerformShotGateContext["performance"],
+    "beat"
+  >;
+};
+
+/** Authored beats are the only script fields used by this gate. */
+type IScriptBeats = Pick<IAutoMovieScript, "beats">;
+
 /**
  * Refuse duplicate script beat ids and answer the beat the performance names,
  * the first declaration of its id.
@@ -17,8 +31,8 @@ import type {
  *   when the script has none.
  */
 export function gatePerformShotScript(
-  context: IAutoMovieEnginePerformShotGateContext,
-  script: IAutoMovieScript,
+  context: IScriptGateContext,
+  script: IScriptBeats,
 ): IAutoMovieScript["beats"][number] | undefined {
   const first: Map<string, number> = new Map();
   script.beats.forEach(

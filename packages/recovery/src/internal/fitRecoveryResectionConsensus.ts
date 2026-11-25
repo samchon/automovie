@@ -20,9 +20,9 @@ import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
  * eligible proposals receive bounded local refinement in draw order. Final
  * support must stabilize and satisfy its recomputed conditional trial target.
  * onProposal runs exactly once before each six-point draw; checkpoint also runs
- * around refinement and therefore does not count proposals.
- * Optional diagnostic events snapshot actual intermediate results outside the
- * numerical catches; observer errors propagate and no event history is retained.
+ * around refinement and therefore does not count proposals. Optional diagnostic
+ * events snapshot actual intermediate results outside the numerical catches;
+ * observer errors propagate and no event history is retained.
  */
 export function fitRecoveryResectionConsensus(
   points: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[0],
@@ -307,7 +307,7 @@ export function fitRecoveryResectionConsensus(
   if (!stable) refusalReasons.push("unstable-resection-support");
   if (!refinement?.converged) refusalReasons.push("resection-not-converged");
   if (
-    !Number.isFinite(required) ||
+    required === Infinity ||
     trials < Math.max(required, budget.minimumResectionTrials)
   )
     refusalReasons.push("resection-trial-target-not-met");
@@ -315,7 +315,7 @@ export function fitRecoveryResectionConsensus(
     pose: refusalReasons.length === 0 ? pose : null,
     indices: best.indices,
     trials,
-    requiredTrials: Number.isFinite(required) ? required : null,
+    requiredTrials: required !== Infinity ? required : null,
     localRefinements,
     numericalRefusals,
     finalRefits,

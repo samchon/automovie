@@ -1,21 +1,3 @@
-# src/actions/jumpPush.ts#jumpPush
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the push-off moves and from what; the law's own documentation gives the sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The push-off phase of the jump as one record of paths over the push's seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The inputs, the paths the jump reads and their builder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every path starts at the entry's own value and rate.
-
 # src/actions/jumpPush.ts#jumpPush.standing
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -310,7 +292,7 @@ Contains only the six quantities consumed by actual push posture and heel/reachi
 
 No pose certification, contact result, cache identity or alternate support is represented.
 
-# src/actions/jumpPush.ts#jumpPush.of
+# src/actions/jumpPush.ts#jumpPush
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

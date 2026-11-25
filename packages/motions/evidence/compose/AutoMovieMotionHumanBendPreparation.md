@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Fixes the body/posture/side while world wrist points, rotations, fallback and requested elbow side remain per query.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses the existing bend request's goal fields and original candidate/score types, with world metres and rest-relative quaternions unchanged.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-solve/strain serve saw/catch/grasp selection; both supplies actual crawl/load paired-arm consumers with lazy side preparations sharing their genuine fixed trunk source.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only chain/collider/neutral preparation is shared; no target, ranking, chosen elbow or strain answer is cached.
-
 # src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation.IGoal
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -72,7 +54,7 @@ Every original candidate/refinement and exact-zero legality condition remains, w
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Reuses fixed chain/FK preparation while retaining the original bounded numerical sweep per actual wrist/rotation; without a trial the hand's share of a candidate's strain is read only for comparisons its certified bound leaves open (`AutoMovieMotionHumanBendSearch.strained`), the same choice.
+Reuses fixed chain/FK preparation while retaining the original bounded numerical sweep per actual wrist/rotation; the hand's share of a candidate's strain is read only for comparisons its certified bound leaves open (`AutoMovieMotionHumanBendSearch.strained`), the same choice.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -112,7 +94,7 @@ Unchanged body/trunk/side fixes the chain; shoulder/wrist/hint scalars remain fi
 
 The fixed selector or bounded authored support-state plan owns one geometry context until release; this method retains no wrist, hint, score, result history or handle.
 
-# src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation.of
+# src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -150,11 +132,11 @@ Uses the full current Bend goal and its original fallback to return a world elbo
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Ordinary callers retain the original Bend entry. A proved loan reaches only this preparation's ordinary numerical rank.
+Every caller takes the original Bend entry.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Selects one original solver route; ranking and policy stay here.
+One original solver route; ranking and policy stay with the Bend.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -162,11 +144,11 @@ No target, input admission, throwing path or hand record is skipped.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Ordinary queries keep the original cost; a matched loan reuses only the proved deterministic numerical search.
+Every query keeps the original Bend's cost.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-One current numerical search uses the actual loan only during its caller's sweep.
+Reuses `AutoMovieMotionHumanBend.solve`.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

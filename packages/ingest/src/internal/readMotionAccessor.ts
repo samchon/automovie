@@ -7,7 +7,11 @@ import { object } from "./object";
 /**
  * Read a finite non-sparse FLOAT accessor into caller-owned motion values.
  *
- * The source inventories and byte ranges are already admitted. The requested SCALAR, VEC3 or VEC4 shape must match an accessor with a buffer view, FLOAT components and no sparse overrides. Every component is copied in element order and checked finite; a mismatch or non-finite value throws with the supplied path.
+ * The source inventories and byte ranges are already admitted. The requested
+ * SCALAR, VEC3 or VEC4 shape must match an accessor with a buffer view, FLOAT
+ * components and no sparse overrides. Every component is copied in element
+ * order and checked finite; a mismatch or non-finite value throws with the
+ * supplied path.
  */
 export const readMotionAccessor: (
   source: IAccessorSource,

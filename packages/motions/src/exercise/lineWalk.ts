@@ -1,9 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -30,56 +25,53 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
-import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanFootSwing } from "../compose/AutoMovieMotionHumanFootSwing";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanToesOnFloor } from "../compose/AutoMovieMotionHumanToesOnFloor";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { ExerciseKey } from "./ExerciseKey";
+import type { ILineWalkFall } from "./ILineWalkFall";
+import { lineWalkFootprints } from "./lineWalkFootprints";
 import { lineWalkPole } from "./lineWalkPole";
 
 /**
- * A walk along a line too narrow for a normal gait (#3875's balance beam,
- * #3997's tightrope). Each step puts a foot one foot's length ahead of the
- * other on the line, heel to toe, turned out `TURN` degrees from it; a
- * stepping foot swings over `SWING` of a `PERIOD`-second step while the
- * other bears, passing the bearing shank on its own side by the two shanks'
- * radii at the crossing; a foot holds the line under its ball and its heel
- * rises about that ball. The hips travel along the line between the feet on
- * minimum-jerk progress and sway across it, `SWAY` of the stature at the
- * stride's period, corrected back over the line at each footfall; the arms
- * are held out to the sides for balance.
+ * A walk along a line too narrow for a normal gait (balance beam, tightrope).
+ * Each step puts a foot one foot's length ahead of the other on the line, heel
+ * to toe, turned out `TURN` degrees from it; a stepping foot swings over
+ * `SWING` of a `PERIOD`-second step while the other bears, passing the bearing
+ * shank on its own side by the two shanks' radii at the crossing; a foot holds
+ * the line under its ball and its heel rises about that ball. The hips travel
+ * along the line between the feet on minimum-jerk progress and sway across it,
+ * `SWAY` of the stature at the stride's period, corrected back over the line at
+ * each footfall; the arms are held out to the sides for balance.
  *
- * The line is the prop's: a beam's `surface` along its depth, a rope's or
- * a bar's `bar` along its length, at its top. Refused: an entry whose feet
- * are not on the line's top, and a stopping point beyond either end of the
- * line.
+ * The line is the prop's: a beam's `surface` along its depth, a rope's or a
+ * bar's `bar` along its length, at its top. Refused: an entry whose feet are
+ * not on the line's top, and a stopping point beyond either end of the line.
  *
- * A rope or wire may sag (`sag`): the footprints follow the parabola of
- * that sag, and a sag too shallow for the span is refused because the
- * tension it needs, `W L / (4 sag)`, exceeds the line's working load `LOAD`.
- * A balancing pole (`pole`, `lineWalkPole`) is held in both hands at its
- * grips, carried with the hips.
+ * A rope or wire may sag (`sag`): the footprints follow the parabola of that
+ * sag, and a sag too shallow for the span is refused because the tension it
+ * needs, `W L / (4 sag)`, exceeds the line's working load `LOAD`. A balancing
+ * pole (`pole`, `lineWalkPole`) is held in both hands at its grips, carried
+ * with the hips.
  *
- * First pass: the sway is kinematic, not a balance controller; the line's
- * sag is static, not deflected under each step.
+ * First pass: the sway is kinematic, not a balance controller; the line's sag
+ * is static, not deflected under each step.
  *
  * Events: `step1` to `stepN` at each footfall, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stepping, the sway, the line, the refusals, the first pass and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over one step clock, the prop's line and the body's foot length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the stepping constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's or the prop's.
  */
 export namespace lineWalk {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "balanceWalk";
 
-  /** Cancel table: once the last foot is down, into standing or another line walk. */
+  /**
+   * Cancel table: once the last foot is down, into standing or another line
+   * walk.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -95,16 +87,28 @@ export namespace lineWalk {
   /** Each foot's turn out from the line, degrees (provisional). */
   export const TURN: number = 15;
 
-  /** The hips' sway across the line, a share of the stature (provisional, within a few centimetres). */
+  /**
+   * The hips' sway across the line, a share of the stature (provisional, within
+   * a few centimetres).
+   */
   export const SWAY: number = 0.01;
 
-  /** How far the hips walk below their standing height, a share of the stature: the soft knees of a balance walk (provisional). */
+  /**
+   * How far the hips walk below their standing height, a share of the stature:
+   * the soft knees of a balance walk (provisional).
+   */
   export const CROUCH: number = 0.03;
 
-  /** A tightrope's working load, newtons (provisional: a walking wire's rated tension). */
-  export const LOAD: number = 15000;
+  /**
+   * A tightrope's working load, newtons (provisional: a walking wire's rated
+   * tension).
+   */
+  export const LOAD: number = lineWalkFootprints.LOAD;
 
-  /** How far an entry foot may stand off the line's top, metres: half a foot's width. */
+  /**
+   * How far an entry foot may stand off the line's top, metres: half a foot's
+   * width.
+   */
   export const ON: number = 0.05;
 
   /**
@@ -112,15 +116,9 @@ export namespace lineWalk {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the prop lacks the affordance, an entry foot is off the line's top, the step count is not a positive whole number, or the stopping point lies beyond the line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Footprints a foot's length apart on the line, swings as leg arcs, hips between the feet on minimum-jerk progress with a sinusoidal sway, arms keyed out.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Line, footprints, clock, rows, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses an entry off the line or a stop beyond it; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in steps; constant work per sample after a step lookup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg placement and arc primitives and the exercise key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the footprints and the clock.
+   * @throws {HumanRefusal} When the prop lacks the affordance, an entry foot is
+   *   off the line's top, the step count is not a positive whole number, or the
+   *   stopping point lies beyond the line.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLineWalk.IParams>,
@@ -201,37 +199,23 @@ export namespace lineWalk {
         fix: "stop on the line",
       });
     const length: number = body.measure.footLength;
-    const steps: number =
-      p.steps ?? Math.max(1, Math.ceil(Math.abs(stop - start) / length));
-    HumanBound.whole("steps", steps);
-    const step: number = (stop - start) / steps;
+    const { steps, step }: lineWalkFootprints.IPace = lineWalkFootprints.pace(
+      start,
+      stop,
+      length,
+      p.steps,
+    );
     const sign: number = Math.sign(step) || 1;
     const yaw: number =
       (Math.atan2(along.x * sign, along.z * sign) * 180) / Math.PI;
     // A sagging line: the walker's weight at the middle needs a tension
     // `W L / (4 sag)`, refused beyond the line's working load.
     const sag: number = p.sag ?? 0;
-    if (sag > 0 && Number.isFinite(half)) {
-      const tension: number =
-        (body.profile.mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * sag);
-      if (tension > LOAD) {
-        const least: number =
-          (body.profile.mass * AutoMovieGravity.STANDARD * 2 * half) /
-          (4 * LOAD);
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "sag",
-          value: sag,
-          feasible: { kind: "range", minimum: least, maximum: null, unit: "m" },
-          reason: `a ${(2 * half).toFixed(1)} m line sagging ${sag} m needs ${(tension / 1000).toFixed(1)} kN, beyond its ${LOAD / 1000} kN working load`,
-          fix: `let it sag at least ${least.toFixed(2)} m, or shorten the span`,
-        });
-      }
-    }
+    lineWalkFootprints.sagged(body.profile.mass, half, sag);
     const point: (s: number) => IAutoMovieVector3 = (
       s: number,
     ): IAutoMovieVector3 => {
-      const u: number = Number.isFinite(half) ? (s + half) / (2 * half) : 0.5;
+      const u: number = half === Infinity ? 0.5 : (s + half) / (2 * half);
       return {
         ...Vector3.add(top, Vector3.scale(along, s)),
         y: top.y + ankle - 4 * sag * u * (1 - u),
@@ -261,7 +245,7 @@ export namespace lineWalk {
 
     // Each foot's footfall seconds and placements: the stepping foot of
     // step k lands at the k-th footprint at the end of its swing.
-    const falls: Record<AutoMovieHumanSide, IFall[]> = {
+    const falls: Record<AutoMovieHumanSide, ILineWalkFall[]> = {
       left: [
         {
           at: 0,
@@ -302,14 +286,14 @@ export namespace lineWalk {
     };
     const passing: number = 2 * body.measure.shankRadius;
     for (const side of ["left", "right"] as const) {
-      const list: IFall[] = falls[side];
+      const list: ILineWalkFall[] = falls[side];
       const placementAt: (t: number) => IAutoMovieMotionHumanFoot.IPlacement = (
         t: number,
       ): IAutoMovieMotionHumanFoot.IPlacement => {
         // The last footfall landed by now, and the next one it swings to.
         let i: number = 0;
         while (i + 1 < list.length && list[i + 1]!.at <= t) i++;
-        const next: IFall | undefined = list[i + 1];
+        const next: ILineWalkFall | undefined = list[i + 1];
         if (next === undefined) return list[i]!.place;
         const lift: number = next.at - SWING * PERIOD;
         if (t <= lift) return list[i]!.place;
@@ -351,7 +335,7 @@ export namespace lineWalk {
       };
       const planted: (t: number) => boolean = (t: number): boolean =>
         list.every(
-          (f: IFall): boolean =>
+          (f: ILineWalkFall): boolean =>
             !(t > f.at - SWING * PERIOD && t < f.at) || f.at === 0,
         );
       const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place(
@@ -364,7 +348,7 @@ export namespace lineWalk {
             posture: IAutoMovieMotionHumanPosture,
             t: number,
           ): IAutoMovieMotionHumanFoot.IPlacement =>
-            AutoMovieMotionHumanFootRelax.of(
+            AutoMovieMotionHumanFootRelax(
               body,
               posture,
               side,
@@ -428,10 +412,10 @@ export namespace lineWalk {
     };
     // A balancing pole: each hand keeps its grip where it held it at the
     // start, in the frame that travels with the hips.
-    const pole: ReturnType<typeof lineWalkPole.of> | undefined =
+    const pole: ReturnType<typeof lineWalkPole> | undefined =
       p.pole === undefined
         ? undefined
-        : lineWalkPole.of(context, p.pole, { origin: hipsAt(0), yaw });
+        : lineWalkPole(context, p.pole, { origin: hipsAt(0), yaw });
     if (pole !== undefined) contacts.push(...pole.contacts);
     primitives.push({
       channels: ["root", "trunk", "leftArm", "rightArm"],
@@ -465,16 +449,13 @@ export namespace lineWalk {
           ...turned,
           root: Vector3.subtract(
             hips,
-            Quaternion.rotateVector(
-              resolveHumanPosture.heading(turned),
-              hipsRest,
-            ),
+            Quaternion.rotateVector(humanPostureHeading(turned), hipsRest),
           ),
         };
       },
     });
     events.push({ name: "relax", share: 1 });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       duration,
       events.map(
         (e: IAutoMovieMotionEvent): IAutoMovieMotionClockInstant => ({
@@ -488,14 +469,5 @@ export namespace lineWalk {
       clock,
       primitives,
     });
-  }
-
-  /** One footfall of a foot: when it lands and where. */
-  interface IFall {
-    /** Seconds since the walk's start; 0 for the entry's stance. */
-    at: number;
-
-    /** The foot's placement on landing. */
-    place: IAutoMovieMotionHumanFoot.IPlacement;
   }
 }

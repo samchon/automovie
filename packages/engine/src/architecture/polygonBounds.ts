@@ -6,7 +6,10 @@ import {
 /**
  * The axis-aligned bounds of a polygon in its own planar frame.
  *
- * Returns componentwise extrema in polygon units as new caller-owned corners. A meaningful finite box requires non-empty finite input. Empty input retains `Infinity` minima and `-Infinity` maxima, and comparisons skip `NaN` coordinates; this function does not validate either premise.
+ * Returns componentwise extrema in polygon units as new caller-owned corners. A
+ * meaningful finite box requires non-empty finite input. Empty input retains
+ * `Infinity` minima and `-Infinity` maxima, and comparisons skip `NaN`
+ * coordinates; this function does not validate either premise.
  *
  * @param polygon Points of the ring, in any order.
  * @returns The lower and upper corners of the bounding box.

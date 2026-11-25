@@ -40,43 +40,38 @@ import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
 
 /**
- * Catching an object thrown by another action: the hands meet it where its
- * path enters the reach, give with it, and bring it to the chest.
+ * Catching an object thrown by another action: the hands meet it where its path
+ * enters the reach, give with it, and bring it to the chest.
  *
  * The goal is an interception. The throw's plan carries its launch
- * (`throwObject.of`), so the path is known in closed form, drag-free. The
- * catch point is where the path first comes within `REACH` arm lengths
- * ahead of the catcher's root along its heading (provisional), and the
- * contact instant the path's time there; a path that never comes so near,
- * or a point the arms cannot reach from the shoulders, is refused. With two
- * hands the palms take the object from both sides, each palm on its surface
- * across the catcher's left-right axis; with one the palm takes it from
- * behind, facing the way it comes, or with a worn glove (`glove`) the hand
- * turned as that palm would be and moved so the glove's pocket meets it. The
- * fingers take the turn about the palm's normal (`ROLLS`, upward first) the
- * arm holds at the contact with the least strain
- * (`AutoMovieMotionHumanBend.strain`), so the wrist's range decides it. The ball's size is the
- * ball's own (`ball`, `HumanBall`). The hands travel there on minimum-jerk
- * progress over the aimed movement time to an object of its size (McIntosh
- * et al. 2018, `AutoMovieMotionHumanTiming.aimed`), arriving at contact;
- * the anticipatory `prepare` instant is 100 ms before impact (Lacquaniti and
- * Maioli 1989, J Neurosci 9:134). After contact the hands give `GIVE` along
- * the object's velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m,
- * provisional), which is `secured`, then carry it to before the sternum and
- * hold it. Events: `reach`, `prepare`, `contact`, `secured`, `held`.
+ * (`readThrowObjectLaunch`), so the path is known in closed form, drag-free.
+ * The catch point is where the path first comes within `REACH` arm lengths
+ * ahead of the catcher's root along its heading (provisional), and the contact
+ * instant the path's time there; a path that never comes so near, or a point
+ * the arms cannot reach from the shoulders, is refused. With two hands the
+ * palms take the object from both sides, each palm on its surface across the
+ * catcher's left-right axis; with one the palm takes it from behind, facing the
+ * way it comes, or with a worn glove (`glove`) the hand turned as that palm
+ * would be and moved so the glove's pocket meets it. The fingers take the turn
+ * about the palm's normal (`ROLLS`, upward first) the arm holds at the contact
+ * with the least strain (`AutoMovieMotionHumanBend.strain`), so the wrist's
+ * range decides it. The ball's size is the ball's own (`ball`, `HumanBall`).
+ * The hands travel there on minimum-jerk progress over the aimed movement time
+ * to an object of its size (McIntosh et al. 2018,
+ * `AutoMovieMotionHumanTiming.aimed`), arriving at contact; the anticipatory
+ * `prepare` instant is 100 ms before impact (Lacquaniti and Maioli 1989, J
+ * Neurosci 9:134). After contact the hands give `GIVE` along the object's
+ * velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m, provisional), which is
+ * `secured`, then carry it to before the sternum and hold it. Events: `reach`,
+ * `prepare`, `contact`, `secured`, `held`.
  *
- * The catch may start any time up to that `prepare` instant: with the throw,
- * or later, as when the thrower cuts its own throw at the release to catch
- * what it tossed (a juggle, a rhythmic toss).
+ * The catch may start any time up to that `prepare` instant: with the throw, or
+ * later, as when the thrower cuts its own throw at the release to catch what it
+ * tossed (a juggle, a rhythmic toss).
  *
- * Not yet: hand closure timed by optical expansion (Savelsbergh et al.
- * 1991), a running catch (McLeod and Dienes 1996), a fumble, the catch
- * against the chest, and a held prop handed from the throw.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the interception, the hands' places, their timing with sources, the give, the events, the refusals and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record composed of arm rows over a standing base, reading the throw's launch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the constants, the object reader and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The path comes from the throw's plan, never typed.
+ * Not yet: hand closure timed by optical expansion (Savelsbergh et al. 1991), a
+ * running catch (McLeod and Dienes 1996), a fumble, the catch against the
+ * chest, and a held prop handed from the throw.
  */
 export namespace catchObject {
   /** The action's name. */
@@ -108,19 +103,31 @@ export namespace catchObject {
     ],
   };
 
-  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  /**
+   * May be performed over a carrier, such as seated or while another action
+   * carries the body: it claims only the parts it moves.
+   */
   export const overlay: boolean = true;
 
-  /** How far ahead of the root the object is met, arm lengths (`catchObjectApproach.REACH`). */
+  /**
+   * How far ahead of the root the object is met, arm lengths
+   * (`catchObjectApproach.REACH`).
+   */
   export const REACH: number = catchObjectApproach.REACH;
 
-  /** The height a self-tossed object is caught at on its way down (`catchObjectApproach.TOSS`). */
+  /**
+   * The height a self-tossed object is caught at on its way down
+   * (`catchObjectApproach.TOSS`).
+   */
   export const TOSS: number = catchObjectApproach.TOSS;
 
   /** How far the hands give with the object after contact, metres (provisional). */
   export const GIVE: number = 0.1;
 
-  /** The turns of the fingers about the palm's normal tried on the ball, degrees from upward: the whole way round in steps of 30. */
+  /**
+   * The turns of the fingers about the palm's normal tried on the ball, degrees
+   * from upward: the whole way round in steps of 30.
+   */
   export const ROLLS: readonly number[] = [
     0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180,
   ];
@@ -143,17 +150,13 @@ export namespace catchObject {
    * Plan a catch.
    *
    * @param context The action's context.
-   * @param interception An optional realized interception supplied by `stageCatch`.
+   * @param interception An optional realized interception supplied by
+   *   `stageCatch`.
    * @returns The plan.
-   * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no size, the glove is not worn on the one catching hand or has no pocket, the path never comes within reach, or the catch would start before the action.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the original throw/ball/glove/reach/start refusals, returned object path and composed hand plan; the namespace specifies interception, give and contact timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The interception is the root of the path's distance ahead, linear in the flight's time because a drag-free flight keeps its horizontal velocity; a path that does not close on the catcher never comes within reach, and one that meets the reach line far below the arms is refused by the shoulders' reach; each hand's twelve original palm rolls retain their actual elbow solve and separately ranked strain sweep before the same give/carry targets are composed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Interception/timing and the shared object path precede each hand's rank loop and arm primitive. HumanHandTarget's shared frame/placement owner separates actual palm orientation from the glove correction and actual elbow searches.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all rolls, the rank loop's Bend sweeps, strict strain tie; the runtime target's elbow is the named hanging place, pocket-correction-before-wrist subtraction order, phase paths, contacts, refusal bounds and timing; no achieved pose replaces the original target.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Entry FK requests only actual shoulders/hands. Each hand's rank loop prepares its fixed palm offset/rest basis and fixed trunk Bend geometry once across all twelve rolls, while all actual orientations, complete candidate sweeps and runtime targets remain. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed rank geometry and final hand-surface metadata are shared without answers; each roll/current target remains actual. Runtime Frame FK loans reach only actual raw sternum reads, and a public object call lends one local getter through its original full composition and final centre observation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rank-loop geometry releases before its hand primitive returns; the plan owns original launch/clock and constant-size hand/path metadata. Each runtime loan/local object getter releases per synchronous call; no candidate fit, sampled pose or query history is retained.
+   * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no
+   *   size, the glove is not worn on the one catching hand or has no pocket,
+   *   the path never comes within reach, or the catch would start before the
+   *   action.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
@@ -162,7 +165,7 @@ export namespace catchObject {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const arm: number = m.upperArm + m.forearm;
-    const radius: number = HumanBall.of(
+    const radius: number = HumanBall(
       context,
       context.params.ball,
       context.start,
@@ -177,7 +180,7 @@ export namespace catchObject {
     };
 
     const timing: IInterception =
-      interception ?? catchObjectApproach.of(context, frame, arm);
+      interception ?? catchObjectApproach(context, frame, arm);
     const contact: number = timing.contact;
     // A staged overlay may meet the ball from a carrier such as an immersed
     // body. Read its shoulders and elbow geometry at the interception.
@@ -237,7 +240,7 @@ export namespace catchObject {
       });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(held + 0.6, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(held + 0.6, [
       { name: "reach", seconds: reach },
       { name: "prepare", seconds: Math.max(reach, contact - 0.1) },
       { name: "contact", seconds: contact },
@@ -252,7 +255,8 @@ export namespace catchObject {
       meet,
       Vector3.scale(along, GIVE),
     );
-    let sternumAt: ReturnType<typeof HumanTrunk.prepareRegion> | undefined;
+    const sternumAt: ReturnType<typeof HumanTrunk.prepareRegion> =
+      HumanTrunk.prepareRegion(body, "sternum");
     const object: (
       seconds: number,
       posture: IAutoMovieMotionHumanPosture,
@@ -270,7 +274,6 @@ export namespace catchObject {
           given,
           clock.progress("contact", "secured", seconds),
         );
-      sternumAt ??= HumanTrunk.prepareRegion(body, "sternum");
       const sternum: ReturnType<typeof HumanTrunk.region> = sternumAt(
         posture,
         resolution,
@@ -350,12 +353,22 @@ export namespace catchObject {
         // of the moving target never sweeps the elbow afresh.
         bend: "hang",
       });
-      let corrected:
+      // The palm target a pocketed catch is corrected through.
+      const corrected:
         | ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareTarget>
-        | undefined;
+        | undefined =
+        pocket === undefined
+          ? undefined
+          : AutoMovieMotionHumanArmTarget.prepareTarget(
+              body,
+              side,
+              "palm",
+              "relaxed",
+            );
       // The hand is taken from where the reach begins: before it a carrier's
       // arm and fingers stay its own.
       return AutoMovieMotionHumanArm.move({
+        fixedShape: "relaxed",
         body,
         side,
         from: reach,
@@ -390,13 +403,7 @@ export namespace catchObject {
             posture,
             back,
           );
-          if (pocket === undefined) return target;
-          corrected ??= AutoMovieMotionHumanArmTarget.prepareTarget(
-            body,
-            side,
-            "palm",
-            "relaxed",
-          );
+          if (corrected === undefined) return target;
           return corrected({
             ...target,
             point: pocketPoint(back, target.rotation),
@@ -431,13 +438,12 @@ export namespace catchObject {
         plan: IAutoMovieMotionHumanActionPlan,
         side: AutoMovieHumanSide,
       ): IAutoMovieMotionHumanActionPlan =>
-        courseArmAtPace(
-          body,
-          plan,
-          side,
-          AutoMovieMotionHumanArm.angles(before(side), side),
-          { start: reach, ready: contact, relax: duration, end: duration },
-        ),
+        courseArmAtPace({ body, entry: { pose: before(side) } }, plan, side, {
+          start: reach,
+          ready: contact,
+          relax: duration,
+          end: duration,
+        }),
       composeAutoMovieMotionHumanAction({
         base,
         clock,
@@ -445,17 +451,20 @@ export namespace catchObject {
         primitives: sides.map(hand),
       }),
     );
+    // The object's centre at a second, read on the composed posture there.
+    const path = (seconds: number): IAutoMovieVector3 => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      return object(
+        seconds,
+        composed.posture(seconds, undefined, resolution),
+        resolution,
+      );
+    };
     return {
       ...composed,
-      object: (seconds: number): IAutoMovieVector3 => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution();
-        return object(
-          seconds,
-          composed.posture(seconds, undefined, resolution),
-          resolution,
-        );
-      },
+      object: path,
+      offers: { family: "catchObject", object: path },
     };
   }
 }

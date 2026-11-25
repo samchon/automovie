@@ -28,7 +28,7 @@ import { AUTOMOVIE_FILM_GLARE_KERNELS } from "@automovie/engine";
 export function planAutoMovieFilmGlare(
   height: number,
 ): planAutoMovieFilmGlare.IKernel[] {
-  if (!(Number.isSafeInteger(height) && height > 0))
+  if (!(height > 0))
     throw new Error(
       `A glare plan needs a positive whole frame height, got ${height}`,
     );

@@ -11,40 +11,61 @@ import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";
 
-/** Steps per second of the key that matches an asked second to a sampled instant: microseconds, far finer than any two instants of a case and far coarser than float error. */
+/**
+ * Steps per second of the key that matches an asked second to a sampled
+ * instant: microseconds, far finer than any two instants of a case and far
+ * coarser than float error.
+ */
 const MICRO: number = 1_000_000;
 
-/** Margin in metres around everything a case draws, which the ground grid covers. */
+/**
+ * Margin in metres around everything a case draws, which the ground grid
+ * covers.
+ */
 const MARGIN: number = 0.18;
 
 /** Side in metres of one cell of the ground grid. */
 const GRID_CELL: number = 0.25;
 
 /**
- * The draw page's subjects for the motion capture harness: one subject, named by the case, built from the case's props.
+ * The draw page's subjects for the motion capture harness: one subject, named
+ * by the case, built from the case's props.
  *
- * The subject is the case's scene on a light background under an ambient light and one sun: its performers as solid polygon men named by their ids, its ghosts translucent and named `ghost-<id>`, its boxes as shaded meshes named `box-<i>`, and a ground grid named `ground`, lines every 0.25 m over the floor's rectangle under everything drawn at any instant with a margin of 0.18 m, so the ground widens no fitted view. Its clock is the case's grid. Seeking a second places every figure in its pose at the sampled second within a microsecond of it, a case instant or a grid frame, and any other second of the clock at the grid frame at or before it, as a video holds a frame, so the inspector plays the case; a second outside the clock throws. The case's trails, targets and drift are its marks through `markMotionCaptureCase`, the same at every second, and its labelled instants are the subject's named instants, so each still's caption and record row name its beat. The delivery camera stands on the three-quarter side looking at the middle of what is drawn; the case is read through the fitted views `motionCapture` asks for.
+ * The subject is the case's scene on a light background under an ambient light
+ * and one sun: its performers as solid polygon men named by their ids, its
+ * ghosts translucent and named `ghost-<id>`, its boxes as shaded meshes named
+ * `box-<i>`, and a ground grid named `ground`, lines every 0.25 m over the
+ * floor's rectangle under everything drawn at any instant with a margin of 0.18
+ * m, so the ground widens no fitted view. Its clock is the case's grid. Seeking
+ * a second places every figure in its pose at the sampled second within a
+ * microsecond of it, a case instant or a grid frame, and any other second of
+ * the clock at the grid frame at or before it, as a video holds a frame, so the
+ * inspector plays the case; a second outside the clock throws. The case's
+ * trails, targets and drift are its marks through `markMotionCaptureCase`, the
+ * same at every second, and its labelled instants are the subject's named
+ * instants, so each still's caption and record row name its beat. The delivery
+ * camera stands on the three-quarter side looking at the middle of what is
+ * drawn; the case is read through the fitted views `motionCapture` asks for.
  *
  * @param props The case's page data, from `planMotionCaptureProps`.
  * @returns The case's subject under its name.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the scene holds and how each object is named, what seeking does and refuses, where the marks come from, and the delivery camera.
- * @evidence contracts/development/implementation.md#principled-implementation Figures are posed through Human's canonical adapter in `MotionCaptureFigure`; the grid and lights are the harness's scene dressing, kept in the subject as the campaign asks, and the grid is measured from the posed figures and boxes of every instant so the framing covers the whole case.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the scene, measure the floor, add the grid and camera, return the subject.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Poses are the case's own samples, never interpolated; an unsampled second is refused.
- * @evidence contracts/development/implementation.md#efficient-algorithms Building is linear in figures times instants for the floor; a seek is linear in the figures' joints.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One scene and one set of marks serve every draw of the page.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Figures, ghosts, boxes and the grid are released by the subject's `dispose`.
+ * @throws {Error} When the page was given no case data.
  */
-export const subjects: AutoMovieDrawSubjects = (
-  props: unknown,
+export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
+  props: IMotionCaptureProps | null,
 ): Readonly<Record<string, IAutoMovieDrawSubject>> => {
-  const data: IMotionCaptureProps = props as IMotionCaptureProps;
+  if (props === null)
+    throw new Error("The motion case page was given no case data");
   return {
-    [data.name]: {
-      create: async (): Promise<IAutoMovieDrawScene> => build(data),
+    [props.name]: {
+      create: async (): Promise<IAutoMovieDrawScene> => build(props),
     },
   };
+};
+/** The record of `IBuildFiguresItem`'s site. */
+type IBuildFiguresItem = {
+  figure: MotionCaptureFigure;
+  poses: IAutoMoviePose[];
 };
 
 /** Build the case's scene. */
@@ -58,8 +79,7 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   const disposers: (() => void)[] = [];
 
   // Figures, solid and translucent.
-  const figures: { figure: MotionCaptureFigure; poses: IAutoMoviePose[] }[] =
-    [];
+  const figures: IBuildFiguresItem[] = [];
   for (const performer of data.performers) {
     const figure: MotionCaptureFigure = new MotionCaptureFigure(
       performer.body,
@@ -86,18 +106,22 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   }
 
   // Boxes the figures meet.
+  const boxes: THREE.Mesh[] = [];
   data.boxes.forEach(
     (box: IMotionCaptureProps["boxes"][number], index: number): void => {
+      const material: THREE.MeshStandardMaterial =
+        new THREE.MeshStandardMaterial({ color: box.color, flatShading: true });
       const mesh: THREE.Mesh = new THREE.Mesh(
         new THREE.BoxGeometry(2 * box.half.x, 2 * box.half.y, 2 * box.half.z),
-        new THREE.MeshStandardMaterial({ color: box.color, flatShading: true }),
+        material,
       );
+      boxes.push(mesh);
       mesh.name = `box-${index}`;
       mesh.position.set(box.centre.x, box.centre.y, box.centre.z);
       scene.add(mesh);
       disposers.push((): void => {
         mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
+        material.dispose();
       });
     },
   );
@@ -111,8 +135,7 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
       extent.expandByObject(figure.object);
     }
   });
-  for (const object of scene.children)
-    if (object instanceof THREE.Mesh) extent.expandByObject(object);
+  for (const mesh of boxes) extent.expandByObject(mesh);
   for (const mark of marks) {
     if (mark.shape.type === "arrows") continue;
     const points: number[] = mark.shape.points;
@@ -138,18 +161,21 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
     z += GRID_CELL
   )
     lines.push(extent.min.x, 0, z, extent.max.x, 0, z);
+  const gridMaterial: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({
+    color: 0xc9c4ba,
+  });
   const grid: THREE.LineSegments = new THREE.LineSegments(
     new THREE.BufferGeometry().setAttribute(
       "position",
       new THREE.Float32BufferAttribute(lines, 3),
     ),
-    new THREE.LineBasicMaterial({ color: 0xc9c4ba }),
+    gridMaterial,
   );
   grid.name = "ground";
   scene.add(grid);
   disposers.push((): void => {
     grid.geometry.dispose();
-    (grid.material as THREE.Material).dispose();
+    gridMaterial.dispose();
   });
 
   // A delivery camera on the three-quarter side.

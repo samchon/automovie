@@ -15,30 +15,55 @@ import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
- * A horse's scramble up a steep bank on a supported route: on a face too steep for its loaded hooves to walk, it climbs in bounds, both fores reaching up the face together while the hinds push, then both hinds landing under the body while the fores push, over the top edge onto the run-out.
+ * A horse's scramble up a steep bank on a supported route: on a face too steep
+ * for its loaded hooves to walk, it climbs in bounds, both fores reaching up
+ * the face together while the hinds push, then both hinds landing under the
+ * body while the fores push, over the top edge onto the run-out.
  *
- * Each bound covers `bound` metres of the leg's course distance. The fores swing through the first half of a bound's time and stand through the second; the hinds stand through the first half and swing through the second, so each pair lands as the other leaves. Every foothold is the hoof's neutral point under the course's placement at its landing, laid on the authored footing, and is held fixed in the world while it stands; a swing travels between its two footholds, raised by `REACH` (fores) or `PUSH` (hinds) of the limb's length clear of the face. A face whose hooves would hold walks; one steeper than `AutoMovieArchetypeEquineBank.STEEPEST` is a fall; a bound that climbs more than `CLIMB` of the fore limb's length is beyond its reach.
+ * Each bound covers `bound` metres of the leg's course distance. The fores
+ * swing through the first half of a bound's time and stand through the second;
+ * the hinds stand through the first half and swing through the second, so each
+ * pair lands as the other leaves. Every foothold is the hoof's neutral point
+ * under the course's placement at its landing, laid on the authored footing,
+ * and is held fixed in the world while it stands; a swing travels between its
+ * two footholds, raised by `REACH` (fores) or `PUSH` (hinds) of the limb's
+ * length clear of the face. A face whose hooves would hold walks; one steeper
+ * than `AutoMovieArchetypeEquineBank.STEEPEST` is a fall; a bound that climbs
+ * more than `CLIMB` of the fore limb's length is beyond its reach.
  */
 export namespace AutoMovieArchetypeEquineScramble {
-  /** A fore swing's clearance of the face, shares of the fore limb's length: authored, provisional, a reaching bound. */
+  /**
+   * A fore swing's clearance of the face, shares of the fore limb's length:
+   * authored, provisional, a reaching bound.
+   */
   export const REACH: number = 0.3;
 
-  /** A hind swing's clearance of the face, shares of the hind limb's length: authored, provisional. */
+  /**
+   * A hind swing's clearance of the face, shares of the hind limb's length:
+   * authored, provisional.
+   */
   export const PUSH: number = 0.15;
 
-  /** The most a bound may climb, shares of the fore limb's length: authored, provisional, the fore's reach. */
+  /**
+   * The most a bound may climb, shares of the fore limb's length: authored,
+   * provisional, the fore's reach.
+   */
   export const CLIMB: number = 0.5;
 
-  /** A swinging limb's extra carpus or hock fold at mid-swing, degrees: authored, provisional. */
+  /**
+   * A swinging limb's extra carpus or hock fold at mid-swing, degrees:
+   * authored, provisional.
+   */
   export const FOLD: number = 40;
 
-  /**
-   * A scramble up the steep face a course leg climbs.
-   */
+  /** A scramble up the steep face a course leg climbs. */
   export interface IScramble {
     /** The discriminator. */
     kind: "bank-scramble";
-    /** The static friction coefficient between a loaded hoof and the face, dimensionless, nonnegative. */
+    /**
+     * The static friction coefficient between a loaded hoof and the face,
+     * dimensionless, nonnegative.
+     */
     friction: number;
     /** Where the friction comes from: a citation, or "authored". */
     source: string;
@@ -46,13 +71,14 @@ export namespace AutoMovieArchetypeEquineScramble {
     bound: number;
     /** Seconds the gait blends into the first bound, positive. */
     entry: number;
-    /** Seconds the last bound blends back into the gait on the run-out, positive. */
+    /**
+     * Seconds the last bound blends back into the gait on the run-out,
+     * positive.
+     */
     exit: number;
   }
 
-  /**
-   * An admitted scramble on the film clock.
-   */
+  /** An admitted scramble on the film clock. */
   export interface IWindow {
     /** The film second the face begins. */
     from: number;
@@ -64,9 +90,7 @@ export namespace AutoMovieArchetypeEquineScramble {
     exit: number;
     /** The film seconds bounding each bound, `from` first and `to` last. */
     bounds: readonly number[];
-    /**
-     * The course's body placement at a film second.
-     */
+    /** The course's body placement at a film second. */
     place: (seconds: number) => IAutoMovieTransform;
   }
 
@@ -82,7 +106,10 @@ export namespace AutoMovieArchetypeEquineScramble {
    * @param footing The course's authored footing.
    * @param reach The fore limb's length, metres.
    * @returns The window.
-   * @throws {AutoMovieArchetypeRefusal} For a leg that is not a straight climb over footing with a run-out at its top, a face its hooves hold or one steeper than `AutoMovieArchetypeEquineBank.STEEPEST`, a bound climbing beyond `CLIMB` of the fore's reach, and nonfinite or overlapping blends.
+   * @throws {AutoMovieArchetypeRefusal} For a leg that is not a straight climb
+   *   over footing with a run-out at its top, a face its hooves hold or one
+   *   steeper than `AutoMovieArchetypeEquineBank.STEEPEST`, a bound climbing
+   *   beyond `CLIMB` of the fore's reach, and nonfinite or overlapping blends.
    */
   export function admit(
     archetype: string,
@@ -112,11 +139,7 @@ export namespace AutoMovieArchetypeEquineScramble {
     if (index === legs - 1)
       return refuse("A bank scramble needs a run-out leg over the top edge");
     const { friction, bound, entry, exit } = technique;
-    if (
-      !(Number.isFinite(friction) && friction >= 0) ||
-      typeof technique.source !== "string" ||
-      technique.source.length === 0
-    )
+    if (!(friction >= 0) || technique.source.length === 0)
       return refuse(
         "A bank scramble states the face's friction and its source",
       );
@@ -129,7 +152,7 @@ export namespace AutoMovieArchetypeEquineScramble {
       return refuse(
         `The face's grade ${grade} is steeper than a scramble's ${AutoMovieArchetypeEquineBank.STEEPEST}`,
       );
-    if (!(Number.isFinite(bound) && bound > 0 && bound <= leg.length))
+    if (!(bound > 0 && bound <= leg.length))
       return refuse("A bound covers a positive share of the face");
     if (grade * bound > CLIMB * reach)
       return refuse(
@@ -138,10 +161,7 @@ export namespace AutoMovieArchetypeEquineScramble {
     const span: AutoMovieArchetypeCourse.ILegSpan = plan.legSpans[index]!;
     const from: number = plan.when(span.from);
     const to: number = plan.when(span.from + span.span);
-    if (
-      ![entry, exit].every(Number.isFinite) ||
-      !(entry > 0 && exit > 0 && entry + exit <= to - from)
-    )
+    if (!(entry > 0 && exit > 0 && entry + exit <= to - from))
       return refuse(
         "A bank scramble blends in and out over positive blends within the face",
       );
@@ -163,13 +183,15 @@ export namespace AutoMovieArchetypeEquineScramble {
   }
 
   /**
-   * A hoof's goal while the horse scrambles: standing on its world foothold, or swinging between two, raised clear of the face.
+   * A hoof's goal while the horse scrambles: standing on its world foothold, or
+   * swinging between two, raised clear of the face.
    *
    * @param windows The admitted scrambles.
    * @param seconds The film second.
    * @param fore Whether the hoof is a fore.
    * @param neutral The hoof's neutral point, model metres.
-   * @param attachment The limb's attachment, model metres, whose height over the hoof is the limb's length.
+   * @param attachment The limb's attachment, model metres, whose height over
+   *   the hoof is the limb's length.
    * @param goal The gait's goal for the hoof.
    * @param placement The body's world placement.
    * @param footing The course's prepared footing.

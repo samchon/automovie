@@ -1,7 +1,6 @@
-import { Vector3, bracketedBisection } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -22,7 +21,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanVerdicts } from "../audit/HumanVerdicts";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -34,46 +32,40 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { exercise } from "../exercise/exercise";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { baseballGroundBall } from "./baseballGroundBall";
 
 /**
- * Baseball and softball positions without the bat's swing or the pitch
- * (#3248): the catcher's crouch, fielding a ground ball, and the batting
- * stance with its load. The glove hand is the left; no glove or bat is held.
+ * Baseball and softball positions without the bat's swing or the pitch : the
+ * catcher's crouch, fielding a ground ball, and the batting stance with its
+ * load. The glove hand is the left; no glove or bat is held.
  *
- * - Catcher's crouch: the hips sink to a half squat
- *   (`exercise.drop`, provisional for a catcher) with the trunk pitched 20
- *   degrees, the glove presented palm forward 0.6 of the arm ahead of the
- *   crouched chest and the protected throwing fist behind the right leg
- *   (Baseball Canada, Playing Catcher, part 1, https://baseball.ca/?alias=playing-catcher-part-1&lang=english).
- * - Ground ball: a squat to parallel thighs with the trunk inclined, the
- *   spine taking what the folded hips leave the pelvis
+ * - Catcher's crouch: the hips sink to a half squat (`exercise.drop`, provisional
+ *   for a catcher) with the trunk pitched 20 degrees, the glove presented palm
+ *   forward 0.6 of the arm ahead of the crouched chest and the protected
+ *   throwing fist behind the right leg (Baseball Canada, Playing Catcher, part
+ *   1, https://baseball.ca/?alias=playing-catcher-part-1&lang=english).
+ * - Ground ball: a squat to parallel thighs with the trunk inclined, the spine
+ *   taking what the folded hips leave the pelvis
  *   (`AutoMovieMotionHumanTrunk.sunk`), until the shoulders stand where the
- *   reaching arm takes the glove, which stands on its fingertips on the
- *   floor 0.3 of the arm ahead of them, open forward and up, the throwing
- *   hand above it to cover the ball (provisional places).
- * - Batting stance: the left foot steps out to two shoulder widths, the
- *   knees give 3 % of the stature, both fists stacked on the implied bat's
- *   handle `HANDS` of the arm ahead of the right shoulder; the load at the stroke draws the hands a
- *   tenth of the arm back (provisional; the load precedes the stride,
- *   Welch et al. 1995).
+ *   reaching arm takes the glove, which stands on its fingertips on the floor
+ *   0.3 of the arm ahead of them, open forward and up, the throwing hand above
+ *   it to cover the ball (provisional places).
+ * - Batting stance: the left foot steps out to two shoulder widths, the knees
+ *   give 3 % of the stature, both fists stacked on the implied bat's handle
+ *   `HANDS` of the arm ahead of the right shoulder; the load at the stroke
+ *   draws the hands a tenth of the arm back (provisional; the load precedes the
+ *   stride, Welch et al. 1995).
  *
- * Each is a phrase: into the position in 0.8 s, held, and back to standing
- * in 0.8 s (provisional).
+ * Each is a phrase: into the position in 0.8 s, held, and back to standing in
+ * 0.8 s (provisional).
  *
- * Not drafted: the swing, the bunt and the check swing (the implement
- * strike owner's, #3244, whose file does not exist yet), the pitch (a row
- * of the throw law), the windmill pitch, the catcher's throw and base
- * running slides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each position's geometry, timing, sources and provisional values, and the gaps with their owners.
- * @evidence contracts/development/design.md#principled-representation A law record of crouch, leg and placed-arm rows over one phrase.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the squat's depth rule; places are named grid places.
+ * Not drafted: the swing, the bunt and the check swing (the implement strike
+ * owner's, whose file does not exist yet), the pitch (a row of the throw law),
+ * the windmill pitch, the catcher's throw and base running slides.
  */
 export namespace baseball {
   /** The action's name. */
@@ -87,35 +79,65 @@ export namespace baseball {
       run: ["fromRelax", "quick"],
     });
 
-  /** How far ahead of the chest the catcher presents the glove, arm lengths (provisional). */
+  /**
+   * How far ahead of the chest the catcher presents the glove, arm lengths
+   * (provisional).
+   */
   export const PRESENT: number = 0.6;
 
-  /** How far ahead of the shoulders the fielder's glove meets the floor, arm lengths (provisional). */
+  /**
+   * How far ahead of the shoulders the fielder's glove meets the floor, arm
+   * lengths (provisional).
+   */
   export const AHEAD: number = 0.3;
 
-  /** The share of the straight arm's length from the fielder's shoulder to the glove's wrist (provisional): the elbow a little soft. */
+  /**
+   * The share of the straight arm's length from the fielder's shoulder to the
+   * glove's wrist (provisional): the elbow a little soft.
+   */
   export const REACH: number = 0.95;
 
-  /** The most a fielder's trunk inclines, degrees: the top of the search for the ground ball's inclination. */
+  /**
+   * The most a fielder's trunk inclines, degrees: the top of the search for the
+   * ground ball's inclination.
+   */
   export const INCLINED: number = 130;
 
-  /** How far ahead of the right shoulder the batter's fists hold the handle, arm lengths (provisional): the elbows fold no closer than their flexion range. */
+  /**
+   * How far ahead of the right shoulder the batter's fists hold the handle, arm
+   * lengths (provisional): the elbows fold no closer than their flexion range.
+   */
   export const HANDS: number = 0.45;
 
+  /**
+   * A baseball action's timetable: 0.8 s to get ready, a 0.3 s attack, the hold
+   * and a 0.8 s return, the manner's timing applied.
+   *
+   * @param hold The held seconds.
+   * @param modifiers The manner's timing.
+   * @returns The clock.
+   */
+  export function timetable(
+    hold: number,
+    modifiers: IAutoMovieMotionManner.IModifiers,
+  ): IAutoMovieMotionClock {
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+      AutoMovieMotionClock.phrase({
+        prepare: 0.8,
+        attack: 0.3,
+        hold,
+        retract: 0.8,
+      }),
+      modifiers,
+    );
+    return clock;
+  }
   /**
    * Plan a baseball position.
    *
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, step and arm places on its envelope.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per position.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The ground-ball bracket reads only the posed shoulder frames to bound reach. The covering hand and glove share the same two-arm planning group. Catcher/glove observations request actual chest/shoulder frames and borrow current-person FK for runtime reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing squat/crouch/leg/placed-arm owners retain their formulas; current place callbacks explicitly forward same-person FK to original raw chest/shoulder observations rather than infer a result from pose identity.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original clock/stance/geometry; optional current-person FK inputs are used synchronously and never stored in goals, the plan or query history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBaseball.IParams>,
@@ -126,17 +148,11 @@ export namespace baseball {
       body.measure;
     const hold: number = p.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
-        prepare: 0.8,
-        attack: 0.3,
-        hold,
-        retract: 0.8,
-      }),
-      modifiers,
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
     );
+    const clock: IAutoMovieMotionClock = timetable(hold, modifiers);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
@@ -181,13 +197,19 @@ export namespace baseball {
         ...(legs === undefined ? {} : { legs }),
       });
     /** Build a placed arm over the prepared baseball clock. */
-    function placed(
+    const placed: (
       side: AutoMovieHumanSide,
       place: IAutoMovieMotionHumanPlaced.IArm["place"],
       shape: IAutoMovieMotionHumanHand.Shape,
       bend: IAutoMovieMotionHumanPlaced.IArm["bend"],
       together?: IAutoMovieMotionHumanArmPlanned.ITogether,
-    ): IAutoMovieMotionHumanPrimitive[] {
+    ) => IAutoMovieMotionHumanPrimitive[] = (
+      side: AutoMovieHumanSide,
+      place: IAutoMovieMotionHumanPlaced.IArm["place"],
+      shape: IAutoMovieMotionHumanHand.Shape,
+      bend: IAutoMovieMotionHumanPlaced.IArm["bend"],
+      together?: IAutoMovieMotionHumanArmPlanned.ITogether,
+    ): IAutoMovieMotionHumanPrimitive[] => {
       return AutoMovieMotionHumanPlaced.arm({
         body,
         side,
@@ -210,12 +232,25 @@ export namespace baseball {
         shape,
         bend,
       });
-    }
+    };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     let contacts: IAutoMovieMotionHumanContactWindow[] =
       AutoMovieMotionHumanBase.plants();
     const arm: number = m.upperArm + m.forearm;
 
+    // The ground ball's crouch and both gloved hands.
+    const groundBall: () => IAutoMovieMotionHumanPrimitive[] =
+      baseballGroundBall({
+        local,
+        entry,
+        arm,
+        body,
+        m,
+        modifiers,
+        context,
+        crouch,
+        placed,
+      });
     switch (p.kind) {
       case "catcherCrouch": {
         // Keep the hand guarded at the proximal edge of the thigh. The
@@ -260,7 +295,7 @@ export namespace baseball {
             (
               posture: IAutoMovieMotionHumanPosture,
               _seconds: number,
-              resolution?: IFK,
+              resolution?: baseballGroundBall.IFK,
             ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
               // Ahead of the crouched chest, not of the standing one.
               point: Vector3.add(
@@ -304,140 +339,7 @@ export namespace baseball {
         break;
       }
       case "groundBall": {
-        // The glove on the floor ahead of the shoulders, open forward and up with the fingers down.
-        const front: IAutoMovieVector3 = local(entry, { x: 0, y: 0, z: 1 });
-        const facing: IAutoMovieVector3 = Vector3.normalize({ ...front, y: 1 });
-        const fingers: IAutoMovieVector3 = Vector3.normalize({
-          ...front,
-          y: -1,
-        });
-        const ahead: IAutoMovieVector3 = Vector3.scale(front, AHEAD * arm);
-        const glovePoint: (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ) => IAutoMovieVector3 = (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ): IAutoMovieVector3 =>
-          Vector3.add(
-            {
-              ...AutoMovieMotionHumanPlaced.shoulders(
-                body,
-                posture,
-                resolution,
-              ),
-              y: up * arm,
-            },
-            ahead,
-          );
-        const glove: (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ) => IAutoMovieMotionHumanPlaced.IWristPlace = (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ): IAutoMovieMotionHumanPlaced.IWristPlace => ({
-          point: glovePoint(posture, up, resolution),
-          facing,
-          forward: fingers,
-        });
-        // The glove's palm stands on its fingertips, which point 45 degrees down.
-        const low: number = (Math.SQRT1_2 * m.hand) / 2 / arm;
-        // The hips fall to the squat's depth. Find the trunk's remaining
-        // inclination in the same planted geometry the display will use.
-        const depth: number = exercise.drop(m, "parallel");
-        const plants: ReturnType<
-          typeof AutoMovieMotionHumanTrunk.preparePlanted
-        > = AutoMovieMotionHumanTrunk.preparePlanted(
-          body,
-          AutoMovieMotionHumanTrunk.footing(body, entry),
-        );
-        const planted: IAutoMovieMotionHumanPosture = plants(entry);
-        const read: ReturnType<typeof HumanTrunk.prepareResolve> =
-          HumanTrunk.prepareResolve(body, SHOULDER_NAMES);
-        const wristFromPalm: IAutoMovieVector3 =
-          AutoMovieMotionHumanPlaced.wrist(body, "left", {
-            point: { x: 0, y: low * arm, z: 0 },
-            facing,
-            forward: fingers,
-          });
-        const outside: (pitch: number) => boolean = (
-          pitch: number,
-        ): boolean => {
-          const bones: ReturnType<typeof read> = read(
-            AutoMovieMotionHumanTrunk.sunk(
-              body,
-              planted,
-              depth * modifiers.extent,
-              pitch,
-              0,
-            ),
-          );
-          const left: IAutoMovieVector3 =
-            bones.get("leftUpperArm")!.worldPosition;
-          const mid: IAutoMovieVector3 = Vector3.lerp(
-            left,
-            bones.get("rightUpperArm")!.worldPosition,
-            0.5,
-          );
-          const wrist: IAutoMovieVector3 = Vector3.add(
-            { ...mid, y: 0 },
-            Vector3.add(wristFromPalm, ahead),
-          );
-          const span: number =
-            (REACH * arm) ** 2 -
-            (left.x - wrist.x) ** 2 -
-            (left.z - wrist.z) ** 2;
-          return span < 0 || left.y - wrist.y > Math.sqrt(span);
-        };
-        // Bound a pitch bracket by the contact skin over the upper body's
-        // measured reach from the hips, and keep the reachable bracket end.
-        const tolerance: number =
-          (180 * HumanVerdicts.SKIN) /
-          (Math.PI * (m.shoulderHeight - m.hipHeight));
-        const inclination: number = !outside(0)
-          ? 0
-          : outside(INCLINED)
-            ? INCLINED
-            : bracketedBisection(outside, 0, INCLINED, tolerance);
-        const together: IAutoMovieMotionHumanArmPlanned.ITogether =
-          AutoMovieMotionHumanArmPlanned.together(
-            context.handover,
-            true,
-            context.tempo,
-          );
-        primitives.push(
-          crouch(depth, inclination),
-          ...placed(
-            "left",
-            (
-              posture: IAutoMovieMotionHumanPosture,
-              _seconds: number,
-              resolution?: IFK,
-            ): ReturnType<typeof glove> => glove(posture, low, resolution),
-            "flat",
-            "forward",
-            together,
-          ),
-          ...placed(
-            "right",
-            (
-              posture: IAutoMovieMotionHumanPosture,
-              _seconds: number,
-              resolution?: IFK,
-            ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
-              point: glovePoint(posture, low + 0.2, resolution),
-              facing: { x: 0, y: -1, z: 0 },
-            }),
-            "flat",
-            "forward",
-            together,
-          ),
-        );
+        primitives.push(...groundBall());
         break;
       }
       case "battingStance": {
@@ -546,12 +448,3 @@ export namespace baseball {
     });
   }
 }
-
-/** Optional same-person exact FK source used only during an actual current place observation. */
-type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
-
-/** Only the two shoulder origins determine the glove's point and reach. */
-const SHOULDER_NAMES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperArm",
-  "rightUpperArm",
-]);

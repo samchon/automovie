@@ -5,7 +5,9 @@ import type { IAutoMovieExternalMotionMappingEntry } from "./IAutoMovieExternalM
 /**
  * User-owned decision to adopt one external motion take in one shot.
  *
- * This retains production intent; the production conversion host is retired. Ingest's executable adoption API uses its own separate local contract and does not automatically consume this record.
+ * This retains production intent; the production conversion host is retired.
+ * Ingest's executable adoption API uses its own separate local contract and
+ * does not automatically consume this record.
  */
 export interface IAutoMovieExternalMotionAdoption {
   /** Stable adoption identity. */

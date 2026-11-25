@@ -23,26 +23,25 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
 ];
 
 /**
- * A boxing or kickboxing ring: a square raised platform with a corner post at each corner and ropes along its four sides.
+ * A boxing or kickboxing ring: a square raised platform with a corner post at
+ * each corner and ropes along its four sides.
  *
- * The platform stands on the floor centred over the origin, its square along `X` and `Z`. `canvas` is the floor inside the ropes; each side's top rope (`northRope` along `+Z`'s side, `southRope`, `eastRope` along `+X`'s, `westRope`) is a bar a fighter leans on or a hand takes, its `+Y` toward the ring's middle; `corner<n>` is the top of each post, counted round from `+X +Z`.
+ * The platform stands on the floor centred over the origin, its square along
+ * `X` and `Z`. `canvas` is the floor inside the ropes; each side's top rope
+ * (`northRope` along `+Z`'s side, `southRope`, `eastRope` along `+X`'s,
+ * `westRope`) is a bar a fighter leans on or a hand takes, its `+Y` toward the
+ * ring's middle; `corner<n>` is the top of each post, counted round from `+X
+ * +Z`.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the ring stands and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A platform box of the drawn height whose square is the drawn inside size and an apron; a post rod at each corner of the inside square rising to the top rope; four ropes on each side at the guide's heights, scaled to the drawn top rope's height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the platform, the posts, the ropes, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ropes are straight rigid rods, not slack; no turnbuckles, pads or steps; the apron's width and the parts' sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms One platform, four posts and four ropes per level.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRing(
   params: createRing.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRing.Affordance, createRing.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRing.Dimension> =
     new AutoMovieArchetypeDrawSession<createRing.Dimension>(
@@ -151,14 +150,7 @@ export function createRing(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createRing}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension the guide sets: the inside square, the platform's height and the top rope's height above the canvas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The canvas fighters stand on, the top ropes and the corners a bout reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the AIBA guide's as read; it states no mass, so the mass band is provisional; the posts' section is a named estimate.
- */
+/** Companion types, constants and bands of {@link createRing}. */
 export namespace createRing {
   /** The apron beyond the ropes on each side, metres: the AIBA guide's 85 cm. */
   export const APRON: number = 0.85;
@@ -172,14 +164,18 @@ export namespace createRing {
   /** The ropes on each side: the AIBA guide's four. */
   export const ROPES: number = 4;
 
-  /** The ropes' heights above the canvas, metres: the AIBA guide's 40, 70, 100 and 130 cm, scaled with the drawn top rope. */
+  /**
+   * The ropes' heights above the canvas, metres: the AIBA guide's 40, 70, 100
+   * and 130 cm, scaled with the drawn top rope.
+   */
   export const LEVELS: readonly number[] = [0.4, 0.7, 1, 1.3];
 
   /**
    * The affordance ids:
    *
    * - `canvas`: the floor inside the ropes, facing up.
-   * - `northRope`, `southRope`, `eastRope`, `westRope`: each side's top rope, a bar, `+Y` toward the middle.
+   * - `northRope`, `southRope`, `eastRope`, `westRope`: each side's top rope, a
+   *   bar, `+Y` toward the middle.
    * - `corner1` to `corner4`: the posts' tops, counted round from `+X +Z`.
    */
   export type Affordance =

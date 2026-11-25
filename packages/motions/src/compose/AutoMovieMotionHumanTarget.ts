@@ -19,28 +19,49 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { AutoMovieMotionHumanTouchStance } from "./AutoMovieMotionHumanTouchStance";
+
+/** The alternatives of `FootPivot`'s site. */
+type FootPivot = "heel" | "ball" | "toe" | "sole";
+
+/** The alternatives of `HandPlace`'s site. */
+type HandPlace = "point" | "normal";
+
+/** The alternatives of `HandPostureItem`'s site. */
+type HandPostureItem = "pitch" | "roll";
+
+/** The alternatives of `HandPosture`'s site. */
+type HandPosture = "root" | "yaw";
+
+/** The alternatives of `ResolveContext`'s site. */
+type ResolveContext = "aim" | "body";
+
+/** The alternatives of `FallbackPosture`'s site. */
+type FallbackPosture = "root" | "yaw";
+
+/** The alternatives of `DEFAULTSEntryItem`'s site. */
+type DEFAULTSEntryItem = "ahead" | "desk" | "floor";
 
 /**
- * Where an action is directed: a target resolved to a place, and a place
- * turned into a hand's or a foot's goal.
+ * Where an action is directed: a target resolved to a place, and a place turned
+ * into a hand's or a foot's goal.
  *
  * Every directed action works with no target. A place is a point with the
- * outward normal of whatever is there, and it says whether anything is
- * there: a person, a prop, the performer's own body and a point given with a
- * normal are solid; a bare point, the virtual opponent of `none` and the
- * default place are not. An action without a target (absent, or `none` with
- * neither a line nor a range) takes its own default place, stated in the
- * performer's proportions, and performs the same movement in the air: a punch
- * extends to it, a handshake offers the hand there, a pick up closes the
- * hand on nothing. A law reads `solid` to decide what only a real thing
- * allows (a contact window, a grip, the aimed movement time) and never
- * branches on the target's kind.
+ * outward normal of whatever is there, and it says whether anything is there: a
+ * person, a prop, the performer's own body and a point given with a normal are
+ * solid; a bare point, the virtual opponent of `none` and the default place are
+ * not. An action without a target (absent, or `none` with neither a line nor a
+ * range) takes its own default place, stated in the performer's proportions,
+ * and performs the same movement in the air: a punch extends to it, a handshake
+ * offers the hand there, a pick up closes the hand on nothing. A law reads
+ * `solid` to decide what only a real thing allows (a contact window, a grip,
+ * the aimed movement time) and never branches on the target's kind.
  */
 export namespace AutoMovieMotionHumanTarget {
   /**
-   * The bones a posture places without solving a limb (`HumanTrunk.resolve`):
-   * a region of the performer's own body is read on the posture only on
-   * these; one on any other bone rides a limb not solved yet.
+   * The bones a posture places without solving a limb (`HumanTrunk.resolve`): a
+   * region of the performer's own body is read on the posture only on these;
+   * one on any other bone rides a limb not solved yet.
    */
   export const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>([
@@ -62,13 +83,13 @@ export namespace AutoMovieMotionHumanTarget {
    *
    * - `ahead`: at chest height most of an arm away, facing the performer; an
    *   offered hand, a push, a touch in the air;
-   * - `desk`: at desk height (720 mm for a 1.7 m person) a forearm away,
-   *   facing up; a keyboard, a table top;
+   * - `desk`: at desk height (720 mm for a 1.7 m person) a forearm away, facing
+   *   up; a keyboard, a table top;
    * - `floor`: on the floor a forearm ahead of the feet, facing up; a thing
    *   picked up or put down.
    */
   export const DEFAULTS: Readonly<
-    Record<"ahead" | "desk" | "floor", IAutoMovieMotionHumanTarget.IDefault>
+    Record<DEFAULTSEntryItem, IAutoMovieMotionHumanTarget.IDefault>
   > = {
     ahead: { height: 0.72, range: 0.8, facing: "performer" },
     desk: { height: 0.42, range: 0.6, facing: "up" },
@@ -85,7 +106,7 @@ export namespace AutoMovieMotionHumanTarget {
    */
   export function fallback(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, FallbackPosture>,
     place: IAutoMovieMotionHumanTarget.IDefault,
   ): IAutoMovieMotionHumanTarget.IPlace {
     const m = body.measure;
@@ -116,13 +137,15 @@ export namespace AutoMovieMotionHumanTarget {
    * @param context The action's body and aim.
    * @param target The target; absent for an action without one.
    * @param seconds Film seconds the target is read at.
-   * @param posture The performer's posture then: a default place is ahead of it and a self region is read on it.
+   * @param posture The performer's posture then: a default place is ahead of it
+   *   and a self region is read on it.
    * @param place The action's default place.
    * @returns The place.
-   * @throws {Error} When a self region is on a limb, which a posture does not place before its limbs are solved.
+   * @throws {Error} When a self region is on a limb, which a posture does not
+   *   place before its limbs are solved.
    */
   export function resolve(
-    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, ResolveContext>,
     target: IAutoMovieMotionTarget | undefined,
     seconds: number,
     posture: IAutoMovieMotionHumanPosture,
@@ -147,7 +170,12 @@ export namespace AutoMovieMotionHumanTarget {
             fix: "aim at a region of the trunk or the head",
           });
         return {
-          ...HumanTrunk.region(context.body, posture, target.region, resolution),
+          ...HumanTrunk.region(
+            context.body,
+            posture,
+            target.region,
+            resolution,
+          ),
           solid: true,
         };
       }
@@ -163,14 +191,15 @@ export namespace AutoMovieMotionHumanTarget {
   }
 
   /**
-   * The horizontal unit direction from a place to a point of the body: the
-   * way a body is pushed by what comes from the place, and the way it shrinks
-   * from it.
+   * The horizontal unit direction from a place to a point of the body: the way
+   * a body is pushed by what comes from the place, and the way it shrinks from
+   * it.
    *
    * @param place The place the threat or the blow comes from.
    * @param point The point of the body, world metres.
    * @param yaw The body's heading, degrees about +Y.
-   * @returns The direction, world; backward of the heading when the point is above or below the place.
+   * @returns The direction, world; backward of the heading when the point is
+   *   above or below the place.
    */
   export function away(
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point">,
@@ -191,8 +220,8 @@ export namespace AutoMovieMotionHumanTarget {
   }
 
   /**
-   * The arm target that lays a hand surface on a place: the surface's point
-   * on the place's point and its normal against the place's normal.
+   * The arm target that lays a hand surface on a place: the surface's point on
+   * the place's point and its normal against the place's normal.
    *
    * @param body The body.
    * @param posture The posture that carries the elbow's hint and the heading.
@@ -203,10 +232,10 @@ export namespace AutoMovieMotionHumanTarget {
    */
   export function hand(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
-      Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
+    posture: Pick<IAutoMovieMotionHumanPosture, HandPosture> &
+      Partial<Pick<IAutoMovieMotionHumanPosture, HandPostureItem>>,
     side: AutoMovieHumanSide,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, HandPlace>,
     options: IAutoMovieMotionHumanTarget.IHand = {},
   ): IAutoMovieMotionHumanArmTarget.ITarget {
     return HumanHandTarget(body, posture, side, place, options);
@@ -226,8 +255,50 @@ export namespace AutoMovieMotionHumanTarget {
   }
 
   /**
-   * The foot placement that puts a point of the sole on a place, the foot
-   * flat and pointed along a heading.
+   * The first feasible of a law's candidate sites or grips (Miller and Allen
+   * 2004, IEEE Robotics and Automation Magazine 11(4):110-122, "Future
+   * Directions", p. 122: each candidate grasp "is tested ... and if the grasp
+   * is feasible (there is no conflict with the arm kinematics and the hand or
+   * arm is not blocked by an obstacle), it is evaluated").
+   *
+   * Feasibility is the whole test here: a candidate's `test` is the law's own
+   * reach and clearance of the hand and arm, and a reach refusal it raises
+   * marks it infeasible. The paper's grasp quality, the friction-based ε1 of
+   * its "Quality Measures", is not read, so the feasible candidates are equal
+   * and the law's declared order decides, as a stance's does
+   * (`AutoMovieMotionHumanTouchStance.choose`, whose candidate loop and refusal
+   * this shares): the first feasible candidate is taken and those after it are
+   * not tested.
+   *
+   * @param props The candidates in the law's order and the test of one.
+   * @returns The first feasible candidate's result.
+   * @throws {HumanRefusal} When none is feasible: the first candidate's
+   *   refusal, its reason followed by every other candidate's.
+   */
+  export function feasible<Candidate, Result>(
+    props: IFeasible<Candidate, Result>,
+  ): Result {
+    return AutoMovieMotionHumanTouchStance.choose<Candidate, Result>({
+      candidates: props.candidates,
+      reach: props.test,
+    });
+  }
+
+  /** A law's candidate sites or grips and the feasibility test of one. */
+  export interface IFeasible<Candidate, Result> {
+    /** The candidates, in the law's declared order of preference. */
+    candidates: readonly Candidate[];
+
+    /**
+     * The feasibility test of one candidate: its result when the arm reaches it
+     * and neither hand nor arm is blocked, a reach refusal when not.
+     */
+    test: (candidate: Candidate) => Result;
+  }
+
+  /**
+   * The foot placement that puts a point of the sole on a place, the foot flat
+   * and pointed along a heading.
    *
    * @param body The body.
    * @param side The foot.
@@ -238,10 +309,10 @@ export namespace AutoMovieMotionHumanTarget {
    */
   export function foot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point">,
     heading: number,
-    pivot: "heel" | "ball" | "toe" | "sole" = "ball",
+    pivot: FootPivot = "ball",
   ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(body, side, pivot, place.point, heading, 0);
   }

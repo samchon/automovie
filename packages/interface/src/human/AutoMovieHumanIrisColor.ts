@@ -1,7 +1,9 @@
 /**
- * Iris colour, as a closed choice ordered from the lightest to the darkest iris.
+ * Iris colour, as a closed choice ordered from the lightest to the darkest
+ * iris.
  *
- * The choice describes an iris colour category rather than a measured pigment concentration or a stroma pattern.
+ * The choice describes an iris colour category rather than a measured pigment
+ * concentration or a stroma pattern.
  */
 export type AutoMovieHumanIrisColor =
   /** Blue iris. */

@@ -18,7 +18,7 @@ export interface IAutoMovieInspectorSceneHost {
    * Create the renderer one mount draws with; the mount disposes it when it
    * ends.
    */
-  createRenderer(): IAutoMovieInspectorSceneHost.IRenderer;
+  createRenderer(): IAutoMovieInspectorSceneHost.ICreated;
 
   /**
    * Run `callback` once before the next repaint with the frame's time in
@@ -36,6 +36,19 @@ export interface IAutoMovieInspectorSceneHost {
   size(): IAutoMovieInspectorSceneHost.ISize;
 }
 export namespace IAutoMovieInspectorSceneHost {
+  /** A created renderer and, when it is a WebGL one, that renderer as such. */
+  export interface ICreated {
+    /** The renderer the mount draws with. */
+    renderer: IRenderer;
+
+    /**
+     * The same renderer as a `THREE.WebGLRenderer`, or null for one that is
+     * not: a subject's render-target work and a transition's compositing need
+     * its native targets.
+     */
+    compositor: THREE.WebGLRenderer | null;
+  }
+
   /**
    * The part of `THREE.WebGLRenderer` the inspector's mount calls, including
    * what `AutoMovieFilmResponseStage` and `AutoMovieFilmIndirectStage` drive

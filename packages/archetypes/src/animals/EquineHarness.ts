@@ -6,15 +6,38 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import type { EquineTack } from "./EquineTack";
 
 /**
- * A single horse's driving harness, laid on the horse's body: a breast collar with its neck strap, a driving saddle with its tugs, terrets and girth, a backstrap and crupper, hip straps and a breeching, and a bridle with blinkers and a bit.
+ * A single horse's driving harness, laid on the horse's body: a breast collar
+ * with its neck strap, a driving saddle with its tugs, terrets and girth, a
+ * backstrap and crupper, hip straps and a breeching, and a bridle with blinkers
+ * and a bit.
  *
- * Every strap lies on the body where the fitting guides read put it. The breast collar runs from just behind one elbow round the front of the chest to the other at the point of shoulder's height (IVC Carriage's measuring chart; Harness Stuff: at the point of shoulder, not rubbing it); its ends are the points of draft, where the traces pull. The driving saddle sits where a riding saddle would, its tugs at the barrel's sides on the trunk's axis, where a cart's shafts are held (Harness Stuff: the tugs stay at the saddle's centre in draft), and its terrets on top carry the driving lines back to the driver. The backstrap runs from behind the saddle along the back to the tail, the hip straps down from the croup to the breeching, and the breeching round the hindquarters `breechingDrop` below the point of buttock (Hammill). The bridle's cheekpieces run from the poll to the bit rings at the mouth, a blinker on each.
+ * Every strap lies on the body where the fitting guides read put it. The breast
+ * collar runs from just behind one elbow round the front of the chest to the
+ * other at the point of shoulder's height (IVC Carriage's measuring chart;
+ * Harness Stuff: at the point of shoulder, not rubbing it); its ends are the
+ * points of draft, where the traces pull. The driving saddle sits where a
+ * riding saddle would, its tugs at the barrel's sides on the trunk's axis,
+ * where a cart's shafts are held (Harness Stuff: the tugs stay at the saddle's
+ * centre in draft), and its terrets on top carry the driving lines back to the
+ * driver. The backstrap runs from behind the saddle along the back to the tail,
+ * the hip straps down from the croup to the breeching, and the breeching round
+ * the hindquarters `breechingDrop` below the point of buttock (Hammill). The
+ * bridle's cheekpieces run from the poll to the bit rings at the mouth, a
+ * blinker on each.
  */
 export namespace EquineHarness {
   /**
-   * The construction sizes no source read gives, metres, each an estimate: `strap`, a strap's radius; `pad`, the driving saddle's width, thickness and length; `terret`, a terret's distance either side of the spine and its rise above the pad; `ring`, a buckle's or ring's radius; `blinker`, a blinker's height and length and its place along the cheekpiece from the poll, as a share, since the model has no eye to centre it on (Harness Stuff: the blinker's middle level with the eye's middle); `arc`, how many straight segments draw a curved strap.
+   * The construction sizes no source read gives, metres, each an estimate:
+   * `strap`, a strap's radius; `pad`, the driving saddle's width, thickness and
+   * length; `terret`, a terret's distance either side of the spine and its rise
+   * above the pad; `ring`, a buckle's or ring's radius; `blinker`, a blinker's
+   * height and length and its place along the cheekpiece from the poll, as a
+   * share, since the model has no eye to centre it on (Harness Stuff: the
+   * blinker's middle level with the eye's middle); `arc`, how many straight
+   * segments draw a curved strap.
    */
   export const ESTIMATES: Readonly<{
     strap: number;
@@ -32,7 +55,10 @@ export namespace EquineHarness {
     arc: 6,
   };
 
-  /** The parts that ride the head, which a ride turns with it: the head and the bridle. */
+  /**
+   * The parts that ride the head, which a ride turns with it: the head and the
+   * bridle.
+   */
   export const HEAD: readonly string[] = [
     "head",
     "crown-left",
@@ -46,7 +72,12 @@ export namespace EquineHarness {
     "bit-right",
   ];
 
-  /** The balls a trace or a driving line leaves the horse from, by side: the points of draft at the breast collar's ends, the bit rings, the neck strap's rings and the saddle's terrets. Each is a ball, so a line end names it with the ball's centre, the origin of its own space. */
+  /**
+   * The balls a trace or a driving line leaves the horse from, by side: the
+   * points of draft at the breast collar's ends, the bit rings, the neck
+   * strap's rings and the saddle's terrets. Each is a ball, so a line end names
+   * it with the ball's centre, the origin of its own space.
+   */
   export const ENDS: Readonly<
     Record<
       "draft" | "bit" | "ring" | "terret",
@@ -60,10 +91,14 @@ export namespace EquineHarness {
   };
 
   /**
-   * A point of the breast collar round the front of the chest, in the horse's space: at the point of draft's height, on the circle through the two points of draft's sides about the shoulder joints' plane, `angle` radians from the `+X` side toward the front.
+   * A point of the breast collar round the front of the chest, in the horse's
+   * space: at the point of draft's height, on the circle through the two points
+   * of draft's sides about the shoulder joints' plane, `angle` radians from the
+   * `+X` side toward the front.
    *
    * @param rig The horse's rest rig.
-   * @param angle Radians from the `+X` side, `pi / 2` the chest's front, `pi` the `-X` side.
+   * @param angle Radians from the `+X` side, `pi / 2` the chest's front, `pi`
+   *   the `-X` side.
    * @returns The point.
    */
   export function chest(
@@ -78,7 +113,12 @@ export namespace EquineHarness {
   }
 
   /**
-   * Where a driving line passes on the horse's `+X` side, in the horse's space, and the neck strap it passes through: the bit ring at the mouth's side, the neck strap's foot on the collar and its top over the crest, the strap's ring halfway between, and the saddle's terret; the `-X` side's are their mirror. `lay` builds on these places, and a vehicle reads them to give its lines their length.
+   * Where a driving line passes on the horse's `+X` side, in the horse's space,
+   * and the neck strap it passes through: the bit ring at the mouth's side, the
+   * neck strap's foot on the collar and its top over the crest, the strap's
+   * ring halfway between, and the saddle's terret; the `-X` side's are their
+   * mirror. `lay` builds on these places, and a vehicle reads them to give its
+   * lines their length.
    *
    * @param rig The horse's rest rig.
    * @returns The places, from the bit back.
@@ -121,7 +161,7 @@ export namespace EquineHarness {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -307,7 +347,9 @@ export namespace EquineHarness {
   }
 
   /**
-   * A hooked trace or strap hanging slack between its two world ends: `count` points on a parabola whose middle hangs `sag` metres below the chord, an authored look rather than a cable simulation.
+   * A hooked trace or strap hanging slack between its two world ends: `count`
+   * points on a parabola whose middle hangs `sag` metres below the chord, an
+   * authored look rather than a cable simulation.
    *
    * @param from The end on the horse, world metres.
    * @param to The end on the vehicle or bar, world metres.
@@ -334,7 +376,10 @@ export namespace EquineHarness {
     );
   }
 
-  /** The two sides, `+X` first, with the sign of `X` on each: the one list a harness and a harnessed vehicle iterate. */
+  /**
+   * The two sides, `+X` first, with the sign of `X` on each: the one list a
+   * harness and a harnessed vehicle iterate.
+   */
   export const SIDES: readonly (readonly ["left" | "right", number])[] = [
     ["left", 1],
     ["right", -1],

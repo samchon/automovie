@@ -23,9 +23,9 @@ import { portOwners } from "./portOwners";
  * isolate what it was installed to isolate.
  *
  * A system whose root does not resolve reaches nothing rather than reaching a
- * name; the validator owns reporting the dangling root itself.
- * An unknown system id throws. Nodes, ports and segment references must already
- * be structurally admitted; the queue walk is not an arbitrary-JSON gate.
+ * name; the validator owns reporting the dangling root itself. An unknown
+ * system id throws. Nodes, ports and segment references must already be
+ * structurally admitted; the queue walk is not an arbitrary-JSON gate.
  */
 export const serviceSystemReach: (
   props: IAutoMovieServiceSystemReach.IProps,

@@ -7,18 +7,15 @@ import path from "node:path";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
- * Compile a bounded saved polygon/path publication through the engine.
- * Usage: recoveryContourPath input.json new-output-directory, with source epoch argument.
- * The input supplies ordered evaluated curves and path instructions, never faces.
- * Each subject receives independently generated geometry and actual boundary lines.
+ * Compile a bounded saved polygon/path publication through the engine. Usage:
+ * recoveryContourPath input.json new-output-directory, with source epoch
+ * argument. The input supplies ordered evaluated curves and path instructions,
+ * never faces. Each subject receives independently generated geometry and
+ * actual boundary lines.
  *
- * @evidence contracts/development/implementation.md#principled-implementation The fuchs1977-pair-path-v1 publication supplies only physical polygons and combinatorial path instructions; tessellateAutoMovieContourPath64 owns every new vertex, index and normal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounded CLI admits and hashes the immutable publication, compiles each declared subject and publishes its model and generation report in a fresh directory.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source path, source geometry, external triangle list, optimizer replacement or failed-quality geometry filtering enters generation; unsupported-pair counts remain explicit.
+ * @evidence contracts/development/implementation.md#principled-implementation The fuchs1977-pair-path-v1 publication supplies only physical polygons and combinatorial path instructions; tessellateAutoMovieContourPath64 owns every new vertex, index and normal. No source path, source geometry, external triangle list, optimizer replacement or failed-quality geometry filtering enters generation; unsupported-pair counts remain explicit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The CLI checks a 32 MiB metadata limit before reading and hashing the input once. The separate whole-file read does not enforce that limit if the file grows or is replaced. Input bytes and parsed polygons stay live through the command. Subjects compile sequentially with engine O(V+T) work. Each subject reuses one engine result for geometry, construction and ownership reports and publishes it before the next subject. Synchronous file operations own their handles.
  * @evidence contracts/development/common.md#meaningful-documentation States command, source epoch, source-free publication boundary, bounded file admission and the distinction between path consumption and successful source recovery.
- * @evidence contracts/development/implementation.md#efficient-algorithms File admission is linear in at most 32 MiB input; subjects compile sequentially with engine O(V+T) work and incremental output serialization.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The input bytes provide one hash for every output; each subject invokes the engine once and reuses that exact result for geometry, construction and ownership reports.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Input bytes and parsed polygons remain live for the bounded command; each generated subject transfers to immutable files before the next iteration. Synchronous handles close and no child process or cache is created.
  */
 export function recoveryContourPath(args: string[], sourceEpoch: string): void {
   const [inputFile, outputDirectory]: string[] = args;
@@ -79,7 +76,6 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
       !/^[a-zA-Z0-9._-]+$/.test(subject.id) ||
       subject.id === "." ||
       subject.id === ".." ||
-      !Number.isSafeInteger(subject.unsupportedPairCount) ||
       subject.unsupportedPairCount < 0
     )
       throw new Error(

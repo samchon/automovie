@@ -1,21 +1,3 @@
-# src/kinematics/SwingTwistFramePreparation.ts#SwingTwistFramePreparation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the explicit wrapper, unchanged-axis/frame lifetime, lazy diagnostic preservation and ordinary-frame admission behavior.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A frame wrapper borrows the same axes/rest frame and owns private lazy normalized-axis/swing-basis readers. Weak exact constructor provenance identifies only those completed wrappers without observing raw caller properties, separating immutable-operation metadata from each actual rotation computation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The swingTwistRange preparation entry, actual clamp and swing readers share wrapper construction and the two metadata reads; no skeleton, pose, target, constraint or projected result is keyed here.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only completed constructor wrappers gain weak provenance; ordinary/copy/inherited/proxied frames receive no private-symbol has/get probe or descriptor/prototype classification. They retain original live axes admission, and failed numerical preparation is not retained.
-
 # src/kinematics/SwingTwistFramePreparation.ts#SwingTwistFramePreparation.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

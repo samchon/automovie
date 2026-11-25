@@ -14,16 +14,17 @@ import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
  * that region. `propSupportFace` gives a building support patch its own
  * footprint and height rule, and gives another prop's `stack-top` the extent
  * carried through the host's full staged TRS, the same transform
- * `propOccupancyBounds` measures the resting prop through, so a scaled or turned
- * host's top and the geometry that shows it stay one surface.
- * `builtEnvironmentSupportStatus` gives a built body's bearing part its top as a
- * level rectangle. `propSupportGap` reads every one of them the same way.
+ * `propOccupancyBounds` measures the resting prop through, so a scaled or
+ * turned host's top and the geometry that shows it stay one surface.
+ * `builtEnvironmentSupportStatus` gives a built body's bearing part its top as
+ * a level rectangle. `propSupportGap` reads every one of them the same way.
  */
 export interface IAutoMoviePropSupportFace {
   /**
    * The face's plan region in world XZ metres, holes included. A probe in a
-   * hole's open interior is not over the face; every rim is. A prop affordance's top is one convex ring;
-   * a support patch keeps whatever region its rings describe.
+   * hole's open interior is not over the face; every rim is. A prop
+   * affordance's top is one convex ring; a support patch keeps whatever region
+   * its rings describe.
    */
   polygon: IAutoMovieFootprint;
 
@@ -38,13 +39,28 @@ export interface IAutoMoviePropSupportFace {
 /** Data and callback contracts shared by the PropSupportFace operations. */
 export namespace IAutoMoviePropSupportFace {
   /**
-   * The face one `on-support` relation resolves to, or `null` when the record states none.
+   * The face one `on-support` relation resolves to, or `null` when the record
+   * states none.
    *
-   * A `surface` target resolves to the cited built environment's support patch: its own footprint, holes included, and its own height rule. A `prop-affordance` target resolves to the host prop's `stack-top` extent carried through the affordance frame and the host's full staged transform ({@link setPieceMatrix}), hulled into one convex ring, with a plane height rule through the transformed top.
+   * A `surface` target resolves to the cited built environment's support patch:
+   * its own footprint, holes included, and its own height rule. A
+   * `prop-affordance` target resolves to the host prop's `stack-top` extent
+   * carried through the affordance frame and the host's full staged transform
+   * ({@link setPieceMatrix}), hulled into one convex ring, with a plane height
+   * rule through the transformed top.
    *
-   * Nothing is guessed. A citation that does not resolve, a host that is not staged, a contact of a kind that carries no face (`handle`, `socket`, `hook`), a `stack-top` without an extent, a patch whose region encloses no area, and a top staged edge-on to the ground each answer `null`, because a face nobody can measure is not a face a prop can be proven off. The edge-on top's height over the ground plan is not a function, so there is no rule to read it by, and inventing one would refuse or excuse a prop for a number the author never wrote.
+   * Nothing is guessed. A citation that does not resolve, a host that is not
+   * staged, a contact of a kind that carries no face (`handle`, `socket`,
+   * `hook`), a `stack-top` without an extent, a patch whose region encloses no
+   * area, and a top staged edge-on to the ground each answer `null`, because a
+   * face nobody can measure is not a face a prop can be proven off. The edge-on
+   * top's height over the ground plan is not a function, so there is no rule to
+   * read it by, and inventing one would refuse or excuse a prop for a number
+   * the author never wrote.
    *
-   * Lookups take the first record of a given id, exactly as {@link propAnchorFrame} does and for the same reason: contradicting ids are {@link validatePropPlacements}'s own refusal, by name.
+   * Lookups take the first record of a given id, exactly as
+   * {@link propAnchorFrame} does and for the same reason: contradicting ids are
+   * {@link validatePropPlacements}'s own refusal, by name.
    */
   export type IProps = {
     /** The `on-support` relation's target: a patch, or another prop's contact. */

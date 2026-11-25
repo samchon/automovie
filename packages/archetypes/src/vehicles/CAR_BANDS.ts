@@ -79,7 +79,8 @@ const SHARED: Readonly<
 };
 
 /**
- * The least and the greatest of the hatchbacks' read grades' figures of one dimension, for a band a class whose models state none borrows.
+ * The least and the greatest of the hatchbacks' read grades' figures of one
+ * dimension, for a band a class whose models state none borrows.
  *
  * @param dimension The dimension.
  * @returns The least and the greatest figure.
@@ -99,7 +100,10 @@ function hatchbacks(dimension: createCar.Dimension): [number, number] {
   return [Math.min(...figures), Math.max(...figures)];
 }
 
-/** The turns lock to lock of a class whose models state none: the span of the hatchbacks' read grades, borrowed for want of the class's own. */
+/**
+ * The turns lock to lock of a class whose models state none: the span of the
+ * hatchbacks' read grades, borrowed for want of the class's own.
+ */
 const TURNS: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   "",
   ...hatchbacks("lockTurns"),
@@ -131,7 +135,10 @@ const CAR: Readonly<
   ),
 };
 
-/** The seat height of the light commercial classes, read with the passenger-car band. */
+/**
+ * The seat height of the light commercial classes, read with the passenger-car
+ * band.
+ */
 const COMMERCIAL_SEAT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.127,
   0.405,
@@ -140,7 +147,14 @@ const COMMERCIAL_SEAT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
 );
 
 /**
- * The band of each free dimension of a car, by class, with the source it was read at; `createCar.BANDS` is this table. A class lacks the dimensions of the parts it does not have: only the sedan and the hatchback have a boot, only the van a sliding door and a cargo floor, only the pickup a bed. A model's own figures are its read model's (`CAR_MODELS`), not bands; the van's sliding door, step and cargo floor are the L1's read figures, the L2's dealer page giving the same 1,030 mm door and none of the others, so the L2 takes the L1's, the same body section: provisional for the L2.
+ * The band of each free dimension of a car, by class, with the source it was
+ * read at; `createCar.BANDS` is this table. A class lacks the dimensions of the
+ * parts it does not have: only the sedan and the hatchback have a boot, only
+ * the van a sliding door and a cargo floor, only the pickup a bed. A model's
+ * own figures are its read model's (`CAR_MODELS`), not bands; the van's sliding
+ * door, step and cargo floor are the L1's read figures, the L2's dealer page
+ * giving the same 1,030 mm door and none of the others, so the L2 takes the
+ * L1's, the same body section: provisional for the L2.
  */
 export const CAR_BANDS: Readonly<
   Record<

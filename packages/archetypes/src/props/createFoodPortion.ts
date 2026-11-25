@@ -9,9 +9,9 @@ import {
 } from "../core";
 
 /**
- * Each portion's size, metres and kilograms. No source is read: every
- * figure is a provisional construction estimate of a plated portion, a
- * bite-sized piece cut from it, and a morsel taken with chopsticks.
+ * Each portion's size, metres and kilograms. No source is read: every figure is
+ * a provisional construction estimate of a plated portion, a bite-sized piece
+ * cut from it, and a morsel taken with chopsticks.
  */
 const SIZES: Readonly<Record<createFoodPortion.Kind, createFoodPortion.ISize>> =
   {
@@ -21,26 +21,18 @@ const SIZES: Readonly<Record<createFoodPortion.Kind, createFoodPortion.ISize>> =
   };
 
 /**
- * A plated portion of food: a steak cut at the table, a bite-sized piece
- * of it, or a morsel taken with chopsticks or a serving spoon.
+ * A plated portion of food: a steak cut at the table, a bite-sized piece of it,
+ * or a morsel taken with chopsticks or a serving spoon.
  *
- * The portion is a slab standing on its underside at the origin, its
- * width along `X`. `top` is its upper face, the surface a knife saws and a
- * fork's tines pin, facing `+Y`; `base` is the underside, the socket set on
- * a plate; `pick` is the centre of its upper face, where a fork's tines or
- * chopstick tips take it.
+ * The portion is a slab standing on its underside at the origin, its width
+ * along `X`. `top` is its upper face, the surface a knife saws and a fork's
+ * tines pin, facing `+Y`; `base` is the underside, the socket set on a plate;
+ * `pick` is the centre of its upper face, where a fork's tines or chopstick
+ * tips take it.
  *
  * @param params The kind and the optional scene id.
  * @returns The portion and its contacts, metres.
  * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the frame and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation One slab with its upper face, its underside and its pick point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Check the kind, record the dimensions, lay the slab, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A portion is a rigid slab; a cut does not reshape it, the piece being its own portion. Every size is a named provisional estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part and three contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createFoodPortion(
   params: createFoodPortion.IParams,
@@ -103,14 +95,7 @@ export function createFoodPortion(
   return builder.build(size.mass);
 }
 
-/**
- * The inputs, contacts and sizes of {@link createFoodPortion}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the kinds, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation A closed kind union; metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face, the base and the pick point an act reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The kind fixes the size.
- */
+/** The inputs, contacts and sizes of {@link createFoodPortion}. */
 export namespace createFoodPortion {
   /** A steak, a piece cut from it, or a morsel. */
   export type Kind = "steak" | "piece" | "morsel";

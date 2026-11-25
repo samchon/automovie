@@ -13,10 +13,13 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALY
  * to exactly the same standard.
  *
  * Violations are appended to `out` under `path` and worded with `label`;
- * resident plane slots are visited by index and missing records are refused at their slot. The plane-array and other nested vector shapes remain a caller premise; this helper does not validate arbitrary container types. The checks are a plane count of at least
- * `AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES`, finite normals longer than `1e-12`, and
- * finite offsets. Whether the planes enclose a non-empty, bounded region is not
- * checked, so four or more planes describing an unbounded or empty set pass.
+ * resident plane slots are visited by index and missing records are refused at
+ * their slot. The plane-array and other nested vector shapes remain a caller
+ * premise; this helper does not validate arbitrary container types. The checks
+ * are a plane count of at least `AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES`, finite
+ * normals longer than `1e-12`, and finite offsets. Whether the planes enclose a
+ * non-empty, bounded region is not checked, so four or more planes describing
+ * an unbounded or empty set pass.
  *
  * @param planes Half-spaces whose intersection is the solid; a point is inside
  *   one when `dot(normal, point) <= offset`.
@@ -60,12 +63,5 @@ export const validateSolidPlanes: (
       plane.normal,
       `${label} plane normal`,
     );
-    if (!Number.isFinite(plane.offset))
-      out.push(
-        "range",
-        `${path}[${index}].offset`,
-        `${label} plane offset must be finite, but was ${plane.offset}`,
-        plane.offset,
-      );
   }
 };

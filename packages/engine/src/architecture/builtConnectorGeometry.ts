@@ -14,9 +14,17 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
 /**
  * Measure one connector's traversal shape: climb, run, length, slope, stations.
  *
- * A station's facing is answered as authored or as `null`, never as a heading this function invented. A connector that declared no orientation has no orientation, and saying so is what keeps a later analysis from reading a derived guess as a design decision.
+ * A station's facing is answered as authored or as `null`, never as a heading
+ * this function invented. A connector that declared no orientation has no
+ * orientation, and saying so is what keeps a later analysis from reading a
+ * derived guess as a design decision.
  *
- * Run is the horizontal (`x`, `z`) length of the route polyline and rise its signed `y` change between the end points, both in metres; length is the 3D polyline length. Stations and landings are placed by arc-length fraction, so a landing on an unevenly spaced route stands where its author put it, exactly as a connector section is placed. Throws when the connector does not exist or its route has fewer than two points or zero length.
+ * Run is the horizontal (`x`, `z`) length of the route polyline and rise its
+ * signed `y` change between the end points, both in metres; length is the 3D
+ * polyline length. Stations and landings are placed by arc-length fraction, so
+ * a landing on an unevenly spaced route stands where its author put it, exactly
+ * as a connector section is placed. Throws when the connector does not exist or
+ * its route has fewer than two points or zero length.
  */
 export const builtConnectorGeometry: (
   environment: IAutoMovieBuiltEnvironment,
@@ -74,7 +82,9 @@ export const builtConnectorGeometry: (
 /**
  * The point an arc length reaches along a route polyline.
  *
- * The caller has already refused a route with no measurable length, so the segment the length falls in always exists; a length past the end is extrapolated along the last segment.
+ * The caller has already refused a route with no measurable length, so the
+ * segment the length falls in always exists; a length past the end is
+ * extrapolated along the last segment.
  */
 const routePointAt: (
   route: readonly IAutoMovieVector3[],

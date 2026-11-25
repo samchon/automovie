@@ -2,13 +2,11 @@ import type { IAutoMovieRenderTargetAsset } from "./IAutoMovieRenderTargetAsset"
 import type { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRenderer";
 import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings";
 
-/**
- * Data and callback contracts shared by the SealRenderTarget operations.
- */
+/** Data and callback contracts shared by the SealRenderTarget operations. */
 export namespace IAutoMovieSealRenderTarget {
   /**
-   * Seal one render target: the renderer, its settings, and the exact asset bytes
-   * a frame will read.
+   * Seal one render target: the renderer, its settings, and the exact asset
+   * bytes a frame will read.
    *
    * The digest hashes explicit-position JSON tuples, so object property order
    * and embedded tabs/newlines do not collapse different renderer/asset fields.

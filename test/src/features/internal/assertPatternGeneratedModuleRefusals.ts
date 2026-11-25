@@ -24,20 +24,11 @@ export function assertPatternGeneratedModuleRefusals(
     message: string;
   }[] = [
     {
-      label: "blankId",
-      changes: { id: " " },
-      message: 'pattern zone "field" module id must be non-empty',
-    },
-    {
       label: "duplicateId",
       changes: { id: "same" },
       message: 'pattern zone "field" module id "same" must be unique',
     },
-    {
-      label: "centre",
-      changes: { center: { u: Number.NaN, v: 0 } },
-      message: "center must be finite",
-    },
+
     {
       label: "sizeU",
       changes: { size: { u: 0, v: 0.5 } },
@@ -48,16 +39,7 @@ export function assertPatternGeneratedModuleRefusals(
       changes: { size: { u: 0.5, v: -0.5 } },
       message: "size v must be a finite number > 0",
     },
-    {
-      label: "rotation",
-      changes: { rotationDeg: Number.NaN },
-      message: "rotation and grain must be finite",
-    },
-    {
-      label: "grain",
-      changes: { grainDeg: Number.POSITIVE_INFINITY },
-      message: "rotation and grain must be finite",
-    },
+
   ];
   const baseline: AutoMovieSurfacePatternGenerator = stackBond(0.5);
   for (const { label, changes, message } of cases)

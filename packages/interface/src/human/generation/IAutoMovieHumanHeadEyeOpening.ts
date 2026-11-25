@@ -1,5 +1,4 @@
-/** One eye's opening, calibration millimetres.
- */
+/** One eye's opening, calibration millimetres. */
 export interface IAutoMovieHumanHeadEyeOpening {
   /** Distance of the fissure's centre from the midline. */
   place: number;
@@ -13,7 +12,10 @@ export interface IAutoMovieHumanHeadEyeOpening {
   /** Half the intercanthal width: the endocanthion's distance from the midline. */
   inner: number;
 
-  /** Half-span of the margin's lateral harmonic, solved so the canthi stand the length apart. */
+  /**
+   * Half-span of the margin's lateral harmonic, solved so the canthi stand the
+   * length apart.
+   */
   span: number;
 
   /** How far the socket falls to seat the eye. */

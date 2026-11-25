@@ -16,7 +16,13 @@ import type { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
  * boundaries rather than as one face whose surface the containment test would
  * have to approximate.
  *
- * Validation checks finite origin, unit rotation, positive finite thickness, at least three finite corners with consecutive spacing above 1e-9 m, finite doubled area magnitude above 1e-9 and the approximate simple-ring predicate. It does not check that the face borders its cited volume or `+Z` points outward. Envelope derivation flips authored `+Z` only when one probe 0.001 m along it from the shoelace centroid is inside the space; it does not test the opposite side, and a concave outline's centroid can lie outside its patch.
+ * Validation checks finite origin, unit rotation, positive finite thickness, at
+ * least three finite corners with consecutive spacing above 1e-9 m, finite
+ * doubled area magnitude above 1e-9 and the approximate simple-ring predicate.
+ * It does not check that the face borders its cited volume or `+Z` points
+ * outward. Envelope derivation flips authored `+Z` only when one probe 0.001 m
+ * along it from the shoelace centroid is inside the space; it does not test the
+ * opposite side, and a concave outline's centroid can lie outside its patch.
  */
 export interface IAutoMovieBoundaryFace {
   /** World-space origin of the boundary's own frame. */
@@ -34,8 +40,6 @@ export interface IAutoMovieBoundaryFace {
    */
   outline: IAutoMoviePlanarPoint[];
 
-  /**
-   * Positive separation thickness along the boundary's local `+Z`, in metres.
-   */
+  /** Positive separation thickness along the boundary's local `+Z`, in metres. */
   thickness: number;
 }

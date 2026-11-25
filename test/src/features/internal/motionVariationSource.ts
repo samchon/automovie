@@ -36,7 +36,7 @@ export const motionVariationSource: (props?: {
     { p: props.skill ?? 0 },
     props.seed ?? "film",
   );
-  return AutoMovieMotionHumanVariation.of(
+  return AutoMovieMotionHumanVariation(
     {
       skill,
       series: (channel: string) => ({

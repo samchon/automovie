@@ -1,11 +1,12 @@
 /**
- * Six named head measurement courses, each expressed as a millimetre arc length.
+ * Six named head measurement courses, each expressed as a millimetre arc
+ * length.
  *
- * The interface package owns these declarations; AutoMovieHumanHeadArcs in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanHeadArcs in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanHeadArcs {
-  /** The six arcs, mm.
-   */
+  /** The six arcs, mm. */
   export interface IArcs {
     /** Over the vertex in the coronal plane. */
     coronal: number;

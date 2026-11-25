@@ -24,6 +24,8 @@ export type { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
 export type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 export type { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
 export type { IAutoMovieJointRotationFrame } from "./IAutoMovieJointRotationFrame";
+export type { IAutoMovieSwingTwistRegion } from "./IAutoMovieSwingTwistRegion";
+export type { IAutoMoviePreparedJointRotationFrame } from "./IAutoMoviePreparedJointRotationFrame";
 export type { IAutoMovieMarkBalance } from "./IAutoMovieMarkBalance";
 export type { IAutoMovieMarkRomOvershoot } from "./IAutoMovieMarkRomOvershoot";
 export type { IAutoMoviePose } from "./IAutoMoviePose";

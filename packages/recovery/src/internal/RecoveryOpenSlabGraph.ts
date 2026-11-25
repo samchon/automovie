@@ -7,16 +7,15 @@ import type {
 
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
 
-/**
- * Observe ordinary open-arc transport without exporting source addresses.
- */
+/** Observe ordinary open-arc transport without exporting source addresses. */
 export namespace RecoveryOpenSlabGraph {
   /**
-   * Prepare boundary incidence once and observe critical-free ordinary open pairs.
-   * Binary64 zero-area checks and combinatorial paths do not certify embedding.
-   * Source winding conflicts warn separately from undirected sheet admission.
-   * The producer must supply every critical-event face as a defect; this helper
-   * alone does not certify a height-product structure from endpoint counts.
+   * Prepare boundary incidence once and observe critical-free ordinary open
+   * pairs. Binary64 zero-area checks and combinatorial paths do not certify
+   * embedding. Source winding conflicts warn separately from undirected sheet
+   * admission. The producer must supply every critical-event face as a defect;
+   * this helper alone does not certify a height-product structure from endpoint
+   * counts.
    */
   export function prepare(
     source: IAutoMovieRecoveryOpenSlabGraph.Source,
@@ -29,15 +28,7 @@ export namespace RecoveryOpenSlabGraph {
     for (let i: number = 0; i < size; i++) {
       const p: readonly number[] | undefined = source.vertices[i];
       const c: number = source.canon[i]!;
-      if (
-        !Array.isArray(p) ||
-        p.length !== 3 ||
-        ![0, 1, 2].every((k: number): boolean => Number.isFinite(p[k])) ||
-        !Number.isFinite(source.heights[i]) ||
-        c < 0 ||
-        c >= size ||
-        source.canon[c] !== c
-      )
+      if (p.length !== 3 || c < 0 || c >= size || source.canon[c] !== c)
         throw new Error(
           "Open slab source needs finite positions and idempotent canonical addresses",
         );
@@ -94,8 +85,7 @@ export namespace RecoveryOpenSlabGraph {
         u[2]! * v[0]! - u[0]! * v[2]!,
         u[0]! * v[1]! - u[1]! * v[0]!,
       );
-      if (new Set(ids).size !== 3 || !Number.isFinite(area) || area === 0)
-        invalid.add(ti);
+      if (new Set(ids).size !== 3 || area === 0) invalid.add(ti);
       for (let k: number = 0; k < 3; k++) {
         const at: number = ids[k]!,
           next: number = ids[(k + 1) % 3]!,
@@ -159,22 +149,14 @@ export namespace RecoveryOpenSlabGraph {
     return (
       input: IAutoMovieRecoveryOpenSlabGraph.Query,
     ): IAutoMovieRecoveryOpenSlabGraph.Result => {
-      if (
-        !Number.isFinite(input.beforeMm) ||
-        !Number.isFinite(input.afterMm) ||
-        !(input.beforeMm < input.afterMm)
-      )
+      if (!(input.beforeMm < input.afterMm))
         throw new Error("Open slab bounds must be finite and increasing");
       const active: number[] = [];
       const localInvalid: Set<number> = new Set();
       let previous: number = -1,
         orientationWarnings: number = 0;
       for (const face of input.candidates) {
-        if (
-          !Number.isSafeInteger(face) ||
-          face <= previous ||
-          face >= source.triangles.length
-        )
+        if (face <= previous || face >= source.triangles.length)
           throw new Error(
             "Open slab candidates must be increasing original face addresses",
           );
@@ -272,7 +254,7 @@ export namespace RecoveryOpenSlabGraph {
             ends.push({ side, slot });
           }
         }
-        nodes.push(pair as [string, string]);
+        nodes.push([pair[0]!, pair[1]!]);
       }
       const components: {
         faces: Set<number>;
@@ -325,11 +307,7 @@ export namespace RecoveryOpenSlabGraph {
       ): number | undefined => {
         if (
           ![end.a, end.b].every(
-            (i: number): boolean =>
-              Number.isSafeInteger(i) &&
-              i >= 0 &&
-              i < size &&
-              source.canon[i] === i,
+            (i: number): boolean => i >= 0 && i < size && source.canon[i] === i,
           )
         )
           throw new Error(

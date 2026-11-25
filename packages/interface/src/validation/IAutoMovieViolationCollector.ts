@@ -4,16 +4,12 @@ import type { AutoMovieViolationKind } from "./AutoMovieViolationKind";
 import type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
 import type { IAutoMovieValidation } from "./IAutoMovieValidation";
 
-/**
- * Mutable insertion-ordered finding storage shared by validation predicates.
- */
+/** Mutable insertion-ordered finding storage shared by validation predicates. */
 export interface IAutoMovieViolationCollector {
   /** Violations accumulated in insertion order. */
   readonly items: IAutoMovieConstraintViolation[];
 
-  /**
-   * Append one canonical violation in the caller's traversal order.
-   */
+  /** Append one canonical violation in the caller's traversal order. */
   push(
     kind: AutoMovieViolationKind,
     path: string,
@@ -24,7 +20,9 @@ export interface IAutoMovieViolationCollector {
   ): void;
 
   /**
-   * Push a `"warning"`-severity violation, physical-plausibility advice that does not fail validation (see {@link IAutoMovieConstraintViolation.severity}).
+   * Push a `"warning"`-severity violation, physical-plausibility advice that
+   * does not fail validation (see
+   * {@link IAutoMovieConstraintViolation.severity}).
    */
   warn(
     kind: AutoMovieViolationKind,
@@ -35,18 +33,23 @@ export interface IAutoMovieViolationCollector {
   ): void;
 
   /**
-   * Finite range check `[min, max]`; pushes a `range` violation unless `value` is a finite number inside it. `value` is `unknown` so a field read off an untyped payload is narrowed here rather than cast to `number` first. Failed string conversion changes only the diagnostic representation to `an uninspectable value`; the finding retains the original value.
+   * Finite range check `[min, max]`; pushes a `range` violation unless `value`
+   * is a finite number inside it. `value` is `unknown` so a field read off an
+   * untyped payload is narrowed here rather than cast to `number` first. Failed
+   * string conversion changes only the diagnostic representation to `an
+   * uninspectable value`; the finding retains the original value.
    */
   range(
     path: string,
-    value: unknown,
+    value: number,
     min: number,
     max: number,
     label?: string,
   ): void;
 
   /**
-   * Pushes a `type` violation when `value` is empty or only whitespace; the message is `<label> must be non-empty`.
+   * Pushes a `type` violation when `value` is empty or only whitespace; the
+   * message is `<label> must be non-empty`.
    *
    * @param path Violation path of the checked string.
    * @param value String that must carry a non-whitespace character.
@@ -55,25 +58,20 @@ export interface IAutoMovieViolationCollector {
   nonEmpty(path: string, value: string, label: string): void;
 
   /**
-   * Checks a direction that need not be unit length: one `range` violation at `<path>.<axis>` per non-finite component, or, when every component is finite, one at `path` if the length is `1e-12` or shorter.
+   * Checks a direction that need not be unit length: one `range` violation at
+   * `<path>.<axis>` per non-finite component, or, when every component is
+   * finite, one at `path` if the length is `1e-12` or shorter.
    *
    * @param path Violation path of the checked vector.
-   * @param value Direction to check; a finite measured length above 1e-12 passes.
+   * @param value Direction to check; a finite measured length above 1e-12
+   *   passes.
    * @param label Name of the direction in the messages.
    */
   direction(path: string, value: IAutoMovieVector3, label: string): void;
 
   /**
-   * Pushes one `range` violation at `<path>.<axis>` for each non-finite component of a vector, worded `<label> <axis> must be finite, but was <value>`.
-   *
-   * @param path Violation path of the checked vector.
-   * @param value Vector whose three components must be finite.
-   * @param label Name of the vector in the messages.
-   */
-  finiteVector(path: string, value: IAutoMovieVector3, label: string): void;
-
-  /**
-   * Pushes a `range` violation at `path` unless a value is a finite number strictly above zero; a missing value fails and is reported as `null`.
+   * Pushes a `range` violation at `path` unless a value is a finite number
+   * strictly above zero; a missing value fails and is reported as `null`.
    *
    * @param path Violation path of the checked number.
    * @param value Number that must be finite and positive, or undefined.
@@ -82,7 +80,8 @@ export interface IAutoMovieViolationCollector {
   positive(path: string, value: number | undefined, label: string): void;
 
   /**
-   * Pushes a `range` violation at `path` when a quaternion's norm is not finite or differs from 1 by more than `1e-6`, reporting the norm.
+   * Pushes a `range` violation at `path` when a quaternion's norm is not finite
+   * or differs from 1 by more than `1e-6`, reporting the norm.
    *
    * @param path Violation path of the checked rotation.
    * @param value Quaternion that must be a unit rotation.
@@ -95,7 +94,8 @@ export interface IAutoMovieViolationCollector {
   ): void;
 
   /**
-   * Wrap the current findings with canonical severity folding and shared storage.
+   * Wrap the current findings with canonical severity folding and shared
+   * storage.
    */
   toValidation(): IAutoMovieValidation;
 }

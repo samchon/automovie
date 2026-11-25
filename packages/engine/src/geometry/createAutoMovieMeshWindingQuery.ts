@@ -46,8 +46,6 @@ export const createAutoMovieMeshWindingQuery: (
   const indices: number[] = triangleIndicesOf(mesh, "Mesh winding queries");
   if (indices.length === 0)
     throw new Error("Mesh winding queries need at least one triangle.");
-  if (!mesh.positions.every(Number.isFinite))
-    throw new Error("Mesh winding queries need finite positions.");
 
   // Snapshot each position once. A kept triangle uses three XYZ offsets and
   // its unnormalized normal. Allocate directly in the snapshot storage.
@@ -79,7 +77,7 @@ export const createAutoMovieMeshWindingQuery: (
   }
 
   return (point: readonly number[]): IAutoMovieMeshWinding => {
-    if (point.length !== 3 || !point.every(Number.isFinite))
+    if (point.length !== 3)
       throw new Error("Mesh winding queries require finite XYZ coordinates.");
     const px: number = point[0]!;
     const py: number = point[1]!;

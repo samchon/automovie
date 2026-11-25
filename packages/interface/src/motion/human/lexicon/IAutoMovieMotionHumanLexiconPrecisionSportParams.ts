@@ -2,7 +2,10 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
- * Open parameters for the installed precision sport actions. Implement strokes bind an already held implement and a separate ball; bare-hand strokes strike the ball with the hand. The action planner admits the strike and publishes its launch only after measuring the fitted contact.
+ * Open parameters for the installed precision sport actions. Implement strokes
+ * bind an already held implement and a separate ball; bare-hand strokes strike
+ * the ball with the hand. The action planner admits the strike and publishes
+ * its launch only after measuring the fitted contact.
  */
 export interface IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /** Baseball hit on the scheduled pitch path. */
@@ -57,43 +60,52 @@ export interface IAutoMovieMotionHumanLexiconPrecisionSportParams {
 /** Parameter types shared across the precision sport rows. */
 export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /**
-   * A timed bare-hand contact with a real scene ball and a separately
-   * authored outgoing shot: the hand itself is the striking surface.
+   * A timed bare-hand contact with a real scene ball and a separately authored
+   * outgoing shot: the hand itself is the striking surface.
    */
   export interface IHand {
     /** Subject id of the stationary or moving ball. */
     ball: string;
 
-    /** The outgoing shot's horizontal direction, from the ball toward this target. */
+    /**
+     * The outgoing shot's horizontal direction, from the ball toward this
+     * target.
+     */
     target: IAutoMovieMotionTarget;
 
-    /** Positive seconds from the action start to impact. Omit for the stroke's neutral timing (the row's own, provisional). */
+    /**
+     * Positive seconds from the action start to impact. Omit for the stroke's
+     * neutral timing (the row's own, provisional).
+     */
     impact?: number;
 
-    /** Positive outgoing ball speed in metres per second. The row fixes the departure inclination. No natural value is defined: choose it for the beat (provisional, missing). */
+    /**
+     * Positive outgoing ball speed in metres per second. The row fixes the
+     * departure inclination. No natural value is defined: choose it for the
+     * beat (provisional, missing).
+     */
     speed: number;
 
     /** The striking hand. Defaults to right. */
     hand?: AutoMovieHumanSide;
 
     /**
-     * A swinging miss: the stroke passes one ball's diameter under the ball
-     * at the impact second, so it meets nothing and launches nothing, and
-     * the ball flies on. Absent, the stroke meets the ball.
+     * A swinging miss: the stroke passes one ball's diameter under the ball at
+     * the impact second, so it meets nothing and launches nothing, and the ball
+     * flies on. Absent, the stroke meets the ball.
      */
     miss?: true;
   }
   /**
-   * A timed contact with a real scene ball and a separately authored outgoing shot.
+   * A timed contact with a real scene ball and a separately authored outgoing
+   * shot.
    */
   export interface IStroke extends IHand {
     /** Subject id of the implement the striking hand already holds. */
     tool: string;
   }
 
-  /**
-   * A cue stroke with a fixed bridge contact read from the named table surface.
-   */
+  /** A cue stroke with a fixed bridge contact read from the named table surface. */
   export interface ICue extends IStroke {
     /** Stable bed or rail point supporting the hand that guides the shaft. */
     bridge: IAutoMovieMotionTarget;

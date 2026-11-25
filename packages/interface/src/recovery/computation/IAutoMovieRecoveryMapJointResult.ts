@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoveryMapState,
 } from "../../index";
 
-/** Owned numerical state and explicit fixed-population joint termination.
- */
+/** Owned numerical state and explicit fixed-population joint termination. */
 export interface IAutoMovieRecoveryMapJointResult extends IAutoMovieRecoveryMapState {
   /** Actual numerical termination over the same ordered observations. */
   report: IAutoMovieRecoveryMapJointFit;

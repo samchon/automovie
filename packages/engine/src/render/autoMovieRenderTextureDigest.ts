@@ -17,12 +17,12 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * equality tokens group sorted stable owner/asset use locations; their random
  * spelling never enters the digest. Renaming tokens preserves identity, while
  * shared-to-independent decode or environment-clone changes invalidate it.
- * Fixed-position records ignore property order and retain unknown facts. Invalid
- * dimensions remain distinct so an unknown bound cannot reuse a valid one.
- * Conflicting facts for one scoped asset refuse rather than choosing by order.
- * The caller supplies the current shot's required source closure; retained
- * scopes are filtered to the texture channels and environment they consume.
- * This proves identity, not validity or a complete memory bound.
+ * Fixed-position records ignore property order and retain unknown facts.
+ * Invalid dimensions remain distinct so an unknown bound cannot reuse a valid
+ * one. Conflicting facts for one scoped asset refuse rather than choosing by
+ * order. The caller supplies the current shot's required source closure;
+ * retained scopes are filtered to the texture channels and environment they
+ * consume. This proves identity, not validity or a complete memory bound.
  */
 export function autoMovieRenderTextureDigest(
   sources: readonly IAutoMovieRenderTextureSource[],
@@ -167,9 +167,9 @@ export function autoMovieRenderTextureDigest(
       );
   };
   for (const scope of scopes) {
-    if (scope.owner.trim().length === 0 || owners.has(scope.owner))
+    if (owners.has(scope.owner))
       throw new Error(
-        `Texture resident owner "${scope.owner}" must be nonblank and unique.`,
+        `Texture resident owner "${scope.owner}" must be unique.`,
       );
     owners.add(scope.owner);
     for (const source of scope.sources) record(scope.owner, source, "source");
@@ -178,9 +178,9 @@ export function autoMovieRenderTextureDigest(
   }
   const runtimeOwners: Set<string> = new Set<string>();
   for (const runtime of residency?.runtimeTextures ?? []) {
-    if (runtime.owner.trim().length === 0 || runtimeOwners.has(runtime.owner))
+    if (runtimeOwners.has(runtime.owner))
       throw new Error(
-        `Runtime texture owner "${runtime.owner}" must be nonblank and unique.`,
+        `Runtime texture owner "${runtime.owner}" must be unique.`,
       );
     runtimeOwners.add(runtime.owner);
     record(

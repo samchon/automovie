@@ -19,16 +19,18 @@ type Chart = {
 };
 
 /**
- * Qualified phase readings of actual profile fields, independently of physical2.
+ * Qualified phase readings of actual profile fields, independently of
+ * physical2.
  *
  * At a fixed station the original plane is constant in the curve clock. Thus
  * its first and second phase derivatives multiply only the original local
- * derivatives, with the piece's actual affine clock scale and its square.
- * No station or frame derivatives are requested or invented.
+ * derivatives, with the piece's actual affine clock scale and its square. No
+ * station or frame derivatives are requested or invented.
  */
 export namespace AutoMovieConstructionProfilePhase {
   /**
-   * Borrow already admitted immutable originals; explicit null never falls back to total2.
+   * Borrow already admitted immutable originals; explicit null never falls back
+   * to total2.
    */
   export function create(
     source: IAutoMovieConstructionProfileSource,
@@ -54,8 +56,6 @@ export namespace AutoMovieConstructionProfilePhase {
       const chart: Chart | undefined = charts.get(piece);
       if (
         chart === undefined ||
-        !Number.isFinite(station) ||
-        !Number.isFinite(coordinate) ||
         station < chart.domain[0] ||
         station > chart.domain[1] ||
         coordinate < 0 ||
@@ -78,12 +78,8 @@ export namespace AutoMovieConstructionProfilePhase {
       if (local!.tt !== null) pair(local!.tt);
       const frame: IAutoMovieLoftSectionFrame = source.plane.axis.at(station);
       for (const value of [frame.origin, frame.u, frame.v])
-        if (
-          !Array.isArray(value) ||
-          value.length !== 3 ||
-          !value.every(Number.isFinite)
-        )
-          fail("Original phase query has incomplete or nonfinite plane data.");
+        if (value.length !== 3)
+          fail("Original phase query has incomplete plane data.");
 
       /** At fixed station only the actual local curve differentiates in phase. */
       const world: (
@@ -104,29 +100,22 @@ export namespace AutoMovieConstructionProfilePhase {
         t: world(local!.t, factor),
         tt: local!.tt === null ? null : world(local!.tt, factor * factor),
       };
-      for (const vector of [
-        result.p,
-        result.t,
-        ...(result.tt === null ? [] : [result.tt]),
-      ])
-        if (!vector.every(Number.isFinite))
-          fail("Original world phase reading is not finite.");
+
       return result;
     };
   }
 }
 
-/** Every provided local derivative owns both finite components. */
+/** Every provided local derivative owns both components. */
 function pair(value: readonly number[]): void {
-  if (
-    !Array.isArray(value) ||
-    value.length !== 2 ||
-    !value.every(Number.isFinite)
-  )
-    fail("Original phase reading requires two finite local components.");
+  if (value.length !== 2)
+    fail("Original phase reading requires two local components.");
 }
 
-/** Numeric/unavailable admission remains separate from original callback exceptions. */
+/**
+ * Numeric/unavailable admission remains separate from original callback
+ * exceptions.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

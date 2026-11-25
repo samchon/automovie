@@ -4,13 +4,20 @@ import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { readAutoMovieNameOption } from "./readAutoMovieNameOption";
 
 /**
- * Admit one `add` request: exactly one `shorts/<directory>` or `series/<directory>` target with optional single `--force` and `--name <name>`, in any order.
+ * Admit one `add` request: exactly one `shorts/<directory>` or
+ * `series/<directory>` target with optional single `--force` and `--name
+ * <name>`, in any order.
  *
- * The target is split at its one `/`; the family must be `shorts` or `series`, and the directory must be one segment that the template's project-name rule admits unchanged, so `movies/<family>/<directory>` cannot leave the workspace. Every refusal throws an `Error` whose message names the correction.
+ * The target is split at its one `/`; the family must be `shorts` or `series`,
+ * and the directory must be one segment that the template's project-name rule
+ * admits unchanged, so `movies/<family>/<directory>` cannot leave the
+ * workspace. Every refusal throws an `Error` whose message names the
+ * correction.
  *
  * @param args The tokens after `add`.
  * @returns The admitted request.
- * @throws On an unknown or repeated option, a missing name value, a target count other than one, an unknown family, or a refused directory segment.
+ * @throws On an unknown or repeated option, a missing name value, a target
+ *   count other than one, an unknown family, or a refused directory segment.
  */
 export function readAutoMovieAddArguments(
   args: readonly string[],

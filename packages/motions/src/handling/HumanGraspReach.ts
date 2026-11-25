@@ -12,23 +12,21 @@ import { stand } from "../actions/stand";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanGrasp } from "./HumanGrasp";
 
+/** The alternatives of `StandingBonesEntry`'s site. */
+type StandingBonesEntry = "worldPosition" | "worldRotation";
+
 /**
- * Where another person's arm is predicted from and how a grip turns about
- * its handle: the standing posture a person settles into, and a target
- * turned about its wrapped axis. `HumanGrasp` passes these through by name.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and who exposes it.
- * @evidence contracts/development/design.md#principled-representation The stand law's posture over displayed feet, and a rigid turn of a grasp target.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two operations, read through `HumanGrasp` and by `HumanGraspHand`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stand law and the engine's quaternions; nothing is duplicated.
+ * Where another person's arm is predicted from and how a grip turns about its
+ * handle: the standing posture a person settles into, and a target turned about
+ * its wrapped axis. `HumanGrasp` passes these through by name.
  */
 export namespace HumanGraspReach {
   /**
-   * The standing posture a person settles into from where they stand: the
-   * stand law's posture centred over the person's displayed feet, facing the
-   * way the pelvis faces. A law predicting another person's arm (a
-   * handshake's partner, a handover's receiver) reads it, so the prediction
-   * starts from the same root the partner's own stand law will hold.
+   * The standing posture a person settles into from where they stand: the stand
+   * law's posture centred over the person's displayed feet, facing the way the
+   * pelvis faces. A law predicting another person's arm (a handshake's partner,
+   * a handover's receiver) reads it, so the prediction starts from the same
+   * root the partner's own stand law will hold.
    *
    * @param body The person's body.
    * @param bones The person's displayed world bones.
@@ -38,7 +36,7 @@ export namespace HumanGraspReach {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, StandingBonesEntry>
     >,
   ): IAutoMovieMotionHumanPosture {
     const yaw: number = HumanFrame.heading(bones.get("hips")!.worldRotation);
@@ -70,18 +68,11 @@ export namespace HumanGraspReach {
     turn: number,
   ): IAutoMovieMotionHumanGrasp.ITarget;
   /** The same wrapped-axis rotation for the hand-only target view. */
-  export function around(target: HumanGrasp.IFrame, turn: number): HumanGrasp.IFrame;
-  /**
-   * Preserve all supplied target fields while turning only its approach.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The complete and hand-only overloads keep the world target point, wrapped axis and metre width while turning the inward approach by degrees.
-   * @evidence contracts/development/implementation.md#principled-implementation A rotation of the approach about the wrapped axis by the turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target spread and one approach transform serve both existing target views.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every other target field is kept and no collider list, width or contact point is manufactured.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant rigid-transform work with no variable population.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete closure and narrow hand goals use this same numerical owner.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh target wrapper and approach vector without retained state.
-   */
+  export function around(
+    target: HumanGrasp.IFrame,
+    turn: number,
+  ): HumanGrasp.IFrame;
+  /** Preserve all supplied target fields while turning only its approach. */
   export function around(
     target: HumanGrasp.IFrame,
     turn: number,

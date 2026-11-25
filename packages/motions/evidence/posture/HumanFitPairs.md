@@ -1,21 +1,3 @@
-# src/posture/HumanFitPairs.ts#HumanFitPairs
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the pairs, the capsule model with its source and the slope.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pair is two capsules, each a bone, its child joint's bone and a radius from the body's measure.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The pair, the body's pairs, a pair's gap and its row, read by the whole-body fit alone.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every radius is the body's measure; the distance is the engine's segment distance.
-
 # src/posture/HumanFitPairs.ts#HumanFitPairs.ICapsule
 
 ## @evidence contracts/development/design.md#principled-representation
@@ -70,7 +52,7 @@ Reports the existing capsule gap, including negative overlap, rather than a pred
 
 States distance sign, world-frame witness units and shared-posture scope.
 
-# src/posture/HumanFitPairs.ts#HumanFitPairs.of
+# src/posture/HumanFitPairs.ts#HumanFitPairs
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -4,9 +4,18 @@ import { addPositiveModulo } from "../math/addPositiveModulo";
 import { positiveModulo } from "../math/positiveModulo";
 
 /**
- * Seconds into a clip's stride cycle at `localTime`, or `null` when the clip states no cycle to resume.
+ * Seconds into a clip's stride cycle at `localTime`, or `null` when the clip
+ * states no cycle to resume.
  *
- * A carried `gaitCycle` is authoritative: it is how a non-looping composite, such as the film ladder's arranged performance, still knows its stride phase, and the answer is `(phaseAt + localTime) mod period`. A cycle with a non-positive or non-finite period, or a non-finite `phaseAt`, answers `null` rather than a `NaN` phase. Without a cycle, a looping clip answers `localTime mod duration`, the wrap the motion sampler applies, and a one-shot clip or a looping clip of non-positive duration answers `null`. The phase is in `[0, period)` seconds. `resolveBeatEnd` and `resolveBeatOpening` store it as an actor's `gaitPhase`, which the next beat resumes mid-stride from.
+ * A carried `gaitCycle` is authoritative: it is how a non-looping composite,
+ * such as the film ladder's arranged performance, still knows its stride phase,
+ * and the answer is `(phaseAt + localTime) mod period`. A cycle with a
+ * non-positive or non-finite period, or a non-finite `phaseAt`, answers `null`
+ * rather than a `NaN` phase. Without a cycle, a looping clip answers `localTime
+ * mod duration`, the wrap the motion sampler applies, and a one-shot clip or a
+ * looping clip of non-positive duration answers `null`. The phase is in `[0,
+ * period)` seconds. `resolveBeatEnd` and `resolveBeatOpening` store it as an
+ * actor's `gaitPhase`, which the next beat resumes mid-stride from.
  *
  * @param clip The validated clip the actor plays.
  * @param localTime Clip-local seconds at the instant being resumed from.
@@ -18,8 +27,7 @@ export function gaitPhaseOf(
 ): number | null {
   const cycle: IAutoMovieGaitCycle | null = clip.gaitCycle ?? null;
   if (cycle !== null) {
-    if (!Number.isFinite(cycle.period) || cycle.period <= 0) return null;
-    if (!Number.isFinite(cycle.phaseAt)) return null;
+    if (cycle.period <= 0) return null;
     return addPositiveModulo(cycle.phaseAt, localTime, cycle.period);
   }
   if (!clip.loop || clip.duration <= 0) return null;

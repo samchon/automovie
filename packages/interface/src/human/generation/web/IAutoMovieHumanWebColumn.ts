@@ -22,7 +22,10 @@ export type IAutoMovieHumanWebColumn =
       /** A column away from the pinches. */
       kind: "plain";
 
-      /** The parent's ring vertex; -1 for a column of the continuous law between the vertices, read and not meshed. */
+      /**
+       * The parent's ring vertex; -1 for a column of the continuous law between
+       * the vertices, read and not meshed.
+       */
       v: number;
 
       /** Its point on the parent's ring, mm. */

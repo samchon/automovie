@@ -10,7 +10,22 @@ import {
 } from "../core";
 
 /**
- * Each kind's models read, each whole, by name, the default first. The wheeled bins: SULO 240 and 360 litre containers, total height about 1060 and 1100 mm, bin height 990 and 1028, bin depth 660 and 770, total depth 730 and 848, width 585 and 680, handle width 400 and 520, wheels 200 and 250 mm, 12.5 and 17 kg empty (https://sulo.com.au/product/240-litre-container/, https://sulo.com.au/product/360-litre-container/). The dumpsters: Wastequip steel front-load containers, 2 and 3 yd flat nestable, 81 7/8 and 82 7/16 in long, 39 3/4 and 46 3/4 in deep at the lid, 34 and 42 in at the base, 40 15/16 and 48 1/2 in high at the front, 45 1/4 and 52 11/16 in at the back, 505 and 602 lb (https://www.Wastequip.com/sites/default/files/2023-06/Steel_FEL_Containers_Brochure_032017_DIGITAL_0.pdf). For a wheeled bin: `width`, `depth` and `height` its body's, `top` its height with the lid, `reach` its depth with the handle, `handle` the handle's width, `wheel` its wheels' diameter. For a dumpster: `width` its length across the front, `depth` its depth at the lid, `reach` at the base, `height` at the front and `top` at the back; it has no handle or wheels.
+ * Each kind's models read, each whole, by name, the default first. The wheeled
+ * bins: SULO 240 and 360 litre containers, total height about 1060 and 1100 mm,
+ * bin height 990 and 1028, bin depth 660 and 770, total depth 730 and 848,
+ * width 585 and 680, handle width 400 and 520, wheels 200 and 250 mm, 12.5 and
+ * 17 kg empty (https://sulo.com.au/product/240-litre-container/,
+ * https://sulo.com.au/product/360-litre-container/). The dumpsters: Wastequip
+ * steel front-load containers, 2 and 3 yd flat nestable, 81 7/8 and 82 7/16 in
+ * long, 39 3/4 and 46 3/4 in deep at the lid, 34 and 42 in at the base, 40
+ * 15/16 and 48 1/2 in high at the front, 45 1/4 and 52 11/16 in at the back,
+ * 505 and 602 lb
+ * (https://www.Wastequip.com/sites/default/files/2023-06/Steel_FEL_Containers_Brochure_032017_DIGITAL_0.pdf).
+ * For a wheeled bin: `width`, `depth` and `height` its body's, `top` its height
+ * with the lid, `reach` its depth with the handle, `handle` the handle's width,
+ * `wheel` its wheels' diameter. For a dumpster: `width` its length across the
+ * front, `depth` its depth at the lid, `reach` at the base, `height` at the
+ * front and `top` at the back; it has no handle or wheels.
  */
 const BIN_MODELS: Readonly<
   Record<
@@ -67,35 +82,43 @@ const BIN_MODELS: Readonly<
   },
 };
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `lid`, a dumpster lid's thickness; `bar`, a handle's and a wheel's width. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `lid`, a dumpster lid's thickness; `bar`, a
+ * handle's and a wheel's width.
+ */
 const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
   lid: 0.03,
   bar: 0.03,
 };
 
 /**
- * A waste container standing on the ground: a two-wheeled bin or a front-load dumpster.
+ * A waste container standing on the ground: a two-wheeled bin or a front-load
+ * dumpster.
  *
- * Each stands on `y = 0` with its front toward `+Z` and its lid hinged along its back top edge. It is one of its maker's two models read, whole: the model given, or one drawn from the seed. A wheeled bin is its body, its lid and two wheels at its back's foot; `handle` is the bar behind its body by the sheet's difference of total and bin depth, at the bin's height, where it is gripped to tip the bin onto its wheels and haul it. A dumpster is its body, narrower at the base than at the lid, under a lid level at its mean height. `lid` is the lid's hinge on both; it states no travel, since no source read gives how far a lid opens. `front` is the front face a person pushes.
+ * Each stands on `y = 0` with its front toward `+Z` and its lid hinged along
+ * its back top edge. It is one of its maker's two models read, whole: the model
+ * given, or one drawn from the seed. A wheeled bin is its body, its lid and two
+ * wheels at its back's foot; `handle` is the bar behind its body by the sheet's
+ * difference of total and bin depth, at the bin's height, where it is gripped
+ * to tip the bin onto its wheels and haul it. A dumpster is its body, narrower
+ * at the base than at the lid, under a lid level at its mean height. `lid` is
+ * the lid's hinge on both; it states no travel, since no source read gives how
+ * far a lid opens. `front` is the front face a person pushes.
  *
- * A dumpster rests on its steel body: steel on concrete (`AutoMovieArchetypeFriction`).
+ * A dumpster rests on its steel body: steel on concrete
+ * (`AutoMovieArchetypeFriction`).
  *
  * @param params The kind, and the model if the author fixes it.
- * @param seed The seed that draws the model when it is not given; absent, the kind's first.
+ * @param seed The seed that draws the model when it is not given; absent, the
+ *   kind's first.
  * @returns The container.
- * @throws {AutoMovieArchetypeRefusal} For a model the kind's maker does not list.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, how its model is chosen, its contacts and why its lid does not open.
- * @evidence contracts/development/implementation.md#principled-implementation One read model whole, every size and the mass as its maker gives them; the handle where the total depth passes the body.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, then build the body, lid and the kind's extra parts, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No container between the two read is made; a bin's taper and a dumpster's sloped front and lid are boxes; the lid's and handle's sections are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model the kind's maker does not
+ *   list.
  */
 export function createBin(
   params: createBin.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBin.Affordance, createBin.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBin.Dimension> =
     new AutoMovieArchetypeDrawSession<createBin.Dimension>(
@@ -230,14 +253,7 @@ export function createBin(
   );
 }
 
-/**
- * Companion types and constants of {@link createBin}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, model and affordance states what it is; each model its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the models read, each built whole, listed by kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a bin is hauled by, the lid it is opened at and the face it is pushed at (#3468 N2).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A lid with no source for its opening states no travel.
- */
+/** Companion types and constants of {@link createBin}. */
 export namespace createBin {
   /** The kinds of container. */
   export type Kind = "wheelieBin" | "dumpster";
@@ -254,11 +270,20 @@ export namespace createBin {
    */
   export type Affordance = "lid" | "front" | "handle";
 
-  /** The models read: SULO's 240 and 360 litre wheeled bins and Wastequip's 2 and 3 yd front-load containers. */
+  /**
+   * The models read: SULO's 240 and 360 litre wheeled bins and Wastequip's 2
+   * and 3 yd front-load containers.
+   */
   export type Model = "240L" | "360L" | "2yd" | "3yd";
 
   /**
-   * The dimensions, each its model's, metres unless stated: `width`, `depth` and `height`, a wheeled bin's body's or a dumpster's length across the front, depth at the lid and height at the front; `top`, a wheeled bin's height with its lid or a dumpster's height at the back; `reach`, a wheeled bin's depth with its handle or a dumpster's depth at the base; `handle`, a wheeled bin's handle width; `wheel`, a wheeled bin's wheels' diameter; `mass`, kilograms. A dumpster has no `handle` or `wheel`.
+   * The dimensions, each its model's, metres unless stated: `width`, `depth`
+   * and `height`, a wheeled bin's body's or a dumpster's length across the
+   * front, depth at the lid and height at the front; `top`, a wheeled bin's
+   * height with its lid or a dumpster's height at the back; `reach`, a wheeled
+   * bin's depth with its handle or a dumpster's depth at the base; `handle`, a
+   * wheeled bin's handle width; `wheel`, a wheeled bin's wheels' diameter;
+   * `mass`, kilograms. A dumpster has no `handle` or `wheel`.
    */
   export type Dimension =
     | "width"

@@ -14,22 +14,24 @@ import {
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
 /**
- * Two side loads hung on a pack saddle's load contacts: a box against each side, its inner face on the pad's outer face at the contact frame, carried with the trunk wherever the pack horse's ride takes it.
+ * Two side loads hung on a pack saddle's load contacts: a box against each
+ * side, its inner face on the pad's outer face at the contact frame, carried
+ * with the trunk wherever the pack horse's ride takes it.
  *
- * Each `leftLoad` and `rightLoad` contact is a surface frame whose `+Y` faces out of the pad, whose `+X` runs along the back and whose `width` and `depth` give the pad's extent along the back and down the side (`EquinePack.lay`). A load is a box `length` along the back, `height` down the side and `thickness` out from the pad, its inner face centred on the contact; both sides take the same box, an authored balanced pair. A load longer than the pad along the back or taller than the pad down the side does not sit on it and is refused.
+ * Each `leftLoad` and `rightLoad` contact is a surface frame whose `+Y` faces
+ * out of the pad, whose `+X` runs along the back and whose `width` and `depth`
+ * give the pad's extent along the back and down the side (`EquinePack.lay`). A
+ * load is a box `length` along the back, `height` down the side and `thickness`
+ * out from the pad, its inner face centred on the contact; both sides take the
+ * same box, an authored balanced pair. A load longer than the pad along the
+ * back or taller than the pad down the side does not sit on it and is refused.
  *
  * @param horse A horse under a pack saddle.
  * @param load The box hung on each side, metres and kilograms.
  * @returns The two load models and their placements at a ride's sample.
- * @throws {AutoMovieArchetypeRefusal} For a horse without the pack saddle's load contacts, a nonpositive size or mass, or a box that overhangs its pad.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact convention, the box's placement, the balance rule and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Each load is rigidly attached to its posed contact frame: its world placement is the ride's placement composed with that frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the box against both pads, build one box model per side, then compose placements per sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overhanging box is refused, never scaled to fit.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two contact reads and two compositions per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The two box models are built once and shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the two box models.
+ * @throws {AutoMovieArchetypeRefusal} For a horse without the pack saddle's
+ *   load contacts, a nonpositive size or mass, or a box that overhangs its
+ *   pad.
  */
 export function AutoMovieArchetypeEquinePackLoad(
   horse: AutoMovieArchetype<
@@ -50,7 +52,7 @@ export function AutoMovieArchetypeEquinePackLoad(
     });
   };
   for (const key of ["length", "height", "thickness", "mass"] as const)
-    if (!(Number.isFinite(load[key]) && load[key] > 0))
+    if (!(load[key] > 0))
       refuse(`load.${key}`, load[key], "must be finite and positive");
   const models: Record<
     AutoMovieArchetypeEquinePackLoad.Side,
@@ -78,7 +80,10 @@ export function AutoMovieArchetypeEquinePackLoad(
     }),
   };
 
-  /** One side's box, admitted against its pad, with its inner face's centre at its model origin. */
+  /**
+   * One side's box, admitted against its pad, with its inner face's centre at
+   * its model origin.
+   */
   function box(
     side: AutoMovieArchetypeEquinePackLoad.Side,
   ): AutoMovieArchetype<"base", never> {
@@ -127,14 +132,7 @@ export function AutoMovieArchetypeEquinePackLoad(
   }
 }
 
-/**
- * Types of {@link AutoMovieArchetypeEquinePackLoad}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each type's units and frames.
- * @evidence contracts/development/design.md#principled-representation A box's three positive lengths and mass, the two closed load sides and the prepared models and sampler.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeEquinePackLoad` and its callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One box serves both sides, as balanced loads require.
- */
+/** Types of {@link AutoMovieArchetypeEquinePackLoad}. */
 export namespace AutoMovieArchetypeEquinePackLoad {
   /** The two load contacts of a pack saddle. */
   export type Side = "leftLoad" | "rightLoad";
@@ -153,7 +151,10 @@ export namespace AutoMovieArchetypeEquinePackLoad {
 
   /** The two loads' models and their placements at a sample. */
   export interface IPrepared {
-    /** Each side's box model, its inner face's centre at its origin, `+Y` out of the pad. */
+    /**
+     * Each side's box model, its inner face's centre at its origin, `+Y` out of
+     * the pad.
+     */
     models: Readonly<Record<Side, AutoMovieArchetype<"base", never>>>;
     /** Each side's world placement at a pack horse ride's sample. */
     at: (

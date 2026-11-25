@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Closed image/work admission, once-observed classical features and bidirectional global tracks precede complete seed and incremental point/camera geometry. Only whole qualified transactions update one common similarity gauge.
+The caller's view and pixel budgets, once-observed classical features and bidirectional global tracks precede complete seed and incremental point/camera geometry. Only whole qualified transactions update one common similarity gauge.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, pinnedElastica } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -15,28 +15,43 @@ const RULE: string =
   "World Athletics Competition Rules, Book C2.1, Rule 28.8 (pole vault): the pole may be of any material or combination of materials and of any length or diameter, the basic surface smooth (https://worldathletics.org/about-iaaf/documents/book-of-rules)";
 
 /**
- * A vaulting pole: a long, smooth tube a vaulter runs with, plants in the box and swings on (#3529).
+ * A vaulting pole: a long, smooth tube a vaulter runs with, plants in the box
+ * and swings on (#3529).
  *
- * The pole stands on its plant end at the origin, its length along `+Y`. `tip` is the plant end, its `+Y` pointing out of the end along the pole, so a planting act puts it on the floor or in the box. The two hands hold it in two bands near the top: `topGrip`, the upper hand's, and `lowerGrip`, the lower hand's below it, each a `handle` along the pole whose sites name a hand's place; `shaft` is the whole tube as one two-hand bar, for a carry or a pick-up anywhere along it.
+ * The pole stands on its plant end at the origin, its length along `+Y`. `tip`
+ * is the plant end, its `+Y` pointing out of the end along the pole, so a
+ * planting act puts it on the floor or in the box. The two hands hold it in two
+ * bands near the top: `topGrip`, the upper hand's, and `lowerGrip`, the lower
+ * hand's below it, each a `handle` along the pole whose sites name a hand's
+ * place; `shaft` is the whole tube as one two-hand bar, for a carry or a
+ * pick-up anywhere along it. `rating` is the maker's stiffness rating, the
+ * vaulter's weight the pole is made for, kilograms.
  *
- * The pole is rigid here: its bend under the vaulter is the vaulting act's to model, and its stiffness is not drawn.
+ * The pole bends as a chain of straight links on hinges (`bend1` up to
+ * `bend<n-1>`), the arc from the plant end to the top hand's band cut into `n`
+ * equal links: the topmost link, which carries both bands' top and the pole's
+ * top end, is fixed in the model, and each hinge turns the link below it about
+ * `+X`, riding the hinge above, so a positive travel bows the pole toward `+Z`,
+ * away from the hands that take it from `-Z`, and a negative one toward `-Z`,
+ * as a round tube bends either way; `tip` rides the lowest hinge. The links are
+ * Godot's even-length tessellation of that arc (`TOLERANCE`, `STAGES`): halved
+ * while longer than 0.2 m, at most five times. Each hinge travels the turn the
+ * greatest curvature of the pinned elastica (`pinnedElastica`) whose chord has
+ * shortened to `BREAK` of its arc, the deepest bend a fibreglass pole survives,
+ * gives over one link.
  *
  * @param params The pole's series and any dimension the author fixes.
- * @param seed The seed that draws the series when it is not given and every dimension left free inside its band; absent, the first series and the middle of each band.
+ * @param seed The seed that draws the series when it is not given and every
+ *   dimension left free inside its band; absent, the first series and the
+ *   middle of each band.
  * @returns The pole.
- * @throws {AutoMovieArchetypeRefusal} For a series UCS Spirit does not list with a length, or a fixed dimension outside its band; every band fits both grips on the shortest pole, so no other refusal is needed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the pole stands, each contact and what is not modelled.
- * @evidence contracts/development/implementation.md#principled-implementation One rod of one UCS Spirit series' length and the drawn diameter; the grip bands are measured down from the top by the drawn hold and spacing, each a handle along the rod with the rod's diameter as its aperture.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the series, draw the dimensions, one rod, then the plant end, the two grips and the shaft.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pole does not bend; the bend is the act's. The grip bands' places are a vaulter's habit, marked provisional.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a series UCS Spirit does not list
+ *   with a length, or a fixed dimension outside its band; every band fits both
+ *   grips on the shortest pole, so no other refusal is needed.
  */
 export function createVaultingPole(
   params: createVaultingPole.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createVaultingPole.Affordance,
   createVaultingPole.Dimension
@@ -72,15 +87,71 @@ export function createVaultingPole(
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length;
   const radius: number = d.diameter / 2;
-  builder.rod("pole", radius, v(0, 0, 0), v(0, length, 0), {
-    color: "#d8c23a",
-  });
+  const top: number = length - d.hold;
+
+  // The chain: the arc from the plant end to the top hand's band halved
+  // while a link is longer than `TOLERANCE`, at most `STAGES` times, the
+  // topmost link running on to the pole's top.
+  let n: number = 1;
+  for (
+    let stage: number = 0;
+    top / n > createVaultingPole.TOLERANCE && stage < createVaultingPole.STAGES;
+    stage++
+  )
+    n *= 2;
+  const link: number = top / n;
+  const deepest: number = pinnedElastica.curvature(
+    pinnedElastica.parameter(createVaultingPole.BREAK),
+    top,
+  );
+  const at: (k: number) => number = (k: number): number => k * link;
+  for (let k: number = 0; k < n; k++)
+    builder.rod(
+      `link${k}`,
+      radius,
+      v(0, at(k), 0),
+      v(0, k === n - 1 ? length : at(k + 1), 0),
+      { color: "#d8c23a" },
+    );
+  const hinge: (k: number) => createVaultingPole.Bend = (
+    k: number,
+  ): createVaultingPole.Bend => `bend${k}`;
+  for (let k: number = n - 1; k >= 1; k--)
+    builder.affordance({
+      id: hinge(k),
+      kind: "hinge",
+      extent: null,
+      travel: (deepest * link) / AutoMovieArchetypeUnits.DEGREE,
+      reverse: (deepest * link) / AutoMovieArchetypeUnits.DEGREE,
+      parts: [`link${k - 1}`],
+      ...(k < n - 1 ? { rides: hinge(k + 1) } : {}),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, at(k), 0),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
+    });
+  // The hinge that carries a point of the pole: the one at the top of the
+  // link it lies on, none on the topmost.
+  const carrier: (y: number) => createVaultingPole.Bend | undefined = (
+    y: number,
+  ): createVaultingPole.Bend | undefined => {
+    const k: number = Math.floor(y / link);
+    return k >= n - 1 ? undefined : hinge(k + 1);
+  };
+  const rides: (y: number) => createVaultingPole.IRidden = (
+    y: number,
+  ): createVaultingPole.IRidden => {
+    const by: createVaultingPole.Bend | undefined = carrier(y);
+    return by === undefined ? {} : { rides: by };
+  };
 
   // The plant end, facing out of the pole's bottom.
   builder.affordance({
     id: "tip",
     kind: "surface",
     direction: "along",
+    ...rides(0),
     frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });
@@ -95,6 +166,7 @@ export function createVaultingPole(
       id,
       kind: id === "shaft" ? "bar" : "handle",
       symmetry: "round",
+      ...rides(middle),
       frame: AutoMovieArchetypeFrame.facing(
         v(0, middle, 0),
         v(0, 0, -1),
@@ -106,7 +178,6 @@ export function createVaultingPole(
       length: run,
     });
   };
-  const top: number = length - d.hold;
   band("topGrip", top - createVaultingPole.HAND / 2, createVaultingPole.HAND);
   band(
     "lowerGrip",
@@ -117,17 +188,40 @@ export function createVaultingPole(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createVaultingPole}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and how sure its source is.
- * @evidence contracts/development/design.md#principled-representation Closed unions, a maker's series picked whole, and one band per remaining dimension; the size is free under the rules, so the length is a maker's and the other bands are estimates, marked provisional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The plant end and the hands' bands a vault reads (#3529), and the length that sets the swing's radius.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No stiffness is declared: the pole is rigid in this model.
- */
+/** Companion types and bands of {@link createVaultingPole}. */
 export namespace createVaultingPole {
-  /** A hand's breadth along the pole, metres: the run of one grip band. An estimate, not read at a source. */
+  /**
+   * A hand's breadth along the pole, metres: the run of one grip band. An
+   * estimate, not read at a source.
+   */
   export const HAND: number = 0.1;
+
+  /**
+   * The shortest chord a bending pole reaches, a share of its arc from the
+   * plant end to the top hand: a fibreglass pole breaks when bent further than
+   * to about 60 % of its length (Linthorne 2000, Sports Engineering 3:205-218,
+   * "Flexible-pole model").
+   */
+  export const BREAK: number = 0.6;
+
+  /**
+   * The longest link of the chain, metres: Godot's even-length tessellation
+   * halves a segment while it is longer than this (`Curve3D`'s
+   * `tessellate_even_length`, `tolerance_length` 0.2; godotengine/godot
+   * `scene/resources/curve.cpp`, `_bake_segment3d_even_length`, at
+   * eabb9a63d4bc70cd87e50d6af152f841ea549972, MIT, "Copyright (c) 2014-present
+   * Godot Engine contributors").
+   */
+  export const TOLERANCE: number = 0.2;
+
+  /**
+   * The most times the chain's arc is halved: the same tessellation's
+   * `max_stages`, 5.
+   */
+  export const STAGES: number = 5;
+
+  /** A hinge of the chain, by its place from the plant end. */
+  export type Bend = `bend${number}`;
 
   /**
    * The affordance ids:
@@ -136,8 +230,15 @@ export namespace createVaultingPole {
    * - `topGrip`: the upper hand's band near the top, taken from `-Z`.
    * - `lowerGrip`: the lower hand's band, `spacing` below the upper.
    * - `shaft`: the whole pole as one two-hand bar.
+   * - `bend<k>`: the chain's hinges, the `k`th link's top from the plant end.
    */
-  export type Affordance = "tip" | "topGrip" | "lowerGrip" | "shaft";
+  export type Affordance = "tip" | "topGrip" | "lowerGrip" | "shaft" | Bend;
+
+  /** What rides a hinge: the hinge, none on the topmost link. */
+  export interface IRidden {
+    /** The hinge; absent on the topmost link. */
+    rides?: Bend;
+  }
 
   /**
    * The free dimensions, metres unless stated:
@@ -147,8 +248,16 @@ export namespace createVaultingPole {
    * - `hold`: the upper hand's top edge below the pole's top.
    * - `spacing`: the lower hand below the upper.
    * - `mass`: kilograms.
+   * - `rating`: the maker's stiffness rating, kilograms: the vaulter's weight the
+   *   pole is made for.
    */
-  export type Dimension = "length" | "diameter" | "hold" | "spacing" | "mass";
+  export type Dimension =
+    | "length"
+    | "diameter"
+    | "hold"
+    | "spacing"
+    | "mass"
+    | "rating";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -159,12 +268,19 @@ export namespace createVaultingPole {
     hold: "m",
     spacing: "m",
     mass: "kg",
+    rating: "kg",
   };
 
   /** UCS Spirit's series read with a length. */
   export type Series = "235" | "305" | "520";
 
-  /** Each series' length, metres, the default first: UCS Spirit's poles run "from 7 ft 8 in (the 235 series) to 17 ft 1 in (the 520 series)" (https://ucsspirit.com/products/ucs-spirit-vaulting-poles), and its 305 series pole is 10 ft (https://spiritpoles.com/305-40-10-90lb). The full series list was not readable, so only these three are built. */
+  /**
+   * Each series' length, metres, the default first: UCS Spirit's poles run
+   * "from 7 ft 8 in (the 235 series) to 17 ft 1 in (the 520 series)"
+   * (https://ucsspirit.com/products/ucs-spirit-vaulting-poles), and its 305
+   * series pole is 10 ft, rated 90 lb (https://spiritpoles.com/305-40-10-90lb).
+   * The full series list was not readable, so only these three are built.
+   */
   export const SERIES: Readonly<
     Record<Series, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -172,13 +288,19 @@ export namespace createVaultingPole {
       length:
         7 * AutoMovieArchetypeUnits.FOOT + 8 * AutoMovieArchetypeUnits.INCH,
     },
-    "305": { length: 10 * AutoMovieArchetypeUnits.FOOT },
+    "305": {
+      length: 10 * AutoMovieArchetypeUnits.FOOT,
+      rating: 90 * AutoMovieArchetypeUnits.POUND,
+    },
     "520": {
       length: 17 * AutoMovieArchetypeUnits.FOOT + AutoMovieArchetypeUnits.INCH,
     },
   };
 
-  /** The parameters: the series, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the series, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "length">, number>
   > {
@@ -216,6 +338,13 @@ export namespace createVaultingPole {
       1.5,
       3,
       "an estimate of a fibreglass pole of these lengths; the UCS Spirit pages read give no mass",
+      true,
+    ),
+    rating: AutoMovieArchetypeBand.of(
+      "kg",
+      55 * AutoMovieArchetypeUnits.POUND,
+      220 * AutoMovieArchetypeUnits.POUND,
+      "UCS Spirit rates its poles from 55 to 220 lb (https://ucsspirit.com/products/ucs-spirit-vaulting-poles)",
       true,
     ),
   };

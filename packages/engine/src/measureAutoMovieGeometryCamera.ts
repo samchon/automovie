@@ -14,7 +14,9 @@ import { projectToNdc } from "./film/projectToNdc";
 import { resolveCameraAt } from "./film/resolveCameraAt";
 
 /**
- * Project unique requested actor root points through the sampled camera and delivery crop at shot-local seconds; report depth/frame counts and margins, with occlusionMeasured=false.
+ * Project unique requested actor root points through the sampled camera and
+ * delivery crop at shot-local seconds; report depth/frame counts and margins,
+ * with occlusionMeasured=false.
  */
 export function measureAutoMovieGeometryCamera(
   props: IAutoMovieGeometryMeasurementInput,
@@ -37,11 +39,7 @@ export function measureAutoMovieGeometryCamera(
       `Shot "${request.shot}" is not current compiled output. Compile it before a camera query.`,
     );
 
-  if (
-    Number.isFinite(request.time) === false ||
-    request.time < 0 ||
-    request.time > compiled.shot.duration
-  )
+  if (request.time < 0 || request.time > compiled.shot.duration)
     throw new Error(
       `Camera sample time ${request.time} is outside shot "${request.shot}" duration 0..${compiled.shot.duration}. Choose a current in-range time.`,
     );

@@ -1,10 +1,11 @@
 import type { IAutoMovieCompiledFormationLod } from "@automovie/interface";
 
-/**
- * Bounded viewer accounting for one general instance set.
- */
+/** Bounded viewer accounting for one general instance set. */
 export interface IAutoMovieInstanceSetViewerStats {
-  /** Slots assigned to currently visible batches by automatic LOD tier, without measuring native submissions or pixels. */
+  /**
+   * Slots assigned to currently visible batches by automatic LOD tier, without
+   * measuring native submissions or pixels.
+   */
   visible: Record<IAutoMovieCompiledFormationLod["tier"], number>;
 
   /** Slots rejected by chunk-frustum culling. */

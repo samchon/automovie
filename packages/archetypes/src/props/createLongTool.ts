@@ -14,22 +14,17 @@ import { createStageWorm } from "./createStageWorm";
 /**
  * Read a saved long implement recipe and call the producer for its kind.
  *
- * @param params The saved kind, fixed values, optional identifier and model when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @param params The saved kind, fixed values, optional identifier and model
+ *   when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined
+ *   for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Read a saved long implement recipe and call the producer for its kind.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrapper validates the saved kind and hands off the input.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kind order, seed streams, defaults and parameter admission follow the saved recipe.
- * @evidence contracts/development/implementation.md#efficient-algorithms A bounded kind check and one lookup precede the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved and named calls use the same producer.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createLongTool(
   params: createLongTool.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLongTool.Affordance, createLongTool.Dimension> {
   const kind: createLongTool.Kind = ArchetypeDraw.choice(
     "longTool",
@@ -39,22 +34,10 @@ export function createLongTool(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createLongTool.IParams,
-    seed?: number | string,
-  ) => AutoMovieArchetype<createLongTool.Affordance, createLongTool.Dimension> =
-    createLongTool.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createLongTool.PRODUCERS[kind](params, seed);
 }
 
-/**
- * Compatibility tables and types for saved long implement recipes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Compatibility tables and types for saved long implement recipes.
- * @evidence contracts/development/design.md#principled-representation The kind union retains the saved spelling and order. Each kind selects the named producer with the same geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing recipe tables and names for authored and saved callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the sizes and model figures from the saved bands.
- */
+/** Compatibility tables and types for saved long implement recipes. */
 export namespace createLongTool {
   /** The original kind for the saved long implement recipe. */
   export type Kind = LongImplementDraw.Kind;

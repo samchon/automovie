@@ -17,8 +17,6 @@ export function compileAutoMovieSweepGuide(
   guide: IAutoMovieSweep.IGuide,
   index: number,
 ): IAutoMovieCompileSweepGuideOutput {
-  if (!Number.isFinite(guide.angle))
-    throw new Error(`sweep guide ${index} angle is not finite`);
   return {
     angle: ((guide.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
     radius: compileAutoMovieSweepProfile(guide.radii, `sweep guide ${index}`),

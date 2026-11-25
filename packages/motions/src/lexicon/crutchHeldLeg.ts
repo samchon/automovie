@@ -2,50 +2,75 @@ import {
   ANKLE_DORSIFLEXION,
   Quaternion,
   Vector3,
+  getConstraint,
   minimumJerk,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieHumanLimbGoal,
+  IAutoMovieAngleRange,
   IAutoMovieHumanLimbReference,
+  IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditTangleModel,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSequentialConvex,
   IAutoMoviePose,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { walkFoot } from "../actions/walkFoot";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
-import { crawl } from "../floor/crawl";
-import { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditTangleModel as Tangle } from "../audit/AutoMovieMotionHumanAuditTangleModel";
+import { readHumanBone } from "../body/readHumanBone";
+import { HumanArmRefine } from "../posture/HumanArmRefine";
+import { HumanAuditModel } from "../posture/HumanAuditModel";
+import { HumanColliders } from "../posture/HumanColliders";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
+import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
+import { HumanSequentialConvexFunctions as F } from "../posture/HumanSequentialConvexFunctions";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { crutchHeldLegSweptDepth } from "./crutchHeldLegSweptDepth";
+
+/**
+ * Trajopt's sco settings for a joint-space course (`OptimizeProblem`,
+ * src/trajopt/problem_description.cpp lines 244-257, github.com/joschu/trajopt
+ * at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause), the same
+ * the arm course is solved at (`HumanArmOptimiser`), its boxes read in this
+ * course's degrees.
+ */
+const LEG: Readonly<IAutoMovieMotionHumanSequentialConvex.IParameters> = {
+  ...SCO.DEFAULTS,
+  maxIter: 40,
+  minApproxImproveFrac: 0.001,
+  improveRatioThreshold: 0.2,
+  meritErrorCoeff: 20,
+  trustBoxSize: (0.1 * 180) / Math.PI,
+  minTrustBoxSize: (1e-4 * 180) / Math.PI,
+};
+
+/**
+ * A knot's variables: the hip's flexion, abduction and twist, the knee's
+ * flexion and the ankle's flexion.
+ */
+const WIDTH: number = 5;
+
+/** The leg's segments the held leg's course keeps clear, by bone suffix. */
+const LEG_BONES: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
 
 /**
  * The injured leg a crutch gait holds off the floor once the hands bear
- * (Physiopedia, Crutches: the three-point gait; HealthLinkBC, Using
- * crutches). Its foot first rises a stepping limb's rise (`crawl.LIFT`)
- * straight up over its place through the first third of the lift, as a
- * stepping foot clears the floor before it travels (`supportStep`), while the
- * pelvis moves on above it; the leg then folds from its angles there to the
- * held hip and knee flexion, the ankle dorsiflexing by the shank's tilt up to
- * a weightless ankle's limit (`ANKLE_DORSIFLEXION.unloaded`) so the toes do
- * not pitch down. A leg the posture holds by its joints alone rises from the
- * foot where those joints stand it.
+ * (Physiopedia, Crutches: the three-point gait; HealthLinkBC, Using crutches).
+ * From its bearing pose the leg lifts and folds to the held hip and knee
+ * flexion on one course planned against the levels beneath it and the body
+ * (`plan`, TrajOpt's collision constraint), its first knot the leg as it bears,
+ * the ankle dorsiflexing by the shank's tilt up to a weightless ankle's limit
+ * (`ANKLE_DORSIFLEXION.unloaded`) so the toes do not pitch down.
  *
  * @param props The leg, its timing and the posture it lifts from.
- * @returns The writer of a posture with the leg held, the base posture's other parts kept.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clearing rise, the fold, the ankle's share and the goal-less case.
- * @evidence contracts/development/implementation.md#principled-implementation A foot breaks contact vertically before it travels, then a minimum-jerk joint blend (Flash and Hogan 1985) from the angles reached; the ankle's compensation is the shank's sagittal tilt, the knee's flexion less the hip's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two phases, each a closed form of the second.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fold starts from the resolved angles of the rise's end, so the two phases join.
- * @evidence contracts/development/implementation.md#efficient-algorithms The standing posture and the fold's start are read once per plan; every other read is constant work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The crutch walk's and the crutch stair climb's injured legs share this writer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the standing posture and the fold's start angles for the plan's life.
+ * @returns The writer of a posture with the leg held, the base posture's other
+ *   parts kept.
  */
 export function crutchHeldLeg(
   props: crutchHeldLeg.IProps,
@@ -55,139 +80,43 @@ export function crutchHeldLeg(
 ) => IAutoMovieMotionHumanPosture {
   const { body, side, lifted, held, read } = props;
   const leg: `${AutoMovieHumanSide}Leg` = `${side}Leg`;
-  const cleared: number = lifted + (held - lifted) / 3;
-  let bearing: IAutoMovieMotionHumanPosture | undefined;
-  let raised: crutchHeldLeg.IRaised | undefined;
-  let standing: IAutoMovieHumanLimbGoal | undefined;
-  const footGoal: (
-    posture: IAutoMovieMotionHumanPosture,
-  ) => IAutoMovieHumanLimbGoal = (
-    posture: IAutoMovieMotionHumanPosture,
-  ): IAutoMovieHumanLimbGoal => {
-    const foot: IAutoMovieResolvedBone = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
-    ).get(`${side}Foot`)!;
-    return AutoMovieMotionHumanLeg.goal(
-      body,
-      posture,
-      side,
-      { ankle: foot.worldPosition, rotation: foot.worldRotation },
-      false,
-    );
-  };
-  const rising = (
-    base: IAutoMovieMotionHumanPosture,
-    seconds: number,
-    from: IAutoMovieMotionHumanPosture,
-    stood: IAutoMovieHumanLimbGoal,
-  ): IAutoMovieMotionHumanPosture => {
-    const s: number = minimumJerk(
-      Math.min(1, (seconds - lifted) / (cleared - lifted)),
-    ).s;
-    return {
-      ...base,
-      limbs: {
-        ...base.limbs,
-        [leg]: {
-          point: Vector3.add(stood.point, { x: 0, y: crawl.LIFT * s, z: 0 }),
-          // The knee keeps the side it bent toward as the pelvis moves on.
-          bend: Vector3.add(stood.bend, Vector3.subtract(base.root, from.root)),
-          ...(stood.rotation !== undefined ? { rotation: stood.rotation } : {}),
-        },
-      },
-    };
-  };
-  // The hip flexion nearest the asked one that keeps the held foot's every
-  // sole point a swing's clearance (`walkFoot.CLEARANCE`) above the level
-  // beneath it, in closed form: in the leg's sagittal plane the ankle hangs
-  // L1 cos θ + L2 cos(θ − k) = A cos(θ − φ) below the hip, θ the thigh's
-  // angle forward of vertical (the hip's flexion plus the pelvis's forward
-  // tilt) and k the knee's flexion, so it hangs lower than a drop D only
-  // within acos(D / A) of φ. The hip joint is the posture's own rigid offset
-  // of the rest hip from the root; nothing is resolved.
-  const thigh: number = body.measure.thigh;
-  const shank: number = body.measure.shank;
-  const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-  // However the foot hangs, no point of it lies further below the ankle
-  // than its farthest sole socket.
-  const reachDown: number = Math.max(
-    ...HumanFoot.SOCKETS.map(
-      (socket: IAutoMovieMotionHumanFoot.Socket): number =>
-        Vector3.length(HumanFoot.offset(body, side, socket)),
-    ),
+  // The held leg's course from the bearing pose, planned as TrajOpt
+  // plans a chain (Schulman et al. 2014, IJRR 33:1251): the hip's flexion,
+  // abduction and twist and the knee's flexion at its timesteps (`knots`),
+  // the joint velocity cost and the held pose's joint cost,
+  // trajopt's `JointVelCost` and `JointPosCost` in radians at coefficient 1,
+  // under the collision constraint (section IV-A) at each knot and, swept
+  // (section IV-B), between consecutive knots: every probe of the leg's
+  // segments, the probes the take's tangle audit reads them by
+  // (`AutoMovieMotionHumanAuditTangleModel`), placed on the colliders of the
+  // posture resolved as it is displayed (`HumanColliders`), stays a swing's
+  // clearance (`walkFoot.CLEARANCE`) from the levels beneath it, the flight's
+  // treads and nosings where the law gives them (`stairs`), else its floor.
+  // The course is solved once by trajopt's loop (`HumanSequentialConvex`) on
+  // functions convexified as trajopt's (`HumanSequentialConvexFunctions`),
+  // each read in its own knots' variables, from the law's own fold as its
+  // seed, and played on the minimum-jerk path (`HumanArmRefine.hermite`).
+  // TrajOpt's evenly spaced timesteps and the law's events (`timesteps`).
+  const knots: number[] = crutchHeldLeg.timesteps(lifted, held, props.knots);
+  const model: IAutoMovieMotionHumanAuditTangleModel.IModel = body.tangle;
+  const parts: number[] = model.parts.flatMap(
+    (part: IAutoMovieMotionHumanAuditTangleModel.IPart, i: number): number[] =>
+      LEG_BONES.some((b: string): boolean => part.bone === `${side}${b}`)
+        ? [i]
+        : [],
   );
-  const clearing: (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-    knee: number,
-    hip: number,
-  ) => number = (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-    knee: number,
-    hip: number,
-  ): number => {
-    if (props.floor === undefined) return hip;
-    const hipY: number =
-      posture.root.y +
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), restHip).y;
-    const drop: number =
-      hipY -
-      (props.floor(seconds) + reachDown + walkFoot.CLEARANCE);
-    const k: number = knee * Quaternion.DEG2RAD;
-    const a: number = Math.hypot(
-      thigh + shank * Math.cos(k),
-      shank * Math.sin(k),
-    );
-    if (drop >= a) return hip;
-    // The ankle is too low within acos(D / A) of φ, the angle of its
-    // lowest hang: the thigh is moved to the nearer edge of that band.
-    const phi: number = Math.atan2(shank * Math.sin(k), thigh + shank * Math.cos(k));
-    const band: number = Math.acos(Math.max(-1, drop / a));
-    const theta: number = (hip + posture.pitch) * Quaternion.DEG2RAD;
-    if (Math.abs(theta - phi) >= band) return hip;
-    const edge: number = theta >= phi ? phi + band : phi - band;
-    return edge / Quaternion.DEG2RAD - posture.pitch;
-  };
-  return (
+  // The leg's joint angles written into a posture at a share of the fold.
+  const posed: (
     base: IAutoMovieMotionHumanPosture,
-    seconds: number,
+    from: crutchHeldLeg.IRaised,
+    angles: readonly number[],
+    s: number,
+  ) => IAutoMovieMotionHumanPosture = (
+    base: IAutoMovieMotionHumanPosture,
+    from: crutchHeldLeg.IRaised,
+    angles: readonly number[],
+    s: number,
   ): IAutoMovieMotionHumanPosture => {
-    if (seconds <= lifted) return base;
-    // Read at the bearing stance's last representable instant: at `lifted`
-    // itself a support plan has already let the foot's goal go.
-    bearing ??= read(lifted - Math.abs(lifted) * Number.EPSILON);
-    // A plan that holds the foot by its joints alone gives it no goal: the
-    // goal is then the foot where those joints stand it.
-    standing ??= bearing.limbs[leg] ?? footGoal(bearing);
-    const stood: IAutoMovieHumanLimbGoal = standing;
-    if (seconds < cleared) return rising(base, seconds, bearing, stood);
-    if (raised === undefined) {
-      const pose: IAutoMoviePose = resolveHumanPosture(
-        body,
-        rising(read(cleared), cleared, bearing, stood),
-      );
-      const ankle: IAutoMovieJointPose | undefined = pose.joints.find(
-        (j: IAutoMovieJointPose): boolean => j.bone === `${side}Foot`,
-      );
-      raised = {
-        ...resolveHumanPosture.reference(pose, leg),
-        foot: [ankle?.flexion ?? 0, ankle?.abduction ?? 0, ankle?.twist ?? 0],
-      };
-    }
-    const from: crutchHeldLeg.IRaised = raised;
-    const start: number = cleared;
-    const s: number = minimumJerk(
-      Math.min(1, (seconds - start) / (held - start)),
-    ).s;
-    const knee: number = from.lower[0] + (props.knee - from.lower[0]) * s;
-    // The clearance comes in with the fold, so the fold starts where the rise
-    // left the leg and is held clear of the level beneath once it is held.
-    const folded: number = from.upper[0] + (props.hip - from.upper[0]) * s;
-    const hip: number =
-      folded + (clearing(base, seconds, knee, folded) - folded) * s;
-    const tilt: number = knee - from.lower[0] - (hip - from.upper[0]);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
     delete limbs[leg];
     return {
@@ -195,39 +124,303 @@ export function crutchHeldLeg(
       limbs,
       joints: {
         ...base.joints,
-        [`${side}UpperLeg`]: [
-          hip,
-          from.upper[1] * (1 - s),
-          from.upper[2] * (1 - s),
-        ],
+        [`${side}UpperLeg`]: [angles[0]!, angles[1]!, angles[2]!],
         [`${side}LowerLeg`]: [
-          knee,
+          angles[3]!,
           from.lower[1] * (1 - s),
           from.lower[2] * (1 - s),
         ],
-        [`${side}Foot`]: [
-          from.foot[0] +
-            Math.min(
-              Math.max(0, ANKLE_DORSIFLEXION.unloaded - from.foot[0]),
-              Math.max(0, tilt),
-            ),
-          from.foot[1],
-          from.foot[2],
-        ],
+        [`${side}Foot`]: [angles[4]!, from.foot[1], from.foot[2]],
       },
     };
   };
+  // The body's segments placed for a posture, as the audit places them.
+  const segments: (
+    posture: IAutoMovieMotionHumanPosture,
+  ) => IAutoMovieMotionHumanColliders.IPlaced[] = (
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanColliders.IPlaced[] =>
+    HumanColliders.placed(
+      body,
+      poseBones(body, resolveHumanPosture(body, posture)),
+    );
+  // How deep each of the leg's segments lies in each other segment of the
+  // body the audit reads it against, past its reference depth and the
+  // audit's allowance (`Tangle.excess`, `HumanAuditModel.ALLOWANCE`).
+  const tangles: (
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ) => number[] = (
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ): number[] => {
+    // Each segment read in is prepared once for this placement.
+    const targets: Parameters<typeof Tangle.excess>[4] = [];
+    return parts.flatMap((i: number): number[] =>
+      model.parts.flatMap(
+        (
+          _: IAutoMovieMotionHumanAuditTangleModel.IPart,
+          j: number,
+        ): number[] =>
+          parts.includes(j) || model.related[i]![j]
+            ? []
+            : [
+                Tangle.excess(model, placed, i, j, targets) -
+                  HumanAuditModel.ALLOWANCE,
+              ],
+      ),
+    );
+  };
+  // The leg's probes in the world, as the audit places them.
+  const probes: (
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ) => IAutoMovieVector3[] = (
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ): IAutoMovieVector3[] => {
+    return parts.flatMap((i: number): IAutoMovieVector3[] =>
+      model.parts[i]!.probes.map(
+        (probe: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(
+            placed[i]!.pose.position,
+            Quaternion.rotateVector(placed[i]!.pose.rotation, probe),
+          ),
+      ),
+    );
+  };
+  // A probe's (or a probe's swept chord's) distance from the levels beneath,
+  // less the swing's clearance.
+  const clear: (
+    seconds: number,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ) => number = (
+    seconds: number,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => {
+    if (props.stairs !== undefined) {
+      const along: (p: IAutoMovieVector3) => number = (
+        p: IAutoMovieVector3,
+      ): number =>
+        Vector3.dot(
+          Vector3.subtract(p, props.stairs!.origin),
+          props.stairs!.forward,
+        );
+      return (
+        crutchHeldLegSweptDepth(
+          props.stairs.steps,
+          [along(a), a.y],
+          [along(b), b.y],
+        ) - walkFoot.CLEARANCE
+      );
+    }
+    return Math.min(a.y, b.y) - props.floor!(seconds) - walkFoot.CLEARANCE;
+  };
+  const plan: (from: crutchHeldLeg.IRaised) => number[][] = (
+    from: crutchHeldLeg.IRaised,
+  ): number[][] => {
+    const bases: IAutoMovieMotionHumanPosture[] = knots.map(
+      (t: number): IAutoMovieMotionHumanPosture => read(t),
+    );
+    const share: (t: number) => number = (t: number): number =>
+      minimumJerk(Math.min(1, (t - lifted) / (held - lifted))).s;
+    const first: number[] = [
+      from.upper[0],
+      from.upper[1],
+      from.upper[2],
+      from.lower[0],
+      from.foot[0],
+    ];
+    const footRange: IAutoMovieJointConstraint | null = getConstraint(
+      `${side}Foot`,
+      readHumanBone(body, `${side}Foot`)?.constraint ?? null,
+    );
+    // Once lifted the foot bears nothing, so its flexion keeps within a
+    // weightless ankle's dorsiflexion (`ANKLE_DORSIFLEXION.unloaded`), the
+    // bound the take's audit reads an unloaded foot by.
+    const ankle: IAutoMovieAngleRange = {
+      min: footRange?.flexion?.min ?? -Infinity,
+      max: Math.min(
+        footRange?.flexion?.max ?? Infinity,
+        ANKLE_DORSIFLEXION.unloaded,
+      ),
+    };
+    const seed: number[] = knots.slice(1).flatMap((t: number): number[] => {
+      const s: number = share(t);
+      return [
+        from.upper[0] + (props.hip - from.upper[0]) * s,
+        from.upper[1] * (1 - s),
+        from.upper[2] * (1 - s),
+        from.lower[0] + (props.knee - from.lower[0]) * s,
+        Math.max(ankle.min, Math.min(ankle.max, from.foot[0])),
+      ];
+    });
+    const angles: (x: F.Vector, j: number) => number[] = (
+      x: F.Vector,
+      j: number,
+    ): number[] => (j === 0 ? first : [...x.slice(WIDTH * (j - 1), WIDTH * j)]);
+    const at: (
+      x: F.Vector,
+      j: number,
+    ) => IAutoMovieMotionHumanColliders.IPlaced[] = (
+      x: F.Vector,
+      j: number,
+    ): IAutoMovieMotionHumanColliders.IPlaced[] =>
+      segments(posed(bases[j]!, from, angles(x, j), share(knots[j]!)));
+    const held4: number[] = [props.hip, 0, 0, props.knee];
+    const hipRange: IAutoMovieJointConstraint | null = getConstraint(
+      `${side}UpperLeg`,
+      readHumanBone(body, `${side}UpperLeg`)?.constraint ?? null,
+    );
+    const kneeRange: IAutoMovieJointConstraint | null = getConstraint(
+      `${side}LowerLeg`,
+      readHumanBone(body, `${side}LowerLeg`)?.constraint ?? null,
+    );
+    const ranges: (IAutoMovieAngleRange | null | undefined)[] = [
+      hipRange?.flexion,
+      hipRange?.abduction,
+      hipRange?.twist,
+      kneeRange?.flexion,
+      ankle,
+    ];
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
+      F.Vector,
+      IAutoMovieMotionHumanSequentialConvex.IEvaluation
+    > = SCO.minimise(
+      F.problem({
+        costs: [
+          {
+            f: (x: F.Vector): number => {
+              let sum: number = 0;
+              for (let j: number = 1; j < knots.length; ++j) {
+                const p: number[] = angles(x, j - 1);
+                const q: number[] = angles(x, j);
+                for (let d: number = 0; d < WIDTH; ++d)
+                  sum += ((q[d]! - p[d]!) * Quaternion.DEG2RAD) ** 2;
+              }
+              return sum;
+            },
+            full: true,
+          },
+          {
+            f: (x: F.Vector): number => {
+              let sum: number = 0;
+              knots.forEach((t: number, j: number): void => {
+                if (j === 0 || t < held) return;
+                const q: number[] = angles(x, j);
+                for (let d: number = 0; d < 4; ++d)
+                  sum += ((q[d]! - held4[d]!) * Quaternion.DEG2RAD) ** 2;
+              });
+              return sum;
+            },
+            full: false,
+          },
+        ],
+        // Each interval's rows read its two knots' variables alone: the
+        // later knot's leg segments against the body's others, its probes
+        // against the levels beneath, and each probe's chord from the
+        // earlier knot; a leg with no level beneath it given reads the body
+        // alone.
+        constraints: knots.slice(1).map(
+          (t: number, i: number): F.IConstraint => ({
+            g: (x: F.Vector): F.Vector => {
+              const later: IAutoMovieMotionHumanColliders.IPlaced[] = at(
+                x,
+                i + 1,
+              );
+              const tangled: number[] = tangles(later);
+              if (props.stairs === undefined && props.floor === undefined)
+                return tangled;
+              const after: IAutoMovieVector3[] = probes(later);
+              // The first interval leaves the bearing stance on the floor,
+              // fixed: its chord is not read, as trajopt reads collision
+              // from the first free timestep (`first_step`).
+              const before: IAutoMovieVector3[] =
+                i === 0 ? after : probes(at(x, i));
+              return [
+                ...tangled,
+                ...after.flatMap(
+                  (p: IAutoMovieVector3, k: number): number[] => [
+                    -clear(t, p, p),
+                    -clear(t, before[k]!, p),
+                  ],
+                ),
+              ];
+            },
+            equality: false,
+            variables: Array.from(
+              { length: i === 0 ? WIDTH : 2 * WIDTH },
+              (_: unknown, v: number): number =>
+                i === 0 ? v : WIDTH * (i - 1) + v,
+            ),
+          }),
+        ),
+        low: seed.map(
+          (_: number, v: number): number => ranges[v % WIDTH]?.min ?? -Infinity,
+        ),
+        high: seed.map(
+          (_: number, v: number): number => ranges[v % WIDTH]?.max ?? Infinity,
+        ),
+      }),
+      seed,
+      LEG,
+    );
+    return knots.map((_: number, j: number): number[] => angles(solved.x, j));
+  };
+  // The leg as it bears, at the bearing stance's last representable instant
+  // (at `lifted` itself a support plan has already let the foot's goal go):
+  // the course's first knot, so the leg leaves its stance without a step.
+  const bearing: IAutoMoviePose = resolveHumanPosture(
+    body,
+    read(lifted - Math.abs(lifted) * Number.EPSILON),
+  );
+  const ankle: IAutoMovieJointPose | undefined = bearing.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === `${side}Foot`,
+  );
+  const from: crutchHeldLeg.IRaised = {
+    ...HumanLimbFit.reference(bearing, leg),
+    foot: [ankle?.flexion ?? 0, ankle?.abduction ?? 0, ankle?.twist ?? 0],
+  };
+  // The course, solved once here; a read only evaluates its path.
+  const course: ReturnType<typeof HumanArmRefine.prepareHermite> =
+    HumanArmRefine.prepareHermite(knots, plan(from));
+  return (
+    base: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture => {
+    if (seconds <= lifted) return base;
+    const s: number = minimumJerk(
+      Math.min(1, (seconds - lifted) / (held - lifted)),
+    ).s;
+    return posed(base, from, course(seconds).coordinates, s);
+  };
 }
-
-/**
- * Companion types of {@link crutchHeldLeg}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning, unit and timebase.
- * @evidence contracts/development/design.md#principled-representation The leg, its two instants, its held angles and the posture reader it lifts from.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the crutch laws hand the writer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the limb reference's angle triples.
- */
+/** Companion types of {@link crutchHeldLeg}. */
 export namespace crutchHeldLeg {
+  /**
+   * The held leg's timesteps: the fold from the lift to the held pose cut into
+   * TrajOpt's evenly spaced timesteps, its arm trajectories' eleven (Schulman
+   * et al. 2013, RSS, section VI), the leg being one limb's chain as an arm is;
+   * then the law's contact events after the held pose, each a timestep of its
+   * own where the law puts it.
+   *
+   * @param lifted The second the leg leaves its bearing.
+   * @param held The second it is held.
+   * @param events The law's contact events, seconds.
+   * @returns The timesteps, ascending.
+   */
+  export function timesteps(
+    lifted: number,
+    held: number,
+    events: readonly number[] = [],
+  ): number[] {
+    return [
+      ...Array.from(
+        { length: TIMESTEPS },
+        (_: unknown, i: number): number =>
+          lifted + ((held - lifted) * i) / (TIMESTEPS - 1),
+      ),
+      ...events.filter((t: number): boolean => t > held),
+    ];
+  }
   /** The leg to hold and when. */
   export interface IProps {
     /** The body. */
@@ -251,13 +444,56 @@ export namespace crutchHeldLeg {
     /** The law's posture before the leg is held, by action second. */
     read: (seconds: number) => IAutoMovieMotionHumanPosture;
 
-    /** The height of the level beneath the held foot at an action second, world metres; the held angles alone when absent. */
+    /**
+     * The height of the level beneath the held foot at an action second, world
+     * metres, where the law gives no flight; the held angles alone when neither
+     * is given.
+     */
     floor?: (seconds: number) => number;
+
+    /** The flight beneath the held foot, its treads and nosings. */
+    stairs?: IStairs;
+
+    /**
+     * The law's phase instants after the leg is held, action seconds: the
+     * course's further knots.
+     */
+    knots?: readonly number[];
   }
 
-  /** The leg where it starts to fold: its hip's and knee's angles and its ankle's, degrees. */
+  /** A flight's profile in the vertical plane of its climb. */
+  export interface IStairs {
+    /** Where its distances ahead are measured from, world metres. */
+    origin: IAutoMovieVector3;
+
+    /** The climb's horizontal direction, a unit vector. */
+    forward: IAutoMovieVector3;
+
+    /** Its levels, nearest first. */
+    steps: readonly IStep[];
+  }
+
+  /** One level of a flight: solid below its height from where it begins. */
+  export interface IStep {
+    /** Where it begins ahead of the origin, metres. */
+    from: number;
+
+    /** Its height, world metres. */
+    height: number;
+  }
+
+  /**
+   * The leg where it starts to fold: its hip's and knee's angles and its
+   * ankle's, degrees.
+   */
   export interface IRaised extends IAutoMovieHumanLimbReference {
     /** The ankle's `[flexion, abduction, twist]`, degrees. */
     foot: readonly [number, number, number];
   }
 }
+
+/**
+ * TrajOpt's timestep count for an arm trajectory (Schulman et al. 2013, RSS,
+ * section VI).
+ */
+const TIMESTEPS: number = 11;

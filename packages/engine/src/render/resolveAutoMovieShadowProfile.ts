@@ -8,8 +8,8 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";
 
 /**
- * Resolve supported shadow allocation and submission multiplicity together.
- * One light owns one shadow map; a point light rasterizes six cube faces.
+ * Resolve supported shadow allocation and submission multiplicity together. One
+ * light owns one shadow map; a point light rasterizes six cube faces.
  * Directional and spot VSM add two fullscreen filtering triangles after their
  * one depth face. Area lights allocate no shadow map. Disabled and noncasting
  * lights therefore cost no shadow work. No camera culling reduces this bound.

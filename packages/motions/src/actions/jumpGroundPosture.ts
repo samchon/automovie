@@ -1,79 +1,80 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
 import type { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
-import { deriveHumanPosture } from "../posture/deriveHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { rangeSteppingFoot } from "./rangeSteppingFoot";
 
 /** The rotating push and landing have two direct arms to clear, in this order. */
-const ARMS: readonly ("left" | "right")[] = ["left", "right"];
+const ARMS: readonly AutoMovieHumanSide[] = ["left", "right"];
+/** The alternatives of `JumpGroundPosturePhase`'s site. */
+type JumpGroundPosturePhase = "left" | "right" | "landing";
 
 /**
- * Fit the reaching foot during push-off and clear the arms against the bent legs.
+ * Fit the reaching foot during push-off and clear the arms against the bent
+ * legs.
  *
  * @param body The jumping body's limb lengths and collision geometry.
  * @param posture The ground phase's actual lowered posture and world goals.
  * @param phase The reaching side during push-off, or the two-foot landing.
  * @param read The operation's FK reader, shared with lowering and fitting.
- * @returns Corrected ground-phase demands for both endpoint construction and playback.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the lowered frame, phase and consumers of the corrected demands.
- * @evidence contracts/development/implementation.md#principled-implementation A withdrawing foot rotates about its planned forefoot as the lowered hip bends its shank. Each arm clears the actual flexed thighs during both the push and the landing at the least shoulder abduction the shared clearance owner finds.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The landing delegates joint-space clearance; the reaching leg uses the existing ankle rocker, rigid forefoot pivot and reciprocal toe flexion.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the current pose, actual body, original support foot and authored forefoot path; the same demands enter the ballistic endpoint and ground playback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Push needs a hip read and one bounded rocker solve; landing uses the existing posed-arm clearance solve.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Playback and both endpoints call this same geometry after lowering and borrow their current operation's FK reader.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the posture and stores no samples, workspace or handles.
+ * @param solved The stepping foot's prepared pitch (`rangeSteppingFoot.pitch`).
+ * @returns Corrected ground-phase demands for both endpoint construction and
+ *   playback.
  */
 export function jumpGroundPosture(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
-  phase: "left" | "right" | "landing",
+  phase: JumpGroundPosturePhase,
   read: ReturnType<typeof prepareHumanPoseResolution>,
+  solved?: number,
 ): IAutoMovieMotionHumanPosture {
   const lowered: IAutoMovieMotionHumanPosture =
     phase === "landing"
       ? posture
-      : rangeSteppingFoot(body, posture, phase, read);
-  return HumanArmSwing.of(body, lowered, ARMS, read);
+      : rangeSteppingFoot(body, posture, phase, read, undefined, solved);
+  return HumanArmSwing(body, lowered, ARMS, read);
 }
+/** The alternatives of `JumpGroundPostureSamplePhase`'s site. */
+type JumpGroundPostureSamplePhase = "left" | "right" | "landing";
 
 /** Native observation of the ground writer and its same-instant leg fit. */
 export namespace jumpGroundPosture {
   /**
-   * Clear both arms using the actual current legs and offer that fit to the
-   * unchanged bare display when its assembly shares every leg dependency.
+   * The ground writer's sample: the legs lowered onto the stepping foot's
+   * range, fitted, and both arms cleared of those fitted legs.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The input holds current lowered world demands. The display may take the result once after the resolver verifies unchanged leg dependencies.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared swing owner reads the very same resolved legs and writes only direct shoulder angles. The ordinary assembly verifies the current arm ROM, and inherited independently checks every leg dependency.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pose the rocker where present, fit the lowered posture, clear its arms, then offer its derived current-leg solution to the display.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual world plants and current room checks. Changed inputs, a whole-body turn or a second read have no transferable fit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One paired leg fit covers clearance and display when the fit's ordinary dependency proof succeeds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The clearance and display can share this sample's leg roots, chain records, toe records and goals after exact resolver checks.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sample owns only its current fit and assembly for a synchronous transfer. It retains no reader, projector or prior frame.
+   * @param body The body.
+   * @param posture The ground posture.
+   * @param phase The stepping foot, or the landing.
+   * @param read The forward-kinematics reader.
+   * @param projection The range-of-motion projector, if borrowed.
+   * @param solved The stepping foot's solved range, if any.
+   * @returns The sample.
    */
   export function sample(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    phase: "left" | "right" | "landing",
+    phase: JumpGroundPostureSamplePhase,
     read: ReturnType<typeof prepareHumanPoseResolution>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    solved?: number,
   ): HumanPreparedPlayback.ISample {
     const lowered: IAutoMovieMotionHumanPosture =
       phase === "landing"
         ? posture
-        : rangeSteppingFoot(body, posture, phase, read);
+        : rangeSteppingFoot(body, posture, phase, read, undefined, solved);
     const assembled: resolveHumanPostureSource.IAssembled =
       resolveHumanPostureSource.assemble(body, lowered, undefined, projection);
-    const seeded: deriveHumanPosture.ISolved["seeded"] =
+    const seeded: ReturnType<typeof resolveHumanPostureSource.fit> =
       resolveHumanPostureSource.fit(body, assembled, undefined, {}, read);
-    const cleared: IAutoMovieMotionHumanPosture = HumanArmSwing.of(
+    const cleared: IAutoMovieMotionHumanPosture = HumanArmSwing(
       body,
       lowered,
       ARMS,
@@ -81,19 +82,6 @@ export namespace jumpGroundPosture {
       projection,
       seeded.pose,
     );
-    let current: deriveHumanPosture.ISolved | undefined = { assembled, seeded };
-    return {
-      posture: cleared,
-      takeFit: (): deriveHumanPosture.ISolved["seeded"] | undefined => {
-        const fit: deriveHumanPosture.ISolved | undefined = current;
-        current = undefined;
-        if (fit === undefined) return undefined;
-        return deriveHumanPosture.inherited(
-          body,
-          deriveHumanPosture(body, fit.assembled, cleared),
-          fit,
-        );
-      },
-    };
+    return { posture: cleared };
   }
 }

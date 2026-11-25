@@ -9,11 +9,18 @@ import { CAMERA_FRAMINGS } from "./constants/CAMERA_FRAMINGS";
 import { CAMERA_MOVES } from "./constants/CAMERA_MOVES";
 
 /**
- * Refuse a camera framing or move the framing grammar cannot compile, and say which of the two are usable.
+ * Refuse a camera framing or move the framing grammar cannot compile, and say
+ * which of the two are usable.
  *
- * The values are `unknown` because a `frame` action and a blocking coverage intent reach `performShot` in-process without the transport's structural gate. Each unknown value is one `type` violation at `<path>.framing` or `<path>.move` listing the accepted values, the members of {@link CAMERA_FRAMINGS} and {@link CAMERA_MOVES} in declaration order.
+ * The values are `unknown` because a `frame` action and a blocking coverage
+ * intent reach `performShot` in-process without the transport's structural
+ * gate. Each unknown value is one `type` violation at `<path>.framing` or
+ * `<path>.move` listing the accepted values, the members of
+ * {@link CAMERA_FRAMINGS} and {@link CAMERA_MOVES} in declaration order.
  *
- * A refused value whose string conversion throws is described as `an uninspectable value`; its original reference remains in the finding and the other vocabulary is still checked.
+ * A refused value whose string conversion throws is described as `an
+ * uninspectable value`; its original reference remains in the finding and the
+ * other vocabulary is still checked.
  *
  * @param out Collector the violations are pushed into.
  * @param path Violation path of the action or intent.

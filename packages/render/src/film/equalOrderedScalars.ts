@@ -1,48 +1,23 @@
-import type {
-  AutoMovieOrderedEntry,
-  AutoMovieOrderedScalar,
-} from "@automovie/interface";
+import type { AutoMovieOrderedScalar } from "@automovie/interface";
 
 /**
- * Compare ordered arrays of scalars, or of arrays of scalars, by value.
+ * Compare two ordered lists of scalars by value, such as speaker-label lists
+ * `["front-left", "front-right"]`: equal when they have the same length and
+ * every position holds the same scalar by `Object.is`, so the scalar's type
+ * counts, `NaN` equals `NaN` and `+0` differs from `-0`.
  *
- * The domain is exactly what `validWaveAudioIdentity` compares: a speaker-label
- * array such as `["front-left", "front-right"]` and a one-row downmix matrix
- * such as `[[0.5, 0.5]]`. Arrays are equal when they have the same length and
- * every position holds equal scalars, or rows of the same length with equal
- * scalars; order and the scalar's type both count. `Object.is` decides each
- * scalar, so `NaN` equals `NaN` and `+0` differs from `-0`.
- *
- * A non-array argument returns false instead of being compared, so a record
- * cannot pass by lacking a `length`. Nesting deeper than one row, prototypes,
- * symbol keys, boxed primitives and cycles are outside the domain.
+ * @param left One list.
+ * @param right The other.
+ * @returns Whether they hold the same scalars in the same order.
  */
 export const equalOrderedScalars: (
-  left: readonly AutoMovieOrderedEntry[],
-  right: readonly AutoMovieOrderedEntry[],
+  left: readonly AutoMovieOrderedScalar[],
+  right: readonly AutoMovieOrderedScalar[],
 ) => boolean = (
-  left: readonly AutoMovieOrderedEntry[],
-  right: readonly AutoMovieOrderedEntry[],
-): boolean => {
-  if (Array.isArray(left) === false || Array.isArray(right) === false)
-    return false;
-  if (left.length !== right.length) return false;
-  for (let at: number = 0; at < left.length; ++at) {
-    const one: AutoMovieOrderedEntry = left[at]!;
-    const other: AutoMovieOrderedEntry = right[at]!;
-    if (Array.isArray(one) || Array.isArray(other)) {
-      if (Array.isArray(one) === false || Array.isArray(other) === false)
-        return false;
-      const row: readonly AutoMovieOrderedScalar[] =
-        one as readonly AutoMovieOrderedScalar[];
-      const otherRow: readonly AutoMovieOrderedScalar[] =
-        other as readonly AutoMovieOrderedScalar[];
-      if (row.length !== otherRow.length) return false;
-      for (let inner: number = 0; inner < row.length; ++inner)
-        if (Object.is(row[inner], otherRow[inner]) === false) return false;
-      continue;
-    }
-    if (Object.is(one, other) === false) return false;
-  }
-  return true;
-};
+  left: readonly AutoMovieOrderedScalar[],
+  right: readonly AutoMovieOrderedScalar[],
+): boolean =>
+  left.length === right.length &&
+  left.every((value: AutoMovieOrderedScalar, at: number): boolean =>
+    Object.is(value, right[at]),
+  );

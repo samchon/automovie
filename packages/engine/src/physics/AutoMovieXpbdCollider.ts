@@ -11,15 +11,15 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
 /**
- * One convex collider of the engine's extended position-based dynamics
- * world (`AutoMovieXpbdWorld`), riding a body: its shape in the body frame
- * and its contact material.
+ * One convex collider of the engine's extended position-based dynamics world
+ * (`AutoMovieXpbdWorld`), riding a body: its shape in the body frame and its
+ * contact material.
  *
- * A sensor collider takes part in no contact response and is reported only
- * as an overlap, the way the compliant layers of the physical simulation
- * apply their own law. Friction and restitution combine with the other
- * collider's by their mean, the combine rule the physical simulation's
- * profiles were authored against.
+ * A sensor collider takes part in no contact response and is reported only as
+ * an overlap, the way the compliant layers of the physical simulation apply
+ * their own law. Friction and restitution combine with the other collider's by
+ * their mean, the combine rule the physical simulation's profiles were authored
+ * against.
  */
 export class AutoMovieXpbdCollider {
   /** Its handle, unique in its world. */
@@ -79,7 +79,8 @@ export class AutoMovieXpbdCollider {
   }
 
   /**
-   * The body frame's world pose, which the shape's own transform is relative to.
+   * The body frame's world pose, which the shape's own transform is relative
+   * to.
    *
    * @returns A fresh pose, world metres.
    */
@@ -91,11 +92,11 @@ export class AutoMovieXpbdCollider {
   }
 
   /**
-   * World axis-aligned bounds of the shape's own box: the box of the shape
-   * in its frame (a hull's vertex extremes, a box's half-extents, a
-   * capsule's and a sphere's radius-widened axis), turned into the world
-   * with `half_world = |R| half_local`. It encloses the shape, so a pair
-   * whose bounds are apart cannot touch.
+   * World axis-aligned bounds of the shape's own box: the box of the shape in
+   * its frame (a hull's vertex extremes, a box's half-extents, a capsule's and
+   * a sphere's radius-widened axis), turned into the world with `half_world =
+   * |R| half_local`. It encloses the shape, so a pair whose bounds are apart
+   * cannot touch.
    *
    * @returns World minimum and maximum, metres.
    */
@@ -133,8 +134,8 @@ export class AutoMovieXpbdCollider {
   }
 
   /**
-   * The shape frame's world position: the body frame's origin plus the
-   * shape's offset rotated by the body.
+   * The shape frame's world position: the body frame's origin plus the shape's
+   * offset rotated by the body.
    *
    * @returns A fresh vector, world metres.
    */
@@ -149,8 +150,8 @@ export class AutoMovieXpbdCollider {
   }
 
   /**
-   * The shape frame's world rotation: the body's rotation times the
-   * shape's body-frame rotation.
+   * The shape frame's world rotation: the body's rotation times the shape's
+   * body-frame rotation.
    *
    * @returns A fresh unit quaternion.
    */
@@ -164,9 +165,7 @@ export class AutoMovieXpbdCollider {
 
 /** Companion types of {@link AutoMovieXpbdCollider}. */
 export namespace AutoMovieXpbdCollider {
-  /**
-   * A box in a shape's frame.
-   */
+  /** A box in a shape's frame. */
   export interface IBox {
     /** Centre in the shape frame, metres. */
     centre: IAutoMovieVector3;

@@ -10,8 +10,8 @@ import { screenplaySceneSlug } from "./screenplaySceneSlug.js";
  * Serialize a validated script into plain screenplay text with one terminal
  * newline. A script with no beats throws before serialization.
  *
- * A tree supplies the intent header and is walked depth-first in declared
- * child order. Script commit must already have validated its single intent,
+ * A tree supplies the intent header and is walked depth-first in declared child
+ * order. Script commit must already have validated its single intent,
  * acyclicity and one-to-one beat join. A treeless script uses the flat logline,
  * theme and ordered beat summaries.
  *

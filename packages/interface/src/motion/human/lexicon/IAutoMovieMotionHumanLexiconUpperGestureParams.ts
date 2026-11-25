@@ -2,7 +2,8 @@ import type { IAutoMovieMotionHumanHeadTilt } from "../everyday/IAutoMovieMotion
 import type { IAutoMovieMotionHumanGesture } from "../next/IAutoMovieMotionHumanGesture";
 
 /**
- * Open parameters of the upperGesture lexicon family, keyed by each runtime export name.
+ * Open parameters of the upperGesture lexicon family, keyed by each runtime
+ * export name.
  */
 export interface IAutoMovieMotionHumanLexiconUpperGestureParams {
   /** `gesture` of kind `wave`. */

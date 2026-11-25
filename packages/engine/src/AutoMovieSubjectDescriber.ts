@@ -35,8 +35,8 @@ interface IBuiltElementEntry {
 }
 
 /**
- * Describes the subjects of one compiled shot artifact, sharing every index
- * and measurement across one description pass.
+ * Describes the subjects of one compiled shot artifact, sharing every index and
+ * measurement across one description pass.
  *
  * {@link describeAutoMovieSubject} and {@link describeAutoMovieSubjects} both
  * describe through one of these, so a subject reads the same whether it is
@@ -186,10 +186,10 @@ export class AutoMovieSubjectDescriber {
   /**
    * Every directly stored subject, sorted by address in render-id order.
    *
-   * Holds each model as a prototype with its prototype parts, each staged
-   * scene node as an element, each instance set, and, per built environment,
-   * its transform-only groups, logical spaces and building units. Element parts
-   * and single instances are left out because they are regenerated only when
+   * Holds each model as a prototype with its prototype parts, each staged scene
+   * node as an element, each instance set, and, per built environment, its
+   * transform-only groups, logical spaces and building units. Element parts and
+   * single instances are left out because they are regenerated only when
    * addressed.
    *
    * @returns One description per stored subject.
@@ -322,10 +322,10 @@ export class AutoMovieSubjectDescriber {
   }
 
   /**
-   * A built element the builder stages no node for. It has an identity, a
-   * kind, a parent and a space but no geometry, so like
-   * `builtEnvironmentPlacementBounds` it states no transform, bounds,
-   * materials or prototype, only the structure a walk needs.
+   * A built element the builder stages no node for. It has an identity, a kind,
+   * a parent and a space but no geometry, so like
+   * `builtEnvironmentPlacementBounds` it states no transform, bounds, materials
+   * or prototype, only the structure a walk needs.
    */
   private elementGroup(
     node: string,

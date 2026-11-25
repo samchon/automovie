@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftFrameSource.ts#IAutoMovieLoftFrameSource
-
-## @evidence contracts/development/design.md#principled-representation
-
-ISource pairs an immutable axis at a physical-mm station with independent frame and optional station-jet snapshots.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-LoftFrameSource owns matching and preservation of the source binding used by loft layers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A null jet preserves a finite frame without claiming regular station derivatives; changed snapshots must be re-expressed by their producer.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Explains source lifetime, snapshot independence and null-jet meaning.
-
 # src/construction/IAutoMovieLoftFrameSource.ts#IAutoMovieLoftFrameSource.ISource
 
 ## @evidence contracts/development/design.md#principled-representation

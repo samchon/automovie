@@ -5,7 +5,7 @@ import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
  * its sampling.
  */
 export function firstAutoMovieInspectorSecond(
-  request: IAutoMovieCapturePlanRequest,
+  request: Pick<IAutoMovieCapturePlanRequest, "sampling">,
 ): number {
   return request.sampling.kind === "at"
     ? request.sampling.seconds[0]!

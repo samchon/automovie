@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftSectionBoundary.ts#AutoMovieLoftSectionBoundary
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes continuation ownership, physical station jets, effective inputs and finite-arithmetic admission, and names the chain refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Stores a native continuation span through its original endpoint jets and transformed controls, with physical stations in millimetres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the endpoint and bridge records and their creation, value, jet and orientation readers to construction and inspection.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The eight-scalar law refuses touch and split chains because their extra controls cannot be recovered from the four extents and four shoulders.
-
 # src/geometry/construction/AutoMovieLoftSectionBoundary.ts#AutoMovieLoftSectionBoundary.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

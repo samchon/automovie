@@ -1,6 +1,8 @@
 import type { IAutoMovieRecoverySupportGeneration } from "../../index";
 
-/** Convex-support generation counts with a face chord bound and numerical event qualification.
+/**
+ * Convex-support generation counts with a face chord bound and numerical event
+ * qualification.
  */
 export interface IAutoMovieRecoverySupportRealizationMetrics extends IAutoMovieRecoverySupportGeneration {
   /** Numerical face chord bound, metres. */

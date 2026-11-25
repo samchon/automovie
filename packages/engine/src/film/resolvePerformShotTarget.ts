@@ -10,52 +10,69 @@ import {
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
-import { describeInvalidValue } from "../validation/describeInvalidValue";
-import { isRecord } from "../validation/isRecord";
-import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
-import { validatePerformShotId } from "./validatePerformShotId";
+
+/** The staged lookups and collector one positional target reads. */
+type ITargetContext = Pick<
+  IAutoMovieEnginePerformShotGateContext,
+  | "out"
+  | "nodeIds"
+  | "nodePositions"
+  | "formationPoints"
+  | "formationById"
+  | "skeleton"
+  | "hasActorContext"
+  | "targetAt"
+>;
 
 /**
- * Gate one positional target of a performance and resolve it to a world point, or report why it cannot be and answer `null`.
+ * Gate one positional target of a performance and resolve it to a world point,
+ * or report why it cannot be and answer `null`.
  *
- * Positional targets are a `lookAt`, `reach` or `locomote` destination, a `react` source, a `point` or `strike` gesture aim, a `launch` aim, a `frame` subject or focus, and a coverage subject. They resolve against every staged placement, cameras included, so an actor may look down the lens.
+ * Positional targets are a `lookAt`, `reach` or `locomote` destination, a
+ * `react` source, a `point` or `strike` gesture aim, a `launch` aim, a `frame`
+ * subject or focus, and a coverage subject. They resolve against every staged
+ * placement, cameras included, so an actor may look down the lens.
  *
  * The checks run in this order, each answering `null` after its violation:
  *
- * 1. Unless `formationsFramed` is true, a group naming any formation is refused first, because only a lens frames a mass and every other target asks one body for one point; checking membership first would hide that.
- * 2. The target must be a record; a `bone` target's actor must be a staged node with an actor context and a rig carrying that bone; a `group` must list its nodes as an array with every member staged, and each formation it names must be one this shot compiled. Every id must be a non-blank string.
- * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds are refused before invoking the live resolver.
- * 4. The point comes from the live resolver at `seconds` when it answers, and otherwise from the staged placements and opening formation points; a missing or non-finite point is refused naming the id that failed.
+ * 1. Unless `formationsFramed` is true, a group naming any formation is refused
+ *    first, because only a lens frames a mass and every other target asks one
+ *    body for one point; checking membership first would hide that.
+ * 2. A `bone` target's actor must be a staged node with an actor context and a rig
+ *    carrying that bone; a `group` must have every member staged, and each
+ *    formation it names must be one this shot compiled.
+ * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds
+ *    are refused before invoking the live resolver.
+ * 4. The point comes from the live resolver at `seconds` when it answers, and
+ *    otherwise from the staged placements and opening formation points; a
+ *    missing or non-finite point is refused naming the id that failed.
  *
  * @param context The shot's staged tables and collector.
  * @param props.target The target as authored.
  * @param props.path Violation path of the target.
- * @param props.label Name of the target in id messages, such as `lookAt target`.
- * @param props.subject Name of the target in point messages, such as `a lookAt target`.
+ * @param props.label Name of the target in id messages, such as `lookAt
+ *   target`.
+ * @param props.subject Name of the target in point messages, such as `a lookAt
+ *   target`.
  * @param props.seconds Shot-local instant the live resolver is asked at.
  * @param props.formationsFramed Whether the target asks where to point a lens.
  * @returns The resolved world point in metres, or `null` after a violation.
  */
 export function resolvePerformShotTarget(
-  context: IAutoMovieEnginePerformShotGateContext,
+  context: ITargetContext,
   props: IAutoMovieResolvePerformShotTarget.IProps,
 ): IAutoMovieVector3 | null {
-  const target: unknown = props.target;
+  const target: IAutoMovieActionTarget = props.target;
   const path: string = props.path;
   const subject: string = props.subject;
-  if (props.formationsFramed === false && isRecord(target)) {
-    const named: unknown[] = Array.isArray(target.formations)
-      ? target.formations
-      : [];
+  if (props.formationsFramed === false && target.kind === "group") {
+    const named: readonly string[] = target.formations ?? [];
     if (named.length > 0) {
       context.out.push(
         "type",
         path,
         `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but its group names formation ${named
-          .map(
-            (formation: unknown): string =>
-              `"${describeInvalidValue(formation)}"`,
-          )
+          .map((formation: string): string => `"${formation}"`)
           .join(
             ", ",
           )}: a formation is a mass a camera frames, not one body with one point to aim at; name the staged nodes to aim at instead`,
@@ -66,14 +83,11 @@ export function resolvePerformShotTarget(
   }
   if (!validateTargetIds(context, target, path, props.label)) return null;
   if (
+    target.kind === "direction" ||
+    target.kind === "offscreen" ||
     (target.kind === "node" && !context.nodePositions.has(target.node)) ||
-    (target.kind === "point" && !isFiniteStageVector3(target.point)) ||
     (target.kind === "group" &&
-      target.nodes.length + (target.formations?.length ?? 0) === 0) ||
-    (target.kind !== "node" &&
-      target.kind !== "bone" &&
-      target.kind !== "point" &&
-      target.kind !== "group")
+      target.nodes.length + (target.formations?.length ?? 0) === 0)
   ) {
     context.out.push(
       "type",
@@ -86,13 +100,7 @@ export function resolvePerformShotTarget(
   const point: IAutoMovieVector3 | null | undefined =
     context.targetAt?.(target, props.seconds) ??
     resolveTargetPoint(target, context.nodePositions, context.formationPoints);
-  if (
-    point === null ||
-    point === undefined ||
-    !Number.isFinite(point.x) ||
-    !Number.isFinite(point.y) ||
-    !Number.isFinite(point.z)
-  ) {
+  if (point === null || point === undefined) {
     context.out.push(
       "type",
       path,
@@ -104,60 +112,23 @@ export function resolvePerformShotTarget(
   return point;
 }
 
-/**
- * Check the ids an untyped target carries, answering whether it is a target record resolution may read.
- */
+/** Check the ids a target carries, answering whether resolution may read it. */
 function validateTargetIds(
-  context: IAutoMovieEnginePerformShotGateContext,
-  target: unknown,
+  context: ITargetContext,
+  target: IAutoMovieActionTarget,
   path: string,
   label: string,
-): target is IAutoMovieActionTarget {
+): boolean {
   const out: IAutoMovieViolationCollector = context.out;
   const initial: number = out.items.length;
-  if (!isRecord(target)) {
-    out.push("type", path, `${label} must be an action target`, target);
-    return false;
-  }
-  if (target.kind === "node") {
-    validatePerformShotId(out, target.node, `${path}.node`, `${label} node id`);
-    return out.items.length === initial;
-  }
   if (target.kind === "bone") {
-    validatePerformShotId(
-      out,
-      target.node,
-      `${path}.node`,
-      `${label} bone node id`,
-    );
-    validatePerformShotId(out, target.bone, `${path}.bone`, `${label} bone id`);
-    if (typeof target.node === "string" && typeof target.bone === "string")
-      validateBoneTarget(context, target.node, target.bone, path);
+    validateBoneTarget(context, target.node, target.bone, path);
     return out.items.length === initial;
   }
   if (target.kind === "group") {
-    if (!Array.isArray(target.nodes)) {
-      out.push(
-        "type",
-        `${path}.nodes`,
-        `${label} group nodes must be an array`,
-        target.nodes,
-      );
-      return false;
-    }
     for (let index: number = 0; index < target.nodes.length; index++) {
-      const node: unknown = target.nodes[index];
-      validatePerformShotId(
-        out,
-        node,
-        `${path}.nodes[${index}]`,
-        `${label} group node id`,
-      );
-      if (
-        typeof node === "string" &&
-        node.trim().length > 0 &&
-        !context.nodePositions.has(node)
-      )
+      const node: string = target.nodes[index]!;
+      if (!context.nodePositions.has(node))
         out.push(
           "type",
           `${path}.nodes[${index}]`,
@@ -166,30 +137,11 @@ function validateTargetIds(
         );
     }
     if (target.formations === undefined) return out.items.length === initial;
-    if (!Array.isArray(target.formations)) {
-      out.push(
-        "type",
-        `${path}.formations`,
-        `${label} group formations must be an array`,
-        target.formations,
-      );
-      return false;
-    }
     // A formation id must name a unit this shot compiled; otherwise the group
     // would fall back to its nodes and frame one figure instead of the crowd.
     for (let index: number = 0; index < target.formations.length; index++) {
-      const formation: unknown = target.formations[index];
-      validatePerformShotId(
-        out,
-        formation,
-        `${path}.formations[${index}]`,
-        `${label} group formation id`,
-      );
-      if (
-        typeof formation === "string" &&
-        formation.trim().length > 0 &&
-        !context.formationById.has(formation)
-      )
+      const formation: string = target.formations[index]!;
+      if (!context.formationById.has(formation))
         out.push(
           "type",
           `${path}.formations[${index}]`,
@@ -208,7 +160,7 @@ function validateTargetIds(
 
 /** Check that a bone target names a rigged staged actor carrying the bone. */
 function validateBoneTarget(
-  context: IAutoMovieEnginePerformShotGateContext,
+  context: ITargetContext,
   node: string,
   bone: string,
   path: string,

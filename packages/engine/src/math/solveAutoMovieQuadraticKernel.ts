@@ -16,12 +16,13 @@ import { solveAutoMovieQuadraticInterior } from "./solveAutoMovieQuadraticInteri
  * the cold homogeneous interior-point solve. The compatibility initial vector
  * remains ignored, with no retained factors or preceding-call warm state.
  *
- * Status 1 is Solved, 2/3 are primal/dual infeasibility, 4 is AlmostSolved;
- * 5/6 are reduced-accuracy infeasibility, 7 is the iteration limit, 9 is numerical
- * refusal and 10 is insufficient progress. Only status 1 means full convergence.
- * Zero variables return negative API status with unavailable diagnostics as NaN.
- * Unsuccessful vectors must not be accepted as geometry. Historical native
- * transport and bytes remain in repository history, outside shipped product paths.
+ * Status 1 is Solved, 2/3 are primal/dual infeasibility, 4 is AlmostSolved; 5/6
+ * are reduced-accuracy infeasibility, 7 is the iteration limit, 9 is numerical
+ * refusal and 10 is insufficient progress. Only status 1 means full
+ * convergence. Zero variables return negative API status with unavailable
+ * diagnostics as NaN. Unsuccessful vectors must not be accepted as geometry.
+ * Historical native transport and bytes remain in repository history, outside
+ * shipped product paths.
  */
 export function solveAutoMovieQuadraticKernel(
   input: IAutoMovieSolveQuadraticKernel.IInput,

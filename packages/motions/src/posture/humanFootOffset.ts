@@ -1,9 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+/** The alternatives of `HumanFootOffsetPoint`'s site. */
+type HumanFootOffsetPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /**
  * Read a sole point in ankle-local metres with its actual toe articulation.
@@ -11,21 +15,15 @@ import type {
  * @param body The canonical body owning rest joints and sole sockets.
  * @param side The foot.
  * @param point The sole socket, or the metatarsophalangeal joint itself.
- * @param toes Toe flexion in degrees, positive lifting the toes; zero when absent.
- * @returns The original ankle-local offset; a foot-owned socket keeps its borrowed point, while articulated/joint offsets are fresh.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States body/socket provenance, ankle-local metres, positive toe convention, default and original result ownership; the prepare companion binds unchanged geometry while varying only toe flexion.
- * @evidence contracts/development/implementation.md#principled-implementation Keeps the original foot-rest lookup, MTP subtraction and actual socket-owner branch. A non-foot socket uses the same rest-joint subtraction, negative lateral axis-angle rotation of its point and joint addition, without changing operation grouping.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared articulated transform serves raw HumanFoot.offset and a fixed-geometry prepare reader; HumanFoot and height-only consumers delegate to this owner rather than duplicating toe geometry.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Raw reads still inspect the current body in their original order. Preparation binds only actual rest/socket geometry, never a posed point, toe angle, query result, sampled approximation or caller-provided derived offset.
- * @evidence contracts/development/implementation.md#efficient-algorithms Raw work stays constant. A fixed body/side/socket reader resolves rest joints and socket membership once, then each varying toe angle retains its actual quaternion articulation; the module shares only one private canonical axis reader.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The prepared reader requires unchanged body/rest/surface geometry. Foot-owned and MTP points remain angle-independent; every articulated angle runs the same shared transform and changing geometry requires another reader.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A caller-owned reader retains one bounded joint/socket description until released with its action; the private axis has module lifetime. No body-keyed cache, pose, query angle/result history, handle or task is retained.
+ * @param toes Toe flexion in degrees, positive lifting the toes; zero when
+ *   absent.
+ * @returns The original ankle-local offset; a foot-owned socket keeps its
+ *   borrowed point, while articulated/joint offsets are fresh.
  */
 export function humanFootOffset(
-  body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
-  point: "heel" | "ball" | "toe" | "sole" | "mtp",
+  body: humanFootOffset.IBody,
+  side: AutoMovieHumanSide,
+  point: HumanFootOffsetPoint,
   toes: number = 0,
 ): IAutoMovieVector3 {
   const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
@@ -40,26 +38,25 @@ export function humanFootOffset(
   );
   return articulated(joint, socket.point, toes);
 }
+/** The alternatives of `HumanFootOffsetPreparePoint`'s site. */
+type HumanFootOffsetPreparePoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
-/**
- * Fixed ankle-local socket preparation for an action's changing toe angles.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/side/socket binding and original articulation/ownership for the varying-angle reader.
- * @evidence contracts/development/design.md#principled-representation One toe-angle reader retains actual ankle-local joint/socket geometry; it does not represent a placed foot or solved pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The prepare member serves repeated foot-height queries under one unchanged body's geometry; HumanFoot exposes the same owner as its offset facade.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The raw path and prepared path share the actual articulated transform and canonical axis, with no alternate foot convention, numerical verdict or angle cache.
- */
+/** Fixed ankle-local socket preparation for an action's changing toe angles. */
 export namespace humanFootOffset {
+  /** What a sole point reads of a body: its rest joints and its sockets. */
+  export type IBody = Pick<IAutoMovieMotionHumanBody, "rest" | "surfaces">;
+
   /**
    * Resolve actual rest/socket geometry once, then evaluate actual toe flexion.
    * MTP queries return fresh subtraction values and foot-owned sockets retain
    * their ordinary borrowed point. The body geometry must stay unchanged until
-   * the caller releases this bounded reader with its action; no query is stored.
+   * the caller releases this bounded reader with its action; no query is
+   * stored.
    */
   export function prepare(
-    body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    body: IBody,
+    side: AutoMovieHumanSide,
+    point: HumanFootOffsetPreparePoint,
   ): (toes: number) => IAutoMovieVector3 {
     const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
     if (point === "mtp") {

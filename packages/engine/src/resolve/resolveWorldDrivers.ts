@@ -18,10 +18,12 @@ import { readWorld } from "./readWorld";
 import { recompose } from "./recompose";
 import { validateInfluence } from "./validateInfluence";
 
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
-
 /**
- * Apply world-space aim, parent and analytic/iterative IK in producer order, updating matrices and recomposing affected descendants. Springs and malformed two-bone chains remain deferred. Geometry must be admitted finite/nondegenerate and TRS-decomposable; partial influence and epsilon reach shells are numerical policies rather than anatomical ROM guarantees.
+ * Apply world-space aim, parent and analytic/iterative IK in producer order,
+ * updating matrices and recomposing affected descendants. Springs and malformed
+ * two-bone chains remain deferred. Geometry must be admitted
+ * finite/nondegenerate and TRS-decomposable; partial influence and epsilon
+ * reach shells are numerical policies rather than anatomical ROM guarantees.
  */
 export const resolveWorldDrivers: (
   drivers: IAutoMovieDriver[],
@@ -102,9 +104,6 @@ const applyParent: (
   localById: Map<string, IAutoMovieTransform>,
   childrenById: Map<string, string[]>,
 ): void => {
-  validateParentFlag(d.translation, "translation");
-  validateParentFlag(d.rotation, "rotation");
-  validateParentFlag(d.scale, "scale");
   const own: {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
@@ -124,19 +123,6 @@ const applyParent: (
     ),
   );
   recompose(d.owner, world, localById, childrenById);
-};
-
-const validateParentFlag: (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-) => void = (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-): void => {
-  if (typeof value !== "boolean")
-    throw new Error(
-      `world driver parent ${label} flag must be boolean, but was ${value}`,
-    );
 };
 
 /**
@@ -162,7 +148,6 @@ const applyTwoBoneIK: (
   childrenById: Map<string, string[]>,
 ): void => {
   validateInfluence("two-bone IK", d.influence);
-  if (d.pole !== null) validatePoleAngle(d.pole.angle);
   const rootId: string = d.chain[0]!;
   const midId: string = d.chain[1]!;
   const tipId: string = d.chain[2]!;
@@ -298,13 +283,6 @@ const clamp: (x: number, lo: number, hi: number) => number = (
   hi: number,
 ): number => Math.min(hi, Math.max(lo, x));
 
-const validatePoleAngle: (angle: number) => void = (angle: number): void => {
-  if (!Number.isFinite(angle))
-    throw new Error(
-      `world driver two-bone IK pole angle must be finite, but was ${angle}`,
-    );
-};
-
 const validateAimVector: (
   label: "aimAxis" | "upAxis" | "worldUp",
   value: IAutoMovieVector3,
@@ -312,11 +290,6 @@ const validateAimVector: (
   label: "aimAxis" | "upAxis" | "worldUp",
   value: IAutoMovieVector3,
 ): void => {
-  for (const axis of VECTOR_AXES)
-    if (!Number.isFinite(value[axis]))
-      throw new Error(
-        `world driver aim ${label}.${axis} must be finite, but was ${value[axis]}`,
-      );
   if (Vector3.length(value) === 0)
     throw new Error(`world driver aim ${label} must be non-zero`);
 };

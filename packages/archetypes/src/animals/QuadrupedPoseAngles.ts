@@ -22,8 +22,10 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
  *
  * @param rig The admitted tree used to prepare reader.
  * @param reader That same tree's independently prepared generic FK reader.
- * @returns A time-independent resolver; omitted limbs preview the axial goals only.
- * @throws {RangeError} For mismatched vocabulary, unknown/incomplete goals, nonfinite/degenerate directions or inadmissible rigid root.
+ * @returns A time-independent resolver; omitted limbs preview the axial goals
+ *   only.
+ * @throws {RangeError} For mismatched vocabulary, unknown/incomplete goals,
+ *   nonfinite/degenerate directions or inadmissible rigid root.
  */
 export function QuadrupedPoseAngles(
   rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>,
@@ -73,7 +75,7 @@ export function QuadrupedPoseAngles(
     const placed: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieTransform
-    > = checked(reader.read(undefined, root));
+    > = reader.read(undefined, root);
     const goals: Map<
       AutoMovieArchetypeQuadrupedBody.Bone,
       QuadrupedPosePlan.Goal
@@ -97,11 +99,6 @@ export function QuadrupedPoseAngles(
           throw new RangeError(
             `A quadruped pose requires all five ${limb} joints`,
           );
-        for (const point of points)
-          if (![point.x, point.y, point.z].every(Number.isFinite))
-            throw new RangeError(
-              `Quadruped ${limb} goals must be finite world points`,
-            );
         const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
           AutoMovieArchetypeQuadrupedBody.BONES[limb];
         for (let index: number = 0; index < chain.length; index++)
@@ -142,27 +139,17 @@ export function QuadrupedPoseAngles(
       if (goal.kind === "rotation") {
         const q: IAutoMovieQuaternion = goal.rotation;
         const length: number = Math.hypot(q.x, q.y, q.z, q.w);
-        if (!(Number.isFinite(length) && length > 0))
+        if (!(length > 0))
           throw new RangeError(
             `Quadruped ${bone} needs a finite nonzero world rotation`,
           );
         desired = Quaternion.normalize(q);
       } else if (goal.kind === "direction") {
-        const direction: IAutoMovieVector3 = goal.direction;
-        const length: number = Math.hypot(
-          direction.x,
-          direction.y,
-          direction.z,
-        );
-        if (!(Number.isFinite(length) && length > 0))
+        const unit: IAutoMovieVector3 = Vector3.normalize(goal.direction);
+        if (!(Vector3.dot(unit, unit) > 0))
           throw new RangeError(
             `Quadruped ${bone} needs a finite nonzero world direction`,
           );
-        const unit: IAutoMovieVector3 = {
-          x: direction.x / length,
-          y: direction.y / length,
-          z: direction.z / length,
-        };
         desired = Quaternion.multiply(
           rotationBetween(
             Quaternion.rotateVector(carried, { x: 0, y: 1, z: 0 }),
@@ -181,31 +168,6 @@ export function QuadrupedPoseAngles(
       joints.set(bone, decomposeJointRotationOnBasis(local, node.axes));
       current.set(bone, desired);
     }
-    return { joints, frames: checked(reader.read(joints, root)) };
-  }
-
-  /** Finite inputs can still overflow derived world positions; they cannot be reported as achieved frames. */
-  function checked(
-    frames: ReadonlyMap<
-      AutoMovieArchetypeQuadrupedBody.Bone,
-      IAutoMovieTransform
-    >,
-  ): ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> {
-    for (const [bone, frame] of frames)
-      if (
-        ![
-          frame.translation.x,
-          frame.translation.y,
-          frame.translation.z,
-          frame.rotation.x,
-          frame.rotation.y,
-          frame.rotation.z,
-          frame.rotation.w,
-        ].every(Number.isFinite)
-      )
-        throw new RangeError(
-          `Quadruped ${bone} has an unrepresentable current FK frame`,
-        );
-    return frames;
+    return { joints, frames: reader.read(joints, root) };
   }
 }

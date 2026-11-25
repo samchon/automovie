@@ -38,9 +38,7 @@ type IEvaluation = [IAutoMovieCameraClearanceEvaluation][0];
 /** One obstacle's world box at one instant, as the evaluator reads it. */
 type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
 
-/**
- * A staged node with its measured bound.
- */
+/** A staged node with its measured bound. */
 interface IMeasuredObstacle {
   /** The staged node. */
   node: IAutoMovieScene["nodes"][number];
@@ -52,9 +50,7 @@ interface IMeasuredObstacle {
   radius: number;
 }
 
-/**
- * One camera that plays in the shot and declares a clearance envelope.
- */
+/** One camera that plays in the shot and declares a clearance envelope. */
 interface ITake {
   /** The staged camera, with its envelope. */
   camera: IAutoMovieCamera;
@@ -67,11 +63,27 @@ interface ITake {
 }
 
 /**
- * Check that no camera body or parent rig in a performed shot touches a staged node, and return one clear report per envelope-bearing take.
+ * Check that no camera body or parent rig in a performed shot touches a staged
+ * node, and return one clear report per envelope-bearing take.
  *
- * The hero take and every coverage take whose staged camera declares `clearance` are inspected; the others are skipped, and a shot with none returns `undefined` without reading `runtime`. Each such take is sampled at {@link cameraClearanceSampleTimes}, and every staged node is an obstacle: a node nothing animates is its rest box through its placement ({@link nodeSubjectBox}), and an animated one is a box around its current root holding {@link cameraClearanceDeformationRadius} scaled by its largest absolute scale component, which stays valid under any rotation or pose. {@link evaluateCameraClearance} then sweeps each interval.
+ * The hero take and every coverage take whose staged camera declares
+ * `clearance` are inspected; the others are skipped, and a shot with none
+ * returns `undefined` without reading `runtime`. Each such take is sampled at
+ * {@link cameraClearanceSampleTimes}, and every staged node is an obstacle: a
+ * node nothing animates is its rest box through its placement
+ * ({@link nodeSubjectBox}), and an animated one is a box around its current root
+ * holding {@link cameraClearanceDeformationRadius} scaled by its largest
+ * absolute scale component, which stays valid under any rotation or pose.
+ * {@link evaluateCameraClearance} then sweeps each interval.
  *
- * Every refusal is pushed to `out` with an author-facing path, and the result is then `undefined`: a hero or coverage camera the scene does not stage, a missing `runtime`, a sample rate that is not finite and positive, a stale geometry revision (one item per take, before any geometry is read), a morph-weight track, a node whose model is absent, fails `validateModel`, draws nothing or whose bound overflows, a motion the clock cannot bound, and every contact the evaluator finds. Items already in `out` belong to the caller and do not count as refusals here.
+ * Every refusal is pushed to `out` with an author-facing path, and the result
+ * is then `undefined`: a hero or coverage camera the scene does not stage, a
+ * missing `runtime`, a sample rate that is not finite and positive, a stale
+ * geometry revision (one item per take, before any geometry is read), a
+ * morph-weight track, a node whose model is absent, fails `validateModel`,
+ * draws nothing or whose bound overflows, a motion the clock cannot bound, and
+ * every contact the evaluator finds. Items already in `out` belong to the
+ * caller and do not count as refusals here.
  */
 export function compileCameraClearanceReports(
   props: IAutoMovieCompileCameraClearanceReports.IProps,
@@ -129,7 +141,7 @@ export function compileCameraClearanceReports(
     );
     return undefined;
   }
-  if (!(Number.isFinite(runtime.sampleRate) && runtime.sampleRate > 0)) {
+  if (!(runtime.sampleRate > 0 && runtime.sampleRate < Infinity)) {
     props.out.push(
       "range",
       "$input.cameraClearance.sampleRate",
@@ -251,7 +263,8 @@ export function compileCameraClearanceReports(
 }
 
 /**
- * Validate and bound every staged node once, pushing a refusal for each node whose model is absent, invalid, empty or unboundable.
+ * Validate and bound every staged node once, pushing a refusal for each node
+ * whose model is absent, invalid, empty or unboundable.
  */
 function measureObstacles(props: {
   scene: IAutoMovieScene;
@@ -332,7 +345,8 @@ function measureObstacles(props: {
 }
 
 /**
- * The box around a moving node's current root that holds its deformation radius scaled by its largest absolute scale component.
+ * The box around a moving node's current root that holds its deformation radius
+ * scaled by its largest absolute scale component.
  */
 function movingBounds(
   obstacle: IMeasuredObstacle,

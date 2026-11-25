@@ -10,10 +10,15 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
+/** The alternatives of `ShareAmount`'s site. */
+type ShareAmount =
+  | IAutoMovieMotionHumanRange.Level
+  | IAutoMovieMotionHumanRange.IScaled;
+
 /**
  * Amounts by level: how far a joint turns as a share of its range of motion,
- * how far the trunk leans as a share of the reach's lean limit, and how far
- * the root shifts as a share of the stature.
+ * how far the trunk leans as a share of the reach's lean limit, and how far the
+ * root shifts as a share of the stature.
  *
  * A law states `"light"` neck flexion and the joint's own range supplies the
  * degrees, so one word fits a neck and a knee: a level is a share of the
@@ -29,8 +34,8 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * | `external`  | `twist.max`     |
  * | `internal`  | `twist.min`     |
  *
- * The result is signed as the posture's clinical angles are, so an extension
- * is negative.
+ * The result is signed as the posture's clinical angles are, so an extension is
+ * negative.
  *
  * An amount has three rungs: a level, a level with a scale in [0.5, 1.5], or
  * explicit degrees (a magnitude, signed by the motion) with their source.
@@ -47,8 +52,8 @@ export namespace AutoMovieMotionHumanRange {
 
   /**
    * The share of each level (provisional; checked by the fit of the gesture
-   * amplitudes and the reaction sizes that were converted onto them, listed
-   * in the campaign's pull request).
+   * amplitudes and the reaction sizes that were converted onto them, listed in
+   * the campaign's pull request).
    */
   export const LEVELS: Readonly<
     Record<IAutoMovieMotionHumanRange.Level, number>
@@ -75,13 +80,10 @@ export namespace AutoMovieMotionHumanRange {
    *
    * @param amount A level, or a level with a scale.
    * @returns The share, in (0, 1].
-   * @throws {Error} When the scale lies outside [0.5, 1.5] or the scaled share exceeds 1.
+   * @throws {Error} When the scale lies outside [0.5, 1.5] or the scaled share
+   *   exceeds 1.
    */
-  export function share(
-    amount:
-      | IAutoMovieMotionHumanRange.Level
-      | IAutoMovieMotionHumanRange.IScaled,
-  ): number {
+  export function share(amount: ShareAmount): number {
     if (typeof amount === "string") return LEVELS[amount];
     if (!(amount.scale >= 0.5 && amount.scale <= 1.5)) {
       const names: IAutoMovieMotionHumanRange.Level[] = Object.keys(
@@ -112,7 +114,9 @@ export namespace AutoMovieMotionHumanRange {
    * @param motion The motion.
    * @param amount The amount, on any rung.
    * @returns Signed degrees, as the posture's clinical angles are.
-   * @throws {Error} When the joint has no range, the motion's axis is locked or has no room, explicit degrees are negative or past the limit, or an explicit source is empty.
+   * @throws {Error} When the joint has no range, the motion's axis is locked or
+   *   has no room, explicit degrees are negative or past the limit, or an
+   *   explicit source is empty.
    */
   export function degrees(
     bone: AutoMovieHumanoidBone,
@@ -132,7 +136,8 @@ export namespace AutoMovieMotionHumanRange {
    *
    * @param bone The joint.
    * @param motion The motion.
-   * @returns Signed degrees, or null when the joint has no range, the motion's axis is locked or the limit is 0.
+   * @returns Signed degrees, or null when the joint has no range, the motion's
+   *   axis is locked or the limit is 0.
    */
   export function limit(
     bone: AutoMovieHumanoidBone,
@@ -160,7 +165,8 @@ export namespace AutoMovieMotionHumanRange {
    *
    * @param amount The amount, on any rung.
    * @returns Degrees, not negative.
-   * @throws {Error} When explicit degrees are negative or past the limit, or an explicit source is empty.
+   * @throws {Error} When explicit degrees are negative or past the limit, or an
+   *   explicit source is empty.
    */
   export function lean(amount: IAutoMovieMotionHumanRange.Amount): number {
     const end: number = AutoMovieMotionHumanReach.LEAN_LIMIT;

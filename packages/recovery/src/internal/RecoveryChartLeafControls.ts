@@ -7,8 +7,8 @@ import type { IAutoMovieRecoveryChartLeafControls } from "@automovie/interface";
  * endpoint identities share one control; this is parameter identity, not a
  * physical coordinate weld. Each maximal containing interval owns one cubic.
  * Nested fine intervals use de Casteljau restriction expressions in that cubic.
- * Disjoint intervals, including those meeting only at endpoints, keep their
- * own cubic handles. Every patch retains four independent interior controls.
+ * Disjoint intervals, including those meeting only at endpoints, keep their own
+ * cubic handles. Every patch retains four independent interior controls.
  *
  * Atomic intervals verify one exterior incident and two opposed interior uses.
  * Missing exterior coverage, nonnested overlaps, inconsistent corner equations,
@@ -24,13 +24,7 @@ import type { IAutoMovieRecoveryChartLeafControls } from "@automovie/interface";
 export function RecoveryChartLeafControls(
   input: Parameters<IAutoMovieRecoveryChartLeafControls.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartLeafControls.Operation> {
-  if (
-    !input ||
-    !Array.isArray(input.leaves) ||
-    !input.leaves.length ||
-    !Number.isSafeInteger(input.maxControls) ||
-    input.maxControls < 1
-  )
+  if (input.leaves.length === 0 || input.maxControls < 1)
     throw new Error(
       "A nonempty leaf partition and a positive safe control budget are required",
     );
@@ -56,16 +50,11 @@ export function RecoveryChartLeafControls(
     const leaf: (typeof input.leaves)[number] = input.leaves[p]!;
     if (
       !leaf ||
-      typeof leaf.id !== "string" ||
       !leaf.id.trim() ||
       names.has(leaf.id) ||
-      !Array.isArray(leaf.bounds) ||
       leaf.bounds.length !== 4 ||
       ![0, 1, 2, 3].every(
-        (k: number): boolean =>
-          Number.isFinite(leaf.bounds[k]) &&
-          leaf.bounds[k]! >= 0 &&
-          leaf.bounds[k]! <= 1,
+        (k: number): boolean => leaf.bounds[k]! >= 0 && leaf.bounds[k]! <= 1,
       ) ||
       !(leaf.bounds[0] < leaf.bounds[1] && leaf.bounds[2] < leaf.bounds[3])
     )
@@ -215,7 +204,7 @@ export function RecoveryChartLeafControls(
     const combined: Map<number, number> = new Map();
     for (let k: number = 0; k < 4; k++) {
       const value: number = (combined.get(source[k]!) ?? 0) + row[k]!;
-      if (!Number.isFinite(value))
+      if (value === Infinity || value === -Infinity)
         throw new Error("A restricted edge coefficient became nonfinite");
       if (value === 0) combined.delete(source[k]!);
       else combined.set(source[k]!, value);

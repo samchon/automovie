@@ -10,9 +10,10 @@ import type {
   IAutoMovieRecoverySceneWork,
 } from "../../index";
 
-/** Last fully qualified sparse component and its complete extension ledger.
- * An accepted component may leave images unregistered; full requested coverage
- * is stated separately. Physical scale and an editable surface remain unknown.
+/**
+ * Last fully qualified sparse component and its complete extension ledger. An
+ * accepted component may leave images unregistered; full requested coverage is
+ * stated separately. Physical scale and an editable surface remain unknown.
  */
 export interface IAutoMovieRecoveryCameraSceneEstimate {
   /** Versioned variable-view sparse-scene evidence. */
@@ -55,7 +56,10 @@ export interface IAutoMovieRecoveryCameraSceneEstimate {
   /** No physical length anchor was observed. */
   metricScale: "unknown";
 
-  /** Final accepted source-order poses; unregistered/refused candidates are null. */
+  /**
+   * Final accepted source-order poses; unregistered/refused candidates are
+   * null.
+   */
   poses: (IAutoMovieRecoveryMapPose | null)[];
 
   /** Source indices retained by the last qualified checkpoint. */
@@ -64,7 +68,10 @@ export interface IAutoMovieRecoveryCameraSceneEstimate {
   /** Every remaining requested source index, including insufficient support. */
   unregisteredViews: number[];
 
-  /** Per-source coverage, current necessary support and most recent attempt linkage. */
+  /**
+   * Per-source coverage, current necessary support and most recent attempt
+   * linkage.
+   */
   registration: IAutoMovieRecoverySceneRegistration[];
 
   /** Accepted checkpoint revision; zero is the initially qualified seed. */
@@ -97,13 +104,26 @@ export interface IAutoMovieRecoveryCameraSceneEstimate {
   /** Accumulated work, including initial seed-point/joint construction. */
   work: IAutoMovieRecoverySceneWork;
 
-  /** Last accepted common-population joint report, null before seed qualification. */
+  /**
+   * Last accepted common-population joint report, null before seed
+   * qualification.
+   */
   joint: IAutoMovieRecoveryMapJointFit | null;
 
-  /** Last completed fit of a refused initial checkpoint, possibly before a later closure capacity/budget refusal. Its own population is authoritative and it may be converged despite whole-checkpoint refusal. Absent without an admitted/completed report, after seed acceptance, or in older artifacts; absence does not prove that no internal fit ran. No failed pose or point geometry is exposed. */
+  /**
+   * Last completed fit of a refused initial checkpoint, possibly before a later
+   * closure capacity/budget refusal. Its own population is authoritative and it
+   * may be converged despite whole-checkpoint refusal. Absent without an
+   * admitted/completed report, after seed acceptance, or in older artifacts;
+   * absence does not prove that no internal fit ran. No failed pose or point
+   * geometry is exposed.
+   */
   refusedSeedJoint?: IAutoMovieRecoveryMapJointFit;
 
-  /** Maximum accepted retained-observation error in pixels, null without a checkpoint. */
+  /**
+   * Maximum accepted retained-observation error in pixels, null without a
+   * checkpoint.
+   */
   maximumReprojectionErrorPx: number | null;
 
   /** Minimum over points of each strongest actual acute supporting angle. */

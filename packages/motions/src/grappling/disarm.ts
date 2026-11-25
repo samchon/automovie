@@ -27,8 +27,8 @@ import { touch } from "../touch/touch";
 /**
  * The hand of the partner that holds the prop as the disarm starts: the
  * performance's own grip custody (`IAutoMovieMotionHumanPropReader.holderAt`),
- * read after the partner is, so a partner placed on demand is placed first.
- * A reader that tracks no grips is read by the nearer hand to the prop.
+ * read after the partner is, so a partner placed on demand is placed first. A
+ * reader that tracks no grips is read by the nearer hand to the prop.
  */
 function holding(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
@@ -64,15 +64,15 @@ function holding(
 
 /**
  * A staged disarm (`IAutoMovieMotionHumanDisarm`). The defender's hands close
- * on the armed arm by the stage-fight grab (`touch`, both palms squeezing):
- * for a knife on the armed wrist and the forearm, for a handgun on the armed
- * wrist and the pistol's slide over the barrel. The grab holds for the
- * lever, then the hand on the wrist takes the weapon: from `taken` its grip
- * carries the weapon and it holds it after the action, while the other hand
- * lets go. The armed partner performs `disarmed`, whose hand opens at the
- * same `taken` instant, so the weapon has one owner at every instant. A
- * partner who does not hold the weapon is refused; a wrist out of reach is
- * refused by the grab, with the distance named.
+ * on the armed arm by the stage-fight grab (`touch`, both palms squeezing): for
+ * a knife on the armed wrist and the forearm, for a handgun on the armed wrist
+ * and the pistol's slide over the barrel. The grab holds for the lever, then
+ * the hand on the wrist takes the weapon: from `taken` its grip carries the
+ * weapon and it holds it after the action, while the other hand lets go. The
+ * armed partner performs `disarmed`, whose hand opens at the same `taken`
+ * instant, so the weapon has one owner at every instant. A partner who does not
+ * hold the weapon is refused; a wrist out of reach is refused by the grab, with
+ * the distance named.
  */
 export namespace disarm {
   /** The action's name. */
@@ -82,28 +82,35 @@ export namespace disarm {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     touch.interrupts;
 
-  /** How long the lever turns the armed hand before the grip opens, seconds: authored. */
+  /**
+   * How long the lever turns the armed hand before the grip opens, seconds:
+   * authored.
+   */
   export const LEVER: number = 0.5;
 
-  /** How long the defender holds the weapon in the action after taking it, seconds: authored. */
+  /**
+   * How long the defender holds the weapon in the action after taking it,
+   * seconds: authored.
+   */
   export const AFTER: number = 0.4;
 
-  /** How long the taking hand takes to close into its fist, seconds: the time a hand-over's fingers take to open at the release (`handOver.OPEN`, provisional). */
+  /**
+   * How long the taking hand takes to close into its fist, seconds: the time a
+   * hand-over's fingers take to open at the release (`handOver.OPEN`,
+   * provisional).
+   */
   export const CLOSE: number = handOver.OPEN;
 
   /**
-   * Plan a disarm.
+   * A disarm's lever time: `LEVER` by default, and positive.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `prop` when the partner holds no such weapon, on `lever` when not positive and finite, and whatever the grab refuses.
+   * @param asked The lever asked, seconds.
+   * @returns The lever's seconds.
+   * @throws {HumanRefusal} When the lever is not positive.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const params: IAutoMovieMotionHumanDisarm.IParams = context.params;
-    const lever: number = params.lever ?? LEVER;
-    if (!(lever > 0 && Number.isFinite(lever)))
+  export function leverTime(asked: number | undefined): number {
+    const lever: number = asked ?? LEVER;
+    if (!(lever > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "lever",
@@ -111,6 +118,21 @@ export namespace disarm {
         reason: "the lever takes a positive time",
         fix: "give the lever in seconds",
       });
+    return lever;
+  }
+  /**
+   * Plan a disarm.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} On `prop` when the partner holds no such weapon, on
+   *   `lever` when not positive and finite, and whatever the grab refuses.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const params: IAutoMovieMotionHumanDisarm.IParams = context.params;
+    const lever: number = leverTime(params.lever);
     const armed: AutoMovieHumanSide = holding(
       context,
       params.partner,

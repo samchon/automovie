@@ -3,7 +3,9 @@ import type { IAutoMovieCameraClearanceSphere } from "./IAutoMovieCameraClearanc
 /**
  * Physical envelopes carried by one authored and resolved camera.
  *
- * The camera body always has an envelope. A parent rig is explicit when the camera rides a dolly, crane, vehicle mount, stabilizer, or other support whose volume can collide even while the camera body itself remains clear.
+ * The camera body always has an envelope. A parent rig is explicit when the
+ * camera rides a dolly, crane, vehicle mount, stabilizer, or other support
+ * whose volume can collide even while the camera body itself remains clear.
  */
 export interface IAutoMovieCameraClearanceEnvelope {
   /** Optical body, lens, cage, and immediately carried camera hardware. */

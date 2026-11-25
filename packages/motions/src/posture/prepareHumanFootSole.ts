@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -17,24 +18,8 @@ import { HumanFoot } from "./HumanFoot";
  */
 export function prepareHumanFootSole(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[] {
-  let sides:
-    | Partial<
-        Record<
-          "left" | "right",
-          (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]
-        >
-      >
-    | undefined = CACHE.get(body);
-  if (sides === undefined) {
-    sides = {};
-    CACHE.set(body, sides);
-  }
-  const known:
-    | ((foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[])
-    | undefined = sides[side];
-  if (known !== undefined) return known;
   const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
   const local: IAutoMovieVector3[] = [
     ...HumanFoot.SOCKETS.map(
@@ -51,26 +36,12 @@ export function prepareHumanFootSole(
             ),
     ),
   ];
-  const read: (
-    foot: IAutoMovieMotionHumanFoot.IPlacement,
-  ) => IAutoMovieVector3[] = (
+  return (
     foot: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieVector3[] =>
     local.map(
       (point: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, point)),
     );
-  sides[side] = read;
-  return read;
 }
 
-/** Intrinsic ankle-local geometry only, at most one reader for each side of a weak body. */
-const CACHE: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Partial<
-    Record<
-      "left" | "right",
-      (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]
-    >
-  >
-> = new WeakMap();

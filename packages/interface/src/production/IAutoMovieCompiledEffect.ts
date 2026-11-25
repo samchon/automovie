@@ -3,7 +3,9 @@ import type { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Compiler-owned deterministic effect runtime consumed by viewer and oracle. Bounds are world-space metres; cue boundaries and simulation step are seconds.
+ * Compiler-owned deterministic effect runtime consumed by viewer and oracle.
+ * Bounds are world-space metres; cue boundaries and simulation step are
+ * seconds.
  */
 export interface IAutoMovieCompiledEffect {
   /** Generated effect format. */

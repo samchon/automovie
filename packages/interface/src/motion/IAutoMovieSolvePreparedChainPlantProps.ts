@@ -6,8 +6,8 @@ import type { IAutoMoviePreparedChainPlant } from "./IAutoMoviePreparedChainPlan
 
 /**
  * One target and bend-plane choice evaluated against prepared chain geometry.
- * Coordinates retain the resolved model metre frame; optional clinical axes
- * and rest frames are the same ones final FK and ROM evaluation consume.
+ * Coordinates retain the resolved model metre frame; optional clinical axes and
+ * rest frames are the same ones final FK and ROM evaluation consume.
  */
 export interface IAutoMovieSolvePreparedChainPlantProps {
   /** Shared pose-invariant chain frames and effective clinical domains. */

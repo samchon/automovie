@@ -1,4 +1,3 @@
-export * from "./admitAutoMovieFilmShading";
 export * from "./autoMovieIrradianceGrid";
 export * from "./autoMovieIrradianceOf";
 export * from "./autoMovieSliceVisibility";

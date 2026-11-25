@@ -1,5 +1,8 @@
 /**
- * Rope from the saddle (#3952): the rider swings a held lariat's loop overhead in time with the horse's stride, throws it so it reaches a target on a moving animal, the head, horns or hind legs, after a flight, and dallies the rope round the saddle horn.
+ * Rope from the saddle: the rider swings a held lariat's loop overhead in time
+ * with the horse's stride, throws it so it reaches a target on a moving animal,
+ * the head, horns or hind legs, after a flight, and dallies the rope round the
+ * saddle horn.
  */
 export interface IAutoMovieMotionHumanLasso {
   /** The carrier's subject id. */
@@ -14,22 +17,29 @@ export interface IAutoMovieMotionHumanLasso {
   /** What the loop is thrown at. */
   target: IAutoMovieMotionHumanLasso.ITarget;
 
-  /** A cue track of the horse's stride, one instant per stride, that the swing keeps time with; one second a turn when absent. */
+  /**
+   * A cue track of the horse's stride, one instant per stride, that the swing
+   * keeps time with; one second a turn when absent.
+   */
   stride?: string;
 
-  /** How many turns the loop makes overhead before the throw, a whole number from one. */
+  /**
+   * How many turns the loop makes overhead before the throw, a whole number
+   * from one.
+   */
   swings: number;
 
   /** The loop's flight from the release to the catch, seconds; 0.8 when absent. */
   flight?: number;
 
-  /** The dally: the horn the rope is wrapped round after the catch and how many turns; none when absent. */
+  /**
+   * The dally: the horn the rope is wrapped round after the catch and how many
+   * turns; none when absent.
+   */
   dally?: IAutoMovieMotionHumanLasso.IDally;
 }
 export namespace IAutoMovieMotionHumanLasso {
-  /**
-   * A roping target: an animal prop's contact.
-   */
+  /** A roping target: an animal prop's contact. */
   export interface ITarget {
     /** The animal's subject id. */
     subject: string;
@@ -38,9 +48,7 @@ export namespace IAutoMovieMotionHumanLasso {
     contact: string;
   }
 
-  /**
-   * A dally.
-   */
+  /** A dally. */
   export interface IDally {
     /** The carrier's horn contact. */
     horn: string;

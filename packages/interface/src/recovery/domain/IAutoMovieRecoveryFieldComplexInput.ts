@@ -3,9 +3,7 @@ import type {
   IAutoMovieRecoveryUnsupportedDomain,
 } from "../../index";
 
-/**
- * Named source-free charts and the producer's observation coverage.
- */
+/** Named source-free charts and the producer's observation coverage. */
 
 export interface IAutoMovieRecoveryFieldComplexInput {
   /** Nonempty topology domain for the assembled atlas. */

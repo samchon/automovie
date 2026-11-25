@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is reused, why the correction converges and what the caller takes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The jump's plan with its take-off second, centre and launch velocity read off its displayed postures.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The take-off record and one function, read by the high jump and the pole vault.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The push-off is the jump's, never restated.
-
-# src/sport/GymnasticsTakeoff.ts#GymnasticsTakeoff.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the inputs, the result and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

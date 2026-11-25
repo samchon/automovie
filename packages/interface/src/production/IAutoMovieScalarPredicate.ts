@@ -1,6 +1,4 @@
-/**
- * A finite scalar comparison applied to a measured shot-contract fact.
- */
+/** A finite scalar comparison applied to a measured shot-contract fact. */
 export interface IAutoMovieScalarPredicate {
   /** Numeric comparison. */
   operator: "<=" | ">=" | "==";

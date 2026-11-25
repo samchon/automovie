@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanStuntFall.ts#IAutoMovieMotionHumanStuntFall
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both falls, what each reads and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A discriminated union on kind; each names the props and the few controls its fall takes, in metres per second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One registered vocabulary entry; planStuntFall in motions is the only consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Heights, treads and pads come from the props.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanStuntFall.ts#IAutoMovieMotionHumanStuntFall.Exit
 
 ## @evidence contracts/development/common.md#meaningful-documentation

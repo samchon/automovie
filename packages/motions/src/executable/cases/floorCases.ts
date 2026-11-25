@@ -1,5 +1,6 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanCrawl,
   IAutoMovieMotionHumanLieDown,
   IAutoMovieMotionHumanPerformance,
@@ -10,33 +11,37 @@ import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { floorCaseSpan } from "./floorCaseSpan";
+
+/** The alternatives of `FloorCasesRisesLimb`'s site. */
+type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
+
+/** The record of `IFloorCasesKnee`'s site. */
+type IFloorCasesKnee = { low: number; high: number };
+
+/** The record of `IFloorCasesHeight`'s site. */
+type IFloorCasesHeight = { low: number; high: number };
+
+/** The record of `IFloorCasesSlip`'s site. */
+type IFloorCasesSlip = { value: number; where: string };
 
 /**
- * Capture cases of the lying and crawling family (#3237), each from quiet
- * standing:
+ * Capture cases of the lying and crawling family, each from quiet standing:
  *
- * - `floor-lie-supine`, `floor-lie-prone`, `floor-lie-lateralLeft`: lying
- *   down into the position; no range-of-motion overshoot, no collider below
- *   the floor by more than 10 mm at any frame, and at `settled` the trunk's
- *   colliders within -10 to +15 mm of the floor (the issue's supporting
- *   regions within 15 mm, penetration no worse than -10 mm).
- * - `floor-crawl`: three hands-and-knees cycles; no overshoot; each palm
- *   within -10 to +15 mm of the floor and sliding at most 5 mm through its
- *   plant windows; each shank's colliders within -10 to +15 mm of the floor
- *   at the middle of each knee stance; and the displayed lift-offs of the
- *   left hand and the right knee, and of the right hand and the left knee,
- *   within 10 % of a cycle of each other (the issue's diagonal pattern).
+ * - `floor-lie-supine`, `floor-lie-prone`, `floor-lie-lateralLeft`: lying down
+ *   into the position; no range-of-motion overshoot, no collider below the
+ *   floor by more than 10 mm at any frame, and at `settled` the trunk's
+ *   colliders within -10 to +15 mm of the floor (the issue's supporting regions
+ *   within 15 mm, penetration no worse than -10 mm).
+ * - `floor-crawl`: three hands-and-knees cycles; no overshoot; each palm within
+ *   -10 to +15 mm of the floor and sliding at most 5 mm through its plant
+ *   windows; each shank's colliders within -10 to +15 mm of the floor at the
+ *   middle of each knee stance; and the displayed lift-offs of the left hand
+ *   and the right knee, and of the right hand and the left knee, within 10 % of
+ *   a cycle of each other (the issue's diagonal pattern).
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Measures displayed colliders and sockets against the floor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two blocks over the shared kit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read displayed poses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function floorCases(
   bodies: readonly string[] = ["m-average"],
@@ -54,7 +59,7 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("lieDown", params),
+          HumanChain.subject("a").act("lieDown", params).node,
         );
       const settled: number = FamilyCaseKit.event(performance, "settled");
       let deepest: number = Infinity;
@@ -97,12 +102,12 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crawl", params),
+          HumanChain.subject("a").act("crawl", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const at = (share: number): number =>
         segment.start + share * segment.plan.duration;
-      const palm = (side: "left" | "right", t: number): IAutoMovieVector3 => {
+      const palm = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
         const frame =
           who.body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"];
         return resolveAutoMovieHumanoidSurfaces.place(
@@ -110,14 +115,15 @@ export function floorCases(
           performance.bones("a", t).get(frame.bone)!,
         ).point;
       };
-      let slip: { value: number; where: string } = { value: 0, where: "none" };
-      const height: { low: number; high: number } = {
+      let slip: IFloorCasesSlip = { value: 0, where: "none" };
+      const height: IFloorCasesHeight = {
         low: Infinity,
         high: -Infinity,
       };
       for (const c of segment.plan.contacts) {
         if (c.part !== "leftHand" && c.part !== "rightHand") continue;
-        const side: "left" | "right" = c.part === "leftHand" ? "left" : "right";
+        const side: AutoMovieHumanSide =
+          c.part === "leftHand" ? "left" : "right";
         const anchor: IAutoMovieVector3 = palm(side, at(c.from));
         for (let t: number = at(c.from); t <= at(c.to) + 1e-9; t += 1 / 24) {
           const p: IAutoMovieVector3 = palm(side, t);
@@ -128,7 +134,7 @@ export function floorCases(
           height.high = Math.max(height.high, p.y);
         }
       }
-      const knee: { low: number; high: number } = {
+      const knee: IFloorCasesKnee = {
         low: Infinity,
         high: -Infinity,
       };
@@ -159,15 +165,12 @@ export function floorCases(
       const period: number =
         FamilyCaseKit.event(performance, "leftHandLiftoff3") -
         FamilyCaseKit.event(performance, "leftHandLiftoff2");
-      const rises = (
-        limb: "leftHand" | "rightHand" | "leftKnee" | "rightKnee",
-        k: number,
-      ): number => {
+      const rises = (limb: FloorCasesRisesLimb, k: number): number => {
         const planned: number = FamilyCaseKit.event(
           performance,
           `${limb}Liftoff${k}`,
         );
-        const side: "left" | "right" = limb.startsWith("left")
+        const side: AutoMovieHumanSide = limb.startsWith("left")
           ? "left"
           : "right";
         for (
@@ -210,8 +213,8 @@ export function floorCases(
             passed: slip.value <= 0.005,
             detail: `${(slip.value * 1000).toFixed(1)} mm (limit 5.0 mm), worst ${slip.where}`,
           },
-          span("planted palm height", height),
-          span("knee on the floor mid-stance", knee),
+          floorCaseSpan("planted palm height", height),
+          floorCaseSpan("knee on the floor mid-stance", knee),
           {
             name: "diagonal lift-offs within 10 % of a cycle",
             passed: lag <= 0.1 * period,
@@ -222,16 +225,4 @@ export function floorCases(
     }
   }
   return out;
-}
-
-/** A verdict that a measured range of heights lies within -10 to +15 mm of the floor. */
-function span(
-  name: string,
-  range: { low: number; high: number },
-): IMotionCaptureCase.IVerdict {
-  return {
-    name,
-    passed: range.low >= -0.01 && range.high <= 0.015,
-    detail: `${(range.low * 1000).toFixed(1)} to ${(range.high * 1000).toFixed(1)} mm (band -10.0 to 15.0 mm)`,
-  };
 }

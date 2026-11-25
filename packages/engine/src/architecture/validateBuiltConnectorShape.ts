@@ -4,7 +4,6 @@ import {
   type IAutoMovieConnectorGeometry,
   IAutoMovieConnectorSection,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
@@ -23,16 +22,16 @@ const SLOPE_TOLERANCE: number = 1e-6;
 /**
  * Validate a connector's stations, section spelling, slope, and steps.
  *
- * Consecutive route stations must be more than 1e-9 m apart, and stated
- * station facings must match the route one for one as unit quaternions. A
- * connector states either a constant positive width and clear height or a
- * varying section, never both and never neither; a varying section needs at
- * least 2 stations from `at` 0 to 1, strictly increasing, each with a positive
- * width and clear height. A stated slope must be finite within [0, PI / 2]
- * radians, and stated steps need a whole count of at least 1 with positive
- * rise and run in metres. When the route is measurable, the slope must agree
- * with the route's `atan2(|rise|, run)` within 1e-6 rad and the steps must
- * climb and run what the route does within 1e-3 m, both measured by
+ * Consecutive route stations must be more than 1e-9 m apart, and stated station
+ * facings must match the route one for one as unit quaternions. A connector
+ * states either a constant positive width and clear height or a varying
+ * section, never both and never neither; a varying section needs at least 2
+ * stations from `at` 0 to 1, strictly increasing, each with a positive width
+ * and clear height. A stated slope must be finite within [0, PI / 2] radians,
+ * and stated steps need a whole count of at least 1 with positive rise and run
+ * in metres. When the route is measurable, the slope must agree with the
+ * route's `atan2(|rise|, run)` within 1e-6 rad and the steps must climb and run
+ * what the route does within 1e-3 m, both measured by
  * {@link builtConnectorGeometry}. The route is measurable when it has at least
  * two finite stations, at least one pair of them distinct, and `measured` is
  * true, which the caller sets only for the first connector bearing an id, the
@@ -57,15 +56,10 @@ export const validateBuiltConnectorShape: (
   measured: boolean,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  const finite: boolean =
-    connector.route.length >= 2 &&
-    connector.route.every((point: IAutoMovieVector3): boolean =>
-      [point.x, point.y, point.z].every(Number.isFinite),
-    );
   // A route with any length can be measured even with a repeated station,
   // which is reported here; only a route of one repeated point has none.
   let measurable: boolean = false;
-  if (finite)
+  if (connector.route.length >= 2)
     for (let index: number = 0; index + 1 < connector.route.length; ++index)
       if (
         Vector3.length(
@@ -125,29 +119,11 @@ export const validateBuiltConnectorShape: (
     );
   } else validateSections(connector.sections!, `${path}.sections`, collector);
 
-  let metrics: IAutoMovieConnectorGeometry | null = measurable
+  const metrics: IAutoMovieConnectorGeometry | null = measurable
     ? builtConnectorGeometry(environment, connector.id)
     : null;
-  if (
-    metrics !== null &&
-    [metrics.length, metrics.run, metrics.rise, metrics.slope].some(
-      (value: number): boolean => !Number.isFinite(value),
-    )
-  ) {
-    collector.push(
-      "range",
-      `${path}.route`,
-      "connector route must produce finite length, run, rise and slope",
-      connector.route,
-    );
-    metrics = null;
-  }
   if (connector.slope !== undefined) {
-    if (
-      !Number.isFinite(connector.slope) ||
-      connector.slope < 0 ||
-      connector.slope > Math.PI / 2
-    )
+    if (connector.slope < 0 || connector.slope > Math.PI / 2)
       collector.push(
         "range",
         `${path}.slope`,
@@ -168,7 +144,7 @@ export const validateBuiltConnectorShape: (
   if (connector.steps === undefined) return;
   const steps: NonNullable<IAutoMovieBuiltConnector["steps"]> = connector.steps;
   const before: number = collector.items.length;
-  if (!Number.isSafeInteger(steps.count) || steps.count < 1)
+  if (steps.count < 1)
     collector.push(
       "range",
       `${path}.steps.count`,

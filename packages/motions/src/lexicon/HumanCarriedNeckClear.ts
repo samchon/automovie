@@ -16,32 +16,23 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 
 /**
- * A carried body's pelvis set back off the bearer's neck (#3437). A seat on
- * the yoke rests the borne seat socket, under the sitting bones, on the top
- * of the back behind the neck, and the pelvis reaches forward of that
- * socket by about its half depth, so on the yoke the front of the pelvis
- * lay in the neck (87 mm for the small woman on the average man's
- * shoulders). The pelvis's colliders are measured against the neck's once
- * on the fitted key, and where they overlap the whole borne body is set
- * back toward the bearer's back across the floor by the overlap over the
- * distance's slope along that direction (read from one more distance at the
- * overlap's depth, since the two meet obliquely), so the
- * pelvis's front comes onto the neck's surface: the pelvis's half depth and
- * the neck's radius less the yoke's place behind the neck, read on the
- * real shapes. A body clear of the neck is left where the fit put it.
+ * A carried body's pelvis set back off the bearer's neck. A seat on the yoke
+ * rests the borne seat socket, under the sitting bones, on the top of the back
+ * behind the neck, and the pelvis reaches forward of that socket by about its
+ * half depth, so on the yoke the front of the pelvis lay in the neck (87 mm for
+ * the small woman on the average man's shoulders). The pelvis's colliders are
+ * measured against the neck's once on the fitted key, and where they overlap
+ * the whole borne body is set back toward the bearer's back across the floor by
+ * the overlap over the distance's slope along that direction (read from one
+ * more distance at the overlap's depth, since the two meet obliquely), so the
+ * pelvis's front comes onto the neck's surface: the pelvis's half depth and the
+ * neck's radius less the yoke's place behind the neck, read on the real shapes.
+ * A body clear of the neck is left where the fit put it.
  *
  * @param bearer The bearer's body.
  * @param borne The borne body.
  * @param read The fitted key: the placement and both bodies' key bones.
  * @returns The key, its placement set back when the pelvis meets the neck.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect, the measured overlap, the direction and the case left alone.
- * @evidence contracts/development/implementation.md#principled-implementation One signed distance between the placed pelvis and neck colliders gives the overlap; the distance is linear in a backward shift at the contact normal's slope on that direction, so a second distance at the overlap's depth gives the slope and the placement is translated by the overlap over it (one secant step, exact for a flat contact).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The placed pelvis, the neck, their least distance, one translation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shapes are the bodies' own colliders; no depth or radius is typed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pair of collider placements and two passes of their pairwise distances, once per coupling.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per coupling.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned placement closes over one translation.
  */
 export function HumanCarriedNeckClear(
   bearer: IAutoMovieMotionHumanBody,

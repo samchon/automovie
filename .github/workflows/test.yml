@@ -14,13 +14,7 @@ concurrency:
 
 jobs:
   test:
-    name: test (shard ${{ matrix.shard }}/12)
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -32,6 +26,6 @@ jobs:
         with:
           path: node_modules/.cache/ttsc
           key: ttsc-test-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm --filter @automovie/test start --shard=${{ matrix.shard }}/12
+      - run: pnpm --filter @automovie/test start
         env:
           NODE_OPTIONS: --max-old-space-size=8192

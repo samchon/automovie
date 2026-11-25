@@ -203,12 +203,8 @@ import type { IFilmProduction } from "../../IFilmProduction";
 /**
  * A packed-SDK room exercised by the generated production's existing film.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Passes installed place outputs through defineShot, compileDefinedShot and buildScene.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The film builds one static scene per mount and the generated host owns playback and capture.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The packed builder and mesh loader own geometry and clipping. A compiler refusal prevents the mount.
- * @evidence contracts/development/implementation.md#efficient-algorithms The furnished room compiles once per mount and model resolution uses its id map.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The Viewer and capture use the same registered starter film and scene factory.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The film owns and disposes the mounted native scene's resources.
+ * @evidence contracts/development/implementation.md#principled-implementation Defines a shot from the installed room and furniture outputs. The compiler checks the authored camera and depth bound. A compiler refusal or missing walkable entrance threshold stops the mount before buildScene places the models that buildModel produces.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The Viewer and capture share the same scene factory. Each mount compiles the room once, indexes models by id and builds a distinct object for each scene node. Each seek updates world matrices on the retained scene. Disposal collects and releases the scene's owned resources, then clears the scene.
  */
 export function starter(): IFilm {
   return {

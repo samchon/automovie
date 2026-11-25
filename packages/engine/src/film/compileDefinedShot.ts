@@ -6,7 +6,6 @@ import {
   type IAutoMovieCompileDefinedShot,
   type IAutoMovieCompiledDefinedShot,
   IAutoMovieConstraintViolation,
-  IAutoMovieDefinedShot,
   IAutoMovieDiagnostic,
   IAutoMovieMotion,
   type IAutoMoviePerformedShot,
@@ -37,7 +36,7 @@ type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
  * contract realization, or into the diagnostics of the first phase that
  * failed.
  *
- * The phases run in order: registration ids, one synchronous `build` call with
+ * The phases run in order: one synchronous `build` call with
  * `context`, the program held to its registration, the runtime's physics
  * advice, staging, blocking against `runtime.previous`, restaging at the
  * resumed placements, performance, contract realization, and continuity
@@ -55,29 +54,6 @@ type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
 export function compileDefinedShot<Context>(
   props: IAutoMovieCompileDefinedShot.IProps<Context>,
 ): IAutoMovieCompiledDefinedShot {
-  let registration: IAutoMovieAuthoringDiagnostic[];
-  try {
-    registration = validateRegistration(props.shot);
-  } catch (error) {
-    return {
-      success: false,
-      diagnostics: [
-        {
-          code: "pipeline-failed",
-          phase: "registration",
-          path: "$shot",
-          fact: `The registration boundary threw ${errorText(error)}.`,
-          impact:
-            "No stable shot identity or contract can be selected for compilation.",
-          recovery:
-            "Pass one defineShot export with a non-blank id, scene and contract beat, then compile that same value again.",
-        },
-      ],
-    };
-  }
-  if (registration.length !== 0)
-    return { success: false, diagnostics: registration };
-
   let program: IAutoMovieShotProgram;
   try {
     program = props.shot.build(props.context);
@@ -407,29 +383,6 @@ function resumePoses(
       ),
     },
   };
-}
-
-/** Report every blank registration id against its exact field. */
-function validateRegistration<Context>(
-  shot: IAutoMovieDefinedShot<Context>,
-): IAutoMovieAuthoringDiagnostic[] {
-  const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
-  for (const [path, value, label] of [
-    ["$shot.id", shot.id, "shot id"],
-    ["$shot.scene", shot.scene, "scene id"],
-    ["$shot.contract.beat", shot.contract.beat, "contract beat id"],
-  ] as const)
-    if (typeof value !== "string" || value.trim().length === 0)
-      diagnostics.push({
-        code: "registration-invalid",
-        phase: "registration",
-        path,
-        fact: `The ${label} is blank.`,
-        impact:
-          "The source export cannot receive a stable registered artifact address.",
-        recovery: `Give ${path} one non-blank stable id and keep it identical across source and design references.`,
-      });
-  return diagnostics;
 }
 
 /** Translate one gate's constraint violations into authoring diagnostics. */

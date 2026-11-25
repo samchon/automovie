@@ -13,28 +13,39 @@ import { armChainFault } from "../kinematics/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
-import { isRecord } from "../validation/isRecord";
-import { validateObjectArtifact } from "../validation/validateObjectArtifact";
-import { validateVectorArtifact } from "../validation/validateVectorArtifact";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
-import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
- * Gate the verb-specific fields of one non-`frame` action, and record the `launch` and `attachTo` jobs that pass.
+ * Gate the verb-specific fields of one non-`frame` action, and record the
+ * `launch` and `attachTo` jobs that pass.
  *
  * Per verb, at `<base>[i]`:
  *
- * - `locomote`: a gait the actor's own context lists, when gaits were supplied, and a non-relative destination that resolves at the action's start and leaves each staged actor horizontal travel, since a vertical-only move is not a walk.
- * - `launch`: a positive finite speed, an `onHit` force in `[0, 1]`, a staged projectile that is not one of the launching actors, an aim that resolves and is not the projectile itself; `onHit` needs a node or bone aim naming a staged scene node, because a point or group identifies no struck actor and a camera cannot perform the injected recoil.
- * - `enact`: a non-blank clip id, since an empty one can never resolve.
- * - `react`: a force in `[0, 1]` and a blow source that resolves, because the reference synthesizer otherwise snaps the body back as if struck from the front.
+ * - `locomote`: a gait the actor's own context lists, when gaits were supplied,
+ *   and a non-relative destination that resolves at the action's start and
+ *   leaves each staged actor horizontal travel, since a vertical-only move is
+ *   not a walk.
+ * - `launch`: a positive finite speed, an `onHit` force in `[0, 1]`, a staged
+ *   projectile that is not one of the launching actors, an aim that resolves
+ *   and is not the projectile itself; `onHit` needs a node or bone aim naming a
+ *   staged scene node, because a point or group identifies no struck actor and
+ *   a camera cannot perform the injected recoil.
+ * - `enact`: a nonblank authored clip id for the host to resolve.
+ * - `react`: a force in `[0, 1]` and a blow source that resolves, because the
+ *   reference synthesizer otherwise snaps the body back as if struck from the
+ *   front.
  * - `emote`: an intensity in `[0, 1]`.
- * - `lookAt` and `reach`: a target that resolves; `reach` also needs a rig whose elbow can bend the named arm.
- * - `point` and `strike` gestures: a right arm that can bend, because the reference synthesizer solves that arm, and an aim that resolves.
- * - `attachTo`: a child distinct from its rigged parent, a bone on that rig and, when supplied, an offset with a finite position and a unit rotation.
+ * - `lookAt` and `reach`: a target that resolves; `reach` also needs a rig whose
+ *   elbow can bend the named arm.
+ * - `point` and `strike` gestures: a right arm that can bend, because the
+ *   reference synthesizer solves that arm, and an aim that resolves.
+ * - `attachTo`: a child distinct from its rigged parent, a bone on that rig and,
+ *   when supplied, an offset with a finite position and a unit rotation.
  * - `hold`: nothing beyond the shared checks.
  *
- * An unbendable arm is refused here because the synthesizer answers such a verb with `null` and the builder skips a `null` clip, so the shot would otherwise succeed having performed nothing.
+ * An unbendable arm is refused here because the synthesizer answers such a verb
+ * with `null` and the builder skips a `null` clip, so the shot would otherwise
+ * succeed having performed nothing.
  *
  * @param context The shot's staged tables and collector.
  * @param plan The plan being built; passing launches and attachments join it.
@@ -67,8 +78,7 @@ export function gatePerformShotStageAction(
             );
         }
       const relative: boolean =
-        isRecord(action.to) &&
-        (action.to.kind === "direction" || action.to.kind === "offscreen");
+        action.to.kind === "direction" || action.to.kind === "offscreen";
       if (relative) return;
       const destination: IAutoMovieVector3 | null = resolvePerformShotTarget(
         context,
@@ -102,7 +112,7 @@ export function gatePerformShotStageAction(
       return;
     }
     case "launch": {
-      if (!Number.isFinite(action.speed) || !(action.speed > 0))
+      if (!(action.speed > 0))
         out.push(
           "range",
           `${path}.speed`,
@@ -111,8 +121,7 @@ export function gatePerformShotStageAction(
         );
       if (
         action.onHit !== undefined &&
-        (typeof action.onHit.force !== "number" ||
-          !(action.onHit.force >= 0 && action.onHit.force <= 1))
+        !(action.onHit.force >= 0 && action.onHit.force <= 1)
       )
         out.push(
           "range",
@@ -120,12 +129,6 @@ export function gatePerformShotStageAction(
           `reaction force must be within [0, 1], but was ${describeInvalidValue(action.onHit.force)}`,
           action.onHit.force,
         );
-      validatePerformShotId(
-        out,
-        action.projectile,
-        `${path}.projectile`,
-        "launch projectile id",
-      );
       const target: IAutoMovieVector3 | null = resolvePerformShotTarget(
         context,
         {
@@ -138,9 +141,7 @@ export function gatePerformShotStageAction(
         },
       );
       const aimNode: string | null =
-        isRecord(action.at) &&
-        (action.at.kind === "node" || action.at.kind === "bone") &&
-        typeof action.at.node === "string"
+        action.at.kind === "node" || action.at.kind === "bone"
           ? action.at.node
           : null;
       // A recoil needs an identified struck actor, never a guessed group member.
@@ -179,11 +180,7 @@ export function gatePerformShotStageAction(
           `a launch's projectile "${describeInvalidValue(action.projectile)}" cannot also be a launching actor`,
           action.projectile,
         );
-      if (
-        isRecord(action.at) &&
-        action.at.kind === "node" &&
-        action.at.node === action.projectile
-      )
+      if (action.at.kind === "node" && action.at.node === action.projectile)
         out.push(
           "type",
           `${path}.at`,
@@ -201,13 +198,10 @@ export function gatePerformShotStageAction(
       return;
     }
     case "enact":
-      validatePerformShotId(out, action.clip, `${path}.clip`, "enact clip id");
+      out.nonEmpty(`${path}.clip`, action.clip, "enact clip id");
       return;
     case "react":
-      if (
-        typeof action.force !== "number" ||
-        !(action.force >= 0 && action.force <= 1)
-      )
+      if (!(action.force >= 0 && action.force <= 1))
         out.push(
           "range",
           `${path}.force`,
@@ -224,10 +218,7 @@ export function gatePerformShotStageAction(
       });
       return;
     case "emote":
-      if (
-        typeof action.intensity !== "number" ||
-        !(action.intensity >= 0 && action.intensity <= 1)
-      )
+      if (!(action.intensity >= 0 && action.intensity <= 1))
         out.push(
           "range",
           `${path}.intensity`,
@@ -281,34 +272,11 @@ export function gatePerformShotStageAction(
       if (action.offset !== undefined) {
         const at: string = `${path}.offset`;
         const label: string = "attachment offset";
-        if (validateObjectArtifact(action.offset, at, label, out.items)) {
-          validateVectorArtifact(
-            action.offset.position,
-            `${at}.position`,
-            `${label} position`,
-            out.items,
-          );
-          const rotation: string = `${at}.rotation`;
-          if (
-            validateObjectArtifact(
-              action.offset.rotation,
-              rotation,
-              `${label} rotation`,
-              out.items,
-            )
-          ) {
-            const q: typeof action.offset.rotation = action.offset.rotation;
-            if ([q.x, q.y, q.z, q.w].every(Number.isFinite))
-              out.unitQuaternion(rotation, q, `${label} rotation`);
-            else
-              out.push(
-                "range",
-                rotation,
-                `${label} quaternion components must be finite numbers`,
-                q,
-              );
-          }
-        }
+        out.unitQuaternion(
+          `${at}.rotation`,
+          action.offset.rotation,
+          `${label} rotation`,
+        );
       }
       for (const child of actors)
         if (child === action.parent)
@@ -318,12 +286,6 @@ export function gatePerformShotStageAction(
             `an attachTo child "${describeInvalidValue(child)}" cannot attach to itself`,
             child,
           );
-      validatePerformShotId(
-        out,
-        action.parent,
-        `${path}.parent`,
-        "attach parent id",
-      );
       if (!context.nodeIds.has(action.parent)) {
         out.push(
           "type",

@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -36,10 +36,16 @@ interface IBound {
   /** The limb's channel. */
   limb: Limb;
 
-  /** The bone at its end: the hand or the foot, whose origin is the wrist or the ankle. */
+  /**
+   * The bone at its end: the hand or the foot, whose origin is the wrist or the
+   * ankle.
+   */
   end: AutoMovieHumanoidBone;
 
-  /** The bone at its middle joint: the forearm or the shin, whose origin is the elbow or the knee. */
+  /**
+   * The bone at its middle joint: the forearm or the shin, whose origin is the
+   * elbow or the knee.
+   */
   middle: AutoMovieHumanoidBone;
 }
 
@@ -51,7 +57,10 @@ interface IKept {
   /** The elbow or the knee. */
   bend: IAutoMovieVector3;
 
-  /** The hand's or the foot's rotation from its rest, so the bound hand keeps the turn it was bound in. */
+  /**
+   * The hand's or the foot's rotation from its rest, so the bound hand keeps
+   * the turn it was bound in.
+   */
   rotation: IAutoMovieQuaternion;
 }
 
@@ -71,26 +80,18 @@ const LIMBS: Readonly<Record<string, LimbKind>> = {
  * The bindings of a performance: each worn prop whose wear carries a link
  * (`IAutoMovieMotionPropWear.link`) holds the wearer's bound limbs where they
  * were when it went on, within the link's slack, until a later grip, wear or
- * mount takes the prop off. A binding is a layer on the wearer over that
- * span, so it comes in and goes out over an overlay's fade, and an action of
- * the wearer that grips or plants with a bound limb inside it is refused the
- * way any layer over a held limb is.
- *
+ * mount takes the prop off. A binding is a layer on the wearer over that span,
+ * so it comes in and goes out over an overlay's fade, and an action of the
+ * wearer that grips or plants with a bound limb inside it is refused the way
+ * any layer over a held limb is.
  */
 export namespace HumanPerformanceBonds {
   /**
    * Add a binding layer to each wearer for every linked wear placed.
    *
    * @param self The placed performance, its schedule resolved.
-   * @throws {HumanRefusal} When a link names both or neither end, has a bad slack, or binds a bone outside the limbs or two bones of one limb.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is added, its window and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The window is the worn span the prop's custody already closes at the next grip, wear or mount.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the placed wears and one layer per linked wear.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every malformed link is refused when the performance is built, never ignored.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the placed wears; the custody spans are read only for a linked prop.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Runs once per performance.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The layers live as long as the performance.
+   * @throws {HumanRefusal} When a link names both or neither end, has a bad
+   *   slack, or binds a bone outside the limbs or two bones of one limb.
    */
   export function attach(self: IAutoMovieMotionHumanPerformanceState): void {
     for (const person of self.people.values())
@@ -106,7 +107,7 @@ export namespace HumanPerformanceBonds {
             HumanPerformanceRead.person(self, wearer);
           const limbs: readonly IBound[] = admit(wearer, wear, wear.link);
           const span: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
-            HumanPerformanceGrips.of(self, wear.prop).find(
+            HumanPerformanceGrips(self, wear.prop).find(
               (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
                 g.subject === wearer &&
                 g.bone === wear.bone &&
@@ -156,7 +157,7 @@ function admit(
       `the binding of ${wear.prop} names ${link.bone === undefined ? "neither" : "both"} a second bone and a target`,
       "link the worn bone to exactly one other end",
     );
-  if (!(link.slack >= 0 && Number.isFinite(link.slack)))
+  if (!(link.slack >= 0))
     refuse(
       "slack",
       link.slack,
@@ -190,7 +191,10 @@ function admit(
   return [first, second];
 }
 
-/** The limb that carries a bone, with its end and middle bones; none for the trunk and the head. */
+/**
+ * The limb that carries a bone, with its end and middle bones; none for the
+ * trunk and the head.
+ */
 function limbOf(bone: AutoMovieHumanoidBone): IBound | undefined {
   const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
     ? "left"
@@ -209,13 +213,12 @@ function limbOf(bone: AutoMovieHumanoidBone): IBound | undefined {
 
 /**
  * The binding layer: each bound limb's end and middle joint as the wearer
- * showed them when the prop went on, read once. Two bound limbs are kept
- * in the frame of the bone they hang from (the chest for arms, whose
- * shoulders ride it, the hips for legs), so the bound pair travels and
- * turns with the body and the trunk's own turn in a walk carries it; a
- * limb bound to a target is kept at its offset from the target, so a tied
- * wrist stays at the chair's rail. Ends further apart than the slack are
- * drawn together to it.
+ * showed them when the prop went on, read once. Two bound limbs are kept in the
+ * frame of the bone they hang from (the chest for arms, whose shoulders ride
+ * it, the hips for legs), so the bound pair travels and turns with the body and
+ * the trunk's own turn in a walk carries it; a limb bound to a target is kept
+ * at its offset from the target, so a tied wrist stays at the chair's rail.
+ * Ends further apart than the slack are drawn together to it.
  */
 function layer(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -245,7 +248,7 @@ function layer(
     const pose: IAutoMoviePose = HumanPerformanceRead.pose(self, wearer, from);
     references = limbs.map(
       (l: IBound): IAutoMovieHumanLimbReference =>
-        resolveHumanPosture.reference(pose, l.limb),
+        HumanLimbFit.reference(pose, l.limb),
     );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanPerformanceRead.bones(

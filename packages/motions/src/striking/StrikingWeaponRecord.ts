@@ -1,13 +1,8 @@
 /**
  * The reader of the record a striking limb's capsule ends are read on: the
- * law's geometry as it stands built. A law builds its geometry again when
- * the performance settles or commits a stop, so the object returned changes
- * exactly when ends posed at a second may no longer hold; a caller keeps
- * what it posed only while two reads return the same object.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns, when that changes and how a caller uses it.
- * @evidence contracts/development/design.md#principled-representation Identity of the built geometry is the fact a kept reading depends on, so the reader returns that object and nothing derived from it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One call without arguments; the law that owns the geometry supplies it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No version number, flag or key stands in for the geometry: the comparison is by the object itself.
+ * law's geometry as it stands built. A law builds its geometry again when the
+ * performance settles or commits a stop, so the object returned changes exactly
+ * when ends posed at a second may no longer hold; a caller keeps what it posed
+ * only while two reads return the same object.
  */
 export type StrikingWeaponRecord = () => object;

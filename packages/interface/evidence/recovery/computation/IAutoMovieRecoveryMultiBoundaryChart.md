@@ -1,21 +1,3 @@
-# src/recovery/computation/IAutoMovieRecoveryMultiBoundaryChart.ts#IAutoMovieRecoveryMultiBoundaryChart
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Private physical positions in millimetres; returned positions include fan duplicates. Private oriented incidence; returned triangles address the cut disk vertices.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Private physical positions in millimetres; returned positions include fan duplicates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-RecoveryAtlasObservationChart, RecoveryFeatureChartPreparation, RecoveryMultiBoundaryChart share IAutoMovieRecoveryMultiBoundaryChart's canonical records; the referenced quantities retain one declaration owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Actual source edges selected by the private connecting cut forest.
-
 # src/recovery/computation/IAutoMovieRecoveryMultiBoundaryChart.ts#IAutoMovieRecoveryMultiBoundaryChart.Input
 
 ## @evidence contracts/development/common.md#meaningful-documentation

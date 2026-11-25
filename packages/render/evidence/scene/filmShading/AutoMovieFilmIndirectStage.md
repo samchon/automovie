@@ -20,7 +20,7 @@ States the steps of a draw, the no-shading path, what is restored, the per-frame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States its inputs, the refusal before drawing and that the beauty pass runs inside it.
+States its inputs and that the beauty pass runs inside it.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -28,7 +28,7 @@ A depth and view-space normal prepass at the beauty raster gives the horizon sea
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Admission, patching, the passes and the gated beauty call run in that order; the response stage remains the beauty pass.
+Patching, the passes and the gated beauty call run in that order; the response stage remains the beauty pass.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

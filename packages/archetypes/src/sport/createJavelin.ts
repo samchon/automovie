@@ -17,24 +17,21 @@ const RULE: string =
 /**
  * A competition javelin, the men's or the women's.
  *
- * It stands on its point at the origin, the shaft straight up along `+Y` to its tail. `grip` is the cord binding over the centre of gravity, where the throwing hand closes, taken from `-Z`; `point` the metal tip, its `+Y` running out of the javelin, which the throw leads with and the landing plants.
+ * It stands on its point at the origin, the shaft straight up along `+Y` to its
+ * tail. `grip` is the cord binding over the centre of gravity, where the
+ * throwing hand closes, taken from `-Z`; `point` the metal tip, its `+Y`
+ * running out of the javelin, which the throw leads with and the landing
+ * plants.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The javelin.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the javelin stands and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft of the drawn length and diameter in two lengths meeting at the drawn centre of gravity's distance from the point, their mass shares the ones that put the whole's centre of mass there, as the rule places it, and a cord rod a few millimetres thicker, as wide as the rule's cord, centred on it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the shaft's two lengths, the cord, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft is a cylinder, not tapered to the point and the tail, its mass shared between its two lengths only to place the rule's balance; the cord's thickness is a named estimate and its mass, unread, is not counted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createJavelin(
   params: createJavelin.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createJavelin.Affordance, createJavelin.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createJavelin.Dimension> =
     new AutoMovieArchetypeDrawSession<createJavelin.Dimension>(
@@ -114,14 +111,7 @@ export function createJavelin(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createJavelin}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The cord a hand takes and the point a throw leads with.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit; the cord's thickness is a named estimate.
- */
+/** Companion types, constants and bands of {@link createJavelin}. */
 export namespace createJavelin {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -129,10 +119,16 @@ export namespace createJavelin {
   /** Every category, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["men", "women"];
 
-  /** The cord's thickness over the shaft, metres: an estimate inside Technical Rule 38.8's 8 mm over the shaft's diameter. */
+  /**
+   * The cord's thickness over the shaft, metres: an estimate inside Technical
+   * Rule 38.8's 8 mm over the shaft's diameter.
+   */
   export const CORD: number = 0.003;
 
-  /** The cord's width along the shaft, metres, by category: the rule's 150 to 160 mm and 140 to 150 mm, their middles. */
+  /**
+   * The cord's width along the shaft, metres, by category: the rule's 150 to
+   * 160 mm and 140 to 150 mm, their middles.
+   */
   export const CORD_WIDTH: Readonly<Record<Kind, number>> = {
     men: 0.155,
     women: 0.145,
@@ -166,7 +162,10 @@ export namespace createJavelin {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

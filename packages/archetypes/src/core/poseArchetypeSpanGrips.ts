@@ -15,8 +15,11 @@ import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
  * @param spans Declared current spans, with overhang marking their held ends.
  * @param states The corresponding already computed endpoints.
  * @param affordances Current independent contact records before line alignment.
- * @returns Changed held frames and unchanged other contacts, without input mutation.
- * @throws {AutoMovieArchetypeRefusal} For incompatible shared axes, non-rigid held frames or a rein whose complete held run does not fit its physical line.
+ * @returns Changed held frames and unchanged other contacts, without input
+ *   mutation.
+ * @throws {AutoMovieArchetypeRefusal} For incompatible shared axes, non-rigid
+ *   held frames or a rein whose complete held run does not fit its physical
+ *   line.
  */
 export function poseArchetypeSpanGrips(
   archetype: string,
@@ -75,7 +78,7 @@ export function poseArchetypeSpanGrips(
             current.length,
           );
         if (
-          !(Number.isFinite(held) && held > 0) ||
+          !(held > 0) ||
           before < held / 2 - roundoff ||
           after < held / 2 - roundoff
         )
@@ -97,7 +100,7 @@ export function poseArchetypeSpanGrips(
         contact.frame.rotation;
       const norm: number = Math.hypot(q.x, q.y, q.z, q.w);
       if (
-        !(Number.isFinite(norm) && Math.abs(norm - 1) <= 64 * Number.EPSILON) ||
+        !(Math.abs(norm - 1) <= 64 * Number.EPSILON) ||
         ![
           contact.frame.scale.x,
           contact.frame.scale.y,
@@ -128,7 +131,10 @@ export function poseArchetypeSpanGrips(
     },
   );
 
-  /** The original request identifies an unsupported physical held-line condition. */
+  /**
+   * The original request identifies an unsupported physical held-line
+   * condition.
+   */
   function refuse(id: string, value: unknown, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

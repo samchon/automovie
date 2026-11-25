@@ -7,8 +7,7 @@ import type { IAutoMovieHumanSurfaceAppendage } from "./IAutoMovieHumanSurfaceAp
 import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
 import type { IAutoMovieHumanSurfacePole } from "./IAutoMovieHumanSurfacePole";
 
-/** Mutable buffers and shared boundary ownership for one body generation.
- */
+/** Mutable buffers and shared boundary ownership for one body generation. */
 export interface IAutoMovieHumanSurfaceContext {
   /** Skin buffers shared by all chains, in calibration millimetres. */
   mesh: IAutoMovieHumanLoftMesh.IContext;
@@ -25,9 +24,9 @@ export interface IAutoMovieHumanSurfaceContext {
   /** Opening outlines and seated eyelids prepared once for this generation. */
   apertures: IAutoMovieHumanBodyApertures.IPrepared[];
   /**
-   * World boxes `[min, max]` in mm where a chain's stations are refined to
-   * the aperture spacing, for colour boundaries drawn on the skin such as
-   * the lips; empty when none.
+   * World boxes `[min, max]` in mm where a chain's stations are refined to the
+   * aperture spacing, for colour boundaries drawn on the skin such as the lips;
+   * empty when none.
    */
   details: [[number, number, number], [number, number, number]][];
   /** Original calibration index of each chain. */
@@ -58,7 +57,10 @@ export interface IAutoMovieHumanSurfaceContext {
       appendage?: IAutoMovieHumanSurfaceAppendage;
       /** Prepared aperture and its host-surface boundary ownership. */
       opening?: IAutoMovieHumanBodyApertures.IPrepared;
-      /** Ordered aperture boundary in the host's station/phase chart: millimetres and radians. */
+      /**
+       * Ordered aperture boundary in the host's station/phase chart:
+       * millimetres and radians.
+       */
       loop: [number, number][];
       /**
        * For an opening whose trim spans two chains, the key of the one hole
@@ -71,25 +73,37 @@ export interface IAutoMovieHumanSurfaceContext {
   ends: Map<
     string,
     {
-      /** Emitted vertex indices of this appendage chain's root end ring, in the order of its corresponding phase samples. */
+      /**
+       * Emitted vertex indices of this appendage chain's root end ring, in the
+       * order of its corresponding phase samples.
+       */
       ring: number[];
-      /** Corresponding section phases in radians, retained as a borrowed readonly sequence. */
+      /**
+       * Corresponding section phases in radians, retained as a borrowed
+       * readonly sequence.
+       */
       phases: readonly number[];
     }
   >;
   /**
-   * Cells a base left out inside its root loops, by base chain name, or by
-   * the span key of an opening whose trim spans two chains: each cell's
-   * corner vertices in ring order, and every corner's chart point and chain.
+   * Cells a base left out inside its root loops, by base chain name, or by the
+   * span key of an opening whose trim spans two chains: each cell's corner
+   * vertices in ring order, and every corner's chart point and chain.
    */
   holes: Map<
     string,
     {
-      /** Left-out cells: a band's quads and a zipper's triangles, corners in ring order. */
+      /**
+       * Left-out cells: a band's quads and a zipper's triangles, corners in
+       * ring order.
+       */
       cells: number[][];
       /** Every corner's chart point on its own chain. */
       charts: Map<number, [number, number]>;
-      /** Every corner's chain, which a hole spanning two chains needs to read its charts. */
+      /**
+       * Every corner's chain, which a hole spanning two chains needs to read
+       * its charts.
+       */
       owners: Map<number, string>;
     }
   >;

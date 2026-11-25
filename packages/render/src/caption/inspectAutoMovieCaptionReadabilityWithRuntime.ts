@@ -17,13 +17,13 @@ import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaption
  * and judge each cue against its language's profile.
  *
  * The grapheme runtime is injected because the host owns it: production binds
- * Node's installed `Intl.Segmenter` and reports that exact identity. Each cue is
- * measured on its canonical presentation: graphemes, lines, the longest line,
- * duration, the gap since the previous cue of the same language identity in
- * track order, and graphemes per second at `timeline.fps`. A cue whose language
- * has no profile, or whose profile names a segmentation identity other than the
- * runtime's, keeps its measurement with a `not-run` outcome instead of a
- * verdict. Profiles are matched by ASCII case-insensitive language identity;
+ * Node's installed `Intl.Segmenter` and reports that exact identity. Each cue
+ * is measured on its canonical presentation: graphemes, lines, the longest
+ * line, duration, the gap since the previous cue of the same language identity
+ * in track order, and graphemes per second at `timeline.fps`. A cue whose
+ * language has no profile, or whose profile names a segmentation identity other
+ * than the runtime's, keeps its measurement with a `not-run` outcome instead of
+ * a verdict. Profiles are matched by ASCII case-insensitive language identity;
  * design validation refuses two profiles for one identity, so none is shadowed.
  * The track must be in start order with positive durations, as film assembly
  * guarantees; a zero-length cue would report an infinite rate.

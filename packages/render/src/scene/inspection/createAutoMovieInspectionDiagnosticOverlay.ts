@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionDiagnosticOverlay } from "./IAutoMovieInspectionDiagnosticOverlay.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import type { IRenderAutoMovieInspectionDiagnosticsProps } from "./IRenderAutoMovieInspectionDiagnosticsProps.js";
@@ -58,11 +59,11 @@ interface IKept {
  * Each picture draws a translucent red wire cube at every confirmed error's
  * measured point and an amber one at every possible error's, in world space,
  * through the existing stroke renderer. Findings with interval-only or
- * other-time evidence remain in the report for review at their own time.
- * While the number of cubes, their colours and the stroke stay the same, the
- * cubes are moved by rewriting their vertices in place; otherwise they are
- * built again and the previous ones released. The overlay is attached to the
- * scene only for the caller's render, including when it throws.
+ * other-time evidence remain in the report for review at their own time. While
+ * the number of cubes, their colours and the stroke stay the same, the cubes
+ * are moved by rewriting their vertices in place; otherwise they are built
+ * again and the previous ones released. The overlay is attached to the scene
+ * only for the caller's render, including when it throws.
  *
  * @returns The overlay; dispose it when the pictures end.
  */
@@ -100,8 +101,9 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
             xray: true,
           });
         for (const child of overlay.object.children)
-          if (child instanceof THREE.Mesh && !Array.isArray(child.material))
-            child.material.opacity = 0.78;
+          if (AutoMovieThreeKind.isMesh(child))
+            for (const material of [child.material].flat())
+              material.opacity = 0.78;
         kept = { overlay, marks, signature, width: 0, height: 0 };
       } else
         witnesses.forEach(
@@ -133,7 +135,10 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
   };
 }
 
-/** The located error witnesses of the sample's own time, in finding order, with their colours. */
+/**
+ * The located error witnesses of the sample's own time, in finding order, with
+ * their colours.
+ */
 function select(
   diagnostics: IAutoMovieInspectionDiagnostics | undefined,
 ): { point: IAutoMovieVector3; color: number }[] {
@@ -144,9 +149,6 @@ function select(
     if (
       finding.category !== "error" ||
       point === undefined ||
-      !Number.isFinite(point.x) ||
-      !Number.isFinite(point.y) ||
-      !Number.isFinite(point.z) ||
       (time !== undefined && time.filmSeconds !== diagnostics.time.filmSeconds)
     )
       continue;
@@ -200,7 +202,7 @@ function cube(
 /** Rewrite a cube's segment coordinates in place around a new centre. */
 function place(mark: IAutoMovieMark, centre: IAutoMovieVector3): void {
   if (mark.shape.type !== "segments") return;
-  const points: number[] = mark.shape.points as number[];
+  const points: number[] = mark.shape.points;
   EDGES.forEach(
     (
       [ax, ay, az, bx, by, bz]: readonly [

@@ -9,21 +9,24 @@ import {
 } from "../core";
 
 /**
- * A load drawn along the ground by a horse's traces rather than rolled on wheels: a walking mouldboard plough, a harrow, a chained log or a sledge on runners.
+ * A load drawn along the ground by a horse's traces rather than rolled on
+ * wheels: a walking mouldboard plough, a harrow, a chained log or a sledge on
+ * runners.
  *
- * The load stands with its front toward `+Z` and its ground contact on `Y=0`: the plough's share and landside, the harrow's tines, the log's underside, the sledge's runners. Its `coupling` is the clevis, chain ring or bar its whippletree is hooked to, at the front on the centreline. A plough carries two `leftHandle` and `rightHandle` grips behind it, `+X` the ploughman's left, and its `share`, the share's point at the furrow bottom, the frame a working depth is read at; a sledge carries a `bed` it is loaded on. The dimensions are construction estimates, `SIZES`, one set per kind; no maker's drawing was read, so each is provisional, and the author may fix any of them.
+ * The load stands with its front toward `+Z` and its ground contact on `Y=0`:
+ * the plough's share and landside, the harrow's tines, the log's underside, the
+ * sledge's runners. Its `coupling` is the clevis, chain ring or bar its
+ * whippletree is hooked to, at the front on the centreline. A plough carries
+ * two `leftHandle` and `rightHandle` grips behind it, `+X` the ploughman's
+ * left, and its `share`, the share's point at the furrow bottom, the frame a
+ * working depth is read at; a sledge carries a `bed` it is loaded on. The
+ * dimensions are construction estimates, `SIZES`, one set per kind; no maker's
+ * drawing was read, so each is provisional, and the author may fix any of
+ * them.
  *
  * @param params The kind, any dimension the author fixes, and the load's mass.
  * @returns The load at rest.
  * @throws {AutoMovieArchetypeRefusal} For a nonpositive dimension or mass.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, its contacts and that its sizes are estimates.
- * @evidence contracts/development/implementation.md#principled-implementation Each kind is laid from bars and boxes on the ground plane with its contacts on the parts that bear them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the sizes, then one builder per kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unread sizes are named estimates the author can override; a nonpositive one refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms A dozen parts at most.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDragged(
   params: createDragged.IParams,
@@ -37,12 +40,10 @@ export function createDragged(
       createDragged.UNITS,
       undefined,
     );
-  for (const key of Object.keys(
-    createDragged.UNITS,
-  ) as createDragged.Dimension[]) {
+  for (const key of createDragged.DIMENSIONS) {
     const value: number = params[key] ?? d[key];
     d[key] = value;
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "dragged",
@@ -166,19 +167,15 @@ export function createDragged(
   return builder.build(d.mass);
 }
 
-/**
- * Types and construction sizes of {@link createDragged}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, contact, dimension and size states what it is and that sizes are estimates.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds, contacts and dimensions, and metre and kilogram sizes per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a dragged ride and a ploughman read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No size claims a source.
- */
+/** Types and construction sizes of {@link createDragged}. */
 export namespace createDragged {
   /** The kinds of ground-drawn load. */
   export type Kind = "plough" | "harrow" | "log" | "sledge";
 
-  /** The contacts: `coupling` at the front, a plough's `leftHandle`, `rightHandle` and `share`, a sledge's `bed`. */
+  /**
+   * The contacts: `coupling` at the front, a plough's `leftHandle`,
+   * `rightHandle` and `share`, a sledge's `bed`.
+   */
   export type Affordance =
     | "coupling"
     | "leftHandle"
@@ -186,7 +183,12 @@ export namespace createDragged {
     | "share"
     | "bed";
 
-  /** The dimensions, metres unless stated: `length` along the load, `width` across it (a log's diameter, a plough's share width), `height` of the coupling or the frame, a plough's `handleHeight` and `handleSpread`, and `mass` in kilograms. */
+  /**
+   * The dimensions, metres unless stated: `length` along the load, `width`
+   * across it (a log's diameter, a plough's share width), `height` of the
+   * coupling or the frame, a plough's `handleHeight` and `handleSpread`, and
+   * `mass` in kilograms.
+   */
   export type Dimension =
     | "length"
     | "width"
@@ -194,6 +196,16 @@ export namespace createDragged {
     | "handleHeight"
     | "handleSpread"
     | "mass";
+
+  /** Every dimension, in declaration order. */
+  export const DIMENSIONS: readonly Dimension[] = [
+    "length",
+    "width",
+    "height",
+    "handleHeight",
+    "handleSpread",
+    "mass",
+  ];
 
   /** The parameters: the kind and any dimension fixed. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -215,7 +227,12 @@ export namespace createDragged {
     mass: "kg",
   };
 
-  /** Construction estimates per kind, none read from a maker: a walking plough about 2.4 m over its handles with a 0.25 m share and 1.15 m high grips 0.45 m apart, about a walker's waist when the share is in the ground; a 1.2 by 1.5 m harrow; a 4 m log 0.4 m through; a 2 m by 0.9 m sledge. */
+  /**
+   * Construction estimates per kind, none read from a maker: a walking plough
+   * about 2.4 m over its handles with a 0.25 m share and 1.15 m high grips 0.45
+   * m apart, about a walker's waist when the share is in the ground; a 1.2 by
+   * 1.5 m harrow; a 4 m log 0.4 m through; a 2 m by 0.9 m sledge.
+   */
   export const SIZES: Readonly<
     Record<Kind, Readonly<Record<Dimension, number>>>
   > = {

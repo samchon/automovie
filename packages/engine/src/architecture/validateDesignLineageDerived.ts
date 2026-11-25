@@ -17,16 +17,16 @@ import { validateDeclaredReferences } from "../validation/validateDeclaredRefere
  * Validate the derived artifacts of one design lineage: their identity, their
  * freshness, and the fairness of every comparison they take part in.
  *
- * Each artifact needs a unique non-blank id that is not a subject's, a
+ * Each artifact needs a unique id that is not a subject's, a
  * non-blank kind, at least one input naming a subject or another artifact once,
  * and lowercase `sha256:` digests for its bytes and its configuration. It is
  * stale, and refused, when its stamp names a revision other than `head`, an
  * unknown variant, a variant based on another revision, or an unknown phase;
  * when an input artifact was stamped differently; when it reads an input
- * subject carrying imported bytes without citing exactly that subject's
- * current digest once; or when it cites bytes of a subject that is not such an
- * input. The input graph must be acyclic. Within one decision, two artifacts
- * of the same kind stamped with that decision's alternatives must share a
+ * subject carrying imported bytes without citing exactly that subject's current
+ * digest once; or when it cites bytes of a subject that is not such an input.
+ * The input graph must be acyclic. Within one decision, two artifacts of the
+ * same kind stamped with that decision's alternatives must share a
  * configuration and a phase, because a comparison shot under two cameras
  * compares the cameras.
  *

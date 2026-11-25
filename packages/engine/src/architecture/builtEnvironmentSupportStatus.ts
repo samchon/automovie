@@ -22,9 +22,7 @@ import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "./constants/AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/**
- * A resolved support: the face it bears on and how that face was derived.
- */
+/** A resolved support: the face it bears on and how that face was derived. */
 interface IResolvedSupport {
   /** Polygon and height rule sampled by the gap query. */
   face: IAutoMoviePropSupportFace;
@@ -36,18 +34,42 @@ interface IResolvedSupport {
 /**
  * Classify one project-authored bearing or suspension relation.
  *
- * Bearing delegates to the prop placement kernel's two-sided footprint probes, so a small plinth under a wide member and a small member on a wide slab are the same measurement rather than two near-copies. A suspension is accepted only after both named sides resolve. The query is a deterministic visual placement check, not a structural load or safety analysis.
+ * Bearing delegates to the prop placement kernel's two-sided footprint probes,
+ * so a small plinth under a wide member and a small member on a wide slab are
+ * the same measurement rather than two near-copies. A suspension is accepted
+ * only after both named sides resolve. The query is a deterministic visual
+ * placement check, not a structural load or safety analysis.
  *
- * A negative or non-finite tolerance throws a `RangeError` rather than resolving to a default, because it does not narrow or widen what "touching" means, it withdraws the meaning: every distance would be outside a negative band, so the answer would be a confident `floating` or `sunk` for a member that rests exactly. An omitted tolerance is `AUTOMOVIE_SUPPORT_TOLERANCE`, `1e-9` metres.
+ * A negative or non-finite tolerance throws a `RangeError` rather than
+ * resolving to a default, because it does not narrow or widen what "touching"
+ * means, it withdraws the meaning: every distance would be outside a negative
+ * band, so the answer would be a confident `floating` or `sunk` for a member
+ * that rests exactly. An omitted tolerance is `AUTOMOVIE_SUPPORT_TOLERANCE`,
+ * `1e-9` metres.
  *
- * Both bases travel with the verdict. A subject the record carries no vertices for is probed as its stated origin, so its gap is measured from that point rather than from an underside nobody declared, and `element-origin-point` is how the caller reads a `floating` answer as "the origin sits this high" instead of "this member hangs in the air".
+ * Both bases travel with the verdict. A subject the record carries no vertices
+ * for is probed as its stated origin, so its gap is measured from that point
+ * rather than from an underside nobody declared, and `element-origin-point` is
+ * how the caller reads a `floating` answer as "the origin sits this high"
+ * instead of "this member hangs in the air".
  *
- * A support surface bears on its footprint polygon and height rule, and one whose footprint encloses no area does not resolve. A support body bears on the top of the drawn part nearest the subject's underside among the parts its footprint covers; a subject over none of the parts is measured against one of them, which answers `not-over-support`, because the body's union box would claim the subject stands over a notch or the air beside a shelf. `gap` is the signed metre distance from that face to the subject's underside, null when unresolved, suspended, or not over the support, and `unresolved` names each side that did not resolve.
+ * A support surface bears on its footprint polygon and height rule, and one
+ * whose footprint encloses no area does not resolve. A support body bears on
+ * the top of the drawn part nearest the subject's underside among the parts its
+ * footprint covers; a subject over none of the parts is measured against one of
+ * them, which answers `not-over-support`, because the body's union box would
+ * claim the subject stands over a notch or the air beside a shelf. `gap` is the
+ * signed metre distance from that face to the subject's underside, null when
+ * unresolved, suspended, or not over the support, and `unresolved` names each
+ * side that did not resolve.
  *
- * The delegated gap uses finite footprint and ring-corner probes. Thin overlaps or deeper relief between probes can be missed; box proxies and a resting verdict do not certify continuous mesh contact.
+ * The delegated gap uses finite footprint and ring-corner probes. Thin overlaps
+ * or deeper relief between probes can be missed; box proxies and a resting
+ * verdict do not certify continuous mesh contact.
  *
  * @param props.environment Building record holding both sides.
- * @param props.query The subject, the claimed support, the relation kind and an optional tolerance.
+ * @param props.query The subject, the claimed support, the relation kind and an
+ *   optional tolerance.
  * @returns The verdict, the signed gap, the unresolved sides and both bases.
  */
 export const builtEnvironmentSupportStatus: (
@@ -57,7 +79,7 @@ export const builtEnvironmentSupportStatus: (
 ): IAutoMovieBuiltSupportResult => {
   const tolerance: number =
     props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new RangeError(
       `building support tolerance must be finite and non-negative, but was ${String(tolerance)}`,
     );
@@ -113,7 +135,11 @@ export const builtEnvironmentSupportStatus: (
 /**
  * The face a support bears on, or null when it does not resolve.
  *
- * A support's union box puts the bearing face at the highest point of the whole body, which for a shelf is the back panel rather than the board an object rests on, so a correctly seated object would read as floating by the height of a part it is nowhere near. The face is therefore the top of the part {@link bearingSolid} picks.
+ * A support's union box puts the bearing face at the highest point of the whole
+ * body, which for a shelf is the back panel rather than the board an object
+ * rests on, so a correctly seated object would read as floating by the height
+ * of a part it is nowhere near. The face is therefore the top of the part
+ * {@link bearingSolid} picks.
  */
 const resolveSupport: (
   environment: IAutoMovieBuiltEnvironment,
@@ -165,9 +191,15 @@ const resolveSupport: (
 /**
  * The solid a subject bears on, chosen from the solids it stands over.
  *
- * Nearest underside rather than highest: a subject resting on a low board and a subject sunk into a high one are different answers, and choosing the highest part would report the first as floating by the height of the second.
+ * Nearest underside rather than highest: a subject resting on a low board and a
+ * subject sunk into a high one are different answers, and choosing the highest
+ * part would report the first as floating by the height of the second.
  *
- * A subject over none of the solids gets the first of them rather than the union. It is over no part, so any part answers `not-over-support`, which is the truth; the union would have said it stands over the body, and a notch in an L-shaped body is exactly where that reappears. A single-solid body, and a subject that did not resolve, yield the body's own box.
+ * A subject over none of the solids gets the first of them rather than the
+ * union. It is over no part, so any part answers `not-over-support`, which is
+ * the truth; the union would have said it stands over the body, and a notch in
+ * an L-shaped body is exactly where that reappears. A single-solid body, and a
+ * subject that did not resolve, yield the body's own box.
  */
 const bearingSolid: (
   body: IAutoMovieBuiltPlacementBody,

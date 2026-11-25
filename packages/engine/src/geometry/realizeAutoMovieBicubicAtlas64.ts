@@ -10,40 +10,31 @@ import { admitAutoMovieBicubicAtlas } from "./admitAutoMovieBicubicAtlas";
 import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMovieBicubicAtlas64";
 
 /**
- * Realize the public metre-valued bicubic recipe through its owning engine.
- * The polynomial kernel receives millimetres once and returns model metres.
- * Complete prior chunks survive a declared output budget; no source mesh is read.
- * Shared physical identities and actual global indices remain unchanged.
+ * Realize the public metre-valued bicubic recipe through its owning engine. The
+ * polynomial kernel receives millimetres once and returns model metres.
+ * Complete prior chunks survive a declared output budget; no source mesh is
+ * read. Shared physical identities and actual global indices remain unchanged.
  * complete describes the retained patch domain, while approximationQualified
  * separately states whether the requested field-to-triangle estimate was met.
- * Retained coarse cells can preserve a complete domain with approximation false;
- * source-fit and normal qualifications remain independent of both fields.
- * After streaming ends, unreferenced render vertices left by a local omission
- * are compacted out. Triangle ordinals and physical domain/ID pairs remain the
- * same; only the returned render indices and source-table slots are remapped.
- * Requested triangle parameters retain actual chart coordinates per corner,
- * aligned with triangle ordinals and primitiveRanges, through that compaction.
- * A shared render vertex can have different incident chart coordinates; these
- * records are not per-vertex UV0, skin weights or semantic surface addresses.
- * Optional patch coefficients are the actual post-binding kernel grids in mm,
- * filtered to patches with retained triangles. They let construction consume
- * that same field instead of re-evaluating a pre-binding recipe. Omitted/false
- * retains no coefficient snapshots; invalid retention flags reject before work.
+ * Retained coarse cells can preserve a complete domain with approximation
+ * false; source-fit and normal qualifications remain independent of both
+ * fields. After streaming ends, unreferenced render vertices left by a local
+ * omission are compacted out. Triangle ordinals and physical domain/ID pairs
+ * remain the same; only the returned render indices and source-table slots are
+ * remapped. Requested triangle parameters retain actual chart coordinates per
+ * corner, aligned with triangle ordinals and primitiveRanges, through that
+ * compaction. A shared render vertex can have different incident chart
+ * coordinates; these records are not per-vertex UV0, skin weights or semantic
+ * surface addresses. Optional patch coefficients are the actual post-binding
+ * kernel grids in mm, filtered to patches with retained triangles. They let
+ * construction consume that same field instead of re-evaluating a pre-binding
+ * recipe. Omitted/false retains no coefficient snapshots; invalid retention
+ * flags reject before work.
  */
 export function realizeAutoMovieBicubicAtlas64(
   input: IAutoMovieBicubicAtlasGeometry,
   options: IAutoMovieRealizeBicubicAtlas64.IOptions = {},
 ): IAutoMovieRealizeBicubicAtlas64.IResult {
-  if (
-    options.retainTriangleParameters !== undefined &&
-    typeof options.retainTriangleParameters !== "boolean"
-  )
-    throw new Error("Triangle parameter retention must be boolean");
-  if (
-    options.retainPatchCoefficients !== undefined &&
-    typeof options.retainPatchCoefficients !== "boolean"
-  )
-    throw new Error("Patch coefficient retention must be boolean");
   let patchCoefficients: IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"] =
     options.retainPatchCoefficients ? [] : undefined;
   const admitted: IAutoMovieAdmitBicubicAtlas.IResult =
@@ -166,9 +157,7 @@ export function realizeAutoMovieBicubicAtlas64(
           chunk.triangleParameters?.length !== chunk.indices.length * 2) ||
         chunk.indices.some(
           (index: number): boolean =>
-            !Number.isSafeInteger(index) ||
-            index < 0 ||
-            index >= vertexCount + chunk.positions.length / 3,
+            index < 0 || index >= vertexCount + chunk.positions.length / 3,
         )
       )
         throw new Error(

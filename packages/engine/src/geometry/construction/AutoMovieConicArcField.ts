@@ -17,20 +17,14 @@ interface Basis<T> {
   /** Shared positive rational denominator. */ denominator: T;
 }
 
-/**
- * Shared rational-quadratic algebra and fixed-clock source readings.
- */
+/** Shared rational-quadratic algebra and fixed-clock source readings. */
 export namespace AutoMovieConicArcField {
-  /**
-   * The original dimensionless shoulder-to-weight map.
-   */
+  /** The original dimensionless shoulder-to-weight map. */
   export function weight<T>(ops: IAutoMovieAlgebra<T>, r: T): T {
     return ops.divide(r, ops.subtract(ops.constant(1), r));
   }
 
-  /**
-   * Original endpoint geometric curvature, inverse source length.
-   */
+  /** Original endpoint geometric curvature, inverse source length. */
   export function curvature<T>(ops: IAutoMovieAlgebra<T>, a: T, b: T, r: T): T {
     const w: T = weight(ops, r);
     const divisor: T = ops.multiply(
@@ -40,9 +34,7 @@ export namespace AutoMovieConicArcField {
     return ops.divide(a, divisor);
   }
 
-  /**
-   * Regular Euclidean norm with a frozen numerical scaling gauge.
-   */
+  /** Regular Euclidean norm with a frozen numerical scaling gauge. */
   export function norm<T>(ops: IAutoMovieAlgebra<T>, a: T, b: T): T {
     const scale: number = Math.max(
       Math.abs(ops.value(a)),
@@ -57,9 +49,7 @@ export namespace AutoMovieConicArcField {
     );
   }
 
-  /**
-   * Positive magnitudes of the quadratic's native velocity.
-   */
+  /** Positive magnitudes of the quadratic's native velocity. */
   export function velocity<T>(
     ops: IAutoMovieAlgebra<T>,
     a: T,
@@ -101,7 +91,8 @@ export namespace AutoMovieConicArcField {
   }
 
   /**
-   * Original rational point and unit tangent at an algebra-valued native parameter.
+   * Original rational point and unit tangent at an algebra-valued native
+   * parameter.
    */
   export function evaluate<T>(
     ops: IAutoMovieAlgebra<T>,
@@ -122,9 +113,7 @@ export namespace AutoMovieConicArcField {
     };
   }
 
-  /**
-   * Original Cartesian point without preparing velocity or a unit tangent.
-   */
+  /** Original Cartesian point without preparing velocity or a unit tangent. */
   export function point<T>(
     ops: IAutoMovieAlgebra<T>,
     a: T,
@@ -178,9 +167,7 @@ export namespace AutoMovieConicArcField {
     ];
   }
 
-  /**
-   * Reflect a selected end back to its original quarter chart.
-   */
+  /** Reflect a selected end back to its original quarter chart. */
   export function orient<T>(
     ops: IAutoMovieAlgebra<T>,
     geometry: IAutoMovieConicArcField.IGeometry<T>,
@@ -196,27 +183,11 @@ export namespace AutoMovieConicArcField {
     };
   }
 
-  /**
-   * Admit and copy exactly the required source derivative orders.
-   */
+  /** Admit and copy exactly the required source derivative orders. */
   export function finish(
     geometry: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet>,
     ray: IAutoMovieConicArc.IRay,
   ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
-    const required: number[] = [
-      ...geometry.point[0],
-      ...geometry.point[1],
-      ...geometry.tangent[0].slice(0, 3),
-      ...geometry.tangent[1].slice(0, 3),
-      ...ray.radial,
-      ray.logCurvature,
-    ];
-    if (!required.every(Number.isFinite))
-      return {
-        kind: "failure",
-        detail:
-          "The selected conic has no finite required point2/tangent1 source reading.",
-      };
 
     return {
       kind: "reading",
@@ -238,9 +209,7 @@ export namespace AutoMovieConicArcField {
     };
   }
 
-  /**
-   * Read quadratic source partials only at the already selected numeric clock.
-   */
+  /** Read quadratic source partials only at the already selected numeric clock. */
   export function read(
     extents: readonly [
       IAutoMovieConicFieldJet.IJet,
@@ -251,19 +220,17 @@ export namespace AutoMovieConicArcField {
   ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
     if (
       ray.native === null ||
-      !Number.isFinite(ray.native) ||
       !(
         extents[0][0] > 0 &&
         extents[1][0] > 0 &&
         shoulder[0] > 0 &&
         shoulder[0] < 1
-      ) ||
-      ![...extents[0], ...extents[1], ...shoulder].every(Number.isFinite)
+      )
     )
       return {
         kind: "failure",
         detail:
-          "Raw conic reading requires finite supplied source jets and a selected native clock.",
+          "Raw conic reading requires supplied source jets and a selected native clock.",
       };
 
     const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> =

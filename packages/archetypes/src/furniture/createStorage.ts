@@ -8,32 +8,23 @@ import { STORAGE_BANDS } from "./STORAGE_BANDS";
 import { createBookcase } from "./createBookcase";
 import { createDrawerUnit } from "./createDrawerUnit";
 import { createHingedCabinet } from "./createHingedCabinet";
-
-/** A saved storage recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createStorage.IParams,
-  seed?: number | string,
-) => AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension>;
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
- * Replay a saved storage variant with the original dimensions, identifier and model choices.
+ * Replay a saved storage variant with the original dimensions, identifier and
+ * model choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved storage variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the storage draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createStorage(
   params: createStorage.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension> {
   const kind: createStorage.Kind = ArchetypeDraw.choice(
     "storage",
@@ -43,18 +34,27 @@ export function createStorage(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createStorage.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createStorage.Kind,
+      IArchetypeDispatch<
+        Omit<createStorage.IParams, "kind">,
+        AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension>
+      >
+    >
+  > = {
+    wardrobe: { build: createHingedCabinet },
+    chest: { build: createDrawerUnit },
+    filingCabinet: { build: createDrawerUnit },
+    locker: { build: createHingedCabinet },
+    bookcase: { build: createBookcase },
+  };
+  return variants[kind].build(params, seed);
 }
 
-/**
- * Companion types and bands of {@link createStorage}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read models among them, and one cited band per remaining dimension per kind; drawers, pulls and shelves are numbered from the bottom.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The pulls' heights and the travel an opening act reads, the face a push meets, and the shelves things are set on (#3370, #3371, #3468 N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances and neither frame is bent to serve both.
- */
+/** Companion types and bands of {@link createStorage}. */
 export namespace createStorage {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -117,10 +117,12 @@ export namespace createStorage {
    * - `top`: the upper face.
    * - `leftDoor`, `rightDoor`: a wardrobe's door hinges on `+X` and `-X`.
    * - `leftPull`, `rightPull`: the doors' pulls, each riding its hinge.
-   * - `drawer1` upward: a chest's or a filing cabinet's drawers from the bottom, each a slider running out along `+Z`.
+   * - `drawer1` upward: a chest's or a filing cabinet's drawers from the bottom,
+   *   each a slider running out along `+Z`.
    * - `pull1` upward: a chest's drawer pulls, each riding its slider.
    * - `door`: a locker's door hinge on its `-X` edge.
-   * - `shelf1` upward: a bookcase's shelves from the bottom, each a `stack-top`; a locker's hat shelf, `shelf1`.
+   * - `shelf1` upward: a bookcase's shelves from the bottom, each a `stack-top`;
+   *   a locker's hat shelf, `shelf1`.
    */
   export type Affordance =
     | "push"
@@ -137,7 +139,8 @@ export namespace createStorage {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`, `height`, `depth`: the cabinet along `+X`, `+Y` and `+Z`; a locker's height is its body's, above its legs.
+   * - `width`, `height`, `depth`: the cabinet along `+X`, `+Y` and `+Z`; a
+   *   locker's height is its body's, above its legs.
    * - `pullHeight`: a wardrobe's door pulls above the floor.
    * - `swing`: how far a wardrobe door opens, degrees.
    * - `travel`: how far a drawer slides out.
@@ -168,7 +171,10 @@ export namespace createStorage {
     mass: "kg",
   };
 
-  /** The read models: Blum's CLIP top hinges, Accuride's 3832E slides and Lyon's 72 in single tier lockers by width by depth. */
+  /**
+   * The read models: Blum's CLIP top hinges, Accuride's 3832E slides and Lyon's
+   * 72 in single tier lockers by width by depth.
+   */
   export type Model =
     | "CLIP top 95"
     | "CLIP top 110"
@@ -182,14 +188,20 @@ export namespace createStorage {
     | "18x18"
     | "18x21";
 
-  /** The parameters: the kind, the model, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the model, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "swing">, number>
   > {
     /** Which cabinet. */
     kind: Kind;
 
-    /** A wardrobe's hinge, a chest's drawer slide or a locker's size; drawn from the seed when absent. The other kinds have one read model. */
+    /**
+     * A wardrobe's hinge, a chest's drawer slide or a locker's size; drawn from
+     * the seed when absent. The other kinds have one read model.
+     */
     model?: Model;
 
     /** The model's id, unique in a scene; `storage` when absent. */

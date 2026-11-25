@@ -33,7 +33,9 @@ export interface IAutoMovieBuiltEnvelopeFace {
   /**
    * Normal oriented by the producer's positive-side containment probe.
    *
-   * Authored +Z is flipped only when the offset centroid is inside. Off-volume faces and concave outlines can retain an inward direction; see the producer's numerical and geometric premises.
+   * Authored +Z is flipped only when the offset centroid is inside. Off-volume
+   * faces and concave outlines can retain an inward direction; see the
+   * producer's numerical and geometric premises.
    */
   normal: IAutoMovieVector3;
 

@@ -35,36 +35,26 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { throwObjectCurve } from "../throwing/throwObjectCurve";
 import { admitPuckContact } from "./admitPuckContact";
+import { stickBallClock } from "./stickBallClock";
+import { stickBallModel } from "./stickBallModel";
+import { stickBallPoint } from "./stickBallPoint";
 
-/** The producer's shaft axis in its model frame. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/** The producer's open playing-face direction. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-/** The across-stick rotation axis. */
-const SIDE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-/** Stationary endpoint for the stroke's prepared curves. */
-const REST: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 /**
- * A hockey blade push or a lacrosse pocket exchange. The carrier owns
- * the foot plants or skating path. The two arm goals follow one rigid
- * stick frame, from its displayed starting pose through the working cue
- * to a follow-through. A hand that does not already hold the stick first
- * reaches its grip from the entry arm, timed as a reach-to-grasp, while the
- * stick waits; its grip opens there. The follow-through turns the stick
- * about the top hand's grip. Both hands leave the stick held, so the
- * actions that follow carry it. The ball remains the same named prop.
+ * A hockey blade push or a lacrosse pocket exchange. The carrier owns the foot
+ * plants or skating path. The two arm goals follow one rigid stick frame, from
+ * its displayed starting pose through the working cue to a follow-through. A
+ * hand that does not already hold the stick first reaches its grip from the
+ * entry arm, timed as a reach-to-grasp, while the stick waits; its grip opens
+ * there. The follow-through turns the stick about the top hand's grip. Both
+ * hands leave the stick held, so the actions that follow carry it. The ball
+ * remains the same named prop.
  *
  * The field push uses the FIH playing face and the ice push reads the puck's
- * radial dimension as well as the blade. The lacrosse scoop seats the
- * ball in the crosse, and the pass declares release on the same clock.
- * The teaching sources are FIH 2026 §2, IIHF 2026–27 §§10 and 13, and
- * USA Lacrosse's Learn the Basics. Phase shares, shaft inclination and
- * default speed are provisional film-staging values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Declares the working affordances, custody, scoped body channels and reference rules.
- * @evidence contracts/development/design.md#principled-representation The rigid stick geometry drives both hands and the same timestamp drives the ball effect.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the plan and its action transition contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Support and prop state remain with the carrier and the performance.
+ * radial dimension as well as the blade. The lacrosse scoop seats the ball in
+ * the crosse, and the pass declares release on the same clock. The teaching
+ * sources are FIH 2026 §2, IIHF 2026–27 §§10 and 13, and USA Lacrosse's Learn
+ * the Basics. Phase shares, shaft inclination and default speed are provisional
+ * film-staging values.
  */
 export namespace stickBall {
   /** This law's action name. */
@@ -85,15 +75,9 @@ export namespace stickBall {
    *
    * @param context The body, authored props and optional support carrier.
    * @returns A sampled two-hand plan with a prop launch or pocket mount.
-   * @throws {HumanRefusal} If a required affordance is absent, a duration or speed is invalid, a grip is out of reach, or the fitted ice blade misses the puck rim.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the data, result and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A world cue determines the placed working frame, and each shaft grip remains local to that frame. A hand the entry does not record holding the stick is carried from its entry arm onto its grip over a reach-to-grasp time (McIntosh, Mon-Williams and Tresilian 2018) before the stick moves, so the arms stay continuous at the stroke's start.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the cue and frame path before composing two arm goals and publishing custody.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Named props supply their dimensions. An arm-length bound admits the requested grip positions, and an ice puck launches only after the fitted grips put the finite blade face within the contact allowance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One sizing read per prop, two local observations of the hockey arm fit at grip closure and contact, and no repeated fit admission during playback.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared clock, posture carrier, placed arm and prop trajectory owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only prepared frames, clock and the arm goals. Retains no past sampled frames.
+   * @throws {HumanRefusal} If a required affordance is absent, a duration or
+   *   speed is invalid, a grip is out of reach, or the fitted ice blade misses
+   *   the puck rim.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,
@@ -118,7 +102,7 @@ export namespace stickBall {
     const stick: IAutoMovieMotionHumanPropReader = context.prop(params.stick);
     const ball: IAutoMovieMotionHumanPropReader = context.prop(params.ball);
     const initial: IAutoMovieRigidTransform = stick.frame(context.start);
-    const shaft: IAutoMovieAffordance = point(stick, "grip");
+    const shaft: IAutoMovieAffordance = stickBallPoint(stick, "grip");
     const arm: number = body.measure.upperArm + body.measure.forearm;
     const gap: number =
       shaft.length === undefined ? 0 : Math.min(shaft.length / 3, 0.55 * arm);
@@ -129,7 +113,7 @@ export namespace stickBall {
     ): IAutoMovieVector3 =>
       Vector3.add(
         shaft.frame.translation,
-        Vector3.scale(UP, ((hand === head ? -1 : 1) * gap) / 2),
+        Vector3.scale(stickBallModel.UP, ((hand === head ? -1 : 1) * gap) / 2),
       );
 
     // A hand that does not hold the stick at the entry (`entry.holds`) takes
@@ -154,7 +138,7 @@ export namespace stickBall {
         AutoMovieMotionHumanTiming.aimed(
           Vector3.length(
             Vector3.subtract(
-              world(initial, gripOf(hand)),
+              stickBallModel.world(initial, gripOf(hand)),
               HumanHand.frame(body, bones, hand, "grip").point,
             ),
           ),
@@ -162,14 +146,7 @@ export namespace stickBall {
         ),
       );
     }
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      taken + duration,
-      [
-        { name: "gripped", seconds: taken },
-        { name: "stroke", seconds: taken + duration * 0.55 },
-        { name: "strokeEnd", seconds: taken + duration * 0.85 },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = stickBallClock(taken, duration);
     const seconds: number = clock.at("stroke");
     const filmSecond: number = context.start + seconds;
     const base: IAutoMovieMotionHumanActionPlan =
@@ -186,11 +163,11 @@ export namespace stickBall {
     const pocketPass: boolean = params.kind === "lacrossePass";
     const pocket: boolean = scoop || pocketPass;
     const ice: boolean = params.kind === "iceHockey";
-    const working: IAutoMovieAffordance = point(
+    const working: IAutoMovieAffordance = stickBallPoint(
       stick,
       pocket ? "pocket" : "blade",
     );
-    if (scoop) point(stick, "scoop");
+    if (scoop) stickBallPoint(stick, "scoop");
     if (pocketPass) {
       const mount: ReturnType<
         NonNullable<IAutoMovieMotionHumanPropReader["mountAt"]>
@@ -206,7 +183,7 @@ export namespace stickBall {
         });
       const separation: number = Vector3.length(
         Vector3.subtract(
-          world(initial, working.frame.translation),
+          stickBallModel.world(initial, working.frame.translation),
           ball.frame(context.start).position,
         ),
       );
@@ -223,7 +200,7 @@ export namespace stickBall {
 
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       HumanFrame.turn(cue.yaw),
-      FORWARD,
+      stickBallModel.FORWARD,
     );
     const target: IAutoMovieVector3 | undefined =
       params.target === undefined
@@ -246,12 +223,12 @@ export namespace stickBall {
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
       HumanFrame.turn(yaw),
       Quaternion.multiply(
-        Quaternion.fromAxisAngle(SIDE, pitch),
-        Quaternion.fromAxisAngle(FORWARD, roll),
+        Quaternion.fromAxisAngle(stickBallModel.SIDE, pitch),
+        Quaternion.fromAxisAngle(stickBallModel.FORWARD, roll),
       ),
     );
     const rim: IAutoMovieAffordance | undefined = ice
-      ? point(ball, "rim")
+      ? stickBallPoint(ball, "rim")
       : undefined;
     const radial: number =
       rim === undefined
@@ -289,7 +266,7 @@ export namespace stickBall {
     const through: IAutoMovieVector3 = Vector3.scale(travel, 1 / followSpan);
     const approachPath: (share: number) => IAutoMovieVector3 = throwObjectCurve(
       initial.position,
-      REST,
+      stickBallModel.REST,
       impact.position,
       through,
       seconds - taken,
@@ -298,7 +275,7 @@ export namespace stickBall {
       impact.position,
       through,
       Vector3.add(impact.position, travel),
-      REST,
+      stickBallModel.REST,
       followSpan,
     );
     const approach: ReturnType<typeof AutoMovieMotionClock.prepare> =
@@ -311,9 +288,9 @@ export namespace stickBall {
     // 6:225), so the working point runs on along the travel while the top
     // hand stays where the stroke left it. Translated whole instead, the
     // stick would carry the top hand across the body, through the other arm.
-    const pivot: IAutoMovieVector3 = world(impact, gripOf(rear));
+    const pivot: IAutoMovieVector3 = stickBallModel.world(impact, gripOf(rear));
     const outward: IAutoMovieVector3 = Vector3.subtract(
-      world(impact, workingPoint),
+      stickBallModel.world(impact, workingPoint),
       pivot,
     );
     const along: IAutoMovieVector3 = Vector3.normalize(travel);
@@ -374,18 +351,19 @@ export namespace stickBall {
     // trunk by the actions that follow until one takes a hand over.
     const holds: IAutoMovieMotionPropHold[] = [];
     const taking: ReturnType<typeof AutoMovieMotionClock.prepare> | undefined =
-      taken > 0 ? AutoMovieMotionClock.prepare(clock, "start", "gripped") : undefined;
+      taken > 0
+        ? AutoMovieMotionClock.prepare(clock, "start", "gripped")
+        : undefined;
     for (const hand of [head, rear]) {
       const grip: IAutoMovieVector3 = gripOf(hand);
-      const takes: boolean =
-        taking !== undefined && reaching.includes(hand);
+      const takes: boolean = taking !== undefined && reaching.includes(hand);
       const shoulder: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.joint(
         body,
         cue,
         `${hand}UpperArm`,
       );
       const reach: number = Vector3.length(
-        Vector3.subtract(world(impact, grip), shoulder),
+        Vector3.subtract(stickBallModel.world(impact, grip), shoulder),
       );
       const handOffset: number = Vector3.length(
         HumanHand.offset(body, hand, "grip", "fist").point,
@@ -405,19 +383,21 @@ export namespace stickBall {
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
-          weight: (at: number): number =>
-            takes ? taking!.progress(at) : 1,
+          weight: (at: number): number => (takes ? taking!.progress(at) : 1),
           surface: "grip",
           shape: "fist",
           place: (posture: IAutoMovieMotionHumanPosture, at: number) => {
             const frame: IAutoMovieRigidTransform = tool(posture, at);
             return {
-              point: world(frame, grip),
+              point: stickBallModel.world(frame, grip),
               facing: Quaternion.rotateVector(
                 frame.rotation,
-                Vector3.scale(SIDE, hand === "left" ? -1 : 1),
+                Vector3.scale(stickBallModel.SIDE, hand === "left" ? -1 : 1),
               ),
-              forward: Quaternion.rotateVector(frame.rotation, FORWARD),
+              forward: Quaternion.rotateVector(
+                frame.rotation,
+                stickBallModel.FORWARD,
+              ),
             };
           },
         }),
@@ -497,47 +477,17 @@ export namespace stickBall {
             : line,
           speed,
         ),
-        Vector3.scale(UP, pocketPass ? 0 : 0.3),
+        Vector3.scale(stickBallModel.UP, pocketPass ? 0 : 0.3),
       ),
       ...(rim === undefined
         ? {
             sphere: {
               radius: ballShape.radius,
-              centre: point(ball, "grip").frame.translation,
+              centre: stickBallPoint(ball, "grip").frame.translation,
             },
           }
         : {}),
     };
     return { ...action, contacts, holds, launches: [launch] };
   }
-}
-
-/** Get a working point from the authored model, or report the missing point. */
-function point(
-  reader: IAutoMovieMotionHumanPropReader,
-  id: string,
-): IAutoMovieAffordance {
-  const match: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
-    (value) => value.id === id,
-  );
-  if (match === undefined)
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "stick",
-      value: reader.prop.subject,
-      reason: `${reader.prop.subject} does not declare the ${id} affordance`,
-      fix: "give the working stick and ball the sport's archetype affordances",
-    });
-  return match;
-}
-
-/** Apply a model's rigid frame to one of its local points. */
-function world(
-  frame: IAutoMovieRigidTransform,
-  local: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return Vector3.add(
-    frame.position,
-    Quaternion.rotateVector(frame.rotation, local),
-  );
 }

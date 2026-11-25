@@ -4,40 +4,25 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Whether what an action declares about its own time is coherent, and
- * whether its named instants fall where its contract says: in a stated
- * order, and at the same film second as a partner's.
+ * Whether what an action declares about its own time is coherent, and whether
+ * its named instants fall where its contract says: in a stated order, and at
+ * the same film second as a partner's.
  *
  * Everything that reads a plan trusts its declarations: an author cuts at an
- * event, a reaction aligns to one, the foot audit reads the plant windows.
- * A plan whose event lies outside its action, whose two events share a name,
- * whose window ends before it starts or whose decisive instant lies after
- * its end misleads all of them without any pose looking wrong. `faults`
- * reads those declarations against what their owners document; `order` and
- * `shared` read the named instants a law's contract speaks of.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States who relies on the declarations, the defects and the three readings.
- * @evidence contracts/development/implementation.md#principled-implementation Each rule restates a documented invariant of `IHumanActionPlan`, `IAutoMovieMotionEvent`, `HumanContactWindow` or the placed segment.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One rule per line of `faults`; the two instant readings are separate functions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every span, event and window is read; a number that is not finite is a fault, never skipped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in spans, events and windows.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the declarations handed in.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * event, a reaction aligns to one, the foot audit reads the plant windows. A
+ * plan whose event lies outside its action, whose two events share a name,
+ * whose window ends before it starts or whose decisive instant lies after its
+ * end misleads all of them without any pose looking wrong. `faults` reads those
+ * declarations against what their owners document; `order` and `shared` read
+ * the named instants a law's contract speaks of.
  */
 export namespace AutoMovieMotionHumanAuditTiming {
   /**
    * Every incoherent declaration of a person's placed actions.
    *
    * @param spans The person's actions, in film order.
-   * @returns One line per fault, `<index> <action>: <what>`; empty when all cohere.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input's order and the line format.
-   * @evidence contracts/development/implementation.md#principled-implementation A positive finite duration; start, entry and end in order and within the plan's length; no action entered before the one before it ends; event shares in [0, 1] under unique names; windows with `0 <= from <= to <= 1`; a decisive or feigned instant inside the action, never both.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A flat list of rules over each span.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Comparisons are written so that a value that is not a number fails them.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pass; names are checked through a set.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns One line per fault, `<index> <action>: <what>`; empty when all
+   *   cohere.
    */
   export function faults(
     spans: readonly IAutoMovieMotionHumanAuditTiming.ISpan[],
@@ -50,7 +35,7 @@ export namespace AutoMovieMotionHumanAuditTiming {
           out.push(`${index} ${span.name}: ${what}`);
         };
         const D: number = span.plan.duration;
-        if (!(D > 0 && Number.isFinite(D))) say(`duration ${D}`);
+        if (!(D > 0)) say(`duration ${D}`);
         if (!(span.start <= span.entryTime + eps))
           say(`entered at ${span.entryTime} before its start ${span.start}`);
         if (!(span.entryTime <= span.end + eps))
@@ -90,14 +75,6 @@ export namespace AutoMovieMotionHumanAuditTiming {
    * @param event The event's name.
    * @returns Film seconds.
    * @throws {Error} When the action declares no such event.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation A share is of the plan's duration from the action's own start.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing event throws; no default instant stands in.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A linear search of a handful of events.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function instant(
     span: IAutoMovieMotionHumanAuditTiming.ISpan,
@@ -118,15 +95,9 @@ export namespace AutoMovieMotionHumanAuditTiming {
    *
    * @param span The action.
    * @param events The names, in the order the contract states.
-   * @returns One line per event that is missing or comes before the one stated before it; empty when the order holds. Two events at the same instant are in order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the line per fault and how equal instants are read.
-   * @evidence contracts/development/implementation.md#principled-implementation Consecutive shares are compared, which orders the whole list.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass that remembers the last found event.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing event is a fault, not skipped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A handful of events.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns One line per event that is missing or comes before the one stated
+   *   before it; empty when the order holds. Two events at the same instant are
+   *   in order.
    */
   export function order(
     span: IAutoMovieMotionHumanAuditTiming.ISpan,
@@ -152,9 +123,8 @@ export namespace AutoMovieMotionHumanAuditTiming {
   }
 
   /**
-   * How far apart two actions put an instant they share: a handshake's
-   * clasp, a hand-over's release and its receipt, a strike's impact and the
-   * reaction's.
+   * How far apart two actions put an instant they share: a handshake's clasp, a
+   * hand-over's release and its receipt, a strike's impact and the reaction's.
    *
    * @param a One action.
    * @param first Its event.
@@ -162,14 +132,6 @@ export namespace AutoMovieMotionHumanAuditTiming {
    * @param second The partner's event.
    * @returns The absolute difference of the two film seconds.
    * @throws {Error} When either action declares no such event.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the property with examples, the unit and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation Both instants are read in film seconds, the one clock two people share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two instants and their difference.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance here; the caller's limit judges.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads each instant through `instant`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two lookups.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shared(
     a: IAutoMovieMotionHumanAuditTiming.ISpan,

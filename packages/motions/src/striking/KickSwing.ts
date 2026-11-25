@@ -5,6 +5,7 @@ import {
   rotationBetween,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanKickGeometry,
   IAutoMovieMotionHumanPosture,
@@ -14,65 +15,78 @@ import type {
 
 import { walkFoot } from "../actions/walkFoot";
 import { walkLeg } from "../actions/walkLeg";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";
 import type { KickChamber } from "./KickChamber";
 import { KickForm } from "./KickForm";
 import { KickRocker } from "./KickRocker";
+import { KickSwingTurned } from "./KickSwingTurned";
 import { KickThrust } from "./KickThrust";
 import { StrikingStroke } from "./StrikingStroke";
 
+/** The record of `IPropsFlexion`'s site. */
+type IPropsFlexion = { chamber: number; contact: number; least: number };
+
+/** The alternatives of `PropsPath`'s site. */
+type PropsPath = "hinge" | "thrust";
+
 /**
- * The kicking leg's path: from its plant up to the chamber, out to the
- * contact, back to the chamber and down to the replant.
+ * The kicking leg's path: from its plant up to the chamber, out to the contact,
+ * back to the chamber and down to the replant.
  *
  * The chamber is the fitted contact leg with only the knee folded
- * ({@link KickChamber}), so between the two the hip joint does not move and
- * the ankle travels on the knee's own hinge arc about the fitted knee. The
- * arc, the knee and the foot's rotation are held in the pelvis's frame at the
- * contact and carried by whatever body the leg hangs from, so every goal on
- * the way is a pose the leg can hold inside the hip's range of motion, also
- * while the body turns back under a recoiling leg or a redirect blends two
- * carriages. A world-straight path between the same two ankles is not: it
- * leaves the leg's reach as soon as the hip moves.
+ * ({@link KickChamber}), so between the two the hip joint does not move and the
+ * ankle travels on the knee's own hinge arc about the fitted knee. The arc, the
+ * knee and the foot's rotation are held in the pelvis's frame at the contact
+ * and carried by whatever body the leg hangs from, so every goal on the way is
+ * a pose the leg can hold inside the hip's range of motion, also while the body
+ * turns back under a recoiling leg or a redirect blends two carriages. A
+ * world-straight path between the same two ankles is not: it leaves the leg's
+ * reach as soon as the hip moves.
  *
- * A push kick goes on a thrust instead ({@link KickThrust}): its chamber
- * lifts the knee to the target's height with the foot folded under it, and
- * the ankle travels straight from there to the fitted contact on the same
- * unit, in the same pelvis frame, while the carriage drives the pelvis along
- * the line behind it (`IAutoMovieMotionHumanKickGeometry.ICarriage.drive`). The hinge's arc from a
- * chamber that only folds the contact leg's knee is a front snap: it swings
- * the foot up from below the target, through an opponent's lead thigh.
+ * A push kick goes on a thrust instead ({@link KickThrust}): its chamber lifts
+ * the knee to the target's height with the foot folded under it, and the ankle
+ * travels straight from there to the fitted contact on the same unit, in the
+ * same pelvis frame, while the carriage drives the pelvis along the line behind
+ * it (`IAutoMovieMotionHumanKickGeometry.ICarriage.drive`). The hinge's arc
+ * from a chamber that only folds the contact leg's knee is a front snap: it
+ * swings the foot up from below the target, through an opponent's lead thigh.
  *
- * The knee opens on one minimum-jerk unit that begins before the chamber key
- * is reached, so the ankle rounds the chamber instead of resting on it (Flash
- * and Hogan 1985), and that is aimed past the contact, so the shin arrives
- * with its share of the unit's peak speed ({@link StrikingStroke.impactShare})
- * and would travel on through the target. The knee never opens past the
- * technique's least flexion: when the aim past the contact would, the unit
- * ends nearer the contact and the shin arrives slower. From the contact the
- * knee folds back over the re-chamber's share of the recoil.
+ * The knee opens on one minimum-jerk unit that begins before the chamber key is
+ * reached, so the ankle rounds the chamber instead of resting on it (Flash and
+ * Hogan 1985), and that is aimed past the contact, so the shin arrives with its
+ * share of the unit's peak speed ({@link StrikingStroke.impactShare}) and would
+ * travel on through the target. The knee never opens past the technique's least
+ * flexion: when the aim past the contact would, the unit ends nearer the
+ * contact and the shin arrives slower. From the contact the knee folds back
+ * over the re-chamber's share of the recoil.
  *
- * The lift from the plant and the lowering to the replant run on the leg's
- * own joint arc too. The planted leg is solved from the hip the body has at
- * that instant (the two-segment triangle from the hip to the planted ankle,
- * its knee on the planted knee's side), and the thigh and the shank each
- * turn from their planted direction to their chambered one on a minimum-jerk
- * share, the ankle following by forward kinematics. In the leg's own plane
- * that is the hip's and the knee's flexion each on the share, so the knee
- * leads the lift and the foot trails under it, as a chamber is coached. A
- * world-straight line from the planted ankle to the chambered one carries
- * the foot forward of that arc, through whatever stands in front of the
- * shin: measured on the staged push kick, the foot's capsule met the
- * partner's lead leg at 0.970 s, during the lift. On the floor the plant's foot rocks onto its forefoot as the weight leaves it ({@link KickRocker}), and in from the air to the replant. Off the floor the plant's
- * foot rides the shank (turned by what turns the planted shank onto the
- * lifted one) while it blends to the chambered foot, so the ankle keeps the
- * plant's bend instead of dorsiflexing past what a foot bearing nothing
- * reaches as the shank swings forward over a foot held flat in the world.
+ * The lift from the plant and the lowering to the replant run on the leg's own
+ * joint arc too. The planted leg is solved from the hip the body has at that
+ * instant (the two-segment triangle from the hip to the planted ankle, its knee
+ * on the planted knee's side), and the thigh and the shank each turn from their
+ * planted direction to their chambered one on a minimum-jerk share, the ankle
+ * following by forward kinematics. In the leg's own plane that is the hip's and
+ * the knee's flexion each on the share, so the knee leads the lift and the foot
+ * trails under it, as a chamber is coached. A world-straight line from the
+ * planted ankle to the chambered one carries the foot forward of that arc,
+ * through whatever stands in front of the shin: measured on the staged push
+ * kick, the foot's capsule met the partner's lead leg at 0.970 s, during the
+ * lift. On the floor the plant's foot rocks onto its forefoot as the weight
+ * leaves it ({@link KickRocker}), and in from the air to the replant. Off the
+ * floor the plant's foot rides the shank (turned by what turns the planted
+ * shank onto the lifted one) while it blends to the chambered foot, so the
+ * ankle keeps the plant's bend instead of dorsiflexing past what a foot bearing
+ * nothing reaches as the shank swings forward over a foot held flat in the
+ * world.
  */
 export namespace KickSwing {
-  /** The last share of the lowering in which the foot comes straight down onto its replant from a walking foot's clearance (provisional: the terminal swing's descent, Winter 1992). */
+  /**
+   * The last share of the lowering in which the foot comes straight down onto
+   * its replant from a walking foot's clearance (provisional: the terminal
+   * swing's descent, Winter 1992).
+   */
   export const SET_DOWN: number = 1 / 3;
 
   /** What a kicking leg's path is built from. */
@@ -81,7 +95,7 @@ export namespace KickSwing {
     body: IAutoMovieMotionHumanBody;
 
     /** The kicking side. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The kick's timing. */
     timing: IAutoMovieMotionHumanKickGeometry.ITiming;
@@ -93,23 +107,32 @@ export namespace KickSwing {
     key: KickChamber.IKey;
 
     /**
-     * How the leg goes from its chamber to its contact: on the knee's
-     * `hinge` under a still thigh (the round kick's snap), or on a `thrust`,
-     * the ankle straight from a chamber with the knee lifted to the target's
-     * height (the push kick).
+     * How the leg goes from its chamber to its contact: on the knee's `hinge`
+     * under a still thigh (the round kick's snap), or on a `thrust`, the ankle
+     * straight from a chamber with the knee lifted to the target's height (the
+     * push kick).
      */
-    path: "hinge" | "thrust";
+    path: PropsPath;
 
-    /** The fitted contact leg under that posture; the chamber itself for a hinge's feint. */
+    /**
+     * The fitted contact leg under that posture; the chamber itself for a
+     * hinge's feint.
+     */
     contact: KickChamber.IKey;
 
-    /** The knee's flexion at the chamber and at the contact, and the least it may open to, degrees. */
-    flexion: { chamber: number; contact: number; least: number };
+    /**
+     * The knee's flexion at the chamber and at the contact, and the least it
+     * may open to, degrees.
+     */
+    flexion: IPropsFlexion;
 
     /** The share of the opening's peak speed left at the contact, in (0, 1]. */
     speed: number;
 
-    /** The kicking leg on the floor at the launch: its knee, its ankle and its foot's rotation. */
+    /**
+     * The kicking leg on the floor at the launch: its knee, its ankle and its
+     * foot's rotation.
+     */
     plant: KickChamber.IKey;
 
     /** The replant's displacement from the launch plant, world metres. */
@@ -120,15 +143,8 @@ export namespace KickSwing {
    * Build a kicking leg's path.
    *
    * @param props The fitted contact, its chamber, the plant and the timing.
-   * @returns The leg's goal as a pure function of its clock, the body it hangs from and the launch plant's shift.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fitted chamber/contact, knee hinge, world plant, timing and optional exact same-base hip of the returned path.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the pelvis-local knee/shank and hinge rotation and the minimum-jerk opening with its speed/flexion bounds; the lift and the lowering turn the thigh and the shank between the planted leg, solved from the current hip, and the chambered leg on minimum-jerk shares, the ankle by forward kinematics.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed contact-frame geometry is prepared once and the returned time reader carries it by the current body's heading and one shared hip; one segment-turn helper serves the lift and the lowering.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every clock, band, hinge angle and weight remains; the planted ankle is met exactly at either end of the arc even when the hip stands farther from it than the leg is long, the shank then carrying the excess that the share blends out; a supplied hip must belong to the same body/base currently being evaluated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant path arithmetic plus one hip FK when the caller has not already read it; the planted triangle is solved in closed form only during the lift and the lowering; ankle and knee share that hip and superposed paths may borrow the same exact value.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Contact-local vectors and the hinge are fixed by the actual fitted contact; same-call knee/ankle and superposed candidate paths share only the exact current base's hip, never a pose from another time or context.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned path keeps fixed contact geometry and plant/timing data for its plan lifetime; each evaluation retains no current posture, hip or query history after returning its fresh leg goal.
+   * @returns The leg's goal as a pure function of its clock, the body it hangs
+   *   from and the launch plant's shift.
    */
   export function create(
     props: IProps,
@@ -148,7 +164,7 @@ export namespace KickSwing {
     // the rotation that carries the chambered foot onto the contact foot.
     const hip: IAutoMovieVector3 = KickCarriage.hip(body, props.base, side);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      resolveHumanPosture.heading(props.base),
+      humanPostureHeading(props.base),
     );
     const local = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(inverse, v);
@@ -228,7 +244,7 @@ export namespace KickSwing {
       shift: IAutoMovieVector3,
       atHip?: IAutoMovieVector3,
     ): IAutoMovieMotionHumanKickGeometry.ILeg => {
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
+      const heading: IAutoMovieQuaternion = humanPostureHeading(base);
       const currentHip: IAutoMovieVector3 =
         atHip ?? KickCarriage.hip(body, base, side);
       const opened: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -357,24 +373,28 @@ export namespace KickSwing {
     };
   }
 
-  /** A clock's linear share of a span, held in [0, 1]. */
-  function shared(elapsed: number, span: number): number {
+  /**
+   * The share of a span elapsed, within 0 to 1, over at least a millisecond.
+   *
+   * @param elapsed The seconds elapsed.
+   * @param span The span's seconds.
+   * @returns 0 to 1.
+   */
+  export function shared(elapsed: number, span: number): number {
     return Math.min(1, Math.max(0, elapsed / Math.max(1e-3, span)));
   }
 
   /**
-   * A leg between a planted one and a chambered one at a linear share of
-   * the lift: the thigh turns at the hip on the share's minimum-jerk
-   * profile, and the shank folds at the knee, in the thigh's own frame, on
-   * the profile of the share over `KickForm.KNEE_LEAD`, so the knee has
-   * folded when the hip is part of its way. The foot then leaves the floor
-   * upward and back, as a heel rises before its thigh swings; with both
-   * joints on one share the ankle slid forward along the floor first (the
-   * thigh's turn carrying an unfolded shank), and a push kick thrown toe to
-   * toe was stopped on the partner's lead foot at its launch (measured: the
-   * knee 12.8 degrees at the chamber and the foot 147 mm high at impact).
+   * A leg between two keys: the thigh swung on the hip's minimum-jerk share,
+   * the shank folded ahead of it by `KickForm.KNEE_LEAD` in the thigh's own
+   * frame.
+   *
+   * @param from The leg it leaves.
+   * @param to The leg it reaches.
+   * @param share The swing's share, 0 to 1.
+   * @returns The leg.
    */
-  function between(
+  export function between(
     from: KickThrust.ILeg,
     to: KickThrust.ILeg,
     share: number,
@@ -383,9 +403,9 @@ export namespace KickSwing {
     const knee: number = minimumJerk.share(
       Math.min(1, share / KickForm.KNEE_LEAD),
     );
-    const thigh: IAutoMovieVector3 = turned(from.thigh, to.thigh, hip);
+    const thigh: IAutoMovieVector3 = KickSwingTurned(from.thigh, to.thigh, hip);
     const stood: IAutoMovieVector3 = Vector3.normalize(from.thigh);
-    const folded: IAutoMovieVector3 = turned(
+    const folded: IAutoMovieVector3 = KickSwingTurned(
       from.shank,
       Quaternion.rotateVector(
         Quaternion.inverse(rotationBetween(stood, Vector3.normalize(to.thigh))),
@@ -402,55 +422,8 @@ export namespace KickSwing {
     };
   }
 
-  /**
-   * A segment turned from one direction to another by a share of the angle
-   * between them, on their great arc, its length going linearly: a joint's
-   * turn, not a chord. Opposite directions have no arc of their own, so they
-   * turn about a horizontal axis across the first.
-   */
-  function turned(
-    from: IAutoMovieVector3,
-    to: IAutoMovieVector3,
-    share: number,
-  ): IAutoMovieVector3 {
-    const a: number = Vector3.length(from);
-    const b: number = Vector3.length(to);
-    if (a < 1e-9 || b < 1e-9) return Vector3.lerp(from, to, share);
-    const u: IAutoMovieVector3 = Vector3.scale(from, 1 / a);
-    const v: IAutoMovieVector3 = Vector3.scale(to, 1 / b);
-    const angle: number = Math.acos(
-      Math.min(1, Math.max(-1, Vector3.dot(u, v))),
-    );
-    const sine: number = Math.sin(angle);
-    const length: number = a + (b - a) * share;
-    if (angle < 1e-6) return Vector3.scale(Vector3.lerp(u, v, share), length);
-    if (sine < 1e-6) {
-      const across: IAutoMovieVector3 = Vector3.cross(
-        u,
-        Math.abs(u.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 },
-      );
-      return Vector3.scale(
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(
-            Vector3.normalize(across),
-            (angle * share) / Quaternion.DEG2RAD,
-          ),
-          u,
-        ),
-        length,
-      );
-    }
-    return Vector3.scale(
-      Vector3.add(
-        Vector3.scale(u, Math.sin((1 - share) * angle) / sine),
-        Vector3.scale(v, Math.sin(share * angle) / sine),
-      ),
-      length,
-    );
-  }
-
-  /** A hinge turn: its unit axis in the pelvis's frame and its angle. */
-  interface IHinge {
+  /** A rotation as an axis and an angle. */
+  export interface IHinge {
     /** The unit axis, in the contact pelvis's frame. */
     axis: IAutoMovieVector3;
 
@@ -459,10 +432,14 @@ export namespace KickSwing {
   }
 
   /**
-   * The axis and angle of a world rotation, the axis taken into the pelvis's
-   * frame; a rotation too small to give an axis is no turn about any.
+   * A rotation's hinge: its unit axis, read in a local frame, and its angle in
+   * [0, 180], the short way round; none for no rotation.
+   *
+   * @param rotation The rotation.
+   * @param local Reads a world direction in the local frame.
+   * @returns The hinge.
    */
-  function turn(
+  export function turn(
     rotation: IAutoMovieQuaternion,
     local: (v: IAutoMovieVector3) => IAutoMovieVector3,
   ): IHinge {
@@ -477,10 +454,13 @@ export namespace KickSwing {
   }
 
   /**
-   * The share of a minimum-jerk unit's duration at which it has covered a
-   * share of its travel (`minimumJerk.time`).
+   * The share of a minimum-jerk unit's time at which it has covered a share of
+   * its travel.
+   *
+   * @param travel The travel's share.
+   * @returns The time's share.
    */
-  function unit(travel: number): number {
+  export function unit(travel: number): number {
     return minimumJerk.time(travel);
   }
 }

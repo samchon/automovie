@@ -11,7 +11,11 @@ import { validateSoftInteger as integer } from "./validateSoftInteger";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftVector as vector } from "./validateSoftVector";
 
-/** Admit a typed cluster's finite region, positive scale intervals, safe seed and bounded member/attempt counts. It does not prove all requested placements fit; arrangement returns explicit rejected slots when sampling cannot satisfy spacing.
+/**
+ * Admit a typed cluster's finite region, positive scale intervals, safe seed
+ * and bounded member/attempt counts. It does not prove all requested placements
+ * fit; arrangement returns explicit rejected slots when sampling cannot satisfy
+ * spacing.
  */
 export const validatePlantingCluster: (
   props: IAutoMovieValidatePlantingCluster.IProps,
@@ -22,15 +26,6 @@ export const validatePlantingCluster: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  if (cluster.id.trim().length === 0)
-    out.push("type", `${root}.id`, "cluster id must be non-empty", cluster.id);
-  if (cluster.domain.trim().length === 0)
-    out.push(
-      "type",
-      `${root}.domain`,
-      "cluster must cite a planting recipe",
-      cluster.domain,
-    );
   integer(
     out,
     `${root}.count`,
@@ -58,7 +53,8 @@ export const validatePlantingCluster: (
     false,
     Infinity,
   );
-  if (!Number.isSafeInteger(cluster.seed))
+  const seed: number = Math.trunc(cluster.seed);
+  if (!(seed === cluster.seed && Math.abs(seed) <= Number.MAX_SAFE_INTEGER))
     out.push(
       "type",
       `${root}.seed`,

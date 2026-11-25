@@ -10,17 +10,17 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  * A lower bound on the Euclidean separation of two convex hulls, proved along
  * one stored direction.
  *
- * Each run is a nonempty list of binary64 vertices in one metre frame, taken
- * as its convex hull: a complete convex feature, or the two opposite corners
- * of a box when the direction is a coordinate axis. Degenerate hulls are
- * admitted. A zero direction proves nothing and returns zero, as does any
- * direction along which the two projections overlap or touch; zero therefore
- * means unproved, not intersecting. The bound qualifies the represented
- * coordinates only, not an analytic surface, a signed side or a contact
- * manifold. Nothing is mutated.
+ * Each run is a nonempty list of binary64 vertices in one metre frame, taken as
+ * its convex hull: a complete convex feature, or the two opposite corners of a
+ * box when the direction is a coordinate axis. Degenerate hulls are admitted. A
+ * zero direction proves nothing and returns zero, as does any direction along
+ * which the two projections overlap or touch; zero therefore means unproved,
+ * not intersecting. The bound qualifies the represented coordinates only, not
+ * an analytic surface, a signed side or a contact manifold. Nothing is
+ * mutated.
  *
- * Throws on an empty run and, through `measureAutoMovieProjectionIntervals`,
- * on a non-finite coordinate or an overflowing enclosure.
+ * Throws on an empty run and, through `measureAutoMovieProjectionIntervals`, on
+ * a non-finite coordinate or an overflowing enclosure.
  * `boundAutoMovieConvexSeparation` and the resident separation query's box
  * pruning are the consumers; their approximate witnesses only choose the
  * direction.

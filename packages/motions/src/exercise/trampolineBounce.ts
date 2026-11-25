@@ -28,37 +28,32 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * Bouncing on a trampoline (#4006).
+ * Bouncing on a trampoline.
  *
- * The bed is a non-linear spring, `F = K1 x + K3 x^3` (Jaques, The mechanics
- * of the contact phase in trampolining, 2008, finds the trampoline acts as
- * such a spring; `K1` and `K3` are provisional until that relation is read).
- * At each contact the bed deflects until it has taken the jumper's energy,
- * `m g (h + x) = K1 x^2 / 2 + K3 x^4 / 4` for a fall from `h` above the bed,
- * and returns it less a share (`KEEP` of the energy), the legs adding
- * `PUSH` metres of apex a contact. So the apexes build from a standing push
- * toward the authored apex and hold it; an apex beyond the height the push
- * can sustain, `PUSH / (1 - KEEP)`, is refused with it. The feet ride the bed
- * down and up on a quarter sine each way, matching the touchdown and take-off
- * speeds; the flights are ballistic between. At each apex the body takes the
- * asked shape and opens again by the landing; the arms swing up through the
- * flight. The last landing is killed: the bed absorbs it and the jumper
- * stands at rest.
+ * The bed is a non-linear spring, `F = K1 x + K3 x^3` (Jaques, The mechanics of
+ * the contact phase in trampolining, 2008, finds the trampoline acts as such a
+ * spring; `K1` and `K3` are provisional until that relation is read). At each
+ * contact the bed deflects until it has taken the jumper's energy, `m g (h + x)
+ * = K1 x^2 / 2 + K3 x^4 / 4` for a fall from `h` above the bed, and returns it
+ * less a share (`KEEP` of the energy), the legs adding `PUSH` metres of apex a
+ * contact. So the apexes build from a standing push toward the authored apex
+ * and hold it; an apex beyond the height the push can sustain, `PUSH / (1 -
+ * KEEP)`, is refused with it. The feet ride the bed down and up on a quarter
+ * sine each way, matching the touchdown and take-off speeds; the flights are
+ * ballistic between. At each apex the body takes the asked shape and opens
+ * again by the landing; the arms swing up through the flight. The last landing
+ * is killed: the bed absorbs it and the jumper stands at rest.
  *
- * Not yet: the seat, front and back drops, salti between bounces, and the
- * bed's deflection published as an articulation for the renderer.
+ * Not yet: the seat, front and back drops, salti between bounces, and the bed's
+ * deflection published as an articulation for the renderer.
  *
  * Events: `takeoff{k}`, `apex{k}`, `touchdown{k}`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the spring, the energy balance with its source and standing, the apex build and refusal, the contact and flight, the shapes, the kill and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law over closed-form contacts and ballistic flights on the bed's own height.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the bed and push constants, the shapes, the deflection and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity and the body's mass set every time; the bed is the prop's.
  */
 export namespace trampolineBounce {
   /** The action's name. */
@@ -89,7 +84,10 @@ export namespace trampolineBounce {
   /** The knees' give at the bed's lowest, a share of the stature (provisional). */
   export const GIVE: number = 0.03;
 
-  /** The shapes held at the apex: hip flexion, knee flexion and leg spread, degrees (provisional). */
+  /**
+   * The shapes held at the apex: hip flexion, knee flexion and leg spread,
+   * degrees (provisional).
+   */
   export const SHAPES: Readonly<
     Record<
       IAutoMovieMotionHumanTrampoline.Shape,
@@ -108,14 +106,6 @@ export namespace trampolineBounce {
    * @param mass The jumper's mass, kilograms.
    * @param fall The height fallen from above the bed, metres.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the balance solved.
-   * @evidence contracts/development/implementation.md#principled-implementation Newton's method on the monotone quartic from a linear guess.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Converges to 1e-9 m.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A few iterations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work None needed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function deflection(mass: number, fall: number): number {
     const g: number = AutoMovieGravity.STANDARD;
@@ -136,15 +126,9 @@ export namespace trampolineBounce {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the bed is missing, the jumper is not on it, the count is not a positive whole number, or the apex exceeds what the push sustains.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The apex sequence from the energy kept and the push; each contact's deflection from the balance; quarter-sine contacts matching the ballistic speeds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bed, apexes, phases, one writer, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A higher apex than the push sustains is refused, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bounces; constant work per sample after a phase search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The leg goal and the exercise key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its phases.
+   * @throws {HumanRefusal} When the bed is missing, the jumper is not on it,
+   *   the count is not a positive whole number, or the apex exceeds what the
+   *   push sustains.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrampoline.IParams>,
@@ -154,8 +138,7 @@ export namespace trampolineBounce {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const g: number = AutoMovieGravity.STANDARD;
     const mass: number = body.profile.mass;
-    const bounces: number = p.bounces ?? 4;
-    HumanBound.whole("bounces", bounces);
+    const bounces: number = HumanBound.whole("bounces", p.bounces ?? 4);
     const apex: number = p.apex ?? 1;
     HumanBound.above("apex", apex, 0, "m");
     const sustained: number = PUSH / (1 - KEEP);
@@ -273,7 +256,7 @@ export namespace trampolineBounce {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const standingHips: IAutoMovieVector3 = Vector3.add(
       entry.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(entry), rest),
+      Quaternion.rotateVector(humanPostureHeading(entry), rest),
     );
     const shape: IAutoMovieMotionHumanExerciseKey.ILimb =
       SHAPES[p.shape ?? "straight"];
@@ -323,7 +306,7 @@ export namespace trampolineBounce {
         };
         const root: IAutoMovieVector3 = Vector3.subtract(
           hips,
-          Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
+          Quaternion.rotateVector(humanPostureHeading(turned), rest),
         );
         const onBed: boolean = phaseAt(s).kind !== "flight";
         // The feet ride the bed on it; in the air each foot leaves the bed's
@@ -356,12 +339,15 @@ export namespace trampolineBounce {
     };
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
-      clock: AutoMovieMotionClock.of(duration, instants),
+      clock: AutoMovieMotionClock(duration, instants),
       primitives: [writer],
     });
   }
 
-  /** A foot's placement in the air: from the bed's place toward where the shape's joints carry it, by how far the shape has come in. */
+  /**
+   * A foot's placement in the air: from the bed's place toward where the
+   * shape's joints carry it, by how far the shape has come in.
+   */
   function toward(
     body: IAutoMovieMotionHumanBody,
     bed: IAutoMovieMotionHumanFoot.IPlacement,

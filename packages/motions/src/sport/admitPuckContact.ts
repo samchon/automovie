@@ -24,27 +24,22 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const PUCK_CONTACT_ALLOWANCE: number = 0.015;
 
 /**
- * Reconstruct the finite ice blade face from the fitted grip sockets at
- * closure and impact. The nominal shaft frame can remain inside both arm
- * lengths even though the body cannot put its wrists there.
+ * Reconstruct the finite ice blade face from the fitted grip sockets at closure
+ * and impact. The nominal shaft frame can remain inside both arm lengths even
+ * though the body cannot put its wrists there.
  *
  * @param context The actor's body and any held entry grips.
  * @param action The composed stroke on its own support or carrier.
  * @param initial The stick's world frame before the new grips close.
- * @param blade The stick model's blade face, with local X across, Y out and Z up its face.
+ * @param blade The stick model's blade face, with local X across, Y out and Z
+ *   up its face.
  * @param rim The world point on the puck's rim that the blade must meet.
  * @param direction The authored puck's horizontal departure direction.
  * @param seconds The action-local contact second.
- * @param closed The action-local second the new grips close at: 0 for grips held from the entry, the end of the reach for a stick the hands take.
- * @throws {HumanRefusal} If the achieved finite face cannot make the authored contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the local contact time, fitted face, puck rim and refusal conditions.
- * @evidence contracts/development/implementation.md#principled-implementation Samples both fitted grip sockets and measures the rim against the finite working face and its direction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Grip realization precedes face and direction tests.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An approximate wrist reach or a nominal tool frame cannot alone admit contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fits only the demanded grip ancestors at closure and impact during planning.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing posed-bone, carried prop and two-handed grip owners.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps no fitted pose or frame after the contact decision.
+ * @param closed The action-local second the new grips close at: 0 for grips
+ *   held from the entry, the end of the reach for a stick the hands take.
+ * @throws {HumanRefusal} If the achieved finite face cannot make the authored
+ *   contact.
  */
 export function admitPuckContact(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,
@@ -82,7 +77,7 @@ export function admitPuckContact(
     hand: HumanPropHold.frame(body, impact, { side }),
     offset:
       context.entry.holds[side] === context.params.stick
-        ? AutoMovieMotionHumanHeld.of(context, side, context.params.stick).frame
+        ? AutoMovieMotionHumanHeld(context, side, context.params.stick).frame
         : HumanPropFrame.relative(
             HumanPropHold.frame(body, entry, { side }),
             initial,

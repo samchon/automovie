@@ -13,23 +13,21 @@ import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQ
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
- * A coarse Kathani working-ox reference with horns and authored equipment, declaring the roper's targets: `head` at the poll, `horns` between the horns' bases and `hind` between the hocks.
+ * A coarse Kathani working-ox reference with horns and authored equipment,
+ * declaring the roper's targets: `head` at the poll, `horns` between the horns'
+ * bases and `hind` between the hocks.
  *
- * @param params Authored whole-model kilograms, optional lead and yoke/pack dimensions.
- * @param seed Independent construction seed and declared timing-spread coordinate.
+ * @param params Authored whole-model kilograms, optional lead and yoke/pack
+ *   dimensions.
+ * @param seed Independent construction seed and declared timing-spread
+ *   coordinate.
  * @returns The shared quadruped model; mass/foot coefficients are not inferred.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or equipment dimensions.
- * @evidence contracts/development/common.md#meaningful-documentation Names the whole Kathani reference, separate provisional limb cohort, measured horn/ear lengths and authored geometry/equipment limits.
- * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeOxBody owns the cited whole-cohort means and explicitly transferred limb controls. Horn/ear rods use the published lengths and authored directions/radii. The common head-capsule owner seats their complete root disks, preserving already seated horn positions and translating ear roots without changing length; no source head measure changes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Supply the ox reference/body to one shared builder and add its two horns/ears and any explicitly dimensioned equipment.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No horse mass law, invented working-ox weight, population allometry, measured horn curvature or maker yoke dimension is claimed. This fixed mean prototype does not complete population variation or animal dynamics.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size body and four identifying rods plus the explicitly requested equipment; no mesh search or fitting loop.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/profile, coherent reference recording, collar/lead and yoke/pack geometry/contact each retain one shared owner.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent model records and retains no construction callback, mutable registry, process or renderer.
+ * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or equipment
+ *   dimensions.
  */
 export function createOx(
   params: createOx.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createCohortQuadruped.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension
@@ -150,18 +148,20 @@ export function createOx(
 }
 
 /**
- * Authored ox equipment and named construction proxies, independent of body measurements.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States total mass ownership, optional equipment and which identifying proportions are authored.
- * @evidence contracts/development/design.md#principled-representation The common reference/mass contract and real equipment input types compose without a second body or contact representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The ox adds only equipment and identifying rod proportions; all physical source data remain AutoMovieArchetypeOxBody's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The small circular sections and 45-degree splayed straight horns are declared coarse construction, not measured horn morphology or load certification.
+ * Authored ox equipment and named construction proxies, independent of body
+ * measurements.
  */
 export namespace createOx {
-  /** Authored gallery/test mass only, not a measured Kathani weight or a constructor default. */
+  /**
+   * Authored gallery/test mass only, not a measured Kathani weight or a
+   * constructor default.
+   */
   export const REFERENCE: Readonly<Pick<IParams, "mass">> = { mass: 300 };
 
-  /** Positive total mass is authored; no live weight was read for the source cohort. */
+  /**
+   * Positive total mass is authored; no live weight was read for the source
+   * cohort.
+   */
   export interface IParams extends createCohortQuadruped.IParams {
     /** Required authored complete kilograms; no working-ox mass was measured. */
     mass: number;
@@ -170,7 +170,10 @@ export namespace createOx {
     equipment?: AutoMovieArchetypeQuadrupedEquipment.IParams;
   }
 
-  /** Radius/length ratios of coarse identifying rods; not anatomical measurements. */
+  /**
+   * Radius/length ratios of coarse identifying rods; not anatomical
+   * measurements.
+   */
   export const CONSTRUCTION: Readonly<{
     hornRadius: number;
     earRadius: number;

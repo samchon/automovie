@@ -26,17 +26,18 @@ import { formationCycleStride } from "./formationCycleStride.js";
  * sampled pose; callers extract geometry before baking, never after.
  *
  * The poses are the given pose takes (`IBakeFormationCycleProps.takes`, a
- * performed member's cycle) or, without them, come from {@link gaitMotion}, whose keyframe `i` of `samples` sits
- * exactly at cycle position `i / samples`. The loop-closing duplicate is
- * omitted because texture playback wraps the last column to the first. Each sample passes through the same
- * {@link applyPose} used by named performers. This bake passes default
- * joint axes and no clinical rest frames; a caller using different explicit
- * axes/rest frames may therefore obtain a different attitude at the same phase.
+ * performed member's cycle) or, without them, come from {@link gaitMotion},
+ * whose keyframe `i` of `samples` sits exactly at cycle position `i / samples`.
+ * The loop-closing duplicate is omitted because texture playback wraps the last
+ * column to the first. Each sample passes through the same {@link applyPose}
+ * used by named performers. This bake passes default joint axes and no clinical
+ * rest frames; a caller using different explicit axes/rest frames may therefore
+ * obtain a different attitude at the same phase.
  *
  * The table is a sampled Float32 affine approximation, not an exact continuous
  * rigid rotation or a proof of no-slip foot contact. Its stride uses the
- * existing lowest-part trajectory heuristic. Returned take textures transfer
- * to the representation owner; a later take's refusal retires earlier textures.
+ * existing lowest-part trajectory heuristic. Returned take textures transfer to
+ * the representation owner; a later take's refusal retires earlier textures.
  */
 export const bakeFormationCycle: (
   input: IBakeFormationCycleProps,
@@ -62,7 +63,9 @@ export const bakeFormationCycle: (
           skeleton.id,
           gait,
           samples,
-        ).keyframes.slice(0, samples).map((k: IAutoMovieKeyframe): IAutoMoviePose => k.pose),
+        )
+          .keyframes.slice(0, samples)
+          .map((k: IAutoMovieKeyframe): IAutoMoviePose => k.pose),
       }),
     );
   if (sources.length === 0) return null;
@@ -139,7 +142,7 @@ export const bakeFormationCycle: (
               input.parts.length * 3 * samples * 4,
             );
             const tracks: THREE.Vector3[][] = input.parts.map(
-              (): THREE.Vector3[] => [] as THREE.Vector3[],
+              (): THREE.Vector3[] => [],
             );
             const posed: THREE.Matrix4 = new THREE.Matrix4();
             for (let sample: number = 0; sample < samples; ++sample) {

@@ -24,33 +24,46 @@ import { autoMovieModelColumns } from "./autoMovieModelColumns";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ * Round a diagnostic quantity to three decimals with
+ * Math.round(value*1000)/1000.
  *
- * The validateAutoMovieFormationOverlap owner applies presentation rounding after its actual predicate.
+ * The validateAutoMovieFormationOverlap owner applies presentation rounding
+ * after its actual predicate.
  *
- * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ * Binary64 rounding is not an exact decimal serialization or decision
+ * tolerance.
  *
- * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ * Only displayed metre/second quantities are rounded, leaving comparison
+ * arithmetic unchanged.
  *
  * Fixed scalar arithmetic takes constant work.
  *
- * Diagnostics reuse the same presentation rule within validateAutoMovieFormationOverlap, not cached measurements.
+ * Diagnostics reuse the same presentation rule within
+ * validateAutoMovieFormationOverlap, not cached measurements.
  *
  * Only a number returns and no sampled state is retained.
  */
 const round: (value: number) => number = (value: number): number =>
   Math.round(value * 1_000) / 1_000;
 
-/** Measure the first 4096 slots per unit; members beyond that prefix can overlap without being sampled. */
+/**
+ * Measure the first 4096 slots per unit; members beyond that prefix can overlap
+ * without being sampled.
+ */
 const FORMATION_OVERLAP_MEMBER_LIMIT: number = 4096;
 
-/** Interior sample budget of 16; every authored endpoint remains even when endpoint count exceeds the budget. */
+/**
+ * Interior sample budget of 16; every authored endpoint remains even when
+ * endpoint count exceeds the budget.
+ */
 const FORMATION_OVERLAP_SAMPLE_LIMIT: number = 16;
 
 /**
- * Describe one staged unit with source order, borrowed placement, selected members and every tier's columns.
+ * Describe one staged unit with source order, borrowed placement, selected
+ * members and every tier's columns.
  *
- * The row joins spatial placement to tier-aware clearance without a second runtime model.
+ * The row joins spatial placement to tier-aware clearance without a second
+ * runtime model.
  *
  * Member and column inventories are sampled proxies, not native geometry.
  *
@@ -60,7 +73,8 @@ const FORMATION_OVERLAP_SAMPLE_LIMIT: number = 16;
  *
  * One unit row is shared by all its placements within the overlap call.
  *
- * The validation owns wrappers while placement/model owners retain borrowed source data.
+ * The validation owns wrappers while placement/model owners retain borrowed
+ * source data.
  */
 interface IFormationOverlapUnit {
   /** Position in the shot's own order, which is the order refusals come in. */
@@ -91,7 +105,8 @@ interface IFormationOverlapUnit {
  *
  * Grid neighbor comparisons reuse the same placement row.
  *
- * Per-time grid/row owners release it after that sample, with no native body retained.
+ * Per-time grid/row owners release it after that sample, with no native body
+ * retained.
  */
 interface IFormationOverlapPlacement {
   /** Unit this member stands in. */
@@ -104,39 +119,25 @@ interface IFormationOverlapPlacement {
   point: IAutoMovieVector3;
 }
 
-/** Memoize rest points by unchanged placement identity; weak-key lifetime is not bounded to one compile. */
-const formationOverlapMemberCache: WeakMap<
-  IAutoMovieFormationPlacement,
-  readonly { slot: number; point: IAutoMovieVector3 }[]
-> = new WeakMap<
-  IAutoMovieFormationPlacement,
-  ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }>
->();
-
 /**
- * Enumerate the first min(count,4096) designed slot points and memoize by placement identity.
+ * Enumerate the first min(count,4096) designed slot points.
  *
- * This caps repeated crowd placement work while preserving slot identities.
+ * This caps crowd placement work while preserving slot identities.
  *
- * Counts beyond4096 are sampled incompletely and mutable placement changes are not invalidated.
+ * Counts beyond4096 are sampled incompletely.
  *
- * The returned rows describe rest points, not current cue-transformed positions.
+ * The returned rows describe rest points, not current cue-transformed
+ * positions.
  *
  * At most4096 slot queries/rows are produced per fresh identity.
  *
- * The WeakMap shares rows only under an unchanged placement-data premise.
- *
- * Live placement objects retain bounded cached member rows until their weak keys become collectible.
+ * Rows belong to the one validation that enumerated them.
  */
 const formationOverlapMembers: (
   formation: IAutoMovieFormationPlacement,
 ) => ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }> = (
   formation: IAutoMovieFormationPlacement,
 ): ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }> => {
-  const remembered:
-    | readonly { slot: number; point: IAutoMovieVector3 }[]
-    | undefined = formationOverlapMemberCache.get(formation);
-  if (remembered !== undefined) return remembered;
   const members: { slot: number; point: IAutoMovieVector3 }[] = Array.from(
     { length: Math.min(formation.count, FORMATION_OVERLAP_MEMBER_LIMIT) },
     (_: unknown, slot: number): { slot: number; point: IAutoMovieVector3 } => ({
@@ -144,24 +145,27 @@ const formationOverlapMembers: (
       point: formationSlotPosition(formation, slot),
     }),
   );
-  formationOverlapMemberCache.set(formation, members);
   return members;
 };
 
 /**
- * Keep zero and every cue endpoint, then distribute remaining16-sample budget evenly among gaps.
+ * Keep zero and every cue endpoint, then distribute remaining16-sample budget
+ * evenly among gaps.
  *
  * Authored endpoints retain precedence over interior density.
  *
- * More than16 distinct endpoints exceed the nominal budget; brief interior overlaps can be missed.
+ * More than16 distinct endpoints exceed the nominal budget; brief interior
+ * overlaps can be missed.
  *
  * Sorted unique seconds and endpoint preservation are documented.
  *
- * E endpoints cost O(E log E) sorting, with at most the endpoint population plus budgeted interiors.
+ * E endpoints cost O(E log E) sorting, with at most the endpoint population
+ * plus budgeted interiors.
  *
  * One set deduplicates unit/member cue endpoints within the request.
  *
- * Only a fresh scalar array escapes; no cue history or playback task is retained.
+ * Only a fresh scalar array escapes; no cue history or playback task is
+ * retained.
  */
 const formationOverlapSampleTimes: (
   cues: readonly IAutoMovieFormationMotion[],
@@ -208,19 +212,25 @@ const formationOverlapSampleTimes: (
 };
 
 /**
- * For every LOD tier pair, find the widest radius sum whose vertical intervals strictly overlap, then take the tier-pair minimum.
+ * For every LOD tier pair, find the widest radius sum whose vertical intervals
+ * strictly overlap, then take the tier-pair minimum.
  *
- * Clearance must hold regardless of selected runtime tier, with vertical lift applied to the right columns.
+ * Clearance must hold regardless of selected runtime tier, with vertical lift
+ * applied to the right columns.
  *
- * No overlapping columns yield zero; validity relies on the column owner's occupied-solid meaning.
+ * No overlapping columns yield zero; validity relies on the column owner's
+ * occupied-solid meaning.
  *
  * Vertical lift and returned horizontal clearance use model/world metres.
  *
- * All tier pairs and their column pairs are traversed, O(sum Lc*Rc), without mesh vertex reads.
+ * All tier pairs and their column pairs are traversed, O(sum Lc*Rc), without
+ * mesh vertex reads.
  *
- * Tier arrays are shared by candidate comparisons, but the coordinator recomputes clearance rather than retaining a pair/lift cache.
+ * Tier arrays are shared by candidate comparisons, but the coordinator
+ * recomputes clearance rather than retaining a pair/lift cache.
  *
- * Only a scalar returns; tier arrays are borrowed and no collision world is retained.
+ * Only a scalar returns; tier arrays are borrowed and no collision world is
+ * retained.
  */
 const formationOverlapClearance: (
   left: IFormationOverlapUnit,
@@ -249,7 +259,9 @@ const formationOverlapClearance: (
 };
 
 /**
- * Place sampled members in a spatial grid and compare both same-unit and cross-unit distances against height-overlapping runtime columns across every LOD pair.
+ * Place sampled members in a spatial grid and compare both same-unit and
+ * cross-unit distances against height-overlapping runtime columns across every
+ * LOD pair.
  */
 export const validateAutoMovieFormationOverlap: (
   contract: Pick<IAutoMovieShotContract, "id">,

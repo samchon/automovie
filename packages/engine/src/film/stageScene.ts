@@ -21,16 +21,15 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { collectNonEmptyId } from "../validation/collectNonEmptyId";
-import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
 import { lookRotation } from "./lookRotation";
+import { admitStageCast } from "./staging/admitStageCast";
 import { admitStageSupport } from "./staging/admitStageSupport";
-import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { lightTypeOf } from "./staging/lightTypeOf";
 import { lowerCameraClearanceEnvelope } from "./staging/lowerCameraClearanceEnvelope";
 import { lowerLightPlacement } from "./staging/lowerLightPlacement";
+import { prepareStageNodeClaim } from "./staging/prepareStageNodeClaim";
 import { resolveStagedFog } from "./staging/resolveStagedFog";
 import { resolveStagedMedium } from "./staging/resolveStagedMedium";
 import { setPieceScale } from "./staging/setPieceScale";
@@ -50,10 +49,10 @@ const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
  * or return every violation for the correction round.
  *
  * Referential integrity is the core check: every placement names a cast member,
- * every cast member is placed, ids are non-blank and unique across actors, set
- * pieces, cameras and lights, a mount rides another placed actor, and a
- * camera's `lookAt` node is a placed actor, set piece or camera, the same table
- * the performance stage resolves positional targets against. Scalars are
+ * every cast member is placed, ids are unique across actors, set pieces,
+ * cameras and lights, a mount rides another placed actor, and a camera's
+ * `lookAt` node is a placed actor, set piece or camera, the same table the
+ * performance stage resolves positional targets against. Scalars are
  * range-checked where a later stage could not use them: finite positions and
  * turns, a unit set rotation not combined with `facingDeg`, a positive finite
  * set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the
@@ -90,26 +89,13 @@ export function stageScene(
 ): IAutoMovieStagedSet {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const set: IAutoMovieStageSetPiece[] = staging.set ?? [];
-  const cast: Map<string, IAutoMovieScript["cast"][number]> = new Map();
-  const castIndex: Map<string, number> = new Map();
-  script.cast.forEach(
-    (member: IAutoMovieScript["cast"][number], index: number): void => {
-      const existing: number | undefined = castIndex.get(member.node);
-      if (existing !== undefined) {
-        out.push(
-          "type",
-          `$script.cast[${index}].node`,
-          `script cast node "${describeInvalidValue(member.node)}" is duplicated; first declared at $script.cast[${existing}].node`,
-          member.node,
-        );
-        return;
-      }
-      cast.set(member.node, member);
-      castIndex.set(member.node, index);
-    },
-  );
-  const placed: Set<string> = new Set(
-    staging.actors.map((actor: IAutoMovieStageActor): string => actor.node),
+  const claim: ReturnType<typeof prepareStageNodeClaim> =
+    prepareStageNodeClaim(out);
+  const cast: Map<string, IAutoMovieScript["cast"][number]> = admitStageCast(
+    script.cast,
+    staging.actors,
+    claim,
+    out,
   );
   // What a camera may aim at: an actor, a set piece, or another camera, the
   // table `performShot` resolves positional targets against. Cameras go in
@@ -137,98 +123,10 @@ export function stageScene(
     ),
   ]);
 
-  collectNonEmptyId(staging.scene.id, "$input.scene.id", "scene id", out);
-  script.cast.forEach(
-    (member: IAutoMovieScript["cast"][number], i: number): void => {
-      if (member.modelRef !== null)
-        collectNonEmptyId(
-          member.modelRef,
-          `$script.cast[${i}].modelRef`,
-          "cast model reference",
-          out,
-        );
-      if (!placed.has(member.node))
-        out.push(
-          "type",
-          "$input.actors",
-          `cast node "${describeInvalidValue(member.node)}" (cast[${i}]) must be placed by staging`,
-          member.node,
-        );
-    },
-  );
-
-  const ids: Set<string> = new Set();
-  function claim(id: string, path: string, label: string): void {
-    collectNonEmptyId(id, path, label, out);
-    if (ids.has(id))
-      out.push(
-        "type",
-        path,
-        `id "${describeInvalidValue(id)}" must be unique in the scene`,
-        id,
-      );
-    ids.add(id);
-  }
-
-  staging.actors.forEach((actor: IAutoMovieStageActor, i: number): void => {
-    const path: string = `$input.actors[${i}]`;
-    claim(actor.node, `${path}.node`, "actor node id");
-    if (!cast.has(actor.node))
-      out.push(
-        "type",
-        `${path}.node`,
-        `placement must name a script cast node, but "${describeInvalidValue(actor.node)}" is not in the cast`,
-        actor.node,
-      );
-    if (!isFiniteStageVector3(actor.position))
-      out.push(
-        "range",
-        `${path}.position`,
-        "actor position must be a finite vector",
-        actor.position,
-      );
-    if (!Number.isFinite(actor.facingDeg))
-      out.push(
-        "range",
-        `${path}.facingDeg`,
-        `actor facingDeg must be finite, but was ${describeInvalidValue(actor.facingDeg)}`,
-        actor.facingDeg,
-      );
-    if (actor.attach === undefined) return;
-    if (actor.attach.parent === actor.node)
-      out.push(
-        "type",
-        `${path}.attach.parent`,
-        "a node cannot ride itself",
-        actor.attach.parent,
-      );
-    else if (!placed.has(actor.attach.parent))
-      out.push(
-        "type",
-        `${path}.attach.parent`,
-        `mount parent "${describeInvalidValue(actor.attach.parent)}" must be a placed actor`,
-        actor.attach.parent,
-      );
-  });
-
   set.forEach((piece: IAutoMovieStageSetPiece, i: number): void => {
     const path: string = `$input.set[${i}]`;
-    claim(piece.node, `${path}.node`, "set node id");
-    collectNonEmptyId(piece.model, `${path}.model`, "set model id", out);
-    if (!isFiniteStageVector3(piece.position))
-      out.push(
-        "range",
-        `${path}.position`,
-        "set position must be a finite vector",
-        piece.position,
-      );
-    if (piece.facingDeg !== undefined && !Number.isFinite(piece.facingDeg))
-      out.push(
-        "range",
-        `${path}.facingDeg`,
-        `set facingDeg must be finite when present, but was ${describeInvalidValue(piece.facingDeg)}`,
-        piece.facingDeg,
-      );
+    claim(piece.node, `${path}.node`);
+
     if (piece.facingDeg !== undefined && piece.rotation !== undefined)
       out.push(
         "type",
@@ -244,10 +142,7 @@ export function stageScene(
         piece.rotation.w,
       ];
       const length: number = Math.hypot(...components);
-      if (
-        !components.every(Number.isFinite) ||
-        Math.abs(length - 1) > UNIT_QUATERNION_TOLERANCE
-      )
+      if (Math.abs(length - 1) > UNIT_QUATERNION_TOLERANCE)
         out.push(
           "range",
           `${path}.rotation`,
@@ -260,9 +155,7 @@ export function stageScene(
       // axis mirrors the piece and reverses its orientation.
       const scale: IAutoMovieVector3 = setPieceScale(piece.scale);
       if (
-        ![scale.x, scale.y, scale.z].every(
-          (axis: number): boolean => Number.isFinite(axis) && axis > 0,
-        )
+        ![scale.x, scale.y, scale.z].every((axis: number): boolean => axis > 0)
       )
         out.push(
           "range",
@@ -302,8 +195,7 @@ export function stageScene(
           light: IAutoMovieStageLight,
         ): Pick<IAutoMovieLight, "id" | "type" | "castShadow"> => ({
           id: light.node,
-          // A light of an unknown type is refused by its own shape check.
-          type: lightTypeOf(light) ?? "directional",
+          type: lightTypeOf(light),
           castShadow: light.castShadow,
         }),
       ),
@@ -322,7 +214,7 @@ export function stageScene(
     new Map();
   staging.cameras.forEach((camera: IAutoMovieStageCamera, i: number): void => {
     const path: string = `$input.cameras[${i}]`;
-    claim(camera.node, `${path}.node`, "camera node id");
+    claim(camera.node, `${path}.node`);
     const direction: IAutoMovieVector3 | undefined = validateStageCamera(
       camera,
       path,
@@ -334,14 +226,7 @@ export function stageScene(
 
   staging.lights.forEach((light: IAutoMovieStageLight, i: number): void => {
     const path: string = `$input.lights[${i}]`;
-    claim(light.node, `${path}.node`, "light node id");
-    if (!Number.isFinite(light.intensity) || light.intensity < 0)
-      out.push(
-        "range",
-        `${path}.intensity`,
-        `intensity must be a finite number >= 0, but was ${describeInvalidValue(light.intensity)}`,
-        light.intensity,
-      );
+    claim(light.node, `${path}.node`);
     validateLightPlacementShape(light, path, out);
   });
 

@@ -1,21 +1,3 @@
-# src/handling/pushSledCarry.ts#pushSledCarry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the shared frame, floor-motion restriction and carried grip/elbow semantics.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing world wrist frames and elbow points are carried by a yaw-only rigid transform about the arrival chest, retaining each original world-metre height.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-IHold and prepare serve pushSled's candidate samples and runtime pair; the numerical transform is owned once.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No load shape, mass or body size is embedded and the transform does not fit or certify a contact.
-
 # src/handling/pushSledCarry.ts#pushSledCarry.IHold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

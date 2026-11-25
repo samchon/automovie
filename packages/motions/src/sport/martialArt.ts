@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -30,41 +31,38 @@ import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanT
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPerformanceTempo } from "../perform/HumanPerformanceTempo";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
+import { prepareChokuZukiPath } from "./prepareChokuZukiPath";
 
 /**
- * Martial-art forms other than kickboxing (#3252): the karate horse stance
- * (kiba-dachi), alternating straight punches from it (choku-zuki) and the
- * tai chi push in a bow stance.
+ * Martial-art forms other than kickboxing: the karate horse stance
+ * (kiba-dachi), alternating straight punches from it (choku-zuki) and the tai
+ * chi push in a bow stance.
  *
- * - Horse stance: the left foot steps out until the feet stand two
- *   shoulder widths apart (provisional) and the hips sink a fifth of the
- *   thigh (provisional), held, and the foot steps back.
- * - Choku-zuki: each fist leaves a waist-high chamber outside the live
- *   shoulder and passes around the flank before reaching the midline at
- *   chest height. The other fist returns to its chamber (hikite). Upper-arm
- *   and forearm radii provide provisional clearance for the tucked elbow
- *   as it turns. Each punch extends in 0.2 s and stays 0.2 s,
- *   inside the 400 ms a choku-zuki takes (VencesBrito et al. 2011); the
- *   hands alternate.
- * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional)
- *   over 3 s as the hips come half the step forward and sink until both
- *   legs reach their feet; over 3 s more the weight shifts to six tenths of
- *   the step as the palms push from before the chest to an arm's reach
- *   ahead, then shifts back over 3 s, and the foot returns over 3 s: the
- *   slow, continuous form of tai chi (Wu and Hitt 2005).
+ * - Horse stance: the left foot steps out until the feet stand two shoulder
+ *   widths apart (provisional) and the hips sink a fifth of the thigh
+ *   (provisional), held, and the foot steps back.
+ * - Choku-zuki: each fist leaves a waist-high chamber outside the live shoulder
+ *   and passes around the flank before reaching the midline at chest height.
+ *   The other fist returns to its chamber (hikite). Upper-arm and forearm radii
+ *   provide provisional clearance for the tucked elbow as it turns. Each punch
+ *   extends in 0.2 s and stays 0.2 s, inside the 400 ms a choku-zuki takes
+ *   (VencesBrito et al. 2011); the hands alternate.
+ * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional) over 3 s
+ *   as the hips come half the step forward and sink until both legs reach their
+ *   feet; over 3 s more the weight shifts to six tenths of the step as the
+ *   palms push from before the chest to an arm's reach ahead, then shifts back
+ *   over 3 s, and the foot returns over 3 s: the slow, continuous form of tai
+ *   chi (Wu and Hitt 2005).
  *
- * The karate and tai chi stance phrases link their own support transfers
- * and arm carriage on a single clock. The taekwondo and Muay Thai solo
- * resets share that support and recovery clock under their styles' low and
- * high guards. Their distinct pelvis paths and guard sites are authored
- * blocking for screen animation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each technique's geometry, timing with its source, provisional values and what is not drafted.
- * @evidence contracts/development/design.md#principled-representation A law record of root, leg and placed-arm rows on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Places are named grid places and body measures.
+ * The karate and tai chi stance phrases link their own support transfers and
+ * arm carriage on a single clock. The taekwondo and Muay Thai solo resets share
+ * that support and recovery clock under their styles' low and high guards.
+ * Their distinct pelvis paths and guard sites are authored blocking for screen
+ * animation.
  */
 export namespace martialArt {
   /** The action's name. */
@@ -77,7 +75,10 @@ export namespace martialArt {
       martialArt: ["fromRelax", "smooth"],
     });
 
-  /** A punch's extension and its stay, seconds (VencesBrito et al. 2011: the whole technique in 400 ms). */
+  /**
+   * A punch's extension and its stay, seconds (VencesBrito et al. 2011: the
+   * whole technique in 400 ms).
+   */
   export const PUNCH: number = 0.2;
 
   /** The tai chi push's shift, seconds each way (provisional). */
@@ -88,15 +89,8 @@ export namespace martialArt {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number or the hold is negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A stance entered by a step and a sink, then the technique's arm rows on named places.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, stance rows, then the technique's rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places only; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each arm keeps its existing fitting. The karate pulse reads at most two candidate starts, independent of punch count.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg arc and the placed arm.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
+   * @throws {HumanRefusal} When the count is not a positive whole number or the
+   *   hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
@@ -105,12 +99,9 @@ export namespace martialArt {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
       body.measure;
-    const count: number = p.count ?? 4;
+    const count: number = HumanBound.whole("count", p.count ?? 4);
     const hold: number = p.hold ?? 1;
-    HumanBound.whole("count", count);
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
     if (
       p.kind === "karateStanceTransfer" ||
       p.kind === "taiChiTransfer" ||
@@ -120,7 +111,12 @@ export namespace martialArt {
       p.kind === "sumoShiko" ||
       p.kind === "wingChunStance"
     )
-      return MartialArtStancePhrase(context, p.kind, hold, modifiers);
+      return stancePhrase(context, p.kind, hold);
+
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
 
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const axes: IAutoMovieMotionHumanFrame = {
@@ -138,7 +134,7 @@ export namespace martialArt {
       z: 0,
     });
     const stance: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: {
@@ -189,11 +185,11 @@ export namespace martialArt {
       }),
     });
     const lead: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
       s: number,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
       s: number,
     ): IAutoMovieMotionHumanFoot.IPlacement =>
@@ -209,10 +205,10 @@ export namespace martialArt {
     const bearing: (s: number) => boolean = (s: number): boolean =>
       into(s) <= 0 || into(s) >= 1;
     const stepped: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
     ) => IAutoMovieMotionHumanPrimitive = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanLeg.place({
@@ -227,9 +223,9 @@ export namespace martialArt {
         planted: bearing,
       });
     const rest: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanArmAngles.IAngles = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
@@ -280,10 +276,8 @@ export namespace martialArt {
       const len: number = PUNCH * modifiers.tempo;
       const start: (i: number) => number = (i: number): number =>
         ready + 2 * i * PUNCH * modifiers.tempo;
-      const ease: (u: number) => number = (u: number): number =>
-        u * u * (3 - 2 * u);
-      const extended: (side: "left" | "right", s: number) => number = (
-        side: "left" | "right",
+      const extended: (side: AutoMovieHumanSide, s: number) => number = (
+        side: AutoMovieHumanSide,
         s: number,
       ): number => {
         const first: number = side === "right" ? 0 : 1;
@@ -298,17 +292,30 @@ export namespace martialArt {
         const a: number = start(i);
         const rise: number = Math.min(1, Math.max(0, (s - a) / len));
         const fall: number = Math.min(1, Math.max(0, (s - a - 2 * len) / len));
-        return Math.max(0, ease(rise) - ease(fall));
+        return Math.max(0, rise - fall);
       };
+      // The chamber stands outside both the shoulder's line and the flank,
+      // the chest's half breadth, by a forearm diameter, at waist height.
+      const chamber: IAutoMovieVector3 = {
+        x: Math.max(
+          m.upperArmRadius + m.forearmRadius,
+          m.chestBreadth / 2 + 2 * m.forearmRadius - m.shoulderHalfWidth,
+        ),
+        y: m.waistHeight - m.shoulderHeight,
+        z:
+          AutoMovieMotionHumanTargetGrid.DISTANCES.close *
+            (m.upperArm + m.forearm) +
+          m.forearmRadius / 2,
+      };
+      const path: prepareHumanKnotCourse.ICourse = prepareChokuZukiPath(
+        body,
+        chamber,
+      );
       for (const side of ["left", "right"] as const) {
         const outward: number = side === "left" ? 1 : -1;
         const chamberOffset: IAutoMovieVector3 = {
-          x: outward * (m.upperArmRadius + m.forearmRadius),
-          y: m.waistHeight - m.shoulderHeight,
-          z:
-            AutoMovieMotionHumanTargetGrid.DISTANCES.close *
-              (m.upperArm + m.forearm) +
-            m.forearmRadius / 2,
+          ...chamber,
+          x: outward * chamber.x,
         };
         primitives.push(
           ...AutoMovieMotionHumanPlaced.arm({
@@ -345,10 +352,10 @@ export namespace martialArt {
                   `${side}UpperArm`,
                   resolution,
                 );
-              const chamber: IAutoMovieVector3 = HumanFrame.point(
-                { ...axes, origin: shoulder },
-                chamberOffset,
-              );
+              const local: IAutoMovieMotionHumanFrame = {
+                ...axes,
+                origin: shoulder,
+              };
               const aim: IAutoMovieVector3 = HumanFrame.point(
                 {
                   origin: { x: posture.root.x, y: 0, z: posture.root.z },
@@ -364,17 +371,17 @@ export namespace martialArt {
               );
               const phase: number = extended(side, s);
 
-              // A shallow outward arc clears the flank as the forearm turns
-              // out of or back into chamber. Its endpoint is the same midline.
+              // The fist's shares of the way from chamber to aim, inward and
+              // ahead, on the punch's prepared path (`prepareChokuZukiPath`).
+              const from: IAutoMovieVector3 = chamberOffset;
+              const to: IAutoMovieVector3 = HumanFrame.local(local, aim);
+              const share: readonly number[] = path.position(phase);
               return {
-                point: Vector3.add(
-                  Vector3.lerp(chamber, aim, phase),
-                  HumanFrame.point(axes, {
-                    x: outward * m.forearmRadius * 2 * phase * (1 - phase),
-                    y: 0,
-                    z: 0,
-                  }),
-                ),
+                point: HumanFrame.point(local, {
+                  x: from.x + (to.x - from.x) * share[0]!,
+                  y: from.y + (to.y - from.y) * share[1]!,
+                  z: from.z + (to.z - from.z) * share[1]!,
+                }),
                 facing: HumanFrame.point(axes, { x: 0, y: 0, z: 1 }),
               };
             },
@@ -483,4 +490,20 @@ export namespace martialArt {
       primitives,
     });
   }
+}
+
+/** Prepare the shared arm and support clock before exposing the phrase. */
+function stancePhrase(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
+  kind: Parameters<typeof MartialArtStancePhrase>[1],
+  hold: number,
+): IAutoMovieMotionHumanActionPlan {
+  return HumanPerformanceTempo.paced(context, (at) =>
+    MartialArtStancePhrase(
+      at,
+      kind,
+      hold,
+      AutoMovieMotionManner(at, at.params.manner),
+    ),
+  );
 }

@@ -15,24 +15,42 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
+/** The alternatives of `PlaceLimb`'s site. */
+type PlaceLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PreparePlacementPosture`'s site. */
+type PreparePlacementPosture = "root" | "yaw";
+
+/** The alternatives of `PreparePlacementPostureResult`'s site. */
+type PreparePlacementPostureResult = "root" | "yaw";
+
+/** The alternatives of `PrepareGoalPosture`'s site. */
+type PrepareGoalPosture = "root" | "yaw";
+
+/** The alternatives of `PrepareGoalPostureResult`'s site. */
+type PrepareGoalPostureResult = "root" | "yaw";
+
+/** The alternatives of `GoalPosture`'s site. */
+type GoalPosture = "root" | "yaw";
+
 /**
  * Leg primitives: a foot kept on the floor, and a foot lifted and set down
  * somewhere else.
  *
- * A foot is a placement of its ankle and its rotation ({@link HumanFoot}),
- * and the leg is an effector goal solved by inverse kinematics. A planted
- * foot declares its toes' joint as the goal's contact, so where the ankle
- * cannot hold the foot flat the heel rises about the ball and the foot does
- * not slide (`HumanFoot.heelOff`). The knee bends over the foot: its hint is
- * ahead of the knee's rest place along the foot's own heading (Perry and
- * Burnfield, Gait Analysis, 2nd ed.).
+ * A foot is a placement of its ankle and its rotation ({@link HumanFoot}), and
+ * the leg is an effector goal solved by inverse kinematics. A planted foot
+ * declares its toes' joint as the goal's contact, so where the ankle cannot
+ * hold the foot flat the heel rises about the ball and the foot does not slide
+ * (`HumanFoot.heelOff`). The knee bends over the foot: its hint is ahead of the
+ * knee's rest place along the foot's own heading (Perry and Burnfield, Gait
+ * Analysis, 2nd ed.).
  */
 export namespace AutoMovieMotionHumanLeg {
   /**
-   * A foot on its way from one placement to another: the ankle on the
-   * straight line between them raised by `4 c s (1 - s)`, a parabola that
-   * leaves and lands at the floor and peaks at the clearance `c` half way,
-   * and the rotation turned by spherical interpolation.
+   * A foot on its way from one placement to another: the ankle on the straight
+   * line between them raised by `4 c s (1 - s)`, a parabola that leaves and
+   * lands at the floor and peaks at the clearance `c` half way, and the
+   * rotation turned by spherical interpolation.
    *
    * @param from The placement at progress 0.
    * @param to The placement at progress 1.
@@ -59,18 +77,22 @@ export namespace AutoMovieMotionHumanLeg {
    * @param from The unchanged departure placement, borrowed for this reader.
    * @param to The unchanged landing placement, borrowed for this reader.
    * @param clearance The unchanged greatest ankle rise, metres.
-   * @returns Fresh ankle and rotation at every actual share, clamped exactly as arc.
+   * @returns Fresh ankle and rotation at every actual share, clamped exactly as
+   *   arc.
    */
   export function prepareArc(
     from: IAutoMovieMotionHumanFoot.IPlacement,
     to: IAutoMovieMotionHumanFoot.IPlacement,
     clearance: number,
   ): (progress: number) => IAutoMovieMotionHumanFoot.IPlacement {
-    const turn: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(from.rotation, to.rotation);
-    let ankle: ReturnType<typeof Vector3.prepareLerp> | undefined;
+    const turn: ReturnType<typeof Quaternion.prepareSlerp> =
+      Quaternion.prepareSlerp(from.rotation, to.rotation);
+    const ankle: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+      from.ankle,
+      to.ankle,
+    );
     return (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const s: number = Math.min(1, Math.max(0, progress));
-      ankle ??= Vector3.prepareLerp(from.ankle, to.ankle);
       return { ankle: raised(ankle(s), clearance, s), rotation: turn(s) };
     };
   }
@@ -87,14 +109,22 @@ export namespace AutoMovieMotionHumanLeg {
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, GoalPosture>,
     side: AutoMovieHumanSide,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
   ): IAutoMovieHumanLimbGoal {
     const point: IAutoMovieVector3 = placement.ankle;
     const rotation: IAutoMovieQuaternion = placement.rotation;
-    return goalAt(body, posture, side, point, rotation, planted, HumanFoot.heading(placement.rotation));
+    return goalAt(
+      body,
+      posture,
+      side,
+      point,
+      rotation,
+      planted,
+      HumanFoot.heading(placement.rotation),
+    );
   }
 
   /**
@@ -102,23 +132,32 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @param body The unchanged body supplying the knee and toe rest geometry.
    * @param side The leg.
-   * @param placement The unchanged ankle point and foot rotation, borrowed without mutation.
+   * @param placement The unchanged ankle point and foot rotation, borrowed
+   *   without mutation.
    * @param planted Whether every emitted goal bears on the floor.
-   * @returns A fresh goal with an actual current knee hint; point/rotation retain goal's borrowed placement convention and contacts are fresh vectors.
+   * @returns A fresh goal with an actual current knee hint; point/rotation
+   *   retain goal's borrowed placement convention and contacts are fresh
+   *   vectors.
    */
   export function prepareGoal(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
-  ): (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">) => IAutoMovieHumanLimbGoal {
-    let read: ReturnType<typeof placementReader> | undefined;
-    return (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">): IAutoMovieHumanLimbGoal => {
-      const point: IAutoMovieVector3 = placement.ankle;
-      const rotation: IAutoMovieQuaternion = placement.rotation;
-      read ??= placementReader(body, side, rotation);
-      return read(posture, point, rotation, planted);
-    };
+  ): (
+    posture: Pick<IAutoMovieMotionHumanPosture, PrepareGoalPostureResult>,
+  ) => IAutoMovieHumanLimbGoal {
+    const point: IAutoMovieVector3 = placement.ankle;
+    const rotation: IAutoMovieQuaternion = placement.rotation;
+    const read: ReturnType<typeof placementReader> = placementReader(
+      body,
+      side,
+      rotation,
+      planted,
+    );
+    return (
+      posture: Pick<IAutoMovieMotionHumanPosture, PrepareGoalPosture>,
+    ): IAutoMovieHumanLimbGoal => read(posture, point, rotation, planted);
   }
 
   /**
@@ -126,14 +165,33 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @param body The unchanged body supplying rest knee/toe geometry.
    * @param side The leg.
-   * @param rotation The copied fixed quaternion values used only when every current component matches by Object.is.
-   * @returns A reader of actual posture/root/yaw, ankle/rotation placement and bearing. Goals/contacts are fresh while ankle/rotation retain goal's borrowed-reference convention; a changed rotation uses ordinary cold goal geometry.
+   * @param rotation The copied fixed quaternion values used only when every
+   *   current component matches by Object.is.
+   * @returns A reader of actual posture/root/yaw, ankle/rotation placement and
+   *   bearing. Goals/contacts are fresh while ankle/rotation retain goal's
+   *   borrowed-reference convention; a changed rotation uses ordinary cold goal
+   *   geometry.
    */
-  export function preparePlacement(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, rotation: IAutoMovieQuaternion):
-    (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, placement: IAutoMovieMotionHumanFoot.IPlacement, planted: boolean) => IAutoMovieHumanLimbGoal {
-    const read: ReturnType<typeof placementReader> = placementReader(body, side, rotation);
-    return (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, placement: IAutoMovieMotionHumanFoot.IPlacement,
-      planted: boolean): IAutoMovieHumanLimbGoal => read(posture, placement.ankle, placement.rotation, planted);
+  export function preparePlacement(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    rotation: IAutoMovieQuaternion,
+  ): (
+    posture: Pick<IAutoMovieMotionHumanPosture, PreparePlacementPostureResult>,
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
+    planted: boolean,
+  ) => IAutoMovieHumanLimbGoal {
+    const read: ReturnType<typeof placementReader> = placementReader(
+      body,
+      side,
+      rotation,
+    );
+    return (
+      posture: Pick<IAutoMovieMotionHumanPosture, PreparePlacementPosture>,
+      placement: IAutoMovieMotionHumanFoot.IPlacement,
+      planted: boolean,
+    ): IAutoMovieHumanLimbGoal =>
+      read(posture, placement.ankle, placement.rotation, planted);
   }
 
   /**
@@ -142,13 +200,18 @@ export namespace AutoMovieMotionHumanLeg {
    * @param props The movement.
    * @returns The primitive, on the leg's channel.
    */
-  export function place(props: IAutoMovieMotionHumanLeg.IPlace): IAutoMovieMotionHumanPrimitive {
-    const limb: "leftLeg" | "rightLeg" = `${props.side}Leg`;
+  export function place(
+    props: IAutoMovieMotionHumanLeg.IPlace,
+  ): IAutoMovieMotionHumanPrimitive {
+    const limb: PlaceLimb = `${props.side}Leg`;
     return {
       channels: [limb],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         limbs: {
           ...posture.limbs,
@@ -194,8 +257,8 @@ export namespace AutoMovieMotionHumanLeg {
 
   /**
    * A foot lifted from one placement and set down on another between two
-   * instants, on the clock's minimum-jerk progress along {@link arc}. The
-   * foot is free inside the window and planted at its last instant.
+   * instants, on the clock's minimum-jerk progress along {@link arc}. The foot
+   * is free inside the window and planted at its last instant.
    *
    * @param body The body.
    * @param clock The action's clock.
@@ -220,7 +283,10 @@ export namespace AutoMovieMotionHumanLeg {
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
+      placement: (
+        _: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanFoot.IPlacement =>
         arc(from, to, clearance, clock.progress(window[0], window[1], seconds)),
       planted: (seconds: number): boolean =>
         clock.linear(window[0], window[1], seconds) >= 1,
@@ -240,48 +306,110 @@ function swingAnkle(
 }
 
 /** Raise only a genuine fresh interpolation result with the original parabola. */
-function raised(ankle: IAutoMovieVector3, clearance: number, share: number): IAutoMovieVector3 {
+function raised(
+  ankle: IAutoMovieVector3,
+  clearance: number,
+  share: number,
+): IAutoMovieVector3 {
   ankle.y = ankle.y + 4 * clearance * share * (1 - share);
   return ankle;
 }
 
-/** The same borrowed placement, current knee and optional fresh contact goal fields. */
+/**
+ * The same borrowed placement, current knee and optional fresh contact goal
+ * fields.
+ */
 function formed(
   point: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
   bend: IAutoMovieVector3,
   contact: IAutoMovieVector3 | undefined,
 ): IAutoMovieHumanLimbGoal {
-  return { point, rotation, bend, ...(contact === undefined ? {} : { planted: true, contact }) };
+  return {
+    point,
+    rotation,
+    bend,
+    ...(contact === undefined ? {} : { planted: true, contact }),
+  };
 }
+/** The alternatives of `GoalAtPosture`'s site. */
+type GoalAtPosture = "root" | "yaw";
 
-/** Original cold heading, current knee and actual bearing-contact admission order. */
-function goalAt(body: IAutoMovieMotionHumanBody, posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-  side: AutoMovieHumanSide, point: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion, planted: boolean, heading: number = HumanFoot.heading(rotation)): IAutoMovieHumanLimbGoal {
-  const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.knee(body, posture, side, heading);
-  return formed(point, rotation, bend, planted ? HumanFoot.offset(body, side, "mtp") : undefined);
+/**
+ * Original cold heading, current knee and actual bearing-contact admission
+ * order.
+ */
+function goalAt(
+  body: IAutoMovieMotionHumanBody,
+  posture: Pick<IAutoMovieMotionHumanPosture, GoalAtPosture>,
+  side: AutoMovieHumanSide,
+  point: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  planted: boolean,
+  heading: number = HumanFoot.heading(rotation),
+): IAutoMovieHumanLimbGoal {
+  const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.knee(
+    body,
+    posture,
+    side,
+    heading,
+  );
+  return formed(
+    point,
+    rotation,
+    bend,
+    planted ? HumanFoot.offset(body, side, "mtp") : undefined,
+  );
 }
+/** The alternatives of `PlacementReaderPosture`'s site. */
+type PlacementReaderPosture = "root" | "yaw";
 
-/** Genuine fixed-rotation producer shared by both actual prepared-placement APIs. */
-function placementReader(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, fixed: IAutoMovieQuaternion):
-  (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, point: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion, planted: boolean) => IAutoMovieHumanLimbGoal {
+/** The alternatives of `PlacementReaderPostureResult`'s site. */
+type PlacementReaderPostureResult = "root" | "yaw";
+
+/**
+ * Genuine fixed-rotation producer shared by both actual prepared-placement
+ * APIs.
+ */
+function placementReader(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  fixed: IAutoMovieQuaternion,
+  mayPlant: boolean = true,
+): (
+  posture: Pick<IAutoMovieMotionHumanPosture, PlacementReaderPostureResult>,
+  point: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  planted: boolean,
+) => IAutoMovieHumanLimbGoal {
   const x: number = fixed.x;
   const y: number = fixed.y;
   const z: number = fixed.z;
   const w: number = fixed.w;
-  let knee: ReturnType<typeof AutoMovieMotionHumanBend.prepareKnee> | undefined;
-  let contact: IAutoMovieVector3 | undefined;
-  return (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, point: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion, planted: boolean): IAutoMovieHumanLimbGoal => {
-    if (!Object.is(rotation.x, x) || !Object.is(rotation.y, y) ||
-      !Object.is(rotation.z, z) || !Object.is(rotation.w, w))
+  const knee: ReturnType<typeof AutoMovieMotionHumanBend.prepareKnee> =
+    AutoMovieMotionHumanBend.prepareKnee(body, side, HumanFoot.heading(fixed));
+  const contact: IAutoMovieVector3 | undefined = mayPlant
+    ? HumanFoot.offset(body, side, "mtp")
+    : undefined;
+  return (
+    posture: Pick<IAutoMovieMotionHumanPosture, PlacementReaderPosture>,
+    point: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+    planted: boolean,
+  ): IAutoMovieHumanLimbGoal => {
+    if (
+      !Object.is(rotation.x, x) ||
+      !Object.is(rotation.y, y) ||
+      !Object.is(rotation.z, z) ||
+      !Object.is(rotation.w, w)
+    )
       return goalAt(body, posture, side, point, rotation, planted);
-    if (knee === undefined)
-      knee = AutoMovieMotionHumanBend.prepareKnee(body, side, HumanFoot.heading(rotation));
     const bend: IAutoMovieVector3 = knee(posture);
-    if (planted && contact === undefined) contact = HumanFoot.offset(body, side, "mtp");
-    return formed(point, rotation, bend, planted ? { ...contact! } : undefined);
+    return formed(
+      point,
+      rotation,
+      bend,
+      planted && contact !== undefined ? { ...contact } : undefined,
+    );
   };
 }

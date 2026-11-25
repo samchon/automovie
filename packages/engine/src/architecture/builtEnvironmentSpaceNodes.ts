@@ -10,11 +10,28 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
 /**
  * Name what is staged in a logical space and its descendants.
  *
- * This is the join that keeps the visible model and the semantic partition from drifting apart: a room can be asked what is visibly inside it without a second traversal that could answer differently.
+ * This is the join that keeps the visible model and the semantic partition from
+ * drifting apart: a room can be asked what is visibly inside it without a
+ * second traversal that could answer differently.
  *
- * Two spellings come back, in this order, because two things are staged. An element contributes exactly the `node` id {@link lowerBuiltEnvironment} emits for it, `<environment>/<element>`. A population contributes `instance-set:<set>`, the one owner id the render inventory and the semantic mask already address a whole population by, because lowering emits it as one compact set and not as `count` nodes. Naming the population rather than its members is the difference between an answer and an unbounded expansion: one authored field of roof slate is 2,392 members, and a query a reviewer calls in a loop may not hand back 2,392 strings to say "there is slate here". {@link builtEnvironmentSpacePopulations} hands back the sets themselves for a caller that wants the placement law. Regeneration names a procedural member `instance:<set>:slot:<six-digit-index>` and an explicit member `instance:<set>:<transform-id>`, exactly as the production materializer does.
+ * Two spellings come back, in this order, because two things are staged. An
+ * element contributes exactly the `node` id {@link lowerBuiltEnvironment} emits
+ * for it, `<environment>/<element>`. A population contributes
+ * `instance-set:<set>`, the one owner id the render inventory and the semantic
+ * mask already address a whole population by, because lowering emits it as one
+ * compact set and not as `count` nodes. Naming the population rather than its
+ * members is the difference between an answer and an unbounded expansion: one
+ * authored field of roof slate is 2,392 members, and a query a reviewer calls
+ * in a loop may not hand back 2,392 strings to say "there is slate here".
+ * {@link builtEnvironmentSpacePopulations} hands back the sets themselves for a
+ * caller that wants the placement law. Regeneration names a procedural member
+ * `instance:<set>:slot:<six-digit-index>` and an explicit member
+ * `instance:<set>:<transform-id>`, exactly as the production materializer
+ * does.
  *
- * Membership is the authored `space` field folded through the space tree. Transform-only elements are left out because they draw nothing. Each group keeps record order. Throws an `Error` for an undeclared space id.
+ * Membership is the authored `space` field folded through the space tree.
+ * Transform-only elements are left out because they draw nothing. Each group
+ * keeps record order. Throws an `Error` for an undeclared space id.
  *
  * @param environment Building record to read.
  * @param spaceId Logical space whose staged contents are named.

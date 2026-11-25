@@ -5,6 +5,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -30,36 +31,50 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
+
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = { name: string; share: number };
+
+/** The record of `IPlanE`'s site. */
+type IPlanE = {
+  name: string;
+  share: number;
+};
+
 /**
- * A squat vault over a box: the hands set on the near edge of the box's
- * top, the body tucked over them, a push-off into a flight over the box and
- * a landing on both feet beyond its far edge.
+ * A squat vault over a box: the hands set on the near edge of the box's top,
+ * the body tucked over them, a push-off into a flight over the box and a
+ * landing on both feet beyond its far edge.
  *
- * The support phase is the support planner's (`support`): from standing
- * the palms are laid on the top at its near edge, then the body tucks over
- * the hands alone in the floor laws' squat (`getUp.POSES`). The flight is
- * ballistic in the root from the push-off under standard gravity
- * (`AutoMovieGravity.STANDARD`), on the least-speed arc from the tucked
- * root to the landing's (the push that reaches it with the least effort),
- * the joints blended from the tuck to the landing on minimum-jerk shares; the
- * flight is declared without turns, so the flight pass gives the whole
- * body's rotation from the angular momentum of none
- * (`IHumanActionPlan.IFlight`, `HumanPerformanceFlight`). The landing is
- * the stand law's quiet stance (`stand.posture`, its joints `getUp.quiet`)
- * with the heels a foot's length past the far edge (provisional), held for
- * `seconds`.
+ * The support phase is the support planner's (`support`): from standing the
+ * palms are laid on the top at its near edge, then the body tucks over the
+ * hands alone in the floor laws' squat (`getUp.POSES`). The flight is ballistic
+ * in the root from the push-off under standard gravity
+ * (`AutoMovieGravity.STANDARD`), on the least-speed arc from the tucked root to
+ * the landing's (the push that reaches it with the least effort), the joints
+ * blended from the tuck to the landing on minimum-jerk shares; the flight is
+ * declared without turns, so the flight pass gives the whole body's rotation
+ * from the angular momentum of none (`IHumanActionPlan.IFlight`,
+ * `HumanPerformanceFlight`). The landing is the stand law's quiet stance
+ * (`stand.posture`, its joints `getUp.quiet`) with the heels a foot's length
+ * past the far edge (provisional), held for `seconds`.
  *
- * The box is the prop's own `surface` affordance: its point the top's
- * middle and its declared `depth` along the prop's own Z, the far edge the
- * end of that depth farther along the heading. A landing that lies no
- * farther ahead than the push-off is refused: no flight carries the body
- * over the box to it. Events: `handsDown`, `tucked` (the push-off), `touchdown`.
+ * The box is the prop's own `surface` affordance: its point the top's middle
+ * and its declared `depth` along the prop's own Z, the far edge the end of that
+ * depth farther along the heading. A landing that lies no farther ahead than
+ * the push-off is refused: no flight carries the body over the box to it.
+ * Events: `handsDown`, `tucked` (the push-off), `touchdown`.
  */
 export namespace squatVault {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "squatVault";
 
-  /** Cancel table: a vault in the air cannot be cut; standing again once it has landed, from its `touchdown` on. */
+  /**
+   * Cancel table: a vault in the air cannot be cut; standing again once it has
+   * landed, from its `touchdown` on.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -71,12 +86,53 @@ export namespace squatVault {
     ],
   };
 
+  /** A vault's least-speed flight. */
+  export interface IArc {
+    /** `h + sqrt(h² + d²)`, metres. */
+    lift: number;
+
+    /** The launch speed, `sqrt(g lift)`, m/s. */
+    launch: number;
+
+    /** The launch angle above the level, radians: `atan(lift / d)`. */
+    angle: number;
+
+    /** The flight's seconds, `d / (launch cos angle)`. */
+    flight: number;
+
+    /** The launch's rising speed, m/s. */
+    rise: number;
+  }
+
+  /**
+   * The least-speed ballistic arc that rises `h` over a run `d`: its speed
+   * squared is `g (h + sqrt(h² + d²))` and its angle's tangent `(h + sqrt(h² +
+   * d²)) / d`.
+   *
+   * @param h The rise, metres.
+   * @param d The level run, metres.
+   * @returns The arc.
+   */
+  export function arc(h: number, d: number): IArc {
+    const lift: number = h + Math.sqrt(h * h + d * d);
+    const launch: number = Math.sqrt(AutoMovieGravity.STANDARD * lift);
+    const angle: number = Math.atan2(lift, d);
+    return {
+      lift,
+      launch,
+      angle,
+      flight: d / (launch * Math.cos(angle)),
+      rise: launch * Math.sin(angle),
+    };
+  }
   /**
    * Plan a squat vault.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the prop has no `surface`, the support planner refuses its stances, or the landing lies no farther ahead than the push-off.
+   * @throws {HumanRefusal} When the prop has no `surface`, the support planner
+   *   refuses its stances, or the landing lies no farther ahead than the
+   *   push-off.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSquatVault.IParams>,
@@ -117,9 +173,9 @@ export namespace squatVault {
       { x: 1, y: 0, z: 0 },
     );
     const palm: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanSupport.IContact = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanSupport.IContact => ({
       part: `${side}Hand`,
       kind: "bear",
@@ -198,11 +254,7 @@ export namespace squatVault {
         reason: `the landing beyond ${context.params.on} lies ${d.toFixed(3)} m ahead of the push-off, so no flight carries the body over it`,
         fix: "vault a box that lies ahead of the body",
       });
-    const lift: number = h + Math.sqrt(h * h + d * d);
-    const launch: number = Math.sqrt(g * lift);
-    const angle: number = Math.atan2(lift, d);
-    const flight: number = d / (launch * Math.cos(angle));
-    const rise: number = launch * Math.sin(angle);
+    const { flight, rise }: squatVault.IArc = arc(h, d);
     const speed: IAutoMovieVector3 = Vector3.scale(run, 1 / flight);
     const hold: number = context.params.hold ?? 0.5;
     const touchdown: number = push + flight;
@@ -211,14 +263,11 @@ export namespace squatVault {
       (s * push) / duration;
     return {
       duration,
-      settle: (): void => held.settle?.(),
+      prepare: (): void => held.prepare?.(),
       base: { kind: "standing" },
       events: [
         ...held.events.map(
-          (e: {
-            name: string;
-            share: number;
-          }): { name: string; share: number } => ({
+          (e: IPlanE): IPlanResult => ({
             name: e.name,
             share: share(e.share),
           }),
@@ -236,9 +285,7 @@ export namespace squatVault {
           }),
         ),
         ...(["leftFoot", "rightFoot"] as const).map(
-          (
-            part: "leftFoot" | "rightFoot",
-          ): IAutoMovieMotionHumanContactWindow => ({
+          (part: PlanPart): IAutoMovieMotionHumanContactWindow => ({
             part,
             kind: "plant",
             from: touchdown / duration,

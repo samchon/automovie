@@ -1,21 +1,3 @@
-# src/striking/StrikingHeldGoal.ts#StrikingHeldGoal
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes fixed grip/tool offsets from the actual changing frame and fallback bend.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Original canonical tool/frame/posture-goal types preserve contact, planting, strain choice and point limits; fixed preparation contains only rigid hand-local geometry.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-StrikingHeld's goal and prepareGoal facades share this owner, while its hand/point readers use the same tool-offset primitive.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Stores no pose, fit, time, candidate result or alternate contact bound; the two original task limits still use StrikingRoll.MISS.
-
 # src/striking/StrikingHeldGoal.ts#StrikingHeldGoal.goal
 
 ## @evidence contracts/development/common.md#meaningful-documentation

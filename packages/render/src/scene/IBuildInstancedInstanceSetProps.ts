@@ -7,13 +7,11 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
  * A compiled instance set and its prototype sources. Source objects remain
- * caller-owned; construction flattens rigid representations before making
- * the viewer's own chunk meshes, materials and per-frame accounting state.
+ * caller-owned; construction flattens rigid representations before making the
+ * viewer's own chunk meshes, materials and per-frame accounting state.
  */
 export interface IBuildInstancedInstanceSetProps {
-  /**
-   * Compact set whose chunks, variation and prototype LOD definitions are read.
-   */
+  /** Compact set whose chunks, variation and prototype LOD definitions are read. */
   instanceSet: IAutoMovieCompiledInstanceSet;
 
   /**
@@ -24,8 +22,8 @@ export interface IBuildInstancedInstanceSetProps {
 
   /**
    * Already-loaded prototype objects keyed by runtime model id. Omission or a
-   * missing entry builds that portable model instead. Objects are borrowed,
-   * and flattening refuses unsupported skin, morph or multi-material meshes.
+   * missing entry builds that portable model instead. Objects are borrowed, and
+   * flattening refuses unsupported skin, morph or multi-material meshes.
    */
   prototypeObjects?: ReadonlyMap<string, IAutoMovieModelObject>;
 }

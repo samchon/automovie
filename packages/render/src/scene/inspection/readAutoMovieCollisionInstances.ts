@@ -8,32 +8,28 @@ import * as THREE from "three";
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
 import { formationCyclePosition } from "../formationCyclePosition.js";
+import { isAutoMovieFormationCycleMaterial } from "../isAutoMovieFormationCycleMaterial.js";
+import { readMaterialShaderPatches } from "../readMaterialShaderPatches.js";
 import { sampleFormationCycleMatrix } from "../sampleFormationCycleMatrix.js";
 import { AutoMovieCollisionSource } from "./AutoMovieCollisionSource.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
-/** Program key installed by the formation cycle material owner. */
-const CYCLE_PROGRAM: string = "automovie-formation-cycle";
-
-/** Union of every part's rest bounds over the baked samples of one take, per geometry. */
-const CYCLE_BOUNDS: WeakMap<
-  IAutoMovieFormationCycleTake,
-  WeakMap<THREE.BufferGeometry, THREE.Box3 | null>
-> = new WeakMap();
-
 /**
- * Read each drawn instance of a batch, named by the generator's slot when it recorded one.
+ * Read each drawn instance of a batch, named by the generator's slot when it
+ * recorded one.
  *
  * A static stock box instance is an exact displayed solid. Any other admitted
  * instance is a world envelope over its static geometry or every baked sample
- * of its playing cycle, with a surface posed by the vertex stage's own law.
- * A zero-scale instance draws nothing and is skipped.
+ * of its playing cycle, with a surface posed by the vertex stage's own law. A
+ * zero-scale instance draws nothing and is skipped.
  *
  * @param mesh The drawn batch.
  * @param identity Path prefix for instances without a generator record.
- * @param budget Posed vertices the frame may still spend; charged when a surface is read.
+ * @param budget Posed vertices the frame may still spend; charged when a
+ *   surface is read.
  * @param add Receives each part, its lazy surface and any unsupported reason.
  */
 export function readAutoMovieCollisionInstances(
@@ -73,11 +69,7 @@ export function readAutoMovieCollisionInstances(
     };
     mesh.getMatrixAt(index, instance);
     // A zero-scale instance is a withdrawn member that rasterizes nothing.
-    if (
-      instance.determinant() === 0 &&
-      instance.elements.every(Number.isFinite)
-    )
-      continue;
+    if (instance.determinant() === 0) continue;
     const placement: THREE.Matrix4 = new THREE.Matrix4().multiplyMatrices(
       mesh.matrixWorld,
       instance,
@@ -139,17 +131,21 @@ export function readAutoMovieCollisionInstances(
   }
 }
 
-/** Admit stock surfaces drawn by the default program, or by the formation cycle program when the batch has a cycle. */
+/**
+ * Admit stock surfaces drawn by the default program, or by the formation cycle
+ * program when the batch has a cycle: the cycle's patch alone, since the
+ * envelope follows only the cycle's vertex law and another patch would move the
+ * drawn vertices off it.
+ */
 function admits(mesh: THREE.InstancedMesh, cyclic: boolean): boolean {
-  const materials: THREE.Material[] = Array.isArray(mesh.material)
-    ? mesh.material
-    : [mesh.material];
+  const materials: THREE.Material[] = [mesh.material].flat();
   return (
     materials.length !== 0 &&
     materials.every(readAutoMovieDisplayedBox.supportsStockSurface) &&
     materials.every((material: THREE.Material): boolean =>
       cyclic
-        ? material.customProgramCacheKey() === CYCLE_PROGRAM
+        ? isAutoMovieFormationCycleMaterial(material) &&
+          readMaterialShaderPatches(material).length === 1
         : material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile,
     ) &&
     mesh.onBeforeRender === THREE.Object3D.prototype.onBeforeRender &&
@@ -204,18 +200,16 @@ function cyclePose(
   };
 }
 
-/** Linear mixes of two samples keep each point inside their segment, so the samples bound every phase. */
+/**
+ * Linear mixes of two samples keep each point inside their segment, so the
+ * samples bound every phase.
+ */
 function cycleBounds(
   geometry: THREE.BufferGeometry,
   topology: readAutoMovieCollisionTopology.ITopology,
   cycle: IAutoMovieFormationCycle,
   take: IAutoMovieFormationCycleTake,
 ): THREE.Box3 | null {
-  let byGeometry: WeakMap<THREE.BufferGeometry, THREE.Box3 | null> | undefined =
-    CYCLE_BOUNDS.get(take);
-  if (byGeometry === undefined)
-    CYCLE_BOUNDS.set(take, (byGeometry = new WeakMap()));
-  if (byGeometry.has(geometry)) return byGeometry.get(geometry)!;
   const parts:
     | THREE.BufferAttribute
     | THREE.InterleavedBufferAttribute
@@ -237,12 +231,11 @@ function cycleBounds(
           box.clone().applyMatrix4(exactSample(take, cycle, part, sample)),
         );
     if (
-      !readAutoMovieCollisionTopology.finite(result.min) ||
-      !readAutoMovieCollisionTopology.finite(result.max)
+      !isAutoMovieFloat32Point(result.min) ||
+      !isAutoMovieFloat32Point(result.max)
     )
       result = null;
   }
-  byGeometry.set(geometry, result);
   return result;
 }
 

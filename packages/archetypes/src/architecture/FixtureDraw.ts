@@ -13,12 +13,11 @@ import type { createSanitary } from "./createSanitary";
 import type { createStreetFixture } from "./createStreetFixture";
 
 /**
- * The units of saved architectural recipes and the dimension-only draw used by wall-backed fixtures.
+ * The units of saved architectural recipes and the dimension-only draw used by
+ * wall-backed fixtures.
  */
 export namespace FixtureDraw {
-  /**
-   * The part of a fixture builder that writes a particular set of contacts.
-   */
+  /** The part of a fixture builder that writes a particular set of contacts. */
   export interface IContactWriter<Id extends string> {
     /**
      * Record an affordance with one of this helper's contact identifiers.
@@ -117,24 +116,25 @@ export namespace FixtureDraw {
     massPerMetre: "kg",
   };
 
-  /**
-   * The values {@link installed} accepts at this place in its signature.
-   */
+  /** The values {@link installed} accepts at this place in its signature. */
   export type InstalledFamily = "appliance" | "sanitary";
 
   /**
-   * Draw the measured bands and build one composite appliance or plumbing fixture.
+   * Draw the measured bands and build one composite appliance or plumbing
+   * fixture.
    *
    * @param family The existing seed namespace.
    * @param name The displayed model name.
    * @param units The original unit record.
    * @param bands The selected producer's bands.
-   * @param familyBands The original bands used to refuse fields belonging to a different variant.
+   * @param familyBands The original bands used to refuse fields belonging to a
+   *   different variant.
    * @param params The fixed dimensions and optional id.
    * @param seed The seed for unfixed dimensions.
    * @param construct The selected producer's construction.
    * @returns The fixture and its contact frames.
-   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside the selected fixture's bands.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside the
+   *   selected fixture's bands.
    */
   export function installed<Id extends string, D extends string>(
     family: InstalledFamily,
@@ -145,7 +145,7 @@ export namespace FixtureDraw {
       Record<string, Readonly<Partial<Record<D, IAutoMovieArchetypeBand>>>>
     >,
     params: Partial<Record<D, number>> & { id?: string },
-    seed: number | string | undefined,
+    seed: number | undefined,
     construct: (
       builder: AutoMovieArchetypeBuilder<Id, D>,
       dimensions: Partial<Record<D, number>>,

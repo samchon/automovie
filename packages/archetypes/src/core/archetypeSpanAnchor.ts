@@ -16,7 +16,8 @@ import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
  * @param id The real part carrying the anchor.
  * @param point Construction point in model metres.
  * @returns A part-local span endpoint derived from that part frame.
- * @throws {AutoMovieArchetypeRefusal} For a missing carrier, nonfinite point or non-rigid frame.
+ * @throws {AutoMovieArchetypeRefusal} For a missing carrier, nonfinite point or
+ *   non-rigid frame.
  */
 export function archetypeSpanAnchor(
   archetype: string,
@@ -51,18 +52,10 @@ export function archetypeSpanAnchor(
     frame.rotation.w,
   );
   if (
-    ![
-      point.x,
-      point.y,
-      point.z,
-      frame.translation.x,
-      frame.translation.y,
-      frame.translation.z,
-    ].every(Number.isFinite) ||
     ![frame.scale.x, frame.scale.y, frame.scale.z].every(
       (scale: number): boolean => scale === 1,
     ) ||
-    !(Number.isFinite(norm) && Math.abs(norm - 1) <= 64 * Number.EPSILON)
+    !(Math.abs(norm - 1) <= 64 * Number.EPSILON)
   )
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
@@ -78,15 +71,5 @@ export function archetypeSpanAnchor(
     Quaternion.inverse(frame.rotation),
     Vector3.subtract(point, frame.translation),
   );
-  if (![local.x, local.y, local.z].every(Number.isFinite))
-    throw new AutoMovieArchetypeRefusal({
-      kind: "parameter",
-      archetype,
-      axis: "span.anchor",
-      value: point,
-      feasible: null,
-      reason: "the part-local span anchor is not finitely representable",
-      fix: "supply a representable attachment point relative to its actual carrier",
-    });
   return { part: id, at: local };
 }

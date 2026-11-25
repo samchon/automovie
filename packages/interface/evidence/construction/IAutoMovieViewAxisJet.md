@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieViewAxisJet.ts#IAutoMovieViewAxisJet
-
-## @evidence contracts/development/design.md#principled-representation
-
-IJet separates frame value from first/second component derivatives in the selected coordinate, station mm by default.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ViewAxisJet shares LoftFrame's component layout with analytic axis producers and loft source bindings.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Derivative axes are not normalized directions; finite value and available derivative orders require source admission.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Gives origin/axis units and derivative-coordinate interpretation.
-
 # src/construction/IAutoMovieViewAxisJet.ts#IAutoMovieViewAxisJet.IJet
 
 ## @evidence contracts/development/design.md#principled-representation

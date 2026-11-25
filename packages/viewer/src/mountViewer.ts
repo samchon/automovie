@@ -23,9 +23,23 @@ type ViewerFrameProducer =
   | ((elapsedSeconds: number) => void);
 
 /**
- * Mount a render loop onto a canvas: create a `WebGLRenderer`, drive `onFrame(elapsedSeconds)` each animation frame, then render `scene` from `camera`.
+ * Mount a render loop onto a canvas: create a `WebGLRenderer`, drive
+ * `onFrame(elapsedSeconds)` each animation frame, then render `scene` from
+ * `camera`.
  *
- * This is the one browser-only entry point. `onFrame` is where a {@link AutoMoviePlayer} advances: the viewer stays a thin shell around the deterministic engine. `elapsedSeconds` is measured from the first frame. If `onFrame` returns `true` it has **already drawn** the frame itself (e.g. a multi-pass cross-dissolve composite), so the loop skips its own default `render`; returning `undefined`/`false` keeps the plain single-pass render. External seek/guide producers call the returned `completeFrame` immediately after their original draw, before an unpreserved native buffer can clear. A manual guide retains the completed clock; a seek supplies its own seconds. Freezes suppress animation producer calls; explicit redraw/restoration still uses the original producer. Independently advancing source clocks or audio supply `freezeCompleted` and restore their source time through `redrawCompleted`.
+ * This is the one browser-only entry point. `onFrame` is where a
+ * {@link AutoMoviePlayer} advances: the viewer stays a thin shell around the
+ * deterministic engine. `elapsedSeconds` is measured from the first frame. If
+ * `onFrame` returns `true` it has **already drawn** the frame itself (e.g. a
+ * multi-pass cross-dissolve composite), so the loop skips its own default
+ * `render`; returning `undefined`/`false` keeps the plain single-pass render.
+ * External seek/guide producers call the returned `completeFrame` immediately
+ * after their original draw, before an unpreserved native buffer can clear. A
+ * manual guide retains the completed clock; a seek supplies its own seconds.
+ * Freezes suppress animation producer calls; explicit redraw/restoration still
+ * uses the original producer. Independently advancing source clocks or audio
+ * supply `freezeCompleted` and restore their source time through
+ * `redrawCompleted`.
  */
 export const mountViewer: (
   canvas: HTMLCanvasElement,
@@ -56,10 +70,7 @@ export const mountViewer: (
         canvas.clientWidth || 1,
         canvas.clientHeight || 1,
         options?.pixelRatio ??
-          (Number.isFinite(window.devicePixelRatio) &&
-          window.devicePixelRatio > 0
-            ? window.devicePixelRatio
-            : 1),
+          (window.devicePixelRatio > 0 ? window.devicePixelRatio : 1),
       );
     synchronizeViewport();
 

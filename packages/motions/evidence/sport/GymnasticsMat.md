@@ -1,21 +1,3 @@
-# src/sport/GymnasticsMat.ts#GymnasticsMat
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the landing does, how the body rests, how the velocity is carried and what the first pass leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A posture by seconds since the touchdown, built from the touchdown posture, its velocity and the surface's height.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two durations and one function, read by the high jump and the pole vault.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The lying posture is `lieDown`'s; the rest height is the body's own shapes'.
-
 # src/sport/GymnasticsMat.ts#GymnasticsMat.lie
 
 ## @evidence contracts/development/common.md#meaningful-documentation

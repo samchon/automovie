@@ -8,13 +8,13 @@ import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAdd
  *
  * `station` is the actual closed source domain in kernel mm; `phase` is the
  * caller's closed chart branch in radians. Loop station inputs retain public
- * metres. The returned dimensionless Q is greater than originalShare > 0.
- * Both that original control and Q are certified with the actual address owner.
+ * metres. The returned dimensionless Q is greater than originalShare > 0. Both
+ * that original control and Q are certified with the actual address owner.
  * Fixed-clock rounded coordinates are monotone on their intervening interval.
  * The caller still admits any separately selected q=0 endpoint at its source.
  *
- * For s=RN(y0+RN(RN(q*a)*c)), c>0 requires the rounded inner product to be
- * at most down(down(U-y0)/c). Dividing that threshold downward by positive a
+ * For s=RN(y0+RN(RN(q*a)*c)), c>0 requires the rounded inner product to be at
+ * most down(down(U-y0)/c). Dividing that threshold downward by positive a
  * bounds q. For c<0, use up(L-y0) before the negative division. Every threshold
  * is representable, so monotonic rounding preserves each sufficient inequality.
  * Phase uses the same proof: sense=+/-1 is an exact sign change and RN is sign
@@ -36,23 +36,35 @@ export function AutoMovieConstructionPortRadialRange(
   const p0: number = loop.centre[1];
   const a: number = loop.semi[0] * 1000;
   const b: number = loop.semi[1];
-  if (!Number.isFinite(clock) || ![y0, p0, a, b, originalShare].every(Number.isFinite) ||
+  if (
     !(a > 0 && b > 0 && originalShare > 0) ||
-    !(loop.sense === 1 || loop.sense === -1))
-    throw new Error("Port radial range needs a finite clock, centre, positive axes/share and signed phase sense.");
-  if (![...station, ...phase].every(Number.isFinite) ||
-    !(station[0] < station[1] && phase[0] < phase[1]))
-    throw new Error("Port radial range needs finite increasing closed source and phase bounds.");
+    !(loop.sense === 1 || loop.sense === -1)
+  )
+    throw new Error(
+      "Port radial range needs a finite clock, centre, positive axes/share and signed phase sense.",
+    );
+  if (!(station[0] < station[1] && phase[0] < phase[1]))
+    throw new Error(
+      "Port radial range needs finite increasing closed source and phase bounds.",
+    );
 
-  /** Certify the actual composed Float64 address without reading or moving a source. */
+  /**
+   * Certify the actual composed Float64 address without reading or moving a
+   * source.
+   */
   const admit: (share: number, role: string) => void = (
     share: number,
     role: string,
   ): void => {
-    const [s, t]: [number, number] = AutoMovieConstructionPortAddress(loop, clock, share);
-    if (!(Number.isFinite(s) && Number.isFinite(t) &&
-      s >= station[0] && s <= station[1] && t >= phase[0] && t <= phase[1]))
-      throw new Error("Port radial range " + role + " fails literal source/phase admission.");
+    const [s, t]: [number, number] = AutoMovieConstructionPortAddress(
+      loop,
+      clock,
+      share,
+    );
+    if (!(s >= station[0] && s <= station[1] && t >= phase[0] && t <= phase[1]))
+      throw new Error(
+        "Port radial range " + role + " fails literal source/phase admission.",
+      );
   };
   admit(originalShare, "original control");
 
@@ -82,21 +94,48 @@ export function AutoMovieConstructionPortRadialRange(
         direction < 0,
       );
       step = "direction division";
-      const inner: number = adjacentAutoMovieFloat64(distance / direction, false);
+      const inner: number = adjacentAutoMovieFloat64(
+        distance / direction,
+        false,
+      );
       step = "amplitude division";
       return adjacentAutoMovieFloat64(inner / amplitude, false);
     } catch (error: unknown) {
-      throw new Error("Port radial range " + owner + " " + step + " is unavailable: " +
-        (error instanceof Error ? error.message : String(error)));
+      throw new Error(
+        "Port radial range " +
+          owner +
+          " " +
+          step +
+          " is unavailable: " +
+          (error instanceof Error ? error.message : String(error)),
+      );
     }
   };
 
-  const stationLimit: number | null = bound(y0, a, Math.cos(clock), station, "station");
-  const phaseLimit: number | null = bound(p0, b, loop.sense * Math.sin(clock), phase, "phase");
-  const maximum: number | null = stationLimit === null ? phaseLimit :
-    phaseLimit === null ? stationLimit : Math.min(stationLimit, phaseLimit);
-  if (maximum === null || !(Number.isFinite(maximum) && maximum > originalShare))
-    throw new Error("Port radial range has no representable positive outer endpoint beyond its original control.");
+  const stationLimit: number | null = bound(
+    y0,
+    a,
+    Math.cos(clock),
+    station,
+    "station",
+  );
+  const phaseLimit: number | null = bound(
+    p0,
+    b,
+    loop.sense * Math.sin(clock),
+    phase,
+    "phase",
+  );
+  const maximum: number | null =
+    stationLimit === null
+      ? phaseLimit
+      : phaseLimit === null
+        ? stationLimit
+        : Math.min(stationLimit, phaseLimit);
+  if (maximum === null || !(maximum > originalShare))
+    throw new Error(
+      "Port radial range has no representable positive outer endpoint beyond its original control.",
+    );
   admit(maximum, "candidate endpoint");
   return maximum;
 }

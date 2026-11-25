@@ -17,16 +17,11 @@ import { orderValueDrivers } from "./orderValueDrivers";
 /** The two channel-space drivers this pass resolves (no world transform needed). */
 type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
 
-const VALUE_DRIVER_TYPES: Set<unknown> = new Set<unknown>(["copy", "driven"]);
-const DEFERRED_DRIVER_TYPES: Set<unknown> = new Set<unknown>([
-  "aim",
-  "ik",
-  "parent",
-  "spring",
-]);
-
 /**
- * Evaluate copy and driven channels in stable dependency order, mutating samples before constraints. Return world/stateful descriptors in original order. Unknown kinds and reciprocal dependencies throw; a null/absent curve selects linear range mapping.
+ * Evaluate copy and driven channels in stable dependency order, mutating
+ * samples before constraints. Return world/stateful descriptors in original
+ * order. Unknown kinds and reciprocal dependencies throw; a null/absent curve
+ * selects linear range mapping.
  */
 export const resolveDrivers: (
   drivers: IAutoMovieDriver[],
@@ -39,12 +34,9 @@ export const resolveDrivers: (
 ): IAutoMovieDriver[] => {
   const value: ValueDriver[] = [];
   const deferred: IAutoMovieDriver[] = [];
-  for (const d of drivers) {
-    const type: unknown = (d as { type?: unknown }).type;
-    if (VALUE_DRIVER_TYPES.has(type)) value.push(d as ValueDriver);
-    else if (DEFERRED_DRIVER_TYPES.has(type)) deferred.push(d);
-    else throw new Error(`unknown driver type "${String(type)}"`);
-  }
+  for (const d of drivers)
+    if (d.type === "copy" || d.type === "driven") value.push(d);
+    else deferred.push(d);
 
   for (const d of orderValueDrivers(value))
     if (d.type === "copy") applyCopy(d, sampled, nodesById);
@@ -64,35 +56,15 @@ const applyCopy: (
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
 ): void => {
-  validateCopyFlag(d.translation, "translation");
-  validateCopyFlag(d.rotation, "rotation");
-  validateCopyFlag(d.scale, "scale");
   validateCopyInfluence(d.influence);
   if (d.translation) writeBlend(d, "translation", false, sampled, nodesById);
   if (d.rotation) writeBlend(d, "rotation", true, sampled, nodesById);
   if (d.scale) writeBlend(d, "scale", false, sampled, nodesById);
 };
 
-const validateCopyFlag: (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-) => void = (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-): void => {
-  if (typeof value !== "boolean")
-    throw new Error(
-      `copy driver ${label} flag must be boolean, but was ${value}`,
-    );
-};
-
 const validateCopyInfluence: (influence: number) => void = (
   influence: number,
 ): void => {
-  if (!Number.isFinite(influence))
-    throw new Error(
-      `copy driver influence must be finite, but was ${influence}`,
-    );
   if (influence < 0)
     throw new Error(
       `copy driver influence must be between 0 and 1, but was ${influence}`,
@@ -177,8 +149,6 @@ const validateCopySampledValue: (
   value: number[],
 ): void => {
   const expected: 3 | 4 = COPY_SAMPLE_WIDTHS[path];
-  if (!Array.isArray(value))
-    throw new Error(`copy driver ${role} ${path} value must be an array`);
   if (value.length !== expected)
     throw new Error(
       `copy driver ${role} ${path} value must contain exactly ${expected} entries, but had ${value.length}`,
@@ -210,7 +180,6 @@ const applyDriven: (
   );
   const source: number | undefined =
     src !== undefined ? readDrivenSourceValue(src.value) : undefined;
-  if (source !== undefined) validateDrivenFinite("source value", source);
   const y: number =
     d.curve !== null && d.curve !== undefined
       ? evaluateDrivenCurve(source, d.curve)
@@ -269,19 +238,10 @@ const readDrivenSourceValue: (value: number[]) => number = (
 const validateDrivenSourceValue: (value: number[]) => void = (
   value: number[],
 ): void => {
-  if (!Array.isArray(value))
-    throw new Error("driven driver source value must be an array");
   if (value.length !== 1)
     throw new Error(
       `driven driver source value must contain exactly 1 entry, but had ${value.length}`,
     );
-};
-
-const validateDrivenClamp: (clamp: boolean) => void = (
-  clamp: boolean,
-): void => {
-  if (typeof clamp !== "boolean")
-    throw new Error(`driven driver clamp must be boolean, but was ${clamp}`);
 };
 
 const validateDrivenRange: (
@@ -290,30 +250,16 @@ const validateDrivenRange: (
 ) => void = (inRange: [number, number], outRange: [number, number]): void => {
   validateDrivenRangeTuple("inRange", inRange);
   validateDrivenRangeTuple("outRange", outRange);
-  validateDrivenFinite("inRange[0]", inRange[0]);
-  validateDrivenFinite("inRange[1]", inRange[1]);
-  validateDrivenFinite("outRange[0]", outRange[0]);
-  validateDrivenFinite("outRange[1]", outRange[1]);
 };
 
 const validateDrivenRangeTuple: (
   label: "inRange" | "outRange",
   range: [number, number],
 ) => void = (label: "inRange" | "outRange", range: [number, number]): void => {
-  if (!Array.isArray(range))
-    throw new Error(`driven driver ${label} must be an array`);
   if (range.length !== 2)
     throw new Error(
       `driven driver ${label} must contain exactly 2 entries, but had ${range.length}`,
     );
-};
-
-const validateDrivenFinite: (label: string, value: number) => void = (
-  label: string,
-  value: number,
-): void => {
-  if (!Number.isFinite(value))
-    throw new Error(`driven driver ${label} must be finite, but was ${value}`);
 };
 
 const remapDriven: (
@@ -329,7 +275,6 @@ const remapDriven: (
       "driven driver without a curve requires inRange and outRange",
     );
   validateDrivenRange(inRange, outRange);
-  if (d.clamp !== undefined) validateDrivenClamp(d.clamp);
   return remap(source ?? inRange[0], inRange, outRange, d.clamp ?? false);
 };
 

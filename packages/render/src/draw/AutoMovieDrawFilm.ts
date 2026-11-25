@@ -8,6 +8,7 @@ import type * as THREE from "three";
 import type { IAutoMovieRenderModeHandle } from "../scene/IAutoMovieRenderModeHandle.js";
 import { applyRenderMode } from "../scene/applyRenderMode.js";
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
+import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
 import type { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
@@ -49,7 +50,9 @@ import { planAutoMovieDrawPicture } from "./planAutoMovieDrawPicture.js";
  * a fade's midpoint, is the cleared canvas, black or transparent. Any other
  * picture is drawn as one placement.
  */
-export class AutoMovieDrawFilm {
+export class AutoMovieDrawFilm<
+  TRenderer extends AutoMovieDrawFilm.IRenderer = THREE.WebGLRenderer,
+> {
   /** The layers a film picture composites, or null for one placement. */
   public readonly layers: IAutoMoviePlaybackLayer[] | null;
 
@@ -72,7 +75,9 @@ export class AutoMovieDrawFilm {
   private sampled_: IAutoMovieFilmOptics | undefined = undefined;
 
   /** Plan the picture at the drawn second; a refused plan throws. */
-  public constructor(private readonly props: AutoMovieDrawFilm.IProps) {
+  public constructor(
+    private readonly props: AutoMovieDrawFilm.IProps<TRenderer>,
+  ) {
     const plan: ReturnType<typeof planAutoMovieDrawPicture> =
       planAutoMovieDrawPicture(props.name, props.scene, props.seconds);
     this.layers = props.film ? plan.layers : null;
@@ -155,7 +160,7 @@ export class AutoMovieDrawFilm {
 
   /** Place, draw and hold one layer drawn before the shown one. */
   private async hold(layer: IAutoMoviePlaybackLayer): Promise<void> {
-    const props: AutoMovieDrawFilm.IProps = this.props;
+    const props: AutoMovieDrawFilm.IProps<TRenderer> = this.props;
     props.restore();
     props.prepare();
     if (props.shade === "graphics") {
@@ -187,7 +192,7 @@ export class AutoMovieDrawFilm {
   private sample(
     layer: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null,
   ): Promise<IAutoMovieFilmOptics | undefined> {
-    const props: AutoMovieDrawFilm.IProps = this.props;
+    const props: AutoMovieDrawFilm.IProps<TRenderer> = this.props;
     return props.beauty.sample({
       scene: props.scene,
       seconds: props.seconds,
@@ -206,7 +211,7 @@ export class AutoMovieDrawFilm {
   private place(
     layer: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null,
   ): (seconds: number) => Promise<void> {
-    const props: AutoMovieDrawFilm.IProps = this.props;
+    const props: AutoMovieDrawFilm.IProps<TRenderer> = this.props;
     return async (at: number): Promise<void> => {
       await placeAutoMovieDrawLayer(props.name, props.scene, layer, at);
       props.scene.beforeDraw?.(props.renderer, at);
@@ -218,7 +223,7 @@ export class AutoMovieDrawFilm {
     camera: THREE.Camera,
     sampled: IAutoMovieFilmOptics | undefined,
   ): void {
-    const props: AutoMovieDrawFilm.IProps = this.props;
+    const props: AutoMovieDrawFilm.IProps<TRenderer> = this.props;
     if (props.shade === "graphics")
       props.beauty.plate({
         scene: props.scene,
@@ -247,16 +252,23 @@ function slotOf(layer: IAutoMoviePlaybackLayer): number {
 
 /** Types of `AutoMovieDrawFilm`. */
 export namespace AutoMovieDrawFilm {
+  /**
+   * What a picture needs of its renderer: the film response's drawing, a render
+   * target and clearing.
+   */
+  export type IRenderer = IAutoMovieFilmResponseRenderer &
+    Pick<THREE.WebGLRenderer, "clear">;
+
   /** What one draw call's picture is drawn with. */
-  export interface IProps {
+  export interface IProps<TRenderer extends IRenderer = THREE.WebGLRenderer> {
     /** The subject's name, which a refusal names. */
     name: string;
 
     /** The created subject. */
-    scene: IAutoMovieDrawScene;
+    scene: IAutoMovieDrawScene<TRenderer>;
 
     /** The page's renderer, which `beforeDraw` and a cleared picture use. */
-    renderer: THREE.WebGLRenderer;
+    renderer: TRenderer;
 
     /** The beauty stages, the graphics plate and the held layers. */
     beauty: Pick<

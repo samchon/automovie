@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieTessellateContourPath64.ts#IAutoMovieTessellateContourPath64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Saved world-millimetre rings and explicit P/Q steps produce a metre mesh with physical identities and per-pair reports. String steps require runtime P/Q cardinality admission; finite retained faces do not certify the path's optimality or embeddedness.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Saved world-millimetre rings and explicit P/Q steps produce a metre mesh with physical identities and per-pair reports.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-tessellateAutoMovieContourPath64 admits IInput and returns newly owned IResult geometry and observations.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-String steps require runtime P/Q cardinality admission; finite retained faces do not certify the path's optimality or embeddedness.
-
 # src/geometry/curve/IAutoMovieTessellateContourPath64.ts#IAutoMovieTessellateContourPath64.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

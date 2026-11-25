@@ -1,15 +1,17 @@
 import type {
   IAutoMovieAffordance,
+  IAutoMovieFlameCue,
   IAutoMovieModel,
   IAutoMoviePracticalLightBinding,
+  IAutoMovieSceneNode,
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { heskestadFlameHeight } from "../film/flame/heskestadFlameHeight";
-import { isRecord } from "./isRecord";
-import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateColor } from "./validateColor";
-import { validateObjectArtifact } from "./validateObjectArtifact";
+
+/** A flame uses its registered model only to find the declared emitter. */
+type FlameEmitterModel = Pick<IAutoMovieModel, "id" | "affordances">;
 
 /**
  * Smallest open-fire diameter, metres: `(1.5 / 7.5)²`, where the puffing
@@ -22,29 +24,29 @@ const MIN_OPEN_DIAMETER: number = 0.04;
 /**
  * Check a shot's flame cues, appending findings under `$input.flames`.
  *
- * Structurally, every cue has a nonblank id unique in the shot, a staged node,
- * a nonblank emitter id, a nonnegative safe-integer seed and a positive finite
- * size; an open fire also needs a diameter of at least 0.04 m and a positive
- * Heskestad height. An `on` interval is `0 <= start < end <= duration`.
- * `emission`, a positive finite luminance with a valid colour, is present
- * exactly when `light` is absent, and no two cues name one `light`.
+ * Every cue has an id unique in the shot, a staged node, a nonnegative
+ * safe-integer seed and a positive finite size; an open fire also needs a
+ * diameter of at least 0.04 m and a positive Heskestad height. An `on` interval
+ * is `0 <= start < end <= duration`. `emission`, a positive finite luminance
+ * with a valid colour, is present exactly when `light` is absent, and no two
+ * cues name one `light`.
  *
  * `context` adds what only the caller holds. With `models`, the node's model
  * must be registered and the emitter must be a fixed affordance of it. With
  * `bindings`, the shot's practical light bindings, `light` must name one on the
  * cue's own node and emitter whose `on` equals the cue's. With `lights`, the
  * ids of the shot's light clips, `light` must name one, since a compiled shot
- * carries each binding as the clip of its id. Absent, those references are
- * checked for shape only.
+ * carries each binding as the clip of its id. Absent, those references are not
+ * resolved.
  */
 export function appendFlamesArtifact(
-  flames: unknown,
-  sceneNodes: readonly unknown[],
+  flames: readonly IAutoMovieFlameCue[] | undefined,
+  sceneNodes: readonly Pick<IAutoMovieSceneNode, "id" | "model">[],
   duration: number,
   collector: IAutoMovieViolationCollector,
   context: {
     /** The registered models the cues' nodes stage. */
-    models?: readonly IAutoMovieModel[];
+    models?: readonly FlameEmitterModel[];
 
     /** The shot's practical light bindings, at performance admission. */
     bindings?: readonly IAutoMoviePracticalLightBinding[];
@@ -54,26 +56,22 @@ export function appendFlamesArtifact(
   } = {},
 ): void {
   const root: string = "$input.flames";
-  if (
-    flames === undefined ||
-    !validateArrayArtifact(flames, root, "flame cues", collector.items)
-  )
-    return;
+  if (flames === undefined) return;
 
-  const staged: Map<string, string> = new Map();
-  for (const node of sceneNodes)
-    if (
-      isRecord(node) &&
-      typeof node.id === "string" &&
-      typeof node.model === "string"
-    )
-      staged.set(node.id, node.model);
-  const models: Map<string, IAutoMovieModel> | undefined =
+  const staged: Map<string, string> = new Map(
+    sceneNodes.map(
+      (node: Pick<IAutoMovieSceneNode, "id" | "model">): [string, string] => [
+        node.id,
+        node.model,
+      ],
+    ),
+  );
+  const models: Map<string, FlameEmitterModel> | undefined =
     context.models === undefined
       ? undefined
       : new Map(
           context.models.map(
-            (model: IAutoMovieModel): [string, IAutoMovieModel] => [
+            (model: FlameEmitterModel): [string, FlameEmitterModel] => [
               model.id,
               model,
             ],
@@ -95,14 +93,9 @@ export function appendFlamesArtifact(
   const ids: Set<string> = new Set();
   const bound: Set<string> = new Set();
 
-  for (const [index, cue] of flames.entries()) {
+  flames.forEach((cue: IAutoMovieFlameCue, index: number): void => {
     const path: string = `${root}[${index}]`;
-    if (!validateObjectArtifact(cue, path, "flame cue", collector.items))
-      continue;
-
-    if (typeof cue.id !== "string" || cue.id.trim().length === 0)
-      collector.push("type", `${path}.id`, "flame id must be nonblank", cue.id);
-    else if (ids.has(cue.id))
+    if (ids.has(cue.id))
       collector.push(
         "type",
         `${path}.id`,
@@ -112,7 +105,7 @@ export function appendFlamesArtifact(
     else ids.add(cue.id);
 
     appendPlace(cue, path, staged, models, collector);
-    if (!Number.isSafeInteger(cue.seed) || (cue.seed as number) < 0)
+    if (cue.seed < 0)
       collector.push(
         "range",
         `${path}.seed`,
@@ -121,19 +114,8 @@ export function appendFlamesArtifact(
       );
     appendSize(cue.size, `${path}.size`, collector);
 
-    const on: unknown = cue.on;
-    if (
-      on !== undefined &&
-      !(
-        Array.isArray(on) &&
-        on.length === 2 &&
-        typeof on[0] === "number" &&
-        typeof on[1] === "number" &&
-        0 <= on[0] &&
-        on[0] < on[1] &&
-        on[1] <= duration
-      )
-    )
+    const on: IAutoMovieFlameCue["on"] = cue.on;
+    if (on !== undefined && !(0 <= on[0] && on[0] < on[1] && on[1] <= duration))
       collector.push(
         "range",
         `${path}.on`,
@@ -144,6 +126,7 @@ export function appendFlamesArtifact(
     if (cue.light !== undefined) {
       appendLight(
         cue,
+        cue.light,
         path,
         { bindings, lights: context.lights, bound },
         collector,
@@ -162,24 +145,15 @@ export function appendFlamesArtifact(
         "a flame without a light needs an emission",
         cue.emission,
       );
-    else if (!isRecord(cue.emission))
-      collector.push(
-        "type",
-        `${path}.emission`,
-        "flame emission must be a luminance and colour record",
-        cue.emission,
-      );
     else {
       collector.positive(
         `${path}.emission.luminance`,
-        typeof cue.emission.luminance === "number"
-          ? cue.emission.luminance
-          : undefined,
+        cue.emission.luminance,
         "flame luminance (cd/m²)",
       );
       validateColor(cue.emission.color, `${path}.emission.color`, collector);
     }
-  }
+  });
 }
 
 /**
@@ -187,13 +161,14 @@ export function appendFlamesArtifact(
  * registered model carrying the emitter as a fixed affordance.
  */
 function appendPlace(
-  cue: Record<string, unknown>,
+  cue: IAutoMovieFlameCue,
   path: string,
   staged: ReadonlyMap<string, string>,
-  models: ReadonlyMap<string, IAutoMovieModel> | undefined,
+  models: ReadonlyMap<string, FlameEmitterModel> | undefined,
   collector: IAutoMovieViolationCollector,
 ): void {
-  if (typeof cue.node !== "string" || !staged.has(cue.node)) {
+  const modelId: string | undefined = staged.get(cue.node);
+  if (modelId === undefined) {
     collector.push(
       "type",
       `${path}.node`,
@@ -202,17 +177,8 @@ function appendPlace(
     );
     return;
   }
-  if (typeof cue.emitter !== "string" || cue.emitter.trim().length === 0) {
-    collector.push(
-      "type",
-      `${path}.emitter`,
-      "flame emitter must be a nonblank affordance id",
-      cue.emitter,
-    );
-    return;
-  }
   if (models === undefined) return;
-  const model: IAutoMovieModel | undefined = models.get(staged.get(cue.node)!);
+  const model: FlameEmitterModel | undefined = models.get(modelId);
   const emitter: IAutoMovieAffordance | undefined = model?.affordances?.find(
     (entry: IAutoMovieAffordance): boolean => entry.id === cue.emitter,
   );
@@ -233,12 +199,13 @@ function appendPlace(
 }
 
 /**
- * Check a bound cue's `light`: a nonblank id no other cue names, and with the
- * caller's context a binding on the cue's node and emitter burning over the
- * same interval, or a light clip of the compiled shot.
+ * Check a bound cue's `light`: an id no other cue names, and with the caller's
+ * context a binding on the cue's node and emitter burning over the same
+ * interval, or a light clip of the compiled shot.
  */
 function appendLight(
-  cue: Record<string, unknown>,
+  cue: IAutoMovieFlameCue,
+  light: string,
   path: string,
   context: {
     bindings: ReadonlyMap<string, IAutoMoviePracticalLightBinding> | undefined;
@@ -247,16 +214,6 @@ function appendLight(
   },
   collector: IAutoMovieViolationCollector,
 ): void {
-  const light: unknown = cue.light;
-  if (typeof light !== "string" || light.trim().length === 0) {
-    collector.push(
-      "type",
-      `${path}.light`,
-      "flame light must be a nonblank binding id",
-      light,
-    );
-    return;
-  }
   const binding: IAutoMoviePracticalLightBinding | undefined =
     context.bindings?.get(light);
   if (context.bindings !== undefined && binding === undefined)
@@ -304,45 +261,29 @@ function appendLight(
 }
 
 /**
- * Check one flame size: a known kind with positive finite dimensions, and for
- * an open fire a diameter of at least 0.04 m and a positive Heskestad height.
+ * Check one flame size: positive finite dimensions, and for an open fire a
+ * diameter of at least 0.04 m and a positive Heskestad height.
  */
 function appendSize(
-  size: unknown,
+  size: IAutoMovieFlameCue["size"],
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void {
-  if (!isRecord(size)) {
-    collector.push("type", path, "flame size must be a record", size);
-    return;
-  }
-  const length: (key: string) => number | undefined = (
-    key: string,
-  ): number | undefined =>
-    typeof size[key] === "number" ? (size[key] as number) : undefined;
   if (size.kind === "small") {
-    collector.positive(
-      `${path}.height`,
-      length("height"),
-      "small flame height (m)",
-    );
-    collector.positive(
-      `${path}.radius`,
-      length("radius"),
-      "small flame radius (m)",
-    );
+    collector.positive(`${path}.height`, size.height, "small flame height (m)");
+    collector.positive(`${path}.radius`, size.radius, "small flame radius (m)");
   } else if (size.kind === "ember")
-    collector.positive(`${path}.radius`, length("radius"), "ember radius (m)");
-  else if (size.kind === "open") {
-    const heatRelease: number | undefined = length("heatRelease");
-    const diameter: number | undefined = length("diameter");
+    collector.positive(`${path}.radius`, size.radius, "ember radius (m)");
+  else {
+    const heatRelease: number = size.heatRelease;
+    const diameter: number = size.diameter;
     collector.positive(
       `${path}.heatRelease`,
       heatRelease,
       "open fire heat release (kW)",
     );
     collector.positive(`${path}.diameter`, diameter, "open fire diameter (m)");
-    if (!(diameter! >= MIN_OPEN_DIAMETER))
+    if (!(diameter >= MIN_OPEN_DIAMETER))
       collector.push(
         "range",
         `${path}.diameter`,
@@ -350,9 +291,8 @@ function appendSize(
         diameter,
       );
     else if (
-      heatRelease! > 0 &&
-      Number.isFinite(heatRelease) &&
-      !(heskestadFlameHeight(heatRelease!, diameter!) > 0)
+      heatRelease > 0 &&
+      !(heskestadFlameHeight(heatRelease, diameter) > 0)
     )
       collector.push(
         "range",
@@ -360,11 +300,5 @@ function appendSize(
         "open fire Heskestad height 0.235 Q^0.4 - 1.02 D must be positive",
         heatRelease,
       );
-  } else
-    collector.push(
-      "type",
-      `${path}.kind`,
-      'flame size kind must be "small", "open" or "ember"',
-      size.kind,
-    );
+  }
 }

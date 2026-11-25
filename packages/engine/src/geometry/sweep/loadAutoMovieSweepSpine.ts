@@ -7,13 +7,14 @@ import {
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
 /**
- * Compile a spine record into a transport: size it, write its points,
- * starting direction and end tangents, and update it.
+ * Compile a spine record into a transport: size it, write its points, starting
+ * direction and end tangents, and update it.
  *
  * @param spine The spine, only read.
  * @param frames Whether the transport builds its frame table.
  * @returns The updated transport.
- * @throws Error when an end tangent is not finite or is zero, and whatever `transportAutoMovieSweepSpine` and its `update` refuse.
+ * @throws Error when an end tangent is not finite or is zero, and whatever
+ *   `transportAutoMovieSweepSpine` and its `update` refuse.
  */
 export const loadAutoMovieSweepSpine: (
   spine: IAutoMovieSweepSpine,
@@ -37,10 +38,7 @@ export const loadAutoMovieSweepSpine: (
     what: string,
   ): void => {
     if (v === undefined) return;
-    if (
-      ![v.x, v.y, v.z].every(Number.isFinite) ||
-      Math.hypot(v.x, v.y, v.z) === 0
-    )
+    if (Math.hypot(v.x, v.y, v.z) === 0)
       throw new Error(
         `sweep spine ${what} tangent must be finite and not zero`,
       );

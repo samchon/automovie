@@ -1,9 +1,16 @@
 /**
  * How high the ground is, as a rule rather than a mesh.
  *
- * Production terrain (IAutoMovieWorldSurface.height) and scene patches (IAutoMovieSurface.height) share this rule and the engine's surfaceHeightAt evaluator. Their authored records and footprint membership still determine which surface a crowd member or performer queries.
+ * Production terrain (IAutoMovieWorldSurface.height) and scene patches
+ * (IAutoMovieSurface.height) share this rule and the engine's surfaceHeightAt
+ * evaluator. Their authored records and footprint membership still determine
+ * which surface a crowd member or performer queries.
  *
- * Every kind uses stored numbers through surfaceHeightAt. It ignores footprint membership, which the containing surface owns. Engine scene validation checks finite fields, positive lattice pitch, at least two lines per axis and exact sample count; the production world gate is retired. Finite inputs alone do not prevent overflow in coordinate conversion, differences or interpolation.
+ * Every kind uses stored numbers through surfaceHeightAt. It ignores footprint
+ * membership, which the containing surface owns. Engine scene validation checks
+ * finite fields, positive lattice pitch, at least two lines per axis and exact
+ * sample count; the production world gate is retired. Finite inputs alone do
+ * not prevent overflow in coordinate conversion, differences or interpolation.
  */
 export type IAutoMovieHeightRule =
   | {
@@ -30,11 +37,20 @@ export type IAutoMovieHeightRule =
       /**
        * Sampled relief: a regular XZ grid of heights over the surface.
        *
-       * Constant and plane rules cannot represent varying relief, while this spelling stores columns * rows height values without a mesh.
+       * Constant and plane rules cannot represent varying relief, while this
+       * spelling stores columns * rows height values without a mesh.
        *
-       * The grid is a sampling lattice whose containing surface separately declares its footprint. Queries outside the lattice clamp to its edge rather than extrapolating; the authored lattice must cover the footprint to avoid edge clamping within that surface.
+       * The grid is a sampling lattice whose containing surface separately
+       * declares its footprint. Queries outside the lattice clamp to its edge
+       * rather than extrapolating; the authored lattice must cover the
+       * footprint to avoid edge clamping within that surface.
        *
-       * Between samples the mathematical rule is bilinear over four surrounding values, continuous across cell boundaries and reproducing lattice samples. The implementation uses binary64 arithmetic without finite-result admission, so extreme finite differences can overflow even at a lattice point. Generators bake their values into this array rather than the rule sampling an image, noise function or seed.
+       * Between samples the mathematical rule is bilinear over four surrounding
+       * values, continuous across cell boundaries and reproducing lattice
+       * samples. Height interpolation returns selected endpoints exactly and
+       * uses a weighted sum if a finite pair's difference overflows. Converting
+       * world coordinates to lattice coordinates still uses binary64.
+       * Generators bake their values into this array.
        */
       kind: "heightfield";
 
@@ -57,7 +73,8 @@ export type IAutoMovieHeightRule =
       rows: number;
 
       /**
-       * Finite sample heights in metres, row-major at row * columns + column, with exactly columns * rows entries.
+       * Finite sample heights in metres, row-major at row * columns + column,
+       * with exactly columns * rows entries.
        */
       samples: number[];
     };

@@ -43,29 +43,39 @@ const BRANCHES: string =
 /**
  * A standing tree: a mature white oak or an old-growth Douglas-fir.
  *
- * It stands on the ground at the origin, `+Y` up: a trunk of the drawn diameter at breast height from the ground to its crown base, and above it the crown, drawn as a ball as deep as the crown is tall, a construction detail no act reads. `trunk` is the bole's `+Z` face at breast height, facing out, where a person leans on it or hides behind it.
+ * It stands on the ground at the origin, `+Y` up: a trunk of the drawn diameter
+ * at breast height from the ground to its crown base, and above it the crown,
+ * drawn as a ball as deep as the crown is tall, a construction detail no act
+ * reads. `trunk` is the bole's `+Z` face at breast height, facing out, where a
+ * person leans on it or hides behind it.
  *
- * Its mass is green aboveground biomass: Jenkins et al. 2003's dry biomass for the kind's species group (hard maple/oak/hickory/beech, Douglas-fir) from the drawn diameter at breast height, times one plus the drawn green moisture content; their hardwood or softwood component ratios give the trunk its stem wood and bark and the crown the rest, so the balance stands where the wood is. It stands rooted in soil, which no measured pair covers, so its body carries no friction.
+ * Its mass is green aboveground biomass: Jenkins et al. 2003's dry biomass for
+ * the kind's species group (hard maple/oak/hickory/beech, Douglas-fir) from the
+ * drawn diameter at breast height, times one plus the drawn green moisture
+ * content; their hardwood or softwood component ratios give the trunk its stem
+ * wood and bark and the crown the rest, so the balance stands where the wood
+ * is. It stands rooted in soil, which no measured pair covers, so its body
+ * carries no friction.
  *
- * Asked for `branches`, it also draws that many lower branches, horizontal rods from the trunk turned `DIVERGENCE` apart and `branchGap` apart in height from `branchHeight`, published as `branch<k>` bars and `seat<k>` astride seats with the load each bears before its root ruptures (`cantilever` on the wood's `RUPTURE`), and the trunk as the `bole` bar. Their mass share comes from the crown's by their wood volume against the trunk's. Without branches the tree is drawn exactly as before.
+ * Asked for `branches`, it also draws that many lower branches, horizontal rods
+ * from the trunk turned `DIVERGENCE` apart and `branchGap` apart in height from
+ * `branchHeight`, published as `branch<k>` bars and `seat<k>` astride seats
+ * with the load each bears before its root ruptures (`cantilever` on the wood's
+ * `RUPTURE`), and the trunk as the `bole` bar. Their mass share comes from the
+ * crown's by their wood volume against the trunk's. Without branches the tree
+ * is drawn exactly as before.
  *
  * @param params The kind, the branch count and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The tree.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- * @throws {RangeError} For a branch count that is not a whole number from 0 to `MAX_BRANCHES`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the tree stands, its parts, its contact, how its mass and balance follow and why it carries no friction.
- * @evidence contracts/development/implementation.md#principled-implementation A trunk rod of the drawn diameter to the crown base the drawn share of the height sets, a crown ball above it; the mass is the allometric equation's dry biomass from the diameter in centimetres times one plus the moisture, shared by the stem ratios.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the mass and its shares, the two parts, the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trunk's taper, its roots and any branch the author does not ask for are not drawn, and drawn branches are level rods; the crown's ball is its depth across, a construction detail no act reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {RangeError} For a branch count that is not a whole number from 0 to
+ *   `MAX_BRANCHES`.
  */
 export function createTree(
   params: createTree.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTree.Affordance, createTree.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTree.Dimension> =
     new AutoMovieArchetypeDrawSession<createTree.Dimension>(
@@ -207,14 +217,7 @@ export function createTree(
   return builder.build(dry * (1 + d.moisture));
 }
 
-/**
- * Companion types, constants and bands of {@link createTree}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of species; the size, the crown base share and the moisture are bands, the mass derived from them by the published equations, never drawn.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bole a person leans on or hides behind, at the height its diameter is measured (#3468's N9).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band and coefficient is read; the crown base share is a European oak study's, applied to white oak and so provisional.
- */
+/** Companion types, constants and bands of {@link createTree}. */
 export namespace createTree {
   /** The kinds: a white oak and a Douglas-fir. */
   export type Kind = "whiteOak" | "douglasFir";
@@ -238,7 +241,13 @@ export namespace createTree {
   }
 
   /**
-   * Jenkins, Chojnacky, Heath and Birdsey 2003, Forest Science 49(1):12-35 (https://ftp.forest.sr.unh.edu/Ollinger/PapersforFranklin/Jenkins%20et%20al.%202003%20National%20Biomass%20Estimators.pdf): Table 4 (p. 20), ln of total aboveground dry biomass in kg is b0 + b1 ln(dbh in cm), for the hard maple/oak/hickory/beech group, which Table 1 (p. 16) gives Quercus alba, and the Douglas-fir group, which Table 3 (p. 18) gives Pseudotsuga menziesii; Table 6 (p. 24), the hardwood and softwood stem wood and bark ratios.
+   * Jenkins, Chojnacky, Heath and Birdsey 2003, Forest Science 49(1):12-35
+   * (https://ftp.forest.sr.unh.edu/Ollinger/PapersforFranklin/Jenkins%20et%20al.%202003%20National%20Biomass%20Estimators.pdf):
+   * Table 4 (p. 20), ln of total aboveground dry biomass in kg is b0 + b1
+   * ln(dbh in cm), for the hard maple/oak/hickory/beech group, which Table 1
+   * (p. 16) gives Quercus alba, and the Douglas-fir group, which Table 3 (p.
+   * 18) gives Pseudotsuga menziesii; Table 6 (p. 24), the hardwood and softwood
+   * stem wood and bark ratios.
    */
   export const JENKINS: Readonly<Record<Kind, IEquation>> = {
     whiteOak: {
@@ -254,16 +263,26 @@ export namespace createTree {
       stemBark: [-2.098, -1.1432],
     },
   };
-  /** Breast height, metres: the 4.5 ft the USDA Forest Service's FIA National Core Field Guide (version 5.0, 2010, 5.9.2, p. 113) measures DBH at, "initially attempt to measure DBH at 4.5 ft" (https://ww2.arb.ca.gov/sites/default/files/cap-and-trade/protocols/usforest/references/fia_nationalcorefieldguide.pdf). */
+  /**
+   * Breast height, metres: the 4.5 ft the USDA Forest Service's FIA National
+   * Core Field Guide (version 5.0, 2010, 5.9.2, p. 113) measures DBH at,
+   * "initially attempt to measure DBH at 4.5 ft"
+   * (https://ww2.arb.ca.gov/sites/default/files/cap-and-trade/protocols/usforest/references/fia_nationalcorefieldguide.pdf).
+   */
   export const BREAST_HEIGHT: number = 4.5 * AutoMovieArchetypeUnits.FOOT;
 
   /**
    * The affordance ids:
    *
    * - `trunk`: the bole's `+Z` face at breast height, facing out.
-   * - `bole`, with branches only: the trunk as a vertical `bar` from the ground to the crown base, its `radius` the trunk's, for a hug and the feet.
-   * - `branch<k>`, with branches only: lower branch `k` as a horizontal `bar` from the trunk face out, its `radius` and its `load` at the frame, half its length out.
-   * - `seat<k>`, with branches only: an astride `seat` on branch `k`'s top `SEAT_OUT` from the trunk face, facing out along it, with its `load` there.
+   * - `bole`, with branches only: the trunk as a vertical `bar` from the ground
+   *   to the crown base, its `radius` the trunk's, for a hug and the feet.
+   * - `branch<k>`, with branches only: lower branch `k` as a horizontal `bar`
+   *   from the trunk face out, its `radius` and its `load` at the frame, half
+   *   its length out.
+   * - `seat<k>`, with branches only: an astride `seat` on branch `k`'s top
+   *   `SEAT_OUT` from the trunk face, facing out along it, with its `load`
+   *   there.
    */
   export type Affordance =
     | "trunk"
@@ -282,7 +301,8 @@ export namespace createTree {
   export type TreeDimension = "height" | "dbh" | "crownBase" | "moisture";
 
   /**
-   * The lower branches' dimensions, drawn only when the tree has branches, metres:
+   * The lower branches' dimensions, drawn only when the tree has branches,
+   * metres:
    *
    * - `branchHeight`: the lowest branch's axis above the ground.
    * - `branchGap`: the rise from each branch to the next.
@@ -312,7 +332,10 @@ export namespace createTree {
     branchLength: "m",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which tree. */
     kind: Kind;
@@ -320,7 +343,11 @@ export namespace createTree {
     /** The model's id, unique in a scene; `tree` when absent. */
     id?: string;
 
-    /** How many lower branches to draw below the crown, a whole number from 0 to `MAX_BRANCHES`; none when absent, and a branch dimension fixed then is not read. */
+    /**
+     * How many lower branches to draw below the crown, a whole number from 0 to
+     * `MAX_BRANCHES`; none when absent, and a branch dimension fixed then is
+     * not read.
+     */
     branches?: number;
   }
 
@@ -332,25 +359,35 @@ export namespace createTree {
    *
    * @param value The count asked for.
    * @returns It, or 0 when absent.
-   * @throws {RangeError} For a count that is not a whole number from 0 to `MAX_BRANCHES`.
+   * @throws {RangeError} For a count that is not a whole number from 0 to
+   *   `MAX_BRANCHES`.
    */
   export function branchCount(value: number | undefined): number {
     const count: number = value ?? 0;
-    if (!(Number.isInteger(count) && count >= 0 && count <= MAX_BRANCHES))
+    if (!(count >= 0 && count <= MAX_BRANCHES))
       throw new RangeError(
         `tree branches must be a whole number from 0 to ${MAX_BRANCHES}, but was ${value}`,
       );
     return count;
   }
 
-  /** The turn about the trunk from each branch to the next, degrees: the golden angle of spiral phyllotaxis, provisional for a tree's lower limbs. */
+  /**
+   * The turn about the trunk from each branch to the next, degrees: the golden
+   * angle of spiral phyllotaxis, provisional for a tree's lower limbs.
+   */
   export const DIVERGENCE: number = 137.5;
 
-  /** How far out from the trunk face a branch's seat lies, metres (provisional: the sitter's hips clear of the bole). */
+  /**
+   * How far out from the trunk face a branch's seat lies, metres (provisional:
+   * the sitter's hips clear of the bole).
+   */
   export const SEAT_OUT: number = 0.45;
 
   /**
-   * Green wood's modulus of rupture in static bending, pascals: Wood Handbook, FPL-GTR-190 (2010), Table 5-3a, green: oak, white, 57 MPa; Douglas-fir, coast, 53 MPa (https://research.fs.usda.gov/download/treesearch/37428.pdf). Stem wood's, applied to branches, so provisional.
+   * Green wood's modulus of rupture in static bending, pascals: Wood Handbook,
+   * FPL-GTR-190 (2010), Table 5-3a, green: oak, white, 57 MPa; Douglas-fir,
+   * coast, 53 MPa (https://research.fs.usda.gov/download/treesearch/37428.pdf).
+   * Stem wood's, applied to branches, so provisional.
    */
   export const RUPTURE: Readonly<Record<Kind, number>> = {
     whiteOak: 57e6,
@@ -358,7 +395,9 @@ export namespace createTree {
   };
 
   /**
-   * The load a round cantilever bears at a distance from its root before its root ruptures: the bending stress `32 F x / (pi d^3)` at the root set to the modulus of rupture.
+   * The load a round cantilever bears at a distance from its root before its
+   * root ruptures: the bending stress `32 F x / (pi d^3)` at the root set to
+   * the modulus of rupture.
    *
    * @param rupture The modulus of rupture, pascals.
    * @param diameter The branch's diameter, metres.
@@ -373,7 +412,11 @@ export namespace createTree {
     return (rupture * Math.PI * diameter ** 3) / (32 * distance);
   }
 
-  /** Each branch dimension's band, provisional: no forestry source states a climbable tree's lower limbs, so the bands stage one, the lowest branch from a standing reach to beyond a jump's. */
+  /**
+   * Each branch dimension's band, provisional: no forestry source states a
+   * climbable tree's lower limbs, so the bands stage one, the lowest branch
+   * from a standing reach to beyond a jump's.
+   */
   export const BRANCH_BANDS: Readonly<
     Record<BranchDimension, IAutoMovieArchetypeBand>
   > = {

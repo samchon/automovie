@@ -1,5 +1,6 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -22,29 +23,21 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture case of the sprint start (#3250): `athletics-set`, the crouch
- * from quiet standing into the set position, held 1.5 s to the gun.
+ * Capture case of the sprint start: `athletics-set`, the crouch from quiet
+ * standing into the set position, held 1.5 s to the gun.
  *
- * It reports foot slip at most 5 mm in the set (the issue's block contact
- * bound before block clearance) and no range-of-motion overshoot; through
- * the hold, the front knee's included angle within 10 degrees of 90 and the
- * rear knee's within one standard deviation (11 degrees) of 117 (Cavedon
- * et al. 2019, table 2, anthropometry-driven setting). Both palms stay
- * within 10 mm of the floor, and the centre of mass stays 22.9 cm behind
- * the line within the limb fit's 1 mm (Slawinski et al. 2010, as Valamatos
- * et al. 2022, section 4.1.2, report it). The block settings determine hip
- * height; it is not a fixed level relative to the shoulders.
+ * It reports foot slip at most 5 mm in the set (the issue's block contact bound
+ * before block clearance) and no range-of-motion overshoot; through the hold,
+ * the front knee's included angle within 10 degrees of 90 and the rear knee's
+ * within one standard deviation (11 degrees) of 117 (Cavedon et al. 2019, table
+ * 2, anthropometry-driven setting). Both palms stay within 10 mm of the floor,
+ * and the centre of mass stays 22.9 cm behind the line within the limb fit's 1
+ * mm (Slawinski et al. 2010, as Valamatos et al. 2022, section 4.1.2, report
+ * it). The block settings determine hip height; it is not a fixed level
+ * relative to the shoulders.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance and one verdict block per body.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function athleticsCases(
   bodies: readonly string[] = ["m-average"],
@@ -58,6 +51,8 @@ export function athleticsCases(
     );
     const name: string = `athletics-set${bodies.length === 1 ? "" : `-${id}`}`;
     let performance: IAutoMovieMotionHumanPerformance;
+
+    // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
     try {
       performance = new HumanPerformance({
         seed: "athletics",
@@ -83,7 +78,7 @@ export function athleticsCases(
     const mass: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const knee = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       want: number,
       limit: number,
     ): IMotionCaptureCase.IVerdict =>

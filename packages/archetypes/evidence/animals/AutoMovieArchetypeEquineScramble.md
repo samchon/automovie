@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineScramble.ts#AutoMovieArchetypeEquineScramble
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the technique, its bound timing, its footholds and its admission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A face's friction, the course's own grade and the bound's length admit it; footholds come from the course and the footing.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineFootwork`'s admission and limb goals.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The climb comes from the face's slope and friction and the horse's reach, never a flag; a standing hoof never slides.
-
 # src/animals/AutoMovieArchetypeEquineScramble.ts#AutoMovieArchetypeEquineScramble.IScramble
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -21,9 +21,9 @@ const { HumanUpperRows } = AutoMovieMotionHumanGesture;
 
 /**
  * The cast the upper-body phrase specs share (#3361): the rows of
- * `HumanUpperRows`, the region each row with an open target is given, the
- * rows that move a held prop, and one performance of a row after a quiet
- * stance or after picking up a stick.
+ * `HumanUpperRows`, the region each row with an open target is given, the rows
+ * that move a held prop, and one performance of a row after a quiet stance or
+ * after picking up a stick.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each member gives and the stick's points.
  * @evidence contracts/development/design.md#principled-representation The rows, two tables keyed by row name and one performance builder through the public chain.
@@ -32,14 +32,13 @@ const { HumanUpperRows } = AutoMovieMotionHumanGesture;
  */
 export namespace motionUpperPhrase {
   /** The rows of `HumanUpperRows`, the phrase law among them. */
-  export const ROWS: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(
-    HumanUpperRows,
-  ).filter(
-    (v: unknown): v is IAutoMovieMotionHumanActionLaw<never> =>
-      typeof v === "object" && v !== null && "plan" in v,
-  );
+  export const ROWS: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HumanUpperRows);
 
-  /** The region given to each row whose target is open, written for the right hand. */
+  /**
+   * The region given to each row whose target is open, written for the right
+   * hand.
+   */
   export const OPEN: Record<string, AutoMovieHumanoidRegion> = {
     pointAt: "kneeRight",
     tapOn: "thighFrontRight",
@@ -69,12 +68,15 @@ export namespace motionUpperPhrase {
     "eatWith",
   ];
 
-  /** The stick's end, 12 cm along its +Y from the handle, as both a vessel's lip and a utensil's face for the rows that bring a held point. */
+  /**
+   * The stick's end, 12 cm along its +Y from the handle, as both a vessel's lip
+   * and a utensil's face for the rows that bring a held point.
+   */
   export const END: IAutoMovieVector3 = { x: 0, y: 0.12, z: 0 };
 
   /**
-   * Perform one law after a quiet stance, or after picking up the stick
-   * placed ahead of the hand's side at the waist.
+   * Perform one law after a quiet stance, or after picking up the stick placed
+   * ahead of the hand's side at the waist.
    *
    * @param body The body.
    * @param law The law's name.

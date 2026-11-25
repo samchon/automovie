@@ -1,9 +1,10 @@
 /**
- * Closed vocabularies mapping body tape controls to their resolved anatomical fields. Runtime construction and admission remain with AutoMovieHumanBodyAnatomy in Human.
+ * Closed vocabularies mapping body tape controls to their resolved anatomical
+ * fields. Runtime construction and admission remain with
+ * AutoMovieHumanBodyAnatomy in Human.
  */
 export namespace IAutoMovieHumanBodyAnthropometry {
-  /** A body control whose unknown value takes its survey line on stature.
-   */
+  /** A body control whose unknown value takes its survey line on stature. */
   export type TapeControl =
     | "chest"
     | "underbust"
@@ -26,8 +27,7 @@ export namespace IAutoMovieHumanBodyAnthropometry {
     | "knee"
     | "calf";
 
-  /** An anatomy field that replaces a body control's tape or length.
-   */
+  /** An anatomy field that replaces a body control's tape or length. */
   export type TapeField =
     | "chestCircumference"
     | "underbustCircumference"

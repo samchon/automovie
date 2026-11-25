@@ -1,11 +1,11 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Type contracts exchanged by AutoMovieHumanDigitLine; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanDigitLine; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanDigitLine {
-  /** One bone of the line.
-   */
+  /** One bone of the line. */
   export interface ILeg {
     /** Unit direction. */
     direction: AutoMovieVector3Tuple;
@@ -14,14 +14,13 @@ export namespace IAutoMovieHumanDigitLine {
     length: number;
 
     /**
-     * Half length of the turn onto the next leg at this leg's distal joint,
-     * mm; ignored on the last leg.
+     * Half length of the turn onto the next leg at this leg's distal joint, mm;
+     * ignored on the last leg.
      */
     turn: number;
   }
 
-  /** A built line.
-   */
+  /** A built line. */
   export interface ILine {
     /** Points from the start, one every {@link ILine.step}. */
     points: AutoMovieVector3Tuple[];
@@ -35,14 +34,10 @@ export namespace IAutoMovieHumanDigitLine {
     /** Arc length of each leg's distal end: the joints, then the line's end. */
     joints: number[];
 
-    /**
-     * Point at an arc length, clamped to the line.
-     */
+    /** Point at an arc length, clamped to the line. */
     at: (s: number) => AutoMovieVector3Tuple;
 
-    /**
-     * Unit tangent at an arc length.
-     */
+    /** Unit tangent at an arc length. */
     tangent: (s: number) => AutoMovieVector3Tuple;
   }
 }

@@ -8,8 +8,8 @@ import { autoMoviePlanarRegionFailure } from "./autoMoviePlanarRegionFailure";
 import { signedArea } from "./signedArea";
 
 /**
- * Validate one planar region and lay its rings out canonically, without
- * cutting triangles.
+ * Validate one planar region and lay its rings out canonically, without cutting
+ * triangles.
  *
  * Every point is copied; the outer ring is wound counter-clockwise and each
  * hole clockwise by reversing a ring when its signed area disagrees, and the

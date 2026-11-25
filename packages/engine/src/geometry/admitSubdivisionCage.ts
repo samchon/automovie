@@ -10,18 +10,18 @@ import { buildSubdivisionTopology } from "./buildSubdivisionTopology";
 /**
  * Validate a subdivision cage and turn it into level zero.
  *
- * Refused, each with the offending index, before any refinement: positions
- * that are empty, not packed in threes or not finite; no faces; a face with
- * fewer than three corners, a corner that indexes no vertex, or a repeated
- * vertex; a crease with an invalid end, equal ends, a sharpness outside 0 to
- * 10, a repeated edge, or no matching cage edge; UVs without UV faces or the
- * reverse, UVs not packed in pairs or not finite, UV faces not shaped like the
- * faces, a UV index out of range, a UV shared by two vertices, or an unused
- * UV; and every manifold refusal of `buildSubdivisionTopology`. Inputs are only
- * read.
+ * Refused, each with the offending index, before any refinement: positions that
+ * are empty, not packed in threes or not finite; no faces; a face with fewer
+ * than three corners, a corner that indexes no vertex, or a repeated vertex; a
+ * crease with an invalid end, equal ends, a sharpness outside 0 to 10, a
+ * repeated edge, or no matching cage edge; UVs without UV faces or the reverse,
+ * UVs not packed in pairs or not finite, UV faces not shaped like the faces, a
+ * UV index out of range, a UV shared by two vertices, or an unused UV; and
+ * every manifold refusal of `buildSubdivisionTopology`. Inputs are only read.
  *
  * @param cage The authored cage.
- * @returns Level zero, with each quad corner at its parameter square corner and each other corner at `(0, 0)` of its own sub-face.
+ * @returns Level zero, with each quad corner at its parameter square corner and
+ *   each other corner at `(0, 0)` of its own sub-face.
  */
 export const admitSubdivisionCage = (
   cage: IAutoMovieSubdivisionCage,
@@ -31,10 +31,6 @@ export const admitSubdivisionCage = (
     throw new Error(
       "subdivision cage positions must hold x, y, z for at least one vertex",
     );
-  positions.forEach((x: number, i: number): void => {
-    if (!Number.isFinite(x))
-      throw new Error(`subdivision cage positions[${i}] must be finite`);
-  });
   const vertexCount: number = positions.length / 3;
   if (cage.faces.length === 0)
     throw new Error("subdivision cage needs at least one face");
@@ -46,7 +42,7 @@ export const admitSubdivisionCage = (
         `subdivision cage face ${f} needs at least three corners`,
       );
     face.forEach((v: number, k: number): void => {
-      if (!Number.isSafeInteger(v) || v < 0 || v >= vertexCount)
+      if (v < 0 || v >= vertexCount)
         throw new Error(
           `subdivision cage face ${f} corner ${k} must index a cage vertex`,
         );
@@ -65,7 +61,7 @@ export const admitSubdivisionCage = (
   (cage.creases ?? []).forEach(
     (crease: IAutoMovieSubdivisionCrease, i: number): void => {
       for (const end of [crease.from, crease.to])
-        if (!Number.isSafeInteger(end) || end < 0 || end >= vertexCount)
+        if (end < 0 || end >= vertexCount)
           throw new Error(
             `subdivision cage crease ${i} must join two cage vertices`,
           );
@@ -73,11 +69,7 @@ export const admitSubdivisionCage = (
         throw new Error(
           `subdivision cage crease ${i} must join two cage vertices`,
         );
-      if (
-        !Number.isFinite(crease.sharpness) ||
-        crease.sharpness < 0 ||
-        crease.sharpness > 10
-      )
+      if (crease.sharpness < 0 || crease.sharpness > 10)
         throw new Error(
           `subdivision cage crease ${i} sharpness must be from 0 to 10`,
         );
@@ -147,10 +139,6 @@ const admitUvs: (
   const uvs: number[] = cage.uvs.slice();
   if (uvs.length % 2 !== 0)
     throw new Error("subdivision cage uvs must hold u, v pairs");
-  uvs.forEach((x: number, i: number): void => {
-    if (!Number.isFinite(x))
-      throw new Error(`subdivision cage uvs[${i}] must be finite`);
-  });
   const uvCount: number = uvs.length / 2;
   if (cage.uvFaces.length !== cage.faces.length)
     throw new Error("subdivision cage uvFaces must hold one row per face");
@@ -161,7 +149,7 @@ const admitUvs: (
         `subdivision cage uvFaces[${f}] must name one UV per corner`,
       );
     row.forEach((t: number, k: number): void => {
-      if (!Number.isSafeInteger(t) || t < 0 || t >= uvCount)
+      if (t < 0 || t >= uvCount)
         throw new Error(
           `subdivision cage uvFaces[${f}][${k}] must index a cage UV`,
         );

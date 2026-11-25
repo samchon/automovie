@@ -1,11 +1,12 @@
 /**
- * Leg placement, section harmonics and tape ratios driven by public body measures.
+ * Leg placement, section harmonics and tape ratios driven by public body
+ * measures.
  *
- * The interface package owns these declarations; AutoMovieHumanLegPrior in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanLegPrior in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanLegPrior {
-  /** The crotch's height as a line in four public inputs.
-   */
+  /** The crotch's height as a line in four public inputs. */
   export interface ICrotch {
     /** World millimetres. */
     offset: number;
@@ -35,8 +36,7 @@ export namespace IAutoMovieHumanLegPrior {
     lateral: number;
   }
 
-  /** Station of a tape measure and its ratio to the prior section's hull there.
-   */
+  /** Station of a tape measure and its ratio to the prior section's hull there. */
   export interface ICourse {
     /** Leg fraction of the tape. */
     station: number;
@@ -45,8 +45,7 @@ export namespace IAutoMovieHumanLegPrior {
     ratio: number;
   }
 
-  /** The ankle centre ahead of the origin as a line, world millimetres.
-   */
+  /** The ankle centre ahead of the origin as a line, world millimetres. */
   export interface IAnkle {
     /** Constant. */
     offset: number;
@@ -58,8 +57,7 @@ export namespace IAutoMovieHumanLegPrior {
     muscularity: number;
   }
 
-  /** The axis's place off the midline per station: a constant and three inputs.
-   */
+  /** The axis's place off the midline per station: a constant and three inputs. */
   export interface ILateral {
     /** World millimetres. */
     offset: readonly number[];
@@ -74,8 +72,7 @@ export namespace IAutoMovieHumanLegPrior {
     sex: readonly number[];
   }
 
-  /** The prior's channels.
-   */
+  /** The prior's channels. */
   export interface IPrior {
     /** Height of the crotch. */
     crotch: ICrotch;
@@ -99,9 +96,9 @@ export namespace IAutoMovieHumanLegPrior {
     lateral: ILateral;
 
     /**
-     * Area-normalized radial shape of the left leg per station, as the
-     * Fourier series `[a0, a1, b1, a2, b2, ...]` of the polar angle from
-     * the front toward the outside.
+     * Area-normalized radial shape of the left leg per station, as the Fourier
+     * series `[a0, a1, b1, a2, b2, ...]` of the polar angle from the front
+     * toward the outside.
      */
     shape: readonly (readonly number[])[];
 

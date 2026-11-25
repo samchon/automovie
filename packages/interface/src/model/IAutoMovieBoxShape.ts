@@ -1,6 +1,4 @@
-/**
- * Rectangular box centred at the local origin, before the part transform.
- */
+/** Rectangular box centred at the local origin, before the part transform. */
 export interface IAutoMovieBoxShape {
   /** Discriminator. */
   type: "box";

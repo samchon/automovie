@@ -162,4 +162,4 @@ export const assertProductionVideoProfile: (
 
 /** Whether a sample-clock term is a positive safe integer. */
 const positiveClock: (value: number) => boolean = (value: number): boolean =>
-  Number.isSafeInteger(value) && value > 0;
+  value > 0;

@@ -17,40 +17,38 @@ import { createCostumeMail } from "./createCostumeMail";
 import { createCostumeVambrace } from "./createCostumeVambrace";
 
 /**
- * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
+ * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a
+ * cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
  *
- * Closed wall cells leave face, neck, arm, hem and limb cavities open.
- * Museum H/W/D and total mass remain the selected record's; fitted body
- * boundaries retain their exact measure, plate and provisional helmet pad.
- * Unfitted elliptical walls use the plate band as a minimum normal gauge;
- * their varying gauge preserves shared inner edges and the record envelope.
- * This coarse construction does not claim a uniform historical plate gauge.
- * Fitted mail places its wall outside the body's breadth/depth. Its wall is
- * the recorded mass's equivalent volume under the existing structural-steel
- * density, not a measurement of wire, weave or historical alloy. A gauntlet's
- * forearm radius sizes its cuff; its rigid mitten/thumb regions are coarse
- * authored envelopes, not a measured hand. The selected armet23232 retains
- * its missing visor and arm-defense35850 excludes its separate elbow reinforce.
- * Coarse opening fractions distinguish the kinds without claiming calibrated
- * artifact profiles. Each piece stays on one bone, +Y up, +Z front; wear is
- * its origin. Brim depth and plate metadata retain their existing contracts.
+ * Closed wall cells leave face, neck, arm, hem and limb cavities open. Museum
+ * H/W/D and total mass remain the selected record's; fitted body boundaries
+ * retain their exact measure, plate and provisional helmet pad. Unfitted
+ * elliptical walls use the plate band as a minimum normal gauge; their varying
+ * gauge preserves shared inner edges and the record envelope. This coarse
+ * construction does not claim a uniform historical plate gauge. Fitted mail
+ * places its wall outside the body's breadth/depth. Its wall is the recorded
+ * mass's equivalent volume under the existing structural-steel density, not a
+ * measurement of wire, weave or historical alloy. A gauntlet's forearm radius
+ * sizes its cuff; its rigid mitten/thumb regions are coarse authored envelopes,
+ * not a measured hand. The selected armet23232 retains its missing visor and
+ * arm-defense35850 excludes its separate elbow reinforce. Coarse opening
+ * fractions distinguish the kinds without claiming calibrated artifact
+ * profiles. Each piece stays on one bone, +Y up, +Z front; wear is its origin.
+ * Brim depth and plate metadata retain their existing contracts.
  *
- * @param params The kind, the read piece, the body's measure, and any dimension the author fixes.
- * @param seed The seed that picks the read piece left free and draws every dimension left free inside its band; absent, the first piece and the middle of each band.
+ * @param params The kind, the read piece, the body's measure, and any dimension
+ *   the author fixes.
+ * @param seed The seed that picks the read piece left free and draws every
+ *   dimension left free inside its band; absent, the first piece and the middle
+ *   of each band.
  * @returns The piece.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported piece/dimension, invalid used body measures, inverted cuirass heights or a mail mass/coverage that cannot contain a positive wall and cavity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each kind covers, how it is fitted or left as read, where it is centred and how it rides its bone.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bounding-box fallback, filled body proxy, hidden collision/mass solid or invented historical wall/hand dimensions. Missing and associated components retain their record scope. Coarse authored geometry and equivalent mail material do not establish specimen shape, drape, protection or a universal glance outcome.
- * @evidence contracts/development/implementation.md#efficient-algorithms Bounded O(N squared) helmet cells or O(N) limb cells and constant torso panels, followed by shared core per-cell hull and mass work; no iterative model fitting.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported piece/dimension,
+ *   invalid used body measures, inverted cuirass heights or a mail
+ *   mass/coverage that cannot contain a positive wall and cavity.
  */
 export function createArmour(
   params: createArmour.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension> {
   const kind: createArmour.Kind = ArchetypeDraw.choice(
     "armour",
@@ -58,16 +56,27 @@ export function createArmour(
     params.kind,
     createArmour.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createArmour.IParams,
-      seed?: number | string,
-    ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createArmour.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createArmour.Kind,
+      (
+        params: createArmour.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>
+    >
+  > = {
+    openHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "openHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    closedHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "closedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    brimmedHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "brimmedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    cuirass: (p, s) => createCostumeCuirass({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22359", "met23084"] as const) }, s),
+    mail: (p, s) => createCostumeMail({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met34324", "met22415", "met633538", "met27635"] as const) }, s),
+    gauntlet: (p, s) => createCostumeGauntlet({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met23255", "met23256", "met23199"] as const) }, s),
+    vambrace: (p, s) => createCostumeVambrace({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met24896", "met35850"] as const) }, s),
+    greave: (p, s) => createCostumeGreave({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22970", "met22276"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** The plate thickness read. */
@@ -78,14 +87,7 @@ const PLATE: string =
 const PAD: string =
   'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
 
-/**
- * Companion types, bands, records and the bone rule of {@link createArmour}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, dimension, record and band states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read pieces, each record whole; the thickness and padding as cited bands; a body's measure as the interface's own record, so the producer fits any body the motion laws read.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The piece, its `wear` place and the bone it rides (#3500).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Literal museum envelopes/mass and body fitting boundaries remain independent; authored coarse openings and steel-equivalent mail are not asserted as measured artifact geometry. Helmet padding and plate glance retain their explicit provisional sources.
- */
+/** Companion types, bands, records and the bone rule of {@link createArmour}. */
 export namespace createArmour {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
@@ -138,14 +140,19 @@ export namespace createArmour {
     "greave",
   ];
 
-  /** The affordance id: `wear`, the centre of the body part the piece covers, `+Y` up the segment, where it rides its bone. */
+  /**
+   * The affordance id: `wear`, the centre of the body part the piece covers,
+   * `+Y` up the segment, where it rides its bone.
+   */
   export type Affordance = "wear";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `height`, `width`, `depth`: the read piece's, as its record measures it; a mail shirt's height is its length.
-   * - `thickness`: the plate's normal gauge; a minimum on unfitted elliptical walls.
+   * - `height`, `width`, `depth`: the read piece's, as its record measures it; a
+   *   mail shirt's height is its length.
+   * - `thickness`: the plate's normal gauge; a minimum on unfitted elliptical
+   *   walls.
    * - `pad`: a helmet's padding inside its plate.
    * - `mass`: kilograms.
    */
@@ -205,16 +212,28 @@ export namespace createArmour {
   });
 
   /**
-   * Each kind's read pieces whole, the default first, as the Metropolitan Museum's records give them (H, W, D, Wt.; https://collectionapi.metmuseum.org/public/collection/v1/objects/{id}):
+   * Each kind's read pieces whole, the default first, as the Metropolitan
+   * Museum's records give them (H, W, D, Wt.;
+   * https://collectionapi.metmuseum.org/public/collection/v1/objects/{id}):
    *
-   * - open helmets: sallets 26453 (24.1, 28.6, 33.7 cm, 2984 g) and 25388 (26.7, 23.5, 39.37 cm, 2769 g);
-   * - closed helmets: armet 23232 (29.2, 21.6, 28.6 cm, 2749 g) and close-helmet 26508 (29.8, 22.2, 33.7 cm, 2656 g);
-   * - brimmed helmets: cabassets 26512 (27, 23.81, 34.3 cm, 1449 g) and 21972 (25.4, 23.2, 33.5 cm, 1701 g);
-   * - cuirasses: 22359, breast and back 35.6 and 36.2 cm high, 30.5 cm wide, 4536 g, its depth not stated, taken as its width; 23084's breastplate 37.5 x 37.5 x 19.5 cm, 3112 g, with its backplate's 2340 g;
-   * - mail shirts: 34324 (91.5 cm long, 143 cm wide, 9071.9 g), 22415 (84, 132, 9869 g), 633538 (86.4, 144.8, 7520.6 g) and 27635 (81, 137, 5562 g), their depth not stated, taken as their chest's;
-   * - gauntlets: 23255 (29.4, 14.6, 15.9 cm, 793.8 g), 23256 (21, 12.7, 12.4 cm, 300.5 g), 23199 (26.7, 12.7, 11.1 cm, 581.2 g);
-   * - vambraces: 24896 (21, 11.4, 8.9 cm, 351 g) and 35850 (46.1, 16.8, 13.2 cm, 1089 g);
-   * - greaves: 22970 (35.3, 12.7, 11.4 cm, 669 g) and 22276 (38.3, 11.7, 14.3 cm, 854 g).
+   * - Open helmets: sallets 26453 (24.1, 28.6, 33.7 cm, 2984 g) and 25388 (26.7,
+   *   23.5, 39.37 cm, 2769 g);
+   * - Closed helmets: armet 23232 (29.2, 21.6, 28.6 cm, 2749 g) and close-helmet
+   *   26508 (29.8, 22.2, 33.7 cm, 2656 g);
+   * - Brimmed helmets: cabassets 26512 (27, 23.81, 34.3 cm, 1449 g) and 21972
+   *   (25.4, 23.2, 33.5 cm, 1701 g);
+   * - Cuirasses: 22359, breast and back 35.6 and 36.2 cm high, 30.5 cm wide, 4536
+   *   g, its depth not stated, taken as its width; 23084's breastplate 37.5 x
+   *   37.5 x 19.5 cm, 3112 g, with its backplate's 2340 g;
+   * - Mail shirts: 34324 (91.5 cm long, 143 cm wide, 9071.9 g), 22415 (84, 132,
+   *   9869 g), 633538 (86.4, 144.8, 7520.6 g) and 27635 (81, 137, 5562 g),
+   *   their depth not stated, taken as their chest's;
+   * - Gauntlets: 23255 (29.4, 14.6, 15.9 cm, 793.8 g), 23256 (21, 12.7, 12.4 cm,
+   *   300.5 g), 23199 (26.7, 12.7, 11.1 cm, 581.2 g);
+   * - Vambraces: 24896 (21, 11.4, 8.9 cm, 351 g) and 35850 (46.1, 16.8, 13.2 cm,
+   *   1089 g);
+   * - Greaves: 22970 (35.3, 12.7, 11.4 cm, 669 g) and 22276 (38.3, 11.7, 14.3 cm,
+   *   854 g).
    */
   export const MODELS: Readonly<
     Record<
@@ -261,7 +280,27 @@ export namespace createArmour {
     },
   };
 
-  /** A plate piece's glance angle, degrees from the plate's normal, a provisional value: Peter Jones's long bodkin against 1.5 mm mild steel "penetrated perhaps 2 mm beyond the inner surface of the plate and then broke while the rest of the arrow ricocheted" at 60 degrees and ricocheted at 70 (Hardy, Longbow, as quoted at https://willscommonplacebook.blogspot.com/2007/02/glancing-blows-and-armor-penetration.html, not read at the book), the prototype publishes 60 degrees from this quoted trial, not a universal critical angle. Williams's table of the energy to defeat mild steel at an angle (The Knight and the Blast Furnace, 2003, quoted there), rising to twice the square-on energy at 60 degrees, and Hinsley's 30-degree strikes (The Historian, 2015, pp. 31-32) give no glance angle. Searched for #3500 without a primary figure: Jones 1992 (Materials Characterization 29) and the DTIC report ADA030268 on spheres ricocheting from thin plates (unreadable). Magier et al. 2017, DOI 10.5604/01.3001.0010.5152, uses two specific 96 g arrow types against 2 mm steel in finite-element simulations and reports ricochet near 52 degrees; those specimen-specific outcomes do not establish a universal cutoff (author-hosted primary PDF, https://www.researchgate.net/profile/Pawel-Zochowski/publication/320288999_NUMERICAL_ANALYSIS_OF_ENGLISH_BOWS_USED_IN_BATTLE_OF_CRECY/links/59ef29ae458515ec0c7a1284/NUMERICAL-ANALYSIS-OF-ENGLISH-BOWS-USED-IN-BATTLE-OF-CRECY.pdf). */
+  /**
+   * A plate piece's glance angle, degrees from the plate's normal, a
+   * provisional value: Peter Jones's long bodkin against 1.5 mm mild steel
+   * "penetrated perhaps 2 mm beyond the inner surface of the plate and then
+   * broke while the rest of the arrow ricocheted" at 60 degrees and ricocheted
+   * at 70 (Hardy, Longbow, as quoted at
+   * https://willscommonplacebook.blogspot.com/2007/02/glancing-blows-and-armor-penetration.html,
+   * not read at the book), the prototype publishes 60 degrees from this quoted
+   * trial, not a universal critical angle. Williams's table of the energy to
+   * defeat mild steel at an angle (The Knight and the Blast Furnace, 2003,
+   * quoted there), rising to twice the square-on energy at 60 degrees, and
+   * Hinsley's 30-degree strikes (The Historian, 2015, pp. 31-32) give no glance
+   * angle. Searched for #3500 without a primary figure: Jones 1992 (Materials
+   * Characterization 29) and the DTIC report ADA030268 on spheres ricocheting
+   * from thin plates (unreadable). Magier et al. 2017, DOI
+   * 10.5604/01.3001.0010.5152, uses two specific 96 g arrow types against 2 mm
+   * steel in finite-element simulations and reports ricochet near 52 degrees;
+   * those specimen-specific outcomes do not establish a universal cutoff
+   * (author-hosted primary PDF,
+   * https://www.researchgate.net/profile/Pawel-Zochowski/publication/320288999_NUMERICAL_ANALYSIS_OF_ENGLISH_BOWS_USED_IN_BATTLE_OF_CRECY/links/59ef29ae458515ec0c7a1284/NUMERICAL-ANALYSIS-OF-ENGLISH-BOWS-USED-IN-BATTLE-OF-CRECY.pdf).
+   */
   export const GLANCE: number = 60;
 
   /** The plate's thickness band. */
@@ -279,7 +318,11 @@ export namespace createArmour {
     true,
   );
 
-  /** The band of each free dimension a piece's record leaves, by kind: the plate's thickness, a breastplate's band applied to the thinner limb plates, provisional for them, and a helmet's padding. */
+  /**
+   * The band of each free dimension a piece's record leaves, by kind: the
+   * plate's thickness, a breastplate's band applied to the thinner limb plates,
+   * provisional for them, and a helmet's padding.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
@@ -293,7 +336,10 @@ export namespace createArmour {
     greave: { thickness: { ...thickness, provisional: true } },
   };
 
-  /** The parameters: the kind, the read piece, the body to fit, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the read piece, the body to fit, and any free
+   * dimension fixed to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which piece. */
     kind: Kind;
@@ -301,7 +347,13 @@ export namespace createArmour {
     /** Which read piece; picked from the seed when absent. */
     model?: Model;
 
-    /** The body to fit, metres: required fields are finite and positive, shoulders above waist for a cuirass. Unused fields may be omitted; absent measure retains the literal museum envelope. Mail's inner body boundary is exact; its equivalent wall lies outside it. A gauntlet's forearm radius fits its cuff, not an unmeasured palm. */
+    /**
+     * The body to fit, metres: required fields are finite and positive,
+     * shoulders above waist for a cuirass. Unused fields may be omitted; absent
+     * measure retains the literal museum envelope. Mail's inner body boundary
+     * is exact; its equivalent wall lies outside it. A gauntlet's forearm
+     * radius fits its cuff, not an unmeasured palm.
+     */
     measure?: Partial<IAutoMovieBodyMeasure>;
 
     /** The model's id, unique in a scene; `armour` when absent. */

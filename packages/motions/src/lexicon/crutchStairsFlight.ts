@@ -6,38 +6,37 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
+import type { crutchHeldLeg } from "./crutchHeldLeg";
 
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** How high a crutch tip clears a nosing as it moves, metres (provisional, as the crutch walk's lift). */
+/**
+ * How high a crutch tip clears a nosing as it moves, metres (provisional, as
+ * the crutch walk's lift).
+ */
 const LIFT: number = 0.04;
 
-/** The first nosing's distance ahead of the toes when the author gives none, metres: the climb's own default (`climbStairsFlight.START`). */
+/**
+ * The first nosing's distance ahead of the toes when the author gives none,
+ * metres: the climb's own default (`climbStairsFlight.START`).
+ */
 const START: number = 0.05;
 
-/** Where on its tread a foot's ball and a crutch's tip come down, as a share of the tread measured from its front edge back (provisional: the ball over the tread's rear part, the toes inside its front edge). */
+/**
+ * Where on its tread a foot's ball and a crutch's tip come down, as a share of
+ * the tread measured from its front edge back (provisional: the ball over the
+ * tread's rear part, the toes inside its front edge).
+ */
 const ON: number = 0.7;
 
 /**
- * The crutch stair climb's flight and clock, shared by the law's plan and
- * the track the scene's crutch props read, so both derive every crutch frame
- * and tread from the same flight.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the flight and clock are and who reads them.
- * @evidence contracts/development/design.md#principled-representation A resolved flight (riser, tread, direction, clock) with one move per step.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The resolver, the level reader, the crutch frame reader and the tread count the law and its track share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place follows from the authored flight.
+ * The crutch stair climb's flight and clock, shared by the law's plan and the
+ * track the scene's crutch props read, so both derive every crutch frame and
+ * tread from the same flight.
  */
 export namespace crutchStairsFlight {
-  /**
-   * One crutch move: when it lifts and plants, and the level it leaves.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its timebase.
-   * @evidence contracts/development/design.md#principled-representation A timed move from one level to the next.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the frame reader and the hand carry read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Times follow from the step's own seconds.
-   */
+  /** One crutch move: when it lifts and plants, and the level it leaves. */
   export interface IMove {
     /** Lift, seconds since the climb's start. */
     from: number;
@@ -49,14 +48,7 @@ export namespace crutchStairsFlight {
     level: number;
   }
 
-  /**
-   * The climb's resolved shape and clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member with its unit.
-   * @evidence contracts/development/design.md#principled-representation The flight's direction, riser, tread and first nosing with the step clock and crutch moves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the plan and the track read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Defaults are the stair climb's own.
-   */
+  /** The climb's resolved shape and clock. */
   export interface IClimb {
     /** +1 going up, -1 going down. */
     sign: number;
@@ -81,32 +73,24 @@ export namespace crutchStairsFlight {
   }
 
   /**
-   * The climb's shape and clock from its parameters, refused where the
-   * climb's own bounds refuse: a riser above 0.35 of the hip height, a tread
-   * shorter than 0.6 of the foot, a count that is not whole, a step of no
-   * time. Going up the sound foot steps first, then the crutches; going down
-   * the crutches first.
+   * The climb's shape and clock from its parameters, refused where the climb's
+   * own bounds refuse: a riser above 0.35 of the hip height, a tread shorter
+   * than 0.6 of the foot, a rounded count below one or a step of no time.
+   * Going up the sound foot steps first, then the crutches; going down the
+   * crutches first.
    *
    * @param params The climb.
    * @param hipHeight The body's hip height, metres, or none for a track.
    * @param footLength The body's foot length, metres, or none for a track.
    * @returns The resolved climb.
    * @throws {HumanRefusal} On a bound the climb refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bounds, the defaults, the orders and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The single-leg step-up bounds of the stair climb and a step clock split in halves.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bounds, then the moves.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A track without a body skips only the body's bounds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the step count.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The plan and each track resolve from the same inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh climb and retains nothing.
    */
   export function resolve(
     params: IAutoMovieMotionHumanCrutchStairs,
     hipHeight: number | undefined,
     footLength: number | undefined,
   ): IClimb {
-    HumanBound.whole("count", params.count);
+    const count: number = HumanBound.whole("count", params.count);
     const riser: number = params.riser ?? 0.17;
     const tread: number = params.tread ?? 0.28;
     if (hipHeight !== undefined)
@@ -118,7 +102,7 @@ export namespace crutchStairsFlight {
     const sign: number = (params.direction ?? "up") === "up" ? 1 : -1;
     const ready: number = step / 4;
     const moves: IMove[] = Array.from(
-      { length: params.count },
+      { length: count },
       (_v: unknown, i: number): IMove => {
         const t: number = ready + i * step;
         return sign > 0
@@ -144,14 +128,6 @@ export namespace crutchStairsFlight {
    * @param climb The climb.
    * @param k The level, 0 for the entry floor.
    * @returns The offset, metres, z ahead and y up.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the offset's axes and the tread share.
-   * @evidence contracts/development/implementation.md#principled-implementation The k-th tread's height and the point `ON` of its going back from its nosing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the flight's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function level(climb: IClimb, k: number): IAutoMovieVector3 {
     return k === 0
@@ -164,22 +140,39 @@ export namespace crutchStairsFlight {
   }
 
   /**
-   * A crutch's frame at a second: planted at its level, or on its move's
-   * path, up first and then over going up, over first and then down going
-   * down, clearing the nosing by `LIFT`.
+   * The flight's profile along its climb: the entry floor, then each tread from
+   * its nosing on, each a riser above (going up) or below (going down) the one
+   * before.
+   *
+   * @param climb The climb.
+   * @param ground The entry floor's height, world metres.
+   * @returns The levels, nearest first, each from where it begins ahead of the
+   *   toes' start.
+   */
+  export function profile(
+    climb: IClimb,
+    ground: number,
+  ): crutchHeldLeg.IStep[] {
+    return [
+      { from: -Infinity, height: ground },
+      ...climb.moves.map(
+        (_: IMove, i: number): crutchHeldLeg.IStep => ({
+          from: climb.start + i * climb.tread,
+          height: ground + climb.sign * (i + 1) * climb.riser,
+        }),
+      ),
+    ];
+  }
+
+  /**
+   * A crutch's frame at a second: planted at its level, or on its move's path,
+   * up first and then over going up, over first and then down going down,
+   * clearing the nosing by `LIFT`.
    *
    * @param climb The climb.
    * @param start The crutch's staged frame.
    * @param seconds Seconds since the climb's start.
    * @returns The frame, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the planted and moving cases and the path's order.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk rises and travels in sequence so the tip clears the nosing before it travels over it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan for the current move.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The path's phase shares are provisional staging, stated in the course.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the moves up to the current one.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each read is its own second's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh frame and retains nothing.
    */
   export function frameAt(
     climb: IClimb,
@@ -222,22 +215,14 @@ export namespace crutchStairsFlight {
   }
 
   /**
-   * How many treads the sound foot stands past for a plant window opening
-   * at a second: the window of a tread opens when the foot is set down
-   * there, after its step's foot stance begins (each step's start going up,
-   * its middle going down).
+   * How many treads the sound foot stands past for a plant window opening at a
+   * second: the window of a tread opens when the foot is set down there, after
+   * its step's foot stance begins (each step's start going up, its middle going
+   * down).
    *
    * @param climb The climb.
    * @param seconds The window's opening, seconds since the climb's start.
    * @returns The tread count, 0 for the entry floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is counted and when a tread counts.
-   * @evidence contracts/development/implementation.md#principled-implementation A window opens at its foot's set-down key, which lies after its foot stance's start and before the next one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One count over the steps.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read at the window's opening, never its middle, so the last window counts its own tread.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the steps.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arrived(climb: IClimb, seconds: number): number {
     let k: number = 0;

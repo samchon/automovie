@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmAngles.ts#AutoMovieMotionHumanArmAngles
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two things the file holds and who reads them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A free arm movement is described by its joint angles (Soechting and Lacquaniti 1981), read off a solved pose rather than re-derived.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The angles record and its reader, which both the carry and the planned arm read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Each triple is the posture's own joint triple, so it is written back without conversion.
-
 # src/compose/AutoMovieMotionHumanArmAngles.ts#AutoMovieMotionHumanArmAngles.angles
 
 ## @evidence contracts/development/common.md#meaningful-documentation

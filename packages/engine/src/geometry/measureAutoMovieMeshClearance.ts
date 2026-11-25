@@ -5,26 +5,27 @@ import {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Measure front-minus-back depth along one axis over the complete projected
  * overlap of two triangle meshes.
  *
  * Each entry belongs to one front triangle, by ordinal, and gives its smallest
- * signed depth separation from any back triangle in mesh-local metres:
- * positive is clear, zero is contact, negative breaks the declared front-back
- * ordering. A front triangle with no projected overlap is not reported. The
- * projection plane is Y/Z for depth X, Z/X for depth Y and X/Y for depth Z.
- * Triangles parallel to the depth axis are skipped, so this is directional
- * surface ordering, not a closed-volume collision test. Both meshes must
- * already share a frame; callers own transforms and which pairs may touch.
- * Neither input is changed.
+ * signed depth separation from any back triangle in mesh-local metres: positive
+ * is clear, zero is contact, negative breaks the declared front-back ordering.
+ * A front triangle with no projected overlap is not reported. The projection
+ * plane is Y/Z for depth X, Z/X for depth Y and X/Y for depth Z. Triangles
+ * parallel to the depth axis are skipped, so this is directional surface
+ * ordering, not a closed-volume collision test. Both meshes must already share
+ * a frame; callers own transforms and which pairs may touch. Neither input is
+ * changed.
  *
  * The optional `visit` receives every overlap polygon vertex as a witness,
  * clear ones included, so a later coupled displacement can keep every one of
- * those inequalities and not only the violated ones. Throws on an invalid
- * axis, a malformed index buffer, a non-finite position, and projected area,
- * clipping or depth arithmetic that overflows.
+ * those inequalities and not only the violated ones. Throws on an invalid axis,
+ * a malformed index buffer, a non-finite position, and projected area, clipping
+ * or depth arithmetic that overflows.
  *
  * @param front Mesh that should lie in front.
  * @param back Mesh that should lie behind.
@@ -53,8 +54,15 @@ export function measureAutoMovieMeshClearance(
     for (const b of overlappingTriangles(tree, a.bounds))
       for (const point of clip(a.points, b)) {
         const weights: number[] = barycentric(a, point);
-        const gap: number = depth(a, weights) - depth(b, barycentric(b, point));
-        if (!Number.isFinite(gap))
+        const upper: number = depth(a, weights);
+        const lower: number = depth(b, barycentric(b, point));
+        const gap: number = upper - lower;
+        // Interpolated depths of finite corners and their gap can overflow.
+        if (
+          overflowsBinary64(upper) ||
+          overflowsBinary64(lower) ||
+          overflowsBinary64(gap)
+        )
           throw new Error("Mesh clearance arithmetic must remain finite.");
         minimum = Math.min(minimum, gap);
         visit?.({
@@ -98,11 +106,11 @@ type ITriangleTree = {
 );
 
 /**
- * Build a balanced index over projected triangles by widest-axis median.
- * Eight triangles per leaf is a traversal cost choice, never a geometry sample
- * count: every leaf triangle still receives its own inclusive bounds test.
- * Halved spans and quarter-coordinate centre differences keep ordering
- * arithmetic finite even when the full coordinate range would overflow.
+ * Build a balanced index over projected triangles by widest-axis median. Eight
+ * triangles per leaf is a traversal cost choice, never a geometry sample count:
+ * every leaf triangle still receives its own inclusive bounds test. Halved
+ * spans and quarter-coordinate centre differences keep ordering arithmetic
+ * finite even when the full coordinate range would overflow.
  */
 const triangleTree = (list: IProjectedTriangle[]): ITriangleTree | null => {
   if (list.length === 0) return null;
@@ -169,8 +177,6 @@ const triangles = (
     mesh,
     "Mesh clearance (complete triangle buffers)",
   );
-  if (!mesh.positions.every(Number.isFinite))
-    throw new Error("Mesh clearance needs finite complete triangle buffers.");
   const result: IProjectedTriangle[] = [];
   for (let i: number = 0; i < indices.length; i += 3) {
     const vertices: number[] = indices.slice(i, i + 3);
@@ -183,7 +189,7 @@ const triangles = (
     const b: number[] = points[1]!;
     const c: number[] = points[2]!;
     const area: number = side(a, b, c);
-    if (!Number.isFinite(area))
+    if (overflowsBinary64(area))
       throw new Error("Mesh clearance projected area must remain finite.");
     result.push({
       points,
@@ -238,7 +244,7 @@ const clip = (points: number[][], triangle: IProjectedTriangle): number[][] => {
       const previous: number[] = input[(i + input.length - 1) % input.length]!;
       const dc: number = sign * side(a, b, current);
       const dp: number = sign * side(a, b, previous);
-      if (!Number.isFinite(dc) || !Number.isFinite(dp))
+      if (overflowsBinary64(dc) || overflowsBinary64(dp))
         throw new Error("Mesh clearance clipping must remain finite.");
       if (dc >= 0 !== dp >= 0) {
         // Normalize before dividing: dp-dc can overflow for finite opposite

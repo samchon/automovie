@@ -1,10 +1,13 @@
 import type { AutoMovieHumanPoseChannelTemplate } from "./AutoMovieHumanPoseChannelTemplate";
 
 /**
- * Type contracts exchanged by AutoMovieHumanPoseChannels; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanPoseChannels; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanPoseChannels {
-  /** The canonical table has finite paths/joints, clinical signs and sourced ranges.
+  /**
+   * The canonical table has finite paths/joints, clinical signs and sourced
+   * ranges.
    */
   export type Channel = readonly [
     path: AutoMovieHumanPoseChannelTemplate,
@@ -44,8 +47,7 @@ export namespace IAutoMovieHumanPoseChannels {
     world?: boolean,
   ];
 
-  /** Canonical generating inputs supply all finger and toe joint spellings.
-   */
+  /** Canonical generating inputs supply all finger and toe joint spellings. */
   export type GeneratedJoint =
     | `<side>${"Index" | "Middle" | "Ring" | "Little"}${"Proximal" | "Intermediate" | "Distal"}`
     | `<side>Toe${2 | 3 | 4 | 5}${"Proximal" | "Intermediate" | "Distal"}`;

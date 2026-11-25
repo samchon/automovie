@@ -2,7 +2,9 @@ import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActio
 import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
 
 /**
- * A resolved action placement available to another law: performer, action family, plan and film-time boundaries. The plan remains evaluated on its own action-local clock.
+ * A resolved action placement available to another law: performer, action
+ * family, plan and film-time boundaries. The plan remains evaluated on its own
+ * action-local clock.
  */
 export interface IAutoMovieMotionHumanPlacedAction {
   /** Its performer. */

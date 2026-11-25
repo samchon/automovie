@@ -33,7 +33,10 @@ import { AutoMovieViewSection } from "./AutoMovieViewSection";
 /** Existing ordered quarter layout shared with the view input owner. */
 type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 
-/** One emitted station's plane, radius reader and four-quarter metadata, in station order. */
+/**
+ * One emitted station's plane, radius reader and four-quarter metadata, in
+ * station order.
+ */
 interface Row {
   station: number;
   frame: IAutoMovieLoftSectionFrame;
@@ -44,31 +47,33 @@ interface Row {
 /**
  * Loft a view part through its four signed source outlines and fullness owner.
  * Direct shoulder/top fields retain their original scalar generators for final
- * points, phase derivatives and available physical total2. Emitted uniform-polar
- * cubic coefficients remain the explicit compatibility representation; generic
- * girth retains that existing representation. Analytic frames keep actual source
- * jets, while numerical axes retain their existing smooth plane fit.
+ * points, phase derivatives and available physical total2. Emitted
+ * uniform-polar cubic coefficients remain the explicit compatibility
+ * representation; generic girth retains that existing representation. Analytic
+ * frames keep actual source jets, while numerical axes retain their existing
+ * smooth plane fit.
  *
- * A top fullness declaring touch offsets or splits makes each station a
- * conic chain (`AutoMovieViewChain`, through the native reader's mapping),
- * returned in `chains`; its compatibility rows sample that chain and carry no
+ * A top fullness declaring touch offsets or splits makes each station a conic
+ * chain (`AutoMovieViewChain`, through the native reader's mapping), returned
+ * in `chains`; its compatibility rows sample that chain and carry no
  * four-quarter metadata, and its outlines join the same knot coverage as the
- * extents and shoulders. Such a result declares C1 in phase and in station:
- * a chain join moves with the station at phase theta(s), and where its two
- * arcs' curvatures differ the radius keeps r and r_phi continuous across it
- * while r_phiphi jumps; differentiating the two continuities along the join
- * gives the jumps [r_sphi] = -theta' [r_phiphi] and [r_ss] = theta'^2
- * [r_phiphi], so C2 holds only within the smooth pieces between joins.
+ * extents and shoulders. Such a result declares C1 in phase and in station: a
+ * chain join moves with the station at phase theta(s), and where its two arcs'
+ * curvatures differ the radius keeps r and r_phi continuous across it while
+ * r_phiphi jumps; differentiating the two continuities along the join gives the
+ * jumps [r_sphi] = -theta' [r_phiphi] and [r_ss] = theta'^2 [r_phiphi], so C2
+ * holds only within the smooth pieces between joins.
  *
  * Regular C2 requires the admitted scalar/section/frame derivative premises.
  * Physical pole jets and geometric G2 at an apex are not supplied here. The
  * surviving-layer domain and the original polar phase meaning stay unchanged.
  *
- * Broken boxes/fullness omit the station with its named numeric diagnostic.
- * A direct source with any rejected prepared station publishes only inspection
+ * Broken boxes/fullness omit the station with its named numeric diagnostic. A
+ * direct source with any rejected prepared station publishes only inspection
  * sections, because skipping a row cannot remove that invalid original field.
  * Unreachable girth keeps its reach endpoint with a diagnostic. Fewer than two
- * surviving sections publish no final chain. Source records and inputs remain immutable.
+ * surviving sections publish no final chain. Source records and inputs remain
+ * immutable.
  */
 export namespace AutoMovieViewLoft {
   /**
@@ -80,14 +85,20 @@ export namespace AutoMovieViewLoft {
   export function create(part: IAutoMovieViewPart): IAutoMovieViewLoft.IResult {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${part.name}`;
-    /** Keep every failed input premise with the view producer that encountered it. */
+    /**
+     * Keep every failed input premise with the view producer that encountered
+     * it.
+     */
     const report: (contract: string, detail: string) => void = (
       contract: string,
       detail: string,
     ): void => {
       diagnostics.push({ producer, level: 2, contract, detail });
     };
-    /** A failed admission retains diagnostics without publishing partial final geometry. */
+    /**
+     * A failed admission retains diagnostics without publishing partial final
+     * geometry.
+     */
     const empty: () => IAutoMovieViewLoft.IResult =
       (): IAutoMovieViewLoft.IResult => ({
         chain: null,
@@ -99,26 +110,26 @@ export namespace AutoMovieViewLoft {
       });
 
     // Inputs: stations, the order and every curve's knots.
-    if (
-      !(Number.isInteger(part.order) && part.order >= 8 && part.order % 4 === 0)
-    ) {
+    if (!(part.order >= 8 && part.order % 4 === 0)) {
       report(
         "order",
         `order ${part.order} is not a positive multiple of 4 of at least 8`,
       );
       return empty();
     }
-    /** Source stations must be ordered with the existing numerical spline-gap premise. */
+    /**
+     * Source stations must be ordered with the existing numerical spline-gap
+     * premise.
+     */
     const rising: (values: readonly number[]) => boolean = (
       values: readonly number[],
     ): boolean =>
       values.length >= 2 &&
       values.every(
         (v: number, i: number): boolean =>
-          Number.isFinite(v) &&
-          (i === 0 ||
-            (v > values[i - 1]! &&
-              v - values[i - 1]! >= AutoMovieLoftContract.splineGap(values))),
+          i === 0 ||
+          (v > values[i - 1]! &&
+            v - values[i - 1]! >= AutoMovieLoftContract.splineGap(values)),
       );
     if (!rising(part.stations)) {
       report(
@@ -303,10 +314,16 @@ export namespace AutoMovieViewLoft {
       });
     }
     stations.sort((a: number, b: number): number => a - b);
-    /** Existing cap-shoulder blend, independent of the coefficient source coordinate. */
+    /**
+     * Existing cap-shoulder blend, independent of the coefficient source
+     * coordinate.
+     */
     const cap: (s: number) => number = (s: number): number =>
       Math.max(0, ...caps.map((c: (s: number) => number): number => c(s)));
-    /** Preserve the established shoulder policy while the coefficient interpolant is repaired separately. */
+    /**
+     * Preserve the established shoulder policy while the coefficient
+     * interpolant is repaired separately.
+     */
     const domed: (r: Quarters<number>, s: number) => Quarters<number> = (
       r: Quarters<number>,
       s: number,
@@ -487,17 +504,6 @@ export namespace AutoMovieViewLoft {
           return row.point(phi);
         },
       );
-      if (
-        !points.every((p: [number, number]): boolean =>
-          p.every(Number.isFinite),
-        )
-      ) {
-        report(
-          "view chain",
-          `station ${row.station} mm: a compatibility row sample has no finite radius`,
-        );
-        return { ...empty(), sections, chains };
-      }
       const coefficients: number[] = AutoMovieSplineCurve.interpolate(points);
       layers.push({
         y: row.station,
@@ -564,8 +570,7 @@ export namespace AutoMovieViewLoft {
         !(
           phases.length === part.samples &&
           phases.every(
-            (p: number, k: number): boolean =>
-              Number.isFinite(p) && (k === 0 || p > phases[k - 1]!),
+            (p: number, k: number): boolean => k === 0 || p > phases[k - 1]!,
           ) &&
           phases[phases.length - 1]! - phases[0]! < 2 * Math.PI
         )

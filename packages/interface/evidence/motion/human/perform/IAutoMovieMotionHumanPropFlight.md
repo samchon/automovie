@@ -1,21 +1,3 @@
-# src/motion/human/perform/IAutoMovieMotionHumanPropFlight.ts#IAutoMovieMotionHumanPropFlight
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-projectile: The flight, its time zero at `launch`. contact: Its first collision, if one was resolved. capturedAt: Film second a staged grip took custody. point: The contact point on the struck surface, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-projectile: The flight, its time zero at `launch`. contact: Its first collision, if one was resolved. capturedAt: A grip can take custody without a collision. point: The contact point on the struck surface, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: perform/HumanPerformance.ts (HumanPerformance.flights, return); perform/HumanPropFlight.ts (HumanPropFlight.flights, return); perform/HumanPropFlight.ts (HumanPropFlight.fly, source); perform/HumanPropFlight.ts (HumanPropFlight.fly, return); perform/HumanPropFlight.ts (HumanPropFlight.fly.settle, return); perform/HumanPropFlight.ts (HumanPropFlight.contactOf, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanSegment, IAutoMovieMotionPropLaunch, IAutoMovieProjectile, IAutoMovieMotionHumanPropOutcome.ILeg, IAutoMovieVector3, IAutoMovieRigidTransform identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/perform/IAutoMovieMotionHumanPropFlight.ts#IAutoMovieMotionHumanPropFlight.IFlight
 
 ## @evidence contracts/development/common.md#meaningful-documentation

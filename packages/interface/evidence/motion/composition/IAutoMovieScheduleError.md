@@ -1,21 +1,3 @@
-# src/motion/composition/IAutoMovieScheduleError.ts#IAutoMovieScheduleError
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The closed error-code union identifies schedule reference, timing, cut-share and missing-law failures. The record carries the failed name or number and optional intent/anchor context and accepted alternatives; AutoMovieScheduleError formats these facts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieScheduleError contracts used by packages/engine/src/composition/AutoMovieScheduleError.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The closed error-code union identifies schedule reference, timing, cut-share and missing-law failures. The record carries the failed name or number and optional intent/anchor context and accepted alternatives; AutoMovieScheduleError formats these facts. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieScheduleError contract belongs to interface; packages/engine/src/composition/AutoMovieScheduleError.ts and packages/engine/src/composition/AutoMovieScheduleCut.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/composition/IAutoMovieScheduleError.ts#IAutoMovieScheduleError.Code
 
 ## @evidence contracts/development/common.md#meaningful-documentation

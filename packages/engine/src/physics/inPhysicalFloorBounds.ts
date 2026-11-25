@@ -8,7 +8,8 @@ import type {
 import { physicalShapeBounds } from "./physicalShapeBounds";
 
 /**
- * Refuse a nonfinite or out-of-domain shape before it can leave the declared finite floor.
+ * Refuse a nonfinite or out-of-domain shape before it can leave the declared
+ * finite floor.
  */
 export function inPhysicalFloorBounds(
   pose: IAutoMovieRigidTransform,
@@ -20,8 +21,6 @@ export function inPhysicalFloorBounds(
     shape,
   );
   return (
-    Number.isFinite(bounds.min.y) &&
-    Number.isFinite(bounds.max.y) &&
     bounds.min.x >= floor.min.x &&
     bounds.max.x <= floor.max.x &&
     bounds.min.z >= floor.min.z &&

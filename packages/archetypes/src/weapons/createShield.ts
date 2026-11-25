@@ -22,27 +22,22 @@ const ROUND: string =
  * The board stands on its centre with its face toward `+Z`. The centre-grip
  * variants place the grip behind the boss. The virtual foam variant uses a
  * lateral grip and a rear loop with a separate forearm socket, using the
- * distinction photographed in The Met's Highland Targe (1996.83) and
- * documented by the Pitt Rivers Museum under enarmes. Its lateral rim marks
- * sit on the board's profile. `slung` goes on the model axis at the
- * rearmost depth, with `+Y` toward the wearer and `+X` across the shield.
+ * distinction photographed in The Met's Highland Targe (1996.83) and documented
+ * by the Pitt Rivers Museum under enarmes. Its lateral rim marks sit on the
+ * board's profile. `slung` goes on the model axis at the rearmost depth, with
+ * `+Y` toward the wearer and `+X` across the shield.
  *
  * @param params The kind, a buckler's model and any dimension the author fixes.
- * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param seed The seed that picks the model left free and draws every dimension
+ *   left free inside its band; absent, the first model and the middle of each
+ *   band.
  * @returns The shield.
- * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the shield stands, what it is built of and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation The disc, boss and grip record the existing mass geometry. The foam variant sizes the arm loop and lateral rim marks from the same radius and thickness as the board.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the model's dimensions, then place its rigid parts and marks relative to the board.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stage loop is fixed foam geometry with a contact frame for authoring. It carries no cloth, tension or implied humanoid constraint.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of parts and affordances.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed
+ *   dimension outside its band, or one the model gives.
  */
 export function createShield(
   params: createShield.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createShield.Affordance, createShield.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createShield.Dimension> =
     new AutoMovieArchetypeDrawSession<createShield.Dimension>(
@@ -214,14 +209,7 @@ export function createShield(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createShield}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read bucklers, each whole, and one cited band per dimension a model leaves, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The diameter and mass a block reads, the grip, face, boss and rim it is held and struck by (#3202's buckler and round shield), and the place it hangs on a back (#3500).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, a buckler's from one measured buckler, never between two; the uncited sizes are named constants, not literals in the builder.
- */
+/** Companion types, constants and bands of {@link createShield}. */
 export namespace createShield {
   /** The kinds of shield. */
   export type Kind = "buckler" | "round" | "strapped";
@@ -229,29 +217,41 @@ export namespace createShield {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["buckler", "round", "strapped"];
 
-  /** The board's thickness, metres, by kind: a steel plate and a plank board. Estimates, not read at a source. */
+  /**
+   * The board's thickness, metres, by kind: a steel plate and a plank board.
+   * Estimates, not read at a source.
+   */
   export const BOARD: Readonly<Record<Kind, number>> = {
     buckler: 0.003,
     round: 0.008,
     strapped: 0.035,
   };
 
-  /** The boss's radius, metres, which is also half the grip bar's length behind it. An estimate, not read at a source. */
+  /**
+   * The boss's radius, metres, which is also half the grip bar's length behind
+   * it. An estimate, not read at a source.
+   */
   export const BOSS: number = 0.07;
 
-  /** The grip bar's diameter, metres, which is the grip's `aperture`. An estimate, not read at a source. */
+  /**
+   * The grip bar's diameter, metres, which is the grip's `aperture`. An
+   * estimate, not read at a source.
+   */
   export const GRIP: number = 0.028;
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the bar behind the boss, taken by the fist from the `-Z` side, its length along `+X`.
+   * - `grip`: the bar behind the boss, taken by the fist from the `-Z` side, its
+   *   length along `+X`.
    * - `face`: the whole front, facing `+Z`, as wide and as high as the diameter.
    * - `boss`: the top of the boss's dome, facing `+Z`.
    * - `rim`: the top of the edge, facing up.
    * - `forearm`: the rear loop's interior on the strapped stage shield.
-   * - `rim-negative-x` and `rim-positive-x`: lateral marks on the strapped stage shield.
-   * - `slung`: the shield's rearmost point on its axis, `+Y` toward a wearer whose back the shield hangs on (#3500).
+   * - `rim-negative-x` and `rim-positive-x`: lateral marks on the strapped stage
+   *   shield.
+   * - `slung`: the shield's rearmost point on its axis, `+Y` toward a wearer
+   *   whose back the shield hangs on (#3500).
    */
   export type Affordance =
     | "grip"
@@ -282,7 +282,13 @@ export namespace createShield {
   /** The read bucklers: the Wallace Collection's A315 and A316. */
   export type Model = "a315" | "a316";
 
-  /** Each kind's models whole, the default first: A315, about 17.5 in and 3 lb 7 oz, and A316, 20.75 in and 3 lb 13 oz (K. Reeves, A Survey of Bucklers at the Wallace Collection, https://nachtanz.org/kjr/a-survey-of-bucklers-wallace-museum.html); a round shield has none. */
+  /**
+   * Each kind's models whole, the default first: A315, about 17.5 in and 3 lb 7
+   * oz, and A316, 20.75 in and 3 lb 13 oz (K. Reeves, A Survey of Bucklers at
+   * the Wallace Collection,
+   * https://nachtanz.org/kjr/a-survey-of-bucklers-wallace-museum.html); a round
+   * shield has none.
+   */
   export const MODELS: Readonly<
     Partial<
       Record<
@@ -306,12 +312,18 @@ export namespace createShield {
     },
   };
 
-  /** The parameters: the kind, a buckler's model, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, a buckler's model, and any free dimension fixed
+   * to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which shield. */
     kind: Kind;
 
-    /** Which of the read bucklers; picked from the seed when absent. A round shield has none. */
+    /**
+     * Which of the read bucklers; picked from the seed when absent. A round
+     * shield has none.
+     */
     model?: Model;
 
     /** The model's id, unique in a scene; `shield` when absent. */

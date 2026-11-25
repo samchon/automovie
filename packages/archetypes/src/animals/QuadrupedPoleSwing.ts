@@ -13,21 +13,34 @@ import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQua
 import { AutoMovieArchetypeQuadrupedMotion } from "./AutoMovieArchetypeQuadrupedMotion";
 import type { EquineFlightClock } from "./EquineFlightClock";
 
-/** Shares of a swing read for its pole crossings: about two per centimetre of a metre-long swing's arc. */
+/**
+ * Shares of a swing read for its pole crossings: about two per centimetre of a
+ * metre-long swing's arc.
+ */
 const SHARES: number = 48;
 
 /** Points read along the terminal bar's axis at each share, its ends included. */
 const BAR: number = 4;
 
 /**
- * A swing's lift over the authored poles its hoof crosses: the arc's apex that keeps the terminal bar clear of each pole where the hoof's path passes over it.
+ * A swing's lift over the authored poles its hoof crosses: the arc's apex that
+ * keeps the terminal bar clear of each pole where the hoof's path passes over
+ * it.
  *
- * The swing's lift is an arc, its apex times the swing's rise at each share (`AutoMovieArchetypeQuadrupedMotion.swing`). The footing bounds the terminal bar by the capsule of its radius about its axis (`QuadrupedObstacleShape`) and a pole by its own capsule, so the two clear where every point of the bar's axis lies at least the sum of both radii from the pole's axis. In the pole's cross-section, a point at a horizontal distance short of that sum must stand above the pole's axis by the circle's height there; the lift raises the whole bar, so the apex a share asks is the largest such shortfall over the rise there. The bar is read from the endpoint to the fetlock as the body carries its rest attitude. A swing that crosses no pole needs none, and keeps its gait's apex.
+ * The swing's lift is an arc, its apex times the swing's rise at each share
+ * (`AutoMovieArchetypeQuadrupedMotion.swing`). The footing bounds the terminal
+ * bar by the capsule of its radius about its axis (`QuadrupedObstacleShape`)
+ * and a pole by its own capsule, so the two clear where every point of the
+ * bar's axis lies at least the sum of both radii from the pole's axis. In the
+ * pole's cross-section, a point at a horizontal distance short of that sum must
+ * stand above the pole's axis by the circle's height there; the lift raises the
+ * whole bar, so the apex a share asks is the largest such shortfall over the
+ * rise there. The bar is read from the endpoint to the fetlock as the body
+ * carries its rest attitude. A swing that crosses no pole needs none, and keeps
+ * its gait's apex.
  */
 export namespace QuadrupedPoleSwing {
-  /**
-   * One swing's pole apex, metres above the ground, read once per swing.
-   */
+  /** One swing's pole apex, metres above the ground, read once per swing. */
   export type Crossings = (
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
     index: number,
@@ -37,17 +50,13 @@ export namespace QuadrupedPoleSwing {
     on: number,
   ) => number;
 
-  /**
-   * The hoof track's goal at a course state and a swing share.
-   */
+  /** The hoof track's goal at a course state and a swing share. */
   export type Aim = (
     moment: AutoMovieArchetypeCourse.IState,
     amount: number,
   ) => EquineFlightClock.IAim;
 
-  /**
-   * The terminal bar at a share of a swing, before its lift.
-   */
+  /** The terminal bar at a share of a swing, before its lift. */
   export interface IBar {
     /** The endpoint on the ground beneath it, world metres. */
     ground: IAutoMovieVector3;
@@ -60,8 +69,10 @@ export namespace QuadrupedPoleSwing {
    *
    * @param ground The admitted footing.
    * @param parts The animal's parts, for each terminal's radius.
-   * @param shown The course state at a second with the body's displayed placement.
-   * @returns The reader, cached per swing; none when the footing has no poles, so no other ride pays for it.
+   * @param shown The course state at a second with the body's displayed
+   *   placement.
+   * @returns The reader, cached per swing; none when the footing has no poles,
+   *   so no other ride pays for it.
    */
   export function crossings(
     ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined,
@@ -118,9 +129,11 @@ export namespace QuadrupedPoleSwing {
    *
    * @param poles The footing's poles.
    * @param radius The terminal bar's radius, metres.
-   * @param path The terminal bar at a share of the swing, 0 to 1, before its lift.
+   * @param path The terminal bar at a share of the swing, 0 to 1, before its
+   *   lift.
    * @param rise The swing's rise at a share, 0 to 1.
-   * @returns The apex, metres above the ground; zero when the swing crosses no pole.
+   * @returns The apex, metres above the ground; zero when the swing crosses no
+   *   pole.
    */
   export function apex(
     poles: readonly AutoMovieArchetypeQuadrupedFooting.IPole[],
@@ -155,7 +168,10 @@ export namespace QuadrupedPoleSwing {
     return needed;
   }
 
-  /** A point's horizontal distance to a pole's axis, and the axis's height at its point nearest it. */
+  /**
+   * A point's horizontal distance to a pole's axis, and the axis's height at
+   * its point nearest it.
+   */
   interface ICrossing {
     /** Horizontal distance, metres. */
     distance: number;
@@ -164,7 +180,10 @@ export namespace QuadrupedPoleSwing {
     height: number;
   }
 
-  /** A point's horizontal distance to a pole's axis and the axis's height at its nearest point. */
+  /**
+   * A point's horizontal distance to a pole's axis and the axis's height at its
+   * nearest point.
+   */
   function across(
     pole: AutoMovieArchetypeQuadrupedFooting.IPole,
     at: IAutoMovieVector3,
@@ -209,7 +228,10 @@ export namespace QuadrupedPoleSwing {
     return terminal.geometry.shape.radius;
   }
 
-  /** The ground's model height beneath a goal's footprint: its support plane's there, the nominal floor when absent. */
+  /**
+   * The ground's model height beneath a goal's footprint: its support plane's
+   * there, the nominal floor when absent.
+   */
   function floor(goal: EquineFlightClock.IAim, x: number): number {
     if (goal.surface === undefined) return 0;
     const { normal, point }: AutoMovieArchetypeQuadrupedFooting.ISurface =

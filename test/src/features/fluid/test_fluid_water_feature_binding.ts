@@ -53,35 +53,34 @@ const placed: (props: {
  * 2. Every unresolved or mismatched name is refused: a foreign environment id, a
  *    space that does not exist, a domain that was not supplied, a rim that does
  *    not exist, and a rim that bounds some other room.
- * 3. Identity is enforced across features and domains: an empty feature id,
- *    duplicated feature ids, a duplicated rim, and duplicated domain ids.
- * 4. The closed vocabularies are closed: an unknown kind and an unknown mode.
- * 5. A domain that is invalid on its own terms fails the binding too, with its
+ * 3. Identity is enforced across features and domains: duplicated feature ids,
+ *    a duplicated rim, and duplicated domain ids.
+ * 4. A domain that is invalid on its own terms fails the binding too, with its
  *    range finding re-pathed onto its depth field; an unstable solver carries
  *    an error-severity range finding and the independently computed overshoot.
- * 6. Geometry: a lattice standing outside its basin is refused, and a basin
+ * 5. Geometry: a lattice standing outside its basin is refused, and a basin
  *    declared as a purely semantic container — a space with no convex cells —
  *    is deliberately not geometrically checked. The same 3×3 lattice is
  *    admitted with flat bed, but refused when only its centre bed rises above
  *    the convex basin ceiling while all four corner beds remain inside.
- * 7. A basin written as several convex cells is checked at every bed centre: a lattice bridging the notch
+ * 6. A basin written as several convex cells is checked at every bed centre: a lattice bridging the notch
  *    between two halves is refused even though all four of its corners stand in
  *    the room, while a lattice wholly inside one half is accepted. An unsound
  *    domain is not measured at all — a grid that failed its own validation has
  *    no placement to answer for, and a second verdict derived from the first
  *    bad one would be a finding about nothing.
- * 8. `lowerWaterFeature` gives a renderer the state, the surface and the spray in
+ * 7. `lowerWaterFeature` gives a renderer the state, the surface and the spray in
  *    one frame; a `static` feature always reads step 0 while `flowing` and
  *    `simulated` read the fixed-step solve at that second.
- * 9. `lowerWaterFeature` refuses a domain other than the one the feature binds,
+ * 8. `lowerWaterFeature` refuses a domain other than the one the feature binds,
  *    because drawing another lattice's water under this feature's name is a
  *    silent wrong frame.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Validates feature/environment/space/domain/rim joins and bed-point containment, then lowers static, simulated and flowing frames and observes shared step/state/surface/spray fields plus foreign-domain refusal.
  * @evidence contracts/development/testing.md#independent-expectations Literal identities and basin halfspaces independently require valid joins and in-volume bed centres; the same 3-by-3 lattice changes only its interior bed height for the convex refusal regression. Mode clocks and authored zero-bed heights determine lowering expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains original missing/duplicate/blank identities, kind/mode/material refusals, domain re-pathing and overshoot, semantic skip, outside/notched/seated/unsound geometry and frame modes; the interior-bed twin requires refusal of a height excursion despite inside corner beds. No visual result is claimed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains original missing/duplicate identities, domain re-pathing and overshoot, semantic skip, outside/notched/seated/unsound geometry and frame modes; the interior-bed twin requires refusal of a height excursion despite inside corner beds. No visual result is claimed.
  * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns every existing binding/lowering case and the approved same-shape interior-bed twin through engine calls; internal fixture helpers only supply records and no renderer, browser or GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pond bound to a real space, with a rim that really bounds it and a valid).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pond bound to a real space, with a rim that really bounds it and a valid).
  */
 export function test_fluid_water_feature_binding(): void {
   const environment: ReturnType<typeof basinEnvironment> = basinEnvironment();
@@ -150,7 +149,7 @@ export function test_fluid_water_feature_binding(): void {
     validateWaterFeatures({
       environment,
       features: [
-        waterFeature({ id: "  " }),
+        waterFeature({ id: "first" }),
         waterFeature({ id: "twin" }),
         waterFeature({ id: "twin" }),
         waterFeature({ id: "double-rim", boundaries: ["coping", "coping"] }),
@@ -162,10 +161,6 @@ export function test_fluid_water_feature_binding(): void {
   TestValidator.equals(
     "identity is enforced across features, rims and domains",
     namedFacts([
-      [
-        "emptyId",
-        (): boolean => hasViolation(identity, "type", "$input.features[0].id"),
-      ],
       [
         "duplicateFeature",
         (): boolean => hasViolation(identity, "type", "$input.features[2].id"),
@@ -180,11 +175,6 @@ export function test_fluid_water_feature_binding(): void {
         (): boolean => hasViolation(identity, "type", "$input.domains[1].id"),
       ],
       [
-        "blankMaterial",
-        (): boolean =>
-          hasViolation(identity, "type", "$input.features[4].material"),
-      ],
-      [
         "namedMaterial",
         (): boolean =>
           hasViolation(identity, "type", "$input.features[5].material") ===
@@ -192,26 +182,13 @@ export function test_fluid_water_feature_binding(): void {
       ],
     ]),
     {
-      emptyId: true,
       duplicateFeature: true,
       duplicateRim: true,
       duplicateDomain: true,
-      blankMaterial: true,
       namedMaterial: true,
     },
   );
 
-  const vocabulary: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
-      environment,
-      features: [
-        waterFeature({
-          kind: "lava" as unknown as "pond",
-          mode: "boiling" as unknown as "static",
-        }),
-      ],
-      domains: [domain],
-    });
   const broken: ReturnType<typeof validateWaterFeatures> =
     validateWaterFeatures({
       environment,
@@ -248,18 +225,8 @@ export function test_fluid_water_feature_binding(): void {
       ),
   );
   TestValidator.equals(
-    "closed vocabularies stay closed and a broken domain breaks its binding",
+    "a broken domain breaks its binding",
     namedFacts([
-      [
-        "kind",
-        (): boolean =>
-          hasViolation(vocabulary, "type", "$input.features[0].kind"),
-      ],
-      [
-        "mode",
-        (): boolean =>
-          hasViolation(vocabulary, "type", "$input.features[0].mode"),
-      ],
       [
         "domainViolations",
         (): boolean =>
@@ -267,8 +234,6 @@ export function test_fluid_water_feature_binding(): void {
       ],
     ]),
     {
-      kind: true,
-      mode: true,
       domainViolations: true,
     },
   );

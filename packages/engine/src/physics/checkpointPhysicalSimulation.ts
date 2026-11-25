@@ -4,9 +4,11 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
+import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
 
 /**
- * An unchanged prefix is established from actual data, never from an edit-time assertion.
+ * An unchanged prefix is established from actual data, never from an edit-time
+ * assertion.
  */
 export function checkpointPhysicalSimulation(
   input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -25,6 +27,7 @@ export function checkpointPhysicalSimulation(
       bodies: value.bodies.map(
         (body: (typeof value.bodies)[number]): object => ({
           ...body,
+          profile: physicalProfileWithoutHulls(body.profile),
           targets: [],
         }),
       ),

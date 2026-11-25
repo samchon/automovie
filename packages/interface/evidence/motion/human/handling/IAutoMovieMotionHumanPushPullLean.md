@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanPushPullLean.ts#IAutoMovieMotionHumanPushPullLean
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-How far the trunk leans when a load is pushed, pulled or dragged by its handles, by the load's declared level and the handles' height.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed choices "light", "moderate", "heavy", "push", "pull" distinguish the admitted cases.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: handling/pushPullLean.ts (pushPullLean.of, way); handling/pushPullLean.ts (pushPullLean.of, load); handling/pushPullLean.ts (pushPullLean.ANGLES).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in pushPullLean.of.
-
 # src/motion/human/handling/IAutoMovieMotionHumanPushPullLean.ts#IAutoMovieMotionHumanPushPullLean.Load
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,7 +1,10 @@
 /**
- * Choose the subject a draw page creates from the names its module offers: the named one, or with no name the only one.
+ * Choose the subject a draw page creates from the names its module offers: the
+ * named one, or with no name the only one.
  *
- * It throws, listing every offered name: for a name the module does not offer, for no name when the module offers several, and for a module that offers none.
+ * It throws, listing every offered name: for a name the module does not offer,
+ * for no name when the module offers several, and for a module that offers
+ * none.
  */
 export function selectAutoMovieDrawSubject(
   offered: readonly string[],

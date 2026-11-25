@@ -13,16 +13,15 @@ import { physicalShapePairContact } from "./physicalShapePairContact";
 
 /**
  * Prepare exact convex geometric queries in the engine's own geometry: no
- * dynamics world, steps or impulses. A returned contact keeps a null
- * impulse, so a geometric witness cannot pass for a solver result.
+ * dynamics world, steps or impulses. A returned contact keeps a null impulse,
+ * so a geometric witness cannot pass for a solver result.
  *
  * A contact is the least signed distance over both colliders' wire frames
- * (`physicalShapePairContact`): exact while they are apart, and the depth
- * of the deepest wire inside the other solid while they overlap. Two
- * colliders whose bounds are farther apart than the prediction on some
- * axis are not queried. The projection of a point is the collider's
- * nearest surface point (`physicalShapeNearest`), from inside as from
- * outside.
+ * (`physicalShapePairContact`): exact while they are apart, and the depth of
+ * the deepest wire inside the other solid while they overlap. Two colliders
+ * whose bounds are farther apart than the prediction on some axis are not
+ * queried. The projection of a point is the collider's nearest surface point
+ * (`physicalShapeNearest`), from inside as from outside.
  */
 export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysicalGeometry.IQueries> {
   return {
@@ -32,11 +31,7 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
       seconds: number,
       prediction: number = 0,
     ): IAutoMovieContactReceipt | null => {
-      if (
-        !Number.isFinite(seconds) ||
-        !Number.isFinite(prediction) ||
-        prediction < 0
-      )
+      if (prediction < 0)
         throw new Error("Invalid physical contact query time or prediction");
       const boundsA: IAutoMoviePhysicalShapeBounds.IResult =
         physicalShapeBounds(a.pose, a.shape);
@@ -54,8 +49,7 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
         return null;
       const measured: physicalShapePairContact.IResult =
         physicalShapePairContact(a.pose, a.shape, b.pose, b.shape);
-      if (!Number.isFinite(measured.distance))
-        throw new Error("Nonfinite geometric contact distance");
+
       if (measured.distance > prediction) return null;
       return {
         id: `geometry:${a.body}/${a.bone}/${a.shape.id}:${b.body}/${b.bone}/${b.shape.id}:${seconds}`,

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -16,43 +17,62 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 
+/** The alternatives of `BenchAttitude`'s site. */
+type BenchAttitude = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `AsideAttitude`'s site. */
+type AsideAttitude = "yaw" | "pitch" | "roll";
+
+/** The record of `IBENCHItem`'s site. */
+type IBENCHItem = { pitch: number; spine: number };
+
 /**
- * The key postures of the mounted seat kinds (`IAutoMovieMotionHumanMounted.Seat`),
- * each solved in the carrier contact's model-aligned frame from the body's
- * own measures and the carrier's own contacts.
+ * The key postures of the mounted seat kinds
+ * (`IAutoMovieMotionHumanMounted.Seat`), each solved in the carrier contact's
+ * model-aligned frame from the body's own measures and the carrier's own
+ * contacts.
  *
  * The side-saddle seat (`aside`) follows the Side Saddle Association's
- * arrangement: the rider sits "absolutely straight and square", the right
- * leg "goes around the top" pommel "and then hangs down", and the left foot
- * is "in a stirrup" (https://sidesaddleassociation.co.uk/introsidesaddle.asp).
- * The vaulting seats follow the FEI guidelines as Equestrian Australia's
- * 2024 descriptions extract them: in the basic seat "the arms are stretched
- * to each side along the frontal plane, with the fingertips at eye level",
- * and in the bench the vaulter kneels on the back with the hands on the
- * handles. Every angle not given by a source is marked provisional.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the sources of each seat and which values are provisional.
- * @evidence contracts/development/design.md#principled-representation Each seat is a posture in the carrier contact's frame: root, attitude, joints and limb goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three solved seats and the context they read, used by `HumanMounted`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No carrier is named: every place is a contact's or the body's.
+ * arrangement: the rider sits "absolutely straight and square", the right leg
+ * "goes around the top" pommel "and then hangs down", and the left foot is "in
+ * a stirrup" (https://sidesaddleassociation.co.uk/introsidesaddle.asp). The
+ * vaulting seats follow the FEI guidelines as Equestrian Australia's 2024
+ * descriptions extract them: in the basic seat "the arms are stretched to each
+ * side along the frontal plane, with the fingertips at eye level", and in the
+ * bench the vaulter kneels on the back with the hands on the handles. Every
+ * angle not given by a source is marked provisional.
  */
 export namespace HumanMountedSeats {
-  /** The shoulder abduction that holds an arm level to the side, degrees; the basic seat raises it by the angle that brings the fingertips to eye level (`basic`). */
+  /**
+   * The shoulder abduction that holds an arm level to the side, degrees; the
+   * basic seat raises it by the angle that brings the fingertips to eye level
+   * (`basic`).
+   */
   export const ABDUCTION: number = 90;
 
-  /** The bench's pelvis inclination forward and its added spine flexion, degrees (provisional: the guideline's figure shows a trunk inclined forward over the handles). */
-  export const BENCH: Readonly<{ pitch: number; spine: number }> = {
+  /**
+   * The bench's pelvis inclination forward and its added spine flexion, degrees
+   * (provisional: the guideline's figure shows a trunk inclined forward over
+   * the handles).
+   */
+  export const BENCH: Readonly<IBENCHItem> = {
     pitch: 45,
     spine: 20,
   };
 
-  /** The most the right shank turns out from hanging plumb to clear the carrier, degrees (provisional). */
+  /**
+   * The most the right shank turns out from hanging plumb to clear the carrier,
+   * degrees (provisional).
+   */
   export const OUT: number = 75;
 
-  /** The clearance the hanging right shank keeps from the carrier's colliders beyond its own radius, metres (the campaign's 10 mm contact budget). */
+  /**
+   * The clearance the hanging right shank keeps from the carrier's colliders
+   * beyond its own radius, metres (the campaign's 10 mm contact budget).
+   */
   export const CLEAR: number = 0.01;
 
   /**
@@ -60,14 +80,6 @@ export namespace HumanMountedSeats {
    *
    * @param seat The seat kind.
    * @returns The required and the optional supporting parts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each kind reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The side saddle's two leg supports with optional reins, the bench's knees and handles, the basic seat's free arms, the out-of-saddle and bank seats' two stirrups with optional hands, and the entered seat's optional hands and the stirrups its entry stands in.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per kind.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function parts(
     seat: IAutoMovieMotionHumanMounted.Seat,
@@ -99,14 +111,6 @@ export namespace HumanMountedSeats {
    *
    * @param seat The seat kind.
    * @returns True for the seats sat on: entered, aside, basic and descent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which kinds sit.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A membership test.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sits(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
     return (
@@ -117,24 +121,10 @@ export namespace HumanMountedSeats {
     );
   }
 
-  /**
-   * A supporting part a figure can name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the part keys of a figure's supports.
-   * @evidence contracts/development/design.md#principled-representation The keys of the interface's support record, so the two cannot drift.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `parts` and the mounted law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** A supporting part a figure can name. */
   export type Part = keyof IAutoMovieMotionHumanMounted.ISupports;
 
-  /**
-   * What a seat is solved from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The body, the entry in the carrier frame and readers of the carrier's contacts and colliders in that frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the three seats read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The colliders are read through `clear`, never copied.
-   */
+  /** What a seat is solved from. */
   export interface IContext {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -148,26 +138,26 @@ export namespace HumanMountedSeats {
     /** A carrier contact's declaration. */
     contact(id: string): IAutoMovieAffordance;
 
-    /** How far the carrier contact rises or falls along its own up from its stride-averaged path, metres: what a leg out of the saddle must absorb; 0 without a stride. */
+    /**
+     * How far the carrier contact rises or falls along its own up from its
+     * stride-averaged path, metres: what a leg out of the saddle must absorb; 0
+     * without a stride.
+     */
     slack: number;
 
-    /** How far a segment given in the carrier frame lies from the carrier's colliders, metres, negative inside. */
+    /**
+     * How far a segment given in the carrier frame lies from the carrier's
+     * colliders, metres, negative inside.
+     */
     clear(a: IAutoMovieVector3, b: IAutoMovieVector3): number;
   }
 
   /**
-   * The vaulter's basic seat: the entered seat astride, its arms stretched to the sides with the fingertips at eye level.
+   * The vaulter's basic seat: the entered seat astride, its arms stretched to
+   * the sides with the fingertips at eye level.
    *
    * @param context The seat's context.
    * @returns The posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture and its source.
-   * @evidence contracts/development/implementation.md#principled-implementation The shoulder's abduction rises above horizontal by the asin of the eye's height over the shoulder's against the arm's length, so a straight arm puts the fingertips level with the eyes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry with two joints per arm replaced and its arm goals dropped.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The legs and trunk are the entry's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function basic(context: IContext): IAutoMovieMotionHumanPosture {
     const m: IAutoMovieMotionHumanBody["measure"] = context.body.measure;
@@ -197,20 +187,17 @@ export namespace HumanMountedSeats {
   }
 
   /**
-   * The side-saddle seat: the pelvis turned square to the carrier's front on the seat bones it entered on, the right thigh over the fixed head with the shank hanging clear of the carrier on the near side, and the ball of the left foot on its stirrup.
+   * The side-saddle seat: the pelvis turned square to the carrier's front on
+   * the seat bones it entered on, the right thigh over the fixed head with the
+   * shank hanging clear of the carrier on the near side, and the ball of the
+   * left foot on its stirrup.
    *
    * @param context The seat's context.
    * @param supports The figure's supports: `rightThigh` and `leftFoot`.
    * @returns The posture.
-   * @throws {HumanRefusal} When the fixed head is not under the thigh between its middle and the knee, when no turn of the shank up to `OUT` clears the carrier, or when the stirrup is outside the left leg's band.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture, its source and the three refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The seat socket keeps its place and the pelvis turns to the carrier's heading; the thigh runs from the hip joint over the head's top, raised by the head's and the thigh's radii, for its own length; the shank turns out about the carrier's fore-and-aft axis by the least angle that clears the colliders, found by a scan and bisection; the left foot's ball is placed on the tread.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The pelvis, the right leg, the left leg.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A head or stirrup out of reach is refused, never clamped to.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen scan steps and twenty bisections, each one collider distance query.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solved once per figure.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} When the fixed head is not under the thigh between
+   *   its middle and the knee, when no turn of the shank up to `OUT` clears the
+   *   carrier, or when the stirrup is outside the left leg's band.
    */
   export function aside(
     context: IContext,
@@ -220,17 +207,18 @@ export namespace HumanMountedSeats {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     // Square to the carrier's front: the model-aligned frame's heading on the turn nearest the entered one.
     const facing: number = 360 * Math.round(entry.yaw / 360);
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = { yaw: facing, pitch: entry.pitch, roll: 0 };
+    const attitude: Pick<IAutoMovieMotionHumanPosture, AsideAttitude> = {
+      yaw: facing,
+      pitch: entry.pitch,
+      roll: 0,
+    };
     const root: IAutoMovieVector3 = seated.root(
       body,
       seated.socket(body, entry),
       attitude,
     );
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(attitude);
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const turn: IAutoMovieQuaternion = humanPostureHeading(attitude);
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
       turn,
@@ -356,20 +344,17 @@ export namespace HumanMountedSeats {
   }
 
   /**
-   * The vaulter's bench: both knees a shank's radius over the pad with the thighs upright, the feet tucked on their toes behind, the pelvis inclined `BENCH.pitch` and the spine flexed `BENCH.spine` further toward the handles.
+   * The vaulter's bench: both knees a shank's radius over the pad with the
+   * thighs upright, the feet tucked on their toes behind, the pelvis inclined
+   * `BENCH.pitch` and the spine flexed `BENCH.spine` further toward the
+   * handles.
    *
    * @param context The seat's context.
-   * @param supports The figure's supports: `leftKnee`, `rightKnee`, `leftHand` and `rightHand`.
+   * @param supports The figure's supports: `leftKnee`, `rightKnee`, `leftHand`
+   *   and `rightHand`.
    * @returns The posture.
-   * @throws {HumanRefusal} When a knee falls off its surface, or a handle lies beyond the arm's reach from the inclined shoulder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture and its refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation `kneelKeys`' kneeling height (the knee joint a shank radius over the floor, the hip a thigh above it) and tucked foot on the pad's plane; the hips stand back from the handles by the thigh's length; the reach is checked from the shoulder the inclined trunk carries.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The root, the knees and their surfaces, the feet, the reach.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A knee off its surface or a handle out of reach is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two tucked-foot solves.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `kneelKeys.tucked`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} When a knee falls off its surface, or a handle lies
+   *   beyond the arm's reach from the inclined shoulder.
    */
   export function bench(
     context: IContext,
@@ -378,18 +363,19 @@ export namespace HumanMountedSeats {
     const { body, entry } = context;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const facing: number = 360 * Math.round(entry.yaw / 360);
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = { yaw: facing, pitch: BENCH.pitch, roll: 0 };
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(attitude);
+    const attitude: Pick<IAutoMovieMotionHumanPosture, BenchAttitude> = {
+      yaw: facing,
+      pitch: BENCH.pitch,
+      roll: 0,
+    };
+    const turn: IAutoMovieQuaternion = humanPostureHeading(attitude);
     const pad: IAutoMovieVector3 = context.point(supports.leftKnee!);
-    const handles: Record<"left" | "right", IAutoMovieVector3> = {
+    const handles: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: context.point(supports.leftHand!),
       right: context.point(supports.rightHand!),
     };
     const kneeY: number = pad.y + m.shankRadius;
-    const rest: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
       turn,
@@ -401,7 +387,7 @@ export namespace HumanMountedSeats {
       { x: 0, y: kneeY + m.thigh, z: ahead - m.thigh },
       middle,
     );
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
       turn,
@@ -462,7 +448,7 @@ export namespace HumanMountedSeats {
     }
 
     // The inclined trunk carries the shoulders forward over the handles; each handle must lie within the arm's reach.
-    const lean: IAutoMovieQuaternion = resolveHumanPosture.heading({
+    const lean: IAutoMovieQuaternion = humanPostureHeading({
       ...attitude,
       pitch: BENCH.pitch + BENCH.spine,
     });

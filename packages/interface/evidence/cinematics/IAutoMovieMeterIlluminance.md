@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieMeterIlluminance.ts#IAutoMovieMeterIlluminance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the operation; its members document the metered point, the lights, the unmetered sources and the result.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace grouping the meter's input, its daylight record and its result records, so each is read as part of one incident-light reading.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-interface owns it for `meterAutoMovieIlluminance`; productions and the film's exposure setting read the result.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No member is shaped for a test; every record is produced or read by the meter.
-
 # src/cinematics/IAutoMovieMeterIlluminance.ts#IAutoMovieMeterIlluminance.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

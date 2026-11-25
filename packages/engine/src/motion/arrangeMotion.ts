@@ -7,7 +7,10 @@ import {
 import { addPositiveModulo } from "../math/addPositiveModulo";
 
 /**
- * Arrange admitted clips on one actor's shot clock in stable start order. Keyframes shift by placement start, gaps hold the previous tail, and coincident or overlapping later frames are dropped rather than layered; empty placements return an empty zero-duration clip.
+ * Arrange admitted clips on one actor's shot clock in stable start order.
+ * Keyframes shift by placement start, gaps hold the previous tail, and
+ * coincident or overlapping later frames are dropped rather than layered; empty
+ * placements return an empty zero-duration clip.
  */
 export const arrangeMotion: (
   id: string,
@@ -17,18 +20,13 @@ export const arrangeMotion: (
   placements: IAutoMoviePlacement[],
 ): IAutoMovieMotion => {
   for (const placement of placements) {
-    if (!Number.isFinite(placement.start))
-      throw new Error("motion placement start must be finite");
     if (placement.start < 0)
       throw new Error("motion placement start must be non-negative");
     if (placement.motion.keyframes.length === 0)
       throw new Error(
         `motion placement "${placement.motion.id}" must have keyframes`,
       );
-    if (
-      !Number.isFinite(placement.motion.duration) ||
-      placement.motion.duration <= 0
-    )
+    if (placement.motion.duration <= 0)
       throw new Error(
         `motion placement "${placement.motion.id}" duration must be finite and positive`,
       );

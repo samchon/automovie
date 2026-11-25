@@ -20,11 +20,30 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
 /**
  * The world volume each panel of an opening sweeps across its whole travel.
  *
- * The envelope is solved rather than sampled. Every corner of a turning leaf traces `A + B cos(t) + D sin(t)` under the panel's own placement, and an affine world matrix keeps that form, so each axis is a single cosine whose extremes are its endpoints and the critical angles the travel actually crosses. A sliding leaf is linear and reaches its extremes at its limits. Nothing here judges whether a person can pass the leaf: this is the volume a later clearance or collision analysis reads, not its verdict.
+ * The envelope is solved rather than sampled. Every corner of a turning leaf
+ * traces `A + B cos(t) + D sin(t)` under the panel's own placement, and an
+ * affine world matrix keeps that form, so each axis is a single cosine whose
+ * extremes are its endpoints and the critical angles the travel actually
+ * crosses. A sliding leaf is linear and reaches its extremes at its limits.
+ * Nothing here judges whether a person can pass the leaf: this is the volume a
+ * later clearance or collision analysis reads, not its verdict.
  *
- * The answer is per panel, and only that panel's own travel. Ancestors stand where the environment's current state puts them, so an inner folding leaf is measured against the outer leaf as it currently stands. That is the volume this leaf sweeps from where the design has it, not the union over every configuration a chain of leaves could reach between its named states. A caller wanting that union asks for each state in turn and takes the hull itself; inventing it here would quietly report a chain's envelope under one panel's name.
+ * The answer is per panel, and only that panel's own travel. Ancestors stand
+ * where the environment's current state puts them, so an inner folding leaf is
+ * measured against the outer leaf as it currently stands. That is the volume
+ * this leaf sweeps from where the design has it, not the union over every
+ * configuration a chain of leaves could reach between its named states. A
+ * caller wanting that union asks for each state in turn and takes the hull
+ * itself; inventing it here would quietly report a chain's envelope under one
+ * panel's name.
  *
- * Each entry is a world-space axis-aligned box over the four corners of the panel's `width` by `height` leaf, in panel order. An opening without an operation answers an empty list. Throws an `Error` when the opening does not exist, a panel's element is missing, or travel limits are non-finite, unordered, empty, exclude rest at zero, or span more than a full revolute turn plus `AUTOMOVIE_FULL_TURN_EPSILON`; these are the travel rules `validateBuiltEnvironment` applies.
+ * Each entry is a world-space axis-aligned box over the four corners of the
+ * panel's `width` by `height` leaf, in panel order. An opening without an
+ * operation answers an empty list. Throws an `Error` when the opening does not
+ * exist, a panel's element is missing, or travel limits are non-finite,
+ * unordered, empty, exclude rest at zero, or span more than a full revolute
+ * turn plus `AUTOMOVIE_FULL_TURN_EPSILON`; these are the travel rules
+ * `validateBuiltEnvironment` applies.
  *
  * @param environment Building record holding the opening.
  * @param openingId Id of the opening whose panels are swept.
@@ -82,7 +101,9 @@ export const builtOpeningSweepEnvelope: (
 /**
  * The world frame a panel's leaf stands in with its own travel at rest.
  *
- * The panel's own displacement is the last factor of its local matrix and moves nothing above it, so its parent's staged matrix times its rest transform is exactly the staging with that one joint removed.
+ * The panel's own displacement is the last factor of its local matrix and moves
+ * nothing above it, so its parent's staged matrix times its rest transform is
+ * exactly the staging with that one joint removed.
  */
 const restingFrame: (
   environment: IAutoMovieBuiltEnvironment,
@@ -115,7 +136,11 @@ const restingFrame: (
 /**
  * Refuse a panel whose travel the swept envelope could not enumerate.
  *
- * Travel must be finite, ordered, nonempty and contain rest at zero, as `validateBuiltEnvironment` requires. Together with the revolute full-turn cap this bounds the absolute critical-angle indices, so incrementing an index cannot stall at a large finite floating-point value. Direct callers receive a named refusal instead of entering an enumeration outside those premises.
+ * Travel must be finite, ordered, nonempty and contain rest at zero, as
+ * `validateBuiltEnvironment` requires. Together with the revolute full-turn cap
+ * this bounds the absolute critical-angle indices, so incrementing an index
+ * cannot stall at a large finite floating-point value. Direct callers receive a
+ * named refusal instead of entering an enumeration outside those premises.
  */
 const requireEnumerableTravel: (
   environment: IAutoMovieBuiltEnvironment,
@@ -126,8 +151,6 @@ const requireEnumerableTravel: (
 ): void => {
   const { min, max }: IAutoMovieTravelMotion = panel.motion;
   if (
-    Number.isFinite(min) === false ||
-    Number.isFinite(max) === false ||
     min > 0 ||
     max < 0 ||
     max <= min ||

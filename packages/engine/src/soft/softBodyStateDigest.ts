@@ -1,6 +1,9 @@
 import { IAutoMovieSoftBodyState } from "@automovie/interface";
 
-/** Produce a deterministic 32-bit FNV-1a diagnostic of selected numeric cloth fields encoded as little-endian float64 bytes. Equal digests are not proof of equal states: collisions exist and domain/time metadata is omitted.
+/**
+ * Produce a deterministic 32-bit FNV-1a diagnostic of selected numeric cloth
+ * fields encoded as little-endian float64 bytes. Equal digests are not proof of
+ * equal states: collisions exist and domain/time metadata is omitted.
  */
 export const softBodyStateDigest: (state: IAutoMovieSoftBodyState) => string = (
   state: IAutoMovieSoftBodyState,

@@ -9,7 +9,6 @@ import {
 } from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
-import { finiteMinimum } from "./finiteMinimum";
 
 type AutoMovieLookAtRange =
   | "horizontalInner"
@@ -55,19 +54,9 @@ export const validateLookAt: (
   collector: IAutoMovieViolationCollector,
 ): void => {
   if (lookAt.type === "expression") return;
-  if (lookAt.type !== "bone") {
-    const unknown: { type: unknown } = lookAt as { type: unknown };
-    collector.push(
-      "type",
-      `${path}.type`,
-      `lookAt type must be "bone" or "expression", but was "${String(unknown.type)}"`,
-      unknown.type,
-    );
-    return;
-  }
 
   for (const range of RANGES)
-    finiteMinimum(lookAt[range], 0, `${path}.${range}`, `${range}`, collector);
+    collector.range(`${path}.${range}`, lookAt[range], 0, Infinity, `${range}`);
 
   for (const eye of EYES) {
     const bone: IAutoMovieBone | undefined = skeleton?.bones.find(

@@ -12,25 +12,26 @@ import type {
 import { HumanPerformanceRead } from "../perform/HumanPerformanceRead";
 import { HumanPropFlight } from "../perform/HumanPropFlight";
 
-/** Sampling interval of a gate scan, seconds: 240 Hz, ten times a 24 fps film frame. */
+/**
+ * Sampling interval of a gate scan, seconds: 240 Hz, ten times a 24 fps film
+ * frame.
+ */
 const STEP: number = 1 / 240;
 
-/** Bisection rounds closing a bracketed crossing: 2^-40 of one step, below 1e-14 s. */
+/**
+ * Bisection rounds closing a bracketed crossing: 2^-40 of one step, below 1e-14
+ * s.
+ */
 const ROUNDS: number = 40;
 
 /**
- * Read one ball's play from a placed performance and test it against the
- * gates a sport credits (a hoop, a goal mouth, a cup).
+ * Read one ball's play from a placed performance and test it against the gates
+ * a sport credits (a hoop, a goal mouth, a cup).
  *
- * `read` joins the ball's hand grips into possessions and merges them with its engine flights, so the same
- * prop's custody and travel are one film-ordered log. `crossing` scans the
- * displayed ball, the frame every consumer renders, for the first passage
- * through a gate toward its credited side.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two readers, their sources and clocks.
- * @evidence contracts/development/design.md#principled-representation Events and gates are the IAutoMovieMotionHumanBallPlay records; times are film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPerformance.play exposes read; sports and their tests call crossing on any performance reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sport rule is encoded; each sport credits its result from these reads.
+ * `read` joins the ball's hand grips into possessions and merges them with its
+ * engine flights, so the same prop's custody and travel are one film-ordered
+ * log. `crossing` scans the displayed ball, the frame every consumer renders,
+ * for the first passage through a gate toward its credited side.
  */
 export namespace HumanBallPlay {
   /**
@@ -39,14 +40,6 @@ export namespace HumanBallPlay {
    * @param self The placed performance.
    * @param ball Scene subject id of the ball.
    * @returns The play; empty events for a ball never held or launched.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the event sources, the film clock and the empty result.
-   * @evidence contracts/development/implementation.md#principled-implementation Possessions join one performer's overlapping or touching hand grips on the ball in film order, so a change of hands is not a change of custody; launches and contacts are each flight's projectile start, first contact (film seconds) and continuation-leg contacts (timed from the launch, so offset by it), which the flight already limits to its custody.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Grip and flight ownership stay with HumanPerformanceRead and HumanPropFlight; this function only projects and orders their records.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Records no contact the flight did not resolve and infers no possession from proximity.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(G log G) to order G grips, O(F + K) projection for F flights and K contacts, then one O(E log E) sort of the E events.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the performance's cached flights and grips without resweeping.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh event list and retains nothing; borrowed struck records are shared with the flights.
    */
   export function read(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -136,38 +129,33 @@ export namespace HumanBallPlay {
    * The first film second in a window at which a point fixed in the ball's
    * frame passes through a gate toward its credited side.
    *
-   * The displayed frame is sampled every 1/240 s. A sign change of the
-   * signed distance to the gate plane brackets a crossing, which bisection
-   * closes; the crossing counts when it lies inside the gate. A ball that
-   * enters and leaves the plane within one interval is not seen, which at
-   * 240 Hz needs a reversal within about 4 ms.
+   * The displayed frame is sampled every 1/240 s. A sign change of the signed
+   * distance to the gate plane brackets a crossing, which bisection closes; the
+   * crossing counts when it lies inside the gate. A ball that enters and leaves
+   * the plane within one interval is not seen, which at 240 Hz needs a reversal
+   * within about 4 ms.
    *
    * @param performance The placed performance.
    * @param ball Scene subject id of the ball.
    * @param gate The gate.
    * @param from First film second of the window.
    * @param to Last film second of the window.
-   * @param offset The tested point in the ball's frame, metres: its centre for a sphere; the frame origin when absent.
-   * @returns The crossing, or undefined when the ball does not pass the gate in the window.
-   * @throws {RangeError} For a malformed window, a non-unit normal, or a rectangle whose up is not in its plane.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sampling rate, the crediting direction, the window and the undetected case.
-   * @evidence contracts/development/implementation.md#principled-implementation A continuous displayed path that changes the sign of its plane distance crosses the plane in the bracket; bisection converges to the crossing, and the region test is applied at that point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame reading stays with the performance; only the plane and region geometry live here.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the same frames a render shows; no closed form per sport is assumed, and a reversal inside one interval is documented rather than hidden.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O((to - from) * 240 + 40 per bracket) frame reads, each a projectile or carrier sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the performance's placed flights for every frame read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no frame; allocates a few vectors per sample.
+   * @param offset The tested point in the ball's frame, metres: its centre for
+   *   a sphere; the frame origin when absent.
+   * @returns The crossing, or undefined when the ball does not pass the gate in
+   *   the window.
+   * @throws {RangeError} For a malformed window, a non-unit normal, or a
+   *   rectangle whose up is not in its plane.
    */
   export function crossing(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "prop">,
     ball: string,
     gate: IAutoMovieMotionHumanBallPlay.Gate,
     from: number,
     to: number,
     offset: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
   ): IAutoMovieMotionHumanBallPlay.ICrossing | undefined {
-    if (!(Number.isFinite(from) && Number.isFinite(to) && to > from))
+    if (!(to > from))
       throw new RangeError("A gate window needs finite seconds with to > from");
     if (Math.abs(Vector3.length(gate.normal) - 1) > 1e-9)
       throw new RangeError("A gate normal must be a unit vector");

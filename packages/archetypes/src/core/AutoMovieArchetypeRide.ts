@@ -7,7 +7,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeRideWitness } from "./ArchetypeRideWitness";
 import type { ArchetypeTowedGeometry } from "./ArchetypeTowedGeometry";
 import { ArchetypeTowing } from "./ArchetypeTowing";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
@@ -17,14 +16,18 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 
 /**
- * A moving support in time: an archetype following a course, with whatever of it moves as it goes.
+ * A moving support in time: an archetype following a course, with whatever of
+ * it moves as it goes.
  *
- * A ride is what the support publishes for whoever is carried by it or walks beside it: at any second, the archetype in its state at that second, the placement of its root in the world, and through `frame` the world frame of any of its contacts, which is the support frame a seated, standing or holding body is kept on. Its named instants are the course's, plus those the support adds, such as a crank's top dead centres or a horse's footfalls.
+ * A ride is what the support publishes for whoever is carried by it or walks
+ * beside it: at any second, the archetype in its state at that second, the
+ * placement of its root in the world, and through `frame` the world frame of
+ * any of its contacts, which is the support frame a seated, standing or holding
+ * body is kept on. Its named instants are the course's, plus those the support
+ * adds, such as a crank's top dead centres or a horse's footfalls.
  */
 export namespace AutoMovieArchetypeRide {
-  /**
-   * The support at a second.
-   */
+  /** The support at a second. */
   export interface ISample<
     Id extends string,
     Dimension extends string,
@@ -32,12 +35,18 @@ export namespace AutoMovieArchetypeRide {
     /** Where the support is on its course. */
     course: AutoMovieArchetypeCourse.IState;
 
-    /** The lines a towing ride lays between the leader and this support at that second, in the world; absent when it lays none. */
+    /**
+     * The lines a towing ride lays between the leader and this support at that
+     * second, in the world; absent when it lays none.
+     */
     lines?: readonly ILineState[];
   }
 
   /**
-   * A line between two independently moving supports, such as a trace from a horse's collar to a cart's single tree, or a driving line from the bit through the terrets to the driver's hands: a round strap through its points in order, each a point of the leader or of the towed support.
+   * A line between two independently moving supports, such as a trace from a
+   * horse's collar to a cart's single tree, or a driving line from the bit
+   * through the terrets to the driver's hands: a round strap through its points
+   * in order, each a point of the leader or of the towed support.
    */
   export interface ILine {
     /** The line's id, unique among a ride's lines. */
@@ -51,7 +60,8 @@ export namespace AutoMovieArchetypeRide {
   }
 
   /**
-   * One point of a line: an end on the leader's posed model, one on the towed support's, or a point a performer holds it at.
+   * One point of a line: an end on the leader's posed model, one on the towed
+   * support's, or a point a performer holds it at.
    */
   export type ILinePoint =
     | { leader: AutoMovieArchetypeSpan.End; trailer?: never; held?: never }
@@ -59,12 +69,12 @@ export namespace AutoMovieArchetypeRide {
     | ILineHeld;
 
   /**
-   * A line point held by a performer: its world position at each film second, such as a driver's displayed palm, so a held line follows the hand that shakes, takes up or gives it.
+   * A line point held by a performer: its world position at each film second,
+   * such as a driver's displayed palm, so a held line follows the hand that
+   * shakes, takes up or gives it.
    */
   export interface ILineHeld {
-    /**
-     * The held point in the world, metres, at a film second.
-     */
+    /** The held point in the world, metres, at a film second. */
     held: (seconds: number) => IAutoMovieVector3;
     /** Absent: a held point is on neither model. */
     leader?: never;
@@ -72,9 +82,7 @@ export namespace AutoMovieArchetypeRide {
     trailer?: never;
   }
 
-  /**
-   * A line at one second.
-   */
+  /** A line at one second. */
   export interface ILineState {
     /** The line's id. */
     id: string;
@@ -87,19 +95,33 @@ export namespace AutoMovieArchetypeRide {
   }
 
   /**
-   * What moves with the course at one of its states: the archetype in its state there and its root's placement in the world.
+   * What moves with the course at one of its states: the archetype in its state
+   * there and its root's placement in the world.
    */
   export interface IPose<Id extends string, Dimension extends string> {
     /** The archetype in its state at that point of the course. */
     archetype: AutoMovieArchetype<Id, Dimension>;
 
-    /** The placement of the archetype's root in the world, which may differ from the course's own by a lean or a bob. */
+    /**
+     * The placement of the archetype's root in the world, which may differ from
+     * the course's own by a lean or a bob.
+     */
     placement: IAutoMovieTransform;
+
+    /**
+     * One contact's frame in the archetype's space at this pose, read from what
+     * carries it alone, without posing the whole model; undefined, or absent,
+     * where only the posed `archetype` places it. A ride's `frame` reads it
+     * first, so a carried reader's seat or stirrup does not pose a whole
+     * horse.
+     *
+     * @param id The contact's id, one the archetype declares.
+     * @returns The frame, or undefined.
+     */
+    frame?(id: Id): IAutoMovieTransform | undefined;
   }
 
-  /**
-   * A ride.
-   */
+  /** A ride. */
   export interface IRide<Id extends string, Dimension extends string> {
     /** The planned course. */
     plan: AutoMovieArchetypeCourse.IPlan;
@@ -111,25 +133,24 @@ export namespace AutoMovieArchetypeRide {
     instants: readonly { seconds: number; label: string }[];
 
     /**
-     * The support at a second, held at its start before its course begins and at its end after it ends.
+     * The support at a second, held at its start before its course begins and
+     * at its end after it ends.
      */
     at: (seconds: number) => ISample<Id, Dimension>;
 
     /**
-     * The world frame of one of the support's contacts at a second, seconds held to the ride as `at` holds them; an id the archetype lacks is refused as `AutoMovieArchetype.affordance` refuses it.
+     * The world frame of one of the support's contacts at a second, seconds
+     * held to the ride as `at` holds them; an id the archetype lacks is refused
+     * as `AutoMovieArchetype.affordance` refuses it.
      */
     frame(id: Id, seconds: number): IAutoMovieTransform;
   }
 
-  /**
-   * The world placement and selected contact frames at one tow instant.
-   */
+  /** The world placement and selected contact frames at one tow instant. */
   export type ITowedSample<Id extends string> =
     ArchetypeTowedGeometry.ITowedSample<Id>;
 
-  /**
-   * A ride with an exact arbitrary-time contact query for the towed support.
-   */
+  /** A ride with an exact arbitrary-time contact query for the towed support. */
   export type ITowedRide<
     Id extends string,
     Dimension extends string,
@@ -139,11 +160,15 @@ export namespace AutoMovieArchetypeRide {
    * A ride of an archetype along a course.
    *
    * @param archetype The support at rest.
-   * @param course The course its root follows, or its plan when the caller has already planned it.
-   * @param pose The support's model and root placement at the current course state and film second. Without a poser the source model follows the course unchanged.
+   * @param course The course its root follows, or its plan when the caller has
+   *   already planned it.
+   * @param pose The support's model and root placement at the current course
+   *   state and film second. Without a poser the source model follows the
+   *   course unchanged.
    * @param instants Instants the support adds to the course's.
    * @returns The ride.
-   * @throws {AutoMovieArchetypeRefusal} As {@link AutoMovieArchetypeCourse.plan} does for a malformed course.
+   * @throws {AutoMovieArchetypeRefusal} As {@link AutoMovieArchetypeCourse.plan}
+   *   does for a malformed course.
    */
   export function along<Id extends string, D extends string>(
     archetype: AutoMovieArchetype<Id, D>,
@@ -164,7 +189,11 @@ export namespace AutoMovieArchetypeRide {
         archetype,
         placement: state.placement,
       };
-      return { ...sample, course: state };
+      return {
+        archetype: sample.archetype,
+        placement: sample.placement,
+        course: state,
+      };
     }
     const ride: IRide<Id, D> = {
       plan,
@@ -174,30 +203,67 @@ export namespace AutoMovieArchetypeRide {
           p.seconds - q.seconds,
       ),
       at,
+      // A contact's frame reads only what carries it where the poser can
+      // place it alone; otherwise the posed model's own contact.
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, D> = at(seconds);
+        const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
+        const sample: IPose<Id, D> | undefined = pose?.(state, seconds);
+        if (sample === undefined)
+          return AutoMovieArchetypeFrame.compose(
+            state.placement,
+            archetype.affordance(id).frame,
+          );
+        // An id the archetype lacks is refused before any demand path reads it.
+        archetype.affordance(id);
         return AutoMovieArchetypeFrame.compose(
           sample.placement,
-          sample.archetype.affordance(id).frame,
+          sample.frame?.(id) ?? sample.archetype.affordance(id).frame,
         );
       },
     };
-    if (pose !== undefined) ArchetypeRideWitness.constructed(ride, pose);
     return ride;
   }
 
   /**
-   * A trailer towed by a leader: the trailer's coupling held on the leader's hitch at every second, and its axle following as a single-axle trailer does, its heading lagging into the turns.
+   * A trailer towed by a leader: the trailer's coupling held on the leader's
+   * hitch at every second, and its axle following as a single-axle trailer
+   * does, its heading lagging into the turns.
    *
-   * The trailer is drawn by any ride, a car's, a horse's or a cart's along a course. Its axle line, the trailer's own `X` axis through `axle`, never slides sideways, so its heading turns toward the hitch at the hitch's sideways speed over the coupling's distance ahead of the axle; the heading is integrated from the leader's start, the trailer then aligned behind the hitch, by the engine's integrator (`integrateMotionTrajectory`), so the trailer's path depends only on the leader's and its own start. A four-wheeled wagon is two such links: its pole and front axle turn about the front axle's pivot, trailing the hitch, and its body trails the pivot on its rear axle, the front axle's articulation set to the two links' difference. The ride publishes the leader's plan and instants, and at each second the leader's course state with the trailer's placement. The lines given in `lines` run between the two: at every second each of their points is found on the leader's model as the leader's ride poses and places it, or on the trailer's as this ride does, so a trace or a driving line stays on both at once, whatever either does.
+   * The trailer is drawn by any ride, a car's, a horse's or a cart's along a
+   * course. Its axle line, the trailer's own `X` axis through `axle`, never
+   * slides sideways, so its heading turns toward the hitch at the hitch's
+   * sideways speed over the coupling's distance ahead of the axle; the heading
+   * is integrated from the leader's start, the trailer then aligned behind the
+   * hitch, by the engine's integrator (`integrateMotionTrajectory`), so the
+   * trailer's path depends only on the leader's and its own start. A
+   * four-wheeled wagon is two such links: its pole and front axle turn about
+   * the front axle's pivot, trailing the hitch, and its body trails the pivot
+   * on its rear axle, the front axle's articulation set to the two links'
+   * difference. The ride publishes the leader's plan and instants, and at each
+   * second the leader's course state with the trailer's placement. The lines
+   * given in `lines` run between the two: at every second each of their points
+   * is found on the leader's model as the leader's ride poses and places it, or
+   * on the trailer's as this ride does, so a trace or a driving line stays on
+   * both at once, whatever either does.
    *
    * @param leader The leader's ride.
    * @param hitch The leader's contact the trailer is hitched to.
    * @param trailer The trailer at rest.
-   * @param coupling The source contact held on the hitch; legacy inputs require it ahead along +Z, while declared single-axle support can tow a rear contact in reverse.
-   * @param options support is producer-read axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies inter-model spans. ground, with single-axle support, seats the wheels on the authored plane under the axle instead of the leader's course datum.
+   * @param coupling The source contact held on the hitch; legacy inputs require
+   *   it ahead along +Z, while declared single-axle support can tow a rear
+   *   contact in reverse.
+   * @param options Support is producer-read axle geometry: a single axle
+   *   permits body pitch, and fixedGround keeps two axles grounded with an
+   *   optional drawbar hinge. Without it only an unchanged level coupling
+   *   height is supported. Existing axle/front declarations must agree with
+   *   supplied support; pose supplies current articulations and lines supplies
+   *   inter-model spans. ground, with single-axle support, seats the wheels on
+   *   the authored plane under the axle instead of the leader's course datum.
    * @returns The trailer's ride.
-   * @throws {AutoMovieArchetypeRefusal} For inconsistent support/options, an unreachable or unsupported hitch height, an invalid support/articulation, a coupling that does not close, a nonpositive projected reach, missing contacts/line ends or front steering beyond its declared lock.
+   * @throws {AutoMovieArchetypeRefusal} For inconsistent support/options, an
+   *   unreachable or unsupported hitch height, an invalid support/articulation,
+   *   a coupling that does not close, a nonpositive projected reach, missing
+   *   contacts/line ends or front steering beyond its declared lock.
    */
   export function towed<
     LeaderId extends string,
@@ -226,22 +292,9 @@ export namespace AutoMovieArchetypeRide {
       options,
     );
     const front: ArchetypeTowing.IFront<Id> | null = geometry.front;
-    const hitchAt = (
-      seconds: number,
-      witness?: ArchetypeRideWitness.Witness,
-    ): IAutoMovieVector3 => {
-      const read:
-        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
-        | undefined =
-        witness === undefined ? undefined : ArchetypeRideWitness.of(leader);
-      if (read === undefined || witness === undefined)
-        return leader.frame(hitch, seconds).translation;
-      const sample: ISample<LeaderId, LeaderDimension> = read(seconds, witness);
-      return AutoMovieArchetypeFrame.compose(
-        sample.placement,
-        sample.archetype.affordance(hitch).frame,
-      ).translation;
-    };
+    // The hitch is one contact of the leader, read by itself on every route.
+    const hitchAt = (seconds: number): IAutoMovieVector3 =>
+      leader.frame(hitch, seconds).translation;
     const groundAt: (seconds: number) => number = (seconds: number): number =>
       leader.plan.at(seconds).placement.translation.y;
     const end: number = Math.max(leader.duration, 1e-3);
@@ -253,19 +306,17 @@ export namespace AutoMovieArchetypeRide {
 
     // The headings, radians about +Y: the first link's turning toward the hitch at its sideways speed over its reach; a second link's toward the pivot at the pivot's sideways speed over the body's length.
     const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory = (() => {
-      const stage = ArchetypeRideWitness.stages(leader);
       return integrateMotionTrajectory({
         f: (
           t: number,
           x: readonly number[],
         ): IAutoMovieIntegrateMotionTrajectory.IRate => {
-          const probes = stage(t);
-          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4, probes?.ahead);
-          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4, probes?.behind);
+          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4);
+          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4);
           const vx: number = (ahead.x - behind.x) / 1e-3;
           const vz: number = (ahead.z - behind.z) / 1e-3;
           const theta: number = x[0]!;
-          const centre: IAutoMovieVector3 = hitchAt(t, probes?.centre);
+          const centre: IAutoMovieVector3 = hitchAt(t);
           const reach: number = geometry.height(
             centre.y,
             geometry.ground(centre, theta, groundAt(t)),
@@ -327,23 +378,18 @@ export namespace AutoMovieArchetypeRide {
           model.affordances,
         ),
       );
-    /** Solve the current support once. Only a demanded frame or line lays its geometry. */
+    /**
+     * Solve the current support once. Only a demanded frame or line lays its
+     * geometry.
+     */
     const read = (
       seconds: number,
     ): ITowedSample<Id> & { full(): ISample<Id, Dimension> } => {
-      const native:
-        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
-        | undefined = ArchetypeRideWitness.of(leader);
-      const witness: ArchetypeRideWitness.Witness | undefined =
-        native === undefined ? undefined : new ArchetypeRideWitness.Witness();
-      const sample: ISample<LeaderId, LeaderDimension> =
-        native === undefined || witness === undefined
-          ? leader.at(seconds)
-          : native(seconds, witness);
+      const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
       const state: readonly number[] = heading.at(seconds).x;
       const theta: number = state[0]!;
       const phi: number = front === null ? theta : state[1]!;
-      const point: IAutoMovieVector3 = hitchAt(seconds, witness);
+      const point: IAutoMovieVector3 = hitchAt(seconds);
       const posed: AutoMovieArchetype<Id, Dimension> =
         options.pose?.(sample.course) ?? trailer;
       const solved: ReturnType<typeof geometry.pose> = geometry.pose(
@@ -377,7 +423,7 @@ export namespace AutoMovieArchetypeRide {
         achieved.y - point.y,
         achieved.z - point.z,
       );
-      if (!Number.isFinite(error) || error > 64 * Number.EPSILON * scale)
+      if (error > 64 * Number.EPSILON * scale)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: trailer.archetype,

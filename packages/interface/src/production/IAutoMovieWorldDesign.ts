@@ -6,7 +6,8 @@ import type { IAutoMovieWorldRoute } from "./IAutoMovieWorldRoute";
 import type { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
 
 /**
- * Production world of named spatial constraints, terrain, environmental effects and compact general populations.
+ * Production world of named spatial constraints, terrain, environmental effects
+ * and compact general populations.
  */
 export interface IAutoMovieWorldDesign {
   /** Non-blank stable world id. */

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -10,30 +11,23 @@ import { HumanFoot } from "../posture/HumanFoot";
 import type { KickChamber } from "./KickChamber";
 
 /**
- * The kicking leg's plant on its forefoot rocker: as the weight leaves the
- * foot its ankle bends no further than the share of the weight it still
- * bears allows (`walkLeg.dorsal`), a weightless ankle's at the launch, so
- * the heel rises about the toes' joint with the toes kept flat
- * (`walkLeg.heelRise`, as `rangeSteppingFoot` rocks a stepping foot). A
- * plant held flat left the foot at the loaded limit as it left the floor
- * (the cover breach's door kick: 39 degrees, 19 past a weightless ankle).
+ * The kicking leg's plant on its forefoot rocker: as the weight leaves the foot
+ * its ankle bends no further than the share of the weight it still bears allows
+ * (`walkLeg.dorsal`), a weightless ankle's at the launch, so the heel rises
+ * about the toes' joint with the toes kept flat (`walkLeg.heelRise`, as
+ * `rangeSteppingFoot` rocks a stepping foot). A plant held flat left the foot
+ * at the loaded limit as it left the floor (the cover breach's door kick: 39
+ * degrees, 19 past a weightless ankle).
  *
  * @param body The body.
  * @param side The kicking side.
  * @param plant The kicking leg on the floor at the launch.
- * @returns The rocker for a hip, the plant's displacement and the ankle's dorsal limit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the limit, its source, the pivot and the case that showed it.
- * @evidence contracts/development/implementation.md#principled-implementation The forefoot rocker: the heel rises about the metatarsophalangeal axis only as far as the ankle's weight-dependent range requires, and the toes extend by the same angle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The plant's sole read once; each query one heel-rise search and one pivot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limits are the engine's measured ones, blended by the shared weight rule.
- * @evidence contracts/development/implementation.md#efficient-algorithms One bounded one-dimensional search per query; a foot inside its range is returned unturned.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses walkLeg.heelRise and HumanFoot.pivot.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plant's sole only.
+ * @returns The rocker for a hip, the plant's displacement and the ankle's
+ *   dorsal limit.
  */
 export function KickRocker(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   plant: KickChamber.IKey,
 ): KickRocker.Reader {
   const sole: ReturnType<typeof HumanFoot.headingPitch> =
@@ -81,16 +75,12 @@ export function KickRocker(
   };
 }
 
-/**
- * Companion types of {@link KickRocker}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
- * @evidence contracts/development/design.md#principled-representation A foot placement and a toe angle in degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the kicking leg's path (`KickSwing`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's foot placement.
- */
+/** Companion types of {@link KickRocker}. */
 export namespace KickRocker {
-  /** The rocker at a hip, the plant's displacement in world metres and the ankle's dorsal limit in degrees. */
+  /**
+   * The rocker at a hip, the plant's displacement in world metres and the
+   * ankle's dorsal limit in degrees.
+   */
   export type Reader = (
     hip: IAutoMovieVector3,
     moved: IAutoMovieVector3,

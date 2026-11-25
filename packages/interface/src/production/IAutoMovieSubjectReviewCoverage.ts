@@ -1,6 +1,4 @@
-/**
- * Result of comparing required subject viewpoints with current observations.
- */
+/** Result of comparing required subject viewpoints with current observations. */
 export interface IAutoMovieSubjectReviewCoverage {
   /** Derived execution state for this subject and plan. */
   state: "indeterminate" | "not-run" | "partial" | "stale" | "reviewed";
@@ -8,13 +6,19 @@ export interface IAutoMovieSubjectReviewCoverage {
   /** Required viewpoint ids in declared plan order. */
   planned: string[];
 
-  /** Required viewpoint ids covered by the current revision, compile, plan and runtime identities. */
+  /**
+   * Required viewpoint ids covered by the current revision, compile, plan and
+   * runtime identities.
+   */
   observed: string[];
 
   /** Required viewpoint ids with no current observation. */
   missing: string[];
 
-  /** Required viewpoint ids observed only with a different revision, compile, plan or runtime identity. */
+  /**
+   * Required viewpoint ids observed only with a different revision, compile,
+   * plan or runtime identity.
+   */
   stale: string[];
 
   /** Extra current observations for a viewpoint outside the plan. */

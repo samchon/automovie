@@ -1,7 +1,11 @@
 /**
  * One retained original curve interval in a profile contour.
  *
- * source resolves to an invocation-owned curve family. clock is increasing in that source's parameter units; direction selects traversal without changing the original function. branch preserves the declared topological branch shared with neighboring pieces. Profile preparation checks source availability and retained intervals before building charts.
+ * Source resolves to an invocation-owned curve family. clock is increasing in
+ * that source's parameter units; direction selects traversal without changing
+ * the original function. branch preserves the declared topological branch
+ * shared with neighboring pieces. Profile preparation checks source
+ * availability and retained intervals before building charts.
  */
 export interface IAutoMovieConstructionProfilePiece {
   /** Unique piece/chart identity in the family. */

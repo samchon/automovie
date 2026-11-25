@@ -1,14 +1,6 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -18,84 +10,74 @@ import type {
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanSeated,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanTrunk } from "../everyday/HumanTrunk";
-import { seated } from "../everyday/seated";
-import { sitPlace } from "../everyday/sitPlace";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanAuditModel } from "../posture/HumanAuditModel";
 import { HumanColliders } from "../posture/HumanColliders";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanBoardAdmit } from "./HumanBoardAdmit";
 import { HumanBoardHandover } from "./HumanBoardHandover";
+import { HumanBoardHandoverStill } from "./HumanBoardHandoverStill";
+import { HumanBoardKey } from "./HumanBoardKey";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-import { hangMountedLeg } from "./hangMountedLeg";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>;
-
-/** Bounds of an admitted boarding, in the seat's moving frame (provisional): the most the performer moves relative to the seat at the take-off, metres per second; the farthest level way; the most it rises and drops. */
-const BOUNDS: Readonly<Record<"speed" | "reach" | "rise" | "drop", number>> = {
-  speed: 1.5,
-  reach: 2.5,
-  rise: 1.5,
-  drop: 3,
-};
-
 /** Seconds the landed seat takes to settle (provisional). */
 const SETTLE: number = 0.3;
 
-/** Seconds the holding hand takes to close on its hold from the take-off (provisional). */
+/**
+ * Seconds the holding hand takes to close on its hold from the take-off
+ * (provisional).
+ */
 const GRASP: number = 0.15;
 
-/** A partner's bones a hand resting on the partner keeps clear of: the trunk and the thighs. */
-const PARTNER: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    ...HumanArmObstacleBones.TRUNK,
-    "leftUpperLeg",
-    "rightUpperLeg",
-  ]);
-
-/** The share of the flight a held hand keeps its hold for: to the landing, so the support passes from the hold to the seat with no gap. */
+/**
+ * The share of the flight a held hand keeps its hold for: to the landing, so
+ * the support passes from the hold to the seat with no gap.
+ */
 const LET_GO: number = 1;
 
 /**
- * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat contact's moving frame the root travels from where it takes off to its seated place on the seat by a minimum-jerk share, so it leaves and lands with the seat's own velocity, rising `height` over the straight way on a parabola of the share; the shape blends from the entry into an upright astride seat with the legs hanging (`hangMountedLeg`), a held hand keeping its hold until `LET_GO` of the flight. A hand holding a partner's thigh that the flight carries behind the partner's back hands the hold over: the other hand takes the partner's waist on its own side before the first lets go, as its arm would come through the partner's trunk, so a hand holds the partner throughout (`HumanBoardHandover`). Register `HumanBoard` to use it.
+ * Admit the boarding, solve the seated key in the seat's frame, then sample.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, its velocities at both ends, the shape and the hold.
- * @evidence contracts/development/design.md#principled-representation One law; the flight as a share in the seat's moving frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat and the held contact are the carrier's own moving ones; a partner's bone is the partner's displayed one.
+ * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: bad time or height, a take-off moving too fast against the seat, and a way too long, too high or too deep.
+ * @evidence contracts/development/implementation.md#principled-implementation The relative take-off velocity is the central difference of the performer's own root against the seat's; the seated key is `seated.point` and `seated.root` on the seat with the upright back's angles.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the key, the bounds, then the sampler.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding outside the bounds is refused, never shortened.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One key per plan; a sample reads one seat frame and at most one held point.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The key is shared by every sample.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the key and the carrier reader.
+ */
+function planHumanBoard(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
+
+/**
+ * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat
+ * contact's moving frame the root travels from where it takes off to its seated
+ * place on the seat by a minimum-jerk share, so it leaves and lands with the
+ * seat's own velocity, rising `height` over the straight way on a parabola of
+ * the share; the shape blends from the entry into an upright astride seat with
+ * the legs hanging (`hangMountedLeg`), a held hand keeping its hold until
+ * `LET_GO` of the flight. A hand holding a partner's thigh that the flight
+ * carries behind the partner's back hands the hold over: the other hand takes
+ * the partner's waist on its own side before the first lets go, as its arm
+ * would come through the partner's trunk, so a hand holds the partner
+ * throughout (`HumanBoardHandover`). Register `HumanBoard` to use it.
  */
 export const HumanBoard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBoard> =
   {
     name: "board",
     interrupts: {},
-    /**
-     * Admit the boarding, solve the seated key in the seat's frame, then sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: bad time or height, a take-off moving too fast against the seat, and a way too long, too high or too deep.
-     * @evidence contracts/development/implementation.md#principled-implementation The relative take-off velocity is the central difference of the performer's own root against the seat's; the seated key is `seated.point` and `seated.root` on the seat with the upright back's angles.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the key, the bounds, then the sampler.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding outside the bounds is refused, never shortened.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One key per plan; a sample reads one seat frame and at most one held point.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The key is shared by every sample.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the key and the carrier reader.
-     */
-    plan(context: Context): IAutoMovieMotionHumanActionPlan {
-      return plan(context);
-    },
+    plan: planHumanBoard,
   };
 
 /** Admit, solve the key and sample. */
@@ -106,7 +88,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   HumanBound.above("duration", flight, 0, "s");
   HumanBound.least("height", height, 0, "m");
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     params.on,
     params.seat,
@@ -119,147 +101,14 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     HumanMountedFrame.LOCAL,
   );
 
-  // The seated key, upright and astride with the legs hanging, in the seat's frame.
-  const declared: IAutoMovieAffordance | undefined =
-    support.prop.affordances?.find(
-      (a: IAutoMovieAffordance): boolean => a.id === params.seat,
-    );
-  const seat: IAutoMovieMotionHumanSeated.ISeat = {
-    at: { x: 0, y: 0, z: 0 },
-    yaw: 0,
-    astride: true,
-    ...(declared !== undefined &&
-    "depth" in declared &&
-    typeof declared.depth === "number"
-      ? { depth: declared.depth }
-      : {}),
-  };
-  const upright = sitPlace.BACKS.upright;
-  const sat = (at: IAutoMovieVector3): IAutoMovieMotionHumanPosture => ({
-    ...from,
-    root: seated.root(
-      context.body,
-      seated.point(context.body, { ...seat, at }),
-      {
-        yaw: 0,
-        pitch: upright.pitch,
-        roll: 0,
-      },
-    ),
-    yaw: 0,
-    pitch: upright.pitch,
-    roll: 0,
-    joints: { ...upright.joints },
-    limbs: {},
-  });
-  // A passenger boarding behind a partner (a pillion) sits directly behind
-  // them, the front of the pelvis against the partner's seat, along the
-  // seat's own forward axis: the bodies' own surfaces place it, not the
-  // seat's point alone, so the hands reach the partner's waist on bent
-  // elbows.
-  const behind: IAutoMovieVector3 = ((): IAutoMovieVector3 => {
-    const partner: string | undefined = params.hand?.partner;
-    if (partner === undefined) return { x: 0, y: 0, z: 0 };
-    const other: IAutoMovieMotionHumanPerformerReader =
-      context.performer(partner);
-    const landing: IAutoMovieRigidTransform = carrier(context.start + flight);
-    const frame: IAutoMovieHumanoidSurfaces.IFrame =
-      other.body.surfaces.regions.seat;
-    const back: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(landing.rotation),
-      Vector3.subtract(
-        resolveAutoMovieHumanoidSurfaces.place(
-          frame,
-          other
-            .bones(
-              context.start + flight,
-              new Set<AutoMovieHumanoidBone>([frame.bone]),
-            )
-            .get(frame.bone)!,
-        ).point,
-        landing.position,
-      ),
-    );
-    const front: IAutoMovieVector3 = HumanTrunk.region(
-      context.body,
-      sat({ x: 0, y: 0, z: 0 }),
-      "groin",
-    ).point;
-    return { x: 0, y: 0, z: back.z - front.z };
-  })();
-  const sitting: IAutoMovieMotionHumanPosture = sat(behind);
-  const key: IAutoMovieMotionHumanPosture = {
-    ...sitting,
-    limbs: {
-      leftLeg: hangMountedLeg(context.body, sitting, "left"),
-      rightLeg: hangMountedLeg(context.body, sitting, "right"),
-    },
-  };
-
-  // The take-off's velocity against the seat, and the way's reach, rise and drop.
-  const h: number = 1 / 60;
-  const self = (film: number): IAutoMovieVector3 =>
-    context.performer(context.subject).root(film).position;
-  const relative = (film: number): IAutoMovieVector3 => {
-    const frame: IAutoMovieRigidTransform = carrier(film);
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(self(film), frame.position),
-    );
-  };
-  // A performer with no motion of its own before the act has none against the seat.
-  let slip: number = 0;
-  try {
-    slip = Vector3.length(
-      Vector3.scale(
-        Vector3.subtract(relative(context.start), relative(context.start - h)),
-        1 / h,
-      ),
-    );
-  } catch {
-    slip = 0;
-  }
-  const way: IAutoMovieVector3 = Vector3.subtract(key.root, from.root);
-  const checks: readonly [string, number, number][] = [
-    ["speed", slip, BOUNDS.speed],
-    ["reach", Math.hypot(way.x, way.z), BOUNDS.reach],
-    ["rise", way.y, BOUNDS.rise],
-    ["drop", -way.y, BOUNDS.drop],
-  ];
-  for (const [axis, value, most] of checks)
-    if (value > most)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis,
-        value,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: most,
-          unit: axis === "speed" ? "m/s" : "m",
-        },
-        reason: `boarding the seat asks a ${axis} of ${value.toFixed(3)}, beyond ${most}`,
-        fix: "run level with the seat and take off from within reach of it",
-      });
-
-  // A carrier asked to carry more than it declares is refused.
-  if (params.load !== undefined) {
-    const total: number = params.load.carried + context.body.measure.mass;
-    if (total > params.load.capacity)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "load",
-        value: total,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: params.load.capacity,
-          unit: "kg",
-        },
-        reason: `boarding brings the carrier's load to ${total.toFixed(1)} kg, beyond its declared ${params.load.capacity} kg`,
-        fix: "board a carrier that may carry the load, or lighten it",
-      });
-  }
+  const { seat, behind, key }: HumanBoardKey.IKey = HumanBoardKey(
+    context,
+    support,
+    carrier,
+    from,
+    flight,
+  );
+  HumanBoardAdmit(context, carrier, from, key);
 
   const duration: number = flight + SETTLE;
   const hand: IAutoMovieMotionHumanBoard.IHand | undefined = params.hand;
@@ -315,12 +164,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const handover: HumanBoardHandover.IHandover | undefined =
     hand?.partner === undefined
       ? undefined
-      : HumanBoardHandover.kept(
-          params,
-          `${context.subject}|${context.start}`,
-          flight,
-          (): HumanBoardHandover.IHandover | undefined =>
-        HumanBoardHandover.plan(
+      : HumanBoardHandover.plan(
           hand!,
           context.performer(hand!.partner!),
           flight,
@@ -329,84 +173,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           // hand reached to its point on the boarding, the partner's trunk
           // and thighs the rests the arm keeps clear of up to the wrist),
           // admitted by the course's own still problem there.
-          (t: number, holds: readonly HumanBoardHandover.IHold[]): boolean => {
-            // A hand the boarding's own arm fit cannot lay on its point is
-            // not held there by any course, so the still problem, which
-            // fails slowly through all its starts, is not asked (a necessary
-            // condition tested first, as the planner tests its hold before
-            // its trajectory).
-            const fitted: ReturnType<typeof poseBones> = poseBones(
-              context.body,
-              resolveHumanPosture(
-                context.body,
-                holds.reduce(
-                  (
-                    posture: IAutoMovieMotionHumanPosture,
-                    held: HumanBoardHandover.IHold,
-                  ): IAutoMovieMotionHumanPosture =>
-                    HumanUnseatPose.reach(posture, held.side, held.point, 1),
-                  boarding(t),
-                ),
-              ),
-              undefined,
-              new Set<AutoMovieHumanoidBone>(
-                holds.map(
-                  (held: HumanBoardHandover.IHold): AutoMovieHumanoidBone =>
-                    `${held.side}Hand`,
-                ),
-              ),
-            );
-            if (
-              holds.some(
-                (held: HumanBoardHandover.IHold): boolean =>
-                  Vector3.distance(
-                    fitted.get(`${held.side}Hand`)!.worldPosition,
-                    held.point,
-                  ) > AutoMovieMotionHumanAuditTangle.BUILT,
-              )
-            )
-              return false;
-            const other: IAutoMovieMotionHumanPerformerReader =
-              context.performer(hand!.partner!);
-            const resting: ReturnType<
-              ReturnType<typeof HumanColliders.preparePlaced>
-            > = HumanColliders.preparePlaced(other.body, PARTNER)(
-              other.bones(context.start + t, PARTNER),
-            );
-            return AutoMovieMotionHumanArmPlanned.stands(
-              context.body,
-              {
-                seconds: t,
-                carries: holds.map(
-                  (
-                    held: HumanBoardHandover.IHold,
-                  ): IAutoMovieMotionHumanArmPlanned.IPlanned => ({
-                    side: held.side,
-                    rest: AutoMovieMotionHumanArm.angles(
-                      context.entry.pose,
-                      held.side,
-                    ),
-                    weight: (): number => 1,
-                    goal: (
-                      _posture: IAutoMovieMotionHumanPosture,
-                      seconds: number,
-                    ): IAutoMovieHumanLimbGoal => ({
-                      ...HumanUnseatPose.reach(
-                        boarding(seconds),
-                        held.side,
-                        held.point,
-                        1,
-                      ).limbs[`${held.side}Arm`]!,
-                      rests: resting,
-                    }),
-                  }),
-                ),
-              },
-              (seconds: number): IAutoMovieMotionHumanPosture =>
-                boarding(seconds),
-            );
-          },
-        ),
+          HumanBoardHandoverStill(context, hand!, boarding),
         );
   const lets: number =
     handover === undefined ? release : Math.min(release, handover.lets);
@@ -509,18 +276,21 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             planted: false,
           },
         };
-      // A hand on a partner rests on the partner's body: its trunk and thighs, placed as displayed, are the colliders the arm keeps clear of up to the wrist.
+      // A hand on a partner rests on the partner's body: every segment the audit reads, placed as displayed, is a collider the arm keeps clear of up to the wrist.
       if (hand.partner === undefined) return reached;
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         hand.partner,
       );
+      // Every segment of the partner the audit reads (`HumanAuditModel.segments`).
+      const segments: ReadonlySet<AutoMovieHumanoidBone> =
+        HumanAuditModel.segments(partner.body);
       const rests = (
         until: number,
       ): ReturnType<ReturnType<typeof HumanColliders.preparePlaced>> =>
         HumanColliders.preparePlaced(
           partner.body,
-          PARTNER,
-        )(partner.bones(context.start + Math.min(t, until), PARTNER));
+          segments,
+        )(partner.bones(context.start + Math.min(t, until), segments));
       if (!released)
         reached.limbs = {
           ...reached.limbs,
@@ -586,7 +356,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     context.start,
     (local: IAutoMovieMotionHumanActionPlan) =>
       courseArmGoal({
-        body: context.body,
+        context,
         // The grip holds from the instant the hand reaches its hold.
         plan: {
           ...local,
@@ -600,7 +370,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           ),
         },
         side: hand.side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
         span,
         // The other hand's course, solved with the first as one problem
         // over its own instants: from its rest to the hand-over, its hold to

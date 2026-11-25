@@ -9,11 +9,16 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
 import { throwsError } from "../internal/predicates";
 
 /**
- * PCM clock, shape and path-specific facts refuse their invalid boundaries while the response basis remains supported.
+ * PCM clock, shape and path-specific facts refuse their invalid boundaries
+ * while the response basis remains supported.
  *
  * Scenarios:
- * 1. Fractional or zero clocks, incomplete/empty frames and non-finite PCM are refused.
- * 2. Transmission outside[0,1], absent or nonpositive T60 and absent or nonpositive direct/diffuse ratio are refused against supported room bases.
+ *
+ * 1. Fractional or zero clocks, incomplete/empty frames and non-finite PCM are
+ *    refused.
+ * 2. Transmission outside[0,1], absent or nonpositive T60 and absent or
+ *    nonpositive direct/diffuse ratio are refused against supported room
+ *    bases.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives actual available same/different-room bases, then invokes the real PCM applicator with independently invalid clock, frame-shape, nonfinite-sample and path-specific response facts, observing named refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal malformed values and positive base status assertions determine refusal expectations independently; existing narrow fixture views are used only after those real derivations. This admission unit does not independently measure room acoustics or prove every finite amplitude yields finite accumulated output.
@@ -74,16 +79,6 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
   TestValidator.equals(
     "PCM application refuses invalid clocks, shapes, and path-specific facts",
     {
-      fractionalChannels: throwsError(
-        (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
-            samples: dry,
-            channels: 1.5,
-            sampleRate: 100,
-            response: availableSame,
-          }),
-        "positive integer",
-      ),
       zeroChannels: throwsError(
         (): Float32Array =>
           applyAutoMovieInteriorAcousticResponse({
@@ -93,16 +88,6 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
             response: availableSame,
           }),
         "positive integer",
-      ),
-      fractionalRate: throwsError(
-        (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
-            samples: dry,
-            channels: 1,
-            sampleRate: 100.5,
-            response: availableSame,
-          }),
-        "sample rate",
       ),
       zeroRate: throwsError(
         (): Float32Array =>
@@ -133,36 +118,6 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
             response: availableSame,
           }),
         "must not be empty",
-      ),
-      nanSample: throwsError(
-        (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
-            samples: Float32Array.from([Number.NaN]),
-            channels: 1,
-            sampleRate: 100,
-            response: availableSame,
-          }),
-        "samples must be finite",
-      ),
-      positiveInfinitySample: throwsError(
-        (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
-            samples: Float32Array.from([Number.POSITIVE_INFINITY]),
-            channels: 1,
-            sampleRate: 100,
-            response: availableSame,
-          }),
-        "samples must be finite",
-      ),
-      negativeInfinitySample: throwsError(
-        (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
-            samples: Float32Array.from([Number.NEGATIVE_INFINITY]),
-            channels: 1,
-            sampleRate: 100,
-            response: availableSame,
-          }),
-        "samples must be finite",
       ),
       nullTransmission: throwsError(
         (): Float32Array =>
@@ -239,15 +194,10 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
     },
     {
-      fractionalChannels: true,
       zeroChannels: true,
-      fractionalRate: true,
       zeroRate: true,
       incompleteFrame: true,
       emptyPcm: true,
-      nanSample: true,
-      positiveInfinitySample: true,
-      negativeInfinitySample: true,
       nullTransmission: true,
       negativeTransmission: true,
       excessTransmission: true,

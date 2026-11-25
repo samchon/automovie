@@ -11,11 +11,12 @@ import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecove
 import { RecoveryBezierFit } from "../internal/RecoveryBezierFit";
 
 /**
- * Fit one caller-ordered polyline through the shared tangent-constrained cubic solver.
- * Closure and correspondence are input facts. The result bounds only the supplied
- * finite polyline, not an unknown continuous surface. Adaptive smooth joins are G1;
- * physical span widths do not imply C1. Hermite conversion retains those widths.
- * Cancellation/progress checkpoints occur before fitting and after basis conversion.
+ * Fit one caller-ordered polyline through the shared tangent-constrained cubic
+ * solver. Closure and correspondence are input facts. The result bounds only
+ * the supplied finite polyline, not an unknown continuous surface. Adaptive
+ * smooth joins are G1; physical span widths do not imply C1. Hermite conversion
+ * retains those widths. Cancellation/progress checkpoints occur before fitting
+ * and after basis conversion.
  */
 export function observeAutoMovieRecoveryPolyline<
   Format extends AutoMovieRecoveryCurveFormat,
@@ -34,45 +35,19 @@ export function observeAutoMovieRecoveryPolyline<
   let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
+    probe = options.cancelled;
 
-    if (!options)
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["An explicit coefficient basis is required"],
-      };
     if (cancelled())
       return {
         operator,
         status: "cancelled",
         diagnostics: ["Cancelled before fitting"],
       };
-    if (
-      !input ||
-      typeof input.name !== "string" ||
-      !input.name.trim() ||
-      typeof input.closed !== "boolean" ||
-      !Array.isArray(input.pointsMm) ||
-      !Array.isArray(input.corners) ||
-      (options.curveFormat !== "bezier" && options.curveFormat !== "hermite") ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function")
-    )
+    if (!input.name.trim())
       return {
         operator,
         status: "refused",

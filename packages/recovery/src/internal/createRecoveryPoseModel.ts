@@ -5,12 +5,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Pixel epipolar model and its five local calibrated-pose derivatives.
- * Rotation increments act on the left in radians; translation increments use
- * two raw directions of the admitted near-unit translation. The complete signed
- * Sampson quotient cancels the positive translation-normalization scale, so its
- * derivative uses these raw directions even when DN(t)B differs from B.
- * No camera covariance or global optimum follows.
+ * Pixel epipolar model and its five local calibrated-pose derivatives. Rotation
+ * increments act on the left in radians; translation increments use two raw
+ * directions of the admitted near-unit translation. The complete signed Sampson
+ * quotient cancels the positive translation-normalization scale, so its
+ * derivative uses these raw directions even when DN(t)B differs from B. No
+ * camera covariance or global optimum follows.
  */
 export function createRecoveryPoseModel(
   pose: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[0],
@@ -28,7 +28,7 @@ export function createRecoveryPoseModel(
       (at === least ? 1 : 0) - value * t[least]!,
   );
   const norm: number = Math.hypot(...projection);
-  if (!(norm > 0) || !Number.isFinite(norm))
+  if (!(norm > 0))
     throw new Error("camera-refinement: unresolved tangent basis");
   const a: [number, number, number] = [
     projection[0]! / norm,

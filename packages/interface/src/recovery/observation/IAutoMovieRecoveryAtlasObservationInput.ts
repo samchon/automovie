@@ -3,7 +3,9 @@ import type {
   IAutoMovieRecoveryAtlasTessellation,
 } from "../../index";
 
-/** Evaluated source geometry, automatic levels and bounded atlas-observation policy.
+/**
+ * Evaluated source geometry, automatic levels and bounded atlas-observation
+ * policy.
  */
 export interface IAutoMovieRecoveryAtlasObservationInput {
   /** Borrowed evaluated source positions, millimetres. */
@@ -15,19 +17,28 @@ export interface IAutoMovieRecoveryAtlasObservationInput {
   /** Source projection direction used by the scalar chart. */
   axis: Readonly<AutoMovieVector3Tuple>;
 
-  /** Automatic saved scalar levels in millimetres; adjacent values delimit slabs. */
+  /**
+   * Automatic saved scalar levels in millimetres; adjacent values delimit
+   * slabs.
+   */
   levelsMm: readonly number[];
 
   /** Optional work-priority ordering of saved slab ordinals. */
   intervalOrder?: readonly number[];
 
-  /** Optional millimetre scalar window selecting intersecting complete saved slabs. */
+  /**
+   * Optional millimetre scalar window selecting intersecting complete saved
+   * slabs.
+   */
   scalarWindowMm?: readonly [number, number];
 
   /** Optional original source-face ordinals prioritized within selected work. */
   priorityFaces?: readonly number[];
 
-  /** Whether exact equal-position aliases establish source incidence without moving positions. */
+  /**
+   * Whether exact equal-position aliases establish source incidence without
+   * moving positions.
+   */
   exactCoordinateAliases: boolean;
 
   /** Physical curve/surface fitting tolerance, millimetres. */
@@ -45,22 +56,37 @@ export interface IAutoMovieRecoveryAtlasObservationInput {
   /** Maximum numerical fitting iterations per chart. */
   maxIterations: number;
 
-  /** Optional maximum observation-row population per chart; omission retains the fitter's policy. */
+  /**
+   * Optional maximum observation-row population per chart; omission retains the
+   * fitter's policy.
+   */
   maxObservationRowsPerChart?: number;
 
-  /** Optional maximum adaptive refinements per chart; omission retains the fitter's policy. */
+  /**
+   * Optional maximum adaptive refinements per chart; omission retains the
+   * fitter's policy.
+   */
   maxRefinementsPerChart?: number;
 
   /** Maximum number of selected source slabs to visit. */
   maxIntervals: number;
 
-  /** Maximum number of selected private charts retained for the common boundary pass. */
+  /**
+   * Maximum number of selected private charts retained for the common boundary
+   * pass.
+   */
   maxCharts: number;
 
-  /** When true, publish the admitted chart inventory without coefficient fitting; omission selects ordinary fitting. */
+  /**
+   * When true, publish the admitted chart inventory without coefficient
+   * fitting; omission selects ordinary fitting.
+   */
   inventoryOnly?: boolean;
 
-  /** Optional experimental millimetre exchange length weighting physical-gradient rows; not an identified optimum. */
+  /**
+   * Optional experimental millimetre exchange length weighting
+   * physical-gradient rows; not an identified optimum.
+   */
   physicalGradientLengthMm?: number;
 
   /** Caller-supplied topology domain for the generated coefficient atlas. */

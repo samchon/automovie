@@ -7,9 +7,9 @@ import type { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstance
  * A compiled instance set is already one, which is what lets every consumer
  * regenerate a member from the record the builder wrote. A design record is
  * not: its route is a name the world resolves, and its prototype table leaves
- * out the default its base model stands for. A caller holding a design
- * resolves both before asking, so there is one member law rather than one per
- * record shape, and the default is counted once.
+ * out the default its base model stands for. A caller holding a design resolves
+ * both before asking, so there is one member law rather than one per record
+ * shape, and the default is counted once.
  */
 export type IAutoMovieInstanceSetPlacement = Pick<
   IAutoMovieCompiledInstanceSet,
@@ -29,8 +29,8 @@ export type IAutoMovieInstanceSetPlacement = Pick<
    *
    * This is the compiled convention rather than the design one. A design's
    * table omits the default and a compiled set's includes it, so a caller
-   * holding a design prepends `{ id: "default", model, weight: 1 }`
-   * before asking.
+   * holding a design prepends `{ id: "default", model, weight: 1 }` before
+   * asking.
    */
   prototypes?: readonly Pick<
     IAutoMovieCompiledInstancePrototype,

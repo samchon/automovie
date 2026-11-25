@@ -11,32 +11,29 @@ import type {
  * flexion that takes, and the declared rule when the target is out of reach.
  *
  * Only goals are computed here: the end joint's point and the middle joint's
- * position become an `HumanPosture` limb goal (`point` and a `bend` hint
- * beside the middle joint), and the engine's `fitChainToTarget` solves the
- * joint angles within the range of motion, as Unreal's two-bone IK with a pole
- * target and Final IK's limb solver take an effector goal and a bend goal. The
- * placement is the triangle of the two segment lengths and the root-to-point
- * distance (law of cosines), in the plane through the root and the point that
- * contains the preferred bend direction.
+ * position become an `HumanPosture` limb goal (`point` and a `bend` hint beside
+ * the middle joint), and the engine's `fitChainToTarget` solves the joint
+ * angles within the range of motion, an effector goal and a bend goal as in
+ * two-bone inverse kinematics with a swivel (Tolani, Goswami and Badler 2000,
+ * Graphical Models 62(5):353). The placement is the triangle of the two segment
+ * lengths and the root-to-point distance (law of cosines), in the plane through
+ * the root and the point that contains the preferred bend direction.
  *
- * Reachability is decided against a flexion band at contact (a straight
- * punch lands nearly extended, a hook near a right angle, a kick's knee not
- * locked): within the band the point is met exactly; beyond the band's
- * longest reach the limb extends along the line toward the target at that
- * reach and stops short, the declared miss-at-maximum-reach rule, and the
- * shortfall is reported; inside the shortest reach either the contact slides
- * along the distal segment toward the middle joint (a jammed kick lands with
- * the upper shin or the knee) or, where the surface is rigid with the end
- * joint (a fist), the middle joint flexes past the band up to
- * {@link JAM_FLEXION}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States that only goals are computed, the triangle method, the band and the reach statuses.
- * @evidence contracts/development/design.md#principled-representation A limb solve's input and result in world metres and degrees, the status a closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reach, chain, hint and advance functions with their types, read by the punch, the kick and the tests.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector; the joints are left to the engine's limb fit.
+ * Reachability is decided against a flexion band at contact (a straight punch
+ * lands nearly extended, a hook near a right angle, a kick's knee not locked):
+ * within the band the point is met exactly; beyond the band's longest reach the
+ * limb extends along the line toward the target at that reach and stops short,
+ * the declared miss-at-maximum-reach rule, and the shortfall is reported;
+ * inside the shortest reach either the contact slides along the distal segment
+ * toward the middle joint (a jammed kick lands with the upper shin or the knee)
+ * or, where the surface is rigid with the end joint (a fist), the middle joint
+ * flexes past the band up to {@link JAM_FLEXION}.
  */
 export namespace StrikingReach {
-  /** The most a middle joint flexes when a rigid-ended limb is jammed, degrees: below the elbow's and knee's 145 to 150 degree range. */
+  /**
+   * The most a middle joint flexes when a rigid-ended limb is jammed, degrees:
+   * below the elbow's and knee's 145 to 150 degree range.
+   */
   export const JAM_FLEXION: number = 140;
 
   /**
@@ -46,14 +43,6 @@ export namespace StrikingReach {
    * @param along Middle joint to the point, metres.
    * @param flexion Degrees, 0 straight.
    * @returns Root-to-point distance, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States every unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The law of cosines with the interior angle 180 degrees less the flexion.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reach(upper: number, along: number, flexion: number): number {
     const c: number = Math.cos((flexion * Math.PI) / 180);
@@ -65,15 +54,8 @@ export namespace StrikingReach {
    *
    * @param input The limb and the target.
    * @returns The goals and the reach status.
-   * @throws {Error} When the target coincides with the root, or the bend direction is parallel to the reach.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusals; the namespace states the statuses and the comments derive the slide.
-   * @evidence contracts/development/implementation.md#principled-implementation The root-middle-point triangle by the law of cosines in the plane containing the bend; beyond the band the limb extends along the line at the longest reach, inside it the contact slides at the most flexion or the joint flexes to the jam limit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Band reaches, status, then the triangle and the joints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Degenerate inputs throw; an unreachable target is reported short with its gap instead of met by a stretched limb.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {Error} When the target coincides with the root, or the bend
+   *   direction is parallel to the reach.
    */
   export function chain(
     input: IAutoMovieMotionHumanStrikingReach.IChain,
@@ -171,14 +153,6 @@ export namespace StrikingReach {
    * @param bend The bend direction the solve used.
    * @param distance How far beyond the middle joint, metres.
    * @returns The hint point, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States why the hint is pushed beyond the joint and every unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The bend direction's component perpendicular to the root-to-end axis, added to the middle joint at the given distance, so the hint stays off the reach axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the solve already refuses a bend parallel to the reach.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hint(
     root: IAutoMovieVector3,
@@ -196,23 +170,16 @@ export namespace StrikingReach {
   }
 
   /**
-   * How far the body must close along the line for a limb to reach: the
-   * excess of the root-to-target distance over the limb's comfortable reach
-   * (its band's reach at `share` of the way from the shortest to the longest),
+   * How far the body must close along the line for a limb to reach: the excess
+   * of the root-to-target distance over the limb's comfortable reach (its
+   * band's reach at `share` of the way from the shortest to the longest),
    * limited to the entry the stance allows.
    *
    * @param distance Root-to-target distance, metres.
    * @param comfortable The reach the strike prefers to land at, metres.
    * @param limit The longest entry, metres.
-   * @returns The advance along the line, metres in `[-limit, limit]`; negative backs away from a target too close.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result's range and sign; the comfortable reach is the caller's.
-   * @evidence contracts/development/implementation.md#principled-implementation The excess of the distance over the comfortable reach, clamped to the stance's entry.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns The advance along the line, metres in `[-limit, limit]`; negative
+   *   backs away from a target too close.
    */
   export function advance(
     distance: number,

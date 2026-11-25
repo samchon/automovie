@@ -1,19 +1,3 @@
-# src/motion/IAutoMoviePrepareChainFit.ts#IAutoMoviePrepareChainFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each reader states the bone it reads, its clinical degrees or quaternion result and what it shares across one unchanged rig.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One record of fixed rig readers (bones, domains, bases, clamps, overshoot, projections, held and reference rotations, hinge range and geometry) over canonical joint and pose contracts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `prepareChainFit` produces it; the engine's chain fits and the prepared chain constants the motions body keeps read it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every reader returns actual rig facts or fresh results; no pose, target or solve answer is retained by the shape.
-
 # src/motion/IAutoMoviePrepareChainFit.ts#IAutoMoviePrepareChainFit.IRig
 
 ## @evidence contracts/development/common.md#meaningful-documentation

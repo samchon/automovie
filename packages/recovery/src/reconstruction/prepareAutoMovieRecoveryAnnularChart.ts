@@ -6,9 +6,9 @@ import type {
 import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
 
 /**
- * Bind two named closed paths to one explicit, shared periodic seam.
- * The paths retain their full three-dimensional boundaries, including varying Y.
- * The resulting chart declares an interpolant domain, not source-surface fidelity.
+ * Bind two named closed paths to one explicit, shared periodic seam. The paths
+ * retain their full three-dimensional boundaries, including varying Y. The
+ * resulting chart declares an interpolant domain, not source-surface fidelity.
  */
 export function prepareAutoMovieRecoveryAnnularChart(
   bottom: IAutoMovieRecoveryEventCurveArc,

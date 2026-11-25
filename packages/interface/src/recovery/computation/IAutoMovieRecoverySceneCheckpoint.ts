@@ -4,8 +4,7 @@ import type {
   IAutoMovieRecoverySceneLandmark,
 } from "../../index";
 
-/** Complete detached scene transaction outcome, not an automatic publication.
- */
+/** Complete detached scene transaction outcome, not an automatic publication. */
 export interface IAutoMovieRecoverySceneCheckpoint {
   /** All transaction qualification gates passed. */
   accepted: boolean;

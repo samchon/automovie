@@ -368,7 +368,7 @@ export function planPhysicalCoupledTargets(input: IInput): IResult {
   }
 }
 
-/** Borrow each local bone view once per candidate while it remains live. */
+/** Read one body's local bone view of the qualified world poses. */
 function localView(
   body: string,
   names: readonly string[],
@@ -376,22 +376,15 @@ function localView(
   const keys: string[] = names.map((bone: string): string =>
     qualify(body, bone),
   );
-  const views: WeakMap<IAutoMoviePoses, IAutoMoviePoses> = new WeakMap();
-  return (poses: IAutoMoviePoses): IAutoMoviePoses => {
-    let viewed: IAutoMoviePoses | undefined = views.get(poses);
-    if (viewed === undefined) {
-      viewed = Object.fromEntries(
-        names.map(
-          (bone: string, index: number): [string, IAutoMovieRigidTransform] => [
-            bone,
-            poses[keys[index]!]!,
-          ],
-        ),
-      );
-      views.set(poses, viewed);
-    }
-    return viewed;
-  };
+  return (poses: IAutoMoviePoses): IAutoMoviePoses =>
+    Object.fromEntries(
+      names.map(
+        (bone: string, index: number): [string, IAutoMovieRigidTransform] => [
+          bone,
+          poses[keys[index]!]!,
+        ],
+      ),
+    );
 }
 
 function freeCoordinates(joint: IAutoMoviePhysicalJoint): number {

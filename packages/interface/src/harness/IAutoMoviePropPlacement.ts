@@ -20,16 +20,22 @@ export interface IAutoMoviePropPlacement {
    * A prop declares at most one `in-space` and one `fill-opening` relation,
    * since it occupies one logical space and fills one passage, and never the
    * same kind and target twice. Other kinds may repeat, such as a cabinet
-   * against two walls. Whether the placement passes does not depend on
-   * relation order.
+   * against two walls. Whether the placement passes does not depend on relation
+   * order.
    */
   relations: IAutoMoviePropRelation[];
 
   /**
-   * Model-local occupancy box, or `null` to derive it from the prop's own
-   * model parts.
+   * Model-local occupancy box, or `null` to derive it from the prop's own model
+   * parts.
    *
-   * Occupancy drives declared containment, pairwise overlap and other props' clearance checks, subject to those checks' exemptions. The default is the world bound of authored mesh or tessellated primitive vertices under rest part/stage transforms, not the imported appearance or an animation sweep; a vertexless model collapses to a zero box at the staged origin. Declare a use volume when the proxy does not express it, such as a chair's backward sweep, or to trim a decorative overhang.
+   * Occupancy drives declared containment, pairwise overlap and other props'
+   * clearance checks, subject to those checks' exemptions. The default is the
+   * world bound of authored mesh or tessellated primitive vertices under rest
+   * part/stage transforms, not the imported appearance or an animation sweep; a
+   * vertexless model collapses to a zero box at the staged origin. Declare a
+   * use volume when the proxy does not express it, such as a chair's backward
+   * sweep, or to trim a decorative overhang.
    */
   footprint: IAutoMoviePropBox | null;
 

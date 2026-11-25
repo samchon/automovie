@@ -13,18 +13,19 @@ import { createRecoveryCameraScene } from "../internal/createRecoveryCameraScene
 import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
 
 /**
- * Estimate one bounded sparse component from fixed calibrated RGB images.
- * Views zero/one are the explicit seed. Further images are selected by existing
- * map support, registered independently, then committed with new registered-view
+ * Estimate one bounded sparse component from fixed calibrated RGB images. Views
+ * zero/one are the explicit seed. Further images are selected by existing map
+ * support, registered independently, then committed with new registered-view
  * points and a complete gauge-fixed joint fit. Failed transactions preserve the
  * last accepted component and remain in its bounded attempt/work ledger.
  *
  * Completion stays partial: accepted-sparse-component does not mean all images
  * registered, metric dimensions, material truth or an editable surface. Inspect
- * null poses, coverage and stopReason. Supplied corrected pinhole K and rigidity
- * remain caller assertions. Keep borrowed RGB bytes stable until return.
- * Cancellation/progress are synchronous cooperative checkpoints; a blocked
- * event loop cannot deliver a later event-loop cancellation. Observer exceptions publish no value.
+ * null poses, coverage and stopReason. Supplied corrected pinhole K and
+ * rigidity remain caller assertions. Keep borrowed RGB bytes stable until
+ * return. Cancellation/progress are synchronous cooperative checkpoints; a
+ * blocked event loop cannot deliver a later event-loop cancellation. Observer
+ * exceptions publish no value.
  */
 export function estimateAutoMovieRecoveryCameraScene(
   input: IAutoMovieRecoveryCameraSceneInput,
@@ -38,33 +39,13 @@ export function estimateAutoMovieRecoveryCameraScene(
   let admitted: boolean = false,
     callback: boolean = false;
   try {
-    if (
-      !options ||
-      typeof options !== "object" ||
-      Array.isArray(options) ||
-      Reflect.ownKeys(options).some(
-        (key: string | symbol): boolean =>
-          key !== "cancelled" && key !== "onProgress",
-      ) ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function") ||
-      (options.cancelled !== undefined &&
-        typeof options.cancelled !== "function")
-    )
-      throw new Error(
-        "invalid-camera-scene-options: only cancellation callback and synchronous progress supported",
-      );
     const probe: typeof options.cancelled = options.cancelled;
     const observer: typeof options.onProgress = options.onProgress;
     const cancelled: () => boolean = (): boolean => {
       callback = true;
-      const requested: boolean | undefined = probe?.();
-      if (probe !== undefined && typeof requested !== "boolean")
-        throw new Error(
-          "Cancellation callback must return a boolean synchronously",
-        );
+      const requested: boolean = probe?.() === true;
       callback = false;
-      return requested === true;
+      return requested;
     };
     if (cancelled()) throw cancellation;
     const charts: ReturnType<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation> =

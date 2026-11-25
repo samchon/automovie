@@ -6,34 +6,81 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 
-/**
- * Rotation-vector operations shared by trajectory construction and playback.
- */
+/** Rotation-vector operations shared by trajectory construction and playback. */
 export namespace MotionTrajectoryRotation {
-  /**
-   * Read a dense rotation vector from four or five polynomial coefficients.
-   */
-  export function curve(terms: readonly IAutoMovieVector3[], u: number): IAutoMovieVector3 {
+  /** Read a dense rotation vector from four or five polynomial coefficients. */
+  export function curve(
+    terms: readonly IAutoMovieVector3[],
+    u: number,
+  ): IAutoMovieVector3 {
     return {
-      x: MotionTrajectoryPolynomial.value(u, terms[0]!.x, terms[1]!.x, terms[2]!.x, terms[3]!.x, terms[4]?.x),
-      y: MotionTrajectoryPolynomial.value(u, terms[0]!.y, terms[1]!.y, terms[2]!.y, terms[3]!.y, terms[4]?.y),
-      z: MotionTrajectoryPolynomial.value(u, terms[0]!.z, terms[1]!.z, terms[2]!.z, terms[3]!.z, terms[4]?.z),
+      x: MotionTrajectoryPolynomial.value(
+        u,
+        terms[0]!.x,
+        terms[1]!.x,
+        terms[2]!.x,
+        terms[3]!.x,
+        terms[4]?.x,
+      ),
+      y: MotionTrajectoryPolynomial.value(
+        u,
+        terms[0]!.y,
+        terms[1]!.y,
+        terms[2]!.y,
+        terms[3]!.y,
+        terms[4]?.y,
+      ),
+      z: MotionTrajectoryPolynomial.value(
+        u,
+        terms[0]!.z,
+        terms[1]!.z,
+        terms[2]!.z,
+        terms[3]!.z,
+        terms[4]?.z,
+      ),
+    };
+  }
+
+  /** Differentiate the same rotation-vector curve with respect to seconds. */
+  export function curveDerivative(
+    terms: readonly IAutoMovieVector3[],
+    u: number,
+    h: number,
+  ): IAutoMovieVector3 {
+    return {
+      x:
+        MotionTrajectoryPolynomial.slope(
+          u,
+          terms[0]!.x,
+          terms[1]!.x,
+          terms[2]!.x,
+          terms[3]!.x,
+          terms[4]?.x,
+        ) / h,
+      y:
+        MotionTrajectoryPolynomial.slope(
+          u,
+          terms[0]!.y,
+          terms[1]!.y,
+          terms[2]!.y,
+          terms[3]!.y,
+          terms[4]?.y,
+        ) / h,
+      z:
+        MotionTrajectoryPolynomial.slope(
+          u,
+          terms[0]!.z,
+          terms[1]!.z,
+          terms[2]!.z,
+          terms[3]!.z,
+          terms[4]?.z,
+        ) / h,
     };
   }
 
   /**
-   * Differentiate the same rotation-vector curve with respect to seconds.
-   */
-  export function curveDerivative(terms: readonly IAutoMovieVector3[], u: number, h: number): IAutoMovieVector3 {
-    return {
-      x: MotionTrajectoryPolynomial.slope(u, terms[0]!.x, terms[1]!.x, terms[2]!.x, terms[3]!.x, terms[4]?.x) / h,
-      y: MotionTrajectoryPolynomial.slope(u, terms[0]!.y, terms[1]!.y, terms[2]!.y, terms[3]!.y, terms[4]?.y) / h,
-      z: MotionTrajectoryPolynomial.slope(u, terms[0]!.z, terms[1]!.z, terms[2]!.z, terms[3]!.z, terms[4]?.z) / h,
-    };
-  }
-
-  /**
-   * Turn `q` by `exp(v/2)` in its body frame; null or absent blocks stay unchanged.
+   * Turn `q` by `exp(v/2)` in its body frame; null or absent blocks stay
+   * unchanged.
    */
   export function turn(
     q: IAutoMovieQuaternion | null,
@@ -52,9 +99,7 @@ export namespace MotionTrajectoryRotation {
     });
   }
 
-  /**
-   * Scale a vector, preserving an absent orientation block.
-   */
+  /** Scale a vector, preserving an absent orientation block. */
   export function scaled(
     v: IAutoMovieVector3 | undefined,
     s: number,
@@ -63,11 +108,12 @@ export namespace MotionTrajectoryRotation {
   }
 
   /**
-   * The inverse exponential differential `w + r cross w/2 + r cross (r cross w)/12`.
+   * The inverse exponential differential `w + r cross w/2 + r cross (r cross
+   * w)/12`.
    *
-   * For `q' = q w/2` this is the body-frame Bernoulli series through its
-   * second bracket. The third Bernoulli number is zero, retaining order five
-   * as well as four (Munthe-Kaas 1999, Appl Numer Math 29:115-127).
+   * For `q' = q w/2` this is the body-frame Bernoulli series through its second
+   * bracket. The third Bernoulli number is zero, retaining order five as well
+   * as four (Munthe-Kaas 1999, Appl Numer Math 29:115-127).
    */
   export function dexpinv(
     r: IAutoMovieVector3 | undefined,

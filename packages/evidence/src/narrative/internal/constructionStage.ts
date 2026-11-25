@@ -3,7 +3,8 @@ import type { IProductionConfigProps } from "../IProductionConfigProps";
 import type { ProductionStage } from "../ProductionStage";
 
 /**
- * Reads one layer's construction stage, treating an omitted brief stage as disabled.
+ * Reads one layer's construction stage, treating an omitted brief stage as
+ * disabled.
  */
 export function constructionStage(
   props: IProductionConfigProps,

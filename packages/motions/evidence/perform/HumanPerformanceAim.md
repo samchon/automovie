@@ -1,21 +1,3 @@
-# src/perform/HumanPerformanceAim.ts#HumanPerformanceAim
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is resolved and for which kinds of target.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One function of the state, the target and the second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The one resolver every law's `aim` and every layer's reads (#3399).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A missing person, prop or point is refused with the names that exist.
-
 # src/perform/HumanPerformanceAim.ts#HumanPerformanceAim.aim
 
 ## @evidence contracts/development/common.md#meaningful-documentation

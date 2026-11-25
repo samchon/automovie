@@ -16,9 +16,7 @@ interface Own<T> {
   after: T[];
 }
 
-/**
- * Internal conic assembly shared by the existing public preparation wrappers.
- */
+/** Internal conic assembly shared by the existing public preparation wrappers. */
 export namespace AutoMovieConicPreparation {
   /**
    * Prepare copied station tuples with the fixed pure source-Hessian algebra.
@@ -40,9 +38,7 @@ export namespace AutoMovieConicPreparation {
     return build(ops, extents, shoulders, shared, own);
   }
 
-  /**
-   * Preserve independent generic guide calculations and callback order.
-   */
+  /** Preserve independent generic guide calculations and callback order. */
   export function curvatures<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -51,9 +47,7 @@ export namespace AutoMovieConicPreparation {
     return policy(ops, extents, shoulders, null);
   }
 
-  /**
-   * Preserve public generic quarter admission and end callback sequencing.
-   */
+  /** Preserve public generic quarter admission and end callback sequencing. */
   export function geometry<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -64,8 +58,9 @@ export namespace AutoMovieConicPreparation {
   }
 
   /**
-   * Apply the existing G2 formula to the own curvature computed by this invocation.
-   * Internal callers either just computed own or use source's fixed pure AD plan.
+   * Apply the existing G2 formula to the own curvature computed by this
+   * invocation. Internal callers either just computed own or use source's fixed
+   * pure AD plan.
    */
   export function end<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
@@ -76,10 +71,7 @@ export namespace AutoMovieConicPreparation {
     own: T,
   ): IAutoMovieConicHermite.IPatch<T> | string | null {
     if (
-      ![a, b, own, shared].every(
-        (value: T): boolean =>
-          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
-      ) ||
+      ![a, b, own, shared].every((value: T): boolean => ops.value(value) > 0) ||
       !(
         ops.value(r) > 0 &&
         ops.value(r) < 1 &&
@@ -152,13 +144,9 @@ export namespace AutoMovieConicPreparation {
     );
     if (
       ![native, deficit, height, ...weights].every(
-        (value: T): boolean =>
-          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
+        (value: T): boolean => ops.value(value) > 0,
       ) ||
-      !(Number.isFinite(angle) && angle > 0) ||
-      !points
-        .flat()
-        .every((value: T): boolean => Number.isFinite(ops.value(value))) ||
+      !(angle > 0) ||
       !(
         ops.value(p) > 0 &&
         ops.value(p) < 1 &&
@@ -183,7 +171,10 @@ export namespace AutoMovieConicPreparation {
     };
   }
 
-  /** Retain own values only for the fixed-AD assembly; generic calls preserve their original effects. */
+  /**
+   * Retain own values only for the fixed-AD assembly; generic calls preserve
+   * their original effects.
+   */
   function policy<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -208,15 +199,14 @@ export namespace AutoMovieConicPreparation {
         own.before.push(a);
         own.after.push(b);
       }
-      return Number.isNaN(ops.value(a)) || Number.isNaN(ops.value(b))
-        ? ops.constant(NaN)
-        : ops.value(a) <= ops.value(b)
-          ? a
-          : b;
+      return ops.value(a) <= ops.value(b) ? a : b;
     }) as [T, T, T, T];
   }
 
-  /** Build one invocation's quarters; null own preserves independent generic end calculations. */
+  /**
+   * Build one invocation's quarters; null own preserves independent generic end
+   * calculations.
+   */
   function build<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -228,16 +218,11 @@ export namespace AutoMovieConicPreparation {
       extents.length !== 4 ||
       shoulders.length !== 4 ||
       curvatures.length !== 4 ||
-      !extents.every(
-        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
-      ) ||
+      !extents.every((v: T): boolean => ops.value(v) > 0) ||
       !shoulders.every(
-        (v: T): boolean =>
-          Number.isFinite(ops.value(v)) && ops.value(v) > 0 && ops.value(v) < 1,
+        (v: T): boolean => ops.value(v) > 0 && ops.value(v) < 1,
       ) ||
-      !curvatures.every(
-        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
-      )
+      !curvatures.every((v: T): boolean => ops.value(v) > 0)
     )
       return {
         quarters: [],
@@ -287,11 +272,6 @@ export namespace AutoMovieConicPreparation {
           ops.multiply(ops.multiply(curvatures[(q + 1) % 4]!, b), b),
         ),
       ];
-      if (!guides.every((v: T): boolean => Number.isFinite(ops.value(v))))
-        return {
-          quarters: [],
-          failure: `quarter ${q}: shared guide jet is not finitely representable`,
-        };
       quarters.push({
         extents: [a, b],
         shoulder: r,

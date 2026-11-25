@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanGymnasticsWheel.ts#IAutoMovieMotionHumanGymnasticsWheel
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-height: The height of its joints' middle when it bears, world metres. angle: The turn's angle, degrees. root: The root, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-height: The height of its joints' middle when it bears, world metres. angle: The turn's angle, degrees. root: The root, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: sport/cartwheel.ts (cartwheel.plan.spokes, return); sport/GymnasticsWheel.ts (GymnasticsWheel.roll.middle, spoke); sport/GymnasticsWheel.ts (GymnasticsWheel.contacts, spokes); sport/GymnasticsWheel.ts (GymnasticsWheel.roll, return); sport/GymnasticsWheel.ts (GymnasticsWheel.contacts, wheel); sport/GymnasticsWheel.ts (GymnasticsWheel.roll, props).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanContactWindow.Support, IAutoMovieVector3, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/sport/IAutoMovieMotionHumanGymnasticsWheel.ts#IAutoMovieMotionHumanGymnasticsWheel.ISpoke
 
 ## @evidence contracts/development/common.md#meaningful-documentation

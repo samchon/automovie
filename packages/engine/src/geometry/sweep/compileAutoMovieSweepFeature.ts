@@ -22,26 +22,28 @@ const NEWTON: number = 4;
  * straight beyond its ends through reflected phantom points. Its knots are
  * spaced by the square root of each chord measured in metres, `u` by the
  * spine's length and angle by the sweep's mean radius, so each segment has no
- * cusp or self-intersection however unevenly its points are spaced (Yuksel, Schaefer and
- * Keyser 2011, Computer-Aided Design 43(7):747-755), and it is C1 in that
- * knot parameter. Its radius or offset follows the same parameter by
+ * cusp or self-intersection however unevenly its points are spaced (Yuksel,
+ * Schaefer and Keyser 2011, Computer-Aided Design 43(7):747-755), and it is C1
+ * in that knot parameter. Its radius or offset follows the same parameter by
  * `interpolateAutoMovieSpline`, so it too runs smoothly along the curve. At a
- * query point a nearest candidate on the curve is searched in a local cylindrical
- * metric: `u` scaled by the spine's length and angle by the query's radius
- * before features. This approximates surface distance; it is not the arc
- * metric of a noncircular section. The search seeds sixteen times the number
- * of segments uniformly over the knot span and refines the nearest seed by
- * four Newton steps. It keeps the seed if refinement moves further away;
- * this local search does not guarantee the global nearest point. Its smooth
- * course removes polyline corners, though a nearest-branch change inside a
- * bend tighter than the band can still crease the field. The radius moves by the residual there, the declared radius less
- * the surface's radius at the curve or the declared offset, times
- * `(1 - (d / width)^2)^3` within `width`, a falloff with continuous curvature
- * at the band's edge.
+ * query point a nearest candidate on the curve is searched in a local
+ * cylindrical metric: `u` scaled by the spine's length and angle by the query's
+ * radius before features. This approximates surface distance; it is not the arc
+ * metric of a noncircular section. The search seeds sixteen times the number of
+ * segments uniformly over the knot span and refines the nearest seed by four
+ * Newton steps. It keeps the seed if refinement moves further away; this local
+ * search does not guarantee the global nearest point. Its smooth course removes
+ * polyline corners, though a nearest-branch change inside a bend tighter than
+ * the band can still crease the field. The radius moves by the residual there,
+ * the declared radius less the surface's radius at the curve or the declared
+ * offset, times `(1 - (d / width)^2)^3` within `width`, a falloff with
+ * continuous curvature at the band's edge.
  *
  * @param feature The feature, validated, only read.
- * @param scale The spine's length and the sweep's mean radius, metres, which set the knot spacing.
- * @returns The shared course in domain coordinates and the displacement at `u` and `angle`, given the local radius, spine length and pre-feature radius.
+ * @param scale The spine's length and the sweep's mean radius, metres, which
+ *   set the knot spacing.
+ * @returns The shared course in domain coordinates and the displacement at `u`
+ *   and `angle`, given the local radius, spine length and pre-feature radius.
  */
 export const compileAutoMovieSweepFeature: (
   feature: IAutoMovieSweep.IFeature,

@@ -10,11 +10,11 @@ Sampler track shape, artifact shape and light value traversal share one width ow
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Unknown kinds, non-object/null input, nonstring keys and inherited prototype spellings return undefined without key coercion. Ordinary stored JSON is the caller context; hostile property accessors can still execute while reading the record.
+A weights path, absent from both tables, returns undefined.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents width in scalars, unknown-record inspection, variable-width weights and the distinction between ordinary stored data and effectful property access.
+Documents width in scalars and variable-width weights.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

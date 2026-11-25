@@ -1,5 +1,10 @@
 /**
- * Approximate the isolated roots of four finite scalar cubic Bernstein coefficients on [0,1]. Critical points partition sign-monotone intervals; near-zero values use 64 epsilon times max(1, coefficient magnitude), sign changes receive 58 bisections, and roots within 1e-10 merge. The identically zero polynomial returns no discrete roots. These are binary64 construction rules, not interval certificates.
+ * Approximate the isolated roots of four finite scalar cubic Bernstein
+ * coefficients on [0,1]. Critical points partition sign-monotone intervals;
+ * near-zero values use 64 epsilon times max(1, coefficient magnitude), sign
+ * changes receive 58 bisections, and roots within 1e-10 merge. The identically
+ * zero polynomial returns no discrete roots. These are binary64 construction
+ * rules, not interval certificates.
  */
 export function rootsAutoMovieCubicBernstein64(q: readonly number[]): number[] {
   const a: number = -q[0]! + 3 * q[1]! - 3 * q[2]! + q[3]!;

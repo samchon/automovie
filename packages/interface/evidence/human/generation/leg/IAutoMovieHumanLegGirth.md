@@ -1,21 +1,3 @@
-# src/human/generation/leg/IAutoMovieHumanLegGirth.ts#IAutoMovieHumanLegGirth
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes leg tapes, endpoint conditions, ordered normalized rows and millimetre-station girth readers; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Leg tapes, endpoint conditions, ordered normalized rows and millimetre-station girth readers. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanLegGirth; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing LegGirth contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/leg/IAutoMovieHumanLegGirth.ts#IAutoMovieHumanLegGirth.ITapes
 
 ## @evidence contracts/development/common.md#meaningful-documentation

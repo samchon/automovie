@@ -13,33 +13,40 @@ import {
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 
-/** A DIN 6337 lever's arm off the plane square to its bore, degrees: the drawing's 20. */
+/**
+ * A DIN 6337 lever's arm off the plane square to its bore, degrees: the
+ * drawing's 20.
+ */
 const RISE: number = 20;
 
 /**
  * A hand control on a panel: a ball lever or a selector dial.
  *
- * The panel is the `XY` plane facing `+Z`, not built, and the control's axis stands out of it at the drawn height above the origin on the floor, within the reach range for operable parts.
+ * The panel is the `XY` plane facing `+Z`, not built, and the control's axis
+ * stands out of it at the drawn height above the origin on the floor, within
+ * the reach range for operable parts.
  *
- * - A lever's hub turns on a shaft along `+Z`, its arm pointing up at rest and rising off the panel at the drawing's 20 degrees to its ball knob. It is one of the maker's five levers read, whole: the lever given, or one drawn from the seed. `knob` is the ball, a handle riding `shaft`, the shaft's turn about `+Z`; the shaft states no travel, since no source read gives a lever's throw.
- * - A dial is a selector head, its handle standing proud of the panel; `dial` turns it about `+Z` by the maker's 45 degrees, and as far the other way as its `reverse`.
+ * - A lever's hub turns on a shaft along `+Z`, its arm pointing up at rest and
+ *   rising off the panel at the drawing's 20 degrees to its ball knob. It is
+ *   one of the maker's five levers read, whole: the lever given, or one drawn
+ *   from the seed. `knob` is the ball, a handle riding `shaft`, the shaft's
+ *   turn about `+Z`; the shaft states no travel, since no source read gives a
+ *   lever's throw.
+ * - A dial is a selector head, its handle standing proud of the panel; `dial`
+ *   turns it about `+Z` by the maker's 45 degrees, and as far the other way as
+ *   its `reverse`.
  *
  * @param params The kind, a lever's model and any dimension the author fixes.
- * @param seed The seed that draws a lever's model when it is not given and every dimension left free inside its band; absent, the first lever and the middle of each band.
+ * @param seed The seed that draws a lever's model when it is not given and
+ *   every dimension left free inside its band; absent, the first lever and the
+ *   middle of each band.
  * @returns The control.
- * @throws {AutoMovieArchetypeRefusal} For a lever the sheet does not list, a lever named for a dial, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the control stands, how each kind moves, why the lever states no travel, and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation One of the maker's levers whole, its hub, arm, knob and mass as its row gives them, the knob at its length along an arm rising 20 degrees from the hub's centre half the hub out from the panel; the selector head at the maker's diameter, depth proud of the panel, turn and weight; the axis height in the ADA's reach range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the height, pick a lever's row, then the kind's parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lever between the sheet's rows is made; the panel and the shaft behind it are the machine's, not built.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a lever the sheet does not list, a
+ *   lever named for a dial, or a fixed dimension outside its band.
  */
 export function createControl(
   params: createControl.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createControl.Affordance, createControl.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createControl.Dimension> =
     new AutoMovieArchetypeDrawSession<createControl.Dimension>(
@@ -147,7 +154,8 @@ export function createControl(
 }
 
 /**
- * One DIN 6337 row in metres and kilograms, from the sheet's millimetres and grams.
+ * One DIN 6337 row in metres and kilograms, from the sheet's millimetres and
+ * grams.
  *
  * @param length The length l1, millimetres.
  * @param knob The knob d5, millimetres.
@@ -176,14 +184,7 @@ function row(
   };
 }
 
-/**
- * Companion types, constants and bands of {@link createControl}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, lever, affordance, constant and dimension states what it is; each band, lever and constant its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, a lever one of the sheet's rows whole, and the selector's read single figures as constants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The knob a hand takes, the shaft it turns and the dial it twists (#3468 N14).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A lever's throw no sheet gives is left out, not invented.
- */
+/** Companion types, constants and bands of {@link createControl}. */
 export namespace createControl {
   /** The kinds of control. */
   export type Kind = "lever" | "dial";
@@ -194,7 +195,11 @@ export namespace createControl {
   /** The DIN 6337 ball levers read, by their length l1 in millimetres. */
   export type Lever = "63" | "80" | "100" | "125" | "160";
 
-  /** A lever's figures, its model's, metres and kilograms: `length` from the hub's centre to the knob's, `knob`, `arm` and `hub` across, `bore` the hub along the bore, and `mass`. */
+  /**
+   * A lever's figures, its model's, metres and kilograms: `length` from the
+   * hub's centre to the knob's, `knob`, `arm` and `hub` across, `bore` the hub
+   * along the bore, and `mass`.
+   */
   export type LeverDimension =
     | "length"
     | "knob"
@@ -203,7 +208,14 @@ export namespace createControl {
     | "bore"
     | "mass";
 
-  /** Each lever's figures, the default first, by its length l1 in millimetres: Elesa+Ganter DIN 6337 ball levers, type L, l1 63, 80, 100, 125 and 160 mm with DIN 319 ball knobs d5 20, 20, 25, 32 and 40 mm, arms d6 8, 9, 11, 15 and 18 mm, hubs d3 16, 20, 25, 32 and 40 mm across and b 12, 14.5, 18.5, 24 and 30 mm along the bore, weighing 32, 53, 100, 216 and 415 g (https://www.elesa-ganter.com/siteassets/PDF/EN/DIN%206337.pdf). */
+  /**
+   * Each lever's figures, the default first, by its length l1 in millimetres:
+   * Elesa+Ganter DIN 6337 ball levers, type L, l1 63, 80, 100, 125 and 160 mm
+   * with DIN 319 ball knobs d5 20, 20, 25, 32 and 40 mm, arms d6 8, 9, 11, 15
+   * and 18 mm, hubs d3 16, 20, 25, 32 and 40 mm across and b 12, 14.5, 18.5, 24
+   * and 30 mm along the bore, weighing 32, 53, 100, 216 and 415 g
+   * (https://www.elesa-ganter.com/siteassets/PDF/EN/DIN%206337.pdf).
+   */
   export const LEVERS: Readonly<
     Record<Lever, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -214,7 +226,12 @@ export namespace createControl {
     "160": row(160, 40, 18, 40, 30, 415),
   };
 
-  /** The selector head read, metres, degrees and kilograms: Schneider Electric Harmony XB4 ZB4BD3, head 28.5 mm across standing 27 mm proud of the panel, "3 positions +/- 45°", product weight 0.04 kg (https://assets.cef.co.uk/downloads/pdg/tele_zb4bd3_datasheet/tele_zb4bd3_datasheet.pdf). */
+  /**
+   * The selector head read, metres, degrees and kilograms: Schneider Electric
+   * Harmony XB4 ZB4BD3, head 28.5 mm across standing 27 mm proud of the panel,
+   * "3 positions +/- 45°", product weight 0.04 kg
+   * (https://assets.cef.co.uk/downloads/pdg/tele_zb4bd3_datasheet/tele_zb4bd3_datasheet.pdf).
+   */
   export const SELECTOR: Readonly<{
     head: number;
     proud: number;
@@ -231,12 +248,16 @@ export namespace createControl {
    * The affordance ids:
    *
    * - `knob`: a lever's ball, a handle riding `shaft`.
-   * - `shaft`: a lever's turn about `+Z`, carrying its hub, arm and ball; it states no travel.
+   * - `shaft`: a lever's turn about `+Z`, carrying its hub, arm and ball; it
+   *   states no travel.
    * - `dial`: a dial's head, turned about `+Z`.
    */
   export type Affordance = "knob" | "shaft" | "dial";
 
-  /** The dimensions: `height`, the control's axis above the floor, metres, free; and a lever's figures, its model's. */
+  /**
+   * The dimensions: `height`, the control's axis above the floor, metres, free;
+   * and a lever's figures, its model's.
+   */
   export type Dimension = "height" | LeverDimension;
 
   /** Each dimension's unit, which its band and any model's figure for it share. */

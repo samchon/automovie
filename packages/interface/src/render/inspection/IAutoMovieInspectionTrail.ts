@@ -1,5 +1,6 @@
 /**
- * Where one scene object's origin was at each sampled second, as `sampleAutoMovieInspectionTrails` reads it.
+ * Where one scene object's origin was at each sampled second, as
+ * `sampleAutoMovieInspectionTrails` reads it.
  */
 export interface IAutoMovieInspectionTrail {
   /** The object's inspection path. */
@@ -11,6 +12,9 @@ export interface IAutoMovieInspectionTrail {
   /** World position of the object's origin at each second, flat xyz in metres. */
   positions: number[];
 
-  /** Whether every position lies within a micrometre of the first, so the object did not move. */
+  /**
+   * Whether every position lies within a micrometre of the first, so the object
+   * did not move.
+   */
   stationary: boolean;
 }

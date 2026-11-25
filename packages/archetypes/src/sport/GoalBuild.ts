@@ -12,7 +12,8 @@ import type { createGoal } from "./createGoal";
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * The recorded profiles, draw and shared post contacts for goal and net producers.
+ * The recorded profiles, draw and shared post contacts for goal and net
+ * producers.
  */
 export namespace GoalBuild {
   /** The recorded dimension units, metres for lengths and kilograms for mass. */
@@ -61,9 +62,7 @@ export namespace GoalBuild {
   /** The bands declared for the original goal and net kinds. */
   export const BANDS: typeof GOAL_BANDS = GOAL_BANDS;
 
-  /**
-   * What {@link draw} prepares for its caller.
-   */
+  /** What {@link draw} prepares for its caller. */
   export interface IDrawResult<Id extends createGoal.Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, createGoal.Dimension>;
@@ -73,12 +72,13 @@ export namespace GoalBuild {
   }
 
   /**
-   * Draw the supplied profile with its original goal seed and prepare a builder.
+   * Draw the supplied profile with its original goal seed and prepare a
+   * builder.
    */
   export function draw<Id extends createGoal.Affordance>(
     kind: createGoal.Kind,
     params: Readonly<Omit<createGoal.IParams, "kind">>,
-    seed: number | string | undefined,
+    seed: number | undefined,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<createGoal.Dimension> =
       new AutoMovieArchetypeDrawSession("goal", UNITS, seed, params);
@@ -102,12 +102,15 @@ export namespace GoalBuild {
   }
 
   /**
-   * Declare both post contacts at the drawn height and original lateral positions.
+   * Declare both post contacts at the drawn height and original lateral
+   * positions.
    *
    * @param builder The goal or net builder that receives both bar contacts.
    * @param x The lateral distance to each post centre, in metres.
-   * @param height The graspable height of each post measured from the floor, in metres.
-   * @param aperture The post section in metres for a square bar. Omit it for a round post.
+   * @param height The graspable height of each post measured from the floor, in
+   *   metres.
+   * @param aperture The post section in metres for a square bar. Omit it for a
+   *   round post.
    */
   export function posts(
     builder: AutoMovieArchetypeBuilder<

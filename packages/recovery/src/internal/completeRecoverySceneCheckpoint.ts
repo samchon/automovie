@@ -27,7 +27,8 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * strict finite population growth repeats; every fit and linear action is
  * charged. Failure leaves committing or retaining the old checkpoint to caller.
  * An optional observer receives owned complete compact states before and after
- * each joint fit. Observer errors propagate, and ordinary calls retain no trace.
+ * each joint fit. Observer errors propagate, and ordinary calls retain no
+ * trace.
  */
 export function completeRecoverySceneCheckpoint(
   initialPoses: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[0],

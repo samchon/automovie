@@ -21,15 +21,15 @@ interface IEdgeOwners {
  *
  * An edge is drawn when the faces meeting along it disagree about facing the
  * viewer, or when only one face owns it. A face's facing is the sign of its
- * winding normal against the frame normal, and an edge-on face counts as
- * facing away, which is what makes a plan of an upright box its four top
- * edges: the top faces the viewer, the walls are edge-on, and the disagreement
- * along each top edge is the outline. Degenerate triangles are skipped.
+ * winding normal against the frame normal, and an edge-on face counts as facing
+ * away, which is what makes a plan of an upright box its four top edges: the
+ * top faces the viewer, the walls are edge-on, and the disagreement along each
+ * top edge is the outline. Degenerate triangles are skipped.
  *
  * Corners are welded on the rounded output grid before edges are keyed, so two
- * triangles meeting at one corner are recognised as meeting there even when
- * the arithmetic that produced it differed in a last bit. Two corners closer
- * than the grid but on opposite sides of a rounding boundary are not welded.
+ * triangles meeting at one corner are recognised as meeting there even when the
+ * arithmetic that produced it differed in a last bit. Two corners closer than
+ * the grid but on opposite sides of a rounding boundary are not welded.
  *
  * @param frame Page basis whose normal points back at the viewer.
  * @param triangles World triangles of one drawable, in their source winding.

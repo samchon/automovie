@@ -1,21 +1,3 @@
-# src/render/IAutoMovieMeasureTextureStorage.ts#IAutoMovieMeasureTextureStorage
-
-## @evidence contracts/development/design.md#principled-representation
-
-Pixel extents and upload bytes per texel determine an integer mip-chain sum including the base level.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Four scalar facts measure storage without allocating pixels or depending on a graphics format object.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Null format size, invalid positive-safe-integer inputs or unsafe totals produce null; encoded files, driver overhead, faces and multisamples are outside this count.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Members document input admission, integer mip rounding and the distinction between upload bytes and encoded image size.
-
 # src/render/IAutoMovieMeasureTextureStorage.ts#IAutoMovieMeasureTextureStorage.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

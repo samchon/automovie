@@ -8,7 +8,10 @@ import {
 } from "../core";
 import { createJumpRope } from "./createJumpRope";
 
-/** The recorded length and diameter in metres and the provisional mass in kilograms. */
+/**
+ * The recorded length and diameter in metres and the provisional mass in
+ * kilograms.
+ */
 type Dimension = "handleLength" | "gripDiameter" | "mass";
 
 /**
@@ -19,14 +22,17 @@ type Dimension = "handleLength" | "gripDiameter" | "mass";
  * the end. Pass `dimensions.handleLength` in metres to the rope-skip sampler
  * when posing two matching handles.
  *
- * @param params The measured handle family, optional grip diameter in metres, and the model's scene id.
- * @param seed Draws the handle family when omitted from params. Without a seed the default is SR-1.
+ * @param params The measured handle family, optional grip diameter in metres,
+ *   and the model's scene id.
+ * @param seed Draws the handle family when omitted from params. Without a seed
+ *   the default is SR-1.
  * @returns The independent handle with `grip` and `cordSocket` affordances.
- * @throws {AutoMovieArchetypeRefusal} For an unknown handle family or a grip diameter outside the rope's measured band.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown handle family or a grip
+ *   diameter outside the rope's measured band.
  */
 export function createJumpRopeHandle(
   params: Pick<createJumpRope.IParams, "handle" | "id" | "gripDiameter"> = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<"grip" | "cordSocket", Dimension> {
   const draw: AutoMovieArchetypeDrawSession<Dimension> =
     new AutoMovieArchetypeDrawSession<Dimension>(

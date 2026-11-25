@@ -4,7 +4,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEnvelope as Envelope } from "../motion/AutoMovieEnvelope";
-import { freezePhysicalRecord } from "./freezePhysicalRecord";
 
 /**
  * Deterministic drift-triggered support placement, precomputed at a fixed rate.
@@ -37,59 +36,37 @@ export class AutoMovieStepPlanner {
   public constructor(input: IAutoMovieStepPlanner.IInput) {
     const limbs: IAutoMovieFootfallPattern["limbs"] = input.pattern.limbs;
     if (
-      !Number.isFinite(input.start) ||
-      !Number.isFinite(input.end) ||
       input.end < input.start ||
-      !(input.rate > 0) ||
-      !Number.isFinite(input.rate) ||
-      !(input.duration > 0) ||
-      !Number.isFinite(input.duration) ||
-      !(input.threshold > 0) ||
-      !Number.isFinite(input.threshold) ||
-      !(input.maximumStride > 0) ||
-      !Number.isFinite(input.maximumStride) ||
+      input.rate <= 0 ||
+      input.duration <= 0 ||
+      input.threshold <= 0 ||
+      input.maximumStride <= 0 ||
       input.height < 0 ||
-      !Number.isFinite(input.height) ||
       limbs.length === 0 ||
       new Set(limbs.map((limb: (typeof limbs)[number]): string => limb.bone))
         .size !== limbs.length ||
-      !Number.isInteger(input.pattern.minimumSupports) ||
       input.pattern.minimumSupports < 0 ||
       input.pattern.minimumSupports >= limbs.length
     )
       throw new Error(
         "Invalid step planner interval, budget or support pattern",
       );
-    if (!Number.isFinite(input.peakPitch ?? 0))
-      throw new Error("Invalid declared swing pitch");
+
     this.height = input.height;
     this.peakPitch = input.peakPitch ?? 0;
     for (const limb of limbs) {
-      if (
-        limb.localPoint &&
-        ![limb.localPoint.x, limb.localPoint.y, limb.localPoint.z].every(
-          Number.isFinite,
-        )
-      )
-        throw new Error(`Invalid support endpoint ${limb.bone}`);
       if (
         !limb.bone.trim() ||
         limb.chain.at(-1) !== limb.bone ||
         limb.phase < 0 ||
         limb.phase >= 1 ||
-        !Number.isFinite(limb.phase) ||
         limb.duty < 0 ||
         limb.duty > 1 ||
-        !Number.isFinite(limb.duty) ||
-        !Number.isFinite(limb.offset.forward) ||
-        !Number.isFinite(limb.offset.left) ||
         limb.stride.length === 0 ||
         limb.stride.some(
           (sample: (typeof limb.stride)[number], i: number): boolean =>
-            !Number.isFinite(sample.speed) ||
             sample.speed < 0 ||
-            !(sample.length > 0) ||
-            !Number.isFinite(sample.length) ||
+            sample.length <= 0 ||
             (i > 0 && sample.speed <= limb.stride[i - 1]!.speed),
         )
       )
@@ -116,8 +93,6 @@ export class AutoMovieStepPlanner {
     for (const [i, reservation] of busy.entries()) {
       if (
         !this.segments.has(reservation.bone) ||
-        !Number.isFinite(reservation.start) ||
-        !Number.isFinite(reservation.end) ||
         reservation.end <= reservation.start ||
         busy
           .slice(0, i)
@@ -174,24 +149,11 @@ export class AutoMovieStepPlanner {
       );
       const over: IAutoMovieFootfallPattern["limbs"] = limbs.filter(
         (limb: (typeof limbs)[number]): boolean => {
-          const to: IAutoMovieStepPlanner.IPlacement = targets[limb.bone]!;
-          const from: IAutoMovieStepPlanner.IPlacement = planted[limb.bone]!;
-          if (
-            !to ||
-            !from ||
-            ![
-              to.point[0],
-              to.point[1],
-              to.yaw,
-              to.pitch,
-              to.clearance,
-              from.point[0],
-              from.point[1],
-              from.yaw,
-              from.pitch,
-              from.clearance,
-            ].every(Number.isFinite)
-          )
+          const to: IAutoMovieStepPlanner.IPlacement | undefined =
+            targets[limb.bone];
+          const from: IAutoMovieStepPlanner.IPlacement | undefined =
+            planted[limb.bone];
+          if (to === undefined || from === undefined)
             throw new Error(`Invalid support placement ${limb.bone}`);
           const retarget: boolean =
             input.swingRetargeting === "from-scheduled-landing" &&
@@ -310,17 +272,13 @@ export class AutoMovieStepPlanner {
         b: IAutoMovieStepPlanner.IStep,
       ): number => a.start - b.start,
     );
-    freezePhysicalRecord(this.schedule);
   }
 
-  /**
-   * Binary search returns a new placement; callers cannot mutate the cache.
-   */
+  /** Binary search returns a new placement; callers cannot mutate the cache. */
   public at(bone: string, seconds: number): IAutoMovieStepPlanner.IState {
     const list: IAutoMovieStepPlanner.IStep[] | undefined =
       this.segments.get(bone);
-    if (!list || !Number.isFinite(seconds))
-      throw new Error("Unknown support or nonfinite film second");
+    if (!list) throw new Error("Unknown support");
     let low: number = 0;
     let high: number = list.length - 1;
     while (low <= high) {
@@ -366,18 +324,15 @@ export class AutoMovieStepPlanner {
   }
 }
 
-/**
- * World support placements and explicit scheduling policy.
- */
+/** World support placements and explicit scheduling policy. */
 export namespace AutoMovieStepPlanner {
-  /**
-   * Signed shortest angle, radians, preserving both pi endpoints.
-   */
+  /** Signed shortest angle, radians, preserving both pi endpoints. */
   export function angle(value: number): number {
     return Envelope.angle(0, value, 1);
   }
   /**
-   * Quintic endpoint interpolation and a lifted sine arc, as in supported stepping.
+   * Quintic endpoint interpolation and a lifted sine arc, as in supported
+   * stepping.
    */
   export function swing(
     from: IAutoMovieStepPlanner.IPlacement,
@@ -386,22 +341,7 @@ export namespace AutoMovieStepPlanner {
     height: number,
     peakPitch: number = 0,
   ): IAutoMovieStepPlanner.IPlacement {
-    if (
-      ![
-        ...from.point,
-        from.yaw,
-        from.pitch,
-        from.clearance,
-        ...to.point,
-        to.yaw,
-        to.pitch,
-        to.clearance,
-        progress,
-        height,
-        peakPitch,
-      ].every(Number.isFinite) ||
-      height < 0
-    )
+    if (height < 0)
       throw new Error("Invalid support swing placement or declared policy");
     const t: number = Math.max(0, Math.min(1, progress));
     const u: number = Envelope.smoother(t);

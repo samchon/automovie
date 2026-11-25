@@ -6,6 +6,7 @@ import type {
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
+import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createBookcase } from "../../furniture/createBookcase";
 import { createSeat } from "../../furniture/createSeat";
 import { createTable } from "../../furniture/createTable";
@@ -37,13 +38,13 @@ export function createLivingRoomKit(
   return (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
-    const seed: string | undefined = context.seed;
-    const draw: (role: string) => string | undefined = (
+    const seed: number | undefined = context.seed;
+    const draw: (role: string) => number | undefined = (
       role: string,
-    ): string | undefined =>
-      seed === undefined ? undefined : `${seed}/${role}`;
+    ): number | undefined =>
+      seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
     const gap: number = params.tableGap ?? createLivingRoomKit.TABLE_GAP;
-    if (!(Number.isFinite(gap) && gap >= 0))
+    if (!(gap >= 0))
       throw new Error(
         `${context.id} tableGap needs a finite nonnegative distance: ${gap}`,
       );

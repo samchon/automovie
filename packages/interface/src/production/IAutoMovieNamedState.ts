@@ -1,8 +1,6 @@
 import type { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 
-/**
- * A named opening or closing state required by a shot.
- */
+/** A named opening or closing state required by a shot. */
 export interface IAutoMovieNamedState {
   /** Stable state id. */
   id: string;

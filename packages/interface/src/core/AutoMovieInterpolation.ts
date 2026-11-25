@@ -8,9 +8,9 @@
  *   keyframe (in-tangent, value, out-tangent), tangents scaled by segment
  *   duration, per the glTF convention.
  *
- * `step` switches to the next keyframe's value exactly at that keyframe's
- * time. Camera clearance, authored object-motion clips, and imported motions
- * refuse `cubicspline`, because a spline can overshoot the bounds those gates
- * prove at the keys and a pose keyframe cannot preserve its tangents.
+ * `step` switches to the next keyframe's value exactly at that keyframe's time.
+ * Camera clearance, authored object-motion clips, and imported motions refuse
+ * `cubicspline`, because a spline can overshoot the bounds those gates prove at
+ * the keys and a pose keyframe cannot preserve its tangents.
  */
 export type AutoMovieInterpolation = "linear" | "step" | "cubicspline";

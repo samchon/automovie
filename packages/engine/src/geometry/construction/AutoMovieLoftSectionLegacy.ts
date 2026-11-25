@@ -8,18 +8,15 @@ import type {
   IAutoMovieStationHermite,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
-/**
- * The actual legacy spline generating field used by a mixed native boundary.
- */
+/** The actual legacy spline generating field used by a mixed native boundary. */
 export namespace AutoMovieLoftSectionLegacy {
-  /**
-   * Prepare only the requested station capability of the existing spline field.
-   */
+  /** Prepare only the requested station capability of the existing spline field. */
   export function prepare(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -69,15 +66,8 @@ export namespace AutoMovieLoftSectionLegacy {
               ),
         ),
     );
-    if (
-      !rows.every(
-        (row: number[]): boolean =>
-          row.length === 2 * chain.order && row.every(Number.isFinite),
-      )
-    )
-      throw new Error(
-        "The requested legacy basis rows are incomplete or nonfinite.",
-      );
+    if (!rows.every((row: number[]): boolean => row.length === 2 * chain.order))
+      throw new Error("The requested legacy basis rows are incomplete.");
     return order === 0
       ? { kind: "value", order: chain.order, rows: [rows[0]!] }
       : {
@@ -87,9 +77,7 @@ export namespace AutoMovieLoftSectionLegacy {
         };
   }
 
-  /**
-   * Value and two phase derivatives of the actual complete basis.
-   */
+  /** Value and two phase derivatives of the actual complete basis. */
   export function phase(
     prepared: IAutoMovieLoftSectionLegacy.IPrepared,
     phi: number,
@@ -99,9 +87,7 @@ export namespace AutoMovieLoftSectionLegacy {
     return admit({ p: [q[0], q[1]], t: [q[2], q[3]], tt: [q[4], q[5]] });
   }
 
-  /**
-   * Exact total2 of the declared legacy basis function.
-   */
+  /** Exact total2 of the declared legacy basis function. */
   export function jet(
     prepared: IAutoMovieLoftSectionLegacy.IPrepared,
     phi: number,
@@ -121,9 +107,7 @@ export namespace AutoMovieLoftSectionLegacy {
     });
   }
 
-  /**
-   * Define a complete coefficient-polynomial extension of actual endpoint2.
-   */
+  /** Define a complete coefficient-polynomial extension of actual endpoint2. */
   export function extend(
     rows: AutoMovieLoftSectionLegacyRows,
     order: number,
@@ -132,45 +116,51 @@ export namespace AutoMovieLoftSectionLegacy {
   ): IAutoMovieLoftSectionLegacy.IPrepared {
     if (
       rows.length !== 3 ||
-      !rows.every(
-        (row: readonly number[]): boolean =>
-          row.length === 2 * order && row.every(Number.isFinite),
-      ) ||
-      !Number.isFinite(displacement)
+      !rows.every((row: readonly number[]): boolean => row.length === 2 * order)
     )
       throw new Error(
-        "A basis extension needs complete finite endpoint coefficient2 and displacement.",
+        "A basis extension needs complete endpoint coefficient2.",
       );
-    const value: number[] = rows[0].map(
-      (v: number, q: number): number =>
-        v +
-        displacement * rows[1][q]! +
-        0.5 * displacement * displacement * rows[2][q]!,
+    // Each product and sum of the quadratic extension is refused where it
+    // overflows binary64.
+    const value: number[] = rows[0].map((v: number, q: number): number =>
+      representable(
+        representable(v + representable(displacement * rows[1][q]!)) +
+          representable(
+            representable(representable(0.5 * displacement) * displacement) *
+              rows[2][q]!,
+          ),
+        "The declared basis extension has no finite value row.",
+      ),
     );
-    if (!value.every(Number.isFinite))
-      throw new Error("The declared basis extension has no finite value row.");
     if (derivative === 0) return { kind: "value", order, rows: [value] };
-    const first: number[] = rows[1].map(
-      (v: number, q: number): number => v + displacement * rows[2][q]!,
-    );
-    if (!first.every(Number.isFinite))
-      throw new Error(
+    const first: number[] = rows[1].map((v: number, q: number): number =>
+      representable(
+        v +
+          representable(
+            displacement * rows[2][q]!,
+            "The declared basis extension has no finite physical first derivative row.",
+          ),
         "The declared basis extension has no finite physical first derivative row.",
-      );
+      ),
+    );
     return { kind: "jet", order, rows: [value, first, [...rows[2]]] };
   }
 }
 
-/** Admit only the required returned total-order components, never unused higher partials. */
+/**
+ * Admit only the required returned total-order components, never unused higher
+ * partials.
+ */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
-  if (
-    !Object.values(out).every(
-      (row: unknown): boolean =>
-        Array.isArray(row) && row.every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "The actual basis field has no finite requested local reading.",
-    );
   return out;
+}
+
+/** One product or sum, refused with its own message where it overflows. */
+function representable(
+  result: number,
+  message: string = "The declared basis extension has no finite value row.",
+): number {
+  if (overflowsBinary64(result)) throw new Error(message);
+  return result;
 }

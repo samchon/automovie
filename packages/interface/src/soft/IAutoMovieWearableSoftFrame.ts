@@ -2,7 +2,8 @@ import type { IAutoMovieSoftNodeTransform } from "./IAutoMovieSoftNodeTransform"
 import type { IAutoMovieWearableSoftActorPose } from "./IAutoMovieWearableSoftActorPose";
 
 /**
- * Complete node/actor primary-motion snapshot supplied at one absolute soft step.
+ * Complete node/actor primary-motion snapshot supplied at one absolute soft
+ * step.
  */
 export interface IAutoMovieWearableSoftFrame {
   /** Absolute fixed-step index. */

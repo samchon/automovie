@@ -51,7 +51,7 @@ function evaluate(
   gridReads: readonly IAutoMovieSolidMesh.IGridReport[];
   triangleGroups: IAutoMovieHumanBodySurface.IOutput["mesh"]["groups"];
   nailClipping?: IAutoMovieHumanBodySurface.IOutput["nailClipping"];
-  topology: IAutoMovieMeshTopology;
+  topology: IAutoMovieMeshTopology & { nonFinite: number };
   pieces: IAutoMovieMeshPiece[];
   diagnostics: string[];
   declaration: ReturnType<typeof inspectHumanNeutralTopology>;
@@ -89,8 +89,13 @@ function evaluate(
     uvs: null,
     skin: null,
   };
-  const { topology, pieces: readPieces } =
+  const { topology: measured, pieces: readPieces } =
     inspectAutoMovieMeshTopology.prepare(mesh);
+  let nonFinite: number = 0;
+  for (const values of [mesh.positions, mesh.normals ?? []])
+    for (const value of values)
+      if (!Number.isFinite(value)) ++nonFinite;
+  const topology = { ...measured, nonFinite };
   onPhase?.("topology");
   const pieces: IAutoMovieMeshPiece[] = readPieces();
   onPhase?.("pieces");

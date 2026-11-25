@@ -1,5 +1,6 @@
 import { AutoMovieGravity, steerAutoMovieCrowd } from "@automovie/engine";
 import type {
+  IAutoMovieBodyMeasure,
   IAutoMovieCrowdAgent,
   IAutoMovieMotionHumanCrowd,
   IAutoMovieMotionHumanEnsemble,
@@ -19,47 +20,79 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
 
+/** The alternatives of `DesiredRequest`'s site. */
+type DesiredRequest = "gait" | "latency" | "flight";
+
 /**
- * A crowd that keeps no formation, steered: each member (or each walking
- * group, as one agent) heads for its goals at its own drawn speed and avoids
- * the others and the obstacles, by one plan-time pass of the engine's
- * `steerAutoMovieCrowd`. The pass gives each member a course; the member's
- * own walk or run then keeps station on it (`walkStation`), so its feet are
- * still whole steps.
+ * A crowd that keeps no formation, steered: each member (or each walking group,
+ * as one agent) heads for its goals at its own drawn speed and avoids the
+ * others and the obstacles, by one plan-time pass of the engine's
+ * `steerAutoMovieCrowd`. The pass gives each member a course; the member's own
+ * walk or run then keeps station on it (`walkStation`), so its feet are still
+ * whole steps.
  *
  * A member's agent is a disc of its shoulders' half breadth (the shoulder
  * joint's half width plus the upper arm's radius) at its desired speed: its
  * gait's speed at its leg length by dynamic similarity (the walk's normal
- * Froude number, or the run's), scaled by a normal draw with the
- * coefficient of variation of pedestrians' desired speeds, 0.26 over 1.34
- * m/s (Helbing and Molnar 1995), by fatigue, and in flight by morale
+ * Froude number, or the run's), scaled by a normal draw with the coefficient of
+ * variation of pedestrians' desired speeds, 0.26 over 1.34 m/s (Helbing and
+ * Molnar 1995), by fatigue, and in flight by morale
  * (`HUMAN_ATTRIBUTE_EFFECTS`). Its start is the cue plus its latency
- * (`HumanResponse`), and in flight its herding share is morale's. Every
- * draw is keyed by the member; adding a member changes the others' courses
- * (they avoid it) but never their draws.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the pass gives, how each agent is built and from which sources, and the coupling.
- * @evidence contracts/development/design.md#principled-representation A request names goals, a gait, a cue and the obstacles; the result is a course frame per member, the data station keeping reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `steer`, a member's drawn desire `desired` (with `IDesired`), its half breadth `half`, and the desired speeds' spread `SPREAD` and floor `SLOWEST`; the law is the engine's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is animated by the pass: its courses are frames, walked by the vocabulary.
+ * (`HumanResponse`), and in flight its herding share is morale's. Every draw is
+ * keyed by the member; adding a member changes the others' courses (they avoid
+ * it) but never their draws.
  */
 export namespace HumanCrowd {
-  /** The coefficient of variation of desired walking speeds: 0.26 over 1.34 m/s (Helbing and Molnar 1995). */
+  /**
+   * The coefficient of variation of desired walking speeds: 0.26 over 1.34 m/s
+   * (Helbing and Molnar 1995).
+   */
   export const SPREAD: number = 0.26 / 1.34;
 
-  /** The least share of its gait's speed a member's draw may give: one half, about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the normal draw's far tail from a walker who barely moves). */
+  /**
+   * The least share of its gait's speed a member's draw may give: one half,
+   * about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the
+   * normal draw's far tail from a walker who barely moves).
+   */
   export const SLOWEST: number = 0.5;
 
-  /** Seconds between two samples of a steered course, and between two checks of a manoeuvre's spacing: the 24 frames a second the motion's checks are read at (provisional: no film's own rate is known to the laws). */
+  /**
+   * Seconds between two samples of a steered course, and between two checks of
+   * a manoeuvre's spacing: the 24 frames a second the motion's checks are read
+   * at (provisional: no film's own rate is known to the laws).
+   */
   export const STEP: number = 1 / 24;
 
+  /** What a member's desire reads of its ensemble: the seed and the id. */
+  export interface IDesiredEnsemble {
+    /** The ensemble's seed and id. */
+    input: Pick<IAutoMovieMotionHumanEnsemble.IInput, "seed" | "id">;
+  }
+
+  /** What a member's desire reads of it. */
+  export interface IDesiredMember
+    extends Pick<
+      IAutoMovieMotionHumanEnsemble.IMember,
+      "index" | "proficiency" | "attributes"
+    > {
+    /** The member's hip height. */
+    body: { measure: Pick<IAutoMovieBodyMeasure, "hipHeight"> };
+  }
+
+  /** What a member's half breadth reads of it. */
+  export interface IHalfMember {
+    /** The member's shoulder half width and upper arm radius. */
+    body: {
+      measure: Pick<IAutoMovieBodyMeasure, "shoulderHalfWidth" | "upperArmRadius">;
+    };
+  }
+
   /**
-   * A member's desired speed and delay as the pass draws them: its gait's
-   * speed at its leg length scaled by its keyed normal draw (floored at
-   * `SLOWEST`, its spread widened in flight by low morale's fluctuation,
-   * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight
-   * by morale, and its response
-   * latency when the request names one.
+   * A member's desired speed and delay as the pass draws them: its gait's speed
+   * at its leg length scaled by its keyed normal draw (floored at `SLOWEST`,
+   * its spread widened in flight by low morale's fluctuation,
+   * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by
+   * morale, and its response latency when the request names one.
    *
    * @param ensemble The ensemble.
    * @param m The member.
@@ -67,12 +100,9 @@ export namespace HumanCrowd {
    * @returns The member's desire.
    */
   export function desired(
-    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
-    m: IAutoMovieMotionHumanEnsemble.IMember,
-    request: Pick<
-      IAutoMovieMotionHumanCrowd.IRequest,
-      "gait" | "latency" | "flight"
-    >,
+    ensemble: IDesiredEnsemble,
+    m: IDesiredMember,
+    request: Pick<IAutoMovieMotionHumanCrowd.IRequest, DesiredRequest>,
   ): IAutoMovieMotionHumanCrowd.IDesired {
     const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
       m.proficiency,
@@ -132,15 +162,16 @@ export namespace HumanCrowd {
   }
 
   /**
-   * Plan the crowd's routes and sample all leaders together on the 24 Hz
-   * course grid. A group shares its leader's route and arrival. The combined
-   * breadth disc is a steering proxy; placed members' clearances depend on
-   * their formation offsets and course heading.
+   * Plan the crowd's routes and sample all leaders together on the 24 Hz course
+   * grid. A group shares its leader's route and arrival. The combined breadth
+   * disc is a steering proxy; placed members' clearances depend on their
+   * formation offsets and course heading.
    *
    * @param ensemble The ensemble.
    * @param request The goals, the gait, the cue and the obstacles.
    * @returns The course frames and arrivals.
-   * @throws {HumanRefusal} When two steering proxies, or a proxy and an obstacle, overlap at two successive integration knots.
+   * @throws {HumanRefusal} When two steering proxies, or a proxy and an
+   *   obstacle, overlap at two successive integration knots.
    */
   export function steer(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -267,13 +298,13 @@ export namespace HumanCrowd {
   }
 
   /**
-   * A member's half breadth at the shoulders: the shoulder joint's half
-   * width plus the upper arm's radius, metres.
+   * A member's half breadth at the shoulders: the shoulder joint's half width
+   * plus the upper arm's radius, metres.
    *
    * @param member The member.
    * @returns The half breadth.
    */
-  export function half(member: IAutoMovieMotionHumanEnsemble.IMember): number {
+  export function half(member: IHalfMember): number {
     return (
       member.body.measure.shoulderHalfWidth + member.body.measure.upperArmRadius
     );

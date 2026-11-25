@@ -1,21 +1,3 @@
-# src/motion/human/affordance/IAutoMovieMotionHumanOperateDrive.ts#IAutoMovieMotionHumanOperateDrive
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: A point of the line, world metres. axis: Its unit axis; the vertical when absent. point: World metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: A point of the line, world metres. axis: Its unit axis; the vertical when absent. point: World metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, return); affordance/operateDrive.ts (operateDrive.hinge, part); affordance/operateDrive.ts (operateDrive.drive, part); affordance/operateDrive.ts (operateDrive.hinge, return); affordance/operateDrive.ts (operateDrive.radius, line); affordance/operateDrive.ts (operateDrive.foot, line).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanOperate.Mechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/affordance/IAutoMovieMotionHumanOperateDrive.ts#IAutoMovieMotionHumanOperateDrive.IHinge
 
 ## @evidence contracts/development/common.md#meaningful-documentation

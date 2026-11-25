@@ -16,53 +16,66 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * A host rail laid onto the faces of a body: its points with the crossings
  * between faces, and each face it runs over trimmed by it.
  *
- * The rail is read at the blend's columns; where two neighbouring columns
- * lie on different faces, the crossing between them is placed by bisection
- * of the curve's parameter on the face the rail lies on, and is one vertex
- * of both faces. A rail on one face adds its loop to that face. A rail over
- * several faces is cut into runs, each from the crossing it enters a face by
- * to the crossing it leaves by; both crossings lie on one cycle of that face
- * (the boundary it shares with the faces the rail came from and goes to).
- * The cycle is split at them, and of its two arcs the one on the side the
- * rail removes (toward the curve, against the rail's offset direction) is
- * replaced by the run: of the two cycles the arcs make with the run, the one
- * that keeps a point just past the rail and removes a point just before it
- * (the clipping of one boundary by another of Weiler and Atherton, Hidden
- * surface removal using polygon area sorting, SIGGRAPH 1977). Where both
- * do, as when the run stands outside a hole it starts and ends on, the one
- * that still removes everything the cycle removed is kept: a cut only takes
- * more of a face away. The rebuilt cycle's arc keeps the exact boundary each of
- * its segments lay on, and the run's segments are chords (`ICycle.segments`).
+ * The rail is read at the blend's columns; where two neighbouring columns lie
+ * on different faces, the crossing between them is placed by bisection of the
+ * curve's parameter on the face the rail lies on, and is one vertex of both
+ * faces. A rail on one face adds its loop to that face. A rail over several
+ * faces is cut into runs, each from the crossing it enters a face by to the
+ * crossing it leaves by; both crossings lie on one cycle of that face (the
+ * boundary it shares with the faces the rail came from and goes to). The cycle
+ * is split at them, and of its two arcs the one on the side the rail removes
+ * (toward the curve, against the rail's offset direction) is replaced by the
+ * run: of the two cycles the arcs make with the run, the one that keeps a point
+ * just past the rail and removes a point just before it (the clipping of one
+ * boundary by another of Weiler and Atherton, Hidden surface removal using
+ * polygon area sorting, SIGGRAPH 1977). Where both do, as when the run stands
+ * outside a hole it starts and ends on, the one that still removes everything
+ * the cycle removed is kept: a cut only takes more of a face away. The rebuilt
+ * cycle's arc keeps the exact boundary each of its segments lay on, and the
+ * run's segments are chords (`ICycle.segments`).
  */
 export namespace AutoMovieSolidClip {
-  /** Maximum crossing halvings; a null rail may end the search earlier once the bracket is at most a millionth of a column. */
+  /**
+   * Maximum crossing halvings; a null rail may end the search earlier once the
+   * bracket is at most a millionth of a column.
+   */
   export const BISECTIONS: number = 40;
 
   /**
-   * World slack of a crossing placed across a stretch where the rail settles on neither face, mm: a hundredth of a millimetre, a hundredth of
-   * the chord tolerance a skin is drawn at. The crossing is placed when the rail's last point on one face and its first on the next stand
-   * within it of each other, or each within it of the shared boundary's chord beyond the boundary's own sagitta (`seam`).
+   * World slack of a crossing placed across a stretch where the rail settles on
+   * neither face, mm: a hundredth of a millimetre, a hundredth of the chord
+   * tolerance a skin is drawn at. The crossing is placed when the rail's last
+   * point on one face and its first on the next stand within it of each other,
+   * or each within it of the shared boundary's chord beyond the boundary's own
+   * sagitta (`seam`).
    */
   export const CROSSING: number = 1e-2;
 
   /**
-   * Largest chart distance from a crossing to the trim it is placed into, as a share of one plus its coordinates' magnitudes, for the
-   * crossing to be moved onto the trim: rounding, a few thousand units in the last place, never a crossing that truly stands off it.
+   * Largest chart distance from a crossing to the trim it is placed into, as a
+   * share of one plus its coordinates' magnitudes, for the crossing to be moved
+   * onto the trim: rounding, a few thousand units in the last place, never a
+   * crossing that truly stands off it.
    */
   export const SNAP: number = 1e-12;
 
-  /** Local side-probe distance is a quarter of neighbouring world spacing in the unit-world-speed chart direction; this relative sampling choice is not a global curved-cell bound. */
+  /**
+   * Local side-probe distance is a quarter of neighbouring world spacing in the
+   * unit-world-speed chart direction; this relative sampling choice is not a
+   * global curved-cell bound.
+   */
   export const SIDE: number = 0.25;
 
   /**
-   * The host rail's points with the crossings between faces, each a vertex
-   * of the body's mesh.
+   * The host rail's points with the crossings between faces, each a vertex of
+   * the body's mesh.
    *
    * @param body The body.
    * @param join The join.
    * @param blend Its published blend.
    * @param index The body face of each atlas face the join was traced on.
-   * @param phases The blend's shared column phases without the repeated endpoint.
+   * @param phases The blend's shared column phases without the repeated
+   *   endpoint.
    * @returns The points in rail order, or where a crossing's rail fails.
    */
   export function rail(
@@ -102,12 +115,7 @@ export namespace AutoMovieSolidClip {
     const out: IAutoMovieSolidClip.IRailPoint[] = [];
     for (let k: number = 0; k < count; k++) {
       out.push(
-        point(
-          faces[k]!,
-          blend.host.chart[k]!,
-          phases[k]!,
-          blend.across[k]!,
-        ),
+        point(faces[k]!, blend.host.chart[k]!, phases[k]!, blend.across[k]!),
       );
       const next: number = faces[(k + 1) % count]!;
       if (next === faces[k]) continue;
@@ -115,7 +123,8 @@ export namespace AutoMovieSolidClip {
       // The crossing: the last parameter on this face and the first on the next.
       let lo: number = blend.seed + phases[k]!;
       let hi: number = blend.seed + (phases[k + 1] ?? 2 * Math.PI);
-      let low: IAutoMovieSolidRail.IRail | null = blend.rails?.[k] ?? join.rail(lo);
+      let low: IAutoMovieSolidRail.IRail | null =
+        blend.rails?.[k] ?? join.rail(lo);
       // A full turn can land on a different atlas chart branch than its seed.
       let high: IAutoMovieSolidRail.IRail | null =
         (k + 1 < count ? blend.rails?.[k + 1] : undefined) ?? join.rail(hi);
@@ -208,8 +217,10 @@ export namespace AutoMovieSolidClip {
    * @param body The body; its cycles change in place.
    * @param rail The rail's points.
    * @param blend The blend face's index.
-   * @param kind The rail's kind on a single face (`IAutoMovieSolidBlendChain.IBlend.host.kind`).
-   * @param exact Shared original boundary readers for an admitted single-face rail.
+   * @param kind The rail's kind on a single face
+   *   (`IAutoMovieSolidBlendChain.IBlend.host.kind`).
+   * @param exact Shared original boundary readers for an admitted single-face
+   *   rail.
    * @returns Null, or why a face could not be trimmed.
    */
   export function trim(
@@ -309,12 +320,17 @@ export namespace AutoMovieSolidClip {
   }
 
   /**
-   * How far a rail's two ends round a crossing stand off the boundary two faces share, and how far that boundary itself stands off its
-   * chord, mm: `[ends, seam]`. The boundary is the segment the two faces share nearest the first end, in the first face's chart. Its chord
-   * is the straight line between its two vertices; each face reads the segment in its own chart, the first as a chart chord and the second
-   * by its own map, and both readings stand off the chord by the segment's sagitta: on a blend round a tube 3 mm across, with columns
-   * 0.9 mm apart, by some hundredths of a millimetre. Between the two readings the rail lies on neither face; where it runs along the seam
-   * at a grazing angle that stretch is many times the sagitta long. Infinite ends where the faces share no segment.
+   * How far a rail's two ends round a crossing stand off the boundary two faces
+   * share, and how far that boundary itself stands off its chord, mm: `[ends,
+   * seam]`. The boundary is the segment the two faces share nearest the first
+   * end, in the first face's chart. Its chord is the straight line between its
+   * two vertices; each face reads the segment in its own chart, the first as a
+   * chart chord and the second by its own map, and both readings stand off the
+   * chord by the segment's sagitta: on a blend round a tube 3 mm across, with
+   * columns 0.9 mm apart, by some hundredths of a millimetre. Between the two
+   * readings the rail lies on neither face; where it runs along the seam at a
+   * grazing angle that stretch is many times the sagitta long. Infinite ends
+   * where the faces share no segment.
    */
   function seam(
     body: IAutoMovieSolidBody.IBody,
@@ -418,10 +434,13 @@ export namespace AutoMovieSolidClip {
     return a.map((y: number, i: number): number => y + t * d[i]!);
   }
 
-  /** A rebuilt cycle's per-segment exact boundaries, or nothing where every segment is a chord. */
-  function carried(
-    segments: (IAutoMovieSolidCycle.IExactSegment | null)[],
-  ): { segments?: (IAutoMovieSolidCycle.IExactSegment | null)[] } {
+  /**
+   * A rebuilt cycle's per-segment exact boundaries, or nothing where every
+   * segment is a chord.
+   */
+  function carried(segments: (IAutoMovieSolidCycle.IExactSegment | null)[]): {
+    segments?: (IAutoMovieSolidCycle.IExactSegment | null)[];
+  } {
     return segments.some(
       (s: IAutoMovieSolidCycle.IExactSegment | null): boolean => s !== null,
     )
@@ -516,10 +535,10 @@ export namespace AutoMovieSolidClip {
    * Clip one face by two runs of the rail that each join its two trims, as a
    * cut does that crosses a band from rim to rim and back. Neither run cuts
    * anything off alone; together they replace the two trims by one island: one
-   * trim's arc between the runs, the first run, the other trim's arc, the second
-   * run. It no longer winds round the period, so the face keeps its inside.
-   * Of the two such cycles, the one that keeps the side past the rail is kept,
-   * read by the same probe across the rail as `clip`'s.
+   * trim's arc between the runs, the first run, the other trim's arc, the
+   * second run. It no longer winds round the period, so the face keeps its
+   * inside. Of the two such cycles, the one that keeps the side past the rail
+   * is kept, read by the same probe across the rail as `clip`'s.
    */
   function clipPair(
     body: IAutoMovieSolidBody.IBody,
@@ -606,7 +625,14 @@ export namespace AutoMovieSolidClip {
       // Each arc's segments stay on the exact boundary their trim lies on, an arc walked against its trim reversing their sense; the
       // runs are this clip's own chords.
       const segments: (IAutoMovieSolidCycle.IExactSegment | null)[] = [];
-      for (const [cycle, positions, run] of [[p, pArc, r], [q, qArc, s]] as [IAutoMovieSolidCycle.ICycle, number[], IAutoMovieSolidClip.IRailPoint[]][]) {
+      for (const [cycle, positions, run] of [
+        [p, pArc, r],
+        [q, qArc, s],
+      ] as [
+        IAutoMovieSolidCycle.ICycle,
+        number[],
+        IAutoMovieSolidClip.IRailPoint[],
+      ][]) {
         const m: number = cycle.vertices.length;
         positions.forEach((k: number, i: number): void => {
           vertices.push(cycle.vertices[k]!);
@@ -614,8 +640,14 @@ export namespace AutoMovieSolidClip {
           if (i + 1 < positions.length) {
             const next: number = positions[i + 1]!;
             const forward: boolean = next === (k + 1) % m;
-            neighbours.push(forward ? cycle.neighbours[k]! : reverse(cycle.neighbours[next]!));
-            segments.push(forward ? AutoMovieSolidCycle.piece(cycle, k) : AutoMovieSolidCycle.piece(cycle, next, true));
+            neighbours.push(
+              forward ? cycle.neighbours[k]! : reverse(cycle.neighbours[next]!),
+            );
+            segments.push(
+              forward
+                ? AutoMovieSolidCycle.piece(cycle, k)
+                : AutoMovieSolidCycle.piece(cycle, next, true),
+            );
           }
         });
         for (let i: number = 0; i + 1 < run.length; i++) {
@@ -628,8 +660,17 @@ export namespace AutoMovieSolidClip {
         }
       }
       for (let k: number = 1; k < chart.length; k++)
-        chart[k] = [chart[k]![0], AutoMovieSolidCycle.shift(chart[k]![1], chart[k - 1]![1], period)];
-      return { kind: "island", vertices, chart, neighbours, ...carried(segments) };
+        chart[k] = [
+          chart[k]![0],
+          AutoMovieSolidCycle.shift(chart[k]![1], chart[k - 1]![1], period),
+        ];
+      return {
+        kind: "island",
+        vertices,
+        chart,
+        neighbours,
+        ...carried(segments),
+      };
     };
     // Of the arc directions on the second trim, the one whose cycle closes without winding round the period.
     const unwound = (
@@ -779,9 +820,8 @@ export namespace AutoMovieSolidClip {
       // The arc's segments stay on the exact boundary the trim lies on; the run's are this clip's own chords.
       const segments: (IAutoMovieSolidCycle.IExactSegment | null)[] = positions
         .slice(0, -1)
-        .map(
-          (k: number): IAutoMovieSolidCycle.IExactSegment | null =>
-            AutoMovieSolidCycle.piece(cycle, k),
+        .map((k: number): IAutoMovieSolidCycle.IExactSegment | null =>
+          AutoMovieSolidCycle.piece(cycle, k),
         );
       const chain: IAutoMovieSolidClip.IRailPoint[] = [head, ...tail, last];
       for (let k: number = 0; k + 1 < chain.length; k++) {
@@ -871,8 +911,10 @@ export namespace AutoMovieSolidClip {
   }
 
   /**
-   * How many points the trim `old` removes the candidate would keep: one point beside the middle of each of the trim's segments, on the
-   * side the trim removes, a quarter of the segment's chart length off it. A candidate that removes at least what the trim did keeps none.
+   * How many points the trim `old` removes the candidate would keep: one point
+   * beside the middle of each of the trim's segments, on the side the trim
+   * removes, a quarter of the segment's chart length off it. A candidate that
+   * removes at least what the trim did keeps none.
    */
   function lost(
     old: IAutoMovieSolidCycle.ICycle,

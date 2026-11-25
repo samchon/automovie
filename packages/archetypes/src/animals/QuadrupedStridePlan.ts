@@ -7,14 +7,19 @@ import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
 import type { createQuadruped } from "./createQuadruped";
 
 /**
- * The bounded stride-phase plan of a quadruped ride: the hoof phase against film time, each stride's gait and lead, and each hoof's landing phases.
+ * The bounded stride-phase plan of a quadruped ride: the hoof phase against
+ * film time, each stride's gait and lead, and each hoof's landing phases.
  */
 export namespace QuadrupedStridePlan {
-  /** Phase cells over the course; each admits one stride decision, so capacity depends on duration rather than an asserted biological period floor. */
+  /**
+   * Phase cells over the course; each admits one stride decision, so capacity
+   * depends on duration rather than an asserted biological period floor.
+   */
   export const STEPS: number = 2000;
 
   /**
-   * One committed stride's gait, lead and explicitly selected rein-back footfalls.
+   * One committed stride's gait, lead and explicitly selected rein-back
+   * footfalls.
    */
   export interface IStride extends AutoMovieArchetypeQuadrupedGait.IStride {
     /** Backing on alternating diagonals; absent otherwise. */
@@ -22,7 +27,8 @@ export namespace QuadrupedStridePlan {
   }
 
   /**
-   * Choose the next stride from the route state at its decision and the stride before it.
+   * Choose the next stride from the route state at its decision and the stride
+   * before it.
    */
   export type Decide = (
     state: AutoMovieArchetypeCourse.IState,
@@ -30,7 +36,8 @@ export namespace QuadrupedStridePlan {
   ) => IStride;
 
   /**
-   * A moved landing: the phase one hoof's landing of one index takes instead of its gait's.
+   * A moved landing: the phase one hoof's landing of one index takes instead of
+   * its gait's.
    */
   export interface IMoved {
     /** The hoof. */
@@ -41,39 +48,27 @@ export namespace QuadrupedStridePlan {
     phase: number;
   }
 
-  /**
-   * A built plan and its readers.
-   */
+  /** A built plan and its readers. */
   export interface IPlan {
     /** The phase reached at the course end. */
     total: number;
 
-    /**
-     * The stride of an index, held at the ends for virtual neighbours.
-     */
+    /** The stride of an index, held at the ends for virtual neighbours. */
     strideOf: (index: number) => IStride;
 
-    /**
-     * The phase at a film second.
-     */
+    /** The phase at a film second. */
     phaseAt: (seconds: number) => number;
 
-    /**
-     * The film second a phase is reached.
-     */
+    /** The film second a phase is reached. */
     secondsAt: (phase: number) => number;
 
-    /**
-     * The absolute landing phase of a hoof's landing of an index.
-     */
+    /** The absolute landing phase of a hoof's landing of an index. */
     landing: (
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
       index: number,
     ) => number;
 
-    /**
-     * The index of a hoof's latest landing at or before a phase.
-     */
+    /** The index of a hoof's latest landing at or before a phase. */
     latest: (
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
       phase: number,
@@ -89,7 +84,8 @@ export namespace QuadrupedStridePlan {
    * @param initial The stride assumed before the course.
    * @param moved Landings moved by technique planners.
    * @returns The plan.
-   * @throws {AutoMovieArchetypeRefusal} Through `admitQuadrupedPhase` for an unrepresentable advance.
+   * @throws {AutoMovieArchetypeRefusal} Through `admitQuadrupedPhase` for an
+   *   unrepresentable advance.
    * @throws {RangeError} When moved landings stop a hoof's landings increasing.
    */
   export function build(
@@ -214,19 +210,34 @@ export namespace QuadrupedStridePlan {
     };
   }
   /**
-   * The turn of the landing pattern at a change of gait or lead: the shift, in strides, added to every landing from the new stride on.
+   * The turn of the landing pattern at a change of gait or lead: the shift, in
+   * strides, added to every landing from the new stride on.
    *
-   * A hoof that landed in the stride before lands next at one stride plus the new pattern's phase less the old one's, plus the shift. Its swing in between runs from the old stance's duty to that landing; a steady gait swings for one less its own duty, so the swing may take any span between the two gaits' steady spans of that hoof, and no longer or shorter. Each hoof allows an interval of shifts; the shift nearest zero in the intersection of the four is taken, so a change whose natural pattern already fits is left as it is. Where the four intervals do not meet (the patterns cannot all fit), the middle of the gap between the tightest lower and upper bounds spreads the excess evenly.
+   * A hoof that landed in the stride before lands next at one stride plus the
+   * new pattern's phase less the old one's, plus the shift. Its swing in
+   * between runs from the old stance's duty to that landing; a steady gait
+   * swings for one less its own duty, so the swing may take any span between
+   * the two gaits' steady spans of that hoof, and no longer or shorter. Each
+   * hoof allows an interval of shifts; the shift nearest zero in the
+   * intersection of the four is taken, so a change whose natural pattern
+   * already fits is left as it is. Where the four intervals do not meet (the
+   * patterns cannot all fit), the middle of the gap between the tightest lower
+   * and upper bounds spreads the excess evenly.
    *
-   * The description of a gait by each foot's duty factor and the phase of its landing in the stride is Hildebrand's (M. Hildebrand, "Symmetrical gaits of horses", Science 150(3697):701-708, 1965; "Analysis of asymmetrical gaits", Journal of Mammalogy 58(2):131-156, 1977). A change of gait is a change of those phases and duties, and a foot's swing is the stride less its duty, so the swing across a change is bounded by the two gaits' own values.
+   * The description of a gait by each foot's duty factor and the phase of its
+   * landing in the stride is Hildebrand's (M. Hildebrand, "Symmetrical gaits of
+   * horses", Science 150(3697):701-708, 1965; "Analysis of asymmetrical gaits",
+   * Journal of Mammalogy 58(2):131-156, 1977). A change of gait is a change of
+   * those phases and duties, and a foot's swing is the stride less its duty, so
+   * the swing across a change is bounded by the two gaits' own values.
    *
    * @param species The ride's species and table.
    * @param was The stride before the change.
    * @param will The stride after it.
    * @param before The old gait's timing at the change.
    * @param after The new gait's timing at the change.
-   * @returns The shift in strides; zero when nothing changes or a rein-back is involved.
-   *
+   * @returns The shift in strides; zero when nothing changes or a rein-back is
+   *   involved.
    */
   function gaitChangeShift(
     species: createQuadruped.ISpecies,
@@ -265,11 +276,16 @@ export namespace QuadrupedStridePlan {
   }
 
   /**
-   * The ride's stride events: every hoof landing, `<limb>On`, and each change of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the left fore's landing that starts the stride where it takes effect, which a shift at a change (`gaitChangeShift`) may move off the stride's integer phase.
+   * The ride's stride events: every hoof landing, `<limb>On`, and each change
+   * of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the left
+   * fore's landing that starts the stride where it takes effect, which a shift
+   * at a change (`gaitChangeShift`) may move off the stride's integer phase.
    *
    * @param plan The built stride plan.
-   * @param standing Whether the ride departs from standing, so the hooves' phase-zero landings are the neutral stance and not events.
-   * @param slide Film second hind landings stop being events because an arena slide holds the hinds down; Infinity without one.
+   * @param standing Whether the ride departs from standing, so the hooves'
+   *   phase-zero landings are the neutral stance and not events.
+   * @param slide Film second hind landings stop being events because an arena
+   *   slide holds the hinds down; Infinity without one.
    * @returns The events in limb then stride order.
    */
   export function events(
@@ -306,9 +322,7 @@ export namespace QuadrupedStridePlan {
     return result;
   }
 
-  /**
-   * One named film-second event of the stride plan.
-   */
+  /** One named film-second event of the stride plan. */
   export interface IEvent {
     /** Film second. */
     seconds: number;

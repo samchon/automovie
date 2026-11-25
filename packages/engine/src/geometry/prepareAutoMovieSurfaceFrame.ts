@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
 
 /**
@@ -13,30 +14,23 @@ import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame
  * Their centroid is the origin, point 0 to point 1 is forward, and the ordered
  * edge cross product supplies the normal. Optional referenceNormal chooses its
  * sign; a zero, nonfinite or exactly perpendicular reference refuses. It does
- * not tilt the triangle. The frozen result owns its coordinates independently
- * of subsequent input edits. Finite inputs whose differences or coordinates
+ * not tilt the triangle. The result owns its coordinates independently of
+ * subsequent input edits. Finite inputs whose differences or coordinates
  * overflow refuse; near-collinearity remains a binary64 conditioning limit.
  */
 export function prepareAutoMovieSurfaceFrame(
   points: readonly IAutoMovieVector3[],
   referenceNormal?: IAutoMovieVector3,
 ): IAutoMoviePreparedSurfaceFrame {
-  if (
-    points.length !== 3 ||
-    points.some(
-      (point: IAutoMovieVector3): boolean =>
-        ![point.x, point.y, point.z].every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "Surface preparation requires exactly three finite points.",
-    );
+  if (points.length !== 3)
+    throw new Error("Surface preparation requires exactly three points.");
 
   const first: IAutoMovieVector3 = Vector3.subtract(points[1], points[0]);
   const second: IAutoMovieVector3 = Vector3.subtract(points[2], points[0]);
+  // Differences of finite points can overflow binary64.
   if (
-    ![first.x, first.y, first.z, second.x, second.y, second.z].every(
-      Number.isFinite,
+    [first.x, first.y, first.z, second.x, second.y, second.z].some(
+      overflowsBinary64,
     )
   )
     throw new Error("Surface point differences exceed finite coordinates.");
@@ -46,12 +40,7 @@ export function prepareAutoMovieSurfaceFrame(
     Vector3.normalize(second),
   );
   if (referenceNormal !== undefined) {
-    if (
-      ![referenceNormal.x, referenceNormal.y, referenceNormal.z].every(
-        Number.isFinite,
-      ) ||
-      Vector3.length(referenceNormal) === 0
-    )
+    if (Vector3.length(referenceNormal) === 0)
       throw new Error("Surface reference normal must be finite and nonzero.");
 
     const alignment: number = Vector3.dot(
@@ -82,18 +71,18 @@ export function prepareAutoMovieSurfaceFrame(
         y: Vector3.dot(delta, basis.y),
         z: Vector3.dot(delta, basis.normal),
       };
-      if (![offset.x, offset.y, offset.z].every(Number.isFinite))
+      if ([offset.x, offset.y, offset.z].some(overflowsBinary64))
         throw new Error("Surface offsets exceed finite coordinates.");
-      return Object.freeze(offset);
+      return offset;
     },
   );
-  const frame: IAutoMovieSurfaceFrame = Object.freeze({
-    origin: Object.freeze(basis.origin),
-    forward: Object.freeze(basis.x),
-    normal: Object.freeze(basis.normal),
-  });
-  return Object.freeze({
+  const frame: IAutoMovieSurfaceFrame = {
+    origin: basis.origin,
+    forward: basis.x,
+    normal: basis.normal,
+  };
+  return {
     frame,
-    offsets: Object.freeze([offsets[0], offsets[1], offsets[2]] as const),
-  });
+    offsets: [offsets[0], offsets[1], offsets[2]] as const,
+  };
 }

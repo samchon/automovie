@@ -1,8 +1,6 @@
 import type { EvidenceMetadataRewriteOwnership } from "../../EvidenceMetadataRewriteOwnership";
 
-/**
- * Rejects an untyped caller that did not declare one exact mutable region.
- */
+/** Rejects an untyped caller that did not declare one exact mutable region. */
 export function metadataOwnership(
   ownership: EvidenceMetadataRewriteOwnership,
 ): EvidenceMetadataRewriteOwnership {

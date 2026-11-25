@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { DEPTH_NORMALIZATION_RANGE } from "./DEPTH_NORMALIZATION_RANGE.js";
 import { EDGE_WIDTH } from "./EDGE_WIDTH.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
@@ -25,9 +26,9 @@ import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurf
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
   object: THREE.Object3D,
 ): boolean =>
-  (object as THREE.Line).isLine === true ||
-  (object as THREE.Points).isPoints === true ||
-  (object as THREE.Sprite).isSprite === true;
+  AutoMovieThreeKind.isLine(object) ||
+  AutoMovieThreeKind.isPoints(object) ||
+  AutoMovieThreeKind.isSprite(object);
 
 /**
  * Hide every currently-visible non-mesh renderable in the scene (grids and
@@ -179,9 +180,9 @@ export const applyRenderMode: (
               (
                 original: THREE.Material | THREE.Material[],
               ): THREE.Material | THREE.Material[] =>
-                Array.isArray(original)
-                  ? original.map(createAutoMovieAlbedoMaterial)
-                  : createAutoMovieAlbedoMaterial(original),
+                AutoMovieThreeKind.isMaterial(original)
+                  ? createAutoMovieAlbedoMaterial(original)
+                  : original.map(createAutoMovieAlbedoMaterial),
             );
         default:
           throw new Error(`unknown render mode "${String(mode)}"`);

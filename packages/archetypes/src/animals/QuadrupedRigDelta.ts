@@ -22,9 +22,7 @@ const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   ),
 ];
 
-/**
- * Internal shared rigid-frame admission and carrier delta arithmetic.
- */
+/** Internal shared rigid-frame admission and carrier delta arithmetic. */
 export namespace QuadrupedRigDelta {
   /**
    * Compute one admitted carrier delta per bone.
@@ -32,7 +30,8 @@ export namespace QuadrupedRigDelta {
    * @param neutral Complete neutral world frames of the source rig.
    * @param current Complete current world frames of that same rig.
    * @returns Fresh rigid maps from original coordinates to current coordinates.
-   * @throws {RangeError} For incomplete/unknown vocabularies, invalid rigid frames or unrepresentable derived translations.
+   * @throws {RangeError} For incomplete/unknown vocabularies, invalid rigid
+   *   frames or unrepresentable derived translations.
    */
   export function between(
     neutral: ReadonlyMap<
@@ -79,10 +78,6 @@ export namespace QuadrupedRigDelta {
         now.translation,
         Quaternion.rotateVector(rotation, old.translation),
       );
-      if (![translation.x, translation.y, translation.z].every(Number.isFinite))
-        throw new RangeError(
-          `Quadruped ${bone} has an unrepresentable carrier delta`,
-        );
       deltas.set(bone, { rotation, translation });
     }
     return deltas;
@@ -96,7 +91,8 @@ export namespace QuadrupedRigDelta {
    * @param deltas The complete admitted carrier maps.
    * @param id Source part/contact identity retained in a refusal.
    * @returns A new current rigid frame without retaining or changing its input.
-   * @throws {RangeError} For missing carriers or invalid/unrepresentable frames.
+   * @throws {RangeError} For missing carriers or invalid/unrepresentable
+   *   frames.
    */
   export function move(
     frame: IAutoMovieTransform,
@@ -125,15 +121,13 @@ export namespace QuadrupedRigDelta {
     if (frame === undefined || frame === null)
       throw new RangeError(`Quadruped ${id} has no rigid frame`);
     for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(frame.translation[axis]) || frame.scale[axis] !== 1)
+      if (frame.scale[axis] !== 1)
         throw new RangeError(
           `Quadruped ${id} requires a finite unit-scale frame`,
         );
     const q: IAutoMovieTransform["rotation"] = frame.rotation;
     const length: number = Math.hypot(q.x, q.y, q.z, q.w);
-    if (
-      !(Number.isFinite(length) && Math.abs(length - 1) <= 64 * Number.EPSILON)
-    )
+    if (!(Math.abs(length - 1) <= 64 * Number.EPSILON))
       throw new RangeError(`Quadruped ${id} requires a unit rotation`);
   }
 }

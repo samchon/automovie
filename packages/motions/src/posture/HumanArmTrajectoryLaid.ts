@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
@@ -8,37 +8,27 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
-import { HumanArmTrajectoryBridge } from "./HumanArmTrajectoryBridge";
 import { HumanArmTrajectoryClear as Clear } from "./HumanArmTrajectoryClear";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
-import { HumanArmTrajectoryEffector } from "./HumanArmTrajectoryEffector";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
+import { HumanArmTrajectoryLay } from "./HumanArmTrajectoryLay";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
-import { HumanArmTrajectoryRetime } from "./HumanArmTrajectoryRetime";
+import { HumanArmTrajectoryRetimeLaid } from "./HumanArmTrajectoryRetimeLaid";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
 /**
- * An arms' course laid without optimisation and read by the trajectory
- * model (`HumanArmTrajectory.admitted`): kept when the model admits it,
- * the optimiser's seed and frame grid when not.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the module lays, who reads it and what becomes of it either way.
- * @evidence contracts/development/design.md#principled-representation The course as the arms' coordinates on the frame grid's instants, its verdict and the context it was read on.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The record and its one producer, read through `HumanArmTrajectory` by ArmCourse and ArmPlanned.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No bound is the course's own: the admission is the model's evaluation.
+ * An arms' course laid without optimisation and read by the trajectory model
+ * (`HumanArmTrajectory.admitted`): kept when the model admits it, the
+ * optimiser's seed and frame grid when not.
  */
 export namespace HumanArmTrajectoryLaid {
   /**
-   * A laid course as `admitted` read it, and what that reading built, which
-   * a following `HumanArmTrajectory.solve` of the same problem reads instead
-   * of building it again.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, when the course is kept and what the reading's context is for.
-   * @evidence contracts/development/design.md#principled-representation The course's readers, its verdict with the refusing term, and the frame grid's context the verdict was read on.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface ArmPlanned reads the verdict and the readers, ArmCourse the refusing term, and `solve` the reading.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The context is the model's own record, handed on whole; no part of it is restated.
+   * A laid course as `admitted` read it, and what that reading built, which a
+   * following `HumanArmTrajectory.solve` of the same problem reads instead of
+   * building it again.
    */
   export interface IAdmitted {
     /** Each arm's trajectory through the course, in the problem's order. */
@@ -47,15 +37,25 @@ export namespace HumanArmTrajectoryLaid {
     /** Whether the model admits the course. */
     admitted: boolean;
 
-    /** The model term that refuses the course (`M.IEvaluation.worst.term`); empty when admitted. */
+    /**
+     * The model term that refuses the course (`M.IEvaluation.worst.term`);
+     * empty when admitted.
+     */
     refused: string;
 
-    /** The reading: the context builder bound to the problem's body and arms (`HumanArmTrajectoryContext.prepare`) and the context of the course's waypoints, in the mirror image `solve` reads the problem in. */
+    /**
+     * The reading: the context builder bound to the problem's body and arms
+     * (`HumanArmTrajectoryContext.prepare`) and the context of the course's
+     * waypoints, in the mirror image `solve` reads the problem in.
+     */
     read: IRead;
   }
 
   /** The prepared inputs and verdict shared by admission and fallback. */
   interface IRead {
+    /** The input in the frame the context was prepared in. */
+    readonly problem: HumanArmTrajectory.IProblem;
+
     /** The context builder. */
     of: ReturnType<typeof HumanArmTrajectoryContext.prepare>;
 
@@ -65,56 +65,65 @@ export namespace HumanArmTrajectoryLaid {
     /** The course's coordinates at those waypoints, each arm's. */
     x: number[][][];
 
-    /** The model's reading of the course there; absent for a stretch cut from a refused course (`HumanArmTrajectory.solve`), which is solved from that course alone. */
+    /** The bounded rates given to the returned trajectory reader. */
+    rates?: Knots.IRates;
+
+    /**
+     * The model's reading of the course there; absent for a stretch cut from a
+     * refused course (`HumanArmTrajectory.solve`), which is solved from that
+     * course alone.
+     */
     evaluation?: M.IEvaluation;
   }
+
+  /** The inputs shared by every admission of a different hold in one problem. */
+  type IPrepared = Pick<IRead, "problem" | "of" | "context">;
+
+  /** Each arm's coordinates at authored hold waypoints, in problem order. */
+  type IHeld = readonly (readonly (
+    | IAutoMovieMotionHumanArmClearance.IArm
+    | undefined
+  )[])[];
 
   /**
    * A course laid without optimisation, admitted when it meets what a solved
    * trajectory must meet. The caller gives each arm on the hold, where its
-   * goal's fit puts it; the reach and the return are laid here, in the
-   * model's own coordinates (`G.encode`: the upper arm on its swing-twist
-   * chart, so no clinical alias turns a continuous arm into a jump): every
-   * arm of the group blended on one share from its rest to its arm at the
-   * hold's first waypoint, and from the hold's last to its return. The
-   * share is timed along the arc of the fastest bounded probe
-   * (`T.SPEED`: elbow, wrist, fingertips) of any arm, using minimum jerk
-   * (Flash and Hogan 1985). The straight course fixes the law's own pace,
-   * `M.UNIT` times its arc over the transport's seconds. The arc is read
-   * on the first waypoint's base. The model measures actual speed on each
-   * waypoint's own base, including changes such as fingers closing.
-   * Where the reading finds a transport inside a shape past what the
-   * admission allows, the transport is laid again round a detour of its
-   * deepest waypoint (`HumanArmTrajectoryClear`), `DETOURS` rounds at most.
+   * goal's fit puts it; the reach and the return are laid here, in the model's
+   * own coordinates (`G.encode`: the upper arm on its swing-twist chart, so no
+   * clinical alias turns a continuous arm into a jump): every arm of the group
+   * blended on one share from its rest to its arm at the hold's first waypoint,
+   * and from the hold's last to its return. The share is timed along the arc of
+   * the fastest bounded probe (`T.SPEED`: elbow, wrist, fingertips) of any arm,
+   * using minimum jerk (Flash and Hogan 1985). The straight course fixes the
+   * law's own pace, `M.UNIT` times its arc over the transport's seconds. The
+   * arc is read on the first waypoint's base. The model measures actual speed
+   * on each waypoint's own base, including changes such as fingers closing.
+   * Where the reading finds a transport inside a shape past what the admission
+   * allows, the transport is laid again round a detour of its deepest waypoint
+   * (`HumanArmTrajectoryClear`), `DETOURS` rounds at most.
    *
-   * The course is read by the model's own evaluation (`M.evaluate`: every
-   * site, range, clearance, crossing and speed bound) at the problem's own
-   * waypoints, its first and its returned last waypoint the problem's rest
-   * and back, and admitted only when its worst violation is within
-   * `M.TOLERANCE`, the test `solve` refuses by. The caller gives waypoints
-   * no more than a frame apart, so the course is read on the frame grid a
-   * solved trajectory is admitted on.
+   * The course is read by the model's own evaluation (`M.evaluate`: every site,
+   * range, clearance, crossing and speed bound) at the problem's own waypoints,
+   * its first and its returned last waypoint the problem's rest and back, and
+   * admitted only when its worst violation is within `M.TOLERANCE`, the test
+   * `solve` refuses by. The caller gives waypoints no more than a frame apart,
+   * so the course is read on the frame grid a solved trajectory is admitted
+   * on.
    *
    * @param problem The problem on the course's waypoints.
-   * @param held Each arm's clinical triples at each waypoint of the hold, in the problem's order; a waypoint of the reach or the return is not read.
-   * @param tempo The explicit replan's duration multiplier. It recovers the original seconds for the law's pace, which is never held below `M.ENVELOPE`, whether or not the span stretches.
-   * @param inheritedPace The original action's speed bound in metres per second by time, retained on another contact branch.
-   * @returns The course's readers, its admission with the refusing term, and its reading; a course not admitted is `solve`'s seed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the caller gives, how the transports are laid and timed, what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
-   * @evidence contracts/development/implementation.md#principled-implementation A joint-space blend in the optimiser's own coordinates, time-scaled along the fastest probe's arc under the speed bound, read by the same context, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, the hold's encoding, two transports, one evaluation, then the shared playback factory.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, a forward pass through the waypoints and arc samples, and one model evaluation. A collision can add one Jacobian reading per detoured arm and one evaluation of only the waypoints replaced in that round, up to `DETOURS` rounds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's placement and evaluation and `solve`'s playback, so both paths are read alike; the builder and the context are returned for `solve` to read the same grid on.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The arc's samples live until return; the readers keep only setups, times and coordinates, as `solve`'s do, and the reading's context lives while the caller holds the result.
+   * @param held Each arm's clinical triples at each waypoint of the hold, in
+   *   the problem's order; a waypoint of the reach or the return is not read.
+   * @param tempo The explicit replan's duration multiplier. It recovers the
+   *   original seconds for the law's pace, which is never held below
+   *   `M.ENVELOPE`, whether or not the span stretches.
+   * @param inheritedPace The original action's speed bound in metres per second
+   *   by time, retained on another contact branch.
+   * @returns The course's readers, its admission with the refusing term, and
+   *   its reading; a course not admitted is `solve`'s seed.
    */
   export function admitted(
     problem: HumanArmTrajectory.IProblem,
-    held: readonly (readonly (
-      | IAutoMovieMotionHumanArmClearance.IArm
-      | undefined
-    )[])[],
+    held: IHeld,
     tempo: number = 1,
     inheritedPace?: M.IContext["speed"],
   ): IAdmitted {
@@ -131,7 +140,49 @@ export namespace HumanArmTrajectoryLaid {
           (arm: HumanArmTrajectory.IArm): AutoMovieHumanSide => arm.side,
         ),
       );
-    const context: M.IContext = of(read);
+    return layCourse(
+      { problem: read, of, context: of(read) },
+      held,
+      tempo,
+      inheritedPace,
+    );
+  }
+
+  /**
+   * Admit a changed hold on its original frames, sites, and pace. Lay the
+   * transports again and read the entire new path in those prepared frames.
+   *
+   * @param course The original laid course of the same canonical problem.
+   * @param held The replacement hold in the course's arm order.
+   * @param tempo The explicit replan's duration multiplier.
+   * @returns A fresh admission of the replacement hold.
+   */
+  export function readmit(
+    course: IAdmitted,
+    held: IHeld,
+    tempo: number = 1,
+  ): IAdmitted {
+    return layCourse(
+      course.read,
+      held,
+      tempo,
+      course.read.context.speed,
+      course.read,
+    );
+  }
+
+  /** Lay, time and certify the path on the prepared problem's frames. */
+  function layCourse(
+    prepared: IPrepared,
+    held: IHeld,
+    tempo: number,
+    inheritedPace: M.IContext["speed"] | undefined,
+    earlier?: IRead,
+  ): IAdmitted {
+    const { problem: read, of } = prepared;
+    // A course owns only its pace and candidate coordinates. Its geometry,
+    // sites and pair readers are fixed by the canonical problem.
+    const context: M.IContext = { ...prepared.context };
     const n: number = context.n;
     const times: readonly number[] = context.times;
     const hold: number[] = [];
@@ -168,149 +219,19 @@ export namespace HumanArmTrajectoryLaid {
                   : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
         ),
     );
-    const mix = (
-      p: readonly number[],
-      q: readonly number[],
-      w: number,
-    ): number[] => p.map((v: number, d: number): number => v + (q[d]! - v) * w);
-
-    // One transport between two waypoints already laid, on the blend of its
-    // ends and the detours laid on it (`HumanArmTrajectoryClear`): the arcs
-    // are read on the base of its first waypoint, the arms' own travel.
-    // Returns the share of the path each of its waypoints stands at.
-    // The pace is the law's own on the transport: `UNIT` times its straight
-    // arc (no detour) over its seconds, read where it is first laid.
-    interface ILaid {
-      /** Each waypoint's progress along this transport. */
-      shares: number[];
-      /** The original joint arc's speed bound, metres per second. */
-      pace: number;
-      /** The transport follows a straight wrist path in the carrier frame. */
-      effector: boolean;
-    }
-    const lay = (
+    const scope: HumanArmTrajectoryLay.IScope = { context, read, x, times };
+    const lay: (
       from: number,
       to: number,
       detours: readonly Clear.IDetour[],
       known?: number,
-    ): ILaid => {
-      const shares: number[] = [];
-      shares[from] = 0;
-      shares[to] = 1;
-      const seconds: number = times[to]! - times[from]!;
-      if (!(seconds > 0)) return { shares, pace: known ?? 0, effector: false };
-      const ends: [readonly number[], readonly number[]][] = x.map(
-        (arm: number[][]): [readonly number[], readonly number[]] => [
-          arm[from]!,
-          arm[to]!,
-        ],
-      );
-      const path = (a: number, share: number): number[] => {
-        const out: number[] = mix(ends[a]![0], ends[a]![1], share);
-        for (const detour of detours) {
-          const w: number = Clear.bump(share, detour.share);
-          if (w > 0)
-            detour.delta[a]!.forEach((v: number, d: number): void => {
-              out[d]! += w * v;
-            });
-        }
-        return out;
-      };
-      const placed = (
-        share: number,
-      ): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
-        ends.map(
-          (
-            _: [readonly number[], readonly number[]],
-            a: number,
-          ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-            G.placed(
-              context.setups[a]!,
-              context.frames[a]![from]!,
-              M.ranged(context, a, path(a, share)),
-              false,
-            ),
-        );
-      const along: number[] = [0];
-      let before: IAutoMovieMotionHumanArmGeometry.IPlaced[] = placed(0);
-      for (let s: number = 1; s <= ARC; ++s) {
-        const now: IAutoMovieMotionHumanArmGeometry.IPlaced[] = placed(s / ARC);
-        let step: number = 0;
-        now.forEach(
-          (arm: IAutoMovieMotionHumanArmGeometry.IPlaced, a: number): void => {
-            for (const p of T.SPEED)
-              step = Math.max(
-                step,
-                Vector3.length(
-                  Vector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0]),
-                ),
-              );
-          },
-        );
-        along.push(along[s - 1]! + step);
-        before = now;
-      }
-      const arc: number = along[ARC]!;
-      const pace: number = known ?? (M.UNIT * arc) / seconds;
-
-      // A single interval has a pace but no interior waypoint to lay.
-      if (to - from === 1) return { shares, pace, effector: false };
-
-      // A straight wrist path is the first option. Its endpoints are
-      // expressed in their own carrier frames, so a moving base never
-      // changes the path the arm itself takes. The joint arc retains the
-      // original pace and is the alternative when the wrist path fails.
-      if (known === undefined) {
-        const solvers: ReturnType<typeof HumanArmTrajectoryEffector>[] =
-          ends.map(
-            (
-              [p, q],
-              a: number,
-            ): ReturnType<typeof HumanArmTrajectoryEffector> =>
-              HumanArmTrajectoryEffector(
-                context.setups[a]!,
-                { frame: context.frames[a]![from]!, coordinates: p },
-                { frame: context.frames[a]![to]!, coordinates: q },
-                read.arms[a]!.sites[from]?.rotation !== undefined ? read.arms[a]!.sites[from]!.contact
-                  : read.arms[a]!.sites[to]?.rotation !== undefined ? read.arms[a]!.sites[to]!.contact : undefined,
-              ),
-          );
-        const tried: number[][][] | undefined = HumanArmTrajectoryBridge(
-          times.slice(from, to + 1), ends, solvers, path,
-        );
-        if (tried !== undefined) {
-          for (let k: number = from + 1; k < to; ++k) {
-            shares[k] = minimumJerk.share((times[k]! - times[from]!) / seconds);
-            x.forEach((arm: number[][], a: number): void => {
-              arm[k] = M.ranged(context, a, tried[a]![k - from]!);
-            });
-          }
-          return { shares, pace, effector: true };
-        }
-      }
-
-      // The waypoints on the minimum-jerk time law of the arc (Flash and
-      // Hogan 1985): the share of the arc reached at a share `w` of the span
-      // is `10 w^3 - 15 w^4 + 6 w^5`, whose peak speed is `M.UNIT` times the
-      // arc over the span, the law's own pace on a straight lay. A detour's
-      // longer arc, or a base whose own change adds to a probe's step, can
-      // pass the pace; the reading below refuses that stretch to the
-      // optimiser, which alone may leave the closed form.
-      let s: number = 1;
-      for (let k: number = from + 1; k < to; ++k) {
-        const w: number = (times[k]! - times[from]!) / seconds;
-        const reached: number = arc * minimumJerk.share(w);
-        while (s < ARC && along[s]! < reached) ++s;
-        const span: number = along[s]! - along[s - 1]!;
-        const share: number =
-          (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) / ARC;
-        shares[k] = share;
-        x.forEach((arm: number[][], a: number): void => {
-          arm[k] = M.ranged(context, a, path(a, share));
-        });
-      }
-      return { shares, pace, effector: false };
-    };
+    ) => HumanArmTrajectoryLay.ILaid = (
+      from: number,
+      to: number,
+      detours: readonly Clear.IDetour[],
+      known?: number,
+    ): HumanArmTrajectoryLay.ILaid =>
+      HumanArmTrajectoryLay(scope, from, to, detours, known);
 
     // The reach and the return laid on their blends, then each laid again
     // round the deepest waypoint the reading finds inside a shape past what
@@ -324,7 +245,7 @@ export namespace HumanArmTrajectoryLaid {
       from: number;
       to: number;
       detours: Clear.IDetour[];
-      laid: ILaid;
+      laid: HumanArmTrajectoryLay.ILaid;
       region: number;
       depth?: number;
       last: number;
@@ -351,41 +272,48 @@ export namespace HumanArmTrajectoryLaid {
     // gives it) and the two transports'. A transport the law does not move
     // takes the fastest of the others; an arm the law moves nowhere has no
     // pace to keep and none bounds it.
-    const holding: number = inheritedPace === undefined ? ((): number => {
-      let most: number = 0;
-      x.forEach((arm: number[][], a: number): void => {
-        let previous: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined;
-        for (let k: number = first; first < last && k <= last; ++k) {
-          const before: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined =
-            previous;
-          previous =
-            arm[k]!.length === 0
-              ? undefined
-              : G.placed(
-                  context.setups[a]!,
-                  context.frames[a]![k]!,
-                  arm[k]!,
-                  false,
-                );
-          if (before === undefined || previous === undefined) continue;
-          for (const p of T.SPEED)
-            most = Math.max(
-              most,
-              Vector3.length(
-                V.step(
-                  context.frames[a]![k - 1]!,
-                  context.frames[a]![k]!,
-                  before.probes[p]![0],
-                  previous.probes[p]![0],
-                ),
-              ) /
-                (times[k]! - times[k - 1]!),
-            );
-        }
-      });
-      return most;
-    })() : 0;
-    const [reach, back]: ITransport[] = transports as [ITransport, ITransport];
+    const holding: number =
+      inheritedPace === undefined
+        ? ((): number => {
+            let most: number = 0;
+            x.forEach((arm: number[][], a: number): void => {
+              let previous:
+                | IAutoMovieMotionHumanArmGeometry.IPlaced
+                | undefined;
+              for (let k: number = first; first < last && k <= last; ++k) {
+                const before:
+                  | IAutoMovieMotionHumanArmGeometry.IPlaced
+                  | undefined = previous;
+                previous =
+                  arm[k]!.length === 0
+                    ? undefined
+                    : G.placed(
+                        context.setups[a]!,
+                        context.frames[a]![k]!,
+                        arm[k]!,
+                        false,
+                      );
+                if (before === undefined || previous === undefined) continue;
+                for (const p of T.SPEED)
+                  most = Math.max(
+                    most,
+                    Vector3.length(
+                      V.step(
+                        context.frames[a]![k - 1]!,
+                        context.frames[a]![k]!,
+                        before.probes[p]![0],
+                        previous.probes[p]![0],
+                      ),
+                    ) /
+                      (times[k]! - times[k - 1]!),
+                  );
+              }
+            });
+            return most;
+          })()
+        : 0;
+    const reach: ITransport = transports[0]!;
+    const back: ITransport = transports[1]!;
     const widest: number = Math.max(reach.laid.pace, back.laid.pace, holding);
     // The course may move as fast as a daily reach's fastest hand
     // (`M.ENVELOPE`) where the law's own pace is slower, whether or not its
@@ -400,14 +328,38 @@ export namespace HumanArmTrajectoryLaid {
     const onHold: number = paced(widest);
     const reachPace: number = paced(reach.laid.pace);
     const backPace: number = paced(back.laid.pace);
-    context.speed = inheritedPace ?? ((seconds: number): number =>
-      seconds <= times[first]!
-        ? reachPace
-        : seconds >= times[last]!
-          ? backPace
-          : onHold);
+    context.speed =
+      inheritedPace ??
+      ((seconds: number): number =>
+        seconds <= times[first]!
+          ? reachPace
+          : seconds >= times[last]!
+            ? backPace
+            : onHold);
 
-    let reading: M.IEvaluation = M.evaluate(context, x);
+    // The earlier reading shares this exact clock, pace and geometry. Mark
+    // any changed coordinate so evaluation also rereads the adjacent sweep
+    // windows that use it.
+    let kept: Parameters<typeof M.evaluate>[2] = undefined;
+    if (earlier?.evaluation !== undefined) {
+      const laid: boolean[] = times.map(
+        (_: number, k: number): boolean =>
+          x.some((arm: number[][], a: number): boolean => {
+            const before: number[] = earlier.x[a]![k]!;
+            const after: number[] = arm[k]!;
+            return (
+              before.length !== after.length ||
+              after.some(
+                (value: number, d: number): boolean =>
+                  !Object.is(value, before[d]),
+              )
+            );
+          }),
+      );
+      if (laid.some((changed: boolean): boolean => !changed))
+        kept = { reading: earlier.evaluation, laid };
+    }
+    let reading: M.IEvaluation = M.evaluate(context, x, kept);
     const relaid: boolean[] = new Array<boolean>(n).fill(false);
     for (const t of transports) {
       if (
@@ -474,25 +426,41 @@ export namespace HumanArmTrajectoryLaid {
       if (!moved) break;
       reading = M.evaluate(context, x, { reading, laid });
     }
-    reading = HumanArmTrajectoryRetime(context, x, reading, transports, mix);
+    reading = HumanArmTrajectoryRetimeLaid(
+      context,
+      x,
+      reading,
+      transports,
+      HumanArmTrajectoryLay.blend,
+    );
     const worst: M.IEvaluation["worst"] = reading.worst;
+    const rates: Knots.IRates = Knots.bounded(context, x);
     return {
-      trajectories: problem.arms.map(
+      trajectories: read.arms.map(
         (
           _: HumanArmTrajectory.IArm,
           a: number,
         ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-          HumanArmTrajectoryPlayback(context.setups, context.times, x, a),
+          HumanArmTrajectoryPlayback(
+            context.setups,
+            context.times,
+            x,
+            a,
+            rates,
+          ),
       ),
       admitted: worst.value <= M.TOLERANCE,
       refused: worst.value <= M.TOLERANCE ? "" : worst.term,
-      read: { of, context, x, evaluation: reading },
+      read: { problem: read, of, context, x, rates, evaluation: reading },
     };
   }
 }
 
-/** The samples a laid transport's arc is read on (provisional: under a degree of any joint's travel apiece on a daily reach). */
-const ARC: number = 48;
-
-/** The detours a laid course's transports are laid round at most, each round one per transport at its deepest waypoint: the detour is the pairs' linearisation, so a pair nonlinear past it is met by the next round, and a course still inside a shape after them is the optimiser's seed (provisional). */
+/**
+ * The detours a laid course's transports are laid round at most, each round one
+ * per transport at its deepest waypoint: the detour is the pairs'
+ * linearisation, so a pair nonlinear past it is met by the next round, and a
+ * course still inside a shape after them is the optimiser's seed
+ * (provisional).
+ */
 const DETOURS: number = 10;

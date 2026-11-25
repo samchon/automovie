@@ -1,11 +1,12 @@
 import type { IAutoMovieHumanExtremityDimensions } from "../body/IAutoMovieHumanExtremityDimensions";
 
 /**
- * Calibration leg tapes, body controls and optional measured gluteal-furrow height. Runtime construction and admission remain with AutoMovieHumanLegConstruction in Human.
+ * Calibration leg tapes, body controls and optional measured gluteal-furrow
+ * height. Runtime construction and admission remain with
+ * AutoMovieHumanLegConstruction in Human.
  */
 export namespace IAutoMovieHumanLegConstruction {
-  /** Tape measures a leg reads, in the same millimetres as the calibration.
-   */
+  /** Tape measures a leg reads, in the same millimetres as the calibration. */
   export interface IInputs {
     /** Calf tape. */
     calf: number;

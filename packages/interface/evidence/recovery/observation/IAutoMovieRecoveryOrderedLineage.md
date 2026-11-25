@@ -1,21 +1,3 @@
-# src/recovery/observation/IAutoMovieRecoveryOrderedLineage.ts#IAutoMovieRecoveryOrderedLineage
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Members document original versus local addresses, physical units, caller byte verification, unavailable maps and the limits of replay qualification.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Original source/selection identities and saved-plane addresses distinguish raw cut incidence from equality-gated cubic replay correspondence.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-observeCuts and bindSavedFits consume IAutoMovieRecoveryOrderedLineage records; the host remains responsible for verifying actual bytes.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A new accepted replay trace proves saved numeric cubic equality only, never historical trace identity, material phase or a replacement fitted surface.
-
 # src/recovery/observation/IAutoMovieRecoveryOrderedLineage.ts#IAutoMovieRecoveryOrderedLineage.Input
 
 ## @evidence contracts/development/design.md#principled-representation

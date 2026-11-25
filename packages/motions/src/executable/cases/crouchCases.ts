@@ -10,36 +10,27 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the crouch, squat and kneel family (#3215), each performed
- * alone from quiet standing on the polygon man.
+ * Capture cases of the crouch, squat and kneel family, each performed alone
+ * from quiet standing on the polygon man.
  *
- * Every case reports foot slip at most 5 mm in the plant windows, each
- * planted foot within 5 mm of the floor and no range-of-motion overshoot.
- * Beyond that:
+ * Every case reports foot slip at most 5 mm in the plant windows, each planted
+ * foot within 5 mm of the floor and no range-of-motion overshoot. Beyond that:
  *
- * - `crouch-partial` and `crouch-full`: the knee flexion at `lowest` inside
- *   the depth's band (the high-flexion band of 140 to 157 degrees for the
- *   full squat, Hemmerich et al. 2006 and Acker et al. 2011; below 140 for the
- *   partial one), and the dynamic margin of stability not negative through
- *   the whole action (Hof et al. 2005).
- * - `kneel-one`, `kneel-both` and `kneel-sitBack`: at `kneeContact` the
- *   kneeling shank's lowest collider point within -10 to +15 mm of the floor
- *   and the knee joint within 15 mm horizontally of the hip joint above it,
- *   its planned floor point; the kneeling shank never below the floor by more
- *   than 10 mm; the margin of stability not negative from the start to the
- *   end of the step back (before the knee bears); and for sitting back the
- *   knee flexion at `seatOnHeels` inside the high-flexion band.
+ * - `crouch-partial` and `crouch-full`: the knee flexion at `lowest` inside the
+ *   depth's band (the high-flexion band of 140 to 157 degrees for the full
+ *   squat, Hemmerich et al. 2006 and Acker et al. 2011; below 140 for the
+ *   partial one), and the dynamic margin of stability not negative through the
+ *   whole action (Hof et al. 2005).
+ * - `kneel-one`, `kneel-both` and `kneel-sitBack`: at `kneeContact` the kneeling
+ *   shank's lowest collider point within -10 to +15 mm of the floor and the
+ *   knee joint within 15 mm horizontally of the hip joint above it, its planned
+ *   floor point; the kneeling shank never below the floor by more than 10 mm;
+ *   the margin of stability not negative from the start to the end of the step
+ *   back (before the knee bears); and for sitting back the knee flexion at
+ *   `seatOnHeels` inside the high-flexion band.
  *
  * @param bodies The sweep bodies to run each case on; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance and measures its displayed bones.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One block per law over the shared case kit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read displayed poses, never the laws' goals.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case and body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function crouchCases(
   bodies: readonly string[] = ["m-average"],
@@ -55,7 +46,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "crouch",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crouch", params),
+          HumanChain.subject("a").act("crouch", params).node,
         );
       const lowest: number = FamilyCaseKit.event(performance, "lowest");
       const knee: number = Math.max(
@@ -102,7 +93,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "kneel",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("kneel", params),
+          HumanChain.subject("a").act("kneel", params).node,
         );
       const contact: number = FamilyCaseKit.event(performance, "kneeContact");
       const settled: number = FamilyCaseKit.event(performance, "settled");

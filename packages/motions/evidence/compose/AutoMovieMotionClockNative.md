@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Owns validated named times, the clock's query closures and the fixed-window and envelope readers; the public Clock facade keeps the vocabulary.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A constructor-owned map fixes action-local seconds for the clock's life, so a window's two instants are constants of it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Construction and the two prepared readers the facade exposes; nothing else.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No sampled value, pose or callback result is kept; no action family receives a branch.
-
-# src/compose/AutoMovieMotionClockNative.ts#AutoMovieMotionClockNative.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 Defines positive duration, unique and reserved names, the 1e-9 s endpoint allowance, sorted instants, unknown-name errors and fresh event records.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

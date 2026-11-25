@@ -2,13 +2,19 @@ import * as fs from "node:fs/promises";
 
 import { planAutoMovieChromiumLaunch } from "./planAutoMovieChromiumLaunch";
 
-/** Milliseconds the page may take to load and show its controls: ten minutes, room for a film that prepares its performance before its first frame. */
+/**
+ * Milliseconds the page may take to load and show its controls: ten minutes,
+ * room for a film that prepares its performance before its first frame.
+ */
 const PREPARE: number = 600_000;
 
 /** Longest pause between two readings of the time readout, milliseconds. */
 const READING: number = 500;
 
-/** The time readout the inspector shows: the second and the duration, such as `1.25 / 12.00 s`. */
+/**
+ * The time readout the inspector shows: the second and the duration, such as
+ * `1.25 / 12.00 s`.
+ */
 const READOUT: RegExp = /\d+\.\d+ \/ \d+\.\d+ s/u;
 
 /** The part of `playwright-core`'s `chromium` a playback recording calls. */
@@ -60,11 +66,26 @@ interface IRecordingLocator {
 }
 
 /**
- * Record real-time playback of the running inspector page: load it, press its Play button, and record the page as a video while reading its time readout, for a person to watch.
+ * Record real-time playback of the running inspector page: load it, press its
+ * Play button, and record the page as a video while reading its time readout,
+ * for a person to watch.
  *
- * The browser draws on the GPU backend, since playback is judged in real time; the recording is Playwright's own video of the page at a 1280 by 900 viewport, which `npx playwright-core install ffmpeg` provides. The page's Play button is found by its role and name, and the readout as the `output` showing `<second> / <duration> s`, both as the inspector renders them. The readout is read at most every half second for `seconds` of wall time after the click, and the page's script errors are collected. The video begins at navigation, so it includes the page's preparation; a reading's elapsed seconds count from the click.
+ * The browser draws on the GPU backend, since playback is judged in real time;
+ * the recording is Playwright's own video of the page at a 1280 by 900
+ * viewport, which `npx playwright-core install ffmpeg` provides. The page's
+ * Play button is found by its role and name, and the readout as the `output`
+ * showing `<second> / <duration> s`, both as the inspector renders them. The
+ * readout is read at most every half second for `seconds` of wall time after
+ * the click, and the page's script errors are collected. The video begins at
+ * navigation, so it includes the page's preparation; a reading's elapsed
+ * seconds count from the click.
  *
- * An uncaught page error before the controls are ready rejects immediately with that error as its cause; every page error also prints its stack, so a failed preparation leaves a usable diagnostic. It rejects when the page shows no Play button or readout within ten minutes and when the browser produced no video. Errors during playback remain in the returned report. The browser is closed on every outcome.
+ * An uncaught page error before the controls are ready rejects immediately with
+ * that error as its cause; every page error also prints its stack, so a failed
+ * preparation leaves a usable diagnostic. It rejects when the page shows no
+ * Play button or readout within ten minutes and when the browser produced no
+ * video. Errors during playback remain in the returned report. The browser is
+ * closed on every outcome.
  */
 export async function recordAutoMoviePlayback(props: {
   /** Playwright's `chromium`, loaded from the production. */

@@ -14,26 +14,22 @@ const FIG: string =
   "FIG Apparatus Norms (2022), vault springboard: 1.20 m long, 0.60 m wide, its front edge 0.20 m high (https://www.gymnastics.sport/site/pages/education-apparatus.php)";
 
 /**
- * A vault's springboard: a board the gymnast lands on with both feet out of the run-up hurdle and takes off from toward the vaulting table.
+ * A vault's springboard: a board the gymnast lands on with both feet out of the
+ * run-up hurdle and takes off from toward the vaulting table.
  *
- * The run goes along `+Z`; the board lies centred on the origin along `Z`. `surface` is its top, `+Y` up, drawn level at the board's height (a first pass: the real board rises toward its front edge).
+ * The run goes along `+Z`; the board lies centred on the origin along `Z`.
+ * `surface` is its top, `+Y` up, drawn level at the board's height (a first
+ * pass: the real board rises toward its front edge).
  *
  * @param params Any figure the author fixes.
- * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
+ * @param seed The seed that draws each figure left free inside its band;
+ *   absent, the middle of each band.
  * @returns The springboard.
  * @throws {AutoMovieArchetypeRefusal} For a fixed figure outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame, the contact and the first pass.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the norm's length, width and front height and an upright surface contact at its top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the figures, the board, its contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The top is level rather than inclined and the springs are not modelled; the mass is an estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSpringboard(
   params: createSpringboard.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createSpringboard.Affordance,
   createSpringboard.Dimension
@@ -74,14 +70,7 @@ export function createSpringboard(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createSpringboard}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per figure, metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top, the one contact a vault's board landing reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length, width and height are the norm's; the mass is an estimate.
- */
+/** Companion types and bands of {@link createSpringboard}. */
 export namespace createSpringboard {
   /** The affordance ids: `surface`, the board's top. */
   export type Affordance = "surface";

@@ -24,10 +24,17 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * written here rather than taken from the platform, which is why no newline
  * convention can reach the bytes.
  *
- * Every field of the lineage, its subjects, revisions, phases, lifecycles, variants with their changes, decisions and derived artifacts is serialized, except a derived artifact's asset citations: on a valid lineage a citation exists for exactly the inputs that carry imported bytes, at exactly the digests those subjects declare, so both facts are already in the subject and derived lines. Citation facts are derivable; citation ordering is ignored even though a valid record can reorder that array.
+ * Every field of the lineage, its subjects, revisions, phases, lifecycles,
+ * variants with their changes, decisions and derived artifacts is serialized,
+ * except a derived artifact's asset citations: on a valid lineage a citation
+ * exists for exactly the inputs that carry imported bytes, at exactly the
+ * digests those subjects declare, so both facts are already in the subject and
+ * derived lines. Citation facts are derivable; citation ordering is ignored
+ * even though a valid record can reorder that array.
  *
  * @param lineage Lineage to digest.
- * @returns A `sha256:` digest of the canonical serialization; an invalid lineage throws an `Error` instead.
+ * @returns A `sha256:` digest of the canonical serialization; an invalid
+ *   lineage throws an `Error` instead.
  */
 export const designLineageDigest: (
   lineage: IAutoMovieDesignLineage,

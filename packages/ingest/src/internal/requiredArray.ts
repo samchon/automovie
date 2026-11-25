@@ -1,6 +1,4 @@
-/**
- * Require an actual JSON array at a named external-document path.
- */
+/** Require an actual JSON array at a named external-document path. */
 export const requiredArray: (value: unknown, path: string) => unknown[] = (
   value: unknown,
   path: string,

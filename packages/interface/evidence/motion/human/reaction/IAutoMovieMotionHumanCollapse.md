@@ -1,21 +1,3 @@
-# src/motion/human/reaction/IAutoMovieMotionHumanCollapse.ts#IAutoMovieMotionHumanCollapse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each direction's path and terminal pose, the two tones, the sag and the floor rest, with their sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed unions for the direction, the side and the tone, a blow source and seconds; the law refuses a sideways fall without a side it can read.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameters the registered `collapse` law reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No optional member combines into a meaningless state: the side is read only by a sideways fall, the source only for its heading.
-
 # src/motion/human/reaction/IAutoMovieMotionHumanCollapse.ts#IAutoMovieMotionHumanCollapse.Direction
 
 ## @evidence contracts/development/common.md#meaningful-documentation

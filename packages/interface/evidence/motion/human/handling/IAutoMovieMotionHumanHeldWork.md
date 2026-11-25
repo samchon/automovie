@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanHeldWork.ts#IAutoMovieMotionHumanHeldWork
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the three things a held work does and the kept grip.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Articulation travel in its own unit, places in the body's floor frame and sockets by id.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What `workHeld` reads, and the drive and mount records `write` shares.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The prop is read through its declared articulations and sockets; no prop kind is named.
-
 # src/motion/human/handling/IAutoMovieMotionHumanHeldWork.ts#IAutoMovieMotionHumanHeldWork.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

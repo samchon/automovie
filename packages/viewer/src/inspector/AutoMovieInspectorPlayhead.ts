@@ -1,12 +1,23 @@
 /**
- * The inspector's playhead: the second shown, the subject's duration, whether it plays and how fast, kept outside React.
+ * The inspector's playhead: the second shown, the subject's duration, whether
+ * it plays and how fast, kept outside React.
  *
- * The render loop advances it and reads it directly every frame. The time readout reads its snapshot through `useSyncExternalStore` with `subscribe` and `getSnapshot`, and the time panel only whether it plays, so a playing frame re-renders the readout alone and a start or stop also the panel's play button. A snapshot is replaced, never changed, so its identity tells a reader whether anything moved. Seconds stay within `[0, durationSeconds]`.
+ * The render loop advances it and reads it directly every frame. The time
+ * readout reads its snapshot through `useSyncExternalStore` with `subscribe`
+ * and `getSnapshot`, and the time panel only whether it plays, so a playing
+ * frame re-renders the readout alone and a start or stop also the panel's play
+ * button. A snapshot is replaced, never changed, so its identity tells a reader
+ * whether anything moved. Seconds stay within `[0, durationSeconds]`.
  *
- * The rate scales how fast the preview plays and is not part of the request: it changes no picture, and the capture grammar's `rate` key, stills per second, is a different quantity.
+ * The rate scales how fast the preview plays and is not part of the request: it
+ * changes no picture, and the capture grammar's `rate` key, stills per second,
+ * is a different quantity.
  *
  * ```ts
- * const seconds = useSyncExternalStore(playhead.subscribe, playhead.getSnapshot).seconds;
+ * const seconds = useSyncExternalStore(
+ *   playhead.subscribe,
+ *   playhead.getSnapshot,
+ * ).seconds;
  * ```
  */
 export class AutoMovieInspectorPlayhead {
@@ -19,9 +30,7 @@ export class AutoMovieInspectorPlayhead {
   };
   private readonly listeners_: Set<() => void> = new Set<() => void>();
 
-  /**
-   * Call `listener` after every change, until the returned function is called.
-   */
+  /** Call `listener` after every change, until the returned function is called. */
   public readonly subscribe: (listener: () => void) => () => void = (
     listener: () => void,
   ): (() => void) => {
@@ -31,19 +40,18 @@ export class AutoMovieInspectorPlayhead {
     };
   };
 
-  /**
-   * The current snapshot, the same object until something changes.
-   */
+  /** The current snapshot, the same object until something changes. */
   public readonly getSnapshot: () => AutoMovieInspectorPlayhead.ISnapshot =
     (): AutoMovieInspectorPlayhead.ISnapshot => this.snapshot_;
 
   /**
-   * Set the subject's duration when an instance is ready, keeping the second within it.
+   * Set the subject's duration when an instance is ready, keeping the second
+   * within it.
    *
-   * It throws for a duration that is not a positive finite number.
+   * It throws for a duration that is not positive.
    */
   public setDuration(durationSeconds: number): void {
-    if (!(Number.isFinite(durationSeconds) && durationSeconds > 0))
+    if (!(durationSeconds > 0))
       throw new Error(
         `Inspector duration ${durationSeconds} is not a positive number of seconds`,
       );
@@ -54,7 +62,8 @@ export class AutoMovieInspectorPlayhead {
   }
 
   /**
-   * Start playing; from the end, play starts again at zero, which counts as a jump.
+   * Start playing; from the end, play starts again at zero, which counts as a
+   * jump.
    */
   public play(): void {
     const { seconds, durationSeconds }: AutoMovieInspectorPlayhead.ISnapshot =
@@ -67,19 +76,16 @@ export class AutoMovieInspectorPlayhead {
     );
   }
 
-  /**
-   * Stop playing where the playhead is.
-   */
+  /** Stop playing where the playhead is. */
   public pause(): void {
     this.change({ playing: false });
   }
 
   /**
-   * Show one second, clamped to `[0, durationSeconds]`; playing continues from it. Moving to another second counts as a jump. A second that is not finite is refused.
+   * Show one second, clamped to `[0, durationSeconds]`; playing continues from
+   * it. Moving to another second counts as a jump.
    */
   public seek(seconds: number): void {
-    if (!Number.isFinite(seconds))
-      throw new Error(`Inspector second ${seconds} is not a number`);
     const clamped: number = Math.min(
       Math.max(seconds, 0),
       this.snapshot_.durationSeconds,
@@ -89,21 +95,22 @@ export class AutoMovieInspectorPlayhead {
   }
 
   /**
-   * Play `rate` subject seconds per wall second. It throws for a rate that is not positive and finite.
+   * Play `rate` subject seconds per wall second. It throws for a rate that is
+   * not positive.
    */
   public setRate(rate: number): void {
-    if (!(Number.isFinite(rate) && rate > 0))
+    if (!(rate > 0))
       throw new Error(`Inspector rate ${rate} is not a positive number`);
     this.change({ rate });
   }
 
   /**
-   * Move a playing playhead by `wallSeconds` of wall time times the rate, stopping at the end. A paused playhead does not move.
+   * Move a playing playhead by `wallSeconds` of wall time times the rate,
+   * stopping at the end. A paused playhead does not move.
    */
   public advance(wallSeconds: number): void {
     const now: AutoMovieInspectorPlayhead.ISnapshot = this.snapshot_;
-    if (!now.playing || !(Number.isFinite(wallSeconds) && wallSeconds > 0))
-      return;
+    if (!now.playing || !(wallSeconds > 0)) return;
     const seconds: number = now.seconds + wallSeconds * now.rate;
     this.change(
       seconds >= now.durationSeconds
@@ -131,9 +138,7 @@ export class AutoMovieInspectorPlayhead {
   }
 }
 export namespace AutoMovieInspectorPlayhead {
-  /**
-   * One immutable state of the playhead.
-   */
+  /** One immutable state of the playhead. */
   export interface ISnapshot {
     /** The second shown, subject seconds. */
     seconds: number;
@@ -147,7 +152,10 @@ export namespace AutoMovieInspectorPlayhead {
     /** Subject seconds played per wall second, positive. */
     rate: number;
 
-    /** Number of seeks to another second and restarts from the end so far; two snapshots with the same count are joined by playback alone. */
+    /**
+     * Number of seeks to another second and restarts from the end so far; two
+     * snapshots with the same count are joined by playback alone.
+     */
     jump: number;
   }
 }

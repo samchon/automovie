@@ -8,24 +8,12 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 
 /**
- * The beat schedule of a rung-ladder climb: both hands reach their first
- * rungs in one beat, then each rung takes four beats, one limb moving up one
- * rung at a time in the climb's limb order. `climbLadder` owns the poses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the schedule, its timebase and its owner.
- * @evidence contracts/development/design.md#principled-representation Each limb's moves are intervals in action seconds, and a rung reading is a rung index with a minimum-jerk progress.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The move, reading and schedule records and the one builder climbLadder.plan calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every interval follows from the beat and the order.
+ * The beat schedule of a rung-ladder climb: both hands reach their first rungs
+ * in one beat, then each rung takes four beats, one limb moving up one rung at
+ * a time in the climb's limb order. `climbLadder` owns the poses.
  */
 export namespace climbLadderBeats {
-  /**
-   * One limb's move up one rung.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its timebase.
-   * @evidence contracts/development/design.md#principled-representation The rung reached and its interval in action seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three fields the rung lookup reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by prepare.
-   */
+  /** One limb's move up one rung. */
   export interface IMove {
     /** The rung the move reaches, 1 the first above the start. */
     n: number;
@@ -37,14 +25,7 @@ export namespace climbLadderBeats {
     to: number;
   }
 
-  /**
-   * Where a limb is at an instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The rung index it moves to or holds, its progress, and whether it moves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three fields climbLadder's pose writers read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read, never stored.
-   */
+  /** Where a limb is at an instant. */
   export interface IReading {
     /** The rung index the limb holds or moves to. */
     index: number;
@@ -56,14 +37,7 @@ export namespace climbLadderBeats {
     moving: boolean;
   }
 
-  /**
-   * The prepared schedule.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The beat, the moves per limb, the clock and its readers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members climbLadder.plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read-only after preparation.
-   */
+  /** The prepared schedule. */
   export interface IBeats {
     /** Seconds per beat. */
     beat: number;
@@ -111,14 +85,6 @@ export namespace climbLadderBeats {
    * @param reach The hands' first rung index.
    * @param order The limb order of each rung's four beats.
    * @returns The schedule.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units and result.
-   * @evidence contracts/development/implementation.md#principled-implementation One beat for the hands' first reach, then four beats a rung, each limb moving once a rung on a minimum-jerk course.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Moves and events, the clock, then the lookups.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every move follows from the beat and the order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation in rungs; each lookup is a binary search over one limb's moves.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The moves are built once and shared by every lookup.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The moves grow with the rungs and are released with the plan.
    */
   export function prepare(
     beat: number,
@@ -147,7 +113,7 @@ export namespace climbLadderBeats {
         },
       );
     const duration: number = beat * (2 + count * 4);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       duration,
       instants,
     );

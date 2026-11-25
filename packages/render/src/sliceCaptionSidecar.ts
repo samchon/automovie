@@ -4,9 +4,18 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Slice a caption sidecar to one chunk's window `[frameStart, frameEnd)`, with spans clipped to the window and re-based to chunk-local frame indices.
+ * Slice a caption sidecar to one chunk's window `[frameStart, frameEnd)`, with
+ * spans clipped to the window and re-based to chunk-local frame indices.
  *
- * This is the caption counterpart of `planChunkedSequenceRender`'s frame-atomic chunking, so each chunk render carries its own caption track. A `frameEnd` past the sidecar's coverage is clamped to `frameCount`, which is how the last, shorter chunk is sliced. Throws when `frameStart` is not a non-negative integer, when `frameEnd` is not an integer above `frameStart`, or when `frameStart` is at or beyond `frameCount`, which means the render and the caption plan disagree on the frame count, for example because they were planned at different fps. The input spans must be in play order and tile the frames, as `planCaptionSidecar` and this function produce them.
+ * This is the caption counterpart of `planChunkedSequenceRender`'s frame-atomic
+ * chunking, so each chunk render carries its own caption track. A `frameEnd`
+ * past the sidecar's coverage is clamped to `frameCount`, which is how the
+ * last, shorter chunk is sliced. Throws when `frameStart` is not a non-negative
+ * integer, when `frameEnd` is not an integer above `frameStart`, or when
+ * `frameStart` is at or beyond `frameCount`, which means the render and the
+ * caption plan disagree on the frame count, for example because they were
+ * planned at different fps. The input spans must be in play order and tile the
+ * frames, as `planCaptionSidecar` and this function produce them.
  */
 export const sliceCaptionSidecar: (
   sidecar: IAutoMovieCaptionSidecar,
@@ -17,11 +26,11 @@ export const sliceCaptionSidecar: (
   frameStart: number,
   frameEnd: number,
 ): IAutoMovieCaptionSidecar => {
-  if (!Number.isInteger(frameStart) || frameStart < 0)
+  if (frameStart < 0)
     throw new Error(
       `frameStart must be a non-negative integer, but was ${frameStart}`,
     );
-  if (!Number.isInteger(frameEnd) || frameEnd <= frameStart)
+  if (frameEnd <= frameStart)
     throw new Error(
       `frameEnd must be an integer > frameStart, but was ${frameEnd}`,
     );

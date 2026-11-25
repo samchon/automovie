@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanInterrupt.ts#AutoMovieMotionHumanInterrupt
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a row is and what the names replace.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A window is named by the phrase instant that opens it, the way the action clock names time; a blend is named by how abrupt the cancel is.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two unions, one table and two functions; the only owner of named cancel rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The result is the existing `HumanInterruptRow`, so a row no name states is still written by hand beside the named ones.
-
 # src/compose/AutoMovieMotionHumanInterrupt.ts#AutoMovieMotionHumanInterrupt.row
 
 ## @evidence contracts/development/common.md#meaningful-documentation

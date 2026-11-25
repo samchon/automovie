@@ -23,11 +23,11 @@ type ICaptionCue = IAutoMovieFilmTimeline["tracks"]["captions"][number];
  * The header carries the timeline id. Cues are ordered by start frame, then end
  * frame, then id in code-unit order, and each cue's frame interval maps to
  * whole milliseconds with nearest rounding on the exact production frame rate.
- * An authored top or bottom placement selects the first or last snapped line
- * of a horizontal cue. Omitted placement uses WebVTT automatic line placement.
- * The payload sits in a `<lang>` span, inside a `<v>` voice span when the cue
- * names a speaker, and every block ends with a blank line. Throws when an id is
- * not a WebVTT identifier, a language is not a well-formed RFC 5646 tag, the
+ * An authored top or bottom placement selects the first or last snapped line of
+ * a horizontal cue. Omitted placement uses WebVTT automatic line placement. The
+ * payload sits in a `<lang>` span, inside a `<v>` voice span when the cue names
+ * a speaker, and every block ends with a blank line. Throws when an id is not a
+ * WebVTT identifier, a language is not a well-formed RFC 5646 tag, the
  * timeline's `fps` disagrees with its exact frame rate, or a cue interval is
  * empty or collapses on the millisecond clock, or a placement is unsupported.
  */
@@ -69,7 +69,10 @@ export const canonicalProductionWebVtt: (
   ].join("\n");
 };
 
-/** Map the authored edge to a snapped line, with automatic placement for legacy cues. */
+/**
+ * Map the authored edge to a snapped line, with automatic placement for legacy
+ * cues.
+ */
 const lineSetting = (cue: ICaptionCue): string => {
   switch (cue.placement) {
     case undefined:

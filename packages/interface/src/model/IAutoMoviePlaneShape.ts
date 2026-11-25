@@ -1,6 +1,4 @@
-/**
- * Flat rectangle centred at the origin in the local XZ plane, with zero height.
- */
+/** Flat rectangle centred at the origin in the local XZ plane, with zero height. */
 export interface IAutoMoviePlaneShape {
   /** Discriminator. */
   type: "plane";

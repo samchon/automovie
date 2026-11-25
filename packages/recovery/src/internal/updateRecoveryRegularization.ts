@@ -1,11 +1,12 @@
 import type { IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
 
 /**
- * React to one selected increment using its undamped computed agreement.
- * The multiplier is the unclamped reciprocal accepted-radius rule from Ceres
- * levenberg_marquardt_strategy.cc, blob 9e25466e61e0cc6a2c1136131c48c841bd365fcc,
- * lines162-168. Radius caps, diagonal clamps and rejected-step rules are absent.
- * Source: https://ceres-solver.googlesource.com/ceres-solver/+/master/internal/ceres/levenberg_marquardt_strategy.cc
+ * React to one selected increment using its undamped computed agreement. The
+ * multiplier is the unclamped reciprocal accepted-radius rule from Ceres
+ * levenberg_marquardt_strategy.cc, blob
+ * 9e25466e61e0cc6a2c1136131c48c841bd365fcc, lines162-168. Radius caps, diagonal
+ * clamps and rejected-step rules are absent. Source:
+ * https://ceres-solver.googlesource.com/ceres-solver/+/master/internal/ceres/levenberg_marquardt_strategy.cc
  * This rule alone supplies no standard LM or constrained convergence theorem.
  */
 export function updateRecoveryRegularization(
@@ -13,7 +14,7 @@ export function updateRecoveryRegularization(
   actualDecrease: number,
   predictedDecrease: number | null,
 ): IAutoMovieRecoveryRegularizationUpdate {
-  if (!(damping > 0 && Number.isFinite(damping)))
+  if (!(damping > 0))
     throw new Error(
       "camera-regularization: positive finite previous damping required",
     );
@@ -22,9 +23,9 @@ export function updateRecoveryRegularization(
     reason: "decrease-unsupported",
     previousDamping: damping,
     damping,
-    actualDecrease: Number.isFinite(actualDecrease) ? actualDecrease : null,
+    actualDecrease: bounded(actualDecrease) ? actualDecrease : null,
     predictedDecrease:
-      predictedDecrease !== null && Number.isFinite(predictedDecrease)
+      predictedDecrease !== null && bounded(predictedDecrease)
         ? predictedDecrease
         : null,
     ratio: null,
@@ -40,7 +41,7 @@ export function updateRecoveryRegularization(
   )
     return result;
   const ratio: number = result.actualDecrease / result.predictedDecrease;
-  if (!(ratio > 0 && Number.isFinite(ratio))) {
+  if (!(ratio > 0) || ratio === Infinity) {
     result.reason = "ratio-unsupported";
     return result;
   }
@@ -49,7 +50,7 @@ export function updateRecoveryRegularization(
     ratio >= 1 ? 1 / 3 : Math.max(1 / 3, 1 - (2 * ratio - 1) ** 3);
   result.factor = factor;
   const next: number = damping * factor;
-  if (!(next > 0 && Number.isFinite(next))) {
+  if (!(next > 0) || next === Infinity) {
     result.reason = "damping-unsupported";
     return result;
   }
@@ -57,4 +58,9 @@ export function updateRecoveryRegularization(
   result.reason = "accepted-agreement";
   result.damping = next;
   return result;
+}
+
+/** Whether a decrease is a number rather than an overflow. */
+function bounded(value: number): boolean {
+  return value !== Infinity && value !== -Infinity;
 }

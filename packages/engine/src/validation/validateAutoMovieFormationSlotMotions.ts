@@ -24,7 +24,8 @@ import { engineDiagnostic } from "./engineDiagnostic";
 const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;
 
 /**
- * Validate sparse member cue slots, states, ids, order and participant formation references.
+ * Validate sparse member cue slots, states, ids, order and participant
+ * formation references.
  */
 export const validateAutoMovieFormationSlotMotions: (
   contract: Pick<
@@ -102,10 +103,10 @@ export const validateAutoMovieFormationSlotMotions: (
       left.start - right.start ||
       compareCodeUnits(left.id, right.id),
   )) {
-    if (cue.id.trim().length === 0 || ids.has(cue.id))
+    if (ids.has(cue.id))
       fail(
         `formationSlotMotion:${cue.id || "(blank)"}`,
-        "must have one non-blank id unique inside the shot",
+        "must have one id unique inside the shot",
       );
     ids.add(cue.id);
     const compiled:
@@ -117,8 +118,6 @@ export const validateAutoMovieFormationSlotMotions: (
         `must reference participating compiled formation "${cue.formation}"`,
       );
     if (
-      Number.isFinite(cue.start) === false ||
-      Number.isFinite(cue.end) === false ||
       cue.start < 0 ||
       cue.end <= cue.start ||
       cue.end > contract.durationSeconds
@@ -132,9 +131,7 @@ export const validateAutoMovieFormationSlotMotions: (
       new Set(cue.slots).size !== cue.slots.length ||
       cue.slots.some(
         (slot: number): boolean =>
-          Number.isSafeInteger(slot) === false ||
-          slot < 0 ||
-          (compiled !== undefined && slot >= compiled.count),
+          slot < 0 || (compiled !== undefined && slot >= compiled.count),
       )
     )
       fail(
@@ -166,11 +163,8 @@ export const validateAutoMovieFormationSlotMotions: (
     ] as const) {
       if (
         [state.offset.x, state.offset.y, state.offset.z].some(
-          (number: number): boolean =>
-            Number.isFinite(number) === false ||
-            Math.abs(number) > 1_000_000_000,
+          (number: number): boolean => Math.abs(number) > 1_000_000_000,
         ) ||
-        Number.isFinite(state.facingOffsetDeg) === false ||
         Math.abs(state.facingOffsetDeg) > 360_000
       )
         fail(

@@ -2,7 +2,9 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanForceSite } from "./AutoMovieHumanForceSite";
 
 /**
- * An impulse delivered to a performer at a film instant, in world newton seconds. Hit conversion and reaction laws exchange this record without changing its force application site.
+ * An impulse delivered to a performer at a film instant, in world newton
+ * seconds. Hit conversion and reaction laws exchange this record without
+ * changing its force application site.
  */
 export interface IAutoMovieMotionHumanImpulse {
   /** The discriminator. */

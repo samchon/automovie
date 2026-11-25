@@ -2,12 +2,11 @@ import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHum
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
-/**
- * Contracts used by composeAutoMovieMotionHumanAction.
- */
+/** Contracts used by composeAutoMovieMotionHumanAction. */
 export namespace IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction {
   /**
-   * An action composed of part primitives over a base. What an action is composed of.
+   * An action composed of part primitives over a base. What an action is
+   * composed of.
    */
   export interface IProps {
     /** The plan whose posture the unclaimed channels keep; as long as the clock. */

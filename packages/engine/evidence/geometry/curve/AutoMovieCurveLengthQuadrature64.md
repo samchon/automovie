@@ -1,21 +1,3 @@
-# src/geometry/curve/AutoMovieCurveLengthQuadrature64.ts#AutoMovieCurveLengthQuadrature64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States internal ownership, validated caller premises, unchanged GL8 arithmetic and policy-neutral observations.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The same GL8 abscissas define the derivative measurement and its prepared parameter addresses. Public callers own admission and interpretation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The curve length owners use `measure`. The admitted source-length parameter preparation uses `parameters`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/curve/AutoMovieCurveLengthQuadrature64.ts#AutoMovieCurveLengthQuadrature64.measure
 
 ## @evidence contracts/development/implementation.md#principled-implementation

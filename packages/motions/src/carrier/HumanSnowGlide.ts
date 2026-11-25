@@ -41,95 +41,26 @@ const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
- * Turn on the selected ski edges or use a Nordic pole and opposite ski
- * on the shared glide. Alpine skiing measures a transfer across opposing
- * edges during the turn (https://doi.org/10.1371/journal.pone.0176975).
- * The distinct Nordic stroke follows the pole and opposite ski phases of
- * Pellegrini et al. (2020, Figure 2,
- * https://pubmed.ncbi.nlm.nih.gov/32439501/). The authored glide supplies
- * speed and stopping. The pole's own prop motion supplies its moving grip.
+ * Turn on the selected ski edges or use a Nordic pole and opposite ski on the
+ * shared glide. Alpine skiing measures a transfer across opposing edges during
+ * the turn (https://doi.org/10.1371/journal.pone.0176975). The distinct Nordic
+ * stroke follows the pole and opposite ski phases of Pellegrini et al. (2020,
+ * Figure 2, https://pubmed.ncbi.nlm.nih.gov/32439501/). The authored glide
+ * supplies speed and stopping. The pole's own prop motion supplies its moving
+ * grip.
  *
  * @param context The entered stance and the authored snow technique.
  * @returns The fitted glide and the named edge or pole transitions.
- * @throws {HumanRefusal} When the edge change or the pole support is infeasible.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the supported techniques, sources and path and hand-contact ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Unweight between opposite ski cants about the actual support points. A Nordic pole stroke is one planned arm over the action (the reach to the named moving grip, the hold on it and the return), composed over the glide with the opposite-foot kick.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one shared glide, then overlay the optional edge transfer, or compose the optional pole stroke's arm over the kicked glide.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Consume the given snow orientation and the named pole frames. A missing pole contact or a same-sign edge transfer is not converted into bilateral travel.
- * @evidence contracts/development/implementation.md#efficient-algorithms Once per pose, one base sample and two local foot rotations if the edge transfer is active; the pole arm is planned once per action and read off its trajectory.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared glide, foot pivot, round-handle fit and the arm planner (`AutoMovieMotionHumanArm.carried`).
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the input edge or pole data and one base plan for the action.
+ * @throws {HumanRefusal} When the edge change or the pole support is
+ *   infeasible.
  */
 export function HumanSnowGlide(context: Context): Plan {
+  HumanSnowGlide.admit(context.params);
   const base: Plan = HumanSurfaceGlide.plan(context);
   const transfer: Params["edgeTransfer"] = context.params.edgeTransfer;
   const stroke: Params["nordic"] = context.params.nordic;
   if (transfer === undefined && stroke === undefined) return base;
-  if (transfer !== undefined && stroke !== undefined)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "nordic",
-      value: stroke,
-      feasible: null,
-      reason: "one snow glide uses either alpine edging or a Nordic stroke",
-      fix: "stage the two techniques as separate glides",
-    });
   if (transfer !== undefined) {
-    HumanBound.within(
-      "edgeTransfer.at",
-      transfer.at,
-      0,
-      base.duration,
-      "s",
-      "both",
-    );
-    HumanBound.within("edgeTransfer.counter", transfer.counter, 0, 35, "deg");
-    for (const [name, edge] of [
-      ["first", transfer.first],
-      ["next", transfer.next],
-    ] as const) {
-      HumanBound.within(
-        `edgeTransfer.${name}.degrees`,
-        edge.degrees,
-        -45,
-        45,
-        "deg",
-      );
-      for (const side of SIDES) {
-        const pivot: IAutoMovieVector3 = edge.pivots[side];
-        HumanBound.within(
-          `edgeTransfer.${name}.pivots.${side}.x`,
-          pivot.x,
-          -1,
-          1,
-          "m",
-        );
-        HumanBound.within(
-          `edgeTransfer.${name}.pivots.${side}.y`,
-          pivot.y,
-          -1,
-          1,
-          "m",
-        );
-        HumanBound.within(
-          `edgeTransfer.${name}.pivots.${side}.z`,
-          pivot.z,
-          -1,
-          1,
-          "m",
-        );
-      }
-    }
-    if (transfer.first.degrees * transfer.next.degrees >= 0)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "edgeTransfer.next.degrees",
-        value: transfer.next.degrees,
-        feasible: null,
-        reason: "the new ski edges must have the opposite sign",
-        fix: "select the other pair of ski edges with the opposite cant",
-      });
     return {
       ...base,
       events: [
@@ -330,7 +261,7 @@ export function HumanSnowGlide(context: Context): Plan {
   });
   const composed: Plan = composeAutoMovieMotionHumanAction({
     base: kicked,
-    clock: AutoMovieMotionClock.of(
+    clock: AutoMovieMotionClock(
       duration,
       events.map(
         (event: IAutoMovieMotionEvent): IAutoMovieMotionClockInstant => ({
@@ -354,4 +285,89 @@ function byShare(
   right: IAutoMovieMotionEvent,
 ): number {
   return left.share - right.share;
+}
+
+/** The snow glide's own admission. */
+export namespace HumanSnowGlide {
+  /**
+   * Admit a snow glide's own requests before its glide is planned: alpine
+   * edging or a Nordic stroke, not both; an edge transfer inside the glide (its
+   * `duration`), its counter-rotation up to 35 degrees, each edge pair within
+   * 45 degrees with its pivots within a metre, and the new edges of the
+   * opposite cant.
+   *
+   * @param params The glide's requests.
+   * @throws {HumanRefusal} When a request lies outside its range.
+   */
+  export function admit(
+    params: Pick<Params, "edgeTransfer" | "nordic" | "duration">,
+  ): void {
+    const transfer: Params["edgeTransfer"] = params.edgeTransfer;
+    const stroke: Params["nordic"] = params.nordic;
+    if (transfer !== undefined && stroke !== undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "nordic",
+        value: stroke,
+        feasible: null,
+        reason: "one snow glide uses either alpine edging or a Nordic stroke",
+        fix: "stage the two techniques as separate glides",
+      });
+    if (transfer !== undefined) {
+      HumanBound.within(
+        "edgeTransfer.at",
+        transfer.at,
+        0,
+        params.duration,
+        "s",
+        "both",
+      );
+      HumanBound.within("edgeTransfer.counter", transfer.counter, 0, 35, "deg");
+      for (const [name, edge] of [
+        ["first", transfer.first],
+        ["next", transfer.next],
+      ] as const) {
+        HumanBound.within(
+          `edgeTransfer.${name}.degrees`,
+          edge.degrees,
+          -45,
+          45,
+          "deg",
+        );
+        for (const side of SIDES) {
+          const pivot: IAutoMovieVector3 = edge.pivots[side];
+          HumanBound.within(
+            `edgeTransfer.${name}.pivots.${side}.x`,
+            pivot.x,
+            -1,
+            1,
+            "m",
+          );
+          HumanBound.within(
+            `edgeTransfer.${name}.pivots.${side}.y`,
+            pivot.y,
+            -1,
+            1,
+            "m",
+          );
+          HumanBound.within(
+            `edgeTransfer.${name}.pivots.${side}.z`,
+            pivot.z,
+            -1,
+            1,
+            "m",
+          );
+        }
+      }
+      if (transfer.first.degrees * transfer.next.degrees >= 0)
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "edgeTransfer.next.degrees",
+          value: transfer.next.degrees,
+          feasible: null,
+          reason: "the new ski edges must have the opposite sign",
+          fix: "select the other pair of ski edges with the opposite cant",
+        });
+    }
+  }
 }

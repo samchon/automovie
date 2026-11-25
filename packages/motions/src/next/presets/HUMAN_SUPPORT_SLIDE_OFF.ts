@@ -23,17 +23,11 @@ const SEATED: IAutoMovieMotionHumanSupport.IStance["prefer"] = {
 };
 
 /**
- * The slide-off preset: seated upright on a table's edge with the seat and
- * the hands beside it half a forearm and hand's length back from the edge,
- * the feet down to the floor, standing. Each of its 3 stances takes the
- * planner's `SECONDS`, 1 s, so about 3 s (provisional: no timing study).
- * Passed as `support`'s `stances`; the `slideOff` row of `HumanSupportRows`
- * reads it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stances, the insets, the time and what is provisional.
- * @evidence contracts/development/design.md#principled-representation The stances as the support planner's own data, with the seated reference posture and the floor laws' standing key.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanSupport.SLIDE_OFF`; the slide-off row reads it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
+ * The slide-off preset: seated upright on a table's edge with the seat and the
+ * hands beside it half a forearm and hand's length back from the edge, the feet
+ * down to the floor, standing. Each of its 3 stances takes the planner's
+ * `SECONDS`, 1 s, so about 3 s (provisional: no timing study). Passed as
+ * `support`'s `stances`; the `slideOff` row of `HumanSupportRows` reads it.
  */
 export const HUMAN_SUPPORT_SLIDE_OFF: IAutoMovieMotionHumanSupport.IPreset = {
   stances: [

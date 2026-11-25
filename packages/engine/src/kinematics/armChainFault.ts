@@ -36,11 +36,11 @@ const PARALLEL_SINE: number = 1e-6;
  * therefore ask it only where an arm verb is performed: the perform-shot gate
  * refuses the verb with this reason, and {@link reachPose} returns `null`.
  *
- * `null` also answers every case that is not this fault: a missing hand, a
- * hand not parented to the lower arm (its rest offset is then not in the
- * elbow's frame), a zero-length forearm, and an axis table with no or a
- * zero-length elbow flexion axis. {@link reachPose} reports the structural
- * cases itself as a chain it cannot measure.
+ * `null` also answers every case that is not this fault: a missing hand, a hand
+ * not parented to the lower arm (its rest offset is then not in the elbow's
+ * frame), a zero-length forearm, and an axis table with no or a zero-length
+ * elbow flexion axis. {@link reachPose} reports the structural cases itself as a
+ * chain it cannot measure.
  *
  * @param skeleton Rig whose arm chain is read; only rest offsets are used.
  * @param side Which arm to test.

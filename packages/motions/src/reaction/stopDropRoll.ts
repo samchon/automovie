@@ -18,9 +18,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { collapse } from "./collapse";
+import { stopDropRollTimeline } from "./stopDropRollTimeline";
 
 /**
  * Stop, drop and roll (`IAutoMovieMotionHumanFirefight.IStopDropRoll`): the
@@ -28,15 +28,14 @@ import { collapse } from "./collapse";
  * https://www.saskatoon.ca/sites/default/files/STEPSTOSAFETY__1-pager_FIRES.pdf):
  * stop, drop gently, cover the face with the hands, and roll back and forth.
  *
- * The drop is the protective forward collapse (`collapse`) into the prone
- * lie, the hands brought over the face as the body goes down. The rolls
- * then turn the lying body about its long axis, a half turn onto one side
- * and back, alternating sides, each on a half sine. The body is a lying
- * cross-section half as deep as the chest and as wide as the shoulders: its
- * long axis rides at the height that cross-section rests at when turned, and
- * travels sideways by the arc it rolls, so the body rolls on the floor
- * rather than about a fixed line. The hands stay on the face, carried by
- * the head, throughout.
+ * The drop is the protective forward collapse (`collapse`) into the prone lie,
+ * the hands brought over the face as the body goes down. The rolls then turn
+ * the lying body about its long axis, a half turn onto one side and back,
+ * alternating sides, each on a half sine. The body is a lying cross-section
+ * half as deep as the chest and as wide as the shoulders: its long axis rides
+ * at the height that cross-section rests at when turned, and travels sideways
+ * by the arc it rolls, so the body rolls on the floor rather than about a fixed
+ * line. The hands stay on the face, carried by the head, throughout.
  */
 export namespace stopDropRoll {
   /** The action's name. */
@@ -46,10 +45,10 @@ export namespace stopDropRoll {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /** How long the body stands stopped before it drops, seconds: authored. */
-  export const STOP: number = 0.3;
+  export const STOP: number = stopDropRollTimeline.STOP;
 
   /** How long one roll onto a side and back takes, seconds: authored. */
-  export const ROLL: number = 0.9;
+  export const ROLL: number = stopDropRollTimeline.ROLL;
 
   /** How far each roll turns the body, degrees: onto its side. */
   export const TURN: number = 90;
@@ -67,15 +66,6 @@ export namespace stopDropRoll {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IStopDropRoll>,
   ): IAutoMovieMotionHumanActionPlan {
-    const rolls: number = context.params.rolls ?? 4;
-    if (!(Number.isInteger(rolls) && rolls > 0))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "rolls",
-        value: rolls,
-        reason: "the rolls are a positive whole number",
-        fix: "give how many times the body rolls onto a side and back",
-      });
     const body: IAutoMovieMotionHumanBody = context.body;
 
     // The drop: the protective forward collapse into the prone lie.
@@ -89,7 +79,12 @@ export namespace stopDropRoll {
       params,
     });
     const down: number = drop.duration;
-    const duration: number = STOP + down + rolls * ROLL;
+    const timeline: stopDropRollTimeline.ITimeline = stopDropRollTimeline(
+      context.params.rolls,
+      down,
+    );
+    const rolls: number = timeline.rolls;
+    const duration: number = timeline.duration;
     const lying: IAutoMovieMotionHumanPosture = drop.posture(down);
 
     // The lying cross-section and the side the body rolls toward.
@@ -145,7 +140,10 @@ export namespace stopDropRoll {
         // left behind would swing the body about a line it no longer lies
         // on, down through the floor).
         rotation: {
-          about: Vector3.add({ x: lying.root.x, y: deep, z: lying.root.z }, moved),
+          about: Vector3.add(
+            { x: lying.root.x, y: deep, z: lying.root.z },
+            moved,
+          ),
           turn: Quaternion.fromAxisAngle(along, degrees),
         },
       };
@@ -209,12 +207,8 @@ export namespace stopDropRoll {
       }
       return { ...posture, limbs };
     };
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "stop", share: 0 },
-      { name: "drop", share: STOP / duration },
-      { name: "down", share: (STOP + down) / duration },
-      { name: "end", share: 1 },
-    ];
+    const events: IAutoMovieMotionEvent[] = timeline.events;
+
     return {
       duration,
       events,
@@ -249,7 +243,12 @@ export namespace stopDropRoll {
   }
 }
 
-/** A hand over the face, in the head's frame: the wrist below the cheek and the elbow tucked in front of the chest, below the chin, so a roll onto the side lies on the arm's flank rather than its point; the hand's attitude left to the fit. */
+/**
+ * A hand over the face, in the head's frame: the wrist below the cheek and the
+ * elbow tucked in front of the chest, below the chin, so a roll onto the side
+ * lies on the arm's flank rather than its point; the hand's attitude left to
+ * the fit.
+ */
 function face(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,

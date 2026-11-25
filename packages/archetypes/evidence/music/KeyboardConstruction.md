@@ -1,21 +1,3 @@
-# src/music/KeyboardConstruction.ts#KeyboardConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the namespace builds, its frame and which end the bass is.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Code CAD over the builder's primitives; the keys follow the keyboard's pitch pattern, so a key's colour and place come from its number, not from a table.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The piano's construction, the keyboard's count and the estimates it reads; read only by `createInstrument`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Black keys are centred on the line between their white neighbours, the coarse form of the real off-centre layout; that and every size no source gives are stated here.
-
 # src/music/KeyboardConstruction.ts#KeyboardConstruction.black
 
 ## @evidence contracts/development/common.md#meaningful-documentation

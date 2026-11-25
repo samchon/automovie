@@ -23,17 +23,17 @@ type Attribute = [string, string];
  * Every line carries its owner, space, layer and role; every region its space,
  * cell, kind, finish and area; every opening its identity, basis and size, as
  * an empty group when it has no outline; every dimension and note its status,
- * as an empty group with its reason when stale; and every gap is a marker, so
- * a sheet cannot look complete while its record says it is not. The root
- * carries the drawing's protocol, view, environment, projection, discipline,
- * scale and digest.
+ * as an empty group with its reason when stale; and every gap is a marker, so a
+ * sheet cannot look complete while its record says it is not. The root carries
+ * the drawing's protocol, view, environment, projection, discipline, scale and
+ * digest.
  *
  * The scale is drafting scale: one model metre is `1000 / scale` page
  * millimetres, so a 1:50 plan prints at 1:50, and pen weights and text height
  * are page millimetres. The page is the drawing's extent plus a fixed
- * {@link AUTOMOVIE_DRAWING_SVG_MARGIN} on each side, with y flipped because
- * SVG y grows downward. Numbers are rounded and printed to three decimals and
- * every attribute value is XML-escaped, so one drawing and view yield one byte
+ * {@link AUTOMOVIE_DRAWING_SVG_MARGIN} on each side, with y flipped because SVG
+ * y grows downward. Numbers are rounded and printed to three decimals and every
+ * attribute value is XML-escaped, so one drawing and view yield one byte
  * sequence.
  *
  * Throws an `Error` when the view is not the one the drawing was derived from,
@@ -55,17 +55,17 @@ export const autoMovieDrawingToSvg = (
     );
   for (const role of AUTOMOVIE_DRAWING_ROLES) {
     const weight: number = view.style.weights[role];
-    if (!Number.isFinite(weight) || weight <= 0)
+    if (weight <= 0)
       throw new Error(
         `drawing view "${view.id}" ${role} stroke weight must be a finite number > 0, but was ${weight}`,
       );
     for (const dash of view.style.dashes[role])
-      if (!Number.isFinite(dash) || dash <= 0)
+      if (dash <= 0)
         throw new Error(
           `drawing view "${view.id}" ${role} dash pattern must hold only finite numbers > 0, but held ${dash}`,
         );
   }
-  if (!Number.isFinite(view.style.textHeight) || view.style.textHeight <= 0)
+  if (view.style.textHeight <= 0)
     throw new Error(
       `drawing view "${view.id}" text height must be a finite number > 0, but was ${view.style.textHeight}`,
     );
@@ -256,8 +256,8 @@ const tag = (
 /**
  * Format one page millimetre value to three fixed decimals.
  *
- * Rounding first keeps a value a whisker below zero from printing a sign:
- * it rounds to negative zero, which `toFixed` writes as `0.000`.
+ * Rounding first keeps a value a whisker below zero from printing a sign: it
+ * rounds to negative zero, which `toFixed` writes as `0.000`.
  */
 const number = (value: number): string =>
   (Math.round(value * 1000) / 1000).toFixed(3);

@@ -9,9 +9,7 @@ import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangular
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
-/**
- * Factor one owned scaled arrowhead and preflight all fixed physical rows.
- */
+/** Factor one owned scaled arrowhead and preflight all fixed physical rows. */
 export function factorRecoveryMapCurvature(
   blocks: IAutoMovieRecoveryMapCurvatureBlocks,
   cameraScales: readonly number[],
@@ -33,11 +31,6 @@ export function factorRecoveryMapCurvature(
       throw new Error(
         "camera-curvature: matching owned arrowhead shapes required",
       );
-    for (let column: number = 0; column < cameraWidth; column++)
-      if (typeof row[column] !== "number")
-        throw new Error(
-          "camera-curvature: matching owned arrowhead shapes required",
-        );
   }
   for (let point: number = 0; point < blocks.points.length; point++) {
     const rows: number[][] | undefined = blocks.points[point];
@@ -51,11 +44,6 @@ export function factorRecoveryMapCurvature(
         throw new Error(
           "camera-curvature: matching owned arrowhead shapes required",
         );
-      for (let column: number = 0; column < cameraWidth + 3; column++)
-        if (typeof row[column] !== "number")
-          throw new Error(
-            "camera-curvature: matching owned arrowhead shapes required",
-          );
     }
   }
   for (const row of physicalRows)
@@ -65,10 +53,10 @@ export function factorRecoveryMapCurvature(
       let value: number = point[axis]![axis]!;
       for (let previous: number = 0; previous < axis; previous++)
         value -= point[previous]![axis]! ** 2;
-      if (!(value > 0) || !Number.isFinite(value))
+      if (!(value > 0))
         return { metric: null, rows: null, reason: "point-pivot" };
       const root: number = Math.sqrt(value);
-      if (!(root > 0) || !Number.isFinite(root))
+      if (!(root > 0))
         return { metric: null, rows: null, reason: "point-pivot" };
       point[axis]![axis] = root;
       for (let column: number = axis + 1; column < cameraWidth + 3; column++) {
@@ -76,7 +64,7 @@ export function factorRecoveryMapCurvature(
         for (let previous: number = 0; previous < axis; previous++)
           value -= point[previous]![axis]! * point[previous]![column]!;
         value /= root;
-        if (!Number.isFinite(value))
+        if (value === Infinity || value === -Infinity)
           return { metric: null, rows: null, reason: "point-pivot" };
         point[axis]![column] = value;
       }
@@ -87,7 +75,7 @@ export function factorRecoveryMapCurvature(
         for (let component: number = 0; component < 3; component++)
           value -=
             point[component]![3 + axis]! * point[component]![3 + column]!;
-        if (!Number.isFinite(value))
+        if (value === Infinity || value === -Infinity)
           return { metric: null, rows: null, reason: "camera-pivot" };
         blocks.camera[axis]![column] = value;
       }
@@ -96,10 +84,10 @@ export function factorRecoveryMapCurvature(
     let value: number = blocks.camera[axis]![axis]!;
     for (let previous: number = 0; previous < axis; previous++)
       value -= blocks.camera[previous]![axis]! ** 2;
-    if (!(value > 0) || !Number.isFinite(value))
+    if (!(value > 0))
       return { metric: null, rows: null, reason: "camera-pivot" };
     const root: number = Math.sqrt(value);
-    if (!(root > 0) || !Number.isFinite(root))
+    if (!(root > 0))
       return { metric: null, rows: null, reason: "camera-pivot" };
     blocks.camera[axis]![axis] = root;
     for (let column: number = axis + 1; column < cameraWidth; column++) {
@@ -108,7 +96,7 @@ export function factorRecoveryMapCurvature(
         value -=
           blocks.camera[previous]![axis]! * blocks.camera[previous]![column]!;
       value /= root;
-      if (!Number.isFinite(value))
+      if (value === Infinity || value === -Infinity)
         return { metric: null, rows: null, reason: "camera-pivot" };
       blocks.camera[axis]![column] = value;
     }

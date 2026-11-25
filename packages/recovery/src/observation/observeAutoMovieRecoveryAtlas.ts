@@ -22,21 +22,22 @@ type Pending = IAutoMovieRecoveryPendingChartObservation;
 
 /**
  * Observe orientable genus-zero source components through private disk charts.
- * Supplied automatic levels are immutable observations, not manually authored planes.
- * Every visited cell, component and issue receives a private ownership record. The
- * public result carries only fitted coefficients, chart names and coverage counts.
- * Natural four-sided disks and ordinary annuli retain their existing chart rules.
- * Other coherent disks use physical-arclength quarters; multiple boundaries first
- * use a private cut forest and fan duplication. Source PL triangles remain private.
- * All selected families retain their physical keys and original quarter ancestry
- * until one common maximal-arc network registers their boundaries. Declared
- * subarcs share positional coefficients and phase before each sequential fit.
- * An optional millimetre exchange length adds source PL physical-gradient rows
- * to the area objective; it is an experiment parameter, not an optimum constant.
- * Numerical mapping, missing banks, exact transverse C1/G1 and joins to prior
- * closed/ruled surfaces remain separate unresolved qualifications.
- * An optional scalar window selects complete intersecting saved slabs before the
- * work prefix; planned/window and whole-input coverage denominators stay separate.
+ * Supplied automatic levels are immutable observations, not manually authored
+ * planes. Every visited cell, component and issue receives a private ownership
+ * record. The public result carries only fitted coefficients, chart names and
+ * coverage counts. Natural four-sided disks and ordinary annuli retain their
+ * existing chart rules. Other coherent disks use physical-arclength quarters;
+ * multiple boundaries first use a private cut forest and fan duplication.
+ * Source PL triangles remain private. All selected families retain their
+ * physical keys and original quarter ancestry until one common maximal-arc
+ * network registers their boundaries. Declared subarcs share positional
+ * coefficients and phase before each sequential fit. An optional millimetre
+ * exchange length adds source PL physical-gradient rows to the area objective;
+ * it is an experiment parameter, not an optimum constant. Numerical mapping,
+ * missing banks, exact transverse C1/G1 and joins to prior closed/ruled
+ * surfaces remain separate unresolved qualifications. An optional scalar window
+ * selects complete intersecting saved slabs before the work prefix;
+ * planned/window and whole-input coverage denominators stay separate.
  */
 export function observeAutoMovieRecoveryAtlas(
   input: Parameters<IAutoMovieRecoveryAtlasObservationOperation.Operation>[0],
@@ -72,11 +73,6 @@ export function observeAutoMovieRecoveryAtlas(
     boundaryObservations: number;
     feature: boolean;
   }[] = [];
-  if (
-    input.inventoryOnly !== undefined &&
-    typeof input.inventoryOnly !== "boolean"
-  )
-    throw new Error("Inventory mode must be an explicit boolean");
   if (!(input.cornerDegrees > 0 && input.cornerDegrees < 180))
     throw new Error("A source crease/corner threshold in degrees is required");
   const sourceNormals: number[][] = RecoveryAtlasObservationNormals(input);
@@ -89,11 +85,7 @@ export function observeAutoMovieRecoveryAtlas(
   const planeOwners: Map<string, number> = new Map();
   const priorityFaces: Set<number> = new Set(input.priorityFaces ?? []);
   for (const face of priorityFaces)
-    if (
-      !Number.isSafeInteger(face) ||
-      face < 0 ||
-      face >= input.triangles.length
-    )
+    if (face < 0 || face >= input.triangles.length)
       throw new Error(
         "Private work priorities must address original source faces",
       );
@@ -294,11 +286,14 @@ export function observeAutoMovieRecoveryAtlas(
                 b: number = node.vertices[1]!,
                 t: number =
                   (node.scalar - heights[a]!) / (heights[b]! - heights[a]!);
-              return [0, 1, 2].map(
-                (k: number): number =>
-                  input.verticesMm[a]![k]! +
-                  (input.verticesMm[b]![k]! - input.verticesMm[a]![k]!) * t,
-              ) as [number, number, number];
+              const from: Readonly<AutoMovieVector3Tuple> =
+                  input.verticesMm[a]!,
+                to: Readonly<AutoMovieVector3Tuple> = input.verticesMm[b]!;
+              return [
+                from[0] + (to[0] - from[0]) * t,
+                from[1] + (to[1] - from[1]) * t,
+                from[2] + (to[2] - from[2]) * t,
+              ];
             },
           );
           const triangles: [number, number, number][] = [];

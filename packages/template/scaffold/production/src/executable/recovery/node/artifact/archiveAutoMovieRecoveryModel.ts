@@ -10,22 +10,19 @@ import { pipeline } from "node:stream/promises";
 import { createGunzip, createGzip } from "node:zlib";
 
 /**
- * Store one run-owned final model as verified, lossless gzip bytes.
- * The input path must resolve to output/model.json and its exact published byte
- * count and SHA-256 must be supplied. The archive is published without replacing
- * an existing file after a complete reverse decode verifies the logical bytes.
- * A receipt precedes retirement of this model and its recognized array spool.
- * Failure preserves the raw publication; an already published archive or receipt
- * may remain when a later filesystem operation fails. Process termination may
- * leave an unpublished temporary archive. The caller owns exclusive output access.
+ * Store one run-owned final model as verified, lossless gzip bytes. The input
+ * path must resolve to output/model.json and its exact published byte count and
+ * SHA-256 must be supplied. The archive is published without replacing an
+ * existing file after a complete reverse decode verifies the logical bytes. A
+ * receipt precedes retirement of this model and its recognized array spool.
+ * Failure preserves the raw publication; an already published archive or
+ * receipt may remain when a later filesystem operation fails. Process
+ * termination may leave an unpublished temporary archive. The caller owns
+ * exclusive output access.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Streaming gzip preserves the complete UTF-8 publication, whose supplied hash is checked during encoding and independently checked after full reverse decoding before hard-link publication and raw retirement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This storage owner handles compression, byte identity, publication and the same run's served spool. Numerical reconstruction retains every geometry and completion decision.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No parsing, coefficient change, mesh filtering, source fallback or existing-output replacement occurs. Only model.json directly within the resolved output and recognized plain spool files are eligible for retirement.
+ * @evidence contracts/development/implementation.md#principled-implementation Streaming gzip preserves the complete UTF-8 publication, whose supplied hash is checked during encoding and independently checked after full reverse decoding before hard-link publication and raw retirement. No parsing, coefficient change, mesh filtering, source fallback or existing-output replacement occurs. Only model.json directly within the resolved output and recognized plain spool files are eligible for retirement.
+ * @evidence contracts/development/implementation.md#efficient-algorithms This storage owner handles compression, byte identity, publication and the same run's served spool. Encoding and full reverse verification cost O(N + M) for N logical bytes and M compressed bytes. Encoding supplies both hashes, and the returned archive record is written into the storage receipt. Stream backpressure bounds codec staging and spool metadata scales with the number of served files. Pipelines close their streams and the final cleanup attempts to remove this call's temporary archive. After the receipt, spool entries retire individually before the raw model. A later failure can leave an archive, a receipt or a partially retired spool.
  * @evidence contracts/development/common.md#meaningful-documentation States exclusive output ownership, exact input binding, immutable publication, reverse verification, retirement order and failure effects.
- * @evidence contracts/development/implementation.md#efficient-algorithms Encoding scans N logical bytes once and reverse verification scans M compressed bytes once, with O(N + M) codec work and O(F) spool metadata for F served files. Full decoding is required to verify the stored logical publication.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The encoding pass computes both logical and compressed hashes. The returned archive record is the same record written to the storage receipt and supports later verified streaming transport.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Node stream backpressure bounds codec staging independently of model size; spool paths retain O(F) metadata. Pipeline closes streams on completion or failure, and finally removes only this call's unpublished temporary archive. No source input or prior publication is retired.
  */
 export async function archiveAutoMovieRecoveryModel(
   input: IAutoMovieRecoveryArchiveInput,
@@ -34,11 +31,7 @@ export async function archiveAutoMovieRecoveryModel(
   const model: string = fs.realpathSync(input.path);
   if (path.dirname(model) !== root || path.basename(model) !== "model.json")
     throw new Error("Only this run-owned final model can be archived");
-  if (
-    !Number.isSafeInteger(input.bytes) ||
-    input.bytes < 0 ||
-    !/^[a-f0-9]{64}$/i.test(input.sha256)
-  )
+  if (input.bytes < 0 || !/^[a-f0-9]{64}$/i.test(input.sha256))
     throw new Error("A final model requires its exact byte count and SHA-256");
   const destination: string = model + ".gz";
   const temporary: string = destination + ".tmp";

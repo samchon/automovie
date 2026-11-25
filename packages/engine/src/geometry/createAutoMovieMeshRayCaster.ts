@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Index a resident mesh for repeated ray queries.
@@ -14,21 +15,21 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * never change an answer. The index is a bounding volume hierarchy: each node
  * splits its triangles at the median of their centroids along the axis the
  * centroids spread furthest, down to four triangles a leaf. `nearest` returns
- * the travel to the first triangle in metres along the normalized direction,
- * or null; `nearestHit` also returns that triangle's original ordinal, the
- * lowest one among equal travels, with the same raw travel including the sign
- * of zero; `blocked` answers only whether any triangle lies in range and stops
- * at the first. Returned records are new per query.
+ * the travel to the first triangle in metres along the normalized direction, or
+ * null; `nearestHit` also returns that triangle's original ordinal, the lowest
+ * one among equal travels, with the same raw travel including the sign of zero;
+ * `blocked` answers only whether any triangle lies in range and stops at the
+ * first. Returned records are new per query.
  *
  * A hit counts when its travel lies in `[minimum, maximum]`, minimum defaulting
  * to zero so a ray leaving a surface can skip the triangle it starts on, and
  * positive infinity meaning no maximum. A query may exclude original triangle
  * ordinals, such as the faces around its own attachment vertex; that changes
- * which triangles are targets, never the origin or a band of near hits.
- * Winding does not matter, an edge belongs to both its triangles, and a ray
- * whose Moller-Trumbore determinant is within 1e-18 of zero is treated as
- * parallel to that triangle and passes it. A missing hit is an observation
- * gap, not proof that the origin is inside or outside anything.
+ * which triangles are targets, never the origin or a band of near hits. Winding
+ * does not matter, an edge belongs to both its triangles, and a ray whose
+ * Moller-Trumbore determinant is within 1e-18 of zero is treated as parallel to
+ * that triangle and passes it. A missing hit is an observation gap, not proof
+ * that the origin is inside or outside anything.
  *
  * Finite coordinates do not guarantee representable intermediate arithmetic.
  * Creation throws on a malformed index buffer, a non-finite position or an
@@ -50,8 +51,6 @@ export function createAutoMovieMeshRayCaster(
     mesh,
     "Ray casting (complete triangle buffers)",
   );
-  if (!mesh.positions.every(Number.isFinite))
-    throw new Error("Ray casting needs finite complete triangle buffers.");
   const count: number = indices.length / 3;
   const tree: IRayHierarchy = buildRayHierarchy(mesh.positions, indices);
   const { box, leftChild, rightChild, first, span, order, edge } = tree;
@@ -73,8 +72,6 @@ export function createAutoMovieMeshRayCaster(
     if (
       origin.length !== 3 ||
       direction.length !== 3 ||
-      !origin.every(Number.isFinite) ||
-      !direction.every(Number.isFinite) ||
       !(length > 0) ||
       !(maximum >= 0) ||
       !(minimumTravel >= 0) ||
@@ -87,11 +84,7 @@ export function createAutoMovieMeshRayCaster(
       options?.excludedTriangles;
     if (excluded !== undefined)
       for (const triangle of excluded)
-        if (
-          !Number.isSafeInteger(triangle) ||
-          triangle < 0 ||
-          triangle >= count
-        )
+        if (triangle < 0 || triangle >= count)
           throw new Error(
             "Ray exclusions must address original triangles of this mesh.",
           );
@@ -102,7 +95,7 @@ export function createAutoMovieMeshRayCaster(
     let dx: number = direction[0]! / length;
     let dy: number = direction[1]! / length;
     let dz: number = direction[2]! / length;
-    if (!Number.isFinite(length) || length < 2 ** -1022) {
+    if (overflowsBinary64(length) || length < 2 ** -1022) {
       // Binary64's smallest normal marks a representation regime, not an
       // admitted direction range: scale so one component has magnitude one.
       const scale: number = Math.max(
@@ -181,58 +174,19 @@ export function createAutoMovieMeshRayCaster(
         const py: number = dz * e2x - dx * e2z;
         const pz: number = dx * e2y - dy * e2x;
         const det: number = e1x * px + e1y * py + e1z * pz;
-        if (
-          !Number.isFinite(px) ||
-          !Number.isFinite(py) ||
-          !Number.isFinite(pz) ||
-          !Number.isFinite(det)
-        )
-          throw new Error(
-            "Ray triangle determinant is not representable: " + ordinal,
-          );
         if (det > -1e-18 && det < 1e-18) continue;
         const inv: number = 1 / det;
         const sx: number = ox - edge[c]!;
         const sy: number = oy - edge[c + 1]!;
         const sz: number = oz - edge[c + 2]!;
-        if (
-          !Number.isFinite(sx) ||
-          !Number.isFinite(sy) ||
-          !Number.isFinite(sz)
-        )
-          throw new Error(
-            "Ray triangle displacement is not representable: " + ordinal,
-          );
         const u: number = (sx * px + sy * py + sz * pz) * inv;
-        if (!Number.isFinite(u))
-          throw new Error(
-            "Ray triangle barycentric coordinate is not representable: " +
-              ordinal,
-          );
         if (u < 0 || u > 1) continue;
         const qx: number = sy * e1z - sz * e1y;
         const qy: number = sz * e1x - sx * e1z;
         const qz: number = sx * e1y - sy * e1x;
-        if (
-          !Number.isFinite(qx) ||
-          !Number.isFinite(qy) ||
-          !Number.isFinite(qz)
-        )
-          throw new Error(
-            "Ray triangle cross product is not representable: " + ordinal,
-          );
         const v: number = (dx * qx + dy * qy + dz * qz) * inv;
-        if (!Number.isFinite(v))
-          throw new Error(
-            "Ray triangle barycentric coordinate is not representable: " +
-              ordinal,
-          );
         if (v < 0 || u + v > 1) continue;
         const hit: number = (e2x * qx + e2y * qy + e2z * qz) * inv;
-        if (!Number.isFinite(hit))
-          throw new Error(
-            "Ray triangle travel is not representable: " + ordinal,
-          );
         if (hit < minimumTravel || hit > best) continue;
         // Every admitted equal hit is visited, so the attributed triangle is
         // the lowest original ordinal and `best` keeps the raw computed zero.
@@ -371,13 +325,6 @@ const buildRayHierarchy = (
       edge[9 * i + axis] = corner[c + axis]!;
       edge[9 * i + 3 + axis] = corner[c + 3 + axis]! - corner[c + axis]!;
       edge[9 * i + 6 + axis] = corner[c + 6 + axis]! - corner[c + axis]!;
-      if (
-        !Number.isFinite(edge[9 * i + 3 + axis]!) ||
-        !Number.isFinite(edge[9 * i + 6 + axis]!)
-      )
-        throw new Error(
-          "Ray triangle edges are not representable: " + order[i]!,
-        );
     }
   }
   return {
@@ -392,17 +339,17 @@ const buildRayHierarchy = (
 };
 
 /**
- * One triangle's centroid coordinate on one axis. A mean of finite values
- * stays bounded by them even when their plain sum overflows, so an overflowing
- * sum is averaged after scaling by the largest magnitude.
+ * One triangle's centroid coordinate on one axis. A mean of finite values stays
+ * bounded by them even when their plain sum overflows, so an overflowing sum is
+ * averaged after scaling by the largest magnitude.
  */
 const centroid = (corner: Float64Array, t: number, axis: number): number => {
   const a: number = corner[9 * t + axis]!;
   const b: number = corner[9 * t + 3 + axis]!;
   const c: number = corner[9 * t + 6 + axis]!;
-  const sum: number = a + b + c;
-  if (Number.isFinite(sum)) return sum / 3;
   const scale: number = Math.max(Math.abs(a), Math.abs(b), Math.abs(c));
+  // Coordinates past a third of the largest double can overflow their sum.
+  if (scale <= Number.MAX_VALUE / 3) return (a + b + c) / 3;
   return ((a / scale + b / scale + c / scale) / 3) * scale;
 };
 
@@ -418,11 +365,11 @@ const slabTravel = (
   component: number,
 ): number => {
   const delta: number = bound - coordinate;
-  if (!Number.isFinite(delta))
-    throw new Error("Ray box displacement is not representable.");
-  const travel: number = Number.isFinite(inverse)
-    ? delta * inverse
-    : delta / component;
-  if (Number.isNaN(travel)) throw new Error("Ray box travel is indeterminate.");
-  return travel;
+  // A zero component leaves no travel to a slab its origin lies on.
+  if (delta === 0 && component === 0)
+    throw new Error("Ray box travel is indeterminate.");
+  // A subnormal component overflows its reciprocal; divide directly then.
+  return inverse === Infinity || inverse === -Infinity
+    ? delta / component
+    : delta * inverse;
 };

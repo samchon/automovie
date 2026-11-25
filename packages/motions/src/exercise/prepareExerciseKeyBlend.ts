@@ -3,13 +3,13 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 
 /**
  * Prepare the blend of two fixed exercise keys: linear in joint space, the
- * joints through the one joint-map blend owner (`prepareHumanShapeBlend`,
- * a joint one key leaves out read as zero there) and the tilt, the turn and
- * the lift scalar by scalar.
+ * joints through the one joint-map blend owner (`prepareHumanShapeBlend`, a
+ * joint one key leaves out read as zero there) and the tilt, the turn and the
+ * lift scalar by scalar.
  *
  * @param a The fixed key at share zero.
  * @param b The fixed key at share one.

@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanDefend.ts#IAutoMovieMotionHumanDefend
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-outcome: The forced outcome; drawn from the defender's skill when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-outcome: The forced outcome; drawn from the defender's skill when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.defend, params); striking/defend.ts (defend.plan, context); striking/defend.ts (defend.idle, context); striking/defendGeometry.ts (defendGeometry.build, context); striking/defend.ts (defend.plan); striking/defendGeometry.ts (defendGeometry.build).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanDefenceOutcome.Outcome identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanDefend.ts#IAutoMovieMotionHumanDefend.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -41,7 +41,6 @@ export const resolveAutoMovieDaylightRequest: (
   request: IAutoMovieDaylightRequest,
 ): IAutoMovieResolveDaylightRequest.IResult => {
   for (const [label, value] of [
-    ["id", request.id],
     ["subject", request.subject],
     ["input revision", request.inputRevision],
     ["sky model", request.sky],
@@ -67,28 +66,31 @@ export const resolveAutoMovieDaylightRequest: (
     );
   const workplane: IAutoMovieAnalysisWorkplane = request.workplane;
   for (const axis of ["sizeU", "sizeV"] as const)
-    if (!Number.isFinite(workplane[axis]) || workplane[axis] <= 0)
+    if (workplane[axis] <= 0)
       throw new Error(
         `workplane ${axis} must be a finite number above zero, but was ${workplane[axis]}`,
       );
-  for (const axis of ["countU", "countV"] as const)
-    if (!Number.isSafeInteger(workplane[axis]) || workplane[axis] < 1)
+  for (const axis of ["countU", "countV"] as const) {
+    const count: number = workplane[axis];
+    if (
+      !(
+        count >= 1 &&
+        count <= Number.MAX_SAFE_INTEGER &&
+        Math.floor(count) === count
+      )
+    )
       throw new Error(
-        `workplane ${axis} must be a whole number at or above one, but was ${workplane[axis]}`,
+        `workplane ${axis} must be a whole number at or above one, but was ${count}`,
       );
+  }
   const cells: number = workplane.countU * workplane.countV;
   if (cells > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
     throw new Error(
       `a workplane grid of ${cells} cells exceeds the ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES}-sample bound one run may carry; measure a coarser grid or split the plane`,
     );
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(workplane.origin[axis]))
-      throw new Error(
-        `workplane origin ${axis} must be finite, but was ${workplane.origin[axis]}`,
-      );
   for (const key of ["axisU", "axisV"] as const) {
     const length: number = Vector3.length(workplane[key]);
-    if (!Number.isFinite(length) || length <= EPSILON)
+    if (length <= EPSILON)
       throw new Error(
         `workplane ${key} must be a finite non-zero in-plane direction`,
       );
@@ -100,29 +102,26 @@ export const resolveAutoMovieDaylightRequest: (
     throw new Error(
       "a workplane needs two non-parallel in-plane axes to have a normal",
     );
+  const diffuseSamples: number = request.diffuseSamples;
   if (
-    !Number.isSafeInteger(request.diffuseSamples) ||
-    request.diffuseSamples < 1
+    !(
+      diffuseSamples >= 1 &&
+      diffuseSamples <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(diffuseSamples) === diffuseSamples
+    )
   )
     throw new Error(
-      `a daylight study needs a positive whole sky sample count, but was ${request.diffuseSamples}`,
+      `a daylight study needs a positive whole sky sample count, but was ${diffuseSamples}`,
     );
   const luminaires: Set<string> = new Set<string>();
   for (const luminaire of request.luminaires) {
-    if (luminaire.id.trim().length === 0)
-      throw new Error("every luminaire must carry a non-blank id");
     if (luminaires.has(luminaire.id))
       throw new Error(`luminaire id "${luminaire.id}" is declared twice`);
     luminaires.add(luminaire.id);
-    if (!Number.isFinite(luminaire.intensity) || luminaire.intensity < 0)
+    if (luminaire.intensity < 0)
       throw new Error(
         `luminaire "${luminaire.id}" intensity must be a finite number at or above zero, but was ${luminaire.intensity}`,
       );
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(luminaire.position[axis]))
-        throw new Error(
-          `luminaire "${luminaire.id}" position ${axis} must be finite, but was ${luminaire.position[axis]}`,
-        );
   }
   assertAutoMovieAnalysisSolids(request.shades, "shading solid");
   assertAutoMovieAnalysisTargets(request.targets);

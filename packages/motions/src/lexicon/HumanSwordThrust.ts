@@ -25,47 +25,46 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * The thrust of blade work: the point driven straight onto the target, from
  * where the fencer stands or carried by a step or a lunge, then recovered.
  *
- * A thrust states where the point goes and about which way the blade runs;
- * the blade's turn about its own line, and a lean of that line inside
- * `HumanSword.CONE`, are the ones the arm holds best with the blade as the
- * hand took it (`StrikingRoll.hand`). The attack lasts as a minimum-jerk
- * unit arrested at its peak, at the sword's cited peak speed in a lunge
+ * A thrust states where the point goes and about which way the blade runs; the
+ * blade's turn about its own line, and a lean of that line inside
+ * `HumanSword.CONE`, are the ones the arm holds best with the blade as the hand
+ * took it (`StrikingRoll.hand`). The attack lasts as a minimum-jerk unit
+ * arrested at its peak, at the sword's cited peak speed in a lunge
  * (`HumanSword.SPEED`). Parameters, the advance and the parried outcome are
  * `HumanSword`'s.
  *
- * What the row fixes: the point lands at the decisive instant (`stroke`) on
- * a line that may leave the shoulder-to-target line by at most 40 degrees
- * (`HumanSword.CONE`); the chamber holds the upper arm 25 degrees out from
- * the trunk (`CHAMBER`); a target nearer than 0.3 of the arm from the
- * shoulder in a pose the arm cannot hold is refused (`NEAR`); a target
- * beyond 0.9 of the arm less the blade takes an advance (`HumanSword.REACH`).
- * The duration is the sword timing model's (`IAutoMovieMotionHumanSword`):
- * 1.875 times the path over a point speed of 2.6 m/s at novice to 3.2 m/s
- * at elite, so a 0.8 m thrust takes 0.47 s at elite. The row fixes no
- * duration of its own; all its values are provisional but the speeds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a thrust fixes, what is chosen for it and where its timing comes from.
- * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner, sharing the cut's aim, clock and parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named.
+ * What the row fixes: the point lands at the decisive instant (`stroke`) on a
+ * line that may leave the shoulder-to-target line by at most 40 degrees
+ * (`HumanSword.CONE`); the chamber holds the upper arm 25 degrees out from the
+ * trunk (`CHAMBER`); a target nearer than 0.3 of the arm from the shoulder in a
+ * pose the arm cannot hold is refused (`NEAR`); a target beyond 0.9 of the arm
+ * less the blade takes an advance (`HumanSword.REACH`). The duration is the
+ * sword timing model's (`IAutoMovieMotionHumanSword`): 1.875 times the path
+ * over a point speed of 2.6 m/s at novice to 3.2 m/s at elite, so a 0.8 m
+ * thrust takes 0.47 s at elite. The row fixes no duration of its own; all its
+ * values are provisional but the speeds.
  */
 export namespace HumanSwordThrust {
-  /** The chamber's upper arm held out from the trunk, degrees of abduction from hanging, so its girth clears the trunk's (provisional). */
+  /**
+   * The chamber's upper arm held out from the trunk, degrees of abduction from
+   * hanging, so its girth clears the trunk's (provisional).
+   */
   export const CHAMBER: number = 25;
 
-  /** The least share of the arm's length the hand stands before the shoulder as the point lands for a pose the arm cannot hold to be blamed on the hold (provisional): nearer, the refusal names its cause, a target inside the tool's own length. */
+  /**
+   * The least share of the arm's length the hand stands before the shoulder as
+   * the point lands for a pose the arm cannot hold to be blamed on the hold
+   * (provisional): nearer, the refusal names its cause, a target inside the
+   * tool's own length.
+   */
   export const NEAR: number = 0.3;
 
   /**
-   * Thrust: the point driven straight onto the target at the decisive instant (`stroke`), with a step or a lunge when asked, then recovered. A target beyond the arm with the chosen advance, or so near that the hand would land within `NEAR` of the arm from the shoulder in a pose the arm cannot hold, is refused on `target`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, the advance and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The landed pose puts the point on the target with the blade along the line from the shoulder, as it stands after the advance; the hilt starts drawn back by the side, the upper arm hanging and the forearm square to it with the point already on the line, and point and turn run to the landed pose on one progress. The attack lasts as a minimum-jerk unit arrested at its peak speed, the sword's cited peak velocity in a lunge.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the landed pose, the chamber, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chamber is the arm's own segments; the shoulder used for the reach ignores the lunge's sink, stated at `StrikingBlade.shoulder`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan; each posture costs the stroke planner's elbow searches and, in an advance, one root lowering.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+   * Thrust: the point driven straight onto the target at the decisive instant
+   * (`stroke`), with a step or a lunge when asked, then recovered. A target
+   * beyond the arm with the chosen advance, or so near that the hand would land
+   * within `NEAR` of the arm from the shoulder in a pose the arm cannot hold,
+   * is refused on `target`.
    */
   export const thrust: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.IAttack> =
     {
@@ -172,7 +171,8 @@ export namespace HumanSwordThrust {
               );
         const carried: number = Vector3.length(travel);
 
-        // The chamber is the landing drawn back along the stroke's line, the
+        // The chamber is the landing drawn back along the stroke's line
+        // (`chamberDepth`), the
         // hand's attitude kept: the arm the landing chose, its elbow and its
         // forearm's turn, only less extended, so the attack is one basin of
         // the arm from the chamber to the landing. A chamber turned for
@@ -189,16 +189,37 @@ export namespace HumanSwordThrust {
           landed.point,
           travel,
         );
-        const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
-          point: Vector3.subtract(
-            reached,
-            Vector3.scale(
-              line,
-              Math.max(0, Vector3.dot(Vector3.subtract(reached, hilt), line)),
-            ),
-          ),
+        // Drawn that deep, the hand must still hold the tool on its line as
+        // the entry's body stands; the landing does (`StrikingRoll.reachable`
+        // above), so the chamber is the deepest draw the arm holds within the
+        // held-tool bound, found to that bound's own resolution by bisection
+        // between the landing and the hilt's depth.
+        const drawnAt = (
+          depth: number,
+        ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+          point: Vector3.subtract(reached, Vector3.scale(line, depth)),
           rotation: landed.rotation,
-        };
+        });
+        const holds = (depth: number): boolean =>
+          StrikingRoll.miss(
+            context,
+            s.tool,
+            drawnAt(depth),
+            0,
+            context.entry.posture,
+          ) <= StrikingRoll.MISS;
+        let deepest: number = chamberDepth(s.shoulder, hilt, reached, line);
+        if (!holds(deepest)) {
+          let held: number = 0;
+          while (deepest - held > StrikingRoll.MISS) {
+            const middle: number = (held + deepest) / 2;
+            if (holds(middle)) held = middle;
+            else deepest = middle;
+          }
+          deepest = held;
+        }
+        const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          drawnAt(deepest);
 
         // The arm sets from its entry hold to the guard, the chamber, over
         // its own travel there, the hand's or the elbow's
@@ -272,17 +293,49 @@ export namespace HumanSwordThrust {
           },
           armTravel,
         );
-
-        // Observations read while the schedule was being resolved are
-        // dropped once the performance settles. The plan is extended in
-        // place, so any getter it carries is not read early.
-        const settled: IAutoMovieMotionHumanActionPlan["settle"] =
-          planned.settle;
-        planned.settle = (): void => {
-          follow.settle();
-          settled?.call(planned);
-        };
         return planned;
       },
     };
+}
+
+/**
+ * How far the chamber draws the hand back from its landing along the stroke's
+ * line, metres: as deep as the hilt's chamber by the side lies along the line,
+ * but never nearer the shoulder than that chamber holds the hand.
+ *
+ * The chamber hilt stands where the forearm is square to the upper arm, so the
+ * hand is the hypotenuse of the two segments from the shoulder; drawn deeper
+ * along a line that passes before the trunk, the hand folds in against the
+ * shoulder and the forearm lies inside the chest. The draw is therefore cut
+ * where the line first meets the sphere of the chamber's reach about the
+ * shoulder, the nearer root of |from − line·d| = r (a quadratic in d); a line
+ * that never comes that near keeps the whole draw, and a landing already inside
+ * the sphere is not drawn nearer.
+ *
+ * @param shoulder The thrusting shoulder, world metres.
+ * @param hilt The chamber's hilt by the side, world metres.
+ * @param reached Where the hand lands, as the entry's shoulder stands, world
+ *   metres.
+ * @param line The stroke's unit direction.
+ * @returns The draw, metres, not negative.
+ */
+function chamberDepth(
+  shoulder: IAutoMovieVector3,
+  hilt: IAutoMovieVector3,
+  reached: IAutoMovieVector3,
+  line: IAutoMovieVector3,
+): number {
+  const depth: number = Math.max(
+    0,
+    Vector3.dot(Vector3.subtract(reached, hilt), line),
+  );
+  const radius: number = Vector3.distance(hilt, shoulder);
+  const from: IAutoMovieVector3 = Vector3.subtract(reached, shoulder);
+  const along: number = Vector3.dot(from, line);
+  const beyond: number = Vector3.dot(from, from) - radius * radius;
+  if (beyond <= 0) return 0;
+  const discriminant: number = along * along - beyond;
+  return discriminant < 0
+    ? depth
+    : Math.min(depth, Math.max(0, along - Math.sqrt(discriminant)));
 }

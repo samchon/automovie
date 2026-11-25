@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchUpright.ts#AutoMovieMotionHumanTouchUpright
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the free turn, why it matters, the candidates, the choice, the tie, the lean's turn and who seeks the lean.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The vessel's constraint is its axis alone, so the answer is a level direction and the tilt the arm leaves at it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The candidates' bounds, the answer, the search, its candidates, the tilt and the lean's turn; read by the touch stroke's `lie` and held rotation, by the high five, by the drinking search and by the hand-to-face law, which compares the tilts of a held prop's candidate sides.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No turn is assumed for any region or hand; every candidate is solved by the resolver, which owns the ranges.
-
 # src/compose/AutoMovieMotionHumanTouchUpright.ts#AutoMovieMotionHumanTouchUpright.solve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

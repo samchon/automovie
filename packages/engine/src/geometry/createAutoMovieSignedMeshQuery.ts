@@ -9,6 +9,7 @@ import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { boundAutoMovieMeshQueryPoint as bound } from "./boundAutoMovieMeshQueryPoint";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Compile a closed oriented surface, or an open oriented sheet, into a
@@ -25,13 +26,12 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * The mesh is snapshotted, so changing it later needs a new query. Vertices
  * that share exact coordinates are welded, joining UV-split copies without
  * moving them. Admission throws on a malformed or empty index buffer, a
- * non-finite position, a triangle without positive finite area, an edge used
- * by more than two triangles or by two with the same direction, and a vertex
- * whose incident triangles form more than one fan. A closed surface also
- * requires every edge to be paired. The caller still owns an embedded,
- * non-self-intersecting, outward-oriented surface, cavity walls included,
- * which this neither infers nor repairs; reversing every face reverses the
- * sign.
+ * non-finite position, a triangle without positive finite area, an edge used by
+ * more than two triangles or by two with the same direction, and a vertex whose
+ * incident triangles form more than one fan. A closed surface also requires
+ * every edge to be paired. The caller still owns an embedded,
+ * non-self-intersecting, outward-oriented surface, cavity walls included, which
+ * this neither infers nor repairs; reversing every face reverses the sign.
  *
  * With `boundary: "open"` an oriented sheet is admitted: an edge used by one
  * triangle takes that face's normal as its pseudonormal. A sheet's sign is
@@ -59,7 +59,7 @@ export function createAutoMovieSignedMeshQuery(
   options?: IAutoMovieSignedMeshQueryOptions,
 ): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit {
   const indices: number[] = triangleIndicesOf(mesh, "Signed mesh queries");
-  if (indices.length === 0 || !mesh.positions.every(Number.isFinite))
+  if (indices.length === 0)
     throw new Error("Signed mesh queries need a nonempty finite surface.");
   const positions: number[] = mesh.positions.slice();
   const identities: Map<string, number> = new Map();
@@ -104,7 +104,7 @@ export function createAutoMovieSignedMeshQuery(
     const bb: number = dot(ac, ac);
     const abac: number = dot(ab, ac);
     const determinant: number = aa * bb - abac * abac;
-    if (!(determinant > 0) || !Number.isFinite(determinant))
+    if (!(determinant > 0) || overflowsBinary64(determinant))
       throw new Error(
         `Signed mesh triangle arithmetic must have finite positive rank: triangle ${at / 3}, vertices ${source.join(",")}, determinant ${determinant}, points ${JSON.stringify(points)}.`,
       );
@@ -214,7 +214,7 @@ export function createAutoMovieSignedMeshQuery(
     buildAutoMovieMeshQueryHierarchy(triangles);
   let recent: ITriangle | undefined;
   return (point: readonly number[]): IAutoMovieSignedMeshQueryHit => {
-    if (point.length !== 3 || !point.every(Number.isFinite))
+    if (point.length !== 3)
       throw new Error("Signed mesh queries require finite XYZ coordinates.");
     let extent2: number = 0;
     for (let axis: number = 0; axis < 3; axis++)
@@ -223,7 +223,8 @@ export function createAutoMovieSignedMeshQuery(
           Math.abs(point[axis]! - root.low[axis]!),
           Math.abs(point[axis]! - root.high[axis]!),
         ) ** 2;
-    if (!Number.isFinite(extent2))
+    // A finite query far from the mesh can overflow its squared extent.
+    if (overflowsBinary64(extent2))
       throw new Error("Signed mesh query arithmetic must remain finite.");
     const best: IBest = {
       seed: recent,
@@ -286,8 +287,8 @@ interface IEdge {
 
 /**
  * One directed triangle edge as a closed segment: welded start and end
- * identities, start point, end minus start, its squared length, and the
- * welded edge it lies on.
+ * identities, start point, end minus start, its squared length, and the welded
+ * edge it lies on.
  */
 interface ITriangleSegment {
   from: number;
@@ -299,8 +300,8 @@ interface ITriangleSegment {
 }
 
 /**
- * One admitted triangle: its original ordinal, first corner `a`, edges `ab`
- * and `ac`, unit winding normal, the Gram terms `aa`, `bb`, `abac` and their
+ * One admitted triangle: its original ordinal, first corner `a`, edges `ab` and
+ * `ac`, unit winding normal, the Gram terms `aa`, `bb`, `abac` and their
  * positive determinant for barycentric projection, and its three closed edge
  * segments in corner order.
  */
@@ -333,7 +334,7 @@ const cross = (a: readonly number[], b: readonly number[]): number[] => [
 ];
 const unit = (vector: readonly number[]): number[] => {
   const length: number = Math.hypot(...vector);
-  if (!(length > 0) || !Number.isFinite(length))
+  if (!(length > 0) || overflowsBinary64(length))
     throw new Error("Signed mesh features need finite nonzero normals.");
   return vector.map((value: number): number => value / length);
 };
@@ -343,7 +344,8 @@ const unit = (vector: readonly number[]): number[] => {
  * is no farther than the running best, and its children's box distances are
  * measured once here and passed down, so the order and pruning match a
  * traversal that re-measured them on entry without the repeated work. Leaf
- * bounds stop only on strict excess; the current-point seed was already tested.
+ * bounds stop only on strict excess; the current-point seed was already
+ * tested.
  */
 function visit(
   node: IAutoMovieMeshQueryHierarchy<ITriangle>,

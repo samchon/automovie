@@ -4,8 +4,8 @@ import {
 } from "@automovie/interface";
 
 /**
- * The slot one compact-member address names in a set, or null when it names
- * no member of that set.
+ * The slot one compact-member address names in a set, or null when it names no
+ * member of that set.
  *
  * The inverse of `autoMovieInstanceAddress` for members inside the set: an
  * explicit layout matches its transforms' ids, any other layout parses exactly

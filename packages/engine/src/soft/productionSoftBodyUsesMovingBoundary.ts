@@ -4,7 +4,10 @@ import {
   IAutoMovieSoftCollider,
 } from "@automovie/interface";
 
-/** Identify whether a typed domain declares any moving anchor binding or body-capsule collider. The declaration test does not resolve a pose, certify samples or start a live solver.
+/**
+ * Identify whether a typed domain declares any moving anchor binding or
+ * body-capsule collider. The declaration test does not resolve a pose, certify
+ * samples or start a live solver.
  */
 export const productionSoftBodyUsesMovingBoundary: (
   domain: Pick<IAutoMovieSoftBodyDomain, "anchors" | "colliders">,

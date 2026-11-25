@@ -11,9 +11,7 @@ import type { rideQuadruped } from "./rideQuadruped";
  * owner distinguishes a virtual foot landing from a new locomotion request.
  */
 export namespace QuadrupedRideClock {
-  /**
-   * The active course interval and a reader for an already committed gait.
-   */
+  /** The active course interval and a reader for an already committed gait. */
   export interface IClock {
     /** Course start, film seconds, including its authored cue offset. */
     start: number;
@@ -21,22 +19,19 @@ export namespace QuadrupedRideClock {
     end: number;
     /** The course end on the hoof clock after removing stationary intervals. */
     movingEnd: number;
-    /**
-     * Remove elapsed stopped time from the film second.
-     */
+    /** Remove elapsed stopped time from the film second. */
     movingAt: (second: number) => number;
-    /**
-     * Read the first film second at which the moving clock reaches a value.
-     */
+    /** Read the first film second at which the moving clock reaches a value. */
     filmAt: (second: number) => number;
     /**
-     * Read timing context at a film second, holding the nearest course boundary.
-     * Spatial placement still reads the original plan at its original second.
+     * Read timing context at a film second, holding the nearest course
+     * boundary. Spatial placement still reads the original plan at its original
+     * second.
      */
     at: (seconds: number) => AutoMovieArchetypeCourse.IState;
     /**
-     * Read an already committed gait's clock at a film second.
-     * Unsupported gaps and speed-availability handover gaps remain refusals.
+     * Read an already committed gait's clock at a film second. Unsupported gaps
+     * and speed-availability handover gaps remain refusals.
      */
     timing: (
       gait: AutoMovieArchetypeQuadrupedGait.Gait,
@@ -47,13 +42,13 @@ export namespace QuadrupedRideClock {
   /**
    * Prepare temporal boundary sampling and declared legacy clock continuation.
    *
-   * A virtual previous/next landing can lie outside the course. Only its
-   * clock context uses the boundary state; its held spatial distance is still
-   * read from the unmodified plan at the original landing second by the ride.
-   * A selected stride may finish while the legacy Froude/mass/overlap law holds
+   * A virtual previous/next landing can lie outside the course. Only its clock
+   * context uses the boundary state; its held spatial distance is still read
+   * from the unmodified plan at the original landing second by the ride. A
+   * selected stride may finish while the legacy Froude/mass/overlap law holds
    * it outside its own measured range. Its endpoint clock continues only while
-   * the speed is supported by the immediately neighbouring gait across
-   * that legacy edge. Declared speed-availability edges do not grant this rule.
+   * the speed is supported by the immediately neighbouring gait across that
+   * legacy edge. Declared speed-availability edges do not grant this rule.
    * Genuine zero-speed ramps keep the existing vMin²/(2a) distance bridge.
    *
    * @param species The ride's private selected table and species identity.
@@ -61,9 +56,12 @@ export namespace QuadrupedRideClock {
    * @param plan The already admitted path and clock interval.
    * @param tempo The animal's normalized declared timing-spread coordinate.
    * @param withers The animal's withers height, metres.
-   * @param holds Explicit hoof-clock holds, such as a jump's flight and its approach's stride adjustment, merged with the route pauses.
-   * @returns A prepared continuation reader; requested-speed admission is unchanged.
-   * @throws {AutoMovieArchetypeRefusal} Through strict timing when no declared continuation supports the speed, or timing inputs are malformed.
+   * @param holds Explicit hoof-clock holds, such as a jump's flight and its
+   *   approach's stride adjustment, merged with the route pauses.
+   * @returns A prepared continuation reader; requested-speed admission is
+   *   unchanged.
+   * @throws {AutoMovieArchetypeRefusal} Through strict timing when no declared
+   *   continuation supports the speed, or timing inputs are malformed.
    */
   export function create(
     species: createQuadruped.ISpecies,
@@ -76,7 +74,10 @@ export namespace QuadrupedRideClock {
     const start: number = plan.when(0);
     const end: number = plan.when(plan.length);
 
-    /** Finite stopped windows paired by their original course leg, then the explicit hoof-clock holds. */
+    /**
+     * Finite stopped windows paired by their original course leg, then the
+     * explicit hoof-clock holds.
+     */
     const paused: IPause[] = [];
     if (
       course.legs.some(
@@ -119,9 +120,6 @@ export namespace QuadrupedRideClock {
       const over: number = hold.over ?? hold.duration;
       if (
         !(
-          Number.isFinite(hold.start) &&
-          Number.isFinite(hold.duration) &&
-          Number.isFinite(over) &&
           over > 0 &&
           (hold.over === undefined
             ? hold.duration > 0
@@ -298,13 +296,16 @@ export namespace QuadrupedRideClock {
   }
 
   /**
-   * The speed a collected explicit gait's clock is read at: the speed inside its declared domain, and its fastest row while the horse is still above it but inside the parent gait's domain it is being collected out of.
+   * The speed a collected explicit gait's clock is read at: the speed inside
+   * its declared domain, and its fastest row while the horse is still above it
+   * but inside the parent gait's domain it is being collected out of.
    *
    * @param species The ride's species and selected table.
    * @param gait The committed gait.
    * @param speed The course speed, metres per second.
    * @param withers The animal's withers height, metres.
-   * @returns The speed to read the strict table at; unchanged when no collection rule applies, so the strict reader still refuses.
+   * @returns The speed to read the strict table at; unchanged when no
+   *   collection rule applies, so the strict reader still refuses.
    */
   export function collectedSpeed(
     species: createQuadruped.ISpecies,
@@ -323,16 +324,25 @@ export namespace QuadrupedRideClock {
   }
 
   /**
-   * An explicit interval in which the hoof clock stands still, or runs slower or faster, while the course keeps moving: a jump's flight, or an approach whose strides lengthen or shorten to meet its takeoff.
+   * An explicit interval in which the hoof clock stands still, or runs slower
+   * or faster, while the course keeps moving: a jump's flight, or an approach
+   * whose strides lengthen or shorten to meet its takeoff.
    */
   export interface IHold {
     /** Film second the hoof clock stops, or starts to run at its changed rate. */
     start: number;
 
-    /** Seconds the hoof clock falls behind the film over the hold; negative only with `over`, where it runs ahead. */
+    /**
+     * Seconds the hoof clock falls behind the film over the hold; negative only
+     * with `over`, where it runs ahead.
+     */
     duration: number;
 
-    /** Film seconds the hold is spread over, the hoof clock running at (over ??duration) / over of the film's rate; a full stop of `duration` when absent. */
+    /**
+     * Film seconds the hold is spread over, the hoof clock running at (over
+     * ??duration) / over of the film's rate; a full stop of `duration` when
+     * absent.
+     */
     over?: number;
   }
 

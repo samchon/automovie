@@ -14,10 +14,10 @@ import { Matrix4 } from "./math/Matrix4";
  * A part's own transform is applied first; a part attached to a bone the
  * skeleton's rest pose resolves is then carried by that bone's world rest
  * placement (position and rotation, unit scale). A bone the rest pose does not
- * resolve leaves its part unattached. `null` marks a part with no transform
- * and no resolved bone, so a caller can keep its coordinates bit for bit
- * instead of multiplying by an identity. The rest pose is resolved at most
- * once, and only when some part is attached. Units are model metres.
+ * resolve leaves its part unattached. `null` marks a part with no transform and
+ * no resolved bone, so a caller can keep its coordinates bit for bit instead of
+ * multiplying by an identity. The rest pose is resolved at most once, and only
+ * when some part is attached. Units are model metres.
  *
  * @param model Model whose parts are placed.
  * @returns One entry per part object of `model.parts`, in part order.

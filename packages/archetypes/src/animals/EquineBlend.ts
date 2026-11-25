@@ -11,9 +11,15 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
- * An equid's body between two posed models of it at their placements, read in the second's placement and held on the floor by its lowest part.
+ * An equid's body between two posed models of it at their placements, read in
+ * the second's placement and held on the floor by its lowest part.
  *
- * Each part's and contact's world frame blends from the first model's to the second's, the rotation by spherical interpolation and the translation linearly, at the share; the blend is then raised by the depth its lowest part would reach under the floor, so the body rests on the floor rather than passing through it. It is the transition between a stride or a stance and a lying pose, where the two poses share no common rig path.
+ * Each part's and contact's world frame blends from the first model's to the
+ * second's, the rotation by spherical interpolation and the translation
+ * linearly, at the share; the blend is then raised by the depth its lowest part
+ * would reach under the floor, so the body rests on the floor rather than
+ * passing through it. It is the transition between a stride or a stance and a
+ * lying pose, where the two poses share no common rig path.
  *
  * @param from The first posed model.
  * @param fromPlacement Its placement.
@@ -78,6 +84,7 @@ export function EquineBlend<Id extends string, D extends string>(
   );
 
   // Hold the blended body on the floor by its lowest part.
+  const cells: AutoMovieArchetype["convexCells"] = to.convexCells;
   const lowest: number = Math.min(
     ...parts
       .filter(
@@ -85,13 +92,16 @@ export function EquineBlend<Id extends string, D extends string>(
           part.transform !== undefined && part.transform !== null,
       )
       .map((part: IAutoMovieModelPart): number =>
-        QuadrupedRestFloor({
-          ...part,
-          transform: AutoMovieArchetypeFrame.compose(
-            toPlacement,
-            part.transform!,
-          ),
-        }),
+        QuadrupedRestFloor(
+          {
+            ...part,
+            transform: AutoMovieArchetypeFrame.compose(
+              toPlacement,
+              part.transform!,
+            ),
+          },
+          cells,
+        ),
       ),
   );
   const lift: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {

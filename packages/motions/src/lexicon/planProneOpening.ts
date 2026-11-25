@@ -18,28 +18,43 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
-/** How far beyond the solid the crawl ends, statures (provisional: the feet clear of the far side). */
+/**
+ * How far beyond the solid the crawl ends, statures (provisional: the feet
+ * clear of the far side).
+ */
 const BEYOND: number = 0.7;
 
 /** The root's advance per palm stroke, forearm lengths (provisional). */
 const STROKE: number = 0.65;
 
-/** Seconds per stroke for a body of hip height STROKE_HIP, scaled by the square root of the hip height (provisional; Froude-similar timing). */
+/**
+ * Seconds per stroke for a body of hip height STROKE_HIP, scaled by the square
+ * root of the hip height (provisional; Froude-similar timing).
+ */
 const STROKE_SECONDS: number = 0.48;
 
-/** The hip height at which a stroke takes STROKE_SECONDS, metres (provisional: an average adult). */
+/**
+ * The hip height at which a stroke takes STROKE_SECONDS, metres (provisional:
+ * an average adult).
+ */
 const STROKE_HIP: number = 0.93;
 
 /** The share of each stroke its palm bears, centred on the stroke (provisional). */
 const BEAR: number = 0.5;
 
-/** How far into its stroke's advance the palm is placed ahead of the shoulder, strokes (provisional: ahead of the pull's middle). */
+/**
+ * How far into its stroke's advance the palm is placed ahead of the shoulder,
+ * strokes (provisional: ahead of the pull's middle).
+ */
 const REACH: number = 0.72;
 
 /** The palm's lift between strokes, metres (provisional). */
 const LIFT: number = 0.035;
 
-/** The least downward component of the trunk's forward axis for a prone entry (provisional: about 45 degrees face down). */
+/**
+ * The least downward component of the trunk's forward axis for a prone entry
+ * (provisional: about 45 degrees face down).
+ */
 const PRONE: number = 0.7;
 
 /** One palm stroke: its hand and wrist goal. */
@@ -51,24 +66,16 @@ interface IPalmPlacement {
   wrist: IAutoMovieMotionHumanHand.IWrist;
 }
 /**
- * Move a prone entry through a low aperture with alternating palm support.
- * The chest stays low on its incoming floor pose. Each palm advances,
- * supports the moving torso while it stays at a world point, then
- * releases to the next stroke. Rise with the existing floor get-up.
+ * Move a prone entry through a low aperture with alternating palm support. The
+ * chest stays low on its incoming floor pose. Each palm advances, supports the
+ * moving torso while it stays at a world point, then releases to the next
+ * stroke. Rise with the existing floor get-up.
  *
  * @param context The actor's displayed entry and canonical body.
  * @param frame The level opening's world passage frame.
  * @param near The near side, opening-local metres.
  * @param far The far side, opening-local metres.
  * @returns A low passage exiting prone and clear of the solid.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the incoming support, stroke sequence, contact behavior and outgoing support.
- * @evidence contracts/development/implementation.md#principled-implementation Alternates two resolved palm goals placed on the floor, while the displayed prone entry supplies the resting torso, limb and yaw geometry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build each hand placement and its windows once, then read the active stroke on the action clock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Palms use the body surface offset on the physical support; the stroke constants are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in strokes at plan time; one stroke lookup and at most one arm goal per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry's resolved bones, hand shapes and palm offsets are read once and shared by every sample.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only its stroke placements for the plan's lifetime.
  */
 export function planProneOpening(
   context: IAutoMovieMotionHumanActionContext<object>,

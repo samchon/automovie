@@ -8,7 +8,9 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Compile one interval's motion coefficients. Scalar checks retain direct callers' mutable-transform semantics; returned vectors are independently owned.
+ * Compile one interval's motion coefficients. Scalar checks retain direct
+ * callers' mutable-transform semantics; returned vectors are independently
+ * owned.
  */
 export function preparePhysicalTargetSampler(
   before: IAutoMovieRigidTransform,
@@ -62,7 +64,10 @@ export function preparePhysicalTargetSampler(
   };
 }
 
-/** Compare numeric values so in-place receiver or target edits invalidate coefficients too. */
+/**
+ * Compare numeric values so in-place receiver or target edits invalidate
+ * coefficients too.
+ */
 function same(
   actual: IAutoMovieRigidTransform,
   previous: IAutoMovieRigidTransform | undefined,

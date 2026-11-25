@@ -21,7 +21,6 @@ import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulation
 import { checkpointPhysicalSimulation } from "./checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
-import { freezePhysicalRecord } from "./freezePhysicalRecord";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 import { physicalInputDigest } from "./physicalInputDigest";
 import { planPhysicalSimulationSteps } from "./planPhysicalSimulationSteps";
@@ -35,6 +34,7 @@ import { restorePhysicalSimulationCheckpoint } from "./restorePhysicalSimulation
 import { samplePhysicalTracking } from "./samplePhysicalTracking";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 import { solvePhysicalCompliantContacts as solveCompliance } from "./solvePhysicalCompliantContacts";
+import { solveXpbdArticulation } from "./solveXpbdArticulation";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { trackPhysicalWorld } from "./trackPhysicalWorld";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
@@ -121,7 +121,6 @@ export class AutoMoviePhysicalSimulation {
         };
     }
     admitPhysicalSimulation(owned);
-    freezePhysicalRecord(owned);
     return { owned, schedule: preparePhysicalCoupledTargetSchedule(owned) };
   }
 
@@ -197,8 +196,6 @@ export class AutoMoviePhysicalSimulation {
         progress,
         coupling,
       );
-      freezePhysicalRecord(cache);
-      if (fits) freezePhysicalRecord(fits);
       return new AutoMoviePhysicalSimulation(
         owned,
         cache,
@@ -360,15 +357,17 @@ export class AutoMoviePhysicalSimulation {
                   (candidate: (typeof owned.bodies)[number]): boolean =>
                     candidate.id === impulse.body,
                 )!;
-              bound.bodies
-                .get(`${impulse.body}/${impulse.bone}`)!
-                .applyImpulseAtPoint(
-                  Vector3.scale(
-                    impulse.impulse,
-                    body.mode.kind === "exaggerated" ? body.mode.impulse : 1,
-                  ),
-                  impulse.point,
-                );
+              // The blow acts through the struck body's whole articulation
+              // (`solveXpbdArticulation.impulse`).
+              solveXpbdArticulation.impulse(
+                world.joints,
+                bound.bodies.get(`${impulse.body}/${impulse.bone}`)!,
+                impulse.point,
+                Vector3.scale(
+                  impulse.impulse,
+                  body.mode.kind === "exaggerated" ? body.mode.impulse : 1,
+                ),
+              );
               if (Vector3.length(impulse.impulse) > 0)
                 softened.set(
                   `${impulse.body}/${impulse.bone}`,
@@ -472,9 +471,6 @@ export class AutoMoviePhysicalSimulation {
             progress,
           );
       }
-      freezePhysicalRecord(cache);
-      freezePhysicalRecord(diagnostics);
-      if (fits) freezePhysicalRecord(fits);
       return new AutoMoviePhysicalSimulation(
         owned,
         cache,

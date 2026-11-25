@@ -19,7 +19,8 @@ import { AutoMovieArchetypeRefusal } from "../core";
  * @param stride Positive finite effective period at the cell, seconds.
  * @param cells Positive safe-integer count of cells in the phase plan.
  * @returns The strictly advancing, finite cumulative phase within capacity.
- * @throws {AutoMovieArchetypeRefusal} Before enumeration for nonrepresentable arithmetic or a plan requiring more than one complete cycle per cell.
+ * @throws {AutoMovieArchetypeRefusal} Before enumeration for nonrepresentable
+ *   arithmetic or a plan requiring more than one complete cycle per cell.
  */
 export function admitQuadrupedPhase(
   archetype: string,
@@ -35,23 +36,14 @@ export function admitQuadrupedPhase(
   const crossed: number = to - from;
   if (
     !(
-      Number.isSafeInteger(cells) &&
       cells > 0 &&
-      Number.isFinite(phase) &&
       phase >= 0 &&
-      Number.isFinite(seconds) &&
       seconds > 0 &&
-      Number.isFinite(stride) &&
       stride > 0 &&
-      Number.isFinite(advance) &&
       advance > 0 &&
       advance <= 1 &&
-      Number.isFinite(next) &&
       next > phase &&
       next <= cells &&
-      Number.isSafeInteger(from) &&
-      Number.isSafeInteger(to) &&
-      Number.isSafeInteger(crossed) &&
       crossed >= 0 &&
       crossed <= 1
     )
@@ -63,7 +55,7 @@ export function admitQuadrupedPhase(
       value: { phase, seconds, stride, cells, advance, next, crossed },
       feasible: {
         kind: "range",
-        minimum: Number.isFinite(seconds) && seconds > 0 ? seconds : null,
+        minimum: seconds > 0 ? seconds : null,
         maximum: null,
         unit: "s",
       },

@@ -1,13 +1,15 @@
 import type * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+
 /**
  * Collect the resources a subtree owner may retire, before any disposal event
  * can mutate that subtree. Geometry, standard materials, custom shadow
  * materials and skinned meshes' skeletons are distinct by object identity,
- * including sharing across meshes. A skeleton is collected because its
- * disposal releases the bone texture the renderer allocates on first draw;
- * omitting it left that texture to the GPU until context loss. Skeletons come
- * last, after every geometry, material and texture.
+ * including sharing across meshes. A skeleton is collected because its disposal
+ * releases the bone texture the renderer allocates on first draw; omitting it
+ * left that texture to the GPU until context loss. Skeletons come last, after
+ * every geometry, material and texture.
  *
  * Textures are included only for a decoded subtree that owns them. A group
  * backed by a texture cache leaves those wrappers to the cache's independent
@@ -35,23 +37,12 @@ export function collectAutoMovieOwnedResources(
   group.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     // A skinned mesh's skeleton owns the bone texture the renderer uploads its
     // bone matrices into; it is retired with the subtree that bound it.
-    if ((object as THREE.SkinnedMesh).isSkinnedMesh === true)
-      skeletons.add((object as THREE.SkinnedMesh).skeleton);
-    const mesh: THREE.Mesh<
-      THREE.BufferGeometry<
-        THREE.NormalBufferAttributes,
-        THREE.BufferGeometryEventMap
-      >,
-      | THREE.Material<THREE.MaterialEventMap>
-      | THREE.Material<THREE.MaterialEventMap>[],
-      THREE.Object3DEventMap
-    > = object as THREE.Mesh;
-    if (mesh.isMesh !== true) return;
+    if (AutoMovieThreeKind.isSkinnedMesh(object))
+      skeletons.add(object.skeleton);
+    if (!AutoMovieThreeKind.isMesh(object)) return;
+    const mesh: THREE.Mesh = object;
     geometries.add(mesh.geometry);
-    for (const material of Array.isArray(mesh.material)
-      ? mesh.material
-      : [mesh.material])
-      materials.add(material);
+    for (const material of [mesh.material].flat()) materials.add(material);
     if (mesh.customDepthMaterial !== undefined)
       materials.add(mesh.customDepthMaterial);
     if (mesh.customDistanceMaterial !== undefined)

@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -17,39 +18,82 @@ import type {
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
+import { StrikingVerdictsGap } from "./StrikingVerdictsGap";
+
+/** The record of `IPenetrationDeepest`'s site. */
+type IPenetrationDeepest = { at: number };
+
+/** The record of `IContactClosest`'s site. */
+type IContactClosest = { at: number };
+
+/** The alternatives of `ContactDeclared`'s site. */
+type ContactDeclared = "feint" | "miss" | "graze" | undefined;
+
+/** The record of `IStrikeOther`'s site. */
+type IStrikeOther = { id: string; body: IAutoMovieMotionHumanBody };
 
 /**
- * The verdicts of a displayed strike, each measured on the shown bones
- * against the action's own goal, each able to fail and each printing its
- * bound.
+ * Every verdict of one strike.
  *
- * - Contact: a strike meant to hit stops with its limb within 15 mm of the
- *   other body's surface, on a part of a declared class when the scenario
- *   declares one; a feint or a declared miss never stops and stays clear of
- *   the other body up to its shown peak; a graze passes within -10 to +15 mm
- *   of it; a strike cut before its contact never stops; a strike the reach
- *   solve declared short stands only when its target lay beyond the bare
- *   limb's length from its root at the launch.
+ * @param strike The strike.
+ * @returns The contact (or extension), penetration, support slip, range of
+ *   motion and, for a kick, leg goal verdicts.
+ */
+export function StrikingVerdicts(
+  strike: StrikingVerdicts.IStrike,
+): IMotionCaptureCase.IVerdict[] {
+  return [
+    StrikingVerdicts.contact(strike),
+    StrikingVerdicts.penetration(strike),
+    StrikingVerdicts.slip(strike),
+    StrikingVerdicts.rangeOfMotion(strike),
+    ...(strike.segment.name === "kick" ? [StrikingVerdicts.goal(strike)] : []),
+  ];
+}
+
+/**
+ * The verdicts of a displayed strike, each measured on the shown bones against
+ * the action's own goal, each able to fail and each printing its bound.
+ *
+ * - Contact: a strike meant to hit stops with its limb within 15 mm of the other
+ *   body's surface, on a part of a declared class when the scenario declares
+ *   one; a feint or a declared miss never stops and stays clear of the other
+ *   body up to its shown peak; a graze passes within -10 to +15 mm of it; a
+ *   strike cut before its contact never stops; a strike the reach solve
+ *   declared short stands only when its target lay beyond the bare limb's
+ *   length from its root at the launch.
  * - Extension, for a strike at no body: at its peak the limb's surface lies
- *   within 15 mm of the planned point, or, when that point lay beyond the
- *   bare limb's length L from the root, no farther from it than that
- *   shortfall plus a tenth of L.
+ *   within 15 mm of the planned point, or, when that point lay beyond the bare
+ *   limb's length L from the root, no farther from it than that shortfall plus
+ *   a tenth of L.
  * - Penetration: the limb never sinks more than 10 mm into the other body,
  *   sampled at 96 Hz.
- * - Support slip: the ball of every planted or pivoting foot stays within
- *   5 mm over its window, sampled at 48 Hz.
+ * - Support slip: the ball of every planted or pivoting foot stays within 5 mm
+ *   over its window, sampled at 48 Hz.
  * - Range of motion: no displayed joint leaves its limits.
- * - Leg goal, for a kick: the displayed ankle meets the plan's ankle goal
- *   within 2 mm from the launch to the stop or the peak.
- * - Defence: the defend plan's read, set and contact events class as the
- *   declared outcome.
+ * - Leg goal, for a kick: the displayed ankle meets the plan's ankle goal within
+ *   2 mm from the launch to the stop or the peak.
+ * - Defence: the defend plan's read, set and contact events class as the declared
+ *   outcome.
  * - Refusal: a redirect after the chamber key is refused as an illegal cut.
  */
 export namespace StrikingVerdicts {
   /** What part of a body a strike met. */
   export type Class = "guard" | "head" | "trunk" | "leg";
 
-  /** The declared outcome a strike's parameters carry: a feint share, or the declared accuracy. */
+  /** The part of a segment its event seconds and peak are read from. */
+  export type ITimed = Pick<IAutoMovieMotionHumanSegment, "start" | "end"> & {
+    /** The plan's events, duration and planned contact. */
+    plan: Pick<
+      IAutoMovieMotionHumanSegment["plan"],
+      "events" | "duration" | "contact"
+    >;
+  };
+
+  /**
+   * The declared outcome a strike's parameters carry: a feint share, or the
+   * declared accuracy.
+   */
   export interface IDeclared {
     /** A feint's share of the delivery, in (0, 1); none for a committed strike. */
     feint?: number;
@@ -70,7 +114,7 @@ export namespace StrikingVerdicts {
     body: IAutoMovieMotionHumanBody;
 
     /** The other person, when there is one. */
-    other: { id: string; body: IAutoMovieMotionHumanBody } | undefined;
+    other: IStrikeOther | undefined;
 
     /** The strike's segment. */
     segment: IAutoMovieMotionHumanSegment;
@@ -84,11 +128,17 @@ export namespace StrikingVerdicts {
     /** The film second the limb stopped on a surface, if it did. */
     stop: number | undefined;
 
-    /** The part classes the scenario declares the strike meets; any when undefined. */
+    /**
+     * The part classes the scenario declares the strike meets; any when
+     * undefined.
+     */
     meets: readonly Class[] | undefined;
   }
 
-  /** The 15 mm within which a stopped limb touches a surface or an extended one its aim. */
+  /**
+   * The 15 mm within which a stopped limb touches a surface or an extended one
+   * its aim.
+   */
   const TOUCH: number = 0.015;
 
   /** The 10 mm a limb may sink into the other body. */
@@ -107,10 +157,7 @@ export namespace StrikingVerdicts {
    * @param event The event's name.
    * @returns The second, or undefined when the plan has no such event.
    */
-  export function at(
-    segment: IAutoMovieMotionHumanSegment,
-    event: string,
-  ): number | undefined {
+  export function at(segment: ITimed, event: string): number | undefined {
     const share: number | undefined = segment.plan.events.find(
       (e: IAutoMovieMotionHumanSegment["plan"]["events"][number]): boolean =>
         e.name === event,
@@ -127,7 +174,7 @@ export namespace StrikingVerdicts {
    * @param segment The strike's segment.
    * @returns The second.
    */
-  export function peak(segment: IAutoMovieMotionHumanSegment): number {
+  export function peak(segment: ITimed): number {
     return Math.min(
       segment.end,
       segment.plan.contact !== undefined
@@ -152,26 +199,11 @@ export namespace StrikingVerdicts {
   }
 
   /**
-   * Every verdict of one strike.
-   *
-   * @param strike The strike.
-   * @returns The contact (or extension), penetration, support slip, range of motion and, for a kick, leg goal verdicts.
-   */
-  export function of(strike: IStrike): IMotionCaptureCase.IVerdict[] {
-    return [
-      contact(strike),
-      penetration(strike),
-      slip(strike),
-      rangeOfMotion(strike),
-      ...(strike.segment.name === "kick" ? [goal(strike)] : []),
-    ];
-  }
-
-  /**
    * What a strike met against what it declared.
    *
    * @param strike The strike.
-   * @returns The contact verdict, or the extension verdict when there is no other body.
+   * @returns The contact verdict, or the extension verdict when there is no
+   *   other body.
    */
   export function contact(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
@@ -187,20 +219,20 @@ export namespace StrikingVerdicts {
             : `cut before its contact but stopped at ${strike.stop.toFixed(3)} s`,
       };
     if (strike.other === undefined) return extension(strike);
-    const declared: "feint" | "miss" | "graze" | undefined =
+    const declared: ContactDeclared =
       params.feint !== undefined
         ? "feint"
         : params.accuracy === "miss" || params.accuracy === "graze"
           ? params.accuracy
           : undefined;
     if (declared !== undefined) {
-      let closest: StrikingLimb.IGap & { at: number } = {
-        ...gap(strike, g.entryTime),
+      let closest: StrikingLimb.IGap & IContactClosest = {
+        ...StrikingVerdictsGap(strike, g.entryTime),
         at: g.entryTime,
       };
       const until: number = peak(g);
       for (let t: number = g.entryTime; t <= until + 1e-9; t += 1 / 96) {
-        const now: StrikingLimb.IGap = gap(strike, t);
+        const now: StrikingLimb.IGap = StrikingVerdictsGap(strike, t);
         if (now.distance < closest.distance) closest = { ...now, at: t };
       }
       const measured: string = `closest ${(1000 * closest.distance).toFixed(1)} mm from ${closest.bone ?? "nothing"} (${closest.part}) at ${closest.at.toFixed(3)} s${strike.stop === undefined ? "" : `, stopped at ${strike.stop.toFixed(3)} s`}`;
@@ -242,10 +274,10 @@ export namespace StrikingVerdicts {
         detail: `declared to hit but met nothing${
           record === undefined
             ? ""
-            : ` (solve ${record.status}; the limb at its peak lies ${(1000 * gap(strike, peak(g)).distance).toFixed(1)} mm from the other body)`
+            : ` (solve ${record.status}; the limb at its peak lies ${(1000 * StrikingVerdictsGap(strike, peak(g)).distance).toFixed(1)} mm from the other body)`
         }`,
       };
-    const touch: StrikingLimb.IGap = gap(strike, strike.stop);
+    const touch: StrikingLimb.IGap = StrikingVerdictsGap(strike, strike.stop);
     const met: Class | undefined =
       touch.bone === undefined ? undefined : classify(touch.bone);
     const allowed: boolean =
@@ -301,22 +333,22 @@ export namespace StrikingVerdicts {
 
   /**
    * How deep the limb sinks into the other body over the strike, the deepest
-   * instant named with what it sank into, so a sink after the stop reads
-   * apart from one before it.
+   * instant named with what it sank into, so a sink after the stop reads apart
+   * from one before it.
    *
    * @param strike The strike.
    * @returns The penetration verdict.
    */
   export function penetration(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
-    let deepest: StrikingLimb.IGap & { at: number } = {
+    let deepest: StrikingLimb.IGap & IPenetrationDeepest = {
       distance: Infinity,
       bone: undefined,
       part: "nothing",
       at: g.entryTime,
     };
     for (let t: number = g.entryTime; t <= g.end + 1e-9; t += 1 / 96) {
-      const now: StrikingLimb.IGap = gap(strike, t);
+      const now: StrikingLimb.IGap = StrikingVerdictsGap(strike, t);
       if (now.distance < deepest.distance) deepest = { ...now, at: t };
     }
     return {
@@ -423,7 +455,7 @@ export namespace StrikingVerdicts {
    */
   export function goal(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
-    const side: "left" | "right" = StrikingLimb.side(strike.limb);
+    const side: AutoMovieHumanSide = StrikingLimb.side(strike.limb);
     const from: number = Math.max(g.entryTime, at(g, "launch") ?? g.entryTime);
     const to: number = Math.min(g.end, strike.stop ?? peak(g));
     let worst: number = 0;
@@ -455,18 +487,5 @@ export namespace StrikingVerdicts {
           ? "the plan asks no ankle goal between the launch and the peak"
           : `the ankle lies at most ${(1000 * worst).toFixed(2)} mm from its goal (at ${when.toFixed(3)} s, ${samples} samples from ${from.toFixed(3)} to ${to.toFixed(3)} s); bound 2 mm`,
     };
-  }
-
-  /** The limb's gap to the other body at a film second; infinite when there is no other body. */
-  function gap(strike: IStrike, seconds: number): StrikingLimb.IGap {
-    if (strike.other === undefined)
-      return { distance: Infinity, bone: undefined, part: "nothing" };
-    return StrikingLimb.gap(
-      strike.body,
-      strike.performance.bones(strike.id, seconds),
-      strike.limb,
-      strike.other.body,
-      strike.performance.bones(strike.other.id, seconds),
-    );
   }
 }

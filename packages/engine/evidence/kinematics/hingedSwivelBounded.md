@@ -1,21 +1,3 @@
-# src/kinematics/hingedSwivelBounded.ts#hingedSwivelBounded
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the method, its source and what stays the sweep's; `sweep` states the premise and the proof.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A branch's scorer, caches, refusal and certified bound; a candidate's comparator keys.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two records and the search, all read by `hingedArmArticulation`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The score keys are the comparator's own (`hingedSwivelAhead`) and the caches the articulation's, shared with its full pass.
-
 # src/kinematics/hingedSwivelBounded.ts#hingedSwivelBounded.IScore
 
 ## @evidence contracts/development/common.md#meaningful-documentation

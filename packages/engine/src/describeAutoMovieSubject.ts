@@ -16,8 +16,8 @@ import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
  * Addresses are `prototype:<model>`, `prototype-part:<model>/<part>`,
  * `element:<node>`, `element-part:<node>/<part>`, `instance-set:<set>`,
  * `instance:<set>:slot:<six digits>` or `instance:<set>:<explicit id>`,
- * `space:<environment>/<space>`, and `building:<environment>/<building>`,
- * where a built element's node is `<environment>/<element>`. Prototype and
+ * `space:<environment>/<space>`, and `building:<environment>/<building>`, where
+ * a built element's node is `<environment>/<element>`. Prototype and
  * prototype-part bounds are in model coordinates and every other kind's in
  * world metres. `members` is one page of at most
  * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` ids in render-id order starting at
@@ -40,7 +40,7 @@ export const describeAutoMovieSubject: (
   props?: IAutoMovieDescribeSubject.IProps,
 ): IAutoMovieSubjectDescription => {
   const memberOffset: number = props?.memberOffset ?? 0;
-  if (Number.isSafeInteger(memberOffset) === false || memberOffset < 0)
+  if (memberOffset < 0)
     throw new Error(
       `Subject member offset must be a whole number of members from the first, but was ${memberOffset}.`,
     );

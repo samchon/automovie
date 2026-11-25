@@ -22,13 +22,22 @@ type Drawn = Partial<Record<createGoal.Dimension, number>>;
 /** Local points in metres. */
 const v: typeof Vector3.create = Vector3.create;
 
-/** How far a tennis post may stand above the net cord, metres: ITF Rule 1, 2.5 cm, the limit the model takes. */
+/**
+ * How far a tennis post may stand above the net cord, metres: ITF Rule 1, 2.5
+ * cm, the limit the model takes.
+ */
 const POST_ABOVE: number = 0.025;
 
-/** The tennis net cord's diameter, metres: ITF Rule 1, at most 0.8 cm, the limit the model takes. */
+/**
+ * The tennis net cord's diameter, metres: ITF Rule 1, at most 0.8 cm, the limit
+ * the model takes.
+ */
 const CORD: number = 0.008;
 
-/** The width of the tennis net's centre strap, metres: ITF Rule 1, at most 5 cm, the limit the model takes. */
+/**
+ * The width of the tennis net's centre strap, metres: ITF Rule 1, at most 5 cm,
+ * the limit the model takes.
+ */
 const STRAP: number = 0.05;
 
 /** Thickness in metres of the retained collision panels. */
@@ -36,23 +45,20 @@ const NET_THICKNESS: number = 0.005;
 /**
  * A tennis net with centre strap, sagging cord and post grips.
  *
- * The net spans the XY plane, with the top ledge at the centre strap and the square posts outside the doubles court.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * The net spans the XY plane, with the top ledge at the centre strap and the
+ * square posts outside the doubles court.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
- * @evidence contracts/development/implementation.md#principled-implementation Use the retained court span, cord heights and post section to make the supports, visible lattice and separate collision panels.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the profile and build its parts and contacts at the same dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keep the visual lattice and tape separate from the solid panels used for collision and mass.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The profile has a fixed number of parts and contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved recipes call this producer with the original seed namespace and geometry.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call returns an independent model and retains no inputs.
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
+ * @returns The model with its named contacts in its local frame.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createTennisNet(
   params: createTennisNet.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTennisNet.Affordance, createTennisNet.Dimension> {
   const {
     builder,
@@ -64,7 +70,10 @@ export function createTennisNet(
 }
 
 /**
- * Build a tennis net: square posts outside the doubles court, the cord sagging from the posts' height to the centre's, and the net under it; `top` is the net's lowest point at the centre strap, a ledge along `X`, and the posts are bars.
+ * Build a tennis net: square posts outside the doubles court, the cord sagging
+ * from the posts' height to the centre's, and the net under it; `top` is the
+ * net's lowest point at the centre strap, a ledge along `X`, and the posts are
+ * bars.
  *
  * @param builder The builder to fill.
  * @param d The drawn dimensions.
@@ -121,16 +130,12 @@ function tennis(builder: Builder, d: Drawn): void {
   GoalBuild.posts(builder, x, tall, bar);
 }
 
-/**
- * The authored parameters and contact names for {@link createTennisNet}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the profile's dimensions, authoring choices and contacts.
- * @evidence contracts/development/design.md#principled-representation Each affordance belongs to the constructed goal or net. Dimensions use metres and mass uses kilograms. The draw checks the retained bands and measured choices.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs name only controls this producer accepts, and contacts are those built for motion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
- */
+/** The authored parameters and contact names for {@link createTennisNet}. */
 export namespace createTennisNet {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "bar"
     | "height"

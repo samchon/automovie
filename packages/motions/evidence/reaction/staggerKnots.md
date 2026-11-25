@@ -1,21 +1,3 @@
-# src/reaction/staggerKnots.ts#staggerKnots
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the readings are and who reads them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Three readings of the body, each from its own measured geometry.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three readings the plan, its feet and its admission share.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every reading is the body's own; the reference tilt is `staggerBounds`'.
-
 # src/reaction/staggerKnots.ts#staggerKnots.bending
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,7 +1,7 @@
 import {
   Vector3,
   physicalHullFaces,
-  physicalHullMass,
+  physicalHullFacesMass,
   physicalHullNearest,
   resolveAutoMovieHumanoidRingModules,
 } from "@automovie/engine";
@@ -108,21 +108,21 @@ export namespace AutoMovieHumanCanonicalSolids {
           const run: IAutoMovieVector3[][] = layers.slice(start, end + 2);
           const points: IAutoMovieVector3[] = run.flat();
           const hull: IAutoMoviePhysicalHullFaces.IHull =
-            physicalHullFaces.prepare(points);
+            physicalHullFaces(points);
           if (!convex(run, hull)) break;
           accepted = { points, hull };
           end++;
         }
         if (accepted === null) {
           const points: IAutoMovieVector3[] = layers.slice(start, end + 1).flat();
-          accepted = { points, hull: physicalHullFaces.prepare(points) };
+          accepted = { points, hull: physicalHullFaces(points) };
         }
         runs.push(accepted);
         start = end;
       }
       runs.forEach(({ points, hull }: IRun, index: number): void => {
-        const solid: ReturnType<typeof physicalHullMass.fromHull> =
-          physicalHullMass.fromHull(hull);
+        const solid: ReturnType<typeof physicalHullFacesMass> =
+          physicalHullFacesMass(hull);
         solids.push({
           id: runs.length === 1 ? module.bone : `${module.bone}.${index}`,
           carrier,

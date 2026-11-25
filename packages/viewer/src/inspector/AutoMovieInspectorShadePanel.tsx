@@ -6,19 +6,25 @@ import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 
-/** Every shade, keyed so the compiler refuses a list that misses one. */
-const SHADES: Record<AutoMovieInspectionShade, true> = {
-  beauty: true,
-  depth: true,
-  mask: true,
-  normal: true,
-  outline: true,
-  pose: true,
-  albedo: true,
-  graphics: true,
-  clay: true,
-  faces: true,
+/** Each shade keyed by itself, so the compiler refuses a list that misses one. */
+type IShadeIndex = { [Shade in AutoMovieInspectionShade]: Shade };
+
+/** Every shade offered. */
+const SHADES: IShadeIndex = {
+  beauty: "beauty",
+  depth: "depth",
+  mask: "mask",
+  normal: "normal",
+  outline: "outline",
+  pose: "pose",
+  albedo: "albedo",
+  graphics: "graphics",
+  clay: "clay",
+  faces: "faces",
 };
+
+/** The shades in option order. */
+const OPTIONS: AutoMovieInspectionShade[] = Object.values(SHADES);
 
 /**
  * Shade and surface: how surfaces are coloured and whether they are drawn.
@@ -51,12 +57,13 @@ export function AutoMovieInspectorShadePanel(props: {
         aria-label="Shade"
         value={props.request.passes[0]}
         onChange={(event: ChangeEvent<HTMLSelectElement>): void => {
-          const shade: string = event.target.value;
-          if (isShade(shade)) props.dispatch({ type: "shade", shade });
+          const shade: AutoMovieInspectionShade | undefined =
+            OPTIONS[event.target.selectedIndex];
+          if (shade !== undefined) props.dispatch({ type: "shade", shade });
         }}
       >
-        {Object.keys(SHADES).map(
-          (shade: string): JSX.Element => (
+        {OPTIONS.map(
+          (shade: AutoMovieInspectionShade): JSX.Element => (
             <option key={shade} value={shade}>
               {shade}
             </option>
@@ -79,9 +86,4 @@ export function AutoMovieInspectorShadePanel(props: {
       </label>
     </fieldset>
   );
-}
-
-/** Whether a text is one of the shades offered. */
-function isShade(text: string): text is AutoMovieInspectionShade {
-  return Object.hasOwn(SHADES, text);
 }
