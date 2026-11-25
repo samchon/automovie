@@ -15,6 +15,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanGlutealRelief } from "../AutoMovieHumanGlutealRelief";
 import { AutoMovieHumanMassPart } from "../limb/AutoMovieHumanMassPart";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanBreastConnection } from "./AutoMovieHumanBreastConnection";
@@ -33,10 +34,10 @@ import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
  * masses receive their projection at the fixed height and transverse place of
  * the person's AP apex.
  *
- * Each tape solves fullness on the original level and tissue envelope.
- * The final pass publishes those sections and their tissue fields. The hip
- * tape also reads both retained legs. Embedded masses use the mirrored law
- * and sample their exact parent atlas.
+ * Each tape solves fullness on the original level and tissue envelope. The
+ * final pass publishes those sections and their tissue fields. The hip tape
+ * also reads both retained legs. Embedded masses use the mirrored law and
+ * sample their exact parent atlas.
  *
  * Folds. Each mass declares a fold for the body's construction tree
  * (`AutoMovieHumanBodyTree`), its seed searched along the mass's lower station
@@ -173,6 +174,12 @@ export namespace AutoMovieHumanTrunkBuild {
     }
     const target = input.breast?.target;
     const shoulder = input.views.shoulder;
+    const gluteal = input.nativeGluteal === true ? input.gluteal : null;
+    const rear =
+      gluteal === null
+        ? undefined
+        : (part: IAutoMovieViewPart): IAutoMovieViewPart =>
+            AutoMovieHumanGlutealRelief.source(part, gluteal);
     let native: AutoMovieHumanMammaryPlacement.IPrepared | null = null;
     const mammaryFailure = (error: unknown): void => {
       diagnostics.push({
@@ -201,6 +208,7 @@ export namespace AutoMovieHumanTrunkBuild {
     const firstInput: IAutoMovieHumanTrunkBuild.IInput = {
       ...input,
       breast: shapes === null ? input.breast : null,
+      gluteal: rear === undefined ? input.gluteal : null,
       legs: AutoMovieHumanTrunkLegs.pair(input, first),
     };
     const masses1: IMass[] = masses(firstInput, first.part, [], sources);
@@ -222,6 +230,8 @@ export namespace AutoMovieHumanTrunkBuild {
           const plane: IAutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
             s.site,
           )!;
+          const hip = (shoulder: number) =>
+            AutoMovieHumanTrunkLegs.trial(input, s, shoulder, sections, rear);
           const tape: IAutoMovieHumanTrunkTape.IResult =
             AutoMovieHumanTrunkTape.solve({
               producer: `view.trunk ${s.site}`,
@@ -244,19 +254,9 @@ export namespace AutoMovieHumanTrunkBuild {
                   }),
                 ),
               parentsAt:
-                kind === "gluteal"
-                  ? (
-                      shoulder: number,
-                    ): NonNullable<
-                      IAutoMovieHumanTrunkTape.IInput["parents"]
-                    > =>
-                      AutoMovieHumanTrunkLegs.trial(
-                        input,
-                        s,
-                        shoulder,
-                        sections,
-                      )
-                  : undefined,
+                kind === "gluteal" && rear === undefined ? hip : undefined,
+              completeCutsAt:
+                kind === "gluteal" && rear !== undefined ? hip : undefined,
               tape: kind === "breast" ? input.tapes.chest : input.tapes.hip,
             });
           diagnostics.push(...tape.diagnostics);
@@ -279,6 +279,18 @@ export namespace AutoMovieHumanTrunkBuild {
         input = { ...input, breast: null };
       } catch (error: unknown) {
         mammaryFailure(error);
+      }
+    if (base.part !== null && rear !== undefined)
+      try {
+        base = { ...base, part: rear(base.part) };
+        input = { ...input, gluteal: null };
+      } catch (error: unknown) {
+        diagnostics.push({
+          producer: "trunk.gluteal",
+          level: 3,
+          contract: "native source",
+          detail: error instanceof Error ? error.message : String(error),
+        });
       }
     sources.push({ name: AutoMovieHumanTrunkViewPart.NAME, result: base });
     diagnostics.push(...base.diagnostics);

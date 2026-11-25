@@ -18,10 +18,25 @@ export namespace FamilyConicProductionPelvis {
     /^(trunk|groin\.|leg\.|foot\.|toe\.|gluteal\.|fold\..*(?:leg\.|foot\.|gluteal\.)|nail\.toe\.)/;
 
   /** Read actual topology, shared faces, crossing witnesses and all toe nails. */
-  export async function run(output: string, subject: string): Promise<void> {
+  export async function run(
+    output: string,
+    subject: string,
+    nativeGluteal?: boolean,
+  ): Promise<void> {
     const params = subject === "f-average" ? PEOPLE[subject].params : undefined;
+    const started: number = performance.now();
     const result = buildHumanNeutralCapture.inspect(
       params as IAutoMovieHumanParameters | undefined,
+      (phase): void => {
+        console.log(
+          JSON.stringify({
+            phase,
+            milliseconds: performance.now() - started,
+            heapBytes: process.memoryUsage().heapUsed,
+          }),
+        );
+      },
+      nativeGluteal,
     );
     const { mesh, calibration, triangleGroups: groups } = result;
     const whole = mesh.indices;
@@ -40,6 +55,7 @@ export namespace FamilyConicProductionPelvis {
     const crop: IAutoMovieMesh = { ...mesh, indices };
     const outputRecord = {
       subject,
+      nativeGluteal,
       topology: result.topology,
       pieces: result.pieces,
       diagnostics: result.diagnostics,
@@ -115,6 +131,7 @@ export namespace FamilyConicProductionPelvis {
 void FamilyConicProductionPelvis.run(
   process.argv[2]!,
   process.argv[3] ?? "neutral",
+  process.argv.includes("--native-gluteal") ? true : undefined,
 ).catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;

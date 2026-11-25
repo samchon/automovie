@@ -16,7 +16,8 @@ export namespace AutoMovieConstructionSplitPrepared {
 
   /** Prepare the curve-owned strips used by the shared fan incidence assembler. */
   export function prepare(input: Courses.IInput, names: readonly string[]) {
-    const shape = Courses.prepare(input, true);
+    const radial = input.radial === true;
+    const shape = Courses.prepare(input, !radial);
     if (typeof shape === "string") return shape;
     const quarter = Math.max(
       2,
@@ -33,16 +34,24 @@ export namespace AutoMovieConstructionSplitPrepared {
         i,
       ): IAutoMovieConstructionSplitBand.IPreparedStrip | string => {
         const band = names[i]!;
-        if (!evidence.directed || !(evidence.minimumSide > 0))
+        if (
+          !evidence.directed ||
+          !(evidence.minimumSide > 0) ||
+          (evidence.minimumRadius !== undefined &&
+            !(evidence.minimumRadius > 0))
+        )
           return `${band}: the native generating controls leave their permitted course`;
+        if (!radial && ribbons?.length !== edges.length)
+          return `${band}: the nonradial generating courses require shared ribbons`;
         const starts = edges.map((_, j): number =>
           edges.length === 4 || j === 0 ? j * quarter : 3 * quarter,
         );
         const step = TURN / count;
+        const zero = () => (): P3 => [0, 0, 0];
         const stretches = edges.map((edge, j) => {
           const begin = starts[j]!;
           const width = (starts[j + 1] ?? count) - begin;
-          return { edge, begin, width, ribbon: ribbons![j]! };
+          return { edge, begin, width, ribbon: radial ? zero : ribbons![j]! };
         });
         // Seam columns keep the phase of the preceding original cut endpoint.
         const parentPhases = edges.map((edge, j) => {

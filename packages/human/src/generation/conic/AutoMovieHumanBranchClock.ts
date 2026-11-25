@@ -104,5 +104,17 @@ export function AutoMovieHumanBranchClock(
     phase: (p: P3): number => orient(native.phase(p)),
     rate: (p: P3, d: P3): number => orientation * native.rate(p, d),
     read: (address: number) => native.read(orient(address)),
+    ray: (p: P3) => {
+      const [a, b] = project(Vec.sub(p, center));
+      return {
+        origin: center,
+        direction: Vec.unit(
+          Vec.combine([
+            [a, u],
+            [b, v],
+          ]),
+        )!,
+      };
+    },
   };
 }

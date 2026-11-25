@@ -7,12 +7,14 @@ import {
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionSplit,
+  IAutoMovieHumanTrunkBuild,
   IAutoMovieLoftViewFullSource,
   IAutoMovieSolidSurface,
   IAutoMovieViewPart,
   AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
 
+import { AutoMovieHumanGlutealRelief } from "../AutoMovieHumanGlutealRelief";
 import { AutoMovieHumanBranchClock } from "./AutoMovieHumanBranchClock";
 import { AutoMovieHumanDigitalSection as Section } from "./AutoMovieHumanDigitalSection";
 import { AutoMovieHumanPelvicCut } from "./AutoMovieHumanPelvicCut";
@@ -43,17 +45,19 @@ export namespace AutoMovieHumanPelvicSplit {
     host: IAutoMovieConstructionNode,
     left: IBranch,
     right: IBranch,
+    gluteal?: IAutoMovieHumanTrunkBuild.IMassLaw,
   ) {
     const owner = (part: IAutoMovieViewPart): Owner => ({
       part,
       field: Full.create(part),
     });
     try {
-      const native = source(
-        owner(parent),
-        [owner(left.part), owner(right.part)],
-        CHORD_MM,
-      );
+      const hostSource = owner(parent);
+      const receivers = [owner(left.part), owner(right.part)] as const;
+      const native =
+        gluteal === undefined
+          ? source(hostSource, receivers, CHORD_MM)
+          : retained(hostSource, receivers, CHORD_MM, gluteal);
       return typeof native === "string"
         ? native
         : prepare(native, host, [left.branch, right.branch]);
@@ -62,11 +66,56 @@ export namespace AutoMovieHumanPelvicSplit {
     }
   }
 
+  /** Keep the authored crests and continue their original posterior courses. */
+  export function retained(
+    parent: Owner,
+    donors: readonly [Owner, Owner],
+    chordMm: number,
+    gluteal: IAutoMovieHumanTrunkBuild.IMassLaw,
+    stations?: readonly [number, number],
+  ): ReturnType<typeof source> {
+    const graphs = parent.part.originalGraphs;
+    if (graphs === undefined || graphs.length === 0)
+      return "The pelvic split has no prepared native gluteal graph";
+    const [, y, z] = gluteal.target;
+    const row = parent.field.pointAt(y);
+    const left = AutoMovieHumanGlutealRelief.posteriorPhase(row, z, 1);
+    const right =
+      2 * Math.PI - AutoMovieHumanGlutealRelief.posteriorPhase(row, -z, -1);
+    const input = source(parent, donors, chordMm, stations, "continued", [
+      left,
+      right,
+    ]);
+    if (typeof input === "string") return input;
+    const { parent: cut } = input.input;
+    return {
+      ...input,
+      input: {
+        ...input.input,
+        radial: true,
+        radialContact: true,
+        parent: {
+          ...cut,
+          forwardWeight: (phase): number => {
+            const station = cut.station(phase);
+            return Math.max(
+              0,
+              ...graphs.map((graph) => graph.weight(station, phase)),
+            );
+          },
+        },
+      },
+    };
+  }
+
   /** The root ring, anatomical median and both native receiving sections. */
   export function source(
     parent: Owner,
     donors: readonly [Owner, Owner],
     chordMm: number,
+    stations?: readonly [number, number],
+    mode: "original" | "osculating" | "continued" = "original",
+    retainedCrests?: readonly [number, number],
   ) {
     const station: number | undefined = parent.field.regular?.[0];
     if (station === undefined)
@@ -83,50 +132,113 @@ export namespace AutoMovieHumanPelvicSplit {
     );
     const estimatedReach: number = Vec.dot(Vec.sub(datum, origin), forward);
     const forks: [number, number] = [0, Math.PI];
+    const outward = [Vec.scale(normal, -1), normal];
+    const envelopes =
+      mode === "continued"
+        ? outward.map((side) =>
+            AutoMovieHumanPelvicCut.envelope(
+              parent.part,
+              parent.field,
+              station,
+              side,
+            ),
+          )
+        : [];
+    const failed = envelopes.filter((entry) => typeof entry === "string");
+    if (failed.length !== 0) return failed.join("\n");
+    const widest = envelopes.filter((entry) => typeof entry !== "string");
     const actual = donors.map(({ part, field }, i) => {
-      const rail = part.front.positive.knots.find(
-        ({ site }) => site === "thigh",
-      )?.station;
+      const rail =
+        stations?.[i] ??
+        part.front.positive.knots.find(({ site }) => site === "thigh")?.station;
       if (rail === undefined)
         return `${part.name}: no protected original thigh section`;
-      const at = {
-        point: field.pointAt(rail),
-        jet: (phase: number) => field.jet(rail, phase),
+      const side = outward[i]!;
+      const section = (s: number) => {
+        const at = {
+          point: field.pointAt(s),
+          jet: (phase: number) => field.jet(s, phase),
+        };
+        const tape: P3[] = Array.from({ length: part.samples }, (_, k) =>
+          at.point((2 * Math.PI * k) / part.samples),
+        );
+        const medial = Section.support(at, Vec.scale(side, -1), tape);
+        const lateral = Section.support(at, side, tape);
+        const clearance: number = Vec.dot(Vec.sub(medial.p, median), side);
+        const near = Section.support(at, Vec.scale(forward, -1), tape);
+        const reach: number = Vec.dot(Vec.sub(near.p, origin), forward);
+        return {
+          part,
+          field,
+          station: s,
+          at,
+          tape,
+          reach,
+          medial,
+          lateral,
+          outward: side,
+          clearance,
+        };
       };
-      const tape: P3[] = Array.from({ length: part.samples }, (_, k) =>
-        at.point((2 * Math.PI * k) / part.samples),
-      );
-      const outward: P3 = Vec.scale(normal, i === 0 ? -1 : 1);
-      const medial = Section.support(at, Vec.scale(outward, -1), tape);
-      const lateral = Section.support(at, outward, tape);
-      const clearance: number = Vec.dot(Vec.sub(medial.p, median), outward);
-      const near = Section.support(at, Vec.scale(forward, -1), tape);
-      const reach: number = Vec.dot(Vec.sub(near.p, origin), forward);
-      return {
-        part,
-        field,
-        station: rail,
-        at,
-        tape,
-        reach,
-        medial,
-        lateral,
-        outward,
-        clearance,
-      };
+      const envelope = widest[i];
+      if (envelope === undefined) return section(rail);
+      const support = envelope.at(envelope.widest).p;
+      const knee = part.front.positive.knots.find(
+        ({ site }) => site === "knee",
+      )?.station;
+      if (knee === undefined)
+        return `${part.name}: the original thigh has no distal bound`;
+      // Use the first original section whose enclosed loop lies on its own
+      // side of the median and whose lateral line tapers into its native ray.
+      // The true widest point has no lateral departure slope. The radial
+      // quintic then sets its derivative budget from the actual chord.
+      for (const s of [
+        rail,
+        ...part.stations.filter((value) => rail < value && value < knee),
+      ]) {
+        const candidate = section(s);
+        const inward: number = -Vec.dot(
+          AutoMovieHumanPelvicCut.transverse(candidate.lateral),
+          side,
+        );
+        const width: number = Vec.dot(
+          Vec.sub(support, candidate.lateral.p),
+          side,
+        );
+        if (
+          candidate.clearance > 0 &&
+          candidate.reach > estimatedReach &&
+          inward > 0 &&
+          width > 0
+        )
+          return candidate;
+      }
+      return `${part.name}: the original thigh has no separated narrowing section in the pelvic envelope`;
     });
     const missing = actual.filter(
       (rail): rail is string => typeof rail === "string",
     );
     if (missing.length !== 0) return missing.join("\n");
     const known = actual.filter((rail) => typeof rail !== "string");
-    const shape = AutoMovieHumanPelvicCut(
-      parent.part,
-      parent.field,
-      station,
-      known.map(({ outward, lateral }) => ({ normal: outward, jet: lateral })),
-      forward,
-    );
+    const shape =
+      mode === "continued"
+        ? AutoMovieHumanPelvicCut.cut(
+            station,
+            widest.map(({ widest }) => widest),
+            true,
+            retainedCrests,
+          )
+        : AutoMovieHumanPelvicCut.prepare(
+            parent.part,
+            parent.field,
+            station,
+            known.map(({ outward, lateral }) => ({
+              normal: outward,
+              jet: lateral,
+            })),
+            forward,
+            retainedCrests,
+          );
     if (typeof shape === "string") return shape;
     const point = (phase: number): P3 =>
       parent.field.point(shape.cut(phase)[0], phase);
@@ -189,6 +301,7 @@ export namespace AutoMovieHumanPelvicSplit {
       normal,
       forward,
       chordMm,
+      mode !== "original",
     );
     if (typeof guide === "string") return guide;
     const input: AutoMovieConstructionSplitCourses.IInput = {

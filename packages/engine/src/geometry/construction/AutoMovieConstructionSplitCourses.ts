@@ -5,7 +5,9 @@ import type {
   IAutoMovieSolidSurface as Solid,
 } from "@automovie/interface";
 
+import { AutoMovieBernsteinSubdivision64 as Subdivision } from "../curve/AutoMovieBernsteinSubdivision64";
 import { AutoMovieConstructionSplitCubic as Cubic } from "./AutoMovieConstructionSplitCubic";
+import { AutoMovieConstructionSplitRadial as Radial } from "./AutoMovieConstructionSplitRadial";
 import { AutoMovieConstructionSplitRibbon as Ribbon } from "./AutoMovieConstructionSplitRibbon";
 import { AutoMovieSolidVector as Vec } from "./AutoMovieSolidVector";
 
@@ -58,6 +60,8 @@ export namespace AutoMovieConstructionSplitCourses {
       proximal: number;
       phaseStart: number;
       station: (phase: number) => number;
+      /** Share of uniform anatomical progress supplied by an original contour. */
+      forwardWeight?: (phase: number) => number;
     };
     /** All adjacent owners and their full native receiving domains. */
     rails: readonly Receiver[];
@@ -69,6 +73,10 @@ export namespace AutoMovieConstructionSplitCourses {
     forward: P3;
     /** Actual dorsal direction. */
     up: P3;
+    /** Match the existing positive physical phase in the section's planes. */
+    radial?: boolean;
+    /** Give the generated median the shared course's physical angular jet. */
+    radialContact?: boolean;
   }
 
   const TURN: number = 2 * Math.PI;
@@ -76,7 +84,15 @@ export namespace AutoMovieConstructionSplitCourses {
 
   /** Prepare all exact boundary courses before any vertices are created. */
   export function prepare(
-    { parent, rails, forks, dividers, forward }: IInput,
+    {
+      parent,
+      rails,
+      forks,
+      dividers,
+      forward,
+      radial = false,
+      radialContact = false,
+    }: IInput,
     join: boolean,
   ) {
     const seams = dividers.map(({ normal, estimatedReach, guide }, i) => {
@@ -136,6 +152,8 @@ export namespace AutoMovieConstructionSplitCourses {
           ? []
           : [`divider ${i} has no regular bounded saddle`],
     );
+    if (radial && rails.some(({ clock }) => clock.ray === undefined))
+      return "The physical branch correspondence requires an original radial axis";
     if (refused.length !== 0) return refused.join(", ");
     const side = (p: P3, j: number, i: number): number =>
       (i <= j ? -1 : 1) *
@@ -144,6 +162,12 @@ export namespace AutoMovieConstructionSplitCourses {
       ({ guide }) => guide !== undefined,
     );
     const jets = rails.map(({ part, clock }, i) => {
+      const halfspaces = radial
+        ? dividers.map(({ point, normal }, k) => ({
+            point,
+            normal: Vec.scale(normal, i <= k ? -1 : 1),
+          }))
+        : [];
       const left = i - 1;
       const right = i;
       const paths: {
@@ -262,6 +286,22 @@ export namespace AutoMovieConstructionSplitCourses {
             // section at the saddle. The cubic taper is the least degree that
             // leaves zero value and two derivatives at that common centre.
             const share: number = Math.abs(1 - 2 * t) ** 3;
+            if (radial) {
+              // Transport the selected course tangent in the original saddle
+              // frame. The fork supplies the complete curvature in that
+              // direction, including when the cell uses a physical ray.
+              const [u, v] = coeff(at(t), speed);
+              const { along, across } = basis(fork);
+              const original = Vec.combine([
+                [u, along],
+                [v, across],
+              ]);
+              const curvature = Vec.dot(
+                Cubic.normalSecond(native, original),
+                normal(fork),
+              );
+              return Vec.scale(normal(at(t)), share * curvature);
+            }
             const curvature: number = Vec.dot(
               Cubic.normalSecond(native, end === 0 ? from : to),
               normal(fork),
@@ -308,27 +348,47 @@ export namespace AutoMovieConstructionSplitCourses {
         const after = Vec.unit(next.point(0).d)!;
         return Vec.unit(Vec.sub(after, before))!;
       });
-      const edges: Arc[] = paths.map((path, j) => {
+      const nativeEdges: Arc[] = paths.map((path, j) => {
         const start = corners[(j + corners.length - 1) % corners.length]!;
         const end = corners[j]!;
-        const rates = [0, 1].map((t): number => {
-          const angle = path.angle(t);
-          const q = clock.read(angle.value);
-          // Convert the directed geometric clock to physical speed. The native
-          // phase may run in either sense around this same receiving loop.
-          const incoming =
-            (Vec.norm(q.v) * angle.rate) / Math.abs(clock.rate(q.p, q.v));
-          const transverse = Vec.norm(
-            Vec.cross(path.point(t).d, t === 0 ? start : end),
-          );
-          return transverse / incoming;
-        });
+        const rates = radial
+          ? []
+          : [0, 1].map((t): number => {
+              const angle = path.angle(t);
+              const q = clock.read(angle.value);
+              // Convert the directed geometric clock to physical speed. The native
+              // phase may run in either sense around this same receiving loop.
+              const incoming =
+                (Vec.norm(q.v) * angle.rate) / Math.abs(clock.rate(q.p, q.v));
+              const transverse = Vec.norm(
+                Vec.cross(path.point(t).d, t === 0 ? start : end),
+              );
+              return transverse / incoming;
+            });
         return {
           count: path.count,
           bodyPhase: path.bodyPhase,
           seam: path.seam,
           course: (t): Cubic.Course => {
-            const { p } = path.point(t);
+            const { p, d } = path.point(t);
+            if (radial) {
+              const weight =
+                path.bodyPhase === undefined
+                  ? 0
+                  : (parent.forwardWeight?.(path.bodyPhase(t)) ?? 0);
+              return Radial.course(
+                {
+                  p,
+                  d,
+                  across: path.direction(t, start, end),
+                  normalSecond: (speed) => path.second(t, speed, start, end),
+                },
+                clock.read(clock.phase(p)),
+                clock,
+                halfspaces,
+                weight === 0 ? undefined : { axis: forward, weight },
+              );
+            }
             const phase = positiveClock(t, rates[0]!, rates[1]!);
             const q = clock.read(path.angle(phase).value);
             const reach = Vec.dot(Vec.sub(q.p, p), forward) / 3;
@@ -349,6 +409,25 @@ export namespace AutoMovieConstructionSplitCourses {
           },
         };
       });
+      const edges: Arc[] =
+        radial && radialContact
+          ? nativeEdges.map(
+              (edge, j): Arc =>
+                edge.seam === undefined
+                  ? edge
+                  : {
+                      ...edge,
+                      course: Radial.inherit(
+                        nativeEdges[
+                          (j + nativeEdges.length - 1) % nativeEdges.length
+                        ]!.course,
+                        edge.course,
+                        nativeEdges[(j + 1) % nativeEdges.length]!.course,
+                        clock,
+                      ),
+                    },
+            )
+          : nativeEdges;
       const courses = edges.map(({ count, course }) =>
         Array.from(
           { length: count },
@@ -357,14 +436,15 @@ export namespace AutoMovieConstructionSplitCourses {
       );
       const all = courses.flat();
       const face = all.map(({ controls }) => controls);
-      const lines = join
-        ? edges.map((edge, j) =>
-            Ribbon.prepareCoursePlane(
-              edge.course,
-              edges[(j + 1) % edges.length]!.course,
-            ),
-          )
-        : undefined;
+      const lines =
+        join && !radial
+          ? edges.map((edge, j) =>
+              Ribbon.prepareCoursePlane(
+                edge.course,
+                edges[(j + 1) % edges.length]!.course,
+              ),
+            )
+          : undefined;
       const ribbons: Ribbon.Ribbon[] | undefined = lines?.map((line, j) =>
         Ribbon.prepareCourseRibbon(
           lines[(j + lines.length - 1) % lines.length]!,
@@ -400,36 +480,45 @@ export namespace AutoMovieConstructionSplitCourses {
             .flatMap((p) => dividers.map((_, k): number => side(p, k, i))),
         ),
       );
-      const minimumProgress = Math.min(
-        ...face.flatMap((c) =>
-          c.slice(1).map((p, k): number =>
-            Vec.dot(Vec.sub(p, c[k]!), forward),
-          ),
-        ),
-      );
-      const directed = face.every((c): boolean => {
-        const signs = c.slice(1).map((p, k): number => {
+      let minimumProgress = Infinity;
+      const positive = (row: readonly number[]): boolean =>
+        row.every((x): boolean => x >= 0) && row.some((x): boolean => x > 0);
+      const advanceCertified = face.map((c): boolean => {
+        const along = radial
+          ? Vec.unit(Vec.sub(c.at(-1)!, c[0]))!
+          : forward;
+        const increments = c.slice(1).map((p, k): number => {
           const q = c[k]!;
-          const advance = Vec.dot(Vec.sub(p, q), forward);
+          const advance = Vec.dot(Vec.sub(p, q), along);
+          minimumProgress = Math.min(minimumProgress, advance);
           // Subtraction, the three projected products and their addition use
           // at most six rounded binary64 operations for one projected edge.
           const error =
             6 *
             Number.EPSILON *
-            forward.reduce(
+            along.reduce(
               (sum, axis, j) =>
                 sum + Math.abs(axis) * (Math.abs(p[j]!) + Math.abs(q[j]!)),
               0,
             );
-          return Math.abs(advance) <= error ? 0 : Math.sign(advance);
+          return Math.abs(advance) <= error ? 0 : advance;
         });
-        // The Bernstein derivative contains only these three coefficients. A
-        // horizontal launch at the saddle leaves positive interior advance.
-        return (
-          signs.every((sign): boolean => sign >= 0) &&
-          signs.some((sign): boolean => sign > 0)
-        );
+        if (positive(increments)) return true;
+        // A negative coefficient does not imply backward motion. The convex
+        // hull of each restricted derivative still gives a sufficient exact
+        // sign certificate over its half-domain.
+        return radial && Subdivision.splitS(increments, 0.5).every(positive);
       });
+      const directed = advanceCertified.every((certified) => certified);
+      const radii = radial
+        ? face.flatMap((c) => {
+            const ray = clock.ray!(c[0]);
+            return c.map((p): number =>
+              Vec.dot(Vec.sub(p, ray.origin), ray.direction),
+            );
+          })
+        : [];
+      const minimumRadius = radial ? Math.min(...radii) : undefined;
       const courseJunctionError = edges.map((e, j): number =>
         Math.max(
           ...e
@@ -453,6 +542,7 @@ export namespace AutoMovieConstructionSplitCourses {
           medialAndExteriorColumns: edges.map((x) => x.count),
           minimumSide,
           minimumProgress,
+          minimumRadius,
           directed,
           courseJunctionError,
         },

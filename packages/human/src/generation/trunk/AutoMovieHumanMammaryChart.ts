@@ -29,6 +29,8 @@ export namespace AutoMovieHumanMammaryChart {
     apex: number;
     /** World AP distance from the original wall to the same point, mm. */
     projection: number;
+    /** Physical vertical half-chord of the crest's osculating circle, mm. */
+    sagittalReach?: number;
   }
 
   /** The native chart's conic boundary and the associated anterior graph. */
@@ -37,6 +39,12 @@ export namespace AutoMovieHumanMammaryChart {
     root: IAutoMovieSolidSharedCurve.Loop;
     /** Calculate the phase part of the forward Point0 for one prepared station. */
     pointAt(station: number): (phase: number, originalX: number) => number;
+    /** Relative weight of the absolute target with respect to the original. */
+    weight(station: number, phase: number): number;
+    /** Weight and derivative for native phase-only consumers. */
+    weightPhase(station: number, phase: number): [number, number] | null;
+    /** Complete native two-jet of the relative weight. */
+    weightJet(station: number, phase: number): Jet | null;
     /** AP displacement and its derivatives on the original coordinate chart. */
     offset(station: number, phase: number, originalX: Jet): Jet | null;
     /** Move the corresponding original Point0 and all its physical jets. */
@@ -70,7 +78,8 @@ export namespace AutoMovieHumanMammaryChart {
     } = input;
     const radius = AutoMovieHumanMammaryJoin.radius(reaches);
     const wide: number = Math.max(reaches.plusV, reaches.minusV);
-    const tall: number = Math.max(reaches.up, reaches.down);
+    const tall: number =
+      input.sagittalReach ?? Math.max(reaches.up, reaches.down);
     const height2: number = projection ** 2;
     const inverseU2: number = 1 / (tall ** 2 + height2);
     const inverseV2: number = 1 / (wide ** 2 + height2);
@@ -98,19 +107,42 @@ export namespace AutoMovieHumanMammaryChart {
       const delta: number = t - phase;
       return (delta - TURN * Math.round(delta / TURN)) * pitch;
     };
+    const scalar = (offset: number, lateral: number): number => {
+      if (!bounds(offset, lateral)) return 0;
+      const { r2, theta, ellipse } = pack(offset, lateral);
+      const reach: number = radius(theta)[0];
+      const r: number = Math.sqrt(r2) / reach;
+      if (!(r < 1)) return 0;
+      const rim: number = (1 - r) ** 3;
+      return rim / (rim + ellipse);
+    };
     const pointAt: IChart["pointAt"] = (station) => {
       const offset: number = station - height;
       return (t, originalX) => {
-        const lateral: number = across(t);
-        if (!bounds(offset, lateral)) return originalX;
-        const { r2, theta, ellipse } = pack(offset, lateral);
-        const reach: number = radius(theta)[0];
-        const r: number = Math.sqrt(r2) / reach;
-        if (!(r < 1)) return originalX;
-        const rim: number = (1 - r) ** 3;
-        const weight: number = rim / (rim + ellipse);
-        return originalX + weight * (apex - originalX);
+        const weight = scalar(offset, across(t));
+        return weight === 0
+          ? originalX
+          : originalX + weight * (apex - originalX);
       };
+    };
+    const weightPhase: IChart["weightPhase"] = (station, t) => {
+      const u = station - height;
+      const v = across(t);
+      if (!bounds(u, v)) return null;
+      const { r2, theta, ellipse } = pack(u, v);
+      if (r2 === 0) return [1, 0];
+      const [reach, derivative] = radius(theta);
+      const length = Math.sqrt(r2);
+      const r = length / reach;
+      if (!(r < 1)) return null;
+      const r1 = (pitch / (length * reach)) * (v - (u * derivative) / reach);
+      const rim = (1 - r) ** 3;
+      const rim1 = -3 * (1 - r) ** 2 * r1;
+      const total = rim + ellipse;
+      return [
+        rim / total,
+        (rim1 * ellipse - rim * 2 * v * pitch * inverseV2) / (total * total),
+      ];
     };
     const blend = (u: number, v: number): Jet | null => {
       if (!bounds(u, v)) return null;
@@ -155,6 +187,9 @@ export namespace AutoMovieHumanMammaryChart {
     return {
       root,
       pointAt,
+      weight: (station, t) => scalar(station - height, across(t)),
+      weightPhase,
+      weightJet: (station, t) => blend(station - height, across(t)),
       offset,
       transfer: (station, t, original) => {
         const { p, u, v, uu, uv, vv } = original;

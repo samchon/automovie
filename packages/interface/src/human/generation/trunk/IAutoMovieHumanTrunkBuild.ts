@@ -63,6 +63,9 @@ export namespace IAutoMovieHumanTrunkBuild {
 
     /** The gluteal masses' law, or null. */
     gluteal: IMassLaw | null;
+
+    /** Use the prepared rear trunk field as the gluteal source. */
+    nativeGluteal?: boolean;
   }
 
   /** A mass's law on the left side, in calibration mm. */

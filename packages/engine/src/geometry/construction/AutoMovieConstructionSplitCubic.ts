@@ -23,6 +23,8 @@ export namespace AutoMovieConstructionSplitCubic {
     rate: (p: P3, d: P3) => number;
     /** Exact native receiving jet and its chart phase in radians. */
     read: (angle: number) => Solid.IJet & { phase: number };
+    /** The positive radial direction from the source-owned visibility axis. */
+    ray?: (p: P3) => { origin: P3; direction: P3 };
   };
   /** One generating curve and its exact receiving address. */
   export type Course = {

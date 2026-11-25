@@ -1,9 +1,11 @@
+import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
 import type {
   IAutoMovieHumanSourceDefinition,
   IAutoMovieHumanTrunkLegs,
   IAutoMovieHumanTrunkSectionFamily,
   IAutoMovieHumanTrunkTape,
   IAutoMovieHumanTrunkViews,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
@@ -48,8 +50,9 @@ export namespace AutoMovieHumanTrunkLegs {
     site: IAutoMovieHumanTrunkViews.ISite,
     shoulder: number,
     sections: ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane>,
+    gluteal?: (part: IAutoMovieViewPart) => IAutoMovieViewPart,
   ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]> {
-    const parent: IAutoMovieHumanSourceDefinition =
+    const original: IAutoMovieHumanSourceDefinition =
       AutoMovieHumanTrunkViewPart.define(
         {
           ...input.views,
@@ -63,23 +66,70 @@ export namespace AutoMovieHumanTrunkLegs {
         input.top,
         sections,
       );
-    const legs: IAutoMovieHumanTrunkLegs.IInput["legs"] = pair(input, parent);
-    return (["left", "right"] as const).map(
-      (
-        side: "left" | "right",
-      ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]>[number] => {
-        const leg: IAutoMovieHumanSourceDefinition | undefined = legs?.[side];
-        return AutoMovieHumanTrunkTape.parent(
-          leg?.part?.name ?? `leg.${side}`,
-          leg?.part === undefined || leg.part === null
-            ? `The coupled leg original is unavailable: ${JSON.stringify(leg?.diagnostics ?? [])}`
-            : AutoMovieHumanGlutealParent.levelCutRecords(
-                leg.part,
-                site.y,
-                AutoMovieHumanTrunkTape.PHASES,
-              ),
+    let parent: IAutoMovieHumanSourceDefinition = original;
+    const level: NonNullable<
+      IAutoMovieHumanTrunkTape.IInput["parents"]
+    >[number][] = [];
+    if (gluteal !== undefined)
+      try {
+        if (original.part === null)
+          throw new Error("The trial original trunk is unavailable");
+        const part = gluteal(original.part);
+        parent = { ...original, part };
+        level.push(
+          AutoMovieHumanTrunkTape.parent(part.name, nativeLevel(part, site.y)),
         );
-      },
-    );
+      } catch (error: unknown) {
+        return [
+          AutoMovieHumanTrunkTape.parent(
+            "trunk",
+            error instanceof Error ? error.message : String(error),
+          ),
+        ];
+      }
+    const legs: IAutoMovieHumanTrunkLegs.IInput["legs"] = pair(input, parent);
+    return [
+      ...level,
+      ...(["left", "right"] as const).map(
+        (
+          side: "left" | "right",
+        ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]>[number] => {
+          const leg: IAutoMovieHumanSourceDefinition | undefined = legs?.[side];
+          return AutoMovieHumanTrunkTape.parent(
+            leg?.part?.name ?? `leg.${side}`,
+            leg?.part === undefined || leg.part === null
+              ? `The coupled leg original is unavailable: ${JSON.stringify(leg?.diagnostics ?? [])}`
+              : AutoMovieHumanGlutealParent.levelCutRecords(
+                  leg.part,
+                  site.y,
+                  AutoMovieHumanTrunkTape.PHASES,
+                ),
+          );
+        },
+      ),
+    ];
+  }
+
+  /** Read the one native horizontal source section used as the tape authority. */
+  function nativeLevel(
+    part: IAutoMovieViewPart,
+    y: number,
+  ): IAutoMovieHumanTrunkTape.ParentRecords {
+    const frame = part.axis.at(y);
+    const field = Full.create(part);
+    if (
+      frame.origin[1] !== y ||
+      frame.u[1] !== 0 ||
+      frame.v[1] !== 0 ||
+      y < field.domain[0] ||
+      y > field.domain[1]
+    )
+      return "The native hip tape requires the person's level trunk section";
+    const row = field.pointAt(y);
+    return Array.from({ length: AutoMovieHumanTrunkTape.PHASES }, (_, i) => {
+      const phase = (2 * Math.PI * i) / AutoMovieHumanTrunkTape.PHASES;
+      const [x, , z] = row(phase);
+      return { point: [x, z], station: y, phase };
+    });
   }
 }

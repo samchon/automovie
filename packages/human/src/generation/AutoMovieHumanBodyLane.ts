@@ -351,7 +351,15 @@ export namespace AutoMovieHumanBodyLane {
         torso !== null &&
         left !== undefined &&
         right !== undefined
-          ? AutoMovieHumanPelvicSplit.production(torso, root, left, right)
+          ? AutoMovieHumanPelvicSplit.production(
+              torso,
+              root,
+              left,
+              right,
+              input.trunk.nativeGluteal === true
+                ? (input.trunk.gluteal ?? undefined)
+                : undefined,
+            )
           : "Both original lower branches and the torso are required";
       if (typeof pelvis === "string") {
         diagnostics.push({

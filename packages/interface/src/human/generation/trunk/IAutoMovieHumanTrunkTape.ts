@@ -42,6 +42,9 @@ export namespace IAutoMovieHumanTrunkTape {
      */
     parentsAt?(shoulder: number): NonNullable<IInput["parents"]>;
 
+    /** Original section and coupled cuts from the same fully authored trial. */
+    completeCutsAt?(shoulder: number): NonNullable<IInput["parents"]>;
+
     /** The tape, mm. */
     tape: number;
   }

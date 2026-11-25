@@ -17,6 +17,7 @@ export function AutoMovieHumanPelvicSaddle(
   normal: P3,
   forward: P3,
   chordMm: number,
+  osculate: boolean = false,
 ) {
   const [first, last] = fork;
   const chord: P3 | null = Vec.unit(Vec.sub(last.p, first.p));
@@ -32,12 +33,19 @@ export function AutoMovieHumanPelvicSaddle(
   if (!(depth > 0 && lead !== 0 && tail !== 0))
     return "The native pelvic fork tangents do not support the measured saddle depth";
   const before: P3 = Vec.add(first.p, Vec.scale(rays[0]!, depth / lead));
-  const after: P3 = Vec.add(last.p, Vec.scale(rays[1]!, depth / tail));
-  const gaps: number[] = [first.p, before, point, after, last.p]
+  const tailDepth: number = osculate
+    ? Vec.dot(Vec.sub(point, last.p), forward)
+    : depth;
+  const after: P3 = Vec.add(last.p, Vec.scale(rays[1]!, tailDepth / tail));
+  const osculation = osculate
+    ? osculating(fork, [before, after], normal)
+    : null;
+  if (typeof osculation === "string") return osculation;
+  const nadir: P3 = osculation?.nadir ?? point;
+  const controls: P3[] = [first.p, before, nadir, after, last.p];
+  const gaps: number[] = controls
     .slice(1)
-    .map((p, i): number =>
-      Vec.dot(Vec.sub(p, [first.p, before, point, after][i]!), chord),
-    );
+    .map((p, i): number => Vec.dot(Vec.sub(p, controls[i]!), chord));
   const orderingMargin: number = Math.min(...gaps);
   if (!(orderingMargin > 0))
     return "The measured pelvic saddle would make a cusp or an inflection between its fork tangents";
@@ -51,8 +59,9 @@ export function AutoMovieHumanPelvicSaddle(
   // weight scale equally in log weight, independently of the camera or asset.
   // https://doi.org/10.1016/j.cagd.2020.101904
   const weight: number = Math.sqrt(gaps[2]! / gaps[1]!);
-  const left = arc(first.p, before, point, weight, chordMm);
-  const right = arc(point, after, last.p, 1 / weight, chordMm);
+  const weights: [number, number] = osculation?.weights ?? [weight, 1 / weight];
+  const left = arc(first.p, before, nadir, weights[0], chordMm);
+  const right = arc(nadir, after, last.p, weights[1], chordMm);
   return {
     start: first.p,
     end: last.p,
@@ -64,9 +73,63 @@ export function AutoMovieHumanPelvicSaddle(
       const read = s < 0.5 ? left.at(2 * s) : right.at(2 * s - 1);
       return { p: read.p, d: Vec.scale(read.d, 2) };
     },
-    controls: [first.p, before, point, after, last.p],
-    weights: [weight, 1 / weight],
-    curvatureAtSaddle: depth / (2 * gaps[1]! * gaps[2]!),
+    controls,
+    weights,
+    curvatureAtSaddle:
+      osculation?.curvature ?? depth / (2 * gaps[1]! * gaps[2]!),
+  };
+}
+
+/** Equal conic curvature at the measured level with both native fork jets held. */
+function osculating(
+  fork: readonly [Solid.IJet, Solid.IJet],
+  handles: readonly [P3, P3],
+  plane: P3,
+) {
+  const spans = fork.map(({ p }, i) => Vec.sub(handles[i]!, p));
+  const lengths = spans.map(Vec.norm);
+  const curves = fork.map((j, i): number => {
+    const ray: P3 = Vec.scale(spans[i]!, 1 / lengths[i]!);
+    const { u, v, uu, uv, vv } = j;
+    const mixed = Vec.dot(u, v);
+    const [a, b] = Vec.solve2(Vec.dot(u, u), mixed, mixed, Vec.dot(v, v), [
+      Vec.dot(ray, u),
+      Vec.dot(ray, v),
+    ])!;
+    const n = Vec.unit(Vec.cross(u, v))!;
+    return Vec.dot(
+      n,
+      Vec.combine([
+        [a * a, uu],
+        [2 * a * b, uv],
+        [b * b, vv],
+      ]),
+    );
+  });
+  if (curves.some((k): boolean => !(k > 0)))
+    return "The native fork curvatures do not support two convex conic arcs";
+
+  // The rational quadratic's curvature ratio at its two ends is the inverse
+  // cube of the tangent-control reaches. Both inside handles lie in the exact
+  // perineal datum, so equality gives the nadir directly on their shared line.
+  // Gfrerrer and Weiss (2020), https://doi.org/10.1016/j.cagd.2020.101904
+  const rates = curves.map((k, i): number => Math.cbrt(k) * lengths[i]!);
+  const nadir = Vec.combine([
+    [rates[1]! / (rates[0]! + rates[1]!), handles[0]],
+    [rates[0]! / (rates[0]! + rates[1]!), handles[1]],
+  ]);
+  const weights = fork.map(({ p }, i): number => {
+    const twiceArea = Math.abs(
+      Vec.dot(plane, Vec.cross(spans[i]!, Vec.sub(nadir, p))),
+    );
+    return Math.sqrt(twiceArea / (2 * curves[i]! * lengths[i]! ** 3));
+  });
+  const curvature: number =
+    curves[0]! * (lengths[0]! / Vec.norm(Vec.sub(nadir, handles[0]))) ** 3;
+  return {
+    nadir,
+    curvature,
+    weights: [weights[0]!, weights[1]!] as [number, number],
   };
 }
 

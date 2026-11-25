@@ -44,6 +44,7 @@ const SUBJECT: string = "ansur-male-neutral";
 function evaluate(
   parameters: IAutoMovieHumanParameters,
   onPhase?: (phase: buildHumanNeutralCapture.Phase) => void,
+  nativeGluteal?: boolean,
 ): {
   calibration: IAutoMovieHumanBodyCalibration;
   mesh: IAutoMovieMesh;
@@ -60,7 +61,11 @@ function evaluate(
 } {
   const start: number = performance.now();
   const definition: IAutoMovieHumanBodyLaw.IDefinition =
-    AutoMovieHumanBodyLaw.define(parameters);
+    AutoMovieHumanBodyLaw.define(
+      parameters,
+      undefined,
+      nativeGluteal === undefined ? undefined : { nativeGluteal },
+    );
   const declaration: ReturnType<typeof inspectHumanNeutralTopology> =
     inspectHumanNeutralTopology(definition);
   onPhase?.("definition");
@@ -187,13 +192,15 @@ export namespace buildHumanNeutralCapture {
    *
    * @param parameters The person's actual source parameters.
    * @param onPhase Observe completed stages for timing or memory measurements.
+   * @param nativeGluteal Exercise the retained native trunk and pelvic cut.
    * @returns The generated geometry and its inspection.
    */
   export function inspect(
     parameters: IAutoMovieHumanParameters = AutoMovieHumanNeutralParameters,
     onPhase?: (phase: Phase) => void,
+    nativeGluteal?: boolean,
   ): ReturnType<typeof evaluate> {
-    return evaluate(parameters, onPhase);
+    return evaluate(parameters, onPhase, nativeGluteal);
   }
 
   /** Inspect the production ports using only their actual original fields. */

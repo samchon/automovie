@@ -1,19 +1,116 @@
+import {
+  AutoMovieIllinois,
+  AutoMovieLoftViewFullSource as Full,
+  AutoMovieSolidVector as Vec,
+} from "@automovie/engine";
 import type {
   IAutoMovieHumanGlutealRelief,
+  IAutoMovieHumanTrunkBuild,
   IAutoMovieHumanTrunkFeature,
   IAutoMovieLoftRelief,
+  IAutoMovieViewPart,
+  AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
 
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
+import { AutoMovieHumanMammaryChart as Chart } from "./trunk/AutoMovieHumanMammaryChart";
 
 /**
- * The buttocks merged into the trunk: the left gluteal mass sampled as a
- * relief window over the trunk's chart on the posterior sectors, moving the
- * base along the gluteal axis, and the right window its reflection (rule J6).
- * The window starts at the crotch ring and vanishes there with its slope and
- * curvature (J7), so the ring the legs share is untouched.
+ * The buttocks merged into the trunk: the left gluteal mass sampled as a relief
+ * window over the trunk's chart on the posterior sectors, moving the base along
+ * the gluteal axis, and the right window its reflection (rule J6). The window
+ * starts at the crotch ring and vanishes there with its slope and curvature
+ * (J7), so the ring the legs share is untouched.
  */
 export namespace AutoMovieHumanGlutealRelief {
+  /** Prepare both gluteal crests over the actual original rear trunk wall. */
+  export function source(
+    part: IAutoMovieViewPart,
+    law: IAutoMovieHumanTrunkBuild.IMassLaw,
+  ): IAutoMovieViewPart {
+    const field = Full.create(part);
+    const [x, y, z] = law.target;
+    const [up, lateral, down, medial] = law.footprint;
+    const row = field.pointAt(y);
+    const start = Math.max(y - down, field.domain[0]);
+    const end = Math.min(y + up, field.domain[1]);
+    const crests = [1, -1].map((side): IAutoMovieLoftRelief.IGraph => {
+      const phase = posteriorPhase(row, side * z, side);
+      const native = field.jet(y, phase);
+      const pitch = Vec.norm(native.v);
+      const projection = native.p[0] - x;
+      const edges = [
+        posteriorPhase(row, side * (z - medial), side),
+        posteriorPhase(row, side * (z + lateral), side),
+      ];
+      const lo = Math.min(...edges);
+      const hi = Math.max(...edges);
+      if (
+        !(
+          projection > 0 &&
+          pitch > 0 &&
+          start < y &&
+          y < end &&
+          lo < phase &&
+          phase < hi
+        )
+      )
+        throw new Error(
+          "The gluteal point has no interior rear source footprint",
+        );
+      // ESTIMATE. The local sagittal osculating circle uses the actual
+      // inferior support reach as its half-chord. The longer iliocristale
+      // reach bounds the upper aperture. The original wall and anatomical
+      // depth form a convex pair in the native region.
+      // https://doi.org/10.1002/ca.23988
+      const chart = Chart.prepare({
+        centre: [y, phase],
+        pitch,
+        apex: x,
+        projection,
+        sagittalReach: y - start,
+        reaches: {
+          up: end - y,
+          down: y - start,
+          plusV: (hi - phase) * pitch,
+          minusV: (phase - lo) * pitch,
+        },
+      });
+      return {
+        name: `trunk.buttock.${side > 0 ? "left" : "right"}`,
+        stations: [start, end],
+        phases: [lo, hi],
+        axis: [-1, 0, 0],
+        target: -x,
+        weight: chart.weight,
+        phase: chart.weightPhase,
+        jet: chart.weightJet,
+      };
+    });
+    return {
+      ...part,
+      originalGraphs: [...(part.originalGraphs ?? []), ...crests],
+    };
+  }
+
+  /** Read a physical posterior landmark on the existing level trunk. */
+  export function posteriorPhase(
+    row: (phase: number) => P3,
+    site: number,
+    side: number,
+  ): number {
+    const phase = AutoMovieIllinois.root(
+      (t) => row(side * t)[2] - site,
+      Math.PI / 2,
+      Math.PI,
+      Number.EPSILON * Math.PI,
+      100,
+    );
+    if (phase === null)
+      throw new Error("The gluteal site leaves the original posterior section");
+    return side > 0 ? phase : 2 * Math.PI - phase;
+  }
+
   /**
    * Both buttocks' windows.
    *

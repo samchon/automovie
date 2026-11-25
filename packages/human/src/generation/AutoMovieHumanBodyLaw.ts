@@ -125,6 +125,7 @@ export namespace AutoMovieHumanBodyLaw {
   export function define(
     params: IAutoMovieHumanParameters,
     prepared?: IAutoMovieHumanBodyPreparation.IOutput,
+    options?: Pick<IAutoMovieHumanTrunkBuild.IInput, "nativeGluteal">,
   ): IAutoMovieHumanBodyLaw.IDefinition {
     const context: IAutoMovieHumanBodyPreparation.IOutput =
       prepared ?? prepare(params);
@@ -146,7 +147,11 @@ export namespace AutoMovieHumanBodyLaw {
         sources: new Map(head.source.sources).set(massPart.name, massPart),
       },
     };
-    const input: IAutoMovieHumanBodyLane.IInput = bodyInput(context);
+    const original = bodyInput(context);
+    const input: IAutoMovieHumanBodyLane.IInput =
+      options === undefined
+        ? original
+        : { ...original, trunk: { ...original.trunk, ...options } };
     const lane: IAutoMovieHumanBodyLane.IDefinition =
       AutoMovieHumanBodyLane.define({
         ...input,

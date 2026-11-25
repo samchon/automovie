@@ -181,20 +181,20 @@ export namespace AutoMovieHumanTrunkTape {
         return [];
       }
     };
-    const additional: (r: number, witnesses?: boolean) => [number, number][] = (
-      r: number,
-      witnesses: boolean = false,
-    ): [number, number][] => {
+    const trial = (r: number, witnesses: boolean = false) => {
+      const complete = input.completeCutsAt?.(r);
+      const base: [number, number][] =
+        complete === undefined ? sectionPoints(r) : [];
       const points: [number, number][] = [];
-      for (const parent of input.parentsAt?.(r) ?? []) {
+      for (const parent of complete ?? input.parentsAt?.(r) ?? []) {
         if (typeof parent.points === "string") {
           unavailable = `${parent.name}: ${parent.points}`;
-          return [];
+          return { base, points: [...base, ...cuts] };
         }
         for (const [index, point] of parent.points.entries()) {
           if (!point.every(Number.isFinite)) {
             unavailable = `${parent.name}: nonfinite coupled original cut`;
-            return [];
+            return { base, points: [...base, ...cuts] };
           }
           points.push(point);
           if (witnesses)
@@ -204,7 +204,7 @@ export namespace AutoMovieHumanTrunkTape {
             });
         }
       }
-      return points;
+      return { base, points: [...base, ...cuts, ...points] };
     };
     const parentError: () => IAutoMovieHumanTrunkTape.IResult =
       (): IAutoMovieHumanTrunkTape.IResult => ({
@@ -219,19 +219,12 @@ export namespace AutoMovieHumanTrunkTape {
         ],
       });
     const perimeter: (r: number) => number = (r: number): number =>
-      unavailable === undefined
-        ? hull([...sectionPoints(r), ...cuts, ...additional(r)])
-        : NaN;
+      unavailable === undefined ? hull(trial(r).points) : NaN;
 
     const [lo, hi]: readonly [number, number] = reach.shoulder;
     // Prepare the bracket endpoints and its lower-hull witness explicitly.
     // Root trials only produce the cut of their own candidate parent.
-    const base: [number, number][] = sectionPoints(lo);
-    const lowerPoints: [number, number][] = [
-      ...base,
-      ...cuts,
-      ...additional(lo, true),
-    ];
+    const { base, points: lowerPoints } = trial(lo, true);
     const low: number = hull(lowerPoints);
     const high: number = perimeter(hi);
     if (unavailable !== undefined) return parentError();
