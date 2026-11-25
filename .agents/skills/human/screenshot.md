@@ -1,6 +1,6 @@
 # Screenshots
 
-The figure is inspected with the shared [instrument](../visual-debugging/instrument.md): the inspector page for reading it interactively and the capture command for stills, sheets and the record a round keeps. The Human package's [README](../../../packages/human/README.md#inspection) owns its subject module, the scripts that run both over it, the subject names and the path of every piece and curve; the [`render` README](../../../packages/render/README.md#request-keys) owns the request keys. This page holds only what reading the Human figure adds.
+Use the shared [instrument](../visual-debugging/instrument.md) to inspect Human. Find commands in the [Human README](../../../packages/human/README.md#inspection), paths in the [inspection reference](../../../packages/human/docs/inspection.md) and options in [capture requests](../../../packages/render/docs/capture-requests.md).
 
 ## Selecting curves and parts
 
@@ -12,13 +12,13 @@ The skin is one sewn piece, `f1/body`, and every construction curve has a path u
 | One family's curves | `parts=f1/arm` with `marks=curve/*` |
 | A family's curves with its reflected twin's | `parts=f1/arm*` with `marks=curve/*` |
 | One side's curves only | `hide=*.mirror` with `marks=curve/*` |
-| A hand's or a foot's digits | `parts=f1/finger.*` or `parts=f1/toe.*` with `marks=curve/*`; the palm is the arm's and the foot the leg's |
+| Fingers or toes | `parts=f1/finger.*` or `parts=f1/toe.*` with `marks=curve/*` |
 | One section ring | `parts=f1/arm/section/3` with `marks=curve/*` |
 | One family's rails and axis | `parts=f1/arm/guide/*,f1/arm/axis` with `marks=curve/*` |
 | A family on the skin | `marks=curve/*` with a view such as `three-quarter@focus=f1/arm` |
 | Each family's curves alone and with its neighbours | `sweep=f1/*` with a `margin` in metres and `marks=curve/*` |
 
-Name what a still shows with `label` while establishing identity, such as `label=f1/*`, and drop it where labels cover the shape.
+The palm belongs to the arm and the foot to the leg. Use `label` to identify the selection, then remove labels that cover the shape.
 
 ## The three passes
 

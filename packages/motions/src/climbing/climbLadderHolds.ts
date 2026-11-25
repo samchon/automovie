@@ -127,11 +127,37 @@ export namespace climbLadderHolds {
       ladder.width / 2,
       "m",
     );
-    const reach: number = Math.round(
-      (body.measure.shoulderHeight - bounds.gripDrop * body.measure.upperArm) /
-        ladder.spacing,
-    );
+    const gripHeight: number =
+      body.measure.shoulderHeight - bounds.gripDrop * body.measure.upperArm;
+    const reach: number =
+      ladder.rungs === undefined
+        ? Math.round(gripHeight / ladder.spacing)
+        : ladder.rungs.reduce(
+            (
+              nearest: number,
+              rung: IAutoMovieMotionHumanLadder.IRung,
+              index: number,
+            ): number =>
+              Math.abs(rung.center.y - ladder.frame.origin.y - gripHeight) <
+              Math.abs(
+                ladder.rungs![nearest - 1]!.center.y -
+                  ladder.frame.origin.y -
+                  gripHeight,
+              )
+                ? index + 1
+                : nearest,
+            1,
+          );
     HumanBound.within("rungs", reach + count, 1, ladder.count, "");
+    for (const rung of ladder.rungs?.slice(0, count) ?? [])
+      for (const side of ["left", "right"] as const)
+        HumanBound.within(
+          `${rung.id}.${side}Foot`,
+          Math.abs(lateral[side]),
+          0,
+          rung.width / 2,
+          "m",
+        );
     return { lateral, reach };
   }
 
@@ -139,7 +165,6 @@ export namespace climbLadderHolds {
    * Prepare the holds.
    *
    * @param body The canonical motion body.
-   * @param ladder The ladder.
    * @param atRung The rung point reader.
    * @param quiet The settled stance's foot placements, whose headings the rungs
    *   keep.
@@ -152,7 +177,6 @@ export namespace climbLadderHolds {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    ladder: IAutoMovieMotionHumanLadder.ILadder,
     atRung: ReturnType<typeof HumanLadder.prepareRung>,
     quiet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     flat: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanFoot.IPlacement,
@@ -190,13 +214,7 @@ export namespace climbLadderHolds {
     ): IAutoMovieMotionHumanFoot.IPlacement =>
       index === 0
         ? flat(side)
-        : onRung[side](
-            Vector3.add(atRung(index, lateral(side)), {
-              x: 0,
-              y: ladder.radius,
-              z: 0,
-            }),
-          );
+        : onRung[side](atRung(index, lateral(side), "crown"));
     const footprints: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement[]
@@ -259,14 +277,9 @@ export namespace climbLadderHolds {
       ),
     };
     // Pick a grip in each shoulder's plane, within the rung's width.
-    const halfWidth: number = ladder.width / 2;
     const handLane: (side: AutoMovieHumanSide) => number = (
       side: AutoMovieHumanSide,
-    ): number =>
-      Math.max(
-        -halfWidth,
-        Math.min(halfWidth, body.rest.get(`${side}UpperArm`)!.x),
-      );
+    ): number => body.rest.get(`${side}UpperArm`)!.x;
     const leftLane: number = handLane("left");
     const rightLane: number = handLane("right");
     const handholds: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {

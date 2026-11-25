@@ -51,16 +51,12 @@ export namespace IAutoMovieMotionHumanCoupled {
     hold?: number;
 
     /**
-     * Seconds of the lift into the carry, inside `seconds`; none when absent:
-     * the carried body starts in the carry. Provisional: no lifting time was
-     * read.
+     * Seconds of the lift into the carry, within `hold`. Omit it or use zero to
+     * start in the carried posture.
      */
     lift?: number;
 
-    /**
-     * Seconds of the set-down, inside `seconds`; none when absent: the carry
-     * ends in place. Provisional: no setting-down time was read.
-     */
+    /** Seconds of the set-down within `hold`. Omit it to end in the carry. */
     setDown?: number;
 
     /** Kilograms the borne person carries besides their body; none when absent. */

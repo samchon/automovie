@@ -154,26 +154,38 @@ export function rideBicycle(
     (left: rideBicycle.IInstant, right: rideBicycle.IInstant): number =>
       left.seconds - right.seconds,
   );
-  return AutoMovieArchetypeRide.along(
+  return AutoMovieArchetypeRide.articulated(
     bicycle,
     plan,
     (
       state: AutoMovieArchetypeCourse.IState,
-    ): AutoMovieArchetypeRide.IPose<
-      createBicycle.Affordance,
-      createBicycle.Dimension
-    > => ({
-      archetype: bicycle.articulate({
-        crank: ((pedalled(state.distance) / development) * 360) % 360,
-        frontSpin: ((state.distance / circumference) * 360) % 360,
-        rearSpin: ((state.distance / circumference) * 360) % 360,
-      }),
-      placement: AutoMovieArchetypeCourse.banked(
-        state,
-        AutoMovieArchetypeCourse.lean(state),
-      ),
-    }),
-    instants,
+      _seconds: number,
+      id?: createBicycle.Affordance,
+    ): Partial<Record<createBicycle.Affordance, number>> => {
+      const travels: Partial<Record<createBicycle.Affordance, number>> = {};
+      if (
+        id === undefined ||
+        id === "crank" ||
+        id === "leftPedal" ||
+        id === "rightPedal"
+      )
+        travels.crank = ((pedalled(state.distance) / development) * 360) % 360;
+      if (id === undefined || id === "frontSpin")
+        travels.frontSpin = ((state.distance / circumference) * 360) % 360;
+      if (id === undefined || id === "rearSpin")
+        travels.rearSpin = ((state.distance / circumference) * 360) % 360;
+      return travels;
+    },
+    {
+      instants,
+      placement: (
+        state: AutoMovieArchetypeCourse.IState,
+      ): IAutoMovieTransform =>
+        AutoMovieArchetypeCourse.banked(
+          state,
+          AutoMovieArchetypeCourse.lean(state),
+        ),
+    },
   );
 }
 

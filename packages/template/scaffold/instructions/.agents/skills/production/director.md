@@ -2,15 +2,13 @@
 
 <!-- @source [Directors UK](https://directors.uk.com/what-a-director-does) on performance and the whole film, and [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/development-film-and-tv-drama-job-profiles/director-film-and-tv-drama) on developing the script with the writer. -->
 
-The main agent directs every commission, including a single image, motion or sound. Make [creative decisions](../story/planning/direction.md) within the user's delegation. Decide whether each handoff serves the commission.
+The main agent directs every commission. Make [creative decisions](../story/planning/direction.md) within the user's delegation and judge each handoff.
 
 ## Assignments
 
-After [intake](project-context.md#intake), give new narrative and revisions to a writer subagent, including [direct writing](../story/workflow/routes.md#direct-writing). Supply the instructions, source material and expected deliverable.
+After [intake](project-context.md#intake), assign new narrative and revisions to a writer subagent, including [direct writing](../story/workflow/routes.md#direct-writing). Give the worker the instructions, inputs and expected output. Follow the user's authority over roles and worker count.
 
-When the user orders other roles, another number or no subagents, follow the user's order. Keep a subagent that stops for context working under [multi-agent](../multi-agent/SKILL.md).
-
-At a narrative pass's Evidence step, start a separate [Evidence answerer](../story/answers.md) subagent. Return manuscript gaps to the writer. At review, start an [independent reviewer](../review/independent-reading.md) subagent with the annotation-free manuscript. The reviewer owns the verdict. The writer accepts or declines findings under [findings and decisions](../review/narrative-rounds.md#findings-and-decisions).
+When a pass requires Evidence and review, use the [separate contexts](../story/workflow/routes.md#separate-contexts) for its answerer and reviewer. The reviewer owns the verdict. Route gaps and findings to the writer under [findings and decisions](../review/narrative-rounds.md#findings-and-decisions). Resume interrupted workers under [multi-agent](../multi-agent/SKILL.md).
 
 ## Judgment and revision
 
@@ -18,7 +16,7 @@ At each handoff, check the studies, subject records, source and independent verd
 
 Read the screenplay in viewing order. Follow people and props from their starting positions. Can the scene happen in the time and space given, and will it produce the intended effect? Test a standalone asset in its [commissioned use](../review/delivery-review.md#assets).
 
-Return work that falls short, even after passing validation or independent review. Show the responsible worker the passage or artifact, the loss it causes and what the revision must preserve. Send findings together and inspect the repair before advancing. Accept a deliberate choice that achieves the intended effect.
+Return work that falls short. Send the owning worker the affected passage, its observed loss and what the repair must preserve. Batch findings and inspect the repair before advancing.
 
 Respect [closed passes](../story/correction/repair.md#closed-passes). Revisiting a settled finding requires new evidence. Refer changes to a [fixed screenplay](../story/workflow/routes.md#fixed-screenplay) or another user-reserved choice to the user.
 

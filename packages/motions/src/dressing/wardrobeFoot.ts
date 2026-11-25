@@ -177,29 +177,32 @@ export function wardrobeFoot(
   const fit: (goal: IAutoMovieRigidTransform) => IAutoMovieRigidTransform = (
     goal: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform => HumanPropFrame.parent(goal, offset);
+  const taking: IAutoMovieRigidTransform = remove ? removalGrip : fit(outside);
+  const crossing: IAutoMovieRigidTransform = fit(aligned);
+  const terminal: IAutoMovieRigidTransform = fit(remove ? outside : seated);
   const target: (seconds: number) => IAutoMovieRigidTransform = (
     seconds: number,
   ): IAutoMovieRigidTransform => {
     if (seconds <= gripTime)
       return wardrobeHands.path(
         resting,
-        remove ? removalGrip : fit(outside),
+        taking,
         (seconds - holdStart) / (gripTime - holdStart),
       );
     if (seconds <= passTime)
       return wardrobeHands.path(
-        remove ? removalGrip : fit(outside),
-        fit(aligned),
+        taking,
+        crossing,
         (seconds - gripTime) / (passTime - gripTime),
       );
     if (seconds <= finish)
       return wardrobeHands.path(
-        fit(aligned),
-        fit(remove ? outside : seated),
+        crossing,
+        terminal,
         (seconds - passTime) / (finish - passTime),
       );
     return wardrobeHands.path(
-      fit(remove ? outside : seated),
+      terminal,
       resting,
       (seconds - finish) / (holdEnd - finish),
     );
@@ -251,16 +254,26 @@ export function wardrobeFoot(
     // frame, its attitude and its place, not on where the fitted hand lands
     // within its 10 mm, so the passage keeps the opening square to the foot
     // and the worn offset taken at `finish` is the seated frame itself.
-    inHand: (share: number): IAutoMovieRigidTransform => {
+    inHand: (
+      share: number,
+      grip?: IAutoMovieRigidTransform,
+    ): IAutoMovieRigidTransform => {
       const time: number = from + share * (to - from);
       const at: number = Math.min(time, finish);
       const rollStart: number = remove ? gripTime : holdStart;
       const rollEnd: number = remove ? passTime : gripTime;
       const fraction: number = (at - rollStart) / (rollEnd - rollStart);
       if (!(fraction > 0))
-        return wardrobeHands.roll(body, held(at), hand, target(at), fraction);
+        return wardrobeHands.roll(
+          body,
+          entry.posture,
+          hand,
+          target(at),
+          fraction,
+        );
       const full: IAutoMovieRigidTransform = HumanPropFrame.relative(
-        wardrobeHands.grip(body, held(at), hand),
+        (at === time ? grip : undefined) ??
+          wardrobeHands.grip(body, held(at), hand),
         target(at),
       );
       const u: number = minimumJerk.share(fraction);

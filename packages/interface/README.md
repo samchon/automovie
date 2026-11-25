@@ -1,27 +1,13 @@
 # @automovie/interface
 
-The common and domain contracts of AutoMovie, from authored models and shots to computation inputs, results and host protocols. `engine`, `human`, `motions`, `recovery`, `ingest` and `render` use these declarations at their public boundaries. The package has no runtime dependency.
+Import the TypeScript contracts for AutoMovie's authored models, motions, scenes and films. Use the package to type the data you pass to AutoMovie libraries.
 
-Fields use plain `string` and `number`; their JSDoc states units, frames, ranges, ownership and absence behavior. Closed unions describe alternatives. The implementation that admits or produces each record owns its runtime checks, so importing a type alone does not validate data. Validator-specific metadata stays with that implementation.
-
-## Use
+## Start
 
 ```powershell
 npm install @automovie/interface
 ```
 
-```ts
-import type { IAutoMovieModel, IAutoMovieShot } from "@automovie/interface";
-```
+Use type-only imports. Start with `IAutoMovieModel` for a model, `IAutoMovieShot` for a shot or `IAutoMovieMotionHumanPerformance` for a human performance. Each field's documentation specifies units, coordinate frame and limits.
 
-## Conventions
-
-Authored scene coordinates are right-handed and y-up, with lengths in metres and time in seconds. Authored joint angles are degrees of anatomical movement. Numerical construction, Human preparation, imported observations and film clocks may use millimetres, radians, other frames or exact frame counts; the containing field defines the convention. Tuple and object coordinate representations do not imply a conversion between them.
-
-Object contracts and object unions use `IAutoMovie*`; scalar, literal, tuple and utility aliases use `AutoMovie*`. Type-only namespaces group related contracts. Optional and null values retain distinct meanings stated at the field, including any default supplied by its runtime owner.
-
-Archetype assets and their producer APIs remain in `@automovie/archetypes`, using the common model, affordance, body, rig and geometry contracts. Adding an asset does not require an interface entry. Frontend state and contracts requiring Three, Node or another implementation dependency remain with their owning packages.
-
-## Where to look
-
-Import contracts from the package root. Start from `IAutoMovieModel` for a figure or prop and `IAutoMovieShot` for a shot; the declarations document the related domain inputs, results and runtime admission owners.
+For model validation, use [`@automovie/engine`](https://github.com/samchon/automovie/tree/master/packages/engine). [API reference](https://samchon.github.io/automovie/api/).

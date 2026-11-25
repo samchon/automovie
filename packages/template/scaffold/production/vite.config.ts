@@ -5,7 +5,22 @@ import { defineConfig } from "vite";
 /** Scratch names belong to this production, including when its parent uses one. */
 const productionRoot: string = fileURLToPath(new URL(".", import.meta.url));
 
-/** The production's inspector page; generated evidence and capture scratch never reload it. `automovie capture`, `render` and `inspect` build their own pages with this configuration. */
+/**
+ * Linked SDKs resolve to TypeScript and would otherwise load one module per
+ * request.
+ */
+const linkedSdk: string[] = [
+  "@automovie/engine",
+  "@automovie/motions",
+  "@automovie/render",
+  "@automovie/viewer",
+].filter((id: string): boolean => import.meta.resolve(id).endsWith(".ts"));
+
+/**
+ * The production's inspector page; generated evidence and capture scratch never
+ * reload it. `automovie capture`, `render` and `inspect` build their own pages
+ * with this configuration.
+ */
 export default defineConfig({
   resolve: {
     // Published SDK CommonJS imports must share the browser's ESM Three.js;
@@ -17,6 +32,11 @@ export default defineConfig({
       },
     ],
   },
+  optimizeDeps: {
+    include: linkedSdk,
+    // A linked SDK can change without touching the production's lockfile.
+    force: linkedSdk.length !== 0,
+  },
   build: {
     target: "es2022",
     // Preserve lazy initialization across the published SDK's require cycles.
@@ -27,7 +47,10 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     watch: {
-      /** Match scratch components inside the project; ancestor names cannot hide source. */
+      /**
+       * Match scratch components inside the project; ancestor names cannot hide
+       * source.
+       */
       ignored: (file: string): boolean => {
         const local: string = relative(
           productionRoot,

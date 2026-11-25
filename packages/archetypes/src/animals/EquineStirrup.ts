@@ -32,13 +32,14 @@ interface ISection {
 
 /**
  * Lay the physical tread, arch, eye and leather of one conventional stirrup.
- * WO2007052127A1, figures 1 and 2, shows the tread at the bases of the arch
- * and opening 301 for the leather above the foot. AJ Tack's Fillis iron gives
- * the overall height and eye width (ajtack.com/products/aj-tack-stainless-steel-fillis-stirrup-irons).
- * An elliptical arch and round stock approximate the outline and thickness.
- * The arch's side stock fits inside the base's rim outside the full clear
- * tread. The leather's two runs pass outside the barrel and close around the
- * eye's lower rail. The authored drop places the tread, including the iron.
+ * WO2007052127A1, figures 1 and 2, shows the tread at the bases of the arch and
+ * opening 301 for the leather above the foot. AJ Tack's Fillis iron gives the
+ * overall height and eye width
+ * (ajtack.com/products/aj-tack-stainless-steel-fillis-stirrup-irons). An
+ * elliptical arch and round stock approximate the outline and thickness. The
+ * arch's side stock fits inside the base's rim outside the full clear tread.
+ * The leather's two runs pass outside the barrel and close around the eye's
+ * lower rail. The authored drop places the tread, including the iron.
  *
  * @param builder The equid being built, with the saddle tree already laid.
  * @param props The placed tread, the saddle edge and the torso section.
@@ -50,8 +51,15 @@ export function EquineStirrup(
   >,
   props: EquineStirrup.IProps,
 ): void {
-  const { side, tread, width, drop, saddle, barrel, color }: EquineStirrup.IProps =
-    props;
+  const {
+    side,
+    tread,
+    width,
+    drop,
+    saddle,
+    barrel,
+    color,
+  }: EquineStirrup.IProps = props;
   const prefix: string = `stirrup-${side}`;
   const sign: number = side === "left" ? 1 : -1;
   const radius: number = STEEL_RADIUS;
@@ -90,7 +98,7 @@ export function EquineStirrup(
   const run: number = half - eye;
   const rise: number = lower - from;
   const segments: number = Math.ceil(
-    (Math.PI / 2) / (2 * Math.acos(1 - radius / Math.max(run, rise))),
+    Math.PI / 2 / (2 * Math.acos(1 - radius / Math.max(run, rise))),
   );
   for (const end of [-1, 1]) {
     const branch = (x: number, y: number): IAutoMovieVector3 =>
@@ -190,6 +198,7 @@ export function EquineStirrup(
   builder.affordance({
     id: `${side}Stirrup`,
     kind: "stirrup",
+    materialPart: prefix,
     frame: AutoMovieArchetypeFrame.upright(tread),
     extent: null,
     width,

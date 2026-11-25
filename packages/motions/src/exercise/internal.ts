@@ -13,6 +13,7 @@ export * from "./WorkoutBodyweight";
 export * from "./WorkoutFeet";
 export * from "./WorkoutLoad";
 export * from "./WorkoutSupport";
+export * from "./workoutWallSit";
 export * from "./WorkoutEquipment";
 export * from "./WorkoutPlace";
 export * from "./prepareDanceFootCourse";

@@ -1,5 +1,8 @@
-import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieAffordance } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanSupportStepPlants } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,6 +27,10 @@ const ROUNDING: number = 1e-12;
  * 2. The point (1.5, 0.25, 0.3) lies at (-0.3, 0.05, 0) in its frame.
  * 3. That point is held; one 0.15 m above, or 0.3 m along its width, is not.
  * 4. A surface with no declared extent holds a point any distance along it.
+ * 5. A moving face follows its own displayed site.
+ * 6. A 0.10 m sole centred at 0.07 m on a 0.20 m deck needs 0.02 m of inward
+ *    correction, including on a rotated deck. A sole wider than the face
+ *    refuses.
  */
 export function test_motions_carrier_human_support_step_plants(): void {
   const quarter = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
@@ -59,6 +66,13 @@ export function test_motions_carrier_human_support_step_plants(): void {
     context([
       affordance("tread", "surface", { width: 0.4, depth: 1 }),
       affordance("rail", "handle", {}),
+      {
+        ...affordance("wall", "surface", { width: 0.4, depth: 1 }),
+        frame: {
+          ...affordance("wall", "surface", {}).frame,
+          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        },
+      },
     ]),
     "escalator",
     0.5,
@@ -96,5 +110,58 @@ export function test_motions_carrier_human_support_step_plants(): void {
   TestValidator.predicate(
     "unbounded",
     HumanSupportStepPlants.holds(open!, { x: 50, y: 0.2, z: -40 }),
+  );
+  const dynamic: HumanSupportStepPlants.ISurfacesContext = {
+    start: 3,
+    prop: () => ({
+      prop: {
+        affordances: [
+          affordance("stepFace", "surface", { width: 0.2, depth: 0.5 }),
+        ],
+      },
+      frame: () => {
+        throw new Error("The displayed material site owns this face");
+      },
+      site: (id: string, seconds: number) => {
+        if (id !== "stepFace")
+          throw new Error("Expected the moving deck surface");
+        return { position: { x: seconds, y: 0.2, z: 0 }, rotation: quarter };
+      },
+    }),
+  };
+  for (const at of [1.7, 0.3, 1.7]) {
+    const [face] = HumanSupportStepPlants.surfaces(dynamic, "deck", at);
+    TestValidator.predicate(
+      `read the displayed material at ${at} s`,
+      face?.id === "stepFace" &&
+        face.origin.x === at + 3 &&
+        face.width === 0.2 &&
+        face.depth === 0.5,
+    );
+  }
+  const deck: HumanSupportStepPlants.ISurface = {
+    ...tread!,
+    width: 0.2,
+    depth: 0.5,
+  };
+  const sole: IAutoMovieVector3[] = [0.02, 0.12].flatMap(
+    (x: number): IAutoMovieVector3[] =>
+      [-0.1, 0.1].map(
+        (z: number): IAutoMovieVector3 =>
+          Vector3.add(
+            deck.origin,
+            Quaternion.rotateVector(deck.rotation, { x, y: 0, z }),
+          ),
+      ),
+  );
+  const shift: IAutoMovieVector3 | null = HumanSupportStepPlants.fit(
+    deck,
+    sole,
+  );
+  TestValidator.predicate(
+    "the yawed footprint's outside toe moves inward in its material frame",
+    shift !== null &&
+      vclose(shift, { x: 0, y: 0, z: 0.02 }, ROUNDING) &&
+      HumanSupportStepPlants.fit({ ...deck, width: 0.09 }, sole) === null,
   );
 }

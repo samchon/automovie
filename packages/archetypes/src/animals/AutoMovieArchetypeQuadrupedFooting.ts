@@ -106,6 +106,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
    * landing.
    */
   export interface ILanding extends ISurface {
+    /** Named surface that owns the accepted landing. */
+    surface: string;
     /**
      * The hoof's neutral orientation along the landing surface, with its route
      * heading.
@@ -172,6 +174,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       plane: IPlane;
       normal: IAutoMovieVector3;
       frame: IAutoMovieTransform;
+      clearance: ReturnType<typeof QuadrupedFootingClip.prepare>;
     }[] = planes.map((plane: IPlane) => {
       const { slope, origin, x, z } = plane;
       name(plane.id);
@@ -204,17 +207,19 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         z: -slope.z,
       });
       const rotation: IAutoMovieQuaternion = turn(normal, UP);
+      const frame: IAutoMovieTransform = {
+        rotation,
+        translation: Quaternion.rotateVector(
+          rotation,
+          Vector3.scale(origin, -1),
+        ),
+        scale: AutoMovieArchetypeFrame.UNIT,
+      };
       return {
         plane,
         normal,
-        frame: {
-          rotation,
-          translation: Quaternion.rotateVector(
-            rotation,
-            Vector3.scale(origin, -1),
-          ),
-          scale: AutoMovieArchetypeFrame.UNIT,
-        },
+        frame,
+        clearance: QuadrupedFootingClip.prepare(plane, frame),
       };
     });
     for (const pole of poles) {
@@ -268,6 +273,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
           continue;
         const depth: number = plane.yield?.depth ?? 0;
         result = {
+          surface: plane.id,
           depth,
           point: { ...point, y: y - depth },
           normal: { ...normal },
@@ -291,7 +297,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         Partial<Pick<AutoMovieArchetype, "convexCells">>,
       placement: IAutoMovieTransform,
     ): void {
-      const cells: AutoMovieArchetypeConvexCell.Table | undefined = animal.convexCells;
+      const cells: AutoMovieArchetypeConvexCell.Table | undefined =
+        animal.convexCells;
       for (const record of animal.parts) {
         if (
           record.transform === null ||
@@ -303,7 +310,10 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
             "Footing needs transformed rigid parts with matching solids.",
             record.id,
           );
-        if (record.geometry.type === "primitive" && record.geometry.shape.type === "plane")
+        if (
+          record.geometry.type === "primitive" &&
+          record.geometry.shape.type === "plane"
+        )
           continue;
         const part: IAutoMovieModelPart = {
           ...record,
@@ -328,22 +338,25 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
           256 *
           Number.EPSILON *
           Math.max(1, Vector3.length(part.transform!.translation));
-        for (const { plane, frame } of surfaces)
+        for (const { plane, frame, clearance } of surfaces)
           if (
             minX! < plane.x[1] &&
             -maxX! > plane.x[0] &&
             minZ! < plane.z[1] &&
             -maxZ! > plane.z[0] &&
-            lowest(part, frame, cells) < -(plane.yield?.depth ?? 0) - roundoff &&
-            QuadrupedFootingClip(part, plane, frame, cells) <
-              -(plane.yield?.depth ?? 0) - roundoff
+            lowest(part, frame, cells) <
+              -(plane.yield?.depth ?? 0) - roundoff &&
+            clearance(part, cells) < -(plane.yield?.depth ?? 0) - roundoff
           )
             throw refusal(
               `Actual ${part.id} enters named surface ${plane.id}.`,
               plane.id,
             );
         if (poles.length === 0) continue;
-        const bounds: IAutoMoviePhysicalShape = QuadrupedObstacleShape(part, cells);
+        const bounds: IAutoMoviePhysicalShape = QuadrupedObstacleShape(
+          part,
+          cells,
+        );
         for (const pole of poles)
           if (
             physicalShapeSegmentDistance(
@@ -412,7 +425,10 @@ function lowest(
   cells: AutoMovieArchetypeConvexCell.Table | undefined,
 ): number {
   return QuadrupedRestFloor(
-    { ...part, transform: AutoMovieArchetypeFrame.compose(frame, part.transform!) },
+    {
+      ...part,
+      transform: AutoMovieArchetypeFrame.compose(frame, part.transform!),
+    },
     cells,
   );
 }

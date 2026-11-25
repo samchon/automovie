@@ -1,13 +1,28 @@
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
+
 import type { IMotionTakeSource } from "../../src/executable/motionTake/IMotionTakeSource";
 import { createMotionTakeSource as original } from "./source";
 
-/** Omit a live callback's registered identity from an otherwise valid recipe. */
+/** Add an explicitly authored site reader without declaring its binding. */
 export function createMotionTakeSource(): IMotionTakeSource {
   const source: IMotionTakeSource = original();
+  const input: IAutoMovieMotionHumanPerformance.IInput =
+    source.human["staged-catch"]!;
   return {
     ...source,
-    bindings: source.bindings.filter(
-      ({ id }): boolean => id !== "carrier-motion",
-    ),
+    human: {
+      "staged-catch": {
+        ...input,
+        props: input.props!.map(
+          (prop: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanProp =>
+            prop.subject === "door"
+              ? { ...prop, articulateSite: (): undefined => undefined }
+              : prop,
+        ),
+      },
+    },
   };
 }

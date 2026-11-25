@@ -5,6 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import type { punchContact } from "./punchContact";
 import type { punchReach } from "./punchReach";
 
@@ -25,26 +26,28 @@ export function punchCorrected(
   prepared: punchCorrected.IPrepared,
 ): IAutoMovieMotionHumanStrikingAim.ITracker {
   const { tracker, contact }: punchCorrected.IPrepared = prepared;
+  const units: IAutoMovieSuperposeMinimumJerk.IUnit[] = contact
+    .corrected(Infinity)
+    .map(
+      (c: Correction): IAutoMovieSuperposeMinimumJerk.IUnit => ({
+        displacement: c.end,
+        start: c.start,
+        duration: c.duration,
+      }),
+    );
+  const goals: IAutoMovieVector3[] = [tracker.planned];
+  for (const unit of units)
+    goals.push(Vector3.add(goals.at(-1)!, unit.displacement));
+  const startAt = (index: number): number => units[index]!.start;
+  const arrived = (seconds: number): number =>
+    PreparedHumanIntervals.upperBound(units.length, startAt, seconds);
   return {
     planned: tracker.planned,
-    units: (seconds: number): IAutoMovieSuperposeMinimumJerk.IUnit[] =>
-      contact.corrected(seconds).map(
-        (c: Correction): IAutoMovieSuperposeMinimumJerk.IUnit => ({
-          displacement: c.end,
-          start: c.start,
-          duration: c.duration,
-        }),
-      ),
-    goal: (seconds: number): IAutoMovieVector3 =>
-      contact
-        .corrected(seconds)
-        .reduce(
-          (
-            g: IAutoMovieVector3,
-            c: Correction,
-          ): IAutoMovieVector3 => Vector3.add(g, c.end),
-          tracker.planned,
-        ),
+    units: (seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
+      units.slice(0, arrived(seconds)),
+    goal: (seconds: number): IAutoMovieVector3 => ({
+      ...goals[arrived(seconds)]!,
+    }),
   };
 }
 

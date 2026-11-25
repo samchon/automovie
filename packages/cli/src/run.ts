@@ -67,6 +67,8 @@ Options:
                   called with; default null.
   --file          capture: an encoded video file instead of a subject.
   --backend       capture, render: software (SwiftShader, the default) or gpu.
+  --timeout-ms    capture, render: budget per browser navigation, subject
+                  preparation or draw call (default 120000 ms).
   --out           capture: the folder; default media/capture/<subject>.
                   render: default media/automovie/<subject>/videos.
                   review: default media/automovie/review.

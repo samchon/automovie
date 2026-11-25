@@ -27,9 +27,8 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * side-bending share its stiffness gives (Watt, Callaway and Williams 2022).
  * The author declares the winner (the outcome-first rule).
  *
- * First pass: the elbow's bearing on the table is not declared as a contact
- * window, the fingers are left as they were and do not clasp, and the free hand
- * hangs.
+ * A named pad receives the planted elbow from set to relax. The fingers retain
+ * their entry shape, and the free hand hangs.
  */
 export namespace IAutoMovieMotionHumanArmWrestle {
   /** Parameters. */
@@ -42,6 +41,14 @@ export namespace IAutoMovieMotionHumanArmWrestle {
      * roles give the same one.
      */
     table: IAutoMovieVector3;
+
+    /** The finite surface that receives this role's planted elbow. */
+    pad?: {
+      /** Scene subject carrying the pad. */
+      prop: string;
+      /** The pad's finite face. */
+      point: string;
+    };
 
     /** Whether this role wins. */
     wins: boolean;

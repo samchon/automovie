@@ -18,6 +18,7 @@
     "shots": "ttsx --no-plugins -P build/tsconfig.json build/shots.ts",
     "smoke": "ttsx --no-plugins -P build/tsconfig.json build/smoke.ts",
     "scenes": "ttsx --no-plugins -P build/tsconfig.json build/scenes.ts",
+    "qualify:motions": "ttsx --no-plugins -P build/tsconfig.json build/qualifyMotionTakes.ts",
     "typecheck": "ttsc --noEmit -P tsconfig.check.json && ttsc --noEmit -P build/tsconfig.json"
   },
   "author": "Samchon",

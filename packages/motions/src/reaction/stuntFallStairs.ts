@@ -20,7 +20,9 @@ import type {
 
 import { lieDown } from "../floor/lieDown";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { stuntFallPose } from "./stuntFallPose";
 
 /**
@@ -193,11 +195,19 @@ export function stuntFallStairs(
     ...rolled,
     joints: { ...rolled.joints, ...braced },
   };
+  const blend: ReturnType<typeof prepareHumanShapeBlend> =
+    prepareHumanShapeBlend(resting.joints, side.joints);
+  const restOn: ReturnType<typeof stuntFallPose.prepareRest> =
+    stuntFallPose.prepareRest(body);
+  const endAt = (i: number): number => times[i + 1]!;
   const surfaceAt: (t: number) => IAutoMovieVector3 = (
     t: number,
   ): IAutoMovieVector3 => {
-    let k: number = 0;
-    while (k < times.length - 2 && times[k + 1]! <= t) k++;
+    const k: number = PreparedHumanIntervals.upperBound(
+      times.length - 2,
+      endAt,
+      t,
+    );
     const span: number = times[k + 1]! - times[k]!;
     const w: number =
       span > 0 ? Math.max(0, Math.min(1, (t - times[k]!) / span)) : 1;
@@ -240,9 +250,8 @@ export function stuntFallStairs(
     };
     // The blend of the back and the side rests its own furthest collider on
     // that plane, so it never dips into the tread between the two.
-    const placed: IAutoMovieMotionHumanPosture = stuntFallPose.rest(
-      body,
-      stuntFallPose.blend(along, side, turn),
+    const placed: IAutoMovieMotionHumanPosture = restOn(
+      stuntFallPose.blend(along, side, turn, blend(turn)),
       surface,
       normal,
     );

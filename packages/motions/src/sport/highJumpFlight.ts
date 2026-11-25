@@ -31,6 +31,9 @@ interface IHighJumpFlight {
   /** The reader for canonical placement and floor observations. */
   prepareFrame: ReturnType<typeof prepareGymnasticsFrame>;
 
+  /** The reader for ordinary flight samples, which need only COM placement. */
+  placeMass: ReturnType<typeof prepareGymnasticsFrame.mass>;
+
   /** The takeoff centre of mass, in world metres. */
   c0: IAutoMovieVector3;
 
@@ -72,8 +75,19 @@ interface IHighJumpAirborne {
  *   landing surface.
  */
 export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
-  const { body, from, arch, pike, prepareFrame, c0, v, rising, surface, bar } =
-    input;
+  const {
+    body,
+    from,
+    arch,
+    pike,
+    prepareFrame,
+    placeMass,
+    c0,
+    v,
+    rising,
+    surface,
+    bar,
+  } = input;
 
   // The flight posture at seconds since the take-off: the joints keyed,
   // the half turn over the rise and the somersault through the flight
@@ -100,29 +114,16 @@ export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
     ExerciseKey.prepareBlend(start, arch);
   const piking: ReturnType<typeof ExerciseKey.prepareBlend> =
     ExerciseKey.prepareBlend(arch, pike);
-  const frameAt: (
-    t: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-  ) => IPreparedGymnasticsFrame = (
-    t: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-  ): IPreparedGymnasticsFrame => {
+  const raw = (t: number): IAutoMovieMotionHumanPosture => {
     const risingShare: number = ease(t / rising);
     const key: IAutoMovieMotionHumanExerciseKey.IKey =
       t <= rising ? arching(risingShare) : piking(ease((t - rising) / rising));
-    return prepareFrame(
-      {
-        ...from,
-        joints: key.joints,
-        yaw: from.yaw + 180 * risingShare,
-        pitch: -somersault(t),
-      },
-      GymnasticsFlight.at(c0, v, t),
-      resolution,
-      projection,
-    );
+    return {
+      ...from,
+      joints: key.joints,
+      yaw: from.yaw + 180 * risingShare,
+      pitch: -somersault(t),
+    };
   };
   const flying: (
     t: number,
@@ -132,7 +133,8 @@ export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
     t: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-  ): IAutoMovieMotionHumanPosture => frameAt(t, resolution, projection).posture;
+  ): IAutoMovieMotionHumanPosture =>
+    placeMass(raw(t), GymnasticsFlight.at(c0, v, t), resolution, projection);
 
   // The touchdown: the lowest shape meets the surface on the way down.
   const down: number = ((): number => {
@@ -141,8 +143,9 @@ export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
     const floorProjection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
     const lowest: (t: number) => number = (t: number): number => {
-      const frame: IPreparedGymnasticsFrame = frameAt(
-        t,
+      const frame: IPreparedGymnasticsFrame = prepareFrame(
+        raw(t),
+        GymnasticsFlight.at(c0, v, t),
         floorResolution,
         floorProjection,
       );

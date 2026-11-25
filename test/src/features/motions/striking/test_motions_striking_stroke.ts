@@ -50,6 +50,8 @@ const INPUT: IAutoMovieMotionHumanStrikingStroke.IInput = {
  * 3. The path runs out to (1, 0, 0) and back over the recoil, or out through a
  *    re-chamber at (0, 1, 0); stopped at 0.6 s it recoils from where it met,
  *    after the 15 ms dwell.
+ * 4. A fixed recovery reads the same free path and stopped path at the same
+ *    seconds in reverse order, without asking for the return point again.
  */
 export function test_motions_striking_stroke(): void {
   const quarter: number = StrikingStroke.impactShare(0.25);
@@ -107,5 +109,24 @@ export function test_motions_striking_stroke(): void {
       stopped.stop(0.7) === 0.6 &&
       vclose(stopped.end(0.615), { x: met, y: 0, z: 0 }, 1e-12) &&
       vclose(stopped.end(0.865), { x: met / 2, y: 0, z: 0 }, 1e-12),
+  );
+  const prepared: IAutoMovieMotionHumanStrikingStroke.IStroke =
+    StrikingStroke.create(
+      {
+        ...INPUT,
+        fixed: 0.6,
+        back: () => {
+          throw new Error("the prepared recovery already has its return point");
+        },
+      },
+      INPUT.back(),
+    );
+  TestValidator.predicate(
+    "prepared recovery at and between boundaries",
+    [1.49, 0.865, 0.615, 0.6, 0.41, 0.865].every(
+      (seconds: number): boolean =>
+        vclose(prepared.free(seconds), stopped.free(seconds), 1e-12) &&
+        vclose(prepared.end(seconds), stopped.end(seconds), 1e-12),
+    ),
   );
 }

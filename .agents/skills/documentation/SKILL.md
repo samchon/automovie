@@ -9,11 +9,11 @@ Follow [Writing](writing.md). The project's development skill owns doc comment r
 
 ## READMEs
 
-Write a README for the people who use the project or package. Include:
+Give the project's users the information they need to begin.
 
-- what it is and when to use it;
-- how to install and start it;
-- the few entry points;
-- where the detail lives.
+- Explain what it does and when to use it.
+- Show how to install and start it.
+- List the main entry points.
+- Link to detailed guidance.
 
 Leave API details with the source and its types. Verify names and commands. Run every example.

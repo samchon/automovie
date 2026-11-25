@@ -161,18 +161,36 @@ export namespace crutchWalkCourse {
   }
 
   /**
+   * The named tip in a crutch's displayed frame, in world metres. The origin of
+   * a tip-rooted crutch already names this point.
+   */
+  export function tipAt(
+    frame: IAutoMovieRigidTransform,
+    localTip?: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return localTip === undefined
+      ? frame.position
+      : Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, localTip),
+        );
+  }
+
+  /**
    * The point a crutch turns about at each station: the walk's entry station
    * (`origin`), or the crutch's own tip on the floor when the walk gives none.
    *
    * @param start The crutch's staged frame.
    * @param params The walk.
+   * @param localTip The named tip in the crutch's frame, or its origin.
    * @returns The pivot, world metres.
    */
   export function pivot(
     start: IAutoMovieRigidTransform,
     params: IAutoMovieMotionHumanCrutchWalk,
+    localTip?: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return params.origin ?? { ...start.position, y: 0 };
+    return params.origin ?? tipAt(start, localTip);
   }
 
   /**
@@ -183,14 +201,16 @@ export namespace crutchWalkCourse {
    * @param start The crutch's staged frame.
    * @param params The walk.
    * @param timing The walk's clock.
+   * @param localTip The named tip in the crutch's frame, or its origin.
    * @returns One advance per station.
    */
   export function advances(
     start: IAutoMovieRigidTransform,
     params: IAutoMovieMotionHumanCrutchWalk,
     timing: IClock,
+    localTip?: IAutoMovieVector3,
   ): IAdvance[] {
-    const centre: IAutoMovieVector3 = pivot(start, params);
+    const centre: IAutoMovieVector3 = pivot(start, params, localTip);
     let old: IAutoMovieRigidTransform = start;
     return params.stations.map(
       (station: IAutoMovieMotionHumanAidWalk.IStation, i: number): IAdvance => {

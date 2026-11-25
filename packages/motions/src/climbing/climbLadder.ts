@@ -1,8 +1,9 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannel,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -189,7 +190,6 @@ export namespace climbLadder {
     // The rungs' holds for the feet and the hands (climbLadderHolds).
     const holds: climbLadderHolds.IHolds = climbLadderHolds.prepare(
       body,
-      ladder,
       atRung,
       quiet,
       flat,
@@ -217,6 +217,20 @@ export namespace climbLadder {
       body,
       normal,
     );
+    const rungGoals: ReturnType<typeof climbLadderHands>[] = (
+      ladder.rungs ?? []
+    ).map(
+      (
+        rung: IAutoMovieMotionHumanLadder.IRung,
+      ): ReturnType<typeof climbLadderHands> =>
+        climbLadderHands(body, rung.normal, Vector3.scale(rung.axis, -1)),
+    );
+    const radius: number = Math.max(
+      ladder.radius,
+      ...(ladder.rungs ?? []).map(
+        (rung: IAutoMovieMotionHumanLadder.IRung): number => rung.radius,
+      ),
+    );
 
     // Clear the rung by the toe's reach past the ball or the fingers' wrap.
     const toeReach: (side: AutoMovieHumanSide) => number = (
@@ -225,10 +239,10 @@ export namespace climbLadder {
       HumanFoot.offset(body, side, "toe").z -
       HumanFoot.offset(body, side, "ball").z;
     const footBack: Record<AutoMovieHumanSide, number> = {
-      left: toeReach("left") + ladder.radius + CLEARANCE,
-      right: toeReach("right") + ladder.radius + CLEARANCE,
+      left: toeReach("left") + radius + CLEARANCE,
+      right: toeReach("right") + radius + CLEARANCE,
     };
-    const handBack: number = 2 * ladder.radius + CLEARANCE;
+    const handBack: number = 2 * radius + CLEARANCE;
     const rootAlong: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: 0,
       y: 0,
@@ -394,7 +408,24 @@ export namespace climbLadder {
               }),
             )
           : grip;
-        limbs[`${side}Arm`] = handGoal(side, lowered, lifted);
+        const target: IAutoMovieHumanLimbGoal = (
+          rungGoals[at.index - 1] ?? handGoal
+        )(side, lowered, lifted);
+        const previous: ReturnType<typeof climbLadderHands> | undefined =
+          at.moving ? rungGoals[at.index - 2] : undefined;
+        if (previous === undefined) limbs[`${side}Arm`] = target;
+        else {
+          const start: IAutoMovieHumanLimbGoal = previous(
+            side,
+            lowered,
+            lifted,
+          );
+          limbs[`${side}Arm`] = {
+            ...target,
+            point: Vector3.lerp(start.point, target.point, at.u),
+            rotation: Quaternion.slerp(start.rotation!, target.rotation!, at.u),
+          };
+        }
       }
       const gripped: IAutoMovieMotionHumanPosture = {
         ...lowered,
@@ -466,7 +497,8 @@ export namespace climbLadder {
           from,
           to,
           sample: (t, channels, resolution, projection) => {
-            if (channels !== undefined) return undefined;
+            if (channels !== undefined)
+              return { posture: exact(t, channels, resolution, projection) };
             if (t === from || t === to)
               return { posture: exact(t, channels, resolution, projection) };
             const lowered: IAutoMovieMotionHumanPosture = mergeLegs(

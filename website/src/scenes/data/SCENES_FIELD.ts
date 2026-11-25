@@ -3,6 +3,9 @@ import { SceneBuild } from "./SceneBuild";
 
 const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
 
+/** The striker's receiving mark for the throw-in. */
+const RECEIVING_MARK: ReturnType<typeof to> = to(0, 3);
+
 /** World-space centre and dimensions of the Swim Strokes pool, in metres. */
 const SWIM_POOL: Readonly<{
   x: number;
@@ -13,7 +16,10 @@ const SWIM_POOL: Readonly<{
   freeboard: number;
 }> = { x: 1.2, z: 0.5, water: 1.1, length: 13, edgeWidth: 2.5, freeboard: 0.3 };
 
-/** The sport scenes of the lexicon's football, basketball, gymnastics and swimming rows. */
+/**
+ * The sport scenes of the lexicon's football, basketball, gymnastics and
+ * swimming rows.
+ */
 export const SCENES_FIELD: readonly IScene[] = [
   scene(
     {
@@ -35,7 +41,14 @@ export const SCENES_FIELD: readonly IScene[] = [
       person("ali", "m1", -3, -5.4, 0, [
         act("jog", { to: to(-3, 0), face: 90 }),
         act("look", { recruit: "trunk", target: at("bea", "face") }),
-        act("gesture", { kind: "point", target: at("cyr", "face") }),
+        act("gesture", {
+          kind: "point",
+          target: {
+            kind: "point",
+            frame: "world",
+            at: { ...RECEIVING_MARK, y: 1.4 },
+          },
+        }),
         act("throwIn", {}, { anchor: "fs-throw" }),
         act("jog", { to: to(-1.5, 1.5) }),
         act("gesture", { kind: "cheer" }),
@@ -62,7 +75,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       ]),
       person("cyr", "m2", 2, 1, 0, [
         act("jog", { to: to(2.3, 4) }),
-        act("jog", { to: to(0, 3), face: 0 }),
+        act("jog", { to: RECEIVING_MARK, face: 0 }),
         act("gesture", { kind: "raiseHand", hand: "left" }),
         act(
           "chestTrap",

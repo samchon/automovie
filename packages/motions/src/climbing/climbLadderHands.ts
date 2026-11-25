@@ -26,13 +26,13 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 export function climbLadderHands(
   body: IAutoMovieMotionHumanBody,
   normal: IAutoMovieVector3,
+  along: IAutoMovieVector3 = Vector3.cross({ x: 0, y: 1, z: 0 }, normal),
 ): (
   side: AutoMovieHumanSide,
   posture: IAutoMovieMotionHumanPosture,
   point: IAutoMovieVector3,
 ) => IAutoMovieHumanLimbGoal {
   // The grip socket points toward the thumb along the grasped cylinder.
-  const along: IAutoMovieVector3 = Vector3.cross({ x: 0, y: 1, z: 0 }, normal);
   const frames: Record<
     AutoMovieHumanSide,
     ReturnType<typeof HumanHandTarget.prepareFrame>

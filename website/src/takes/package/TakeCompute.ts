@@ -38,6 +38,13 @@ export namespace TakeCompute {
   const rests: Map<string, { bones: ITake.IFigure["bones"]; order: string[] }> =
     new Map();
 
+  /** An optional observation of the build and frame stages of this take. */
+  export type Observe = (
+    performance: IAutoMovieMotionHumanPerformance,
+    preparationMs: number,
+    samplingMs: number,
+  ) => void;
+
   /**
    * The performance built last, which a verdict request on the same composition
    * reads without building it again.
@@ -101,12 +108,15 @@ export namespace TakeCompute {
    *
    * @param composition The composition.
    * @param fps Frames a second of the track.
+   * @param observe An optional local measurement of the built performance and
+   *   of the two stages that produced its frame samples.
    * @returns The take, or the refusal the packages gave while planning it or
    *   posing a frame.
    */
   export function take(
     composition: IPlaygroundComposition,
     fps: number,
+    observe?: Observe,
   ): ITake | IPlaygroundRefusal {
     let built: PlaygroundPerformance.IBuilt;
     const frames: SceneTrack.IPlacement[][][] = [];
@@ -117,8 +127,11 @@ export namespace TakeCompute {
 
     // A law may refuse while a frame is posed as well as while the chain is
     // planned; both are the composition's refusal.
+    const started: number = observe === undefined ? 0 : performance.now();
+    let prepared: number = 0;
     try {
       built = PlaygroundPerformance.build(composition);
+      if (observe !== undefined) prepared = performance.now();
       last = {
         key: JSON.stringify(composition),
         performance: built.performance,
@@ -148,6 +161,11 @@ export namespace TakeCompute {
     } catch (error) {
       return refusal(error);
     }
+    observe?.(
+      built.performance,
+      prepared - started,
+      performance.now() - prepared,
+    );
 
     const figures: ITake.IFigure[] = built.figures.map(
       (figure: PlaygroundPerformance.IFigure): ITake.IFigure => ({

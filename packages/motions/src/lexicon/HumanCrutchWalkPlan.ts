@@ -65,10 +65,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** No offset: a planted crutch's grip lies on the support course. */
 const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/**
- * One staged crutch: its entry frame, its grip in its own frame and its
- * advances.
- */
+/** One staged crutch with its own contact points and prepared advances. */
 interface ICrutch {
   /** The staged frame at the action's start. */
   start: IAutoMovieRigidTransform;
@@ -76,24 +73,11 @@ interface ICrutch {
   /** The grip's place in the crutch's frame, metres. */
   grip: IAutoMovieVector3;
 
+  /** The tip's place in the crutch's frame, metres. */
+  tip: IAutoMovieVector3;
+
   /** Its advances over the walk. */
   moves: crutchWalkCourse.IAdvance[];
-}
-
-/**
- * The crutches' common centre at entry: midway between their staged tips, on
- * the floor.
- */
-function centreOf(
-  left: IAutoMovieRigidTransform,
-  right: IAutoMovieRigidTransform,
-): IAutoMovieVector3 {
-  const mid: IAutoMovieVector3 = Vector3.lerp(
-    left.position,
-    right.position,
-    0.5,
-  );
-  return { ...mid, y: 0 };
 }
 
 /**
@@ -113,6 +97,11 @@ export function HumanCrutchWalkPlan(
   const injured: AutoMovieHumanSide = params.injured ?? "left";
   const sound: AutoMovieHumanSide = injured === "left" ? "right" : "left";
   const timing: crutchWalkCourse.IClock = crutchWalkCourse.clock(params);
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const ground: number = HumanFoot.point(body, sound, "sole", {
+    ankle: context.entry.feet[sound].ankle,
+    rotation: context.entry.feet[sound].rotation,
+  }).y;
   const crutch: (side: AutoMovieHumanSide) => ICrutch = (
     side: AutoMovieHumanSide,
   ): ICrutch => {
@@ -133,11 +122,8 @@ export function HumanCrutchWalkPlan(
         subject,
         "a crutch declares a grip and a tip",
       );
-    const foot: IAutoMovieVector3 = Vector3.add(
-      start.position,
-      Quaternion.rotateVector(start.rotation, tip.frame.translation),
-    );
-    if (Math.abs(foot.y) > FLOOR)
+    const localTip: IAutoMovieVector3 = tip.frame.translation;
+    if (Math.abs(crutchWalkCourse.tipAt(start, localTip).y - ground) > FLOOR)
       return crutchWalkCourse.refuse(
         side,
         subject,
@@ -146,7 +132,8 @@ export function HumanCrutchWalkPlan(
     return {
       start,
       grip: grip.frame.translation,
-      moves: crutchWalkCourse.advances(start, params, timing),
+      tip: localTip,
+      moves: crutchWalkCourse.advances(start, params, timing, localTip),
     };
   };
   const crutches: Record<AutoMovieHumanSide, ICrutch> = {
@@ -173,36 +160,41 @@ export function HumanCrutchWalkPlan(
   });
 
   // The feet: the bearing ones, at entry and carried by each station.
-  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const feet: readonly AutoMovieHumanSide[] =
     pattern === "threePoint" ? [sound] : ["left", "right"];
-  const initial: readonly IAutoMovieVector3[] = supportContact.onFloors(
-    body,
-    entry,
-    feet.map(
-      (side: AutoMovieHumanSide): `${AutoMovieHumanSide}Foot` => `${side}Foot`,
-    ),
-  );
-  // The feet turn with the crutches about the entry station, or about the
-  // tips' midpoint when the walk gives none.
-  const centre: IAutoMovieVector3 =
-    params.origin ?? centreOf(crutches.left.start, crutches.right.start);
-  const tipsAt: (seconds: number) => IAutoMovieVector3 = (
+  const toesAtEntry: IAutoMovieVector3[] = supportContact.points(body, entry, [
+    { contact: { part: "leftFoot", kind: "bear" }, at: null },
+    { contact: { part: "rightFoot", kind: "bear" }, at: null },
+  ]);
+  // Ground targets constrain the horizontal toe position. On a raised floor
+  // the fitted target is the toe joint, at its displayed offset above the sole.
+  const initial: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+    left: {
+      ...toesAtEntry[0]!,
+      y: ground <= HumanFoot.BEARING ? 0 : toesAtEntry[0]!.y,
+    },
+    right: {
+      ...toesAtEntry[1]!,
+      y: ground <= HumanFoot.BEARING ? 0 : toesAtEntry[1]!.y,
+    },
+  };
+  const tipAt = (
+    side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieVector3 =>
-    Vector3.lerp(
+    crutchWalkCourse.tipAt(
       crutchWalkCourse.frameAt(
-        crutches.left.moves,
-        crutches.left.start,
+        crutches[side].moves,
+        crutches[side].start,
         seconds,
-      ).position,
-      crutchWalkCourse.frameAt(
-        crutches.right.moves,
-        crutches.right.start,
-        seconds,
-      ).position,
-      0.5,
+      ),
+      crutches[side].tip,
     );
+  const tipsAt = (seconds: number): IAutoMovieVector3 =>
+    Vector3.lerp(tipAt("left", seconds), tipAt("right", seconds), 0.5);
+
+  // Both feet turn about the entry station or the midpoint of the staged tips.
+  const centre: IAutoMovieVector3 = params.origin ?? tipsAt(0);
   // How far ahead of the middle of each bearing foot's support, between its
   // heel and its ball, the foot's bear point (its toes' joint) lies along
   // the heading: read once on the entry's displayed sockets
@@ -212,12 +204,12 @@ export function HumanCrutchWalkPlan(
     context.entry.pose,
   );
   const ahead: readonly number[] = feet.map(
-    (side: AutoMovieHumanSide, i: number): number => {
+    (side: AutoMovieHumanSide): number => {
       const [heel, ball]: IAutoMovieMotionHumanFoot.ISocket[] =
         HumanFoot.sockets(body, bones, side);
       return Vector3.dot(
         Vector3.subtract(
-          initial[i]!,
+          initial[side],
           Vector3.lerp(heel!.point, ball!.point, 0.5),
         ),
         HumanFrame.forward(entry.yaw),
@@ -232,7 +224,7 @@ export function HumanCrutchWalkPlan(
     station: number,
   ): IAutoMovieMotionHumanSupport.IContact => {
     const carried: IAutoMovieVector3 = crutchWalkCourse.stationed(
-      { position: initial[i]!, rotation: Quaternion.identity() },
+      { position: initial[feet[i]!], rotation: Quaternion.identity() },
       centre,
       params.stations[station],
     ).position;
@@ -288,27 +280,28 @@ export function HumanCrutchWalkPlan(
   const shoulders: number | undefined =
     padTop !== -Infinity ? padTop + PAD : undefined;
   let standing: IAutoMovieMotionHumanSupport.IContact[] = feet.map(
-    (
-      side: AutoMovieHumanSide,
-      i: number,
-    ): IAutoMovieMotionHumanSupport.IContact => ({
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanSupport.IContact => ({
       part: `${side}Foot`,
       kind: "bear",
-      target: { kind: "point", frame: "world", at: initial[i]!, normal: UP },
+      target: { kind: "point", frame: "world", at: initial[side], normal: UP },
     }),
   );
   // Both feet stand while the hands take the grips; a three-point gait
   // lifts its injured foot only once the hands bear (`HELD`).
   const both: IAutoMovieMotionHumanSupport.IContact[] =
     pattern === "threePoint"
-      ? supportContact.onFloors(body, entry, ["leftFoot", "rightFoot"]).map(
+      ? (["left", "right"] as const).map(
           (
-            at: IAutoMovieVector3,
-            i: number,
+            side: AutoMovieHumanSide,
           ): IAutoMovieMotionHumanSupport.IContact => ({
-            part: i === 0 ? "leftFoot" : "rightFoot",
+            part: `${side}Foot`,
             kind: "bear",
-            target: { kind: "point", frame: "world", at, normal: UP },
+            target: {
+              kind: "point",
+              frame: "world",
+              at: initial[side],
+              normal: UP,
+            },
           }),
         )
       : standing;
@@ -430,13 +423,9 @@ export function HumanCrutchWalkPlan(
   // Each toe joint stands at least as high as it bears on the floor at
   // entry (`HumanContactWindow.IPath.floor`): the floor's height plus the
   // joint's height above its sole.
-  const bears = (side: AutoMovieHumanSide): number =>
-    supportContact.points(body, entry, [
-      { contact: { part: `${side}Foot`, kind: "bear" }, at: null },
-    ])[0]!.y;
   const floors: Readonly<Record<HumanContactWindow.Foot, number>> = {
-    leftFoot: bears("left"),
-    rightFoot: bears("right"),
+    leftFoot: toesAtEntry[0]!.y,
+    rightFoot: toesAtEntry[1]!.y,
   };
   const bearing: HumanContactWindow.IContacts = HumanContactWindow.fromPath({
     windows: plan.contacts,

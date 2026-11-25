@@ -138,7 +138,11 @@ function planHumanCaneSweep(
   // cane pose: after the reach to it and before the return from it.
   const touches: humanCaneSweepTouches.ITouch[] = humanCaneSweepTouches(
     (t: number): Record<AutoMovieHumanSide, boolean> => {
-      const posture: IAutoMovieMotionHumanPosture = carrier.posture(t);
+      const posture: IAutoMovieMotionHumanPosture = carrier.posture(t, [
+        "root",
+        "leftLeg",
+        "rightLeg",
+      ]);
       return {
         left: posture.limbs.leftLeg?.planted === true,
         right: posture.limbs.rightLeg?.planted === true,
@@ -154,10 +158,10 @@ function planHumanCaneSweep(
 
   // The cane's frame at a second: the hand's grip at the midline, the tip at
   // its touch, and the cane turned about its shaft so the thumb stays on top.
-  const frameAt: (seconds: number) => IAutoMovieRigidTransform = (
+  const frameAt = (
     seconds: number,
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieRigidTransform => {
-    const posture: IAutoMovieMotionHumanPosture = carrier.posture(seconds);
     const frame: IAutoMovieMotionHumanFrame = {
       origin: posture.root,
       yaw: posture.yaw,
@@ -270,14 +274,29 @@ function planHumanCaneSweep(
     holds: [hold],
     channels,
     enteredChannels: channels,
-    posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-      const base: IAutoMovieMotionHumanPosture = carrier.posture(seconds);
+    posture: (
+      ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+    ): IAutoMovieMotionHumanPosture => {
+      const [seconds, requested, resolution, projection] = args;
+      const base: IAutoMovieMotionHumanPosture = carrier.posture(
+        seconds,
+        requested,
+        resolution,
+        projection,
+      );
+      if (
+        requested !== undefined &&
+        !channels.some((channel: AutoMovieMotionHumanChannel): boolean =>
+          requested.includes(channel),
+        )
+      )
+        return base;
       const target: IAutoMovieMotionHumanArmTarget.ITarget =
         HumanWornItem.holding(
           body,
           side,
           held,
-          frameAt(seconds),
+          frameAt(seconds, base),
           AutoMovieMotionHumanBend.hang(body, base, side, 0.2),
         );
       return {

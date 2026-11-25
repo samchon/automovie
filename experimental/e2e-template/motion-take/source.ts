@@ -1,7 +1,13 @@
 import { createDoor } from "@automovie/archetypes";
-import { AutoMovieComposition, Quaternion, Transform } from "@automovie/engine";
+import {
+  AutoMovieComposition,
+  Quaternion,
+  Transform,
+  Vector3,
+} from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieHumanCanonicalBody,
   IAutoMovieHumanParameters,
   IAutoMovieMotionHumanActionContext,
@@ -16,17 +22,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanChain,
-  HumanObject,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanThrowCatch,
+  HumanChain,
+  HumanObject,
   createHumanBody,
 } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "../../src/executable/motionTake/IMotionTakeSource";
 import bodyFixture from "./body.json" with { type: "json" };
 
-/** The stable identity and time references shared by the two installed processes. */
+/**
+ * The stable identity and time references shared by the two installed
+ * processes.
+ */
 export const fixture = {
   directory: "test/e2e-motion-take",
   source: "test/e2e-motion-take/source.ts",
@@ -41,9 +50,13 @@ export const fixture = {
   seconds: 0.25,
   sourceSeconds: 0.5,
   catchSeconds: 0.85,
+  doorSeed: 7321,
 };
 
-/** The edited occurrence and registered dependency shared by the two sibling takes. */
+/**
+ * The edited occurrence and registered dependency shared by the two sibling
+ * takes.
+ */
 export function takeMetadata(): Pick<
   IMotionTakeSource,
   "production" | "assets" | "seeds" | "shots" | "edit"
@@ -62,7 +75,7 @@ export function takeMetadata(): Pick<
   return {
     production: "installed-motion-take",
     assets: [fixture.data],
-    seeds: [],
+    seeds: [{ id: "door", value: String(fixture.doorSeed) }],
     shots: [shot, incoming],
     edit: {
       sequence: { id: "retimed-catch", name: "Retimed catch" },
@@ -109,6 +122,7 @@ const intercept: IAutoMovieVector3 = { ...launch.point, z: 1.2 };
 function releasePlan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
 ): IAutoMovieMotionHumanThrowObject.IPlan {
+  verifyDoorSite(context.prop("door").prop);
   return {
     ...AutoMovieMotionHumanStance.stand.plan({
       ...context,
@@ -148,11 +162,48 @@ function hingeTravel(seconds: number): number {
   return 60 * Math.min(1, seconds) ** 2;
 }
 
+/** Compare the prepared reader with full model posing across the source cut. */
+function verifyDoorSite(door: IAutoMovieMotionHumanProp): void {
+  const site: IAutoMovieMotionHumanProp["articulateSite"] =
+    HumanObject.articulateSite(door);
+  const articulate: IAutoMovieMotionHumanProp["articulate"] = door.articulate;
+  if (site === undefined || articulate === undefined)
+    throw new Error(
+      "the prepared door site must be available in the Human owner",
+    );
+  const cut: number = fixture.sourceSeconds;
+  for (const seconds of [cut + 0.001, cut - 0.001, cut, cut + 0.001]) {
+    const state: Readonly<Record<string, number>> = {
+      hinge: hingeTravel(seconds),
+    };
+    const narrow: IAutoMovieAffordance | undefined = site("pull", state);
+    const full: IAutoMovieAffordance | undefined = articulate(
+      state,
+    ).affordances.find(
+      (affordance: IAutoMovieAffordance): boolean => affordance.id === "pull",
+    );
+    if (
+      narrow === undefined ||
+      full === undefined ||
+      !(
+        Vector3.distance(narrow.frame.translation, full.frame.translation) <=
+        1e-6
+      ) ||
+      !(Quaternion.angle(narrow.frame.rotation, full.frame.rotation) <= 1e-6)
+    )
+      throw new Error(
+        `the prepared door pull must match its full pose at ${seconds}s`,
+      );
+  }
+}
+
 /**
- * Register one installed production with an active grip, articulated socket, and flight.
+ * Register one installed production with an active grip, articulated socket,
+ * and flight.
  *
- * The source begins at twice normal rate, then returns to normal speed at exactly
- * 0.5 source seconds. Both occurrences retain the same authored seconds at the seam.
+ * The source begins at twice normal rate, then returns to normal speed at
+ * exactly 0.5 source seconds. Both occurrences retain the same authored seconds
+ * at the seam.
  */
 export function createMotionTakeSource(): IMotionTakeSource {
   const prepared: IAutoMovieHumanCanonicalBody.IBody =
@@ -164,11 +215,15 @@ export function createMotionTakeSource(): IMotionTakeSource {
     prepared.skeleton,
     prepared.profile,
   );
-  const initial: IAutoMovieVector3 = AutoMovieMotionHumanStance.stand.posture(body, origin, 180).root;
+  const initial: IAutoMovieVector3 = AutoMovieMotionHumanStance.stand.posture(
+    body,
+    origin,
+    180,
+  ).root;
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const door: IAutoMovieMotionHumanProp = HumanObject.prop(
     "door",
-    createDoor({ hinge: "right", hardware: "lever" }),
+    createDoor({ hinge: "right", hardware: "lever" }, fixture.doorSeed),
     { at: origin, yaw: 0, fixed: false },
     undefined,
     undefined,
@@ -183,7 +238,11 @@ export function createMotionTakeSource(): IMotionTakeSource {
     take: "original",
     bindings: [
       { id: "release-plan", version: "1", value: releasePlan },
-      { id: "staged-catch-plan", version: "1", value: AutoMovieMotionHumanThrowCatch.stageCatch.plan },
+      {
+        id: "staged-catch-plan",
+        version: "1",
+        value: AutoMovieMotionHumanThrowCatch.stageCatch.plan,
+      },
       { id: "carrier-motion", version: "1", value: carrierMotion },
       { id: "hinge-travel", version: "1", value: hingeTravel },
       { id: "door-articulation", version: "1", value: door.articulate! },

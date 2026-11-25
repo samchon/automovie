@@ -1,10 +1,11 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -45,6 +46,14 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
   // about the toes' joint by the rest.
   const lift: (s: number) => number = (s: number): number =>
     Math.max(0, shankTilt * s - dorsiflexion);
+  const heading: IAutoMovieQuaternion = HumanFrame.turn(yaw);
+  const sockets: Record<AutoMovieHumanSide, IAutoMovieVector3> | undefined =
+    heel === 0
+      ? undefined
+      : {
+          left: HumanFoot.offset(body, "left", "mtp"),
+          right: HumanFoot.offset(body, "right", "mtp"),
+        };
 
   // The feet at a share of the descent: each pivots about its toes' joint
   // by the heel's lift there.
@@ -63,15 +72,19 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
       const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
       const flat: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: goal.point,
-        rotation: goal.rotation ?? HumanFrame.turn(yaw),
+        rotation: goal.rotation ?? heading,
       };
-      return heel === 0
+      const socket: IAutoMovieVector3 | undefined = sockets?.[side];
+      return socket === undefined
         ? flat
         : HumanFoot.pivot(
             body,
             side,
-            "mtp",
-            HumanFoot.point(body, side, "mtp", flat),
+            socket,
+            Vector3.add(
+              flat.ankle,
+              Quaternion.rotateVector(flat.rotation, socket),
+            ),
             HumanFoot.heading(flat.rotation),
             -lift(s),
           );
@@ -111,7 +124,7 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
   const joints: ReturnType<typeof hipJoints> = hipJoints(
     body,
     standing.root,
-    HumanFrame.turn(yaw),
+    heading,
   );
   const over: (
     s: number,
@@ -123,21 +136,22 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
       IAutoMovieMotionHumanFoot.IPlacement
     > = placements(standing, s),
   ): IAutoMovieVector3 => {
+    const shank: number = rad(shankTilt * s);
+    const thigh: number = rad(thighTilt * s);
+    const vertical: IAutoMovieVector3 = {
+      x: 0,
+      y: m.shank * Math.cos(shank) + m.thigh * Math.cos(thigh),
+      z: 0,
+    };
+    const horizontal: IAutoMovieVector3 = Vector3.scale(
+      forward,
+      m.shank * Math.sin(shank) - m.thigh * Math.sin(thigh),
+    );
     let out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const side of ["left", "right"] as const) {
       const hip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(placed[side].ankle, {
-          x: 0,
-          y:
-            m.shank * Math.cos(rad(shankTilt * s)) +
-            m.thigh * Math.cos(rad(thighTilt * s)),
-          z: 0,
-        }),
-        Vector3.scale(
-          forward,
-          m.shank * Math.sin(rad(shankTilt * s)) -
-            m.thigh * Math.sin(rad(thighTilt * s)),
-        ),
+        Vector3.add(placed[side].ankle, vertical),
+        horizontal,
       );
       out = Vector3.add(
         out,

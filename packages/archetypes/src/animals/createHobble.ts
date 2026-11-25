@@ -3,8 +3,10 @@ import { Vector3 } from "@automovie/engine";
 import {
   AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeDrawSession,
 } from "../core";
+import { AnnularFitting } from "./AnnularFitting";
 
 /** A cuff's size. */
 interface ICuff {
@@ -33,14 +35,14 @@ const MASS: number = 0.3;
 /**
  * A fore hobble: a cuff round each foreleg's cannon and a strap between them.
  *
- * Each cuff is a short ring round the cannon, a cylinder along the leg's axis
- * (`+Y`) that clears the cannon's radius by the leather's thickness; at rest
- * the cuffs' middles stand the strap's length apart along `+X`, the left at
- * `+X`. The strap is a span from the inner side of one cuff to the inner side
- * of the other, its rest length the strap's length less the two cuffs' radii,
- * so the cuffs' middles never stand farther apart than the strap's length while
- * it is not drawn past its rest length, and a pose that draws it shorter
- * reports it slack. The cuffs are posed onto a hobbled equid's forelegs by
+ * Each cuff is a short ring round the cannon along the leg's axis (`+Y`). The
+ * inner radius fits the cannon and the leather extends outward; at rest the
+ * cuffs' middles stand the strap's length apart along `+X`, the left at `+X`.
+ * The strap is a span from the inner side of one cuff to the inner side of the
+ * other, its rest length the strap's length less the two cuffs' radii, so the
+ * cuffs' middles never stand farther apart than the strap's length while it is
+ * not drawn past its rest length, and a pose that draws it shorter reports it
+ * slack. The cuffs are posed onto a hobbled equid's forelegs by
  * `AutoMovieArchetypeEquineHobble`. The cuff's width and thickness, the strap's
  * radius and the mass are authored.
  *
@@ -72,16 +74,19 @@ export function createHobble(
       "A hobble's strap is longer than its two cuffs are wide",
     );
   const half: number = params.strap / 2;
+  const wall: readonly AutoMovieArchetypeConvexCell.ICell[] =
+    AnnularFitting.prepare(cannon, ring, CUFF.width);
   for (const [id, x] of [
     ["leftCuff", half],
     ["rightCuff", -half],
   ] as const)
-    builder.rod(
+    AnnularFitting.emit(
+      builder,
       id,
-      ring,
+      wall,
       Vector3.create(x, -CUFF.width / 2, 0),
       Vector3.create(x, CUFF.width / 2, 0),
-      { color: "#4a2f1b", round: false },
+      "#4a2f1b",
     );
   builder.span(
     "strap",

@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -18,12 +18,6 @@ import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 import type { punchGeometry } from "./punchGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
-
-/** The record of `ICreateArrestResult`'s site. */
-type ICreateArrestResult = { from: number; speed: number; rest: number };
-
-/** The record of `ICreateArrested`'s site. */
-type ICreateArrested = { from: number; speed: number; rest: number };
 
 /**
  * A punch's root, heading and feet: the lead foot steps in by the advance with
@@ -237,46 +231,30 @@ export namespace punchFootwork {
       fixed - t0 < shown
     ) {
       const s: number = Math.max(0, fixed - t0);
-      // Read once the stop is passed: the step by then is what the
-      // corrections arrived before the stop made it.
-      let arrested: ICreateArrested | undefined;
-      const arrest = (): ICreateArrestResult => {
-        if (arrested === undefined) {
-          const advanced: number = advance(s);
-          const from: number = advanced * opens(s);
-          const speed: number =
-            (advanced *
-              minimumJerk.rate((s - firstStart) / (shown - firstStart))) /
-            (shown - firstStart);
-          arrested = {
-            from,
-            speed,
-            rest: StrikingArrest.rest(from, speed, shown - s),
-          };
-        }
-        return arrested;
-      };
+      // The committed stop and the corrections arrived by it are fixed for
+      // this plan. Prepare the two feet's settling curves from that boundary.
+      const advanced: number = advance(s);
+      const from: number = advanced * opens(s);
+      const speed: number =
+        (advanced * minimumJerk.rate((s - firstStart) / (shown - firstStart))) /
+        (shown - firstStart);
+      const rest: number = StrikingArrest.rest(from, speed, shown - s);
       travel = (t: number): number => {
         if (t <= s) return advance(t) * opens(t);
-        const { from, speed, rest } = arrest();
         return StrikingArrest.settle(from, speed, rest, shown - s, t - s);
       };
-      follow =
-        s <= dragFrom
-          ? (t: number): number => (t <= s ? 0 : arrest().rest * dragged(t))
-          : (t: number): number => {
-              if (t <= s) return advance(t) * dragged(t);
-              const advanced: number = advance(s);
-              return StrikingArrest.settle(
-                advanced * dragged(s),
-                (advanced *
-                  minimumJerk.rate((s - dragFrom) / (dragTo - dragFrom))) /
-                  (dragTo - dragFrom),
-                arrest().rest,
-                dragTo - s,
-                t - s,
-              );
-            };
+      if (s <= dragFrom)
+        follow = (t: number): number => (t <= s ? 0 : rest * dragged(t));
+      else {
+        const before: number = advanced * dragged(s);
+        const rate: number =
+          (advanced * minimumJerk.rate((s - dragFrom) / (dragTo - dragFrom))) /
+          (dragTo - dragFrom);
+        follow = (t: number): number =>
+          t <= s
+            ? advance(t) * dragged(t)
+            : StrikingArrest.settle(before, rate, rest, dragTo - s, t - s);
+      }
     }
     const base = (
       t: number,
@@ -360,22 +338,29 @@ export namespace punchFootwork {
           turn * turning,
         ),
       };
-      // A foot off its plant bears no weight, so its ankle holds no more
-      // dorsiflexion than the passive range: its heel rises about the toes'
-      // joint as the shank leans over it (`AutoMovieMotionHumanFootRelax`),
-      // where the stance's flat foot, dragged or stepped, kept the loaded
-      // stance's bend 12 degrees past it.
+      // The ankle relaxes toward its passive range during a swing, then
+      // settles back into the loaded placement with the same share that
+      // brings the shoe down. Inherited airborne shoes already carry their
+      // exact pitch and position to their next landing.
       const relaxed = (
         side: AutoMovieHumanSide,
-      ): IAutoMovieMotionHumanFoot.IPlacement =>
-        down[side]
-          ? placed[side]
-          : AutoMovieMotionHumanFootRelax(
-              body,
-              { ...written, limbs: {} },
-              side,
-              placed[side],
-            );
+      ): IAutoMovieMotionHumanFoot.IPlacement => {
+        const foot: IAutoMovieMotionHumanFoot.IPlacement = placed[side];
+        const share: number = side === first ? opening : dragging;
+        const weight: number = 4 * share * (1 - share);
+        if (down[side] || weight <= 0 || t <= landing(side)) return foot;
+        const eased: IAutoMovieMotionHumanFoot.IPlacement =
+          AutoMovieMotionHumanFootRelax(
+            body,
+            { ...written, limbs: {} },
+            side,
+            foot,
+          );
+        return {
+          ankle: Vector3.lerp(foot.ankle, eased.ankle, weight),
+          rotation: Quaternion.slerp(foot.rotation, eased.rotation, weight),
+        };
+      };
       return lowerHumanPosture(
         body,
         {

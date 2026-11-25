@@ -22,6 +22,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { prepareDryKneeSupport } from "../floor/prepareDryKneeSupport";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -446,7 +447,7 @@ export namespace kneel {
             resolution,
             projection,
           );
-    return {
+    return prepareDryKneeSupport(context, {
       ...course,
       ...HumanPhysics.declared(context.params, window),
       duration: display.duration,
@@ -455,7 +456,7 @@ export namespace kneel {
       base: { kind: rise ? "standing" : "kneeling" },
       // The feet and knees carry the body, leaving the resting arms and head to overlays.
       yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
-    };
+    });
   }
 
   /** A phase between two key states. */

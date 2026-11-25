@@ -13,13 +13,14 @@ import type {
   IAutoMovieMotionHumanStepVault,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionTarget,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { supportCourse } from "../actions/supportCourse";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -27,6 +28,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crossingClearance } from "./crossingClearance";
 import { crossingSurface } from "./crossingSurface";
+import { prepareVaultArmFrames } from "./prepareVaultArmFrames";
 import { stepVaultSupport } from "./stepVaultSupport";
 
 /**
@@ -217,6 +219,9 @@ export function planNamedVault(
   // window and still touches it while it peels off after, so its published
   // contact spans both.
   const peel: number = PALM_PEEL / supported.duration;
+  const layer = (): IAutoMovieMotionHumanActionPlan["posture"] =>
+    prepareVaultLayer(body, frame, yaw, deck, supported, hand, palm, ref.prop);
+  let posed: IAutoMovieMotionHumanActionPlan["posture"] = layer();
   const plan: IAutoMovieMotionHumanActionPlan = {
     ...supported,
     contacts: supported.contacts.map(
@@ -233,19 +238,17 @@ export function planNamedVault(
             }
           : window,
     ),
-    posture: prepareVaultLayer(
-      body,
-      frame,
-      yaw,
-      deck,
-      supported,
-      hand,
-      palm,
-      ref.prop,
-    ),
+    prepare: (): void => {
+      supported.prepare?.();
+      posed = layer();
+    },
+    posture: (
+      ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+    ): IAutoMovieMotionHumanPosture => posed(...args),
+    base: { kind: "standing" },
   };
   crossingClearance(context, plan, [ref.prop]);
-  return { ...plan, base: { kind: "standing" } };
+  return HumanPreparedPlayback.rebindPosture(plan, supported, body);
 }
 
 /** Admission of the named step vault before any pose fitting. */
@@ -320,30 +323,64 @@ function prepareVaultLayer(
     Vector3.length(level) < 0.012
       ? HumanFrame.forward(yaw)
       : Vector3.normalize(level);
-  return (seconds, channels, resolution, projection) => {
+  const spans: Array<{ from: number; to: number }> = palmWindows
+    .map(
+      (
+        window: IAutoMovieMotionHumanContactWindow,
+      ): { from: number; to: number } => ({
+        from: window.from * duration,
+        to: window.to * duration,
+      }),
+    )
+    .sort((a, b): number => a.from - b.from);
+  const merged: typeof spans = [];
+  for (const span of spans) {
+    const previous: (typeof spans)[number] | undefined = merged.at(-1);
+    if (previous === undefined || previous.to < span.from) merged.push(span);
+    else previous.to = Math.max(previous.to, span.to);
+  }
+  const palmEnd = (index: number): number => merged[index]!.to;
+  const leave: number = merged.at(-1)?.to ?? duration;
+  const arms: ReturnType<typeof prepareVaultArmFrames> = prepareVaultArmFrames(
+    body,
+    supported,
+  );
+  const goal: IAutoMovieMotionHumanHand.IWrist = HumanHand.reach(
+    body,
+    hand,
+    "palm",
+    { point: palm, normal: { x: 0, y: -1, z: 0 }, forward: fingers },
+    "flat",
+  );
+  return (seconds, channels, resolution, projection, evaluation) => {
     const posture: IAutoMovieMotionHumanPosture = supported.posture(
       seconds,
       channels,
       resolution,
       projection,
+      evaluation,
     );
     const ease: number = minimumJerk.share(
       Math.max(0, Math.min(1, seconds / EASE, (duration - seconds) / EASE)),
     );
-    if (ease === 0) return posture;
-    const current: ReturnType<typeof poseBones> = poseBones(
-      body,
-      resolveHumanPosture.seeded(body, posture).pose,
+    if (
+      ease === 0 ||
+      (channels !== undefined &&
+        !channels.includes("leftArm") &&
+        !channels.includes("rightArm") &&
+        !channels.includes(`${hand}Hand`))
+    )
+      return posture;
+    const current: ReturnType<ReturnType<typeof prepareVaultArmFrames>> =
+      arms(seconds);
+    const index: number = PreparedHumanIntervals.lowerBound(
+      merged.length,
+      palmEnd,
+      seconds,
     );
     const handGap: number = Math.min(
-      Infinity,
-      ...palmWindows.map((window: IAutoMovieMotionHumanContactWindow): number =>
-        Math.max(
-          window.from * duration - seconds,
-          seconds - window.to * duration,
-          0,
-        ),
-      ),
+      Math.max(0, (merged[index]?.from ?? Infinity) - seconds),
+      seconds - (merged[index - 1]?.to ?? -Infinity),
     );
     // The palm approaches its point from the vault's start and leaves it
     // until the vault's end: its share of the way is 1 through its window.
@@ -354,13 +391,9 @@ function prepareVaultLayer(
             1,
             Math.max(
               0,
-              seconds < palmWindows[0]!.from * duration
-                ? seconds / (palmWindows[0]!.from * duration)
-                : (duration - seconds) /
-                    Math.max(
-                      1e-9,
-                      duration - palmWindows.at(-1)!.to * duration,
-                    ),
+              seconds < landing
+                ? seconds / landing
+                : (duration - seconds) / Math.max(1e-9, duration - leave),
             ),
           ),
     );
@@ -368,25 +401,16 @@ function prepareVaultLayer(
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of ["left", "right"] as const) {
       const arm: AutoMovieHumanLimb = `${side}Arm`;
-      const elbow: IAutoMovieVector3 = current.get(
-        `${side}LowerArm`,
-      )!.worldPosition;
-      const wrist: IAutoMovieResolvedBone = current.get(`${side}Hand`)!;
+      if (channels !== undefined && !channels.includes(arm)) continue;
+      const { elbow, wrist, rotation }: prepareVaultArmFrames.IFrame =
+        current(side);
       if (side === hand && palmWeight > 0) {
         // The fingers keep one direction for the whole vault, the shoulder's
         // reach to the palm as the palm lands: a direction taken from the
         // moving forearm reverses as the shoulder passes over the palm and
         // would turn the hand half round.
-        const forward: IAutoMovieVector3 = fingers;
-        const goal: IAutoMovieMotionHumanHand.IWrist = HumanHand.reach(
-          body,
-          hand,
-          "palm",
-          { point: palm, normal: { x: 0, y: -1, z: 0 }, forward },
-          "flat",
-        );
         const point: IAutoMovieVector3 = Vector3.lerp(
-          wrist.worldPosition,
+          wrist,
           goal.point,
           palmWeight,
         );
@@ -403,11 +427,7 @@ function prepareVaultLayer(
           Math.max(0, deck.height + ARC * measure.forearm - point.y);
         limbs[arm] = {
           point: { ...point, y: point.y + lift + arc },
-          rotation: Quaternion.slerp(
-            wrist.worldRotation,
-            goal.rotation,
-            palmWeight,
-          ),
+          rotation: Quaternion.slerp(rotation, goal.rotation, palmWeight),
           bend: elbow,
           ...(handGap === 0 ? { contact: palmPoint, planted: true } : {}),
         };
@@ -415,7 +435,7 @@ function prepareVaultLayer(
       }
 
       // A free hand over the top is lifted clear of it.
-      const at: IAutoMovieVector3 = frame.local(wrist.worldPosition);
+      const at: IAutoMovieVector3 = frame.local(wrist);
       const gap: number = Math.max(deck.near - at.z, at.z - deck.far, 0);
       const weight: number =
         ease *
@@ -424,16 +444,17 @@ function prepareVaultLayer(
         Math.max(0, deck.height + 0.65 * measure.forearm - at.y) * weight;
       if (raise > 0)
         limbs[arm] = {
-          point: { ...wrist.worldPosition, y: wrist.worldPosition.y + raise },
+          point: { ...wrist, y: wrist.y + raise },
           bend: elbow,
-          rotation: wrist.worldRotation,
+          rotation,
         };
     }
     return {
       ...posture,
       limbs,
       joints:
-        palmWeight === 0
+        palmWeight === 0 ||
+        (channels !== undefined && !channels.includes(`${hand}Hand`))
           ? posture.joints
           : { ...posture.joints, ...blendJoints(posture, flat, palmWeight) },
     };

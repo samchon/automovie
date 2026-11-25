@@ -351,22 +351,27 @@ export namespace poleVault {
 
     // Linthorne's flexible pole (`poleVaultSwinging`), then the release, the
     // flight and the landing (`poleVaultFinish`).
-    const { swing, bend, bow, swinging }: poleVaultSwinging.ISwinging =
-      poleVaultSwinging({
-        body,
-        p,
-        held,
-        pole,
-        side,
-        from,
-        tipAt,
-        gripAt,
-        ahead,
-        speed,
-        takeoff,
-        shoulders,
-        readGrip,
-      });
+    const {
+      swing,
+      bend,
+      bow,
+      swinging,
+      swingGripOffset,
+    }: poleVaultSwinging.ISwinging = poleVaultSwinging({
+      body,
+      p,
+      held,
+      pole,
+      prop: context.prop(p.pole).prop,
+      side,
+      from,
+      tipAt,
+      gripAt,
+      ahead,
+      speed,
+      takeoff,
+      readGrip,
+    });
     return poleVaultFinish({
       context,
       body,
@@ -384,6 +389,7 @@ export namespace poleVault {
       bend,
       bow,
       swinging,
+      swingGripOffset,
       pushing,
     });
   }

@@ -1,11 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBowViolinParams,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
@@ -18,15 +20,18 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { courseArmGoal } from "../compose/courseArmGoal";
+import { prepareHumanElbowPath } from "../compose/prepareHumanElbowPath";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { bowViolinGrip } from "./bowViolinGrip";
 import { bowViolinHairAxis } from "./bowViolinHairAxis";
@@ -198,33 +203,48 @@ function planStroke(
     params.direction,
     CLEARANCE,
   );
-  const target = (
-    posture: IAutoMovieMotionHumanPosture,
-    time: number,
-  ): IAutoMovieMotionHumanArmTarget.ITarget => {
+  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
+    context,
+    clock.duration,
+  );
+  const surface: IAutoMovieVector3 = HumanHand.offset(
+    body,
+    "right",
+    "grip",
+  ).point;
+  const wrist: ReturnType<typeof placeHumanHandSurface.prepare> =
+    placeHumanHandSurface.prepare(surface, rotation);
+  const pointAt = (time: number): IAutoMovieVector3 => {
     const at: bowViolinStroke.IStroke = stroked(time);
-    const point: IAutoMovieVector3 = grip(at.share, at.lift);
-    return {
-      surface: "grip",
-      shape: "relaxed",
-      point,
-      rotation,
-      bend: AutoMovieMotionHumanBend.solve({
-        body,
-        posture,
-        side: "right",
-        rotation,
-        point: HumanHand.place(
-          body,
-          "right",
-          "grip",
-          point,
-          rotation,
-          "relaxed",
-        ).point,
-      }),
-    };
+    return grip(at.share, at.lift);
   };
+  const elbow: (seconds: number) => IAutoMovieVector3 = prepareHumanElbowPath(
+    clock.duration,
+    [clock.at("ready"), clock.at("contact"), clock.at("lift")],
+    (seconds: number): IAutoMovieMotionHumanBend.ISolve => ({
+      body,
+      posture: base.posture(seconds),
+      side: "right",
+      rotation,
+      point: wrist(pointAt(seconds)).point,
+    }),
+  );
+  const emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareTarget> =
+    AutoMovieMotionHumanArmTarget.prepareTarget(
+      body,
+      "right",
+      "grip",
+      "relaxed",
+    );
+  const target = (
+    _posture: IAutoMovieMotionHumanPosture,
+    time: number,
+  ): IAutoMovieMotionHumanArmTarget.ITarget =>
+    emit({
+      point: pointAt(time),
+      rotation,
+      bend: elbow(time),
+    });
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.move({
     fixedShape: "relaxed",
     body,
@@ -236,45 +256,54 @@ function planStroke(
     weight: (seconds: number): number =>
       clock.progress("approach", "ready", seconds),
   });
-  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-    context,
-    clock.duration,
-  );
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "contact",
-      primitives: [
-        {
-          ...arm,
-          prepare: (
-            before: (seconds: number) => IAutoMovieMotionHumanPosture,
-          ): void => {
-            // Refuse unreachable staged poses at boundaries and the stroke's midpoint.
-            for (const t of [
-              clock.at("ready"),
-              clock.at("contact"),
-              clock.at("contact") + stroke / 2,
-              clock.at("lift"),
-              clock.duration,
-            ])
-              target(before(t), t);
-          },
-        },
-      ],
+      primitives: [arm],
     });
   const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
     entry.pose,
     "right",
   );
-  return {
+  const endpoints: readonly NonNullable<
+    IAutoMovieHumanLimbGoal["limits"]
+  >[number][] = [frog.point, tip.point].map((point: IAutoMovieVector3) => ({
+    contact: Vector3.add(surface, point),
+    bound: 0.002,
+  }));
+  const goals: IAutoMovieMotionHumanActionPlan = {
     ...composed,
     contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
     holds: [AutoMovieMotionHumanHeld.hold(context, held)],
-    posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = composed.posture(seconds);
-      return { ...posture, joints: { ...posture.joints, ...fingers } };
+    posture: (
+      ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+    ): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = composed.posture(...args);
+      const arm: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightArm;
+      return {
+        ...posture,
+        joints: { ...posture.joints, ...fingers },
+        limbs:
+          arm === undefined
+            ? posture.limbs
+            : {
+                ...posture.limbs,
+                rightArm: { ...arm, limits: endpoints },
+              },
+      };
     },
   };
+  return courseArmGoal({
+    context,
+    plan: goals,
+    side: "right",
+    span: {
+      start: 0,
+      ready: clock.at("ready"),
+      relax: clock.duration,
+      end: clock.duration,
+    },
+  });
 }

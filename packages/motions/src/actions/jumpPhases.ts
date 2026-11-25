@@ -263,6 +263,8 @@ export function jumpPhases(
     read: ReturnType<typeof prepareHumanPoseResolution>,
   ): IAutoMovieMotionHumanPosture =>
     landingAtRoot(rootAt(seconds), seconds, read);
+  let pushArms: ReturnType<typeof jumpGroundPosture.course> | undefined;
+  let landingArms: ReturnType<typeof jumpGroundPosture.course> | undefined;
   const ground: prepareJumpPosture.IGround = {
     before: (seconds, _channels, resolution) => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
@@ -273,12 +275,20 @@ export function jumpPhases(
         reaching,
         read,
         reachingPitch(seconds)[0]!,
+        pushArms?.(seconds),
       );
     },
     after: (seconds, _channels, resolution) => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(resolution);
-      return jumpGroundPosture(body, landingAt(seconds, read), "landing", read);
+      return jumpGroundPosture(
+        body,
+        landingAt(seconds, read),
+        "landing",
+        read,
+        undefined,
+        landingArms?.(seconds),
+      );
     },
     sampleBefore: (seconds, _channels, resolution, projection) => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
@@ -290,6 +300,7 @@ export function jumpPhases(
         read,
         projection,
         reachingPitch(seconds)[0]!,
+        pushArms?.(seconds),
       );
     },
     sampleAfter: (seconds, _channels, resolution, projection) => {
@@ -301,6 +312,8 @@ export function jumpPhases(
         "landing",
         read,
         projection,
+        undefined,
+        landingArms?.(seconds),
       );
     },
   };
@@ -337,6 +350,27 @@ export function jumpPhases(
     contacts,
     physicalWindow: { from: 0, to: settled },
     ...prepared.declared,
+    prepare: (): void => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      pushArms ??= jumpGroundPosture.course(
+        body,
+        0,
+        P,
+        reaching,
+        (seconds: number): IAutoMovieMotionHumanPosture =>
+          jumpPushPosture(pushProps, push, seconds, read, writers),
+        (seconds: number): number => reachingPitch(seconds)[0]!,
+      );
+      landingArms ??= jumpGroundPosture.course(
+        body,
+        touchdown,
+        duration,
+        "landing",
+        (seconds: number): IAutoMovieMotionHumanPosture =>
+          landingAt(seconds, read),
+      );
+    },
     posture: prepared.posture,
   };
   HumanPreparedPlayback.attach(result, body, prepared.playback);

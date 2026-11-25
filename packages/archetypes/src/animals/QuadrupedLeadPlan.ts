@@ -6,9 +6,11 @@ import type {
 
 import {
   type AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
+import { AnnularFitting } from "./AnnularFitting";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
 
@@ -17,8 +19,8 @@ export class QuadrupedLeadPlan {
   /** Collar ends, metres in the model frame. */
   readonly #from: IAutoMovieVector3;
   readonly #to: IAutoMovieVector3;
-  /** Outer collar radius, metres. */
-  readonly #collarRadius: number;
+  /** The collar's fixed local material surrounding the open neck passage. */
+  readonly #collar: readonly AutoMovieArchetypeConvexCell.ICell[];
   /** Straight lead endpoints, metres. */
   readonly #attached: IAutoMovieVector3;
   readonly #end: IAutoMovieVector3;
@@ -89,7 +91,11 @@ export class QuadrupedLeadPlan {
     );
     this.#from = Vector3.subtract(centre, half);
     this.#to = Vector3.add(centre, half);
-    this.#collarRadius = rig.neckRadius + tack.thickness;
+    this.#collar = AnnularFitting.prepare(
+      rig.neckRadius,
+      rig.neckRadius + tack.thickness,
+      tack.width,
+    );
     this.#attached = { ...centre, x: rig.neckRadius + tack.thickness };
     this.#end = { ...this.#attached, x: this.#attached.x + tack.leadLength };
     this.#radius = tack.leadRadius;
@@ -102,20 +108,26 @@ export class QuadrupedLeadPlan {
     );
   }
 
-  /** Emit the same admitted rods and contact into a builder. */
+  /** Emit the admitted collar shell, lead and its grasp into a builder. */
   public emit<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,
   ): void {
-    builder.rod("collar", this.#collarRadius, this.#from, this.#to, {
-      color: "#645139",
-    });
+    AnnularFitting.emit(
+      builder,
+      "collar",
+      this.#collar,
+      this.#from,
+      this.#to,
+      "#645139",
+    );
     builder.rod("lead", this.#radius, this.#attached, this.#end, {
       color: "#645139",
     });
     builder.affordance({
       id,
       kind: "rein",
+      materialPart: "lead",
       symmetry: "round",
       grip: "power",
       frame: {

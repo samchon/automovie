@@ -3,6 +3,7 @@ import {
   type AutoMovieArchetype,
   AutoMovieArchetypeRefusal,
 } from "../core";
+import { AnnularFitting } from "./AnnularFitting";
 import { AutoMovieArchetypeCamelBody } from "./AutoMovieArchetypeCamelBody";
 import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
 import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
@@ -246,7 +247,14 @@ export namespace createQuadruped {
       // Each cohort has its own constructed stance; species() reads it below.
       stance: AutoMovieArchetypeDogBody("pet").stance,
       table: DogGait.TABLE,
-      nodding: ["neck", "head", "leftEar", "rightEar", "collar", "lead"],
+      nodding: [
+        "neck",
+        "head",
+        "leftEar",
+        "rightEar",
+        ...AnnularFitting.ids("collar"),
+        "lead",
+      ],
       noddingContacts: ["lead"],
     },
     cat: {
@@ -266,7 +274,7 @@ export namespace createQuadruped {
         "rightEar",
         "leftHorn",
         "rightHorn",
-        "collar",
+        ...AnnularFitting.ids("collar"),
         "lead",
         "yoke-beam",
         "yoke-bearing",
@@ -283,7 +291,7 @@ export namespace createQuadruped {
       archetype: "camel",
       stance: AutoMovieArchetypeCamelBody().stance,
       table: CamelGait.TABLE,
-      nodding: ["neck", "head", "collar", "lead"],
+      nodding: ["neck", "head", ...AnnularFitting.ids("collar"), "lead"],
       noddingContacts: ["lead"],
     },
     deer: {
@@ -299,7 +307,7 @@ export namespace createQuadruped {
         "leftAntlerTine2",
         "rightAntlerTine1",
         "rightAntlerTine2",
-        "collar",
+        ...AnnularFitting.ids("collar"),
         "lead",
       ],
       noddingContacts: ["lead"],

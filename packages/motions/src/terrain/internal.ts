@@ -13,4 +13,6 @@ export * from "./climbStairsPrints";
 export * from "./climbStairsPelvis";
 export * from "./climbStairsProfile";
 export * from "./planWallRun";
+export * from "./planWallRunFlight";
 export * from "./planNamedVault";
+export * from "./crossingClearance";

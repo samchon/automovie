@@ -25,6 +25,8 @@ import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan"
  * 3. Once located and prepared, the setup runs once and the phase covering the
  *    second is read; a second outside every phase reads nothing.
  * 4. Another body reads nothing.
+ * 5. A reader observes the first declared owner at overlaps and exact shared
+ *    seconds, including an instant-only phase, in shuffled seek order.
  *
  * The bodies are records of the stored average man's and smallest woman's rigs:
  * the binding reads only a body's identity.
@@ -105,4 +107,51 @@ export async function test_motions_perform_prepared_playback(): Promise<void> {
     HumanPreparedPlayback.read(plan, other, installed, false, false, 0.5) ===
       undefined,
   );
+
+  const phases: IAutoMovieMotionHumanPlayback.IPhase[] = [
+    [3, 5],
+    [0, 3],
+    [5, 6],
+    [8, 8],
+    [7, 9],
+    [1, 4],
+  ].map(
+    (
+      [from, to]: number[],
+      index: number,
+    ): IAutoMovieMotionHumanPlayback.IPhase => ({
+      from: from!,
+      to: to!,
+      sample: (): IAutoMovieMotionHumanPlayback.ISample => ({
+        posture: { ...sampled, yaw: index },
+      }),
+    }),
+  );
+  plan.posture = original;
+  HumanPreparedPlayback.attach(plan, body, { mode: "posture", phases });
+  HumanPreparedPlayback.locate(plan, original, installed, {
+    performer: "ann",
+    act: "stand",
+    instance: 1,
+  });
+  plan.posture = installed;
+  for (const [seconds, owner] of [
+    [8.001, 4],
+    [3, 0],
+    [-1, undefined],
+    [0, 1],
+    [5, 0],
+    [8, 3],
+    [9, 4],
+    [6.99, undefined],
+    [2, 1],
+    [5.001, 2],
+    [10, undefined],
+  ] as const)
+    TestValidator.equals(
+      `first declared interval at ${seconds}s`,
+      HumanPreparedPlayback.read(plan, body, installed, false, false, seconds)
+        ?.posture.yaw,
+      owner,
+    );
 }

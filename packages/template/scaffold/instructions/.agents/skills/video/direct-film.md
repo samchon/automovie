@@ -31,7 +31,7 @@ Give the film a `speak` member that keeps the mouths the capture and the render 
 | Representation | What moves its mouth |
 | --- | --- |
 | The polygon man or the Human | `jaw`, from the line's own loudness, even when the line has phoneme chunks |
-| A VRM or imported model | `visemes`, from the line's phoneme chunks, or an `aa` viseme from its loudness without them |
+| A VRM or imported model | `visemes` from phoneme chunks, or `aa` from loudness if none |
 
 The inspector reads no sound and shows the authored mouth.
 

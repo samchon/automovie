@@ -161,6 +161,17 @@ export interface IAutoMovieMotionHumanProp {
   ): IAutoMovieMotionHumanProp.IPosed;
 
   /**
+   * An explicit single-contact reader at absolute articulation travels in prop
+   * space. `HumanObject.articulateSite` also resolves projections prepared by
+   * its articulation adapter. Undefined leaves the contact to the full
+   * articulation callback.
+   */
+  articulateSite?(
+    id: string,
+    state: Readonly<Record<string, number>>,
+  ): IAutoMovieAffordance | undefined;
+
+  /**
    * The prop's own movements after a trigger, each an articulation's travel
    * from a start instant: a trebuchet's arm swinging once its pin is pulled, a
    * door swinging shut on its closer. They share one state with the

@@ -1,4 +1,8 @@
-import { convexHull2D, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import {
+  Quaternion,
+  convexHull2D,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
@@ -6,6 +10,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -122,7 +127,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
         0,
         -resolveAutoMovieCenterOfMass.margin(
           centre(i),
-          region(body, motion.bones(subject, t), open),
+          region(body, motion.bones(subject, t), open, motion, t),
         ),
       );
       if (value > worst.value)
@@ -197,6 +202,8 @@ export namespace AutoMovieMotionHumanAuditStatics {
     body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     open: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
+    motion: IAutoMovieMotionHumanAuditMotion,
+    seconds: number,
   ): IAutoMovieVector3[] {
     const total: number = open.reduce(
       (sum: number, w: IAutoMovieMotionHumanAuditMotion.IWindow): number =>
@@ -207,7 +214,21 @@ export namespace AutoMovieMotionHumanAuditStatics {
     for (const w of open) {
       const share: number = w.contact.load! / total;
       if (share === 0) continue;
-      const corners: IAutoMovieVector3[] = patch(body, bones, w.contact);
+      const material: IAutoMovieRigidTransform | undefined =
+        w.contact.material === undefined
+          ? undefined
+          : w.contact.support.kind === "ground"
+            ? {
+                position: { x: 0, y: w.contact.support.height ?? 0, z: 0 },
+                rotation: Quaternion.identity(),
+              }
+            : motion.support?.(w.contact.support, seconds);
+      const corners: IAutoMovieVector3[] = patch(
+        body,
+        bones,
+        w.contact,
+        material,
+      );
       const next: IAutoMovieVector3[] = [];
       for (const s of sum)
         for (const c of corners)

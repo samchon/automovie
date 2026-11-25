@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanLadder,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -77,16 +78,86 @@ export function HumanLadder(
     Quaternion.multiply(frame.rotation, rungs[0]!.frame.rotation),
     { x: 0, y: 1, z: 0 },
   );
+  const yaw: number = (Math.atan2(-out.x, -out.z) * 180) / Math.PI;
+  const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+    { x: 1, y: 0, z: 0 },
+  );
+  const material: IAutoMovieMotionHumanLadder.IRung[] = rungs.map(
+    (
+      rung: IAutoMovieAffordance,
+      index: number,
+    ): IAutoMovieMotionHumanLadder.IRung => {
+      const center: IAutoMovieVector3 = world(rung.frame.translation);
+      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+        frame.rotation,
+        rung.frame.rotation,
+      );
+      const along: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+        x: 1,
+        y: 0,
+        z: 0,
+      });
+      const axis: IAutoMovieVector3 = Vector3.scale(
+        along,
+        Vector3.dot(along, lateral) < 0 ? -1 : 1,
+      );
+      const normal: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+        x: 0,
+        y: 1,
+        z: 0,
+      });
+      const radius: number = (rung.aperture ?? 2 * HumanLadder.RUNG) / 2;
+      const width: number = rung.length ?? Infinity;
+      if (
+        rung.id !== `rung${index + 1}` ||
+        Math.abs(axis.y) > 0.5 ||
+        !(radius > 0) ||
+        !(width > 0)
+      )
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "ladder",
+          value: rung.id,
+          reason:
+            "rung IDs must be consecutive, with positive material dimensions and a transverse axis",
+          fix: "author each usable bar from rung1 upward",
+        });
+      const crown: IAutoMovieVector3 = Vector3.scale(
+        Vector3.normalize(
+          Vector3.subtract({ x: 0, y: 1, z: 0 }, Vector3.scale(axis, axis.y)),
+        ),
+        radius,
+      );
+      return { id: rung.id, center, axis, normal, crown, radius, width };
+    },
+  );
+  for (let index: number = 2; index < material.length; ++index) {
+    const step: IAutoMovieVector3 = Vector3.subtract(
+      material[index]!.center,
+      material[index - 1]!.center,
+    );
+    const gap: number = Vector3.length(step);
+    HumanBound.within(`${material[index]!.id}.spacing`, gap, 0.25, 0.36, "m");
+    HumanBound.within(
+      `${material[index]!.id}.lean`,
+      (Math.atan2(Math.hypot(step.x, step.z), step.y) * 180) / Math.PI,
+      0,
+      HumanLadder.UPRIGHT,
+      "degrees",
+    );
+  }
   return {
     frame: {
       origin: { ...first, y: first.y - spacing },
-      yaw: (Math.atan2(-out.x, -out.z) * 180) / Math.PI,
+      yaw,
     },
     ahead: 0,
     spacing,
     count: rungs.length,
-    radius: (rungs[0]!.aperture ?? 2 * HumanLadder.RUNG) / 2,
-    width: rungs[0]!.length ?? Number.POSITIVE_INFINITY,
+    radius: material[0]!.radius,
+    width: material[0]!.width,
+    rungs: material,
   };
 }
 
@@ -121,15 +192,11 @@ export namespace HumanLadder {
     index: number,
     x: number,
   ): IAutoMovieVector3 {
-    return HumanFrame.point(ladder.frame, {
-      x,
-      y: index * ladder.spacing,
-      z: ladder.ahead,
-    });
+    return prepareRung(ladder)(index, x);
   }
 
   /**
-   * Prepare the fixed rung grid read by one climb's footprint/handhold plan.
+   * Prepare the rung material read by one climb's footprint and grip plan.
    *
    * @param ladder The unchanged resolved ladder at the action's start.
    * @returns A fresh world-metre rung centre for a rung index and local lateral
@@ -137,11 +204,39 @@ export namespace HumanLadder {
    */
   export function prepareRung(
     ladder: IAutoMovieMotionHumanLadder.ILadder,
-  ): (index: number, x: number) => IAutoMovieVector3 {
+  ): (
+    index: number,
+    x: number,
+    surface?: "center" | "crown",
+  ) => IAutoMovieVector3 {
     const frame: HumanFrame.IPrepared = HumanFrame.prepare(ladder.frame);
     const spacing: number = ladder.spacing;
     const ahead: number = ladder.ahead;
-    return (index: number, x: number): IAutoMovieVector3 =>
-      frame.point({ x, y: index * spacing, z: ahead });
+    const rungs: readonly IAutoMovieMotionHumanLadder.IRung[] | undefined =
+      ladder.rungs;
+    return (
+      index: number,
+      x: number,
+      surface = "center",
+    ): IAutoMovieVector3 => {
+      const rung: IAutoMovieMotionHumanLadder.IRung | undefined =
+        rungs?.[index - 1];
+      if (rung === undefined)
+        return frame.point({
+          x,
+          y: index * spacing + (surface === "crown" ? ladder.radius : 0),
+          z: ahead,
+        });
+      const lane: number = Math.max(
+        -rung.width / 2,
+        Math.min(rung.width / 2, x),
+      );
+      const center: IAutoMovieVector3 = Vector3.addScaled(
+        rung.center,
+        rung.axis,
+        lane,
+      );
+      return surface === "crown" ? Vector3.add(center, rung.crown) : center;
+    };
   }
 }

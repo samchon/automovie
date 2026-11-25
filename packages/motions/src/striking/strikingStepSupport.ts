@@ -17,13 +17,19 @@ import { HumanFoot } from "../posture/HumanFoot";
  *
  * @param context The incoming step's body and displayed entry state.
  * @returns The inherited support and ground placements, in world metres, or
- *   undefined when no foot is airborne at a step's cut.
+ *   undefined when neither a step nor a punch was cut with an airborne foot.
  */
 export function strikingStepSupport(
   context: IAutoMovieMotionHumanActionContext,
 ): strikingStepSupport.ISupport | undefined {
   const { body, entry } = context;
-  if (entry.from?.name !== "step" || entry.from.share >= 1) return undefined;
+  const from: IAutoMovieMotionHumanEntryState["from"] = entry.from;
+  if (
+    from === undefined ||
+    (from.family !== "step" && from.family !== "punch") ||
+    from.share >= 1
+  )
+    return undefined;
   const { left, right } = entry.feet;
   if (left.planted && right.planted) return undefined;
   const bearing: AutoMovieHumanSide | undefined = left.planted

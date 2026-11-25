@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -11,6 +12,7 @@ import type { WalkPath } from "./WalkPath";
 import { stand } from "./stand";
 import { walkHeading } from "./walkHeading";
 import { walkStepFoot } from "./walkStepFoot";
+import type { walkStride } from "./walkStride";
 
 /**
  * A walk's footprints (`walkSteps.plan`): each footfall's side, heel strike,
@@ -27,10 +29,13 @@ export function walkStepsFootprints(
 ): walkStepsFootprints.IFootprints {
   const {
     m,
+    body,
     path,
     facing,
     inPlace,
     airborne,
+    doubleFlight,
+    landing,
     yaw0,
     lead,
     n,
@@ -77,6 +82,8 @@ export function walkStepsFootprints(
         ? rest(side)
         : half + (rest(side) - half) * aside);
     const toward: number = towardAt(j);
+    const inherited: walkStride.IFlight["landing"] =
+      j === 1 ? landing : undefined;
     // A walk facing off its way closes a foot up rather than cross it, the closing pair's first footprint
     // too (the other foot's last still stands); an arrival's extra step turns and closing pair step round the standing foot.
     const other: walkHeading.ISeparated | undefined =
@@ -89,11 +96,10 @@ export function walkStepsFootprints(
       extra > 0 && j > n - extra && other !== undefined
         ? walkHeading.around(other, toward, side, lateral, flat.y)
         : flat;
-    const point: IAutoMovieVector3 =
+    const authored: IAutoMovieVector3 =
       facing === undefined || j > n
         ? laid
         : walkHeading.separated(laid, other, toward, side, lateral);
-    lastOf[side] = { point, lateral };
     if (extra > 0 && j > n - extra) turnedAt.add(heelStrike);
     // A footprint the pelvis leaves behind leans its leg no further than
     // the ankle holds when the foot lifts, at the toe-off two footfalls on,
@@ -101,32 +107,63 @@ export function walkStepsFootprints(
     // this footprint and the next; a hip behind a foot walking a way it
     // does not face leans the leg the other way.
     const footHeading: number =
-      !inPlace && j < n
-        ? walkHeading.leaned(
-            toward + toeOut,
-            point,
-            HumanFrame.point(
-              {
-                origin: path.at(progress(first + (j + 1) * T)),
-                yaw: (toward + towardAt(j + 1)) / 2,
-              },
-              {
-                x: (side === "left" ? 1 : -1) * hipWidth[side],
-                y: 0,
-                z: 0,
-              },
+      inherited !== undefined
+        ? HumanFoot.heading(inherited.placement.rotation)
+        : !inPlace && j < n
+          ? walkHeading.leaned(
+              toward + toeOut,
+              authored,
+              HumanFrame.point(
+                {
+                  origin: path.at(progress(first + (j + 1) * T)),
+                  yaw: (toward + towardAt(j + 1)) / 2,
+                },
+                {
+                  x: (side === "left" ? 1 : -1) * hipWidth[side],
+                  y: 0,
+                  z: 0,
+                },
+              ),
+              leeway,
+              facing !== undefined,
+            )
+          : toward + toeOut;
+    const socket: "heel" | "mtp" =
+      inherited === undefined ||
+      HumanFoot.pitch(inherited.placement.rotation) >= 0
+        ? "heel"
+        : "mtp";
+    const contact: IAutoMovieVector3 | undefined =
+      inherited === undefined
+        ? undefined
+        : Vector3.add(
+            inherited.placement.ankle,
+            Quaternion.rotateVector(
+              inherited.placement.rotation,
+              inherited.contact ?? HumanFoot.offset(body, side, socket),
             ),
-            leeway,
-            facing !== undefined,
-          )
-        : toward + toeOut;
+          );
+    const point: IAutoMovieVector3 =
+      contact === undefined
+        ? authored
+        : HumanFoot.prepareAt(body, side, socket, footHeading, 0)(contact)
+            .ankle;
+    lastOf[side] = { point, lateral };
     steps.push({
       side,
       heelStrike,
-      toeOff: j === 1 && side === airborne ? 0 : heelStrike - swing,
+      toeOff:
+        (doubleFlight && j <= 2) || (j === 1 && side === airborne)
+          ? 0
+          : heelStrike - swing,
       flat: { ankle: point, rotation: HumanFoot.rotation(footHeading, 0) },
       heading: footHeading,
       push: -walkStepFoot.PUSH,
+      ...(inherited === undefined || contact === undefined
+        ? {}
+        : {
+            inherited: { ...inherited, anchor: contact, socket },
+          }),
       // Going more than 120 degrees from its facing, a foot steps backward.
       ...(facing !== undefined &&
       Math.cos(((along - toward) * Math.PI) / 180) < -0.5
@@ -164,6 +201,15 @@ export namespace walkStepsFootprints {
 
     /** The foot entered in the air while the other stands, if any. */
     airborne: AutoMovieHumanSide | undefined;
+
+    /** Both feet were airborne at an outgoing running cut. */
+    doubleFlight: boolean;
+
+    /**
+     * The outgoing flight's first ground plant when its exact frame is
+     * available.
+     */
+    landing: walkStride.IFlight["landing"];
 
     /** The entered heading, degrees. */
     yaw0: number;

@@ -150,6 +150,7 @@ export function createVaultingPole(
   builder.affordance({
     id: "tip",
     kind: "surface",
+    materialPart: "link0",
     direction: "along",
     ...rides(0),
     frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
@@ -165,6 +166,11 @@ export function createVaultingPole(
     builder.affordance({
       id,
       kind: id === "shaft" ? "bar" : "handle",
+      ...(id === "shaft"
+        ? {}
+        : {
+            materialPart: `link${Math.min(n - 1, Math.floor(middle / link))}`,
+          }),
       symmetry: "round",
       ...rides(middle),
       frame: AutoMovieArchetypeFrame.facing(

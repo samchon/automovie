@@ -1,4 +1,9 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  rotationBetween,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -7,18 +12,23 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPoleVault,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { walkPoleFrame } from "../actions/walkPoleFrame";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanPostureRaw } from "../posture/HumanPostureRaw";
 import type { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { poleVaultBend } from "./poleVaultBend";
 import { poleVaultSwing } from "./poleVaultSwing";
+import { preparePoleVaultLinks } from "./preparePoleVaultLinks";
 
 /**
  * A vault's swing on its bending pole (`poleVault.plan`): Linthorne's flexible
@@ -41,6 +51,7 @@ export function poleVaultSwinging(
     p,
     held,
     pole,
+    prop,
     side,
     from,
     tipAt,
@@ -48,7 +59,6 @@ export function poleVaultSwinging(
     ahead,
     speed,
     takeoff,
-    shoulders,
     readGrip,
   }: poleVaultSwinging.IPrepared = prepared;
   const reach0: IAutoMovieVector3 = Vector3.subtract(gripAt, tipAt);
@@ -80,54 +90,62 @@ export function poleVaultSwinging(
       y: Math.cos(angle),
       z: 0,
     });
-  // A point turned about the planted tip in the vault's plane, toward the run.
-  const about: (
-    point: IAutoMovieVector3,
-    angle: number,
-  ) => IAutoMovieVector3 = (
-    point: IAutoMovieVector3,
-    angle: number,
-  ): IAutoMovieVector3 => {
-    const offset: IAutoMovieVector3 = Vector3.subtract(point, tipAt);
-    const forth: number = Vector3.dot(offset, ahead);
-    const aside: IAutoMovieVector3 = Vector3.subtract(
-      offset,
-      Vector3.add(Vector3.scale(ahead, forth), { x: 0, y: offset.y, z: 0 }),
-    );
-    return Vector3.add(
-      Vector3.add(tipAt, aside),
-      Vector3.add(
-        Vector3.scale(
-          ahead,
-          forth * Math.cos(angle) + offset.y * Math.sin(angle),
-        ),
-        {
-          x: 0,
-          y: offset.y * Math.cos(angle) - forth * Math.sin(angle),
-          z: 0,
-        },
-      ),
-    );
-  };
   // The pole bends away from the vaulter, toward the run's side of its
   // chord: its hinges turn the way that bows its `+Z` there, or the other
   // way when the hands hold it turned.
   const plantBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     readGrip(resolveHumanPosture(body, from));
+  const plantRotation: IAutoMovieQuaternion = Quaternion.multiply(
+    plantBones.get(side === "left" ? "leftHand" : "rightHand")!.worldRotation,
+    held.frame.rotation,
+  );
   const bow: number =
     Vector3.dot(
-      Quaternion.rotateVector(
-        Quaternion.multiply(
-          plantBones.get(side === "left" ? "leftHand" : "rightHand")!
-            .worldRotation,
-          held.frame.rotation,
-        ),
-        { x: 0, y: 0, z: 1 },
-      ),
+      Quaternion.rotateVector(plantRotation, { x: 0, y: 0, z: 1 }),
       towards(chord0 + Math.PI / 2),
     ) >= 0
       ? 1
       : -1;
+  const moving: ReturnType<typeof preparePoleVaultLinks> =
+    preparePoleVaultLinks(prop, [
+      pole.end,
+      ...pole.hands.map(
+        (hand: walkPoleFrame.IHand): IAutoMovieVector3 => hand.grip,
+      ),
+    ]);
+  const materialAt = (seconds: number): IAutoMovieRigidTransform[] =>
+    moving(
+      Object.fromEntries(
+        bend.hinges.map((hinge: string, index: number): [string, number] => [
+          hinge,
+          bow * bend.turn(index, seconds),
+        ]),
+      ),
+    );
+  const handIndex: Map<AutoMovieHumanSide, number> = new Map(
+    pole.hands.map(
+      (
+        hand: walkPoleFrame.IHand,
+        index: number,
+      ): [AutoMovieHumanSide, number] => [hand.side, index],
+    ),
+  );
+  const swingGripOffset = (
+    side: AutoMovieHumanSide,
+    seconds: number,
+  ): IAutoMovieRigidTransform => {
+    const index: number = handIndex.get(side)!;
+    const hand: walkPoleFrame.IHand = pole.hands[index]!;
+    const material: IAutoMovieRigidTransform = materialAt(seconds)[index + 1]!;
+    const moved: IAutoMovieRigidTransform = HumanPropFrame.parent(material, {
+      position: hand.grip,
+      rotation: Quaternion.identity(),
+    });
+    return HumanPropFrame.parent(
+      HumanPropFrame.parent(hand.held, moved),
+      hand.held,
+    );
+  };
   const turnFrom: ReturnType<typeof GymnasticsFlight.prepareTurned> =
     GymnasticsFlight.prepareTurned(from, tipAt);
   // The body turned with the chord about the planted tip, its grip on the
@@ -138,10 +156,28 @@ export function poleVaultSwinging(
   ): IAutoMovieMotionHumanPosture => {
     const at: poleVaultSwing.ISample = swing.at(t);
     const chord: number = Math.atan2(at.position.forward, at.position.up);
-    const shown: poleVaultBend.IChain = bend.chain(t);
+    const material: IAutoMovieRigidTransform[] = materialAt(t);
+    const tip: IAutoMovieVector3 = material[0]!.position;
+    const local: IAutoMovieVector3 = Vector3.subtract(
+      material[1]!.position,
+      tip,
+    );
+    const heading: IAutoMovieVector3 = towards(chord);
+    const orientation: IAutoMovieQuaternion = Quaternion.multiply(
+      rotationBetween(towards(chord0), heading),
+      plantRotation,
+    );
+    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      rotationBetween(Quaternion.rotateVector(orientation, local), heading),
+      orientation,
+    );
+    const frame: IAutoMovieRigidTransform = {
+      rotation,
+      position: Vector3.subtract(tipAt, Quaternion.rotateVector(rotation, tip)),
+    };
     const shift: IAutoMovieVector3 = Vector3.scale(
-      towards(chord),
-      shown.chord - swing.length,
+      heading,
+      Vector3.length(local) - swing.length,
     );
     const turned: IAutoMovieMotionHumanPosture = turnFrom(
       0,
@@ -153,18 +189,32 @@ export function poleVaultSwinging(
     );
     return walkPoleFrame.write(
       base,
-      walkPoleFrame.place(
-        pole,
-        Vector3.addScaled(tipAt, towards(chord), shown.chord),
-        Vector3.scale(towards(chord + shown.top), -1),
-        (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
-          Vector3.add(about(shoulders[hand]!, chord - chord0), shift),
+      pole.hands.map(
+        (hand: walkPoleFrame.IHand, index: number): walkPoleFrame.IGoal => {
+          const at: IAutoMovieRigidTransform = HumanPropFrame.compose(
+            frame,
+            material[index + 1]!,
+          );
+          const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+            at.rotation,
+            Quaternion.inverse(hand.held.rotation),
+          );
+          return {
+            side: hand.side,
+            grip: at.position,
+            rotation,
+            wrist: Vector3.subtract(
+              at.position,
+              Quaternion.rotateVector(rotation, hand.socket),
+            ),
+          };
+        },
       ),
       (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
         AutoMovieMotionHumanBend.hang(body, base, hand),
     );
   };
-  return { swing, bend, bow, swinging };
+  return { swing, bend, bow, swinging, swingGripOffset };
 }
 
 /** Companion types of {@link poleVaultSwinging}. */
@@ -182,6 +232,9 @@ export namespace poleVaultSwinging {
 
     /** The pole in the hands that hold it. */
     pole: walkPoleFrame.IPole;
+
+    /** The prop adapter that also displays the articulated material. */
+    prop: IAutoMovieMotionHumanProp;
 
     /** The top hand. */
     side: AutoMovieHumanSide;
@@ -204,9 +257,6 @@ export namespace poleVaultSwinging {
     /** The vault's take-off. */
     takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff;
 
-    /** Each holding arm's shoulder at the take-off, world metres. */
-    shoulders: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
-
     /** The reader of the top hand's grip bones. */
     readGrip: ReturnType<typeof poseBones.prepare>;
   }
@@ -224,5 +274,11 @@ export namespace poleVaultSwinging {
 
     /** The vaulter's posture at seconds since the take-off. */
     swinging: (t: number) => IAutoMovieMotionHumanPosture;
+
+    /** Model offset needed to keep the same wrapped material in a hand. */
+    swingGripOffset: (
+      side: AutoMovieHumanSide,
+      seconds: number,
+    ) => IAutoMovieRigidTransform;
   }
 }

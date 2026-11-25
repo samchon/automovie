@@ -17,6 +17,7 @@ import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanFlight } from "./IAutoMovieMotionHumanFlight";
 import type { IAutoMovieMotionHumanFollow } from "./IAutoMovieMotionHumanFollow";
+import type { IAutoMovieMotionHumanPerformerReader } from "./IAutoMovieMotionHumanPerformerReader";
 import type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
 import type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";
@@ -194,6 +195,13 @@ export interface IAutoMovieMotionHumanActionPlan {
    * this solved. `contacts` may be a getter over the same solution.
    */
   prepare?(): void;
+
+  /**
+   * Verify participant body contacts after the placed body display records
+   * exist and before preparing grip hand courses, hits or soft props. The
+   * supplied reader takes film seconds and reads this role's displayed bones.
+   */
+  verifyDisplayed?(bones: IAutoMovieMotionHumanPerformerReader["bones"]): void;
 
   /**
    * The native playback phases a law attached to this plan

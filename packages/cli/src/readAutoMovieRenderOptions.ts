@@ -7,14 +7,14 @@ import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
  * `AUTOMOVIE_RENDER_OPTIONS`, and the request's, which
  * `parseAutoMovieCapturePlanRequest` reads for the request's `subject`.
  *
- * | Option                              | Meaning                                                                                                                                              | Absent                             |
- * | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
- * | `--module <file>`                   | The subject module whose `subjects` the draw page offers                                                                                             | Required                           |
- * | `--props <file>`                    | A JSON file whose value the module's `subjects` is called with                                                                                       | `null`                             |
- * | `--out <folder>`                    | Where `film.mp4`, `render-report.json` and, with `--passes`, `controls/` go                                                                          | `media/automovie/<subject>/videos` |
- * | `--backend <software\|gpu>`         | How the browser draws                                                                                                                                | `software`                         |
- * | `--background <scene\|transparent>` | `transparent` renders a straight-alpha `film.mov` with no audio into `media/automovie/<subject>/transparent`                                         | `scene`                            |
- * | `--timeout-ms <milliseconds>`       | Per-call budget for draw-function readiness, subject description/creation and drawing, not a total build or render deadline; integer 1 to 2147483647 | `120000`                           |
+ * | Option                              | Meaning                                                                                                             | Absent                             |
+ * | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+ * | `--module <file>`                   | The subject module whose `subjects` the draw page offers                                                            | Required                           |
+ * | `--props <file>`                    | A JSON file whose value the module's `subjects` is called with                                                      | `null`                             |
+ * | `--out <folder>`                    | Where `film.mp4`, `render-report.json` and, with `--passes`, `controls/` go                                         | `media/automovie/<subject>/videos` |
+ * | `--backend <software\|gpu>`         | How the browser draws                                                                                               | `software`                         |
+ * | `--background <scene\|transparent>` | `transparent` renders a straight-alpha `film.mov` with no audio into `media/automovie/<subject>/transparent`        | `scene`                            |
+ * | `--timeout-ms <milliseconds>`       | Per-call budget for page navigation, draw-function readiness, subject creation and drawing. Integer 1 to 2147483647 | `120000`                           |
  *
  * Every other option is left for the request reader, which names the subject as
  * `capture` and the inspector do; a render draws the subject's whole clock

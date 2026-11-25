@@ -11,8 +11,8 @@ const BUTTON_TRAVEL: number = 0.001;
 const CONTROL_HEIGHT: number = 1.065;
 
 /**
- * A control's own travel, metres: the upper end of the call button's band.
- * The button stays where a press leaves it, so a control pressed twice by
+ * A control's own travel, metres: the upper end of the call button's band. The
+ * button stays where a press leaves it, so a control pressed twice by
  * `BUTTON_TRAVEL` needs room for both presses.
  */
 const CONTROL_TRAVEL: number = 0.003;
@@ -48,7 +48,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
     [
       person("ath", "m1", 0, -3, 0, [
         act("selfShoulderRoll", { count: 1 }),
-        act("run", { to: to(0, 0), pace: "jog", face: 0 }),
+        act("run", { to: to(0, 0.04), pace: "jog", face: 0 }),
         act("scramble", {
           on: { kind: "prop", subject: "table", point: "front" },
         }),

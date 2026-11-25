@@ -12,7 +12,7 @@ On the long route, repeat discovery at each applicable checkpoint. Inspect the m
 | --- | --- |
 | After settings | What the canon needs that direction did not foresee |
 | Before composition, when commissioned | What no source folder, research or contract covers yet |
-| After the commissioned output is reviewed | What the reviewed output and its review or handoff record show the work needed and lacked |
+| After output review | What the output or handoff shows the work still needs |
 
 Before composition, that is an element kind no source folder owns, a behavior, camera or staging choice no research supports, and a failure no contract asks about.
 

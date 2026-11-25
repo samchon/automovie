@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { AquaticPosture } from "./AquaticPosture";
 
 /**
@@ -57,6 +58,40 @@ export function AquaticEdge(
  * the water toward its `+Z` (`createPoolEdge`).
  */
 export namespace AquaticEdge {
+  /** Bind the actual receiving deck when the stage declares its perimeter. */
+  export function deck(
+    context: AquaticPosture.Context,
+    edge: IEdge,
+  ): HumanMaterialContact.ISite | undefined {
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(edge.id);
+    return (
+      HumanMaterialContact.prepare(prop, "deckFace", context.start) ??
+      HumanMaterialContact.prepare(prop, "deck", context.start)
+    );
+  }
+
+  /** Refuse an expected receiving footprint outside the named material. */
+  export function admit(
+    edge: IEdge,
+    face: HumanMaterialContact.IFace,
+    points: readonly IAutoMovieVector3[],
+    part: string,
+  ): void {
+    if (
+      points.some(
+        (point: IAutoMovieVector3): boolean =>
+          HumanMaterialContact.point(face, point) === undefined,
+      )
+    )
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "support",
+        value: edge.id,
+        reason: `the ${part} projects outside the receiving pool deck`,
+        fix: "use a wider or deeper deck at the named pool edge",
+      });
+  }
+
   /** A pool edge in the world. */
   export interface IEdge {
     /** The edge prop's subject id. */

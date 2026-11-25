@@ -65,14 +65,13 @@ namespace part_scramble {
   /**
    * `AutoMovieMotionHumanSupport.SCRAMBLE`, the stances of the `scramble` row
    * of `support`, climbs onto a ledge in stages: both feet and both palms, a
-   * knee up in place of a foot, the other foot up, then both feet alone on the
-   * ledge.
+   * knee up in place of a foot, the other foot up, hands free, then standing.
    *
    * Scenarios:
    *
    * 1. The row's family is `support`.
-   * 2. The four stances bear on those parts in that order, the last two feet on
-   *    the ledge's top.
+   * 2. The knee and foot bear while the hands release before the final rise.
+   * 3. The last second still ends in the standing stance on both feet.
    */
   export function verify(): void {
     TestValidator.predicate(
@@ -88,8 +87,21 @@ namespace part_scramble {
         ["leftFoot", "rightFoot", "leftHand", "rightHand"],
         ["leftFoot", "leftHand", "rightHand", "rightKnee"],
         ["leftHand", "rightHand", "rightKnee", "leftFoot"],
+        ["rightKnee", "leftFoot"],
         ["leftFoot", "rightFoot"],
       ],
+    );
+    const [release, standing] =
+      AutoMovieMotionHumanSupport.SCRAMBLE.stances.slice(-2);
+    TestValidator.equals("hands release before the rise", release!.free, [
+      "leftHand",
+      "rightHand",
+    ]);
+    TestValidator.predicate(
+      "the final second ends at the existing standing event",
+      release!.event === "handsFree" &&
+        standing!.event === "stance3" &&
+        release!.seconds! + standing!.seconds! === 1,
     );
     TestValidator.equals(
       "on the ledge",

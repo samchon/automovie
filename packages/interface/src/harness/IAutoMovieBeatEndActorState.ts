@@ -63,6 +63,9 @@ export interface IAutoMovieBeatEndActorState {
    */
   gaitPhase: number | null;
 
+  /** The preceding gait's cycle duration in seconds, when a phase was observed. */
+  gaitPeriod?: number;
+
   /**
    * World-space root velocity in m/s, a backward difference over the trailing
    * 1/24 s window clamped at clip start, or `null` without motion or baked

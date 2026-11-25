@@ -23,12 +23,13 @@ Use supported, commissioned 2D images, external meshes or crafted forms. Recover
 
 ### Commissions
 
-The scaffold owns direct LLM authoring of the screenplay. A short runs brief → screenplay; long work, a series or a very long film, runs settings → treatments → scripts → screenplay.
+The scaffold owns the [screenplay routes](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/routes.md). Its narrative passes run brief → screenplay for a short and settings → treatments → scripts → screenplay for long work.
 
 | Commission | Ends at |
 | --- | --- |
 | Screenplay only | The text |
-| Film-generation hint | The main scenes' staging and motion programmed and the whole video assembled |
+| Film-generation hint | The whole video assembled from the required scenes' programmed staging and motion |
+| Standalone asset | The asset verified in its commissioned use |
 | Finished video | The finished video, by direct 3D rendering or a chosen diffusion workflow |
 
 Supporting stills or isolated clips do not complete a film-generation hint.
@@ -51,7 +52,7 @@ Each decided exclusion is recorded in the JSDoc of the closest type with its reo
 
 ### Likeness and appearance
 
-Numerically authored face, body, brow, surface hair and skin regions are in scope. Automatic likeness from photographs, strand physics, clothing beyond basic underwear and photographed skin texture are excluded.
+Procedural Human covers numerically authored face, body, brow, surface hair, skin regions and basic underwear. Its exclusions include automatic likeness from photographs, strand physics, other wardrobe and photographed skin texture. A production can commission detail through supported external or crafted assets.
 
 ### Ornate decoration
 

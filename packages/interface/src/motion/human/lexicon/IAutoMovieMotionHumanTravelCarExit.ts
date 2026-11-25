@@ -24,6 +24,14 @@ export namespace IAutoMovieMotionHumanTravelCarExit {
     /** The placed, clear opening of the already-open rear door. */
     through: IAutoMovieMotionObstacleAperture;
 
+    /** The finite bearing face of the selected doorway's sill, when staged. */
+    sill?: {
+      /** The car's staged subject. */
+      subject: string;
+      /** Its sill affordance ID. */
+      point: string;
+    };
+
     /** Exterior ground elevation, world metres. */
     floor: number;
 

@@ -1,16 +1,11 @@
 # Human research
 
-These notes hold the anatomy, literature and mathematics that `packages/human` builds on, and the rules its construction follows.
+Use these notes to interpret Human measurements and generated geometry.
 
-## Reading map
+- [Skeleton and landmarks](anatomy/skeleton.md) and [joint range](anatomy/joint-range.md) describe the rig.
+- [Lofting](techniques/section-chain-lofting.md) and [surface composition](techniques/surface-composition.md) describe the mesh.
+- [Measurement sources](sources/README.md) give the populations, protocols and limits behind the parameters.
+- [Facade control](stickman-control.md) explains the interface between Human geometry and motion.
+- [Determinism](techniques/determinism.md) describes reproducible construction.
 
-| Need | Notes |
-| --- | --- |
-| Findings of the construction, by part | [Generalization](generalization.md) |
-| Lofting and how parts combine | [Section-chain lofting](techniques/section-chain-lofting.md), [surface composition](techniques/surface-composition.md), [surface interrogation](techniques/surface-interrogation.md) |
-| Measurement definitions, populations and limits | [Sources](sources/README.md) |
-| Anatomical consistency rules the tests read | [Consistency](testing/consistency.md) |
-| Anatomical values | [Skeleton](anatomy/skeleton.md), [joint range](anatomy/joint-range.md), [hand](anatomy/hand.md), [foot](anatomy/foot.md), [ear](anatomy/ear.md), [hair](anatomy/hair.md), [skin](anatomy/skin.md) |
-| Appearance | [Skin material](techniques/skin-material.md), [procedural fields](techniques/procedural-skin-fields.md), [UV charts](techniques/uv-layout.md), [hair cards](techniques/hair-cards.md), [lashes and brows](techniques/eyelashes-and-brows.md) |
-| Motion control | [Facade control](stickman-control.md) |
-| Numerical reproducibility | [Determinism](techniques/determinism.md) |
+Start with the [Human package](../README.md) to prepare, pose or inspect a body.

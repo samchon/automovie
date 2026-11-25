@@ -300,9 +300,10 @@ function door(
   const v: typeof Vector3.create = Vector3.create;
   const x: number = sign * l.half;
   const part: string = `door-${PART[role]}`;
+  const panel: number = 0.04;
   builder.box(
     part,
-    v(0.04, l.belt - l.floor, hinge - end),
+    v(panel, l.belt - l.floor, hinge - end),
     v(x, (l.belt + l.floor) / 2, (hinge + end) / 2),
     { color: DOOR },
   );
@@ -361,6 +362,20 @@ function door(
     width: hinge - end,
     height: l.window - l.floor,
   });
+  if (role === "rearLeft" || role === "rearRight")
+    builder.affordance({
+      id: `${role}Sill`,
+      kind: "surface",
+      materialPart: "floor",
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x - (sign * panel) / 2, l.floor, (hinge + end) / 2),
+        v(0, 1, 0),
+        v(0, 0, sign),
+      ),
+      extent: null,
+      width: hinge - end,
+      depth: panel,
+    });
 
   // The window between the door's edges, sliding down into the door.
   const forward: number = hinge - 0.03;

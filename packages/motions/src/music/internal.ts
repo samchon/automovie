@@ -7,3 +7,4 @@ export * from "./conduct";
 export * from "./conductArc";
 export * from "./conductFigure";
 export * from "./conductTip";
+export * from "./bowViolin";

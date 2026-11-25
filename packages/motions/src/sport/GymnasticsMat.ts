@@ -11,6 +11,7 @@ import type {
 import { lieDown } from "../floor/lieDown";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
@@ -51,7 +52,10 @@ export namespace GymnasticsMat {
    *   retaining either.
    */
   export function lie(
-    props: IAutoMovieMotionHumanGymnasticsMat.ILieProps,
+    props: IAutoMovieMotionHumanGymnasticsMat.ILieProps & {
+      /** Root height that keeps the displayed silhouette on a finite face. */
+      support?(posture: IAutoMovieMotionHumanPosture, seconds: number): number;
+    },
   ): (
     seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -78,11 +82,7 @@ export namespace GymnasticsMat {
       prepareHumanShapeBlend(from.joints, lain.joints);
     const settledProgress: number = minimumJerk.share(1);
     const settledCarry: number = carriedRate(SETTLE, SETTLE);
-    return (
-      seconds: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
+    const pose = (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const resting: boolean = t === SETTLE;
       const u: number = resting
@@ -91,15 +91,23 @@ export namespace GymnasticsMat {
       const joints: IAutoMovieMotionHumanPosture["joints"] = blend(
         resting ? 1 : u,
       );
-      const posed: IAutoMovieMotionHumanPosture = {
+      return {
         ...from,
         pitch: from.pitch + (tip - from.pitch) * u,
         joints,
         root: { x: 0, y: 0, z: 0 },
       };
+    };
+    const read = (
+      t: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      const posed: IAutoMovieMotionHumanPosture = pose(t);
 
       // The centre's floor place, carried out from the touchdown.
-      const carry: number = resting ? settledCarry : carriedRate(SETTLE, t);
+      const carry: number =
+        t === SETTLE ? settledCarry : carriedRate(SETTLE, t);
       const frame: IPreparedGymnasticsFrame = prepareFrame(
         posed,
         {
@@ -112,8 +120,32 @@ export namespace GymnasticsMat {
       );
 
       // The frame owns this fresh raw root; transfer it after final floor placement.
-      frame.posture.root.y = props.height + frame.floor();
+      frame.posture.root.y =
+        props.support === undefined
+          ? props.height + frame.floor()
+          : props.support(frame.posture, t);
       return frame.posture;
+    };
+    if (props.support === undefined) {
+      const held: IAutoMovieMotionHumanPosture = read(SETTLE);
+      return (seconds, resolution, projection) =>
+        seconds >= SETTLE
+          ? structuredClone(held)
+          : read(Math.max(0, seconds), resolution, projection);
+    }
+    const placement: (seconds: number) => number[] = prepareHumanSampledCourse({
+      from: 0,
+      to: SETTLE,
+      sample: (seconds: number): readonly number[] => {
+        const { x, y, z }: IAutoMovieVector3 = read(seconds).root;
+        return [x, y, z];
+      },
+      tolerance: { kind: "absolute", absolute: 0.0005 },
+      step: 1 / 120,
+    });
+    return (seconds: number): IAutoMovieMotionHumanPosture => {
+      const [x, y, z]: number[] = placement(seconds);
+      return { ...pose(seconds), root: { x: x!, y: y!, z: z! } };
     };
   }
 }

@@ -15,10 +15,13 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { AquaticEdge } from "./AquaticEdge";
 import { AquaticPosture } from "./AquaticPosture";
 
@@ -138,7 +141,7 @@ export namespace AquaticLiftOut {
       AquaticEdge.at(edge, 0.12, 0, 0.11),
     ];
     const marks: readonly number[] = [0, FACE, LIFT, OVER, 1];
-    return {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration: DURATION,
       contacts: [],
       events: [
@@ -175,6 +178,18 @@ export namespace AquaticLiftOut {
         );
       },
     };
+    const deck: HumanMaterialContact.ISite | undefined = AquaticEdge.deck(
+      context,
+      edge,
+    );
+    if (deck !== undefined)
+      AquaticEdge.admit(
+        edge,
+        deck.at(context.start + DURATION),
+        [HumanTrunk.region(body, plan.posture(DURATION), "sternum").point],
+        "victim's chest",
+      );
+    return plan;
   }
 
   /**
@@ -187,6 +202,20 @@ export namespace AquaticLiftOut {
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, start } = context;
     const edge: AquaticEdge.IEdge = deckOf(context, water);
+    const deck: HumanMaterialContact.ISite | undefined = AquaticEdge.deck(
+      context,
+      edge,
+    );
+    if (deck !== undefined) {
+      const at: HumanMaterialContact.IFace = deck.at(start);
+      for (const side of HumanHand.SIDES)
+        AquaticEdge.admit(
+          edge,
+          at,
+          HumanFoot.sole(body, side, entry.feet[side]),
+          `${side} sole`,
+        );
+    }
     const partner: string = partnerOf(context);
     const victim: IAutoMovieMotionHumanPerformerReader =
       context.performer(partner);
@@ -270,11 +299,9 @@ export namespace AquaticLiftOut {
 
     const grip = (
       side: AutoMovieHumanSide,
-      seconds: number,
       posture: IAutoMovieMotionHumanPosture,
+      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     ): IAutoMovieHumanLimbGoal => {
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        victim.bones(start + seconds, hands);
       const wrist: IAutoMovieVector3 = bones.get(wrists[side])!.worldPosition;
       const elbow: IAutoMovieVector3 = bones.get(
         wrists[side] === "leftHand" ? "leftLowerArm" : "rightLowerArm",
@@ -320,7 +347,7 @@ export namespace AquaticLiftOut {
           kind: "plant",
           from: 0,
           to: 1,
-          support: { kind: "prop", subject: edge.id },
+          support: deck?.support ?? { kind: "prop", subject: edge.id },
         }),
       ),
       ...(["left", "right"] as const).map(
@@ -380,9 +407,12 @@ export namespace AquaticLiftOut {
             entry.feet[side],
             true,
           );
-        if (u <= (RELEASE + 1) / 2)
+        if (u <= (RELEASE + 1) / 2) {
+          const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+            victim.bones(start + seconds, hands);
           for (const side of ["left", "right"] as const)
-            limbs[`${side}Arm`] = grip(side, seconds, placed);
+            limbs[`${side}Arm`] = grip(side, placed, bones);
+        }
         return { ...placed, limbs };
       },
     };

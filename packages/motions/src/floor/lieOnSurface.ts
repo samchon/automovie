@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockPhase,
@@ -25,11 +27,12 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
+import { HumanFoot } from "../posture/HumanFoot";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
+import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
-import { knockdown } from "../reaction/knockdown";
 import { lieDownPoses } from "./lieDownPoses";
 import { lieOnSurfaceFits } from "./lieOnSurfaceFits";
 import { lieOnSurfaceSeat } from "./lieOnSurfaceSeat";
@@ -108,19 +111,26 @@ function planLieOnSurface(
       fix: "sit on the edge first",
     });
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
-  const model: IAutoMovieRigidTransform = reader.frame(context.start);
   const surface: IAutoMovieAffordance = lieOnSurfaceSite(
     reader,
     p.surface ?? "surface",
     "surface",
   );
   const edge: IAutoMovieAffordance = lieOnSurfaceSite(reader, p.edge, "seat");
-  const bed: IAutoMovieRigidTransform = HumanPropFrame.compose(
-    model,
-    frame(surface),
-  );
+  const material: HumanMaterialContact.ISite | undefined =
+    HumanMaterialContact.prepare(reader, surface.id, context.start);
+  if (material === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "surface",
+      value: surface.id,
+      reason: "the site does not declare a finite lying face",
+      fix: "use a dimensioned bed or bench surface",
+    });
+  const face: HumanMaterialContact.IFace = material.at(context.start);
+  const bed: IAutoMovieRigidTransform = face.frame;
   const seat: IAutoMovieRigidTransform = HumanPropFrame.compose(
-    model,
+    reader.frame(context.start),
     frame(edge),
   );
   lieOnSurfaceFits(body, surface, MARGIN);
@@ -258,8 +268,30 @@ function planLieOnSurface(
         ): ((weight: number) => IAutoMovieMotionHumanPosture["joints"]) =>
           prepareHumanShapeBlend(keys[i]!.pose.joints, k.pose.joints),
       );
-  const rest: ReturnType<typeof knockdown.prepareRest> =
-    knockdown.prepareRest(body);
+  const exterior: ReturnType<typeof HumanMaterialContact.preparePosture> =
+    HumanMaterialContact.preparePosture(body);
+  const torso: ReturnType<typeof HumanMaterialContact.preparePosture> =
+    HumanMaterialContact.preparePosture(
+      body,
+      new Set<AutoMovieHumanoidBone>(["hips", "spine", "chest"]),
+    );
+  const headContact: ReturnType<typeof HumanMaterialContact.preparePosture> =
+    HumanMaterialContact.preparePosture(
+      body,
+      new Set<AutoMovieHumanoidBone>(["head"]),
+    );
+  const vertical: number = Quaternion.rotateVectorY(
+    bed.rotation,
+    HumanMaterialContact.NORMAL,
+  );
+  if (vertical < 1 - 1e-12)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "surface",
+      value: surface.id,
+      reason: "the lying route requires a level receiving face",
+      fix: "place the lying surface level",
+    });
   const posed: (index: number, u: number) => IAutoMovieMotionHumanPosture = (
     index: number,
     u: number,
@@ -288,34 +320,66 @@ function planLieOnSurface(
       limbs: {},
     };
   };
-  // A key's root height: resting on the surface when lying, the entry's or the seat's otherwise.
-  const height: (
-    k: IKey,
+  // Set the body against actual material within the face. A limb hanging
+  // beyond its perimeter cannot raise the torso.
+  const height = (posture: IAutoMovieMotionHumanPosture): number => {
+    const held: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
+      torso(posture, face);
+    const low: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
+      exterior(posture, face);
+    if (held === undefined || low === undefined)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "surface",
+        value: surface.id,
+        reason: "the lying torso misses the finite surface",
+        fix: "move closer to the center of a wider bed",
+      });
+    return posture.root.y - low.clearance;
+  };
+  const positioned = (
     posture: IAutoMovieMotionHumanPosture,
-    read: ReturnType<typeof prepareHumanPoseResolution>,
-    project: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => number = (
-    k: IKey,
-    posture: IAutoMovieMotionHumanPosture,
-    read: ReturnType<typeof prepareHumanPoseResolution>,
-    project: ReturnType<typeof prepareHumanPostureProjection>,
-  ): number =>
-    k.lying
-      ? rest(posture, read, project) + bed.position.y
-      : k.hips.y - offset(posture).y;
-  const at: (
-    seconds: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IAutoMovieMotionHumanPosture = (
-    seconds: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMovieMotionHumanPosture => {
-    const read: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution(resolution);
-    const project: ReturnType<typeof prepareHumanPostureProjection> =
-      projection ?? prepareHumanPostureProjection(body);
+    hips: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanPosture => ({
+    ...posture,
+    root: Vector3.subtract(hips, offset(posture)),
+  });
+  const atKey = (index: number, u: number): number => {
+    const key: IKey = keys[index + u]!;
+    const posture: IAutoMovieMotionHumanPosture = positioned(
+      posed(index, u),
+      key.hips,
+    );
+    return key.lying && !(rise && index === 0 && u === 0)
+      ? height(posture)
+      : posture.root.y;
+  };
+  const heights: readonly [number, number][] = progress.map(
+    (_, index: number): [number, number] => [atKey(index, 0), atKey(index, 1)],
+  );
+  const placed = (index: number, u: number): IAutoMovieMotionHumanPosture =>
+    positioned(
+      posed(index, u),
+      Vector3.lerp(keys[index]!.hips, keys[index + 1]!.hips, u),
+    );
+  const risingHeight: readonly (((share: number) => number[]) | undefined)[] =
+    progress.map(
+      (_, index: number): ((share: number) => number[]) | undefined =>
+        keys[index]!.lying && keys[index + 1]!.lying
+          ? prepareHumanSampledCourse({
+              from: 0,
+              to: 1,
+              sample: (u: number): readonly number[] => [
+                rise && index === 0 && u === 0
+                  ? heights[index]![0]
+                  : height(placed(index, u)),
+              ],
+              tolerance: { kind: "absolute", absolute: 0.0005 },
+              step: 1 / 120,
+            })
+          : undefined,
+    );
+  const staged = (seconds: number): IAutoMovieMotionHumanPosture => {
     let index: number = 0;
     let u: number = progress[0]!.progress(seconds);
     for (let i: number = 1; i < progress.length; ++i)
@@ -323,22 +387,10 @@ function planLieOnSurface(
         index = i;
         u = progress[i]!.progress(seconds);
       }
-    const a: IKey = keys[index]!;
-    const b: IKey = keys[index + 1]!;
-    const posture: IAutoMovieMotionHumanPosture = posed(index, u);
-    const hips: IAutoMovieVector3 = Vector3.lerp(a.hips, b.hips, u);
-    const shift: IAutoMovieVector3 = offset(posture);
-    const y: number =
-      a.lying && b.lying
-        ? rest(posture, read, project) + bed.position.y
-        : height(a, posed(index, 0), read, project) +
-          (height(b, posed(index, 1), read, project) -
-            height(a, posed(index, 0), read, project)) *
-            u;
-    return {
-      ...posture,
-      root: { x: hips.x - shift.x, y, z: hips.z - shift.z },
-    };
+    const posture: IAutoMovieMotionHumanPosture = placed(index, u);
+    const [a, b]: readonly [number, number] = heights[index]!;
+    posture.root.y = risingHeight[index]?.(u)[0] ?? a + (b - a) * u;
+    return posture;
   };
   const duration: number = clock.duration;
   const lying: IAutoMovieMotionHumanPrimitive = {
@@ -357,20 +409,76 @@ function planLieOnSurface(
     write: (
       _: IAutoMovieMotionHumanPosture,
       seconds: number,
-      _before?: IAutoMovieMotionHumanPrimitive.Reader,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => at(seconds, resolution, projection),
+    ): IAutoMovieMotionHumanPosture =>
+      carryHumanPosture(
+        staged(seconds),
+        bed,
+        material.at(context.start + seconds).frame,
+      ),
   };
   const turned: number = clock.at(phases[1]!.name) / duration;
   const support: IAutoMovieMotionHumanContactWindow.Support = {
     kind: "prop",
     subject: p.prop,
+    point: p.edge,
   };
-  // The contact parts have no side or chest; the trunk's window is the back's in every lying position.
+  const lateralRegion: AutoMovieHumanoidRegion =
+    side === "left" ? "ribsLeft" : "ribsRight";
+  const holdAt: number = clock.at(keys.at(-1)!.event) / duration;
+  const materialContacts = (
+    from: number,
+    to: number,
+    region: AutoMovieHumanoidRegion,
+    exact: boolean,
+  ): IAutoMovieMotionHumanContactWindow[] => {
+    const value: IAutoMovieMotionHumanPosture = staged(from * duration);
+    const hull: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
+      torso(value, face);
+    const cap: IAutoMovieMotionHumanContactWindow.IMaterial | undefined = exact
+      ? headContact(value, face)
+      : undefined;
+    const near = (
+      bearing: IAutoMovieMotionHumanContactWindow.IMaterial | undefined,
+    ): bearing is IAutoMovieMotionHumanContactWindow.IMaterial =>
+      bearing !== undefined && Math.abs(bearing.clearance) <= HumanFoot.BEARING;
+    return [
+      ...(near(hull)
+        ? [
+            {
+              part:
+                region === "upperBack" ? ("back" as const) : ("chest" as const),
+              kind: "lie" as const,
+              region,
+              from,
+              to,
+              support: material.support,
+              ...(exact ? { material: hull } : {}),
+            },
+          ]
+        : []),
+      ...(near(cap)
+        ? [
+            {
+              part: "head" as const,
+              kind: "bear" as const,
+              region: "headBack" as const,
+              from,
+              to,
+              support: material.support,
+              material: cap,
+            },
+          ]
+        : []),
+    ];
+  };
   const contacts: IAutoMovieMotionHumanContactWindow[] = rise
     ? [
-        { part: "back", kind: "lie", from: 0, to: turned, support },
+        ...materialContacts(
+          0,
+          turned,
+          position === "supine" ? "upperBack" : lateralRegion,
+          false,
+        ),
         { part: "seat", kind: "seat", from: turned, to: 1, support },
         ...(perched.planted ? (["leftFoot", "rightFoot"] as const) : []).map(
           (
@@ -386,7 +494,15 @@ function planLieOnSurface(
       ]
     : [
         { part: "seat", kind: "seat", from: 0, to: turned, support },
-        { part: "back", kind: "lie", from: turned, to: 1, support },
+        ...(holdAt > turned
+          ? materialContacts(turned, holdAt, lateralRegion, false)
+          : []),
+        ...materialContacts(
+          holdAt,
+          1,
+          position === "supine" ? "upperBack" : lateralRegion,
+          true,
+        ),
       ];
   const planned: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({

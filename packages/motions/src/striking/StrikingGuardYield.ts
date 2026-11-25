@@ -77,7 +77,7 @@ export namespace StrikingGuardYield {
       facing.subject,
     );
     const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      other.bones(seen);
+      other.bones(seen, STANCE_BONES);
     const hips: IAutoMovieResolvedBone = shown.get("hips")!;
     const facingOf: IAutoMovieVector3 = Quaternion.rotateVector(
       hips.worldRotation,
@@ -97,12 +97,14 @@ export namespace StrikingGuardYield {
     const axis: IAutoMovieVector3 = Vector3.scale(toward, 1 / apart);
 
     // The other's guard held, facing this fighter's own faced region.
+    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"][keyof IAutoMovieMotionHumanBody["surfaces"]["regions"]] =
+      body.surfaces.regions[facing.region];
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set([region.bone]),
     );
-    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"][keyof IAutoMovieMotionHumanBody["surfaces"]["regions"]] =
-      body.surfaces.regions[facing.region];
     const face: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
       region,
       mine.get(region.bone)!,
@@ -143,29 +145,25 @@ export namespace StrikingGuardYield {
       body,
       resolveHumanPosture(body, own),
     );
+    const ownDistance = HumanColliders.reading(body, ours).segment;
+    const otherDistance = HumanColliders.reading(other.body, theirs).segment;
 
-    // The least distance of a joint of either guard to the other's
-    // colliders, with this fighter's guard stepped back by `step`.
+    // Translate each query point instead of placing either body's colliders
+    // again. The two poses remain fixed throughout the separation search.
     const gap: (step: number) => number = (step: number): number => {
+      const move: IAutoMovieVector3 = Vector3.scale(axis, step);
       let least: number = Infinity;
-      for (const [, bone] of ours)
-        least = Math.min(
-          least,
-          HumanColliders.distance(
-            other.body,
-            theirs,
-            Vector3.subtract(bone.worldPosition, Vector3.scale(axis, step)),
-          ).distance,
+      for (const bone of ours.values()) {
+        const point: IAutoMovieVector3 = Vector3.subtract(
+          bone.worldPosition,
+          move,
         );
-      for (const [, bone] of theirs)
-        least = Math.min(
-          least,
-          HumanColliders.distance(
-            body,
-            ours,
-            Vector3.add(bone.worldPosition, Vector3.scale(axis, step)),
-          ).distance,
-        );
+        least = Math.min(least, otherDistance(point, point).distance);
+      }
+      for (const bone of theirs.values()) {
+        const point: IAutoMovieVector3 = Vector3.add(bone.worldPosition, move);
+        least = Math.min(least, ownDistance(point, point).distance);
+      }
       return least;
     };
     return separate(axis, apart, gap);
@@ -305,3 +303,10 @@ export namespace StrikingGuardYield {
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
   }
 }
+
+/** The peer frames used to infer the stance center, heading and lead. */
+const STANCE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "hips",
+  "leftFoot",
+  "rightFoot",
+]);

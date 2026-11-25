@@ -1,6 +1,23 @@
 # Composing a performance
 
-Compose each beat as a kinematic performance from the actions, parameters and operators of `@automovie/motions`, reading their JSDoc.
+Compose the behavior the beat calls for. Use the installed JSDoc to match supported motion to the performance.
+
+## Choosing movement
+
+Read the person's intent, skill, circumstances and practiced style from the beat and subject record. Use the [performance study](../../story/planning/research.md#performance-study) to identify visible cues, posture, timing, weight transfers and reactions.
+
+Choose the smallest implementation that performs those details.
+
+1. Use a shipped action or row when its mechanics and defaults fit the beat.
+2. Set supported parameters or compose actions when the changes are already expressible.
+3. Register a row to reuse a fitted set of parameters with a name.
+4. Register a [law](../laws/SKILL.md) for the interval or channels that need new mechanics.
+
+For example, a startled retreat needs the abrupt reactions and steps observed for that person. A kickboxing backstep carries its own stance and rhythm. A wuxia scene's style comes from the studied performance, including how its cast moves before and after contact. Use a shipped action only where its displayed movement fits that style.
+
+Keep fitted phases around a custom interval. Join them at admitted events or cuts. Use an overlay when the carrier yields all required channels and keeps its root motion and held contacts.
+
+Create a row with `HumanActionRow(name, law, fixed)`. Pass rows and custom laws in the `laws` input to `HumanPerformance`. Use `HumanChain.extend` for typed calls under their own names.
 
 ## Actions
 
@@ -8,7 +25,7 @@ Compose each beat as a kinematic performance from the actions, parameters and op
 
 <!-- @source [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
 
-For each [beat element](../staging.md#reading-the-scene) a person performs, settle these axes from the beat record and its [performance study](../../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
+For each [beat element](../staging.md#reading-the-scene), settle these axes from the beat and study in order.
 
 | Axis | Settle |
 | --- | --- |
@@ -30,34 +47,32 @@ Use layers for ongoing breathing and listener gaze unless the beat changes them.
 
 Match travel to the visible steps. Carry speed through an intermediate mark on a continuing run. Give a stop or turn the support and weight transfer it needs.
 
-### Prepared motion
-
-The vocabulary prepares each action once and then reads its pose as a pure function of time, so any time read in any order gives the same pose. Preparation keeps only the knots the motion needs: every contact change, impact and touchdown is a branch knot, and further knots are added only until the path meets the action's bound. Minimum-jerk segments timed to the body's limits join the knots, each of which may carry its own acceleration and dwell. Physics runs only for the short response at a branch point. Settle every contact, hit and touchdown the beat needs in the axes above, because each one is a branch the vocabulary plans.
-
 ### Forces and outcomes
 
 Pass the scripted outcome and any external force to the action that owns the response. Handle infeasible outcomes under [refusals](refusals.md).
 
 ## Operators
 
-The vocabulary joins actions with a few operators:
+Use the operator for the relationship the beat shows.
 
 | Operator | The beat shows |
 | --- | --- |
-| A sequence | One action, then the next |
-| A cut on the action | An action that ends early |
-| An overlay | One person doing two things at once |
-| A layer | Something running under everything a person does |
-| Parallel compositions | Several people each doing their own thing at once |
-| A mutual join | Two or more people performing one action together |
-| A target on an object's [affordance](../../development/entities.md#objects) | An action on an object |
-| A sync between the named instants | An action timed to something else |
+| Chain or `next` | One action, then the next |
+| `until` | End the current action at a legal interruption |
+| `over` | Perform a second action on channels the carrier yields |
+| Performance layer | Add breathing, gaze or another admitted layer |
+| `with` | Play independent chains in parallel |
+| `mutual` | Plan the participants' roles in one interaction |
+| [Affordance](../../development/entities.md#objects) | Act at a named object site |
+| `sync` | Align named action events or cues |
 
-A cut ends its action at a time or proximity within a declared window. An overlay uses parts yielded by the action that moves the body. A layer is additive.
+A cut uses an admitted share, event or proximity. Cut or add overlays before syncing. Use the played segment to inspect a cut because the schedule's entry end can retain the action's full duration.
 
-A mutual join plans roles from a shared meeting. A sync aligns named instants, including events from dialogue or music cues.
+## Continuous joins
 
-Use an admitted interruption when the beat overlaps actions. For example, initiate a handover as the carrier stops, transfer the prop during the two-handed grip window, and keep it held into the receiver's next action. Carry through the resolved entry state under [declared cuts](../laws/transitions.md#declared-cuts).
+Carry the displayed pose, speed, active support and held objects through each join. Bind contact to the material frame that moves it, such as the actual rung or backrest. Keep a grasp until the authored release or transfer. Use the resolved boundary state under [declared cuts](../laws/transitions.md#declared-cuts).
+
+Verify contact onset, bearing, release and ownership at the event and on both sides. Check the supported surface, clearance and any preserved gait phase. Keep intended discontinuities such as impact. Inspect the composed passage at speed in its camera under [motion judgment](../judgment.md).
 
 ## Crowds and variation
 
@@ -67,7 +82,7 @@ Use the vocabulary's group capability. The screenplay gives the group action and
 
 ### Seed
 
-Derive variation from the film's [seed](../../development/modules.md#how-the-parts-work-together), person and action. Use a different seed or parameter for another take under [one module](../../development/modules.md#one-module).
+Set proficiency and behavior through supported parameters. Use the film's [seed](../../development/modules.md#how-the-parts-work-together) for bounded variation across takes. Check that different takes preserve the beat's timing constraints, contacts and outcome.
 
 ## Handoff
 

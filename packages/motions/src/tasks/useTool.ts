@@ -395,7 +395,6 @@ export namespace useTool {
     const target: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-      prepared?: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
     ) => IAutoMovieMotionHumanArmTarget.ITarget = useToolTarget({
       cycle,
       ready,
@@ -480,7 +479,11 @@ export namespace useTool {
       },
     };
 
-    if (context.carrier === undefined)
+    if (context.carrier === undefined) {
+      // The placed face certificate covers the round, fixed-angle stir.
+      // A hammer changes its working angle at impact, a driver needs its
+      // axial roll and a saw puts its teeth along a line. Those tools keep
+      // their orientation-dependent re-aim and share the fixed bend setup.
       prepareToolPlayback({
         plan,
         body,
@@ -494,9 +497,8 @@ export namespace useTool {
         target,
         compose,
         finish,
-        ...(kind !== "stir"
-          ? {}
-          : {
+        ...(kind === "stir"
+          ? {
               work: {
                 contact,
                 speed: (2 * Math.PI * work.radius) / strokePeriod,
@@ -511,8 +513,10 @@ export namespace useTool {
                   );
                 },
               },
-            }),
+            }
+          : {}),
       });
+    }
     return plan;
   }
 }

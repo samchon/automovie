@@ -4,10 +4,19 @@ import { readFile, writeFile } from "node:fs/promises";
 
 import { openMotionTake } from "../../src/executable/motionTake/openMotionTake";
 import { draw } from "./draw";
-import { assertObserved, cues, observe, sampleTimes } from "./observe";
+import {
+  assertObserved,
+  cues,
+  observe,
+  playbackOrder,
+  sampleTimes,
+} from "./observe";
 import { createMotionTakeSource, fixture } from "./source";
 
-/** Create an uninterrupted reference, then save while the ball is still in flight. */
+/**
+ * Create an uninterrupted reference, then save while the ball is still in
+ * flight.
+ */
 async function save(): Promise<void> {
   const recipe: ReturnType<typeof createMotionTakeSource> =
     createMotionTakeSource();
@@ -49,12 +58,31 @@ async function save(): Promise<void> {
   );
   const events: ReturnType<typeof cues> = cues(uninterrupted);
   const images: string[] = await draw(null);
-  await openMotionTake({
+  const { take, replay } = await openMotionTake({
     root: process.cwd(),
     source: fixture.source,
     artifact: fixture.artifact,
     create: { mode: "save", outputSeconds: fixture.seconds, side: "after" },
   });
+  assert.deepEqual(
+    take.provenance.seeds.find(({ id }) => id === "door"),
+    {
+      id: "door",
+      value: String(fixture.doorSeed),
+    },
+  );
+  assert.deepEqual(
+    take.provenance.providers.find(({ id }) => id === "door-articulation"),
+    { id: "door-articulation", version: "1" },
+  );
+  for (const index of playbackOrder) {
+    const seconds: number = sampleTimes[index]!;
+    assertObserved(
+      observe(replay.performanceAt(seconds), seconds),
+      reference[index],
+      `saved at ${seconds}`,
+    );
+  }
   await writeFile(
     fixture.reference,
     JSON.stringify({

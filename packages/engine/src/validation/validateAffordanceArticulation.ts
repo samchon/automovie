@@ -46,6 +46,16 @@ export const validateAffordanceArticulation: (
 
   affordances.forEach((affordance: IAutoMovieAffordance, i: number): void => {
     const ap: string = `${path}[${i}]`;
+    if (
+      affordance.materialPart !== undefined &&
+      !parts.has(affordance.materialPart)
+    )
+      collector.push(
+        "type",
+        `${ap}.materialPart`,
+        `part id "${affordance.materialPart}" does not resolve to any of the model's parts`,
+        affordance.materialPart,
+      );
 
     // Parts move only with a kind that travels, exist in the model and ride one articulation.
     if (affordance.parts !== undefined) {

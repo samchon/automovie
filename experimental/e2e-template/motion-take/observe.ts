@@ -16,10 +16,16 @@ import assert from "node:assert/strict";
 
 import { fixture } from "./source";
 
-/** Source seconds before, at and after the saved cut, then through custody and suffix. */
+/**
+ * Source seconds before, at and after the saved cut, then through custody and
+ * suffix.
+ */
 export const sampleTimes: readonly number[] = [
   0.499, 0.5, 0.501, 0.85, 1, 1.999, 2, 2.5, 2.75,
 ];
+
+/** Scrub the same observations out of order and revisit a saved boundary. */
+export const playbackOrder: readonly number[] = [3, 1, 0, 8, 2, 7, 4, 6, 5, 1];
 
 /** Sampled pose, prop placement and the two independent contact frames. */
 interface IObservation {
@@ -50,7 +56,10 @@ function canonicalPose(pose: IAutoMoviePose): IAutoMoviePose {
   return { ...pose, joints };
 }
 
-/** Observe the actual Human owner at the supplied clock without accessing its caches. */
+/**
+ * Observe the actual Human owner at the supplied clock without accessing its
+ * caches.
+ */
 export function observe(
   performance: HumanPerformance,
   seconds: number,
@@ -156,7 +165,10 @@ export function cues(performance: HumanPerformance): IAutoMovieScheduleCue[] {
   return events;
 }
 
-/** Check deterministic replay records with exact discrete facts and bounded numerical error. */
+/**
+ * Check deterministic replay records with exact discrete facts and bounded
+ * numerical error.
+ */
 export function assertObserved(
   actual: unknown,
   expected: unknown,

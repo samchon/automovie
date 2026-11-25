@@ -204,14 +204,16 @@ export namespace AutoMovieArchetypeArticulation {
     archetype: string,
     rest: IPosed,
   ): (state: ReadonlyMap<string, number>) => IProjection {
-    const byId: Map<string, IAutoMovieAffordance> = new Map(
-      rest.affordances.map(
-        (a: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [a.id, a],
-      ),
-    );
-    const articulations: string[] = rest.affordances
-      .filter((a: IAutoMovieAffordance): boolean => KINDS.has(a.kind))
-      .map((a: IAutoMovieAffordance): string => a.id);
+    const byId: Map<string, IAutoMovieAffordance> = new Map();
+    const articulations: string[] = [];
+    const partOwners: Map<string, IAutoMovieAffordance> = new Map();
+    for (const contact of rest.affordances) {
+      byId.set(contact.id, contact);
+      if (KINDS.has(contact.kind)) {
+        articulations.push(contact.id);
+        for (const part of contact.parts ?? []) partOwners.set(part, contact);
+      }
+    }
     return (state: ReadonlyMap<string, number>): IProjection => {
       const outside = (
         affordance: IAutoMovieAffordance,
@@ -323,6 +325,13 @@ export namespace AutoMovieArchetypeArticulation {
       const carried = (
         a: IAutoMovieAffordance,
       ): AutoMovieArchetypeFrame.IMotion => {
+        // A non-driving site follows the same motion as the part carrying it.
+        if (a.materialPart !== undefined && !KINDS.has(a.kind)) {
+          const owner: IAutoMovieAffordance | undefined = partOwners.get(
+            a.materialPart,
+          );
+          if (owner !== undefined) return total(owner);
+        }
         const carrier: IAutoMovieAffordance | undefined =
           a.rides === undefined ? undefined : byId.get(a.rides);
         if (carrier === undefined) return AutoMovieArchetypeFrame.STILL;

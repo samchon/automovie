@@ -19,7 +19,7 @@ import type {
 import { HumanSignature } from "../audit/HumanSignature";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
-import { HumanColliders } from "../posture/HumanColliders";
+import { HumanColliderPlacement } from "../posture/HumanColliderPlacement";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -50,14 +50,16 @@ const CONTACT: number = 0.02;
  *   a flight.
  * @param subjects The fixtures: the barrier, or the departure and landing
  *   decks.
+ * @param options A tighter check on selected body segments and time knots.
  * @throws {HumanRefusal} For a fixture without stationary shapes, or with the
  *   deepest entry beyond its allowance, naming the bone, fixture, depth and
  *   time.
  */
 export function crossingClearance(
-  context: IAutoMovieMotionHumanActionContext,
+  context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
   plan: IAutoMovieMotionHumanActionPlan,
   subjects: readonly string[],
+  options: crossingClearance.IOptions = {},
 ): void {
   const fixtures: IFixture[] = [...new Set(subjects)].map(
     (subject: string): IFixture => {
@@ -91,11 +93,21 @@ export function crossingClearance(
   const body: IAutoMovieMotionHumanBody = context.body;
   const project: ReturnType<typeof prepareHumanPostureProjection> =
     prepareHumanPostureProjection(body);
+  const names: ReadonlySet<AutoMovieHumanoidBone> =
+    options.bones ?? body.colliders.bones;
+  const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    names,
+  );
+  const placed: ReturnType<typeof HumanColliderPlacement.preparePlaced> =
+    HumanColliderPlacement.preparePlaced(body, names);
   let collision: ICollision | undefined;
-  for (const seconds of [
-    ...HumanSignature.times(0, plan.duration),
+  const times: Set<number> = new Set([
+    ...HumanSignature.times(0, plan.duration, options.rate),
+    ...(options.marks ?? []),
     plan.duration,
-  ]) {
+  ]);
+  for (const seconds of times) {
     const share: number = seconds / plan.duration;
     const posture: IAutoMovieMotionHumanPosture = plan.posture(seconds);
     const result: IAutoMoviePose = resolveHumanPosture.seeded(
@@ -112,7 +124,7 @@ export function crossingClearance(
       prepareHumanPostureProjection.project(body, result, project),
       posture.limbs,
     ).pose;
-    for (const segment of HumanColliders.placed(body, poseBones(body, posed))) {
+    for (const segment of placed(readBones(posed))) {
       for (const shape of segment.shapes) {
         const bounds: IAutoMoviePhysicalShapeBounds.IResult =
           physicalShapeBounds(segment.pose, shape);
@@ -124,7 +136,7 @@ export function crossingClearance(
             share,
           )
             ? CONTACT
-            : ROOM;
+            : (options.allowance ?? ROOM);
           for (const barrier of fixture.shapes) {
             if (!overlap(bounds, barrier.bounds)) continue;
             const gap: number = physicalShapePairDistance(
@@ -163,6 +175,31 @@ export function crossingClearance(
         " s",
       fix: "change the approach, crossing clearance or staging of the supports",
     });
+}
+
+/** Options for the shared finite-solid crossing check. */
+export namespace crossingClearance {
+  /** Geometry and time bounds for a law that owns specialized clearance. */
+  export interface IOptions {
+    /** The body segments that can enter the obstacle. */
+    bones?: ReadonlySet<AutoMovieHumanoidBone>;
+    /** Exact shape-change and crossing knots in local seconds. */
+    marks?: readonly number[];
+    /** Sampling rate per second for interior clearance. */
+    rate?: number;
+    /** Permitted non-bearing penetration in metres. */
+    allowance?: number;
+  }
+
+  /** Posed exterior of both feet, toes and shanks. */
+  export const LOWER_LEGS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftLowerLeg",
+    "leftFoot",
+    "leftToes",
+    "rightLowerLeg",
+    "rightFoot",
+    "rightToes",
+  ]);
 }
 
 /** A fixture shape placed in the world with its bounds. */

@@ -121,34 +121,33 @@ export function installAutoMovieDraw<Props = unknown>(
     subject: null,
     props: null,
   };
-  const offered: Readonly<Record<string, IAutoMovieDrawSubject>> = subjects(
-    injected.props,
-  );
-
-  // The subject and the renderer, made once as the page installs the draw.
-  const loading: Promise<ILoaded> = (async (): Promise<ILoaded> => {
-    const name: string = selectAutoMovieDrawSubject(
-      Object.keys(offered),
-      injected.subject,
-    );
-    const scene: IAutoMovieDrawScene = await offered[name]!.create();
-    const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
-      antialias: false,
-      // A transparent draw needs a drawing buffer with alpha; an opaque
-      // draw clears to alpha 1 and stays opaque.
-      alpha: true,
-      preserveDrawingBuffer: false,
-    });
-    renderer.setPixelRatio(1);
-    return {
-      name,
-      scene,
-      renderer,
-      placement: new AutoMovieDrawPlacement(name, scene, renderer),
-      beauty: new AutoMovieDrawBeauty(renderer),
-    };
-  })();
-  const load: () => Promise<ILoaded> = (): Promise<ILoaded> => loading;
+  // Publish one preparation promise when the first call needs a scene.
+  let loading: Promise<ILoaded> | undefined;
+  const load = (): Promise<ILoaded> =>
+    (loading ??= Promise.resolve().then(async (): Promise<ILoaded> => {
+      const offered: Readonly<Record<string, IAutoMovieDrawSubject>> = subjects(
+        injected.props,
+      );
+      const name: string = selectAutoMovieDrawSubject(
+        Object.keys(offered),
+        injected.subject,
+      );
+      const scene: IAutoMovieDrawScene = await offered[name]!.create();
+      const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
+        antialias: false,
+        // The drawing buffer carries alpha for transparent output.
+        alpha: true,
+        preserveDrawingBuffer: false,
+      });
+      renderer.setPixelRatio(1);
+      return {
+        name,
+        scene,
+        renderer,
+        placement: new AutoMovieDrawPlacement(name, scene, renderer),
+        beauty: new AutoMovieDrawBeauty(renderer),
+      };
+    }));
 
   const draw: IAutoMovieDrawFunction = {
     describe: async (): Promise<IAutoMovieDrawDescription> => {
@@ -179,12 +178,16 @@ export function installAutoMovieDraw<Props = unknown>(
   target.addEventListener?.(
     "pagehide",
     (): void => {
-      void loading.then((loaded: ILoaded): void => {
-        loaded.placement.restore();
-        loaded.scene.dispose();
-        loaded.beauty.dispose();
-        loaded.renderer.dispose();
-      });
+      void loading
+        ?.catch((): undefined => undefined)
+        .then((loaded: ILoaded | undefined): void => {
+          if (loaded === undefined) return;
+
+          loaded.placement.restore();
+          loaded.scene.dispose();
+          loaded.beauty.dispose();
+          loaded.renderer.dispose();
+        });
     },
     { once: true },
   );
@@ -245,8 +248,7 @@ async function drawCall(
     call.view,
   );
   const fitted: boolean =
-    view.type === "named" &&
-    scene.views?.[view.name] === undefined;
+    view.type === "named" && scene.views?.[view.name] === undefined;
   const bounds: IAutoMovieViewerSubjectBounds | null =
     fitted && view.type === "named" ? await placement.frame(call, view) : null;
   if (scene.camera.aspect !== call.width / call.height) {

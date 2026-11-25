@@ -1,4 +1,5 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
@@ -14,8 +15,8 @@ import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHuman
  * performance re-solves a planted or gripping limb onto its goal after every
  * transition offset, so the contact never slides (planted effectors are never
  * inertialized in world space). Every window names the frame it bears on: the
- * ground, a prop or another person. A moving support carries its contacts, as
- * a platform carries a character standing on it, so slip and penetration are
+ * ground, a prop or another person. A moving support carries its contacts, as a
+ * platform carries a character standing on it, so slip and penetration are
  * measured in that frame.
  */
 export interface IAutoMovieMotionHumanContactWindow {
@@ -75,9 +76,14 @@ export interface IAutoMovieMotionHumanContactWindow {
    * offset it had at closure.
    *
    * @param share The share of the window, in [0, 1].
+   * @param grip The displayed grip at that share, when available in the prop's
+   *   read.
    * @returns The object's displacement in the hand's frame.
    */
-  inHand?(share: number): {
+  inHand?(
+    share: number,
+    grip?: IAutoMovieRigidTransform,
+  ): {
     /** Prop displacement in the holding hand's frame, metres; zero at share 0. */
     position: IAutoMovieVector3;
     /**
@@ -97,6 +103,12 @@ export interface IAutoMovieMotionHumanContactWindow {
    * sole, a palm, the seat bones).
    */
   region?: AutoMovieHumanoidRegion;
+
+  /**
+   * Prepared geometric evidence for a dry bearing contact. A window that names
+   * only an authored site leaves this absent.
+   */
+  material?: IAutoMovieMotionHumanContactWindow.IMaterial;
 
   /**
    * The point of a planted foot that holds its place, when the law holds one
@@ -122,6 +134,20 @@ export interface IAutoMovieMotionHumanContactWindow {
 
 /** Companion types of {@link IAutoMovieMotionHumanContactWindow}. */
 export namespace IAutoMovieMotionHumanContactWindow {
+  /** The matched exterior and receiving point of a dry bearing contact. */
+  export interface IMaterial {
+    /** Bone carrying the exterior feature on the supported body. */
+    bone: AutoMovieHumanoidBone;
+    /** Receiving point in the window's support frame, metres. */
+    point: IAutoMovieVector3;
+    /** Boundary of a non-point bearing feature in the same support frame. */
+    patch?: readonly IAutoMovieVector3[];
+    /** Outward unit normal in that same frame. */
+    normal: IAutoMovieVector3;
+    /** Signed exterior clearance at fitting, metres. Negative is inside. */
+    clearance: number;
+  }
+
   /**
    * The held point of a planted foot: a named sole socket, or a point in the
    * foot's rest frame relative to its ankle joint, metres, as a leg goal's

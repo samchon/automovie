@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { bracketedCrossing, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -28,6 +28,8 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
+import { HumanFoot } from "../posture/HumanFoot";
+import { prepareSeatedMaterial } from "./prepareSeatedMaterial";
 import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareSitBalance } from "./prepareSitBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
@@ -217,8 +219,8 @@ export namespace sit {
       context.entry,
       context.entry.posture.yaw,
     );
-    const goal: IAutoMovieVector3 = seated.point(body, seat);
-    const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
+    let goal: IAutoMovieVector3 = seated.point(body, seat);
+    let final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(body),
       ...standUpright(body).joints,
@@ -291,23 +293,126 @@ export namespace sit {
         ? { ...limbs, leftLeg: { ...limbs.leftLeg!, planted: false } }
         : limbs;
     };
-    const lowered: ReturnType<typeof prepareSitLowering> = prepareSitLowering({
-      body,
-      yaw: yaw0,
-      turn,
-      descent,
-      contact,
-      across,
-      down: DOWN * descent,
-      flexed: FLEXED * descent,
-      peak,
-      start,
-      goal,
-      joints: relaxed,
-      final,
-      feet,
-      legs: legsAt,
-    });
+    const lower = (
+      target: IAutoMovieVector3,
+      finish: typeof final,
+    ): ReturnType<typeof prepareSitLowering> =>
+      prepareSitLowering({
+        body,
+        yaw: yaw0,
+        turn,
+        descent,
+        contact,
+        across,
+        down: DOWN * descent,
+        flexed: FLEXED * descent,
+        peak,
+        start,
+        goal: target,
+        joints: relaxed,
+        final: finish,
+        feet,
+        legs: legsAt,
+      });
+    let lowered: ReturnType<typeof prepareSitLowering> = lower(goal, final);
+    const named: prepareSeatedMaterial.ISeat | undefined =
+      prepareSeatedMaterial(context, seat);
+    let material: IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
+    let backMaterial: IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
+    if (named !== undefined) {
+      const fit = (
+        pose: typeof final,
+      ): ReturnType<typeof prepareSitLowering> => {
+        const nominal: IAutoMovieVector3 = seated.point(body, seat);
+        const trial = (
+          y: number,
+        ): {
+          course: ReturnType<typeof prepareSitLowering>;
+          bearing: IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
+        } => {
+          const course: ReturnType<typeof prepareSitLowering> = lower(
+            { ...nominal, y },
+            pose,
+          );
+          return { course, bearing: named.bearing(course(descent, 1)) };
+        };
+        const original: ReturnType<typeof trial> = trial(nominal.y);
+        if (original.bearing === undefined)
+          throw prepareSeatedMaterial.refusal("seat", seat.point);
+        const gap: number = original.bearing.clearance;
+        const tolerance: number = HumanFoot.BEARING / 4;
+        if (Math.abs(gap) <= tolerance) {
+          goal = nominal;
+          material = original.bearing;
+          return original.course;
+        }
+        const radius: number = body.measure.thighRadius;
+        const lo: number = gap > 0 ? nominal.y - radius : nominal.y;
+        const hi: number = gap > 0 ? nominal.y : nominal.y + radius;
+        const clearance = (y: number): number =>
+          trial(y).bearing?.clearance ?? 1;
+        const a: number = gap > 0 ? clearance(lo) : gap;
+        const b: number = gap > 0 ? gap : clearance(hi);
+        if (a > 0 || b <= 0)
+          throw prepareSeatedMaterial.refusal(
+            "seat",
+            seat.point,
+            `seat height correction is out of reach (${a.toFixed(3)} to ${b.toFixed(3)} m clearance)`,
+          );
+        const y: number = bracketedCrossing({
+          f: clearance,
+          low: lo,
+          high: hi,
+          known: { low: a, high: b },
+          past: (clearance: number): boolean => clearance > 0,
+          tolerance: 1e-5,
+        }).high;
+        const fitted: ReturnType<typeof trial> = trial(y);
+        if (
+          fitted.bearing === undefined ||
+          Math.abs(fitted.bearing.clearance) > tolerance
+        )
+          throw prepareSeatedMaterial.refusal("seat", seat.point);
+        goal = { ...nominal, y };
+        material = fitted.bearing;
+        return fitted.course;
+      };
+      lowered = fit(final);
+      if (back === "lean") {
+        if (named.back === undefined)
+          throw prepareSeatedMaterial.refusal("back", seat.backrest ?? "back");
+        const backrest: NonNullable<prepareSeatedMaterial.ISeat["back"]> =
+          named.back;
+        const gap = (lean: number): number =>
+          backrest.bearing(fit({ ...final, pitch: -lean })(descent, 1))
+            ?.clearance ?? 1;
+        const upright: number = gap(0);
+        const maximum: number = 25;
+        const reach: number = gap(maximum);
+        const lean: number =
+          Math.abs(upright) <= HumanFoot.BEARING / 4
+            ? 0
+            : upright > 0 && reach <= 0
+              ? bracketedCrossing({
+                  f: gap,
+                  low: 0,
+                  high: maximum,
+                  past: (clearance: number): boolean => clearance <= 0,
+                  known: { low: upright, high: reach },
+                  tolerance: 1e-4,
+                }).high
+              : maximum;
+        final = { ...final, pitch: -lean };
+        lowered = fit(final);
+        backMaterial = backrest.bearing(lowered(descent, 1));
+        if (
+          backMaterial === undefined ||
+          Math.abs(backMaterial.clearance) > HumanFoot.BEARING
+        )
+          throw prepareSeatedMaterial.refusal("back", seat.backrest ?? "back");
+      }
+      sitPlace.reach(body, seat, goal, feet, final.pitch);
+    }
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "leftFoot",
@@ -339,9 +444,21 @@ export namespace sit {
         kind: "seat",
         from: contact / duration,
         to: 1,
-        support: HumanSupportFrame(context),
+        support: named?.support ?? HumanSupportFrame(context),
+        ...(material === undefined ? {} : { material }),
       },
     ];
+    if (backMaterial !== undefined && named?.back !== undefined)
+      contacts.push({
+        part: "back",
+        kind: "bear",
+        region: "upperBack",
+        from: descent / duration,
+        to: 1,
+        support: named.back.support,
+        material: backMaterial,
+        load: 0,
+      });
 
     // Each hand that has an armrest bears on it from contact, with the seat.
     for (const side of ["left", "right"] as const)

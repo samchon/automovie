@@ -82,7 +82,9 @@ export namespace HumanSupportFrame {
    */
   export interface IAtContext extends IOfContext {
     /** A prop's frame over film seconds. */
-    prop(subject: string): Pick<IAutoMovieMotionHumanPropReader, "frame">;
+    prop(
+      subject: string,
+    ): Pick<IAutoMovieMotionHumanPropReader, "frame" | "site">;
 
     /** A performer's body and posed bones. */
     performer(
@@ -215,8 +217,14 @@ export namespace HumanSupportFrame {
         acceleration: { x: 0, y: 0, z: 0 },
       };
     const frame = (t: number): IAutoMovieRigidTransform => {
-      if (support.kind === "prop")
-        return context.prop(support.subject).frame(t);
+      if (support.kind === "prop") {
+        const reader: ReturnType<IAtContext["prop"]> = context.prop(
+          support.subject,
+        );
+        return support.point === undefined
+          ? reader.frame(t)
+          : (reader.site?.(support.point, t) ?? reader.frame(t));
+      }
       const other: ReturnType<HumanSupportFrame.IAtContext["performer"]> =
         context.performer(support.subject);
       const bone: AutoMovieHumanoidBone =

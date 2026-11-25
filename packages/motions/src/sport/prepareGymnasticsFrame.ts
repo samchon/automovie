@@ -16,6 +16,23 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 
+/** The time-varying query for this plan's canonical gauge. */
+type Query = [
+  raw: IAutoMovieMotionHumanPosture,
+  centre: IAutoMovieVector3,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+];
+
+/** The demand in world metres and the optional floor geometry it was read on. */
+interface IPlacement {
+  /** The raw articulation translated to the requested COM. */
+  posture: IAutoMovieMotionHumanPosture;
+
+  /** The bones in the reference posture with root `y` at zero. */
+  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+}
+
 /**
  * Bind one unchanged body's mass/collider demand for changing joint-only flight
  * queries. Each query shares its actual canonical geometry between COM
@@ -33,31 +50,57 @@ import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 export function prepareGymnasticsFrame(
   body: IAutoMovieMotionHumanBody,
   model: IAutoMovieResolveCenterOfMass.IModel,
-): (
-  raw: IAutoMovieMotionHumanPosture,
-  centre: IAutoMovieVector3,
-  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-) => IPreparedGymnasticsFrame {
-  let requested: ReadonlySet<AutoMovieHumanoidBone> =
-    HumanColliders.bones(body);
-  if (model !== body.massModel) {
-    const combined: Set<AutoMovieHumanoidBone> = new Set(requested);
-    for (const segment of model.segments) combined.add(segment.bone);
-    requested = combined;
+): (...query: Query) => IPreparedGymnasticsFrame {
+  const place: ReturnType<typeof preparePlacement> = preparePlacement(
+    body,
+    model,
+    true,
+  );
+  const minimum: ReturnType<typeof HumanColliders.prepareMinima> =
+    HumanColliders.prepareMinima(body);
+  return (...query: Query): IPreparedGymnasticsFrame => {
+    const { posture, bones }: IPlacement = place(...query);
+    return { posture, floor: (): number => -minimum(bones)[0]! };
+  };
+}
+
+/** Prepared readers for the actual observations a flight and landing need. */
+export namespace prepareGymnasticsFrame {
+  /** Bind only the mass-bearing bones for a query that does not test landing. */
+  export function mass(
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+  ): (...query: Query) => IAutoMovieMotionHumanPosture {
+    const place: ReturnType<typeof preparePlacement> = preparePlacement(
+      body,
+      model,
+      false,
+    );
+    return (...query: Query): IAutoMovieMotionHumanPosture =>
+      place(...query).posture;
   }
+}
+
+/** Read the same projected shape with or without its collision-only bones. */
+function preparePlacement(
+  body: IAutoMovieMotionHumanBody,
+  model: IAutoMovieResolveCenterOfMass.IModel,
+  floor: boolean,
+): (...query: Query) => IPlacement {
+  const requested: Set<AutoMovieHumanoidBone> = floor
+    ? new Set(HumanColliders.bones(body))
+    : new Set();
+  for (const segment of model.segments) requested.add(segment.bone);
   const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
     body,
     requested,
   );
-  const minimum: ReturnType<typeof HumanColliders.prepareMinima> =
-    HumanColliders.prepareMinima(body);
   return (
     raw: IAutoMovieMotionHumanPosture,
     centre: IAutoMovieVector3,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-  ): IPreparedGymnasticsFrame => {
+  ): IPlacement => {
     if (
       Object.values(raw.limbs).some(
         (goal: IAutoMovieHumanLimbGoal | undefined): boolean =>
@@ -104,7 +147,7 @@ export function prepareGymnasticsFrame(
           z: source.root.z + (centre.z - com.z),
         },
       },
-      floor: (): number => -minimum(bones)[0]!,
+      bones,
     };
   };
 }

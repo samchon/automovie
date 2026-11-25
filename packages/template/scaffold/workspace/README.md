@@ -1,40 +1,21 @@
 # {{name}}
 
-An AutoMovie workspace lets productions share skills, contracts, an AutoMovie release and workspace packages. Follow each production's README for its workflow.
+An AutoMovie workspace for productions that share instructions, package versions and code.
 
-## Layout
+## Add a production
 
-| Path | Holds |
-| --- | --- |
-| `AGENTS.md`, `CLAUDE.md`, `.agents/skills` | The skills and bundled contracts every production follows |
-| `movies/shorts/<name>` | A short production, written brief → screenplay |
-| `movies/series/<name>` | A long production, written settings → treatments → scripts → screenplay |
-| `packages/<name>` | The workspace's own libraries that several productions import |
-| `pnpm-workspace.yaml` | Workspace members and the named `catalogs` of versions every production uses through `catalog:<name>` |
+Use Node.js 22.23.2 or later and pnpm. Run these commands from the workspace root.
 
-A production is the directory holding its `PROJECT.md`, `README.md`, `src`, `test`, `docs` and configuration, and its commands run there. Its own work and language contracts live in its `docs/contracts`.
-
-## First run
-
-Use Node.js 22.23.2 or later with pnpm, and run these at the workspace root:
-
-```bash
+```powershell
 pnpm install
-pnpm automovie add shorts/<name>
+pnpm automovie add shorts/my-film
 pnpm install
 ```
 
-`pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` creates the production from the installed scaffold and fills any missing dependency catalog entries. Existing pins and overrides keep their values. The package name is the lowercased, npm-safe form of `<name>`, unless you supply `--name <package>`. Run `pnpm install` again to link the production, then follow its README.
+Use `series/<name>` for a long production. The add command creates `movies/shorts/my-film` and fills missing catalog entries in `pnpm-workspace.yaml`, keeping existing pins. Open the new directory and follow its README. Its own commands run from the directory with `PROJECT.md`.
 
-## Packages
+## Share code
 
-Put code that several productions share in `packages/<name>` as an ordinary pnpm package with its own `package.json`, and depend on it from a production with `"<package>": "workspace:^"`. Code serving one production stays in that production.
+Put libraries several productions use under `packages/` and declare them in each consumer with a `workspace:^` dependency. Keep shared agent instructions at this root in [`AGENTS.md`](AGENTS.md) and `.agents/skills/`.
 
-## Commands
-
-| Command | Purpose |
-| --- | --- |
-| `pnpm lint` | Every member's `lint` |
-| `pnpm evidence` | Every member's `evidence` |
-| `pnpm test` | Every member's `test` |
-| `pnpm --filter <name> <script>` | One member's script, such as `pnpm --filter <name> dev` |
+From the root, run `pnpm lint` or `pnpm test` to check all workspace members. Use `pnpm --filter <name> <script>` for one member.

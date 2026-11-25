@@ -13,10 +13,10 @@ import type {
   IAutoMovieMotionTarget,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
-  IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
@@ -410,35 +410,31 @@ export namespace punchContact {
 
     // Each correction's reach, solved here on the tracker's goal once that
     // correction has arrived: the i-th after the launch plan.
-    const reaches: punchReach.IReach[] = [launched];
+    const records: punchReach.ICorrection[] = [];
     let goal: IAutoMovieVector3 = tracker.planned;
+    let before: punchReach.IReach = launched;
     for (const unit of tracker.units(Infinity)) {
       goal = Vector3.add(goal, unit.displacement);
-      reaches.push(reach(goal, launched.advance));
+      const now: punchReach.IReach = reach(goal, launched.advance);
+      records.push({
+        start: unit.start,
+        duration: unit.duration,
+        advance: now.advance - before.advance,
+        end: Vector3.subtract(now.solved.end, before.solved.end),
+        hint: Vector3.subtract(now.hint, before.hint),
+        reach: now,
+        moved: !punchReach.same(now, before),
+      });
+      before = now;
     }
-    const corrected: (seconds: number) => punchReach.ICorrection[] = (
-      seconds: number,
-    ): punchReach.ICorrection[] => {
-      const out: punchReach.ICorrection[] = [];
-      tracker
-        .units(seconds)
-        .forEach(
-          (unit: IAutoMovieSuperposeMinimumJerk.IUnit, index: number): void => {
-            const now: punchReach.IReach = reaches[index + 1]!;
-            const before: punchReach.IReach = reaches[index]!;
-            out.push({
-              start: unit.start,
-              duration: unit.duration,
-              advance: now.advance - before.advance,
-              end: Vector3.subtract(now.solved.end, before.solved.end),
-              hint: Vector3.subtract(now.hint, before.hint),
-              reach: now,
-              moved: !punchReach.same(now, before),
-            });
-          },
-        );
-      return out;
-    };
+    const startAt = (i: number): number => records[i]!.start;
+    const corrected = (seconds: number): readonly punchReach.ICorrection[] =>
+      seconds === Infinity
+        ? records
+        : records.slice(
+            0,
+            PreparedHumanIntervals.upperBound(records.length, startAt, seconds),
+          );
 
     return {
       first,

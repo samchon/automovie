@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
@@ -163,37 +164,33 @@ export namespace skydivePath {
 
     // The freefall's end, the opening's end and the canopy's arcs.
     const ffHeading: number = yaw + spin * deploy;
+    const freefall: ReturnType<typeof prepareArc> = prepareArc(
+      glide,
+      yaw,
+      spin,
+    );
+    const openedDirection: IAutoMovieVector3 = HumanFrame.forward(ffHeading);
     const ffEnd: IAutoMovieVector3 = Vector3.add(hips, {
-      ...arc(glide, yaw, spin, deploy),
+      ...freefall(deploy),
       y: -fall,
     });
     const openEnd: IAutoMovieVector3 = Vector3.add(ffEnd, {
-      ...Vector3.scale(
-        HumanFrame.forward(ffHeading),
-        OPEN * eased(glide, FORWARD, 1),
-      ),
+      ...Vector3.scale(openedDirection, OPEN * eased(glide, FORWARD, 1)),
       y: -OPEN * eased(speed, SINK, 1),
     });
-    const canopyAt = (s: number): ICanopy => {
-      let heading: number = ffHeading;
-      let offset: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      let t: number = 0;
-      for (const toggle of toggles) {
-        if (toggle.at >= s) break;
-        offset = Vector3.add(offset, arc(FORWARD, heading, 0, toggle.at - t));
-        const held: number = Math.min(toggle.hold, s - toggle.at);
-        const rate: number = toggle.side === "left" ? TURN : -TURN;
-        offset = Vector3.add(offset, arc(FORWARD, heading, rate, held));
-        heading += rate * held;
-        t = toggle.at + held;
-      }
-      offset = Vector3.add(
-        offset,
-        arc(FORWARD, heading, 0, Math.max(0, s - t)),
-      );
-      return { offset: { ...offset, y: -SINK * s }, heading };
-    };
+    const canopyAt: ReturnType<typeof prepareCanopy> = prepareCanopy(
+      ffHeading,
+      flare - open,
+      toggles,
+    );
     const flareStart: ICanopy = canopyAt(flare - open);
+    const flareOrigin: IAutoMovieVector3 = Vector3.add(
+      openEnd,
+      flareStart.offset,
+    );
+    const flareDirection: IAutoMovieVector3 = HumanFrame.forward(
+      flareStart.heading,
+    );
 
     const at = (seconds: number): IAt => {
       const t: number = Math.max(0, Math.min(touchdown, seconds));
@@ -201,7 +198,7 @@ export namespace skydivePath {
         const drop: number =
           ((TERMINAL * TERMINAL) / g) * Math.log(Math.cosh((g * t) / TERMINAL));
         return {
-          hips: Vector3.add(hips, { ...arc(glide, yaw, spin, t), y: -drop }),
+          hips: Vector3.add(hips, { ...freefall(t), y: -drop }),
           heading: yaw + spin * t,
           phase: "freefall",
           share: t / deploy,
@@ -211,10 +208,7 @@ export namespace skydivePath {
         const u: number = (t - deploy) / OPEN;
         return {
           hips: Vector3.add(ffEnd, {
-            ...Vector3.scale(
-              HumanFrame.forward(ffHeading),
-              OPEN * eased(glide, FORWARD, u),
-            ),
+            ...Vector3.scale(openedDirection, OPEN * eased(glide, FORWARD, u)),
             y: -OPEN * eased(speed, SINK, u),
           }),
           heading: ffHeading,
@@ -233,9 +227,9 @@ export namespace skydivePath {
       }
       const u: number = (t - flare) / flareTime;
       return {
-        hips: Vector3.add(Vector3.add(openEnd, flareStart.offset), {
+        hips: Vector3.add(flareOrigin, {
           ...Vector3.scale(
-            HumanFrame.forward(flareStart.heading),
+            flareDirection,
             flareTime * eased(FORWARD, TOUCH_FORWARD, u),
           ),
           y: -flareTime * eased(SINK, TOUCH_SINK, u),
@@ -250,10 +244,7 @@ export namespace skydivePath {
       open,
       flare,
       touchdown,
-      landing: Vector3.scale(
-        HumanFrame.forward(flareStart.heading),
-        TOUCH_FORWARD,
-      ),
+      landing: Vector3.scale(flareDirection, TOUCH_FORWARD),
       at,
     };
   }
@@ -267,25 +258,92 @@ export namespace skydivePath {
     heading: number;
   }
 
+  /** One straight or turning canopy interval bound at its start. */
+  interface ICanopyArc extends ICanopy {
+    /** Seconds from canopy inflation. */
+    start: number;
+
+    /** Signed heading change, degrees per second. */
+    rate: number;
+
+    /** Displacement from the start of this arc, horizontal world metres. */
+    at(seconds: number): IAutoMovieVector3;
+  }
+
+  /** Bind the known canopy arcs, keeping the live time inside each arc. */
+  function prepareCanopy(
+    heading: number,
+    duration: number,
+    toggles: readonly IAutoMovieMotionHumanSkydive.IToggle[],
+  ): (seconds: number) => ICanopy {
+    const arcs: ICanopyArc[] = [
+      {
+        start: 0,
+        offset: { x: 0, y: 0, z: 0 },
+        heading,
+        rate: 0,
+        at: prepareArc(FORWARD, heading, 0),
+      },
+    ];
+    const add = (start: number, rate: number): void => {
+      const before: ICanopyArc = arcs.at(-1)!;
+      const elapsed: number = start - before.start;
+      const turn: number = before.heading + before.rate * elapsed;
+      arcs.push({
+        start,
+        offset: Vector3.add(before.offset, before.at(elapsed)),
+        heading: turn,
+        rate,
+        at: prepareArc(FORWARD, turn, rate),
+      });
+    };
+    for (const toggle of toggles) {
+      if (toggle.at >= duration) break;
+      add(toggle.at, toggle.side === "left" ? TURN : -TURN);
+      const end: number = toggle.at + toggle.hold;
+      if (end >= duration) break;
+      add(end, 0);
+    }
+    const startAt = (index: number): number => arcs[index]!.start;
+    return (seconds: number): ICanopy => {
+      const i: number =
+        PreparedHumanIntervals.upperBound(arcs.length, startAt, seconds) - 1;
+      const arc: ICanopyArc = arcs[Math.max(0, i)]!;
+      const t: number = Math.max(0, seconds - arc.start);
+      const offset: IAutoMovieVector3 = Vector3.add(arc.offset, arc.at(t));
+      return {
+        offset: { ...offset, y: -SINK * seconds },
+        heading: arc.heading + arc.rate * t,
+      };
+    };
+  }
+
   /**
    * The horizontal offset of a constant speed along a heading turning at a
    * constant rate, over a time.
    */
-  function arc(
+  function prepareArc(
     speed: number,
     heading: number,
     rate: number,
-    seconds: number,
-  ): IAutoMovieVector3 {
-    if (Math.abs(rate) < 1e-9)
-      return Vector3.scale(HumanFrame.forward(heading), speed * seconds);
+  ): (seconds: number) => IAutoMovieVector3 {
+    if (Math.abs(rate) < 1e-9) {
+      const forward: IAutoMovieVector3 = HumanFrame.forward(heading);
+      return (seconds: number): IAutoMovieVector3 =>
+        Vector3.scale(forward, speed * seconds);
+    }
     const w: number = (rate * Math.PI) / 180;
     const h0: number = (heading * Math.PI) / 180;
-    const h1: number = h0 + w * seconds;
-    return {
-      x: (speed / w) * (Math.cos(h0) - Math.cos(h1)),
-      y: 0,
-      z: (speed / w) * (Math.sin(h1) - Math.sin(h0)),
+    const cosine: number = Math.cos(h0);
+    const sine: number = Math.sin(h0);
+    const scale: number = speed / w;
+    return (seconds: number): IAutoMovieVector3 => {
+      const h1: number = h0 + w * seconds;
+      return {
+        x: scale * (cosine - Math.cos(h1)),
+        y: 0,
+        z: scale * (Math.sin(h1) - sine),
+      };
     };
   }
 

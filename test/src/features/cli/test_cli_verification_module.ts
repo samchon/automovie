@@ -19,6 +19,8 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  *    next to it.
  * 2. An unrelated incomplete production module remains untouched. The imported
  *    target still participates in the selected required stage.
+ * 3. Authored TypeScript and CommonJS retain their own source bytes when a runtime
+ *    loader transforms modules. Installed and linked packages resolve.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the native module boundary and unrelated-source control.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the actual CLI entry in the fixture directory and checks its output and status while Node loads the two authored TypeScript files.
@@ -27,10 +29,14 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  * @evidence contracts/development/testing.md#execution-ownership Builds only the CLI into an owned temporary directory and waits for two local Node subprocesses; the fixture's production files are loaded by the command.
  */
 export async function test_cli_verification_module(): Promise<void> {
-  const root: string = await fs.mkdtemp(
+  const workspace: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-verify-module-"),
   );
+  const root: string = path.join(workspace, "production");
+  const link: string = path.join(root, "node_modules", "linked-sdk");
+  let linked: boolean = false;
   try {
+    await fs.mkdir(root);
     const cli: string = path.join(root, "automovie.cjs");
     await build({
       entryPoints: [path.join(repositoryRoot(), "packages/cli/src/bin.ts")],
@@ -41,7 +47,10 @@ export async function test_cli_verification_module(): Promise<void> {
     });
     const executable: string = path.join(root, "src", "executable");
     await fs.mkdir(executable, { recursive: true });
-    await fs.writeFile(path.join(root, "package.json"), '{"type":"module"}\n');
+    await fs.writeFile(
+      path.join(root, "package.json"),
+      '{"type":"module","imports":{"#other-target":"./src/executable/other.ts"}}\n',
+    );
     await fs.writeFile(
       path.join(root, "src", "unrelated.ts"),
       "export const draft =",
@@ -107,8 +116,8 @@ export async function test_cli_verification_module(): Promise<void> {
       state: string,
     ): void => {
       assert.ifError(result.error);
-      assert.match(result.stdout, new RegExp(`"state": "${state}"`, "u"));
       assert.equal(result.status, exit, result.stderr);
+      assert.match(result.stdout, new RegExp(`"state": "${state}"`, "u"));
     };
     await fs.writeFile(path.join(root, "model.txt"), "3");
     await fs.writeFile(
@@ -116,6 +125,100 @@ export async function test_cli_verification_module(): Promise<void> {
       definition("const adjustment: number = 0;"),
     );
     expect(verify("--run", "--require", "handoff"), 0, "passed");
+
+    const compilerPreload: string = path.join(executable, "compiler.cjs");
+    await fs.writeFile(
+      compilerPreload,
+      [
+        'const { registerHooks } = require("node:module");',
+        'const { readFileSync } = require("node:fs");',
+        "registerHooks({ load(url, context, next) {",
+        '  if (url.endsWith("/cached.cjs")) return { format: "commonjs", shortCircuit: true, source: readFileSync(new URL(url), "utf8").replace("const value =", "const value = -100 +") };',
+        "  const loaded = next(url, context);",
+        '  if (!url.endsWith("/chair.ts")) return loaded;',
+        '  return { ...loaded, source: Buffer.from(loaded.source).toString("utf8").replace("adjustment: number = 0", "adjustment: number = -100") };',
+        "} });",
+      ].join("\n"),
+    );
+    expect(
+      execute(
+        ["--run", "--require", "handoff"],
+        ["--require", compilerPreload],
+      ),
+      0,
+      "passed",
+    );
+
+    const linkedPackage: string = path.join(workspace, "linked-sdk");
+    for (const directory of [
+      path.join(root, "node_modules", "installed-sdk"),
+      linkedPackage,
+    ]) {
+      await fs.mkdir(directory, { recursive: true });
+      await fs.writeFile(
+        path.join(directory, "package.json"),
+        '{"type":"module","exports":"./index.js"}\n',
+      );
+      await fs.writeFile(
+        path.join(directory, "index.js"),
+        "export const adjustment = 0;\n",
+      );
+    }
+    await fs.symlink(linkedPackage, link, "junction");
+    linked = true;
+    await fs.writeFile(
+      measureModule,
+      definition('import { adjustment } from "installed-sdk";'),
+    );
+    expect(verify("--run", "--require", "handoff"), 0, "passed");
+    await fs.writeFile(
+      measureModule,
+      definition('import { adjustment } from "linked-sdk";'),
+    );
+    expect(verify("--run", "--require", "handoff"), 0, "passed");
+
+    const aliasPreload: string = path.join(executable, "alias.cjs");
+    const external: string = pathToFileURL(
+      path.join(linkedPackage, "index.js"),
+    ).href;
+    await fs.writeFile(
+      aliasPreload,
+      [
+        'const { registerHooks } = require("node:module");',
+        "registerHooks({ resolve(specifier, context, next) {",
+        '  if (specifier === "external-file" || specifier === "#external-file")',
+        `    return next(${JSON.stringify(external)}, context);`,
+        "  return next(specifier, context);",
+        "} });",
+      ].join("\n"),
+    );
+    for (const alias of ["external-file", "#external-file"]) {
+      await fs.writeFile(
+        measureModule,
+        definition(`import { adjustment } from "${alias}";`),
+      );
+      const refused: SpawnSyncReturns<string> = execute(
+        ["--run"],
+        ["--require", aliasPreload],
+      );
+      assert.ifError(refused.error);
+      assert.equal(refused.status, 1);
+      assert.match(refused.stderr, /outside the project and its Git checkout/u);
+    }
+    for (const missing of ["./missing.ts", "#missing-target"]) {
+      await fs.writeFile(
+        measureModule,
+        definition(`import { adjustment } from "${missing}";`),
+      );
+      const refused: SpawnSyncReturns<string> = verify("--run");
+      assert.ifError(refused.error);
+      assert.equal(refused.status, 1);
+      assert.ok(
+        refused.stderr.includes(path.basename(missing)),
+        refused.stderr,
+      );
+    }
+
     await fs.writeFile(
       measureModule,
       definition("const adjustment: number = -2;"),
@@ -125,7 +228,7 @@ export async function test_cli_verification_module(): Promise<void> {
 
     await fs.writeFile(
       path.join(executable, "verify.ts"),
-      'import chair from "./chair";\nimport other from "./other";\nexport default [chair, other];\n',
+      'import chair from "./chair";\nimport other from "#other-target";\nexport default [chair, other];\n',
     );
     const other: string = path.join(executable, "other.ts");
     const shared: string = path.join(executable, "shared", "index.ts");
@@ -172,7 +275,7 @@ export async function test_cli_verification_module(): Promise<void> {
     await fs.writeFile(
       common,
       [
-        'const value = require("./value.cjs");',
+        'const value = require("./value.cjs") + require("linked-sdk").adjustment;',
         'exports.default = [{ id: "chair", checks: [{ id: "fit", title: "Check fit", scope: "chair", kind: "measure", inputs: ["model.txt"], unit: "cm", minimum: 2, measure: () => value }], required: { handoff: ["fit"] } }];',
       ].join("\n"),
     );
@@ -191,6 +294,7 @@ export async function test_cli_verification_module(): Promise<void> {
       "handoff",
     ];
     expect(execute(commonStage), 0, "passed");
+    expect(execute(commonStage, ["--require", compilerPreload]), 0, "passed");
     const cachedChild: SpawnSyncReturns<string> = execute(commonStage, [
       "--require",
       await fs.realpath(commonPreload),
@@ -279,13 +383,14 @@ export async function test_cli_verification_module(): Promise<void> {
       /Use a native import to verify the source of .*delivery\.mjs/u,
     );
   } finally {
-    await fs.rm(root, { recursive: true, force: false });
+    if (linked) await fs.unlink(link);
+    await fs.rm(workspace, { recursive: true, force: false });
   }
 }
 
 /**
- * Restore the Node options the caller supplied before ttsx added its hooks.
- * The native verification subprocess installs its own hooks and compares their
+ * Restore the Node options the caller supplied before ttsx added its hooks. The
+ * native verification subprocess installs its own hooks and compares their
  * source bytes with the fixture files.
  */
 function nativeVerificationEnvironment(): NodeJS.ProcessEnv {

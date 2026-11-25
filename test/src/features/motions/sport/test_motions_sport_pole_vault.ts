@@ -1,9 +1,75 @@
-import type { IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
-import { poleVaultBend, poleVaultOnLine, poleVaultSwing, poleVaultTakeoffAngle } from "@automovie/motions/internal";
+import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  poleVaultBend,
+  poleVaultOnLine,
+  poleVaultSwing,
+  poleVaultTakeoffAngle,
+  preparePoleVaultLinks,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
+
+/**
+ * A two-link pole's lower grip follows the rotating site below the hinge.
+ *
+ * Scenarios:
+ *
+ * 1. A 30 degree hinge at y = 1 m rotates the lower grip at y = 0.4 m around that
+ *    hinge. The upper grip at y = 1.6 m stays in the root link.
+ * 2. Out-of-order zero, positive, and negative bends yield their own frames.
+ */
+function materialContact(): void {
+  const rest = hinge("middle", 1);
+  const lower = { x: 0, y: 0.4, z: 0 };
+  const upper = { x: 0, y: 1.6, z: 0 };
+  const sites = preparePoleVaultLinks(
+    {
+      subject: "test",
+      affordances: [rest],
+      articulateSite: (id, state): IAutoMovieAffordance | undefined =>
+        id !== rest.id
+          ? undefined
+          : {
+              ...rest,
+              frame: {
+                ...rest.frame,
+                rotation: Quaternion.fromAxisAngle(
+                  { x: 1, y: 0, z: 0 },
+                  state[rest.id] ?? 0,
+                ),
+              },
+            },
+    },
+    [lower, upper],
+  );
+  for (const degrees of [30, 0, -30, 30]) {
+    const [moved, still]: IAutoMovieRigidTransform[] = sites({
+      middle: degrees,
+    });
+    const radians: number = (degrees * Math.PI) / 180;
+    TestValidator.predicate(
+      `lower and upper material frames at ${degrees} degrees`,
+      vclose(
+        moved!.position,
+        { x: 0, y: 1 - 0.6 * Math.cos(radians), z: -0.6 * Math.sin(radians) },
+        1e-12,
+      ) &&
+        vclose(
+          Quaternion.rotateVector(moved!.rotation, { x: 0, y: 1, z: 0 }),
+          { x: 0, y: Math.cos(radians), z: Math.sin(radians) },
+          1e-12,
+        ) &&
+        vclose(still!.position, upper, 1e-12),
+    );
+  }
+}
 
 /** A pole hinge at a height along the pole from its tip. */
 const hinge = (id: string, y: number): IAutoMovieAffordance => ({
@@ -111,4 +177,5 @@ export function test_motions_sport_pole_vault(): void {
       1e-12,
     ) && poleVaultOnLine(from, slide, grip, 0.5) === undefined,
   );
+  materialContact();
 }
