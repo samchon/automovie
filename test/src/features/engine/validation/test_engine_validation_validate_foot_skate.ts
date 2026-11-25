@@ -1,6 +1,7 @@
 import { validateFootSkate } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
+  IAutoMovieFootContactWindow,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
@@ -15,6 +16,7 @@ import {
   nclose,
   validationHasNoWarnings,
   validationHasWarning,
+  violationCount,
 } from "../../internal/predicates";
 
 /**
@@ -32,6 +34,8 @@ import {
  * 2. At a 0.25 m/s limit it succeeds.
  * 3. An undeclared bone `rightFoot` under path `$contactPlan` is a type finding at
  *    `$contactPlan.contacts[0].bone`.
+ * 4. Each nonfinite, reversed or empty contact interval reports its own
+ *    temporal violation before the shared grid reads it.
  */
 export function test_engine_validation_validate_foot_skate(): void {
   const at = (x: number, y: number, z: number): IAutoMovieTransform => ({
@@ -133,5 +137,34 @@ export function test_engine_validation_validate_foot_skate(): void {
       "type",
       "$contactPlan.contacts[0].bone",
     ),
+  );
+  const windows: readonly (readonly [number, number])[] = [
+    [NaN, 1],
+    [0, NaN],
+    [-Infinity, 1],
+    [0, Infinity],
+    [1, 0],
+    [1, 1],
+  ];
+  const invalidWindows: IAutoMovieValidation = validateFootSkate({
+    motion,
+    skeleton,
+    contacts: windows.map(
+      ([start, end]): IAutoMovieFootContactWindow => ({
+        bone: "leftFoot",
+        start,
+        end,
+      }),
+    ),
+    sampleRate: 2,
+    path: "$clock",
+  });
+  TestValidator.predicate(
+    "each malformed contact window has exactly its own temporal finding",
+    violationCount(invalidWindows) === windows.length &&
+      windows.every(
+        (_window: readonly [number, number], index: number): boolean =>
+          hasViolation(invalidWindows, "temporal", `$clock.contacts[${index}]`),
+      ),
   );
 }

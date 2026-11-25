@@ -1,5 +1,6 @@
 import { validateBalanceSupport } from "@automovie/engine";
 import {
+  IAutoMovieBalanceSupportWindow,
   IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
@@ -13,10 +14,12 @@ import { TestValidator } from "@nestia/e2e";
 import { assertBalanceSupportInputRefusals } from "../../internal/assertBalanceSupportInputRefusals";
 import { makeMotion } from "../../internal/fixtures";
 import {
+  hasViolation,
   namedFacts,
   nclose,
   validationHasNoWarnings,
   validationHasWarning,
+  violationCount,
 } from "../../internal/predicates";
 
 const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
@@ -121,6 +124,8 @@ const motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
  *    weighted joint-position estimate has pitched past them.
  * 6. Invalid support annotations and invalid sample rates report deterministic
  *    non-physics failures before sampling.
+ * 7. Each nonfinite, reversed or empty support interval reports its own
+ *    temporal violation before the shared grid reads it.
  */
 export function test_engine_validation_balance_support(): void {
   const outsideLine: IAutoMovieSkeleton = skeleton(0.5, 0);
@@ -392,4 +397,34 @@ export function test_engine_validation_balance_support(): void {
   );
 
   assertBalanceSupportInputRefusals(defaultCenter, motion);
+
+  const windows: readonly (readonly [number, number])[] = [
+    [NaN, 1],
+    [0, NaN],
+    [-Infinity, 1],
+    [0, Infinity],
+    [1, 0],
+    [1, 1],
+  ];
+  const invalidWindows: IAutoMovieValidation = validateBalanceSupport({
+    motion: motion(defaultCenter),
+    skeleton: defaultCenter,
+    supports: windows.map(
+      ([start, end]): IAutoMovieBalanceSupportWindow => ({
+        supportBones: ["leftFoot"],
+        start,
+        end,
+      }),
+    ),
+    sampleRate: 2,
+    path: "$clock",
+  });
+  TestValidator.predicate(
+    "each malformed support window has exactly its own temporal finding",
+    violationCount(invalidWindows) === windows.length &&
+      windows.every(
+        (_window: readonly [number, number], index: number): boolean =>
+          hasViolation(invalidWindows, "temporal", `$clock.supports[${index}]`),
+      ),
+  );
 }

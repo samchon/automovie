@@ -18,6 +18,7 @@ import { nclose } from "../../internal/predicates";
  * 3. Ground selection retains declaration order, edges, corners and absence.
  * 4. A rounded sample position reads its own height, and the intervals
  *    on either side interpolate over their represented widths.
+ * 5. Cancellation at a large offset must not select the cell beyond a knot.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sampling, incomplete-corner and ground-selection contracts for resident surfaces.
  * @evidence contracts/development/testing.md#behavioral-verification Reads authored constant, plane and lattice rules through the world API, then checks ordered support, edge admission and null absence.
@@ -102,6 +103,24 @@ export function test_engine_space_world_surface_height(): void {
       samples: [0, 12, 24, 6, 18, 30, 16, 28, 40],
     },
   };
+  // The first four world knots are -2^53, -2^52, -1, and 2^52 - 2.
+  // At -11/8, subtracting the global origin rounds to 2^53 - 1 and
+  // estimates cell 2 even though the query is in cell 1. The local
+  // fraction is (2^52 - 1.5) / (2^52 - 1), rounded to 1 - 2^-53.
+  const correctedCell: IAutoMovieWorldSurface = {
+    ...asymmetric,
+    id: "rounded-cell-estimate",
+    height: {
+      kind: "heightfield",
+      originX: -coarseOrigin,
+      originZ: 0,
+      spacingX: 2 ** 52 - 0.5,
+      spacingZ: 1,
+      columns: 4,
+      rows: 2,
+      samples: [0, 0, coarseOrigin, 0, 0, 0, coarseOrigin, 0],
+    },
+  };
   const cases: readonly [
     IAutoMovieWorldSurface,
     readonly (readonly [number, number, number])[],
@@ -165,6 +184,7 @@ export function test_engine_space_world_surface_height(): void {
         [coarseOrigin + 8, coarseOrigin + 10, 40],
       ],
     ],
+    [correctedCell, [[-11 / 8, 0, coarseOrigin - 1]]],
   ];
   for (const [surface, queries] of cases)
     for (const [x, z, expected] of queries)
