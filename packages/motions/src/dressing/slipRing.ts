@@ -17,7 +17,6 @@ import type {
   IAutoMovieMotionHumanSlipRing,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -68,10 +67,11 @@ const PHALANX_NAME: Readonly<
 /**
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
- * (`presentHand`). The dresser's other hand takes the partner's forearm from
- * its own side, the palm laid on the forearm's own collider
- * (`HumanColliders.cast`), its fingers toward the partner's wrist, before the
- * ring hand leaves its rest, and lets go once the ring hand is back at it
+ * (`presentHand`). The dresser's other hand takes the partner's forearm with
+ * the palm laid on its collider (`HumanColliders.cast`) and its fingers along
+ * the approach, supporting from below when they point toward the partner's
+ * elbow. The steadying palm lands before the ring hand leaves its rest and
+ * lets go once the ring hand is back at it
  * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings the
  * ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by `ready`,
  * then slides it along the axis to `SEAT` of the proximal phalanx over the
@@ -119,7 +119,16 @@ function planSlipRing(
   const palmRegion: AutoMovieHumanoidRegion =
     hand === "left" ? "palmLeft" : "palmRight";
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    partner.bones(context.start);
+    partner.bones(
+      context.start,
+      new Set<AutoMovieHumanoidBone>([
+        base,
+        middle,
+        partner.body.surfaces.regions[tipRegion].bone,
+        `${hand}Hand`,
+        `${hand}LowerArm`,
+      ]),
+    );
   const knuckle: IAutoMovieResolvedBone | undefined = bones.get(base);
   const joint: IAutoMovieResolvedBone | undefined = bones.get(middle);
   if (knuckle === undefined || joint === undefined)
@@ -174,19 +183,27 @@ function planSlipRing(
   );
   // A band is round, so its roll about the finger is free: the roll
   // that turns the holding hand least from how it holds the ring now.
-  const holding: IAutoMovieQuaternion = poseBones(body, context.entry.pose).get(
-    `${side}Hand`,
-  )!.worldRotation;
+  const pose: ReturnType<typeof poseBones> = poseBones(
+    body,
+    context.entry.pose,
+    undefined,
+    new Set<AutoMovieHumanoidBone>([
+      "leftHand",
+      "rightHand",
+      `${steady}UpperArm`,
+    ]),
+  );
+  const holding: IAutoMovieQuaternion = pose.get(`${side}Hand`)!.worldRotation;
+  const fromHeld: IAutoMovieQuaternion = Quaternion.inverse(
+    held.frame.rotation,
+  );
   let turn: IAutoMovieQuaternion = lined;
   let nearest: number = -1;
   for (let roll: number = 0; roll < 360; roll += ROLL) {
     const candidate: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(Quaternion.fromAxisAngle(axis, roll), lined),
     );
-    const hand: IAutoMovieQuaternion = Quaternion.multiply(
-      candidate,
-      Quaternion.inverse(held.frame.rotation),
-    );
+    const hand: IAutoMovieQuaternion = Quaternion.multiply(candidate, fromHeld);
     const near: number = Math.abs(
       hand.x * holding.x +
         hand.y * holding.y +
@@ -198,44 +215,47 @@ function planSlipRing(
       turn = candidate;
     }
   }
-  const ring = (centre: IAutoMovieVector3): IAutoMovieRigidTransform => ({
-    position: Vector3.subtract(
-      centre,
-      Quaternion.rotateVector(turn, wear.frame.translation),
-    ),
-    rotation: turn,
-  });
   const begin: IAutoMovieVector3 = Vector3.add(
     tip,
     Vector3.scale(axis, -LINE_UP),
   );
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const bend = (arm: AutoMovieHumanSide): IAutoMovieVector3 =>
-    AutoMovieMotionHumanBend.hang(body, entry, arm);
-  const ringAt = (progress: number): IAutoMovieMotionHumanArmTarget.ITarget =>
+  const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+    body,
+    entry,
+    side,
+  );
+  const linedGrip: IAutoMovieMotionHumanArmTarget.ITarget =
     HumanWornItem.holding(
       body,
       side,
       held,
-      ring(Vector3.lerp(begin, seat, progress)),
-      bend(side),
+      {
+        position: Vector3.subtract(
+          begin,
+          Quaternion.rotateVector(turn, wear.frame.translation),
+        ),
+        rotation: turn,
+      },
+      bend,
     );
+  const inset: IAutoMovieVector3 = Vector3.subtract(seat, begin);
+  const ringAt = (progress: number): IAutoMovieMotionHumanArmTarget.ITarget => ({
+    ...linedGrip,
+    point: Vector3.add(linedGrip.point, Vector3.scale(inset, progress)),
+  });
 
   const under: IAutoMovieMotionHumanArmTarget.ITarget = slipRingSteady({
-    context,
-    p,
+    subject: p.partner,
     body,
-    partner,
+    partner: partner.body,
     bones,
     hand,
     steady,
-    bend,
+    shoulder: pose.get(`${steady}UpperArm`)!.worldPosition,
+    bend: AutoMovieMotionHumanBend.hang(body, entry, steady),
   });
   // Each hand's place before and after, and the phases on one clock.
-  const pose: ReturnType<typeof poseBones> = poseBones(
-    body,
-    context.entry.pose,
-  );
   const frame = { origin: entry.root, yaw: entry.yaw };
   const origins: Record<
     AutoMovieHumanSide,
@@ -260,7 +280,7 @@ function planSlipRing(
     AutoMovieMotionHumanArmTarget.point(entry, origins[arm]);
   const prepare: number = AutoMovieMotionHumanTiming.transport(
     Math.max(
-      Vector3.distance(from(side), ringAt(0).point),
+      Vector3.distance(from(side), linedGrip.point),
       Vector3.distance(from(steady), under.point),
     ),
   );
@@ -276,7 +296,7 @@ function planSlipRing(
   // hand is back.
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 2 * prepare,
-    attack: AutoMovieMotionHumanTiming.transport(Vector3.distance(begin, seat)),
+    attack: AutoMovieMotionHumanTiming.transport(Vector3.length(inset)),
     hold: AutoMovieMotionHumanTiming.seconds("beat"),
     retract: 2 * prepare,
   });
@@ -386,10 +406,11 @@ function planSlipRing(
 /**
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
- * (`presentHand`). The dresser's other hand takes the partner's forearm from
- * its own side, the palm laid on the forearm's own collider
- * (`HumanColliders.cast`), its fingers toward the partner's wrist, before the
- * ring hand leaves its rest, and lets go once the ring hand is back at it
+ * (`presentHand`). The dresser's other hand takes the partner's forearm with
+ * the palm laid on its collider (`HumanColliders.cast`) and its fingers along
+ * the approach, supporting from below when they point toward the partner's
+ * elbow. The steadying palm lands before the ring hand leaves its rest and
+ * lets go once the ring hand is back at it
  * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings the
  * ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by `ready`,
  * then slides it along the axis to `SEAT` of the proximal phalanx over the

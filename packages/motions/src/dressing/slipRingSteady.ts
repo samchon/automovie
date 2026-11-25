@@ -2,12 +2,9 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanSlipRing,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,104 +14,115 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
+
+/** Roundoff bound for the component of world down across a vertical forearm. */
+const PARALLEL: number = 1e-9;
 
 /**
- * A ring dresser's steadying palm (`slipRing`): laid on the partner's forearm
- * collider a third of the way from the wrist to the elbow, or farther where the
- * flat palm's fingers would pass the wrist, from the side facing the steadying
- * shoulder, its fingers toward the partner's wrist, found by a ray in from that
- * side (`HumanColliders.cast`). Read from the plan's context, body, partner and
- * its bones, the presented hand and the steadying arm.
+ * A ring dresser's steadying palm (`slipRing`): laid on the partner's own
+ * forearm collider. The fingers run along the forearm in the direction the
+ * dresser approaches it. Palm and fingers fit between the partner's joints
+ * where the hand supports from below. Read from the action's entry stance,
+ * bodies and presented hand.
  *
  * @param scope What the plan lays the steadying palm from.
  * @returns The steadying hand's target.
- * @throws {HumanRefusal} When no collider of the forearm lies on the way in.
+ * @throws {HumanRefusal} When the hand does not fit between the joints or the
+ *   forearm collider cannot be reached by the support ray.
  */
 export function slipRingSteady(
   scope: slipRingSteady.IScope,
 ): IAutoMovieMotionHumanArmTarget.ITarget {
   const {
-    context,
-    p,
+    subject,
     body,
     partner,
     bones,
     hand,
     steady,
+    shoulder,
     bend,
   }: slipRingSteady.IScope = scope;
-  // The steadying palm takes the partner's forearm a third of the way
-  // from the wrist to the elbow, from the side facing the steadying
-  // shoulder, its fingers toward the partner's wrist: on the presented
-  // hand the two hands converged and their forearms crossed (25 mm,
-  // then 22.8 mm on either side of the hand). The palm lies the forearm's
-  // radius off its axis toward the steadying shoulder and faces back
-  // onto it, so the steadying arm comes in from its own side.
-  const wrist: IAutoMovieVector3 = bones.get(
-    `${hand}Hand` as AutoMovieHumanoidBone,
-  )!.worldPosition;
-  const elbow: IAutoMovieVector3 = bones.get(
-    `${hand}LowerArm` as AutoMovieHumanoidBone,
-  )!.worldPosition;
-  // The flat palm's fingers run toward the partner's wrist, so the palm lies
-  // far enough up the forearm that its fingertips end the audit's skin short
-  // of the wrist: laid a third of the way up, a flat hand longer than that
-  // put its fingers 10 mm into the presented hand (the slip-ring fixture's
-  // refusal at 1.067 s). No farther than the elbow.
+  const handBone: AutoMovieHumanoidBone = `${hand}Hand`;
+  const lowerArm: AutoMovieHumanoidBone = `${hand}LowerArm`;
+  const wrist: IAutoMovieVector3 = bones.get(handBone)!.worldPosition;
+  const elbow: IAutoMovieVector3 = bones.get(lowerArm)!.worldPosition;
   const forearm: number = Vector3.distance(wrist, elbow);
-  const fingers: number = Vector3.distance(
-    HumanHand.offset(body, steady, "palm", "flat").point,
-    HumanHand.offset(body, steady, "indexTip", "flat").point,
-  );
-  const grasped: IAutoMovieVector3 = Vector3.lerp(
-    wrist,
-    elbow,
-    Math.min(
-      1,
-      Math.max(
-        1 / 3,
-        (fingers + AutoMovieMotionHumanAuditSkin.BUILT) / forearm,
-      ),
-    ),
-  );
   const along: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(wrist, elbow),
   );
-  const shoulder: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
-    `${steady}UpperArm`,
-  )!.worldPosition;
-  const toward: IAutoMovieVector3 = Vector3.subtract(shoulder, grasped);
+  const palm: ReturnType<typeof HumanHand.offset> = HumanHand.offset(
+    body,
+    steady,
+    "palm",
+    "flat",
+  );
+  const fingers: number = Vector3.distance(
+    palm.point,
+    HumanHand.offset(body, steady, "indexTip", "flat").point,
+  );
+  const skin: number = AutoMovieMotionHumanAuditSkin.BUILT;
+  const approach: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
+  // Point the hand along the available reach. A wristward hand on a forearm
+  // presented toward the dresser makes the wrist fold back on its own arm.
+  const wristward: boolean = Vector3.dot(approach, along) >= 0;
+  let distance: number;
+  let fromBelow: IAutoMovieVector3 | undefined;
+  if (wristward)
+    distance = Math.min(forearm, Math.max(forearm / 3, fingers + skin));
+  else {
+    const heel: number = Vector3.dot(palm.point, palm.forward);
+    const minimum: number = heel + skin;
+    const maximum: number = forearm - fingers - skin;
+    if (minimum > maximum)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "partner",
+        value: forearm,
+        feasible: {
+          kind: "range",
+          minimum: heel + fingers + 2 * skin,
+          maximum: null,
+          unit: "m",
+        },
+        reason:
+          "the steadying hand does not fit between the partner's wrist and elbow",
+        fix: "have the partner present their forearm from the steadying hand's side",
+      });
+    distance = Math.max(minimum, Math.min(forearm / 3, maximum));
+
+    // An elbow-facing palm supports from below. A vertical forearm is
+    // steadied from the shoulder side because it has no downward radial.
+    const below: IAutoMovieVector3 = across({ x: 0, y: -1, z: 0 }, along);
+    if (Vector3.length(below) > PARALLEL) fromBelow = below;
+  }
+  const grasped: IAutoMovieVector3 = Vector3.lerp(
+    wrist,
+    elbow,
+    distance / forearm,
+  );
   const outward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(toward, Vector3.scale(along, Vector3.dot(toward, along))),
+    fromBelow ?? across(Vector3.subtract(shoulder, grasped), along),
   );
   // The palm lies on the partner's forearm collider itself, not one
-  // radius off the axis shared by the whole limb (contacts.md, "Contact
-  // between performers": penetration is measured against each part's own
-  // collider): a ray in from the steadying side onto the forearm's
-  // colliders finds the place and its facing (`HumanColliders.cast`), as
-  // the embrace lays its palms. It starts a forearm's length out, beyond
-  // any of the forearm's colliders, and runs twice that.
-  const lowerArm: AutoMovieHumanoidBone =
-    `${hand}LowerArm` as AutoMovieHumanoidBone;
+  // radius off the axis shared by the whole limb. The support ray finds the
+  // forearm's actual surface and normal from the chosen approach. It starts
+  // a forearm's length off the axis and runs twice that.
   const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
     HumanColliders.cast(
-      partner.body,
+      partner,
       new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>([
         [lowerArm, bones.get(lowerArm)!],
       ]),
-      Vector3.add(
-        grasped,
-        Vector3.scale(outward, partner.body.measure.forearm),
-      ),
+      Vector3.add(grasped, Vector3.scale(outward, forearm)),
       Vector3.scale(outward, -1),
-      2 * partner.body.measure.forearm,
+      2 * forearm,
     );
   if (hit === undefined)
     throw new HumanRefusal({
       kind: "reach",
       axis: "partner",
-      value: p.partner,
+      value: subject,
       reason: `no collider of the partner's ${lowerArm} lies on the steadying hand's way in`,
       fix: "have the partner present the forearm toward the steadying hand",
     });
@@ -126,42 +134,44 @@ export function slipRingSteady(
       "flat",
     )({
       point: hit.point,
-      rotation: HumanHand.align(
-        HumanHand.offset(body, steady, "palm", "flat"),
-        {
-          normal: Vector3.scale(hit.normal, -1),
-          forward: Vector3.normalize(
-            Vector3.subtract(
-              along,
-              Vector3.scale(hit.normal, Vector3.dot(along, hit.normal)),
-            ),
-          ),
-        },
-      ),
-      bend: bend(steady),
+      rotation: HumanHand.align(palm, {
+        normal: Vector3.scale(hit.normal, -1),
+        forward: Vector3.normalize(
+          across(wristward ? along : Vector3.scale(along, -1), hit.normal),
+        ),
+      }),
+      bend,
     });
 
   return under;
+}
+
+/** The component of a vector perpendicular to a unit axis. */
+function across(
+  vector: IAutoMovieVector3,
+  axis: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return Vector3.subtract(
+    vector,
+    Vector3.scale(axis, Vector3.dot(vector, axis)),
+  );
 }
 
 /** What a ring dresser's steadying palm reads. */
 export namespace slipRingSteady {
   /** What a ring plan lays its steadying palm from. */
   export interface IScope {
-    /** The action's context. */
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSlipRing>;
-
-    /** The action's parameters. */
-    p: IAutoMovieMotionHumanSlipRing;
+    /** The participant whose surface the hand steadies. */
+    subject: string;
 
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The partner. */
-    partner: IAutoMovieMotionHumanPerformerReader;
+    /** The partner's body. */
+    partner: IAutoMovieMotionHumanBody;
 
     /** The partner's bones at the action's start. */
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** The partner's presented hand. */
     hand: AutoMovieHumanSide;
@@ -169,12 +179,10 @@ export namespace slipRingSteady {
     /** The dresser's steadying hand. */
     steady: AutoMovieHumanSide;
 
-    /**
-     * An arm's hanging bend point.
-     *
-     * @param arm The arm.
-     * @returns The bend point, world metres.
-     */
-    bend: (arm: AutoMovieHumanSide) => IAutoMovieVector3;
+    /** The steadying shoulder at entry, world metres. */
+    shoulder: IAutoMovieVector3;
+
+    /** The steadying elbow's hanging bend point, world metres. */
+    bend: IAutoMovieVector3;
   }
 }
