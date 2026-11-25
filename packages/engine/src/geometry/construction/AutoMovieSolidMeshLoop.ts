@@ -31,7 +31,7 @@ export namespace AutoMovieSolidMeshLoop {
     loop: IAutoMovieSolidMesh.ILoop,
     u: number,
     v: number,
-    jet: IAutoMovieSolidSurface.IJet,
+    jet: IAutoMovieSolidSurface.IFirst,
     margin: number,
     period: number | undefined,
   ): boolean {
@@ -54,7 +54,7 @@ export namespace AutoMovieSolidMeshLoop {
     const raw: IAutoMovieSolidMeshLoop.Classifier = (
       u: number,
       v: number,
-      jet: IAutoMovieSolidSurface.IJet,
+      jet: IAutoMovieSolidSurface.IFirst,
       margin: number,
     ): boolean =>
       loops.every((l: IAutoMovieSolidMesh.ILoop): boolean =>
@@ -85,11 +85,11 @@ export namespace AutoMovieSolidMeshLoop {
     return (
       u: number,
       v: number,
-      jet: IAutoMovieSolidSurface.IJet,
+      jet: IAutoMovieSolidSurface.IFirst,
       margin: number,
     ): boolean => {
       if (eager) return raw(u, v, jet, margin);
-      let metric: IAutoMovieSolidSurface.IJet | undefined;
+      let metric: IAutoMovieSolidSurface.IFirst | undefined;
       let E: number = 0;
       let F: number = 0;
       let G: number = 0;
@@ -255,7 +255,7 @@ export namespace AutoMovieSolidMeshLoop {
   }
 
   /** Metric sharing applies only to stable ordinary numerical vector fields. */
-  function plainJet(jet: IAutoMovieSolidSurface.IJet): boolean {
+  function plainJet(jet: IAutoMovieSolidSurface.IFirst): boolean {
     try {
       for (const name of ["u", "v"]) {
         const axis: unknown = Object.getOwnPropertyDescriptor(jet, name)?.value;
@@ -280,7 +280,7 @@ export namespace AutoMovieSolidMeshLoop {
     loop: Pick<IAutoMovieSolidMesh.ILoop, "chart">,
     u: number,
     v: number,
-    jet: IAutoMovieSolidSurface.IJet,
+    jet: IAutoMovieSolidSurface.IFirst,
     margin: number,
     period: number | undefined,
   ): boolean {

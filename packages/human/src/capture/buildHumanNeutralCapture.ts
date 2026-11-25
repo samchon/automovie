@@ -22,6 +22,7 @@ import type {
   IAutoMovieMeshPiece,
   IAutoMovieMeshTopology,
   IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -44,6 +45,7 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
   calibration: IAutoMovieHumanBodyCalibration;
   mesh: IAutoMovieMesh;
   solidSurfaces: ReadonlyMap<string, IAutoMovieSolidSurface>;
+  gridReads: readonly IAutoMovieSolidMesh.IGridReport[];
   triangleGroups: IAutoMovieHumanBodySurface.IOutput["mesh"]["groups"];
   nailClipping?: IAutoMovieHumanBodySurface.IOutput["nailClipping"];
   topology: IAutoMovieMeshTopology;
@@ -62,9 +64,11 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
     AutoMovieHumanBodyLaw.realize(definition).body;
   const calibrated: number = performance.now();
   let solidSurfaces: ReadonlyMap<string, IAutoMovieSolidSurface> = new Map();
+  let gridReads: readonly IAutoMovieSolidMesh.IGridReport[] = [];
   const surface: IAutoMovieHumanBodySurface.IOutput =
-    AutoMovieHumanBodySurface.generate(calibration, [], (charts): void => {
+    AutoMovieHumanBodySurface.generate(calibration, [], (charts, reads): void => {
       solidSurfaces = charts;
+      gridReads = reads;
     });
   const skinned: number = performance.now();
   // Calibration and its skin use millimetres. The inspector uses metres.
@@ -108,6 +112,7 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
     calibration,
     mesh,
     solidSurfaces,
+    gridReads,
     triangleGroups: surface.mesh.groups,
     nailClipping: surface.nailClipping,
     topology,

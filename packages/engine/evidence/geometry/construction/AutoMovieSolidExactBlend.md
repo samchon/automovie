@@ -1,26 +1,8 @@
-# src/geometry/construction/AutoMovieSolidExactBlend.ts#AutoMovieSolidExactBlend
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Prepares exact source-owned blend columns and estimates a mesh grid for their two chart directions.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World-space points and transverse stations are millimetres. The periodic angular coordinate is radians. The source must be a successfully admitted mixed join.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The merge owner consumes the grid and its continuous ribbon surface. The original join supplies the admitted chart anchors. Each incident surface supplies its own boundary jet.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The periodic chart curves evaluate on their original surfaces at every phase. The same adaptive phases identify both source rails and both ends of the ribbon.
-
 # src/geometry/construction/AutoMovieSolidExactBlend.ts#AutoMovieSolidExactBlend.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names the original chart owner and the admitted anchors used by the returned phase readers.
+Names the original chart owner and the admitted anchors used by the returned phase readers. The mixed join must already be admitted. World points and transverse stations are in millimetres, and phase is in radians.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

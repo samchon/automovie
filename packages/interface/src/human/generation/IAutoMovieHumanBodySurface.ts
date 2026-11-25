@@ -1,4 +1,5 @@
 import type { IAutoMovieSolidSurface } from "../../construction/IAutoMovieSolidSurface";
+import type { IAutoMovieSolidMesh } from "../../construction/IAutoMovieSolidMesh";
 import type { IAutoMovieHumanLoftMesh } from "../lofting/IAutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 
@@ -16,6 +17,7 @@ export namespace IAutoMovieHumanBodySurface {
    */
   export type SolidObserver = (
     surfaces: ReadonlyMap<string, IAutoMovieSolidSurface>,
+    grids: readonly IAutoMovieSolidMesh.IGridReport[],
   ) => void;
 
   /** Generated skin in millimetres, registered frame. */

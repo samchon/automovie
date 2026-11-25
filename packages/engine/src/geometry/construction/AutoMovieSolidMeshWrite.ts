@@ -46,9 +46,11 @@ export namespace AutoMovieSolidMeshWrite {
     owner: number,
     a: number,
     b: number,
+    normal?: Readonly<AutoMovieVector3Tuple>,
   ): number {
     mesh.positions.push(p[0], p[1], p[2]);
     mesh.coordinates.push(owner, a, b);
+    mesh.normals?.push(normal?.[0] ?? NaN, normal?.[1] ?? NaN, normal?.[2] ?? NaN);
     return mesh.positions.length / 3 - 1;
   }
 

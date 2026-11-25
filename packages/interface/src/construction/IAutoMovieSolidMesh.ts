@@ -1,4 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieSolidCycle } from "./IAutoMovieSolidCycle";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
@@ -31,6 +32,9 @@ export namespace IAutoMovieSolidMesh {
     /** Flat `[owner, a, b]` per vertex. */
     coordinates: number[];
 
+    /** Optional parallel analytic normals, with NaN for a point without a grid jet. */
+    normals?: number[];
+
     /** Owners by index. */
     owners: IAutoMovieSolidMesh.IOwner[];
   }
@@ -47,6 +51,21 @@ export namespace IAutoMovieSolidMesh {
 
     /** Each vertex's chart point `[u, v]` on the face, `v` unwrapped along the loop. */
     chart: [number, number][];
+
+    /** Sample this split end and its nearest kept row on one angular partition. */
+    partition?: true;
+
+    /**
+     * A winding cut's exact station at each phase when the source owns the
+     * entire curve.
+     */
+    along?: (v: number) => number;
+
+    /**
+     * A clip's edits to a structured cut, which no longer owns one complete
+     * curve.
+     */
+    segments?: IAutoMovieSolidCycle.ICycle["segments"];
   }
 
   /**
@@ -92,6 +111,27 @@ export namespace IAutoMovieSolidMesh {
      * Receive a named planning refusal or partial endpoint diagnostic.
      */
     onFailure?: (detail: string) => void;
+
+    /** Observe the exact grid population after the trim's geometric classification. */
+    onGrid?: (report: IGridReport) => void;
+  }
+
+  /** Actual scope of one source grid query, before triangulation. */
+  export interface IGridReport {
+    /** Exact source and prepared capability used. */
+    name: string;
+    /** Row or column preparation with the available derivative order. */
+    reader: "column1" | "column2" | "row2" | "point2";
+    /** Number of complete evaluated stations and phase lines. */
+    rows: number;
+    /** Number of phase lines at each evaluated station. */
+    columns: number;
+    /** Grid samples admitted after trim and margin testing. */
+    kept: number;
+    /** Number of input trim edges. */
+    trimEdges: number;
+    /** Total elapsed milliseconds through source metric and trim classification. */
+    milliseconds: number;
   }
 
   /**

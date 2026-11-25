@@ -74,7 +74,11 @@ export namespace AutoMovieConstructionSplitPrepared {
         const columns: IAutoMovieBlendColumn[] = loops.map(
           ({ controls: c }) => ({
             start: { point: c[0], first: Cubic.first(c, 0), second: [0, 0, 0] },
-            end: { point: c[3], first: Cubic.first(c, 1), second: [0, 0, 0] },
+            end: {
+              point: c.at(-1)!,
+              first: Cubic.first(c, 1),
+              second: [0, 0, 0],
+            },
           }),
         );
         const chart = (phase: number) => {
@@ -117,23 +121,37 @@ export namespace AutoMovieConstructionSplitPrepared {
             return Vec.add(Cubic.value(controls, u), s.ribbon(u)(s.v));
           };
         };
-        const jetAlong = (phase: number) => {
+        const column = (phase: number) => {
           const s = chart(phase);
           const angular = stencil(s.v, s.width * step);
           const values = angular.offsets.map((offset) => s.v + offset);
           const controls = values.map((v) => s.edge.course(v).controls);
-          return (station: number): Solid.IJet =>
-            readJet(
-              (u) => {
-                const row = s.ribbon(u);
-                return controls.map(
-                  (c, j): P3 => Vec.add(Cubic.value(c, u), row(values[j]!)),
-                );
-              },
-              length,
-              station / length,
-              angular,
-            );
+          const row = (u: number) => {
+            const at = s.ribbon(u);
+            return (j: number): P3 => Vec.add(Cubic.value(controls[j]!, u), at(values[j]!));
+          };
+          return { angular, row, offsets: values };
+        };
+        const jetAlong = (phase: number) => {
+          const { angular, row, offsets } = column(phase);
+          return (station: number): Solid.IJet => readJet(
+            (u) => {
+              const at = row(u);
+              return offsets.map((_, j) => at(j));
+            }, length, station / length, angular,
+          );
+        };
+        const tangentAlong = (phase: number) => {
+          const { angular, row, offsets } = column(phase);
+          return (station: number): Solid.IFirst => {
+            const u: number = station / length;
+            const edges = stencil(u, length);
+            const at = row(u);
+            const cross = offsets.map((_, j) => at(j));
+            const p = cross[0]!;
+            const center = edges.offsets.map((offset, i) => i === 0 ? p : row(u + offset)(0));
+            return { p, u: difference(center, edges.first), v: difference(cross, angular.first) };
+          };
         };
         const surface: Solid = {
           name: band,
@@ -155,6 +173,7 @@ export namespace AutoMovieConstructionSplitPrepared {
           },
           jet: (station, phase) => jetAlong(phase)(station),
           jetAlong,
+          tangentAlong,
         };
         return {
           chain,
@@ -210,10 +229,6 @@ export namespace AutoMovieConstructionSplitPrepared {
     angular: ReturnType<typeof stencil>,
   ): Solid.IJet {
     const station = stencil(u, length);
-    const difference = (p: readonly P3[], weights: readonly number[]): P3 =>
-      Vec.combine(
-        p.map((x, k): [number, P3] => [weights[k]!, Vec.sub(x, p[0]!)]),
-      );
     const points = station.offsets.map((x) => point(u + x));
     const center = points.map((p) => p[0]!);
     const cross = points.map((p) => difference(p, angular.first));
@@ -225,5 +240,10 @@ export namespace AutoMovieConstructionSplitPrepared {
       uv: difference(cross, station.first),
       vv: difference(points[0]!, angular.second),
     };
+  }
+
+  /** Subtract the central sample before summing a finite difference. */
+  function difference(p: readonly P3[], weights: readonly number[]): P3 {
+    return Vec.combine(p.map((x, k): [number, P3] => [weights[k]!, Vec.sub(x, p[0]!) ]));
   }
 }

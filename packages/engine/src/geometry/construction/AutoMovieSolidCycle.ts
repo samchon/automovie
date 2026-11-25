@@ -137,7 +137,7 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * Carry a marked planar split boundary's angular partition through its
+   * Carry a marked split boundary's angular partition through its
    * retained source rows. Use the original row's count to partition the
    * accumulated world chord length and normal rotation. Each boundary span
    * takes the largest measured length and turn over the retained stations. The
@@ -149,7 +149,7 @@ export namespace AutoMovieSolidCycle {
    * @see https://www.sciencedirect.com/science/article/pii/S0010448518302331 Curvature-adaptive surface sampling distributes work in the normal map.
    */
   export function partition(
-    cycle: IAutoMovieSolidCycle.ICycle,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "partition" | "along" | "chart" | "vertices" | "segments">,
     authored: readonly number[],
     station: number,
     stations: readonly number[],
@@ -169,11 +169,10 @@ export namespace AutoMovieSolidCycle {
           !Number.isFinite(v) || (k > 0 && !(v > authored[k - 1]!)),
       ) ||
       !(authored.at(-1)! - authored[0]! < period) ||
-      cycle.along !== undefined ||
       cycle.segments !== undefined ||
       chart.some(
         ([u, v], k): boolean =>
-          u !== station ||
+          u !== (cycle.along?.(v) ?? station) ||
           !Number.isFinite(v) ||
           (k > 0 && !(v > chart[k - 1]![1])),
       ) ||

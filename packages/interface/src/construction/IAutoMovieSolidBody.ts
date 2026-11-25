@@ -170,6 +170,15 @@ export namespace IAutoMovieSolidBody {
 
         /** Matching boundary coordinates in this face's chart, in the same order as points. */
         chart: [number, number][];
+
+        /** The exact split-end angular partition when the parent owns it. */
+        partition?: true;
+
+        /** The split end's source station at a phase, when the cut is curved. */
+        along?: (v: number) => number;
+
+        /** A clip's edits to the original structured curve. */
+        segments?: IAutoMovieSolidCycle.ICycle["segments"];
       }[];
 
       /** Original grid-side authorities, separate from actual cuts; absent in legacy publications. Same shared point IDs and this-face charts are retained. Mesh admission still requires actual domain sides and supported roles. */

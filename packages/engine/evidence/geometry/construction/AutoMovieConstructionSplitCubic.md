@@ -291,3 +291,81 @@ Reads the original supplied jet without a second evaluation.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns one vector and owns no retained state.
+
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.Controls
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the four cubic controls and six Hermite quintic controls in world millimetres.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The control tuple fixes degree and parameter order for both evaluation and deflection bounds.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+A single tuple variant carries the original point and tangent constraints and the optional normal acceleration pair.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Choosing six controls only expresses the second-order premise. Positivity and forward order are checked in the generating course's owner.
+
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.withCurvature
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Uses the original two end points, tangents and directional normal accelerations.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The Hermite quintic's second and penultimate inner controls carry the standard first- and second-derivative coefficients. Scaling speed by five sixths preserves the cubic course's second-handle reach in the new control polygon.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One fixed-length control construction takes both endpoint jets.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The chart's normal acceleration or the authored saddle's curvature supplies each end. The rule does not replace an absent source jet with a fitted average.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work per prepared generating curve.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Uses the original course's endpoint rays and receiving chart phase.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns six finite-dimensional controls and the unchanged receiving phase.
+
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.normalSecond
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Returns the normal part of the source's second derivative in the supplied tangent direction.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Uses the first fundamental form to express a world tangent in the source chart, then projects the corresponding second partials onto its unit normal.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The regular source jet supplies all data for one vector result.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The caller provides a regular source and its course tangent. A mesh crease or sampled normal does not establish that function.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One fixed-size Gram solve and normal projection per endpoint.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Carries the existing source partials to the quintic's boundary acceleration.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns one vector and retains no source samples.

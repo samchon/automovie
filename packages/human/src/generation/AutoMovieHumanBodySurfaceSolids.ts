@@ -1,8 +1,8 @@
 import {
+  AutoMovieSolidBody,
   AutoMovieSolidChain,
   AutoMovieSolidMesh,
   AutoMovieSolidVector,
-  faceAutoMovieSolidMesh,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -129,8 +129,9 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       surfaces.get(name) ?? null;
 
     // Seams first: their rails become the faces' trims.
-    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const mesh: IAutoMovieSolidMesh.IMesh = { ...AutoMovieSolidMesh.create(), normals: [] };
     const groups: { name: string; start: number }[] = [];
+    const gridReads: IAutoMovieSolidMesh.IGridReport[] = [];
     const loops: Map<string, IAutoMovieSolidMesh.ILoop[]> = new Map();
     const domains: Map<string, IAutoMovieSolidMesh.ILoop[]> = new Map();
     const grids: Map<
@@ -213,6 +214,9 @@ export namespace AutoMovieHumanBodySurfaceSolids {
           kind: c.kind,
           vertices: c.points.map((k: number): number => ids[k]!),
           chart: c.chart,
+          ...(c.partition === true
+            ? { partition: true, along: c.along, segments: c.segments }
+            : {}),
         });
         const trims: IAutoMovieSolidMesh.ILoop[] = f.cycles.map(restore);
         loops.set(f.chain, [...(loops.get(f.chain) ?? []), ...trims]);
@@ -239,8 +243,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       cycle: number[];
       out: Vec3;
     }[] = [];
-    const appendFace: ReturnType<typeof faceAutoMovieSolidMesh.prepare> =
-      faceAutoMovieSolidMesh.prepare(mesh);
+    const appendFace = AutoMovieSolidBody.prepareFaces(mesh);
     const nailSources: ReadonlyMap<string, IAutoMovieHumanDigitNails.IPlaced> =
       new Map(
         calibration.nailSources?.map((source) => [
@@ -344,6 +347,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         inverted: inverted.has(name),
         onFailure: (detail: string): void =>
           report("face triangulation", `${name}: ${detail}`),
+        onGrid: observe === undefined ? undefined : (read): void => { gridReads.push(read); },
       };
       const nail: IAutoMovieHumanDigitNails.IPlaced | undefined =
         nailSources.get(name);
@@ -436,6 +440,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
 
     // Into the body's buffers, owners turned into chain indices.
     const offset: number = context.mesh.positions.length / 3;
+    context.solidNormals = { start: 3 * offset, values: mesh.normals! };
     while (context.coordinates.length < 3 * offset)
       context.coordinates.push(NaN);
     const chainOf: number[] = mesh.owners.map(
@@ -480,7 +485,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       );
       for (const t of band) context.mesh.indices.push(t[0], t[1], t[2]);
     }
-    observe?.(surfaces);
+    observe?.(surfaces, gridReads);
     return diagnostics;
   }
 }

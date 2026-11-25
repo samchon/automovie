@@ -244,6 +244,7 @@ function append(
       owner,
       sample.chart[0],
       sample.chart[1],
+      sample.normal,
     );
   }
   AutoMovieSolidMeshWrite.emit(

@@ -18,7 +18,7 @@ export namespace AutoMovieConstructionSplitRibbon {
     read: CourseAt,
     end: 0 | 1,
     step: number = Math.cbrt(Number.EPSILON) / 2,
-  ): Cubic.Cubic {
+  ): Cubic.Controls {
     const sign = 1 - 2 * end;
     const p = read(end).controls;
     const a = read(end + sign * step).controls;
@@ -29,7 +29,7 @@ export namespace AutoMovieConstructionSplitRibbon {
           [(2 * sign) / step, Vec.sub(a[i]!, x)],
           [-sign / (2 * step), Vec.sub(b[i]!, x)],
         ]),
-    ) as Cubic.Cubic;
+    ) as Cubic.Controls;
   }
 
   /** Prepare one geometric transverse direction over the actual shared line. */
@@ -41,7 +41,7 @@ export namespace AutoMovieConstructionSplitRibbon {
       const zero: P3 = [0, 0, 0];
       if (u === 0 || u === 1) return [zero, zero];
       const along = Vec.unit(Cubic.first(line, u))!;
-      const direction = (angular: Cubic.Cubic): P3 => {
+      const direction = (angular: Cubic.Controls): P3 => {
         const original = Cubic.value(angular, u);
         return Vec.sub(original, Vec.scale(along, Vec.dot(original, along)));
       };
@@ -61,24 +61,36 @@ export namespace AutoMovieConstructionSplitRibbon {
   }
 
   /**
-   * Extend only the line-owned angular derivative into the unchanged sector. The
-   * cubic Hermite endpoint basis is the lowest degree preserving both line values
-   * and imposing one edge derivative. Gregory's u/(u+v) corner factor protects
-   * the other boundary's original first derivative for incompatible mixed jets.
-   * Partition by the two original course endpoint distances.
+   * Extend only the line-owned angular derivative into the unchanged sector.
+   * The cubic Hermite endpoint basis is the lowest degree preserving both line
+   * values and imposing one edge derivative. Gregory's u/(u+v) corner factor
+   * protects the other boundary's original first derivative for incompatible
+   * mixed jets. Partition by the two original course endpoint distances.
    * https://bura.brunel.ac.uk/bitstream/2438/1959/1/TR_47.pdf §2.1
    */
   export function prepareCourseRibbon(
     before: ReturnType<typeof prepareCoursePlane>,
     after: ReturnType<typeof prepareCoursePlane>,
+    preserveSecond: boolean = false,
   ): Ribbon {
     return (u) => {
       if (u === 0 || u === 1) return () => [0, 0, 0];
       const start = before(u)[1];
       const end = after(u)[0];
       const e = 1 - u;
-      const weight = (v: number): number =>
-        v * (1 - v) ** 2 * ((e * u) / (u + v) + (u * e) / (e + v));
+      // A third-order corner factor and a quintic partition both vanish
+      // through second order at the held native ends. The weights still sum
+      // to one at the generating line, which owns the transverse derivative.
+      const share: number = preserveSecond
+        ? u ** 3 * (10 + u * (6 * u - 15))
+        : 0;
+      const weight = preserveSecond
+        ? (v: number): number =>
+            v *
+            (1 - v) ** 2 *
+            ((1 - share) * (u / (u + v)) ** 3 + share * (e / (e + v)) ** 3)
+        : (v: number): number =>
+            v * (1 - v) ** 2 * ((e * u) / (u + v) + (u * e) / (e + v));
       return (v) =>
         Vec.combine([
           [weight(v), start],

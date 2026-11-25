@@ -17,7 +17,22 @@ export namespace AutoMovieConstructionSplitCourses {
     jet: (phase: number) => Solid.IJet;
   };
   /** One separating field and its measured forward reach. */
-  type Divider = { point: P3; normal: P3; estimatedReach: number };
+  type Divider = {
+    point: P3;
+    normal: P3;
+    estimatedReach: number;
+    /**
+     * An original shared divider course with a lower bound on its ordered
+     * chord.
+     */
+    guide?: {
+      at: (station: number) => { p: P3; d: P3 };
+      transverse: (station: number) => P3;
+      depth: number;
+      orderingMargin: number;
+      columns: number;
+    };
+  };
   /** One downstream owner and its fixed receiving rail. */
   type Receiver = {
     part: Part;
@@ -25,6 +40,7 @@ export namespace AutoMovieConstructionSplitCourses {
     station: number;
     clock: Cubic.Clock;
     reach: number;
+    /** Native unit direction of the outgoing course in world coordinates. */
   };
   /** One original boundary sector with its generating curves. */
   type Arc = {
@@ -63,18 +79,33 @@ export namespace AutoMovieConstructionSplitCourses {
     { parent, rails, forks, dividers, forward }: IInput,
     join: boolean,
   ) {
-    const seams = dividers.map(({ normal, estimatedReach }, i) => {
+    const seams = dividers.map(({ normal, estimatedReach, guide }, i) => {
       const ends = forks[i]!.map(parent.cut.jet);
       const reach = Math.min(rails[i]!.reach, rails[i + 1]!.reach);
-      const saddle = Cubic.prepareSaddle(
-        ends,
-        normal,
-        forward,
-        reach,
-        estimatedReach,
-      );
+      const saddle =
+        guide ??
+        (() => {
+          const cubic = Cubic.prepareSaddle(
+            ends,
+            normal,
+            forward,
+            reach,
+            estimatedReach,
+          );
+          return {
+            at: (s: number) => ({
+              p: Cubic.value(cubic.cubic, s),
+              d: Cubic.first(cubic.cubic, s),
+            }),
+            transverse: cubic.transverse,
+            depth: cubic.depth,
+            orderingMargin: cubic.pairedChordBound,
+            columns: deflectionSamples(cubic.cubic),
+            bounded: cubic.bounded,
+          };
+        })();
       const count = Math.max(
-        deflectionSamples(saddle.cubic),
+        saddle.columns,
         ...[i, i + 1].map((j): number => {
           const { clock, part } = rails[j]!;
           const a = clock.phase(ends[0]!.p);
@@ -90,18 +121,28 @@ export namespace AutoMovieConstructionSplitCourses {
         count,
         reach,
         estimatedReach,
-        bound: saddle.pairedChordBound,
+        bound: saddle.orderingMargin,
+        bounded: "bounded" in saddle && saddle.bounded === true,
+        endpoints: ends.every(
+          ({ p }, k): boolean =>
+            Vec.norm(Vec.sub(saddle.at(k).p, p)) <=
+            16 * Number.EPSILON * Math.max(1, Vec.norm(p)),
+        ),
       };
     });
-    const refused = seams.flatMap(({ reach, bound }, i): string[] =>
-      reach > 0 && bound > 0
-        ? []
-        : [`divider ${i} has no regular bounded saddle`],
+    const refused = seams.flatMap(
+      ({ reach, depth, bound, endpoints }, i): string[] =>
+        depth > 0 && reach > depth && bound > 0 && endpoints
+          ? []
+          : [`divider ${i} has no regular bounded saddle`],
     );
     if (refused.length !== 0) return refused.join(", ");
     const side = (p: P3, j: number, i: number): number =>
       (i <= j ? -1 : 1) *
       Vec.dot(Vec.sub(p, dividers[j]!.point), dividers[j]!.normal);
+    const preserveSecond: boolean = dividers.some(
+      ({ guide }) => guide !== undefined,
+    );
     const jets = rails.map(({ part, clock }, i) => {
       const left = i - 1;
       const right = i;
@@ -110,6 +151,7 @@ export namespace AutoMovieConstructionSplitCourses {
         point: (t: number) => { p: P3; d: P3 };
         angle: (t: number) => { value: number; rate: number };
         direction: (t: number, frm: P3, to: P3) => P3;
+        second: (t: number, speed: P3, frm: P3, to: P3) => P3;
         bodyPhase?: (t: number) => number;
         seam?: Arc["seam"];
       }[] = [];
@@ -154,6 +196,7 @@ export namespace AutoMovieConstructionSplitCourses {
           bodyPhase,
           point,
           angle,
+          second: (t, speed): P3 => Cubic.normalSecond(native(t), speed),
           count: Math.max(
             2,
             Math.ceil(
@@ -182,12 +225,12 @@ export namespace AutoMovieConstructionSplitCourses {
         const seam = seams[k]!;
         const span = reverse ? -1 : 1;
         const origin = reverse ? 1 : 0;
-        const begin = clock.phase(seam.cubic[reverse ? 3 : 0]);
-        const end = clock.phase(seam.cubic[reverse ? 0 : 3]);
+        const begin = clock.phase(seam.at(reverse ? 1 : 0).p);
+        const end = clock.phase(seam.at(reverse ? 0 : 1).p);
         const width = cycle(end - begin);
         const at = (t: number): number => origin + span * t;
         const basis = (s: number) => ({
-          along: Vec.unit(Cubic.first(seam.cubic, s))!,
+          along: Vec.unit(seam.at(s).d)!,
           across: seam.transverse(s),
         });
         const coeff = (s: number, ray: P3): [number, number] => {
@@ -198,14 +241,36 @@ export namespace AutoMovieConstructionSplitCourses {
             Vec.dot(ray, across),
           ])!;
         };
+        const normal = (s: number): P3 => {
+          const { along, across } = basis(s);
+          return Vec.unit(Vec.cross(along, across))!;
+        };
         paths.push({
           seam: { id: k, reverse },
           count: seam.count,
-          point: (t) => ({
-            p: Cubic.value(seam.cubic, at(t)),
-            d: Vec.scale(Cubic.first(seam.cubic, at(t)), span),
-          }),
+          point: (t) => {
+            const { p, d } = seam.at(at(t));
+            return { p, d: Vec.scale(d, span) };
+          },
           angle: (t) => ({ value: cycle(begin + width * t), rate: width }),
+          second: (t, speed, from, to): P3 => {
+            const end: 0 | 1 = t <= 0.5 ? 0 : 1;
+            const fork: number = at(end);
+            const native = parent.cut.jet(forks[k]![fork]!);
+            if (t === end) return Cubic.normalSecond(native, speed);
+            // ESTIMATE. Carry the two measured fork curvatures toward a ruled
+            // section at the saddle. The cubic taper is the least degree that
+            // leaves zero value and two derivatives at that common centre.
+            const share: number = Math.abs(1 - 2 * t) ** 3;
+            const curvature: number = Vec.dot(
+              Cubic.normalSecond(native, end === 0 ? from : to),
+              normal(fork),
+            );
+            return Vec.scale(
+              normal(at(t)),
+              share * curvature * Vec.dot(speed, speed),
+            );
+          },
           direction: (t, from, to): P3 => {
             if (t === 0) return from;
             if (t === 1) return to;
@@ -267,13 +332,20 @@ export namespace AutoMovieConstructionSplitCourses {
             const phase = positiveClock(t, rates[0]!, rates[1]!);
             const q = clock.read(path.angle(phase).value);
             const reach = Vec.dot(Vec.sub(q.p, p), forward) / 3;
-            return Cubic.connection(
+            const connection = Cubic.connection(
               p,
               q,
               forward,
               (j): P3 => constrain(Cubic.unitCross(j), j.p, reach, 1),
               (): P3 => constrain(path.direction(t, start, end), p, reach, -1),
             );
+            return preserveSecond
+              ? Cubic.withCurvature(
+                  connection,
+                  (speed): P3 => path.second(t, speed, start, end),
+                  q,
+                )
+              : connection;
           },
         };
       });
@@ -297,11 +369,12 @@ export namespace AutoMovieConstructionSplitCourses {
         Ribbon.prepareCourseRibbon(
           lines[(j + lines.length - 1) % lines.length]!,
           line,
+          preserveSecond,
         ),
       );
       const railSpacing = Math.max(
         ...face.map((c, j): number =>
-          Vec.norm(Vec.sub(c[3], face[(j + 1) % face.length]![3])),
+          Vec.norm(Vec.sub(c.at(-1)!, face[(j + 1) % face.length]!.at(-1)!)),
         ),
       );
       const rows = Math.max(
@@ -329,7 +402,9 @@ export namespace AutoMovieConstructionSplitCourses {
       );
       const minimumProgress = Math.min(
         ...face.flatMap((c) =>
-          c.slice(1).map((p, k): number => Vec.dot(Vec.sub(p, c[k]!), forward)),
+          c.slice(1).map((p, k): number =>
+            Vec.dot(Vec.sub(p, c[k]!), forward),
+          ),
         ),
       );
       const directed = face.every((c): boolean => {
@@ -390,26 +465,20 @@ export namespace AutoMovieConstructionSplitCourses {
    * Apply the requested 0.01 mm geometric resolution to a chord. The deviation
    * of a twice-differentiable curve from a chord is at most max |C''| h²/8.
    */
-  function deflectionSamples([a, b, c, d]: Cubic.Cubic): number {
-    const curvature =
-      6 *
-      Math.max(
+  function deflectionSamples(controls: Cubic.Controls): number {
+    const degree: number = controls.length - 1;
+    const bound: number = Math.max(
+      ...controls.slice(2).map((p, i): number =>
         Vec.norm(
           Vec.combine([
-            [1, c],
-            [-2, b],
-            [1, a],
+            [1, p],
+            [-2, controls[i + 1]!],
+            [1, controls[i]!],
           ]),
         ),
-        Vec.norm(
-          Vec.combine([
-            [1, d],
-            [-2, c],
-            [1, b],
-          ]),
-        ),
-      );
-    return Math.ceil(Math.sqrt(curvature / (8 * 0.01)));
+      ),
+    );
+    return Math.ceil(Math.sqrt((degree * (degree - 1) * bound) / (8 * 0.01)));
   }
 
   /** Positive normalized clock with exact endpoint speeds. */

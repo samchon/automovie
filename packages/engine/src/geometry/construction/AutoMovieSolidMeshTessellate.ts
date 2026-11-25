@@ -157,6 +157,7 @@ export namespace AutoMovieSolidMeshTessellate {
       };
     } catch (error: unknown) {
       mesh.positions.length = before[0];
+      if (mesh.normals !== undefined) mesh.normals.length = before[0];
       mesh.indices.length = before[1];
       mesh.coordinates.length = before[2];
       mesh.owners.length = before[3];

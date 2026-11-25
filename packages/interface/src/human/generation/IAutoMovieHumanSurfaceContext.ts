@@ -34,6 +34,13 @@ export interface IAutoMovieHumanSurfaceContext {
   indices: Map<string, number>;
   /** Flat chain-index, station-mm and phase-radian triples per generated vertex. */
   coordinates: number[];
+  /** Solid tessellation's world normals, borrowed at its original output offset. */
+  solidNormals?: {
+    /** First scalar index of the solid positions in the ordinary skin buffers. */
+    start: number;
+    /** Indexed normals of the solid vertices, NaN when the grid owns no jet. */
+    values: number[];
+  };
   /** Rows and separatrices emitted by contacts that own a web. */
   webPaths: IAutoMovieHumanConstructionPath[];
   /** Shared slit vertex indices whose normals come from their incident faces. */

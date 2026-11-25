@@ -108,6 +108,7 @@ export namespace AutoMovieHumanNailSurface {
       return { open, plateFrom, plate: plate.chain, skin: skin.chain, surface };
     } catch (error: unknown) {
       mesh.positions.length = vertexFrom;
+      if (mesh.normals !== undefined) mesh.normals.length = vertexFrom;
       mesh.coordinates.length = coordinateFrom;
       mesh.indices.length = indexFrom;
       mesh.owners.length = ownerFrom;

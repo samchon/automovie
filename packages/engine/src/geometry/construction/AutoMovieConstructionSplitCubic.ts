@@ -3,12 +3,18 @@ import type {
   IAutoMovieSolidSurface as Solid,
 } from "@automovie/interface";
 
+import { AutoMovieBernsteinAlgebra64 as Bernstein } from "../curve/AutoMovieBernsteinAlgebra64";
 import { AutoMovieSolidVector as Vec } from "./AutoMovieSolidVector";
 
-/** Bounded generating cubics and shared saddle curves for split branches. */
+/** Bounded generating curves and shared cubic saddles for split branches. */
 export namespace AutoMovieConstructionSplitCubic {
   /** Four world-space cubic Bézier controls, in millimetres. */
   export type Cubic = [P3, P3, P3, P3];
+  /**
+   * A cubic or a quintic with source-owned normal accelerations, in
+   * millimetres.
+   */
+  export type Controls = Cubic | [P3, P3, P3, P3, P3, P3];
   /** Geometric polar correspondence for one fixed native receiving rail. */
   export type Clock = {
     /** Physical angle in radians around the receiving plane. */
@@ -21,7 +27,7 @@ export namespace AutoMovieConstructionSplitCubic {
   /** One generating curve and its exact receiving address. */
   export type Course = {
     /** World-space Bézier controls in course order. */
-    controls: Cubic;
+    controls: Controls;
     /** Native receiving chart phase in radians. */
     phase: number;
   };
@@ -117,7 +123,7 @@ export namespace AutoMovieConstructionSplitCubic {
     z: P3,
     end: (j: Solid.IJet) => P3,
     start: (reach: number) => P3,
-  ): Course {
+  ): Course & { controls: Cubic } {
     const reach: number = Vec.dot(Vec.sub(q.p, p), z) / 3;
     return {
       controls: [
@@ -130,9 +136,68 @@ export namespace AutoMovieConstructionSplitCubic {
     };
   }
 
+  /**
+   * Carry the two native normal accelerations using the minimum Hermite degree.
+   *
+   * @see https://www2.mathematik.tu-darmstadt.de/~ehartmann/cdgen.pdf Section 11.3.
+   * @see https://doi.org/10.1090/S0025-5718-1989-0962209-1 Positive and monotone quintic control bounds.
+   */
+  export function withCurvature(
+    { controls: [p, b, c, q], phase }: Course & { controls: Cubic },
+    start: (speed: P3) => P3,
+    finish: Solid.IJet,
+  ): Course {
+    // The old tangent handle is D/3. The second quintic control uses 2D/5,
+    // so 5/6 is the exact speed conversion that preserves that reach budget.
+    const d0: P3 = Vec.scale(Vec.sub(b, p), 2.5);
+    const d1: P3 = Vec.scale(Vec.sub(q, c), 2.5);
+    return {
+      phase,
+      controls: [
+        p,
+        Vec.add(p, Vec.scale(d0, 1 / 5)),
+        Vec.add(b, Vec.scale(start(d0), 1 / 20)),
+        Vec.add(c, Vec.scale(normalSecond(finish, d1), 1 / 20)),
+        Vec.sub(q, Vec.scale(d1, 1 / 5)),
+        q,
+      ],
+    };
+  }
+
+  /** The normal acceleration of a selected world tangent in an original surface. */
+  export function normalSecond(
+    { u, v, uu, uv, vv }: Solid.IJet,
+    speed: P3,
+  ): P3 {
+    const mix: number = Vec.dot(u, v);
+    const [a, b] = Vec.solve2(Vec.dot(u, u), mix, mix, Vec.dot(v, v), [
+      Vec.dot(u, speed),
+      Vec.dot(v, speed),
+    ])!;
+    const n: P3 = Vec.unit(Vec.cross(u, v))!;
+    const second: P3 = Vec.combine([
+      [a * a, uu],
+      [2 * a * b, uv],
+      [b * b, vv],
+    ]);
+    return Vec.scale(n, Vec.dot(second, n));
+  }
+
   /** Evaluate a course point in world millimetres at a normalized parameter. */
-  export function value([a, b, c, d]: Cubic, t: number): P3 {
+  export function value(controls: Controls, t: number): P3 {
     const e: number = 1 - t;
+    if (controls.length === 6) {
+      const [a, b, c, d, f, g] = controls;
+      return Vec.combine([
+        [e ** 5, a],
+        [5 * e ** 4 * t, b],
+        [10 * e ** 3 * t ** 2, c],
+        [10 * e ** 2 * t ** 3, d],
+        [5 * e * t ** 4, f],
+        [t ** 5, g],
+      ]);
+    }
+    const [a, b, c, d] = controls;
     return Vec.combine([
       [e ** 3, a],
       [3 * e * e * t, b],
@@ -142,7 +207,10 @@ export namespace AutoMovieConstructionSplitCubic {
   }
 
   /** Evaluate the world-space course derivative per normalized parameter. */
-  export function first([a, b, c, d]: Cubic, t: number): P3 {
+  export function first(controls: Controls, t: number): P3 {
+    if (controls.length !== 4)
+      return Bernstein.value(Bernstein.tangent(controls), t);
+    const [a, b, c, d] = controls;
     const e: number = 1 - t;
     return Vec.combine([
       [3 * e * e, Vec.sub(b, a)],

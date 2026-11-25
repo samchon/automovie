@@ -33,3 +33,21 @@ The record asserts derivative meaning but cannot prove finiteness, mixed-partial
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Identifies world space, derivative units and the producer-specific ownership of the vectors.
+
+# src/construction/IAutoMovieSolidSurface.ts#IAutoMovieSolidSurface.IFirst
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+The same world point and chart tangents as the full surface jet.
+
+## @evidence contracts/development/design.md#principled-representation
+
+Point and both derivatives derive from the existing total-order contract with its millimetre and chart units.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Native split strips provide one prepared column read for their first-order grid consumers.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The first-order capability does not grant second partials or extend a surface's domain.

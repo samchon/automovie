@@ -7,6 +7,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanBodySurfaceNormals,
+  IAutoMovieHumanSurfaceContext,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -35,11 +36,19 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     calibration: IAutoMovieHumanBodyCalibration,
     coordinates: readonly number[],
     mesh: number[],
+    solid?: IAutoMovieHumanSurfaceContext["solidNormals"],
   ): number[] {
     const out: number[] = [...mesh];
     const cosine: number = Math.cos((AGREE * Math.PI) / 180);
     const vertices: number[][] = calibration.chains.map((): number[] => []);
     for (let at: number = 0; at + 2 < coordinates.length; at += 3) {
+      if (solid !== undefined) {
+        const k: number = at - solid.start;
+        if (Number.isFinite(solid.values[k])) {
+          write([solid.values[k]!, solid.values[k + 1]!, solid.values[k + 2]!], at, mesh, out, cosine);
+          continue;
+        }
+      }
       const index: number = coordinates[at]!;
       const s: number = coordinates[at + 1]!;
       if (!Number.isFinite(index) || !Number.isFinite(coordinates[at + 2]))
@@ -102,14 +111,16 @@ export namespace AutoMovieHumanBodySurfaceNormals {
       const jet: ReturnType<typeof jets> = jets(s);
       return (t: number, at: number): void => {
         const n: AutoMovieVector3Tuple | null = AutoMovieLoftJet.normal(jet(t));
-        if (n === null) return;
-        const c: number =
-          n[0] * mesh[at]! + n[1] * mesh[at + 1]! + n[2] * mesh[at + 2]!;
-        if (Math.abs(c) < cosine) return;
-        for (let k: number = 0; k < 3; k++)
-          out[at + k] = (c < 0 ? -1 : 1) * n[k]!;
+        if (n !== null) write(n, at, mesh, out, cosine);
       };
     };
+  }
+
+  /** Keep the orientation and angular agreement test at each analytic vertex. */
+  function write(n: AutoMovieVector3Tuple, at: number, mesh: readonly number[], out: number[], cosine: number): void {
+    const c: number = n[0] * mesh[at]! + n[1] * mesh[at + 1]! + n[2] * mesh[at + 2]!;
+    if (Math.abs(c) < cosine) return;
+    for (let k: number = 0; k < 3; k++) out[at + k] = (c < 0 ? -1 : 1) * n[k]!;
   }
 
   /** Use the exact phase tangent and original two-point station difference. */

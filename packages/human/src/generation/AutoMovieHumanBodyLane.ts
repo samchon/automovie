@@ -1,3 +1,4 @@
+import { AutoMovieSolidVector as Vec } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionNode,
@@ -18,6 +19,7 @@ import { AutoMovieHumanBodyPublication } from "./AutoMovieHumanBodyPublication";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
 import { AutoMovieHumanArmscyeOpening } from "./arm/AutoMovieHumanArmscyeOpening";
 import { AutoMovieHumanDigitalSplit } from "./conic/AutoMovieHumanDigitalSplit";
+import { AutoMovieHumanPelvicSplit } from "./conic/AutoMovieHumanPelvicSplit";
 import { AutoMovieHumanSkinDivide } from "./conic/AutoMovieHumanSkinDivide";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
@@ -38,13 +40,10 @@ import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
  * Joins, the part being the solid whose station lines leave the host across the
  * fold, the host the whole subtree built before it: masses after their trunk
  * and same-leg parents; each toe onto its foot, the leg onto that foot (seeded
- * at the ankle's front), and the leg with its foot onto the trunk (seeded at
- * the inguinal fold, R the caller's operational join softness, capped at half
- * the gap between the two hip centres so the two legs' rails never cross at the
- * perineum); each digit onto its arm's palm, and the arm with its hand through
- * the original torso's anatomical shoulder port. A digit's or a toe's web is
- * capped at half the gap to its nearest neighbour's base, so neighbouring webs'
- * rails never cross.
+ * at the ankle's front), and both lower branches through one trunk-owned split
+ * at the pelvis; the thumb through a local attachment on the palm, the
+ * fingers through its terminal split, and the full arm through the original
+ * torso's anatomical shoulder port.
  *
  * Failed original definitions keep their diagnostics. Admitted originals remain
  * attempt leaves: the engine performs their lofts and names failed leaves/joins
@@ -135,10 +134,7 @@ export namespace AutoMovieHumanBodyLane {
       ...LIMITS,
       gap: input.gap,
     };
-    const view: (
-      name: string,
-      result: IAutoMovieHumanSourceRealization,
-    ) => IAutoMovieConstructionView | null = (
+    const view = (
       name: string,
       result: IAutoMovieHumanSourceRealization,
     ): IAutoMovieConstructionView | null => {
@@ -146,21 +142,12 @@ export namespace AutoMovieHumanBodyLane {
       diagnostics.push(...result.diagnostics);
       return result.view;
     };
-    const original: (
-      name: string,
-      definition: IAutoMovieHumanSourceDefinition,
-    ) => IAutoMovieConstructionView | null = (
+    const original = (
       name: string,
       definition: IAutoMovieHumanSourceDefinition,
     ): IAutoMovieConstructionView | null =>
       view(name, { ...definition, loft: null });
-    const fold: (
-      part: IAutoMovieConstructionNode,
-      partFace: string,
-      hostFace: string,
-      f: IAutoMovieHumanBodyLane.IFold,
-      cap: number,
-    ) => IAutoMovieHumanBodyTree.IFold = (
+    const fold = (
       part: IAutoMovieConstructionNode,
       partFace: string,
       hostFace: string,
@@ -230,21 +217,14 @@ export namespace AutoMovieHumanBodyLane {
         partEnd: "bottom",
       };
 
-    // The legs' rails stay either side of the perineum.
-    const hips: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = [
-      input.sides.left.leg.bones.hip,
-      input.sides.right.leg.bones.hip,
-    ];
-    const perineum: number = distance(hips[0], hips[1]) / 2;
     const handAttachments: IAutoMovieHumanHandAttachment.IConnection[] = [];
-    type Digital = Exclude<
-      ReturnType<typeof AutoMovieHumanDigitalSplit.prepare>,
-      string
-    >;
-    const fans: Digital[] = [];
+    type Prepared =
+      | ReturnType<typeof AutoMovieHumanDigitalSplit.prepare>
+      | ReturnType<typeof AutoMovieHumanPelvicSplit.production>;
+    const splits: Exclude<Prepared, string>[] = [];
     const digital = (
       kind: "hand" | "foot",
-      host: IAutoMovieConstructionView | null,
+      host: IAutoMovieConstructionNode | null,
       parent: IAutoMovieViewPart | null,
       list: readonly (
         | IAutoMovieHumanBodyLane.IDigit
@@ -287,7 +267,7 @@ export namespace AutoMovieHumanBodyLane {
           owned.map(({ node }) => node),
         );
         if (typeof fan !== "string") {
-          fans.push(fan);
+          splits.push(fan);
           return fan.node;
         }
         reason = fan;
@@ -303,18 +283,26 @@ export namespace AutoMovieHumanBodyLane {
       return host;
     };
 
-    for (const name of ["left", "right"] as const) {
+    const sides = ["left", "right"] as const;
+    const legs: (AutoMovieHumanPelvicSplit.IBranch & {
+      fold: IAutoMovieHumanBodyTree.IFold;
+    })[] = [];
+    // The previous two joins are the declared fallback of an inadmissible split.
+    const perineum: number =
+      Vec.norm(
+        Vec.sub(
+          input.sides.left.leg.bones.hip,
+          input.sides.right.leg.bones.hip,
+        ),
+      ) / 2;
+    for (const name of sides) {
       const side: IAutoMovieHumanBodyLane.ISide = input.sides[name];
-
-      // The leg on its foot and toes, then onto the trunk.
       const lowerSources: Pick<
         IAutoMovieHumanBodyLane.ISide,
         "foot" | "footDefinition" | "toes"
       > = side.prepareFoot?.() ?? side;
-      const leg: IAutoMovieConstructionView | null = original(
-        `leg.${name}`,
-        trunk.legs?.[name] ?? side.leg.definition,
-      );
+      const stock = trunk.legs?.[name] ?? side.leg.definition;
+      const leg = original(`leg.${name}`, stock);
       const foot: IAutoMovieConstructionView | null = original(
         lowerSources.foot.name,
         lowerSources.footDefinition,
@@ -326,7 +314,7 @@ export namespace AutoMovieHumanBodyLane {
         lowerSources.toes,
         [0, 1, 0],
       );
-      if (leg !== null && root !== null && trunk.trunk !== null) {
+      if (leg !== null && stock.part !== null && trunk.trunk !== null) {
         const lower: IAutoMovieConstructionNode =
           foot === null || toes === null
             ? leg
@@ -341,14 +329,45 @@ export namespace AutoMovieHumanBodyLane {
                 ),
                 limits,
               );
-        root = AutoMovieHumanBodyTree.join(
-          root,
-          fold(lower, leg.name, trunk.trunk.name, side.leg.trunk, perineum),
-          limits,
-        );
+        legs.push({
+          part: stock.part,
+          branch: lower,
+          fold: fold(
+            lower,
+            leg.name,
+            trunk.trunk.name,
+            side.leg.trunk,
+            perineum,
+          ),
+        });
       }
 
-      // The arm with its hand onto the trunk.
+    }
+    if (root !== null) {
+      const [left, right] = legs;
+      const pelvis =
+        torso !== undefined &&
+        torso !== null &&
+        left !== undefined &&
+        right !== undefined
+          ? AutoMovieHumanPelvicSplit.production(torso, root, left, right)
+          : "Both original lower branches and the torso are required";
+      if (typeof pelvis === "string") {
+        diagnostics.push({
+          producer: "split.pelvis",
+          level: 3,
+          contract: "native pelvic split",
+          detail: pelvis,
+        });
+        for (const { fold: low } of legs)
+          root = AutoMovieHumanBodyTree.join(root, low, limits);
+      } else {
+        splits.push(pelvis);
+        root = pelvis.node;
+      }
+    }
+    for (const name of sides) {
+      const side = input.sides[name];
       const upperSources: Pick<
         IAutoMovieHumanBodyLane.ISide,
         "arm" | "fingers"
@@ -461,12 +480,14 @@ export namespace AutoMovieHumanBodyLane {
       handAttachments,
       sourceParts,
       digitalSources: {
-        splitParentCuts: new Map(fans.map(({ node, cut }) => [node.name, cut])),
+        splitParentCuts: new Map(
+          splits.map(({ node, cut }) => [node.name, cut]),
+        ),
         splitChildRails: new Map(
-          fans.map(({ node, rails }) => [node.name, rails]),
+          splits.map(({ node, rails }) => [node.name, rails]),
         ),
         splitPrepared: new Map(
-          fans.map(({ node, bands }) => [node.name, bands]),
+          splits.map(({ node, bands }) => [node.name, bands]),
         ),
       },
       ...(input.head === undefined

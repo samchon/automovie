@@ -251,6 +251,7 @@ export namespace AutoMovieHumanBodySurface {
                   },
               context.coordinates,
               faces,
+              context.solidNormals,
             ),
           ),
         ),

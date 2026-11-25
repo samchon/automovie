@@ -47,6 +47,7 @@ export function gridAutoMovieSolidMesh(
   input: IAutoMovieSolidMesh.IFace,
 ): IAutoMovieGridSolidMeshGrid | null | string {
   const { surface, stations, phases, loops }: IAutoMovieSolidMesh.IFace = input;
+  const opened: number = input.onGrid === undefined ? 0 : performance.now();
   const period: number | undefined = surface.period;
   if (
     mesh.positions.length % 3 !== 0 ||
@@ -85,20 +86,23 @@ export function gridAutoMovieSolidMesh(
   if (typeof domainAuthorities === "string") return domainAuthorities;
   const barriers: IAutoMovieSolidMeshConstraints.ISegment[] =
     domainAuthorities.length === 0 ? trim : [...trim, ...domainAuthorities];
-  const jets: IAutoMovieSolidSurface.IJet[][] = [];
-  let columnJets: ((u: number) => IAutoMovieSolidSurface.IJet)[] | undefined;
+  const jets: GridJet[][] = [];
+  const columnsAt = surface.tangentAlong ?? surface.jetAlong;
+  const reader: IAutoMovieSolidMesh.IGridReport["reader"] =
+    surface.tangentAlong !== undefined ? "column1" : columnsAt !== undefined ? "column2" : surface.jetAt !== undefined ? "row2" : "point2";
+  let columnJets: ((u: number) => IAutoMovieSolidSurface.IFirst)[] | undefined;
   try {
     columnJets =
-      surface.jetAlong === undefined
+      columnsAt === undefined
         ? undefined
-        : phases.map((v) => surface.jetAlong!(v));
+        : phases.map((v) => columnsAt.call(surface, v));
   } catch (error: unknown) {
     if (error instanceof AutoMovieLoftAdmissionError)
       return `face grid has unavailable source physical2: ${error.message}`;
     throw error;
   }
   for (const u of stations) {
-    const row: IAutoMovieSolidSurface.IJet[] = [];
+    const row: GridJet[] = [];
     let jet: ((phase: number) => IAutoMovieSolidSurface.IJet) | undefined;
     if (columnJets === undefined)
       try {
@@ -112,7 +116,7 @@ export function gridAutoMovieSolidMesh(
         throw error;
       }
     for (const [j, v] of phases.entries()) {
-      let read: IAutoMovieSolidSurface.IJet;
+      let read: IAutoMovieSolidSurface.IFirst;
       try {
         read = columnJets === undefined ? jet!(v) : columnJets[j]!(u);
       } catch (error: unknown) {
@@ -120,7 +124,7 @@ export function gridAutoMovieSolidMesh(
           return `face grid has unavailable source physical2: ${error.message}`;
         throw error;
       }
-      const copied: IAutoMovieSolidSurface.IJet | string = copy(read);
+      const copied: GridJet | string = copy(read, reader !== "column1");
       if (typeof copied === "string") return copied;
       row.push(copied);
     }
@@ -172,7 +176,8 @@ export function gridAutoMovieSolidMesh(
     );
     const id: number = authority ?? base + samples.size;
     if (authority === undefined) {
-      samples.set(id, { point: jets[i]![column]!.p, chart: point });
+      const { p, normal } = jets[i]![column]!;
+      samples.set(id, { point: p, chart: point, normal });
       chart.set(id, point);
     }
     reserved.set(key, id);
@@ -294,6 +299,12 @@ export function gridAutoMovieSolidMesh(
       ),
     ),
   );
+  input.onGrid?.({
+    name: surface.name, rows: stations.length, columns: phases.length, reader,
+    kept: kept.reduce((total, row) => total + row.filter(Boolean).length, 0),
+    trimEdges: trim.length,
+    milliseconds: performance.now() - opened,
+  });
   const columns: number =
     period === undefined ? phases.length - 1 : phases.length;
   const cells: boolean[][] = Array.from(
@@ -594,17 +605,16 @@ function bend(
  * Copy one coherent reading before a subsequent source call can reuse its
  * storage.
  */
-function copy(
-  jet: IAutoMovieSolidSurface.IJet,
-): IAutoMovieSolidSurface.IJet | string {
+type GridJet = IAutoMovieSolidSurface.IFirst & { normal: AutoMovieVector3Tuple };
+
+function copy(jet: IAutoMovieSolidSurface.IFirst, total: boolean): GridJet | string {
+  const full = jet as IAutoMovieSolidSurface.IJet;
   const vectors: AutoMovieVector3Tuple[] = [
     jet.p,
     jet.u,
     jet.v,
-    jet.uu,
-    jet.uv,
-    jet.vv,
   ];
+  if (total) vectors.push(full.uu, full.uv, full.vv);
   if (
     !vectors.every(
       (value: AutoMovieVector3Tuple): boolean =>
@@ -612,23 +622,22 @@ function copy(
     )
   )
     return "face source jet must contain finite three-component vectors";
-  const values: AutoMovieVector3Tuple[] = vectors.map(
+  const values: AutoMovieVector3Tuple[] = vectors.slice(0, 3).map(
     (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
       value[0],
       value[1],
       value[2],
     ],
   );
-  const length: number = norm(cross(values[1]!, values[2]!));
+  const normal: AutoMovieVector3Tuple = cross(values[1]!, values[2]!);
+  const length: number = norm(normal);
   if (!(Number.isFinite(length) && length > 0))
     return "face grid needs regular representable chart jets; a contracted pole needs its closure owner";
   return {
     p: values[0]!,
     u: values[1]!,
     v: values[2]!,
-    uu: values[3]!,
-    uv: values[4]!,
-    vv: values[5]!,
+    normal: [normal[0] / length, normal[1] / length, normal[2] / length],
   };
 }
 

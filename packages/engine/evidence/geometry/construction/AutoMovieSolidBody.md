@@ -195,3 +195,33 @@ Reads current face cycles without introducing a stale query cache.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns a scalar without retaining the face or coordinates.
+
+# src/geometry/construction/AutoMovieSolidBody.ts#AutoMovieSolidBody.prepareFaces
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Prepares one append-only mesh batch for an actual body or its published face data.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A structured end reads the authoritative curve's station at each phase and carries its shared indices into the closest completely retained original row. A planar end keeps its existing rule. Ordinary domains and remaining trims use the same constrained face builder.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Engine draw and Human restoration call the same prepared face function. It delegates unstructured populations to the existing constrained grid.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The source must preserve a complete ordered angular partition. A curved cut without a wholly retained row or matching native phases reports its missing premise. A returned planning refusal restores appended mesh attributes together.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The structured strip advances by rows and phase sectors. Generic triangulation is confined to remaining trims on the retained source grid.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Reuses the face batch's edge incidence and original boundary point indices through publication and ordinary drawing.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The closure retains the supplied mesh and one append-only incidence until the invocation ends.

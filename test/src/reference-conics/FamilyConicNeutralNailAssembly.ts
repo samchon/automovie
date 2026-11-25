@@ -41,7 +41,17 @@ export namespace FamilyConicNeutralNailAssembly {
     out?: string,
     captureNames: readonly string[] = [],
   ) {
-    const body = buildHumanNeutralCapture.inspect();
+    return observeBody(buildHumanNeutralCapture.inspect(), side, names, out, captureNames);
+  }
+
+  /** Read the requested nails from the same already evaluated ordinary body. */
+  export async function observeBody(
+    body: ReturnType<typeof buildHumanNeutralCapture.inspect>,
+    side: "left" | "right" | undefined,
+    names: readonly string[],
+    out?: string,
+    captureNames: readonly string[] = [],
+  ) {
     const sources: readonly IAutoMovieHumanDigitNails.IPlaced[] =
       body.calibration.nailSources ?? [];
     const requested = (name: string): boolean =>
