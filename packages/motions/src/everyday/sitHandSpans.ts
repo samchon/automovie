@@ -35,19 +35,16 @@ export function sitHandSpans(props: sitHandSpans.IProps): sitHandSpans.ISpans {
     instants: [contact, descent],
     entry: props.entry,
   });
-  const meets: Partial<Record<AutoMovieHumanSide, number>> = {};
-  for (const side of SIDES) {
-    if (props.armrest(side)) continue;
-    const meet: number | undefined = sitHandMeet({
-      body: props.body,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-        legs(props.lowered(seconds), seconds),
-      entry: props.entry,
-      side,
-      until: contact,
-    });
-    if (meet !== undefined) meets[side] = meet;
-  }
+  const meets: Partial<Record<AutoMovieHumanSide, number>> = sitHandMeet({
+    body: props.body,
+    posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+      legs(props.lowered(seconds), seconds),
+    entry: props.entry,
+    sides: new Set<AutoMovieHumanSide>(
+      SIDES.filter((side: AutoMovieHumanSide): boolean => !props.armrest(side)),
+    ),
+    until: contact,
+  });
   const span = (
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmPlanned.ISpan => {

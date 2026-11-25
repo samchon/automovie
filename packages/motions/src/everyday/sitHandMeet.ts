@@ -38,41 +38,124 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @returns The first such second at which the hand meets the thigh; none where
  *   it does not by the last second.
  */
-export function sitHandMeet(props: sitHandMeet.IProps): number | undefined {
-  const { body, side }: sitHandMeet.IProps = props;
-  const model: IAutoMovieMotionHumanAuditTangleModel.IModel = body.tangle;
-  const hand: string = `${side}Hand`;
-  const thigh: AutoMovieHumanoidBone = `${side}UpperLeg`;
-  const hands: number[] = [];
-  let leg: number = -1;
-  model.parts.forEach(
-    (part: IAutoMovieMotionHumanAuditTangleModel.IPart, i: number): void => {
-      if (Model.group(part.bone) === hand) hands.push(i);
-      if (part.bone === thigh) leg = i;
-    },
-  );
-  if (hands.length === 0 || leg < 0) return undefined;
+export function sitHandMeet(props: sitHandMeet.IProps): number | undefined;
 
-  // The arm as it was entered: its shoulder, upper and lower arm, hand and
-  // digits at their entry angles; no arm goal.
-  const arm: IAutoMovieMotionHumanPosture["joints"] = {};
-  for (const joint of props.entry.joints)
-    if (
-      joint.bone.startsWith(side) &&
-      (Model.group(joint.bone) === hand ||
-        joint.bone === `${side}Shoulder` ||
-        joint.bone === `${side}UpperArm` ||
-        joint.bone === `${side}LowerArm`)
-    )
-      arm[joint.bone] = angles(joint);
-  const meets = (seconds: number): boolean => {
+/**
+ * Read the unbraced hands' first meetings during a sit's lower-body course.
+ * The world foot goals place the thighs below the hips. Each entry arm is a
+ * separate branch below the chest, so both hands observe the same thighs and
+ * each sees its own entry angles when resolved in one pose. Neither an arm
+ * nor a digit goal belongs to this lowering.
+ *
+ * @param props The sit's body, lowering, entry, unbraced sides and last second.
+ * @returns The first meeting second for each hand that meets its thigh.
+ */
+export function sitHandMeet(
+  props: ILowering,
+): Partial<Record<AutoMovieHumanSide, number>>;
+export function sitHandMeet(
+  props: sitHandMeet.IProps | ILowering,
+): number | undefined | Partial<Record<AutoMovieHumanSide, number>> {
+  if (props.side !== undefined) {
+    const side: AutoMovieHumanSide = props.side;
+    return firstMeets(
+      {
+        ...props,
+        posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+          const posture: IAutoMovieMotionHumanPosture = props.posture(seconds);
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+          delete limbs[`${side}Arm`];
+          return { ...posture, limbs };
+        },
+      },
+      [side],
+    )[side];
+  }
+  return firstMeets(
+    {
+      ...props,
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+        const { root, yaw, pitch, roll, joints, rotation, limbs } =
+          props.posture(seconds);
+        return {
+          root,
+          yaw,
+          pitch,
+          roll,
+          joints,
+          ...(rotation === undefined ? {} : { rotation }),
+          limbs: {
+            ...(limbs.leftLeg === undefined ? {} : { leftLeg: limbs.leftLeg }),
+            ...(limbs.rightLeg === undefined ? {} : { rightLeg: limbs.rightLeg }),
+          },
+        };
+      },
+    },
+    props.sides,
+  );
+}
+
+/** The lower-body course admits a set of independent unbraced hands. */
+interface ILowering extends Omit<sitHandMeet.IProps, "side"> {
+  /** No single side is being read over an unrestricted posture. */
+  side?: never;
+
+  /** The hands with no armrest, each read once. */
+  sides: ReadonlySet<AutoMovieHumanSide>;
+}
+
+/** The original ordered collider indices for one hand and its own thigh. */
+interface IHand {
+  /** The side the pair belongs to. */
+  side: AutoMovieHumanSide;
+
+  /** The hand and digit collider part indices, in body order. */
+  hands: readonly number[];
+
+  /** The upper leg collider part index. */
+  thigh: number;
+}
+
+/** Read the original grid once, checking each hand until its first meeting. */
+function firstMeets(
+  props: Omit<sitHandMeet.IProps, "side">,
+  sides: Iterable<AutoMovieHumanSide>,
+): Partial<Record<AutoMovieHumanSide, number>> {
+  const { body, entry, until }: Omit<sitHandMeet.IProps, "side"> = props;
+  const model: IAutoMovieMotionHumanAuditTangleModel.IModel = body.tangle;
+  const arms: IAutoMovieMotionHumanPosture["joints"] = {};
+  const pairs: IHand[] = [];
+  for (const side of sides) {
+    const hand: string = `${side}Hand`;
+    const hands: number[] = [];
+    let thigh: number = -1;
+    model.parts.forEach(
+      (part: IAutoMovieMotionHumanAuditTangleModel.IPart, i: number): void => {
+        if (Model.group(part.bone) === hand) hands.push(i);
+        if (part.bone === `${side}UpperLeg`) thigh = i;
+      },
+    );
+    if (hands.length === 0 || thigh < 0) continue;
+    pairs.push({ side, hands, thigh });
+
+    // Hold the shoulder, arm, hand and digits at the entry angles.
+    for (const joint of entry.joints)
+      if (
+        joint.bone.startsWith(side) &&
+        (Model.group(joint.bone) === hand ||
+          joint.bone === `${side}Shoulder` ||
+          joint.bone === `${side}UpperArm` ||
+          joint.bone === `${side}LowerArm`)
+      )
+        arms[joint.bone] = angles(joint);
+  }
+  const meets: Partial<Record<AutoMovieHumanSide, number>> = {};
+  let remaining: number = pairs.length;
+  const read = (seconds: number): void => {
     const posture: IAutoMovieMotionHumanPosture = props.posture(seconds);
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    delete limbs[`${side}Arm`];
     const pose: IAutoMoviePose = resolveHumanPosture(body, {
       ...posture,
-      joints: { ...posture.joints, ...arm },
-      limbs,
+      joints: { ...posture.joints, ...arms },
     });
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
@@ -80,23 +163,37 @@ export function sitHandMeet(props: sitHandMeet.IProps): number | undefined {
     );
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(body, bones);
-    return hands.some(
-      (h: number): boolean =>
-        Margin.own(model, placed, h, leg, []).excess >
-          HumanAuditModel.ALLOWANCE ||
-        Margin.own(model, placed, leg, h, []).excess >
-          HumanAuditModel.ALLOWANCE,
-    );
+    for (const { side, hands, thigh } of pairs) {
+      if (meets[side] !== undefined) continue;
+      if (
+        hands.some(
+          (hand: number): boolean =>
+            Margin.own(model, placed, hand, thigh, []).excess >
+              HumanAuditModel.ALLOWANCE ||
+            Margin.own(model, placed, thigh, hand, []).excess >
+              HumanAuditModel.ALLOWANCE,
+        )
+      ) {
+        meets[side] = seconds;
+        --remaining;
+      }
+    }
   };
 
   // Every grid instant before the last second, then the last second itself.
   const step: number = AutoMovieMotionHumanArmCourse.STEP;
-  for (let k: number = 0; k * step < props.until; ++k)
-    if (meets(k * step)) return k * step;
-  return meets(props.until) ? props.until : undefined;
+  for (let k: number = 0; remaining > 0 && k * step < until; ++k)
+    read(k * step);
+  if (remaining > 0) read(until);
+  return meets;
 }
 
-/** The companion types of a hand's meeting with its thigh (`sitHandMeet`). */
+/** A joint record's clinical angles, an unset angle as zero. */
+function angles(joint: IAutoMovieJointPose): readonly [number, number, number] {
+  return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
+}
+
+/** The companion types of a hand's meeting with its thigh. */
 export namespace sitHandMeet {
   /** What a hand's meeting with its thigh is read from. */
   export interface IProps {
@@ -118,9 +215,4 @@ export namespace sitHandMeet {
     /** The last second read, from the sit's start. */
     until: number;
   }
-}
-
-/** A joint record's clinical angles, an unset angle as zero. */
-function angles(joint: IAutoMovieJointPose): readonly [number, number, number] {
-  return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
 }
