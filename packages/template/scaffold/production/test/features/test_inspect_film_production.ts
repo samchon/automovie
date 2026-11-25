@@ -80,8 +80,9 @@ export async function test_inspect_film_production(): Promise<void> {
   validateClipArtifact(
     {
       id: "lantern-motion",
+      name: null,
       duration: 1,
-      loop: "once",
+      loop: false,
       tracks: [
         {
           channel: { kind: "node", node: "lantern", path: "translation" },
