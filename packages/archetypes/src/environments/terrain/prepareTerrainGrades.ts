@@ -191,6 +191,10 @@ export function prepareTerrainGrades(
       const point: IAutoMoviePlanarPoint = { x, y: z };
       const fixed: IPad | undefined = padAt(point);
       if (fixed !== undefined) return fixed.height;
+
+      // Uncovered fractions multiply (Porter and Duff, Compositing Digital
+      // Images, SIGGRAPH 1984, §4.1). Target heights retain their weighted mean.
+      let coverage: number = 0;
       let weight: number = 0;
       let total: number = 0;
       for (const pad of grades) {
@@ -198,6 +202,7 @@ export function prepareTerrainGrades(
           (ringDistance(point, pad.outline) - pad.shoulder / 2) /
             (pad.shoulder / 2),
         );
+        coverage += (1 - coverage) * w;
         weight += w;
         total += w * pad.height;
       }
@@ -207,12 +212,13 @@ export function prepareTerrainGrades(
           path,
         );
         const w: number = taper((distance - path.radius) / path.shoulder);
+        coverage += (1 - coverage) * w;
         weight += w;
         total += w * level;
       }
       const ground: number = base({ x, z });
       if (weight === 0) return ground;
-      return ground + Math.min(1, weight) * (total / weight - ground);
+      return ground + coverage * (total / weight - ground);
     },
     protectedArea: (
       center: IAutoMoviePlanarPoint,
