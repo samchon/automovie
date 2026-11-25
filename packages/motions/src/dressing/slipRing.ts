@@ -68,9 +68,9 @@ const PHALANX_NAME: Readonly<
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
  * (`presentHand`). The dresser's other hand takes the partner's forearm with
- * the palm laid on its collider (`HumanColliders.cast`) and its fingers along
- * the approach, supporting from below when they point toward the partner's
- * elbow. The steadying palm lands before the ring hand leaves its rest and
+ * the palm laid on its collider (`HumanColliders.cast`). When the partner's
+ * wrist faces the dresser, the fingers follow the approach along the contact
+ * plane. The steadying palm lands before the ring hand leaves its rest and
  * lets go once the ring hand is back at it
  * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings the
  * ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by `ready`,
@@ -407,9 +407,9 @@ function planSlipRing(
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
  * (`presentHand`). The dresser's other hand takes the partner's forearm with
- * the palm laid on its collider (`HumanColliders.cast`) and its fingers along
- * the approach, supporting from below when they point toward the partner's
- * elbow. The steadying palm lands before the ring hand leaves its rest and
+ * the palm laid on its collider (`HumanColliders.cast`). When the partner's
+ * wrist faces the dresser, the fingers follow the approach along the contact
+ * plane. The steadying palm lands before the ring hand leaves its rest and
  * lets go once the ring hand is back at it
  * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings the
  * ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by `ready`,

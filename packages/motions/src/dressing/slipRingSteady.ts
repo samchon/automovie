@@ -15,15 +15,13 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 
-/** Roundoff bound for the component of world down across a vertical forearm. */
-const PARALLEL: number = 1e-9;
-
 /**
  * A ring dresser's steadying palm (`slipRing`): laid on the partner's own
- * forearm collider. The fingers run along the forearm in the direction the
- * dresser approaches it. Palm and fingers fit between the partner's joints
- * where the hand supports from below. Read from the action's entry stance,
- * bodies and presented hand.
+ * forearm collider on the side facing the steadying shoulder. When the
+ * partner presents their wrist toward the dresser, the palm settles at the
+ * nearest site that leaves room for the palm and fingers. Its fingers point
+ * along the dresser's approach projected onto the contact plane. Read from
+ * the action's entry stance, bodies and presented hand.
  *
  * @param scope What the plan lays the steadying palm from.
  * @returns The steadying hand's target.
@@ -67,7 +65,6 @@ export function slipRingSteady(
   // presented toward the dresser makes the wrist fold back on its own arm.
   const wristward: boolean = Vector3.dot(approach, along) >= 0;
   let distance: number;
-  let fromBelow: IAutoMovieVector3 | undefined;
   if (wristward)
     distance = Math.min(forearm, Math.max(forearm / 3, fingers + skin));
   else {
@@ -89,12 +86,7 @@ export function slipRingSteady(
           "the steadying hand does not fit between the partner's wrist and elbow",
         fix: "have the partner present their forearm from the steadying hand's side",
       });
-    distance = Math.max(minimum, Math.min(forearm / 3, maximum));
-
-    // An elbow-facing palm supports from below. A vertical forearm is
-    // steadied from the shoulder side because it has no downward radial.
-    const below: IAutoMovieVector3 = across({ x: 0, y: -1, z: 0 }, along);
-    if (Vector3.length(below) > PARALLEL) fromBelow = below;
+    distance = minimum;
   }
   const grasped: IAutoMovieVector3 = Vector3.lerp(
     wrist,
@@ -102,7 +94,7 @@ export function slipRingSteady(
     distance / forearm,
   );
   const outward: IAutoMovieVector3 = Vector3.normalize(
-    fromBelow ?? across(Vector3.subtract(shoulder, grasped), along),
+    across(Vector3.subtract(shoulder, grasped), along),
   );
   // The palm lies on the partner's forearm collider itself, not one
   // radius off the axis shared by the whole limb. The support ray finds the
@@ -126,27 +118,29 @@ export function slipRingSteady(
       reason: `no collider of the partner's ${lowerArm} lies on the steadying hand's way in`,
       fix: "have the partner present the forearm toward the steadying hand",
     });
-  const under: IAutoMovieMotionHumanArmTarget.ITarget =
-    AutoMovieMotionHumanArmTarget.prepareTarget(
-      body,
-      steady,
-      "palm",
-      "flat",
-    )({
-      point: hit.point,
-      rotation: HumanHand.align(palm, {
-        normal: Vector3.scale(hit.normal, -1),
-        forward: Vector3.normalize(
-          across(wristward ? along : Vector3.scale(along, -1), hit.normal),
-        ),
-      }),
-      bend,
-    });
-
-  return under;
+  const forward: IAutoMovieVector3 = wristward
+    ? along
+    : Vector3.subtract(hit.point, shoulder);
+  return AutoMovieMotionHumanArmTarget.prepareTarget(
+    body,
+    steady,
+    "palm",
+    "flat",
+  )({
+    point: hit.point,
+    rotation: HumanHand.align(palm, {
+      normal: Vector3.scale(hit.normal, -1),
+      forward: Vector3.normalize(across(forward, hit.normal)),
+    }),
+    bend,
+  });
 }
 
-/** The component of a vector perpendicular to a unit axis. */
+/**
+ * Project the approach onto the contact plane by subtracting its component
+ * along the unit normal `n`, giving `v - n (v · n)`.
+ * See Gilbert Strang, MIT 18.06 Lecture 15, Projections onto Subspaces.
+ */
 function across(
   vector: IAutoMovieVector3,
   axis: IAutoMovieVector3,
