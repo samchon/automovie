@@ -112,12 +112,12 @@ const SUPERSAMPLE = 2 as const;
  */
 export function installAutoMovieDraw<Props = unknown>(
   subjects: AutoMovieDrawSubjects<Props | null>,
-  target: IAutoMovieDrawGlobal = globalThis,
+  target: IAutoMovieDrawGlobal<Props | null> = globalThis,
 ): void {
   // The host injects the props its own subjects take, by the page contract.
-  const injected: IAutoMovieDrawProps<Props | null> = (target[
+  const injected: IAutoMovieDrawProps<Props | null> = target[
     AUTO_MOVIE_DRAW_GLOBALS.props
-  ] as IAutoMovieDrawProps<Props> | undefined) ?? {
+  ] ?? {
     subject: null,
     props: null,
   };

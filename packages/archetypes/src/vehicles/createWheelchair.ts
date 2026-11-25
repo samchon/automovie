@@ -67,10 +67,31 @@ export function createWheelchair(
     params.model,
     createWheelchair.MODELS[kind],
   );
-  const d: Record<createWheelchair.Dimension, number> = {
+  const drawn: Partial<Record<createWheelchair.Dimension, number>> = {
     ...draw.dimensions(createWheelchair.ranges(kind, model.name!)),
     ...model.figures,
-  } as Record<createWheelchair.Dimension, number>;
+  };
+  const need = (name: createWheelchair.Dimension): number => {
+    const value: number | undefined = drawn[name];
+    if (value === undefined)
+      throw new Error(`wheelchair: no band or model figure gives ${name}`);
+    return value;
+  };
+  const d: Record<createWheelchair.Dimension, number> = {
+    seatWidth: need("seatWidth"),
+    seatDepth: need("seatDepth"),
+    seatHeight: need("seatHeight"),
+    backHeight: need("backHeight"),
+    backAngle: need("backAngle"),
+    armHeight: need("armHeight"),
+    footDrop: need("footDrop"),
+    wheelDiameter: need("wheelDiameter"),
+    casterDiameter: need("casterDiameter"),
+    length: need("length"),
+    width: need("width"),
+    height: need("height"),
+    mass: need("mass"),
+  };
   const builder: AutoMovieArchetypeBuilder<
     createWheelchair.Affordance,
     createWheelchair.Dimension

@@ -56,7 +56,13 @@ export function createArmour(
     params.kind,
     createArmour.KINDS,
   );
-  return createArmour.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createArmour.PRODUCERS[kind] as (
+    params: createArmour.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>;
+  return produce(params, seed);
 }
 
 /** The plate thickness read. */

@@ -95,25 +95,23 @@ export function StageCarrierConstruction(
         ? createHolster.BLADES.sheath
         : undefined;
   // The blade is picked by name; its fitted bands are what it gives, so it carries no figures.
+  const figures: Partial<
+    Record<
+      createHolster.Blade,
+      Readonly<Partial<Record<createHolster.Dimension, number>>>
+    >
+  > = {};
+  if (kind === "scabbard")
+    for (const name of createHolster.SCABBARD_BLADES) figures[name] = {};
+  else if (kind === "sheath")
+    for (const name of createHolster.SHEATH_BLADES) figures[name] = {};
   const blade: createHolster.Blade | undefined =
     draw.model<createHolster.Blade>(
       "blade",
       params.blade,
       blades === undefined
         ? undefined
-        : (Object.fromEntries(
-            Object.keys(blades).map(
-              (name: string): [string, Readonly<Record<never, number>>] => [
-                name,
-                {},
-              ],
-            ),
-          ) as Readonly<
-            Record<
-              createHolster.Blade,
-              Readonly<Partial<Record<createHolster.Dimension, number>>>
-            >
-          >),
+        : figures,
     ).name;
   const fitted: Readonly<
     Partial<Record<createHolster.Dimension, IAutoMovieArchetypeBand>>

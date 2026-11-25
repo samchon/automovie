@@ -57,7 +57,13 @@ export function createCart(
     createCart.KINDS,
   );
   // The selected producer validates its options from the saved parameter union.
-  return createCart.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createCart.PRODUCERS[kind] as (
+    params: createCart.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>;
+  return produce(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createCart}. */

@@ -57,10 +57,26 @@ export function createMotorcycle(
     params.model,
     createMotorcycle.MODELS[kind],
   );
-  const d: Record<createMotorcycle.Dimension, number> = {
+  const drawn: Partial<Record<createMotorcycle.Dimension, number>> = {
     ...draw.dimensions(createMotorcycle.BANDS[kind], createMotorcycle.BANDS),
     ...model.figures,
-  } as Record<createMotorcycle.Dimension, number>;
+  };
+  const need = (name: createMotorcycle.Dimension): number => {
+    const value: number | undefined = drawn[name];
+    if (value === undefined)
+      throw new Error(`motorcycle: no band or model figure gives ${name}`);
+    return value;
+  };
+  const d: Record<createMotorcycle.Dimension, number> = {
+    seatHeight: need("seatHeight"),
+    wheelbase: need("wheelbase"),
+    width: need("width"),
+    wheelDiameter: need("wheelDiameter"),
+    frontWheelDiameter: need("frontWheelDiameter"),
+    gripDiameter: need("gripDiameter"),
+    footrestHeight: need("footrestHeight"),
+    mass: need("mass"),
+  };
   const builder: AutoMovieArchetypeBuilder<
     createMotorcycle.Affordance,
     createMotorcycle.Dimension

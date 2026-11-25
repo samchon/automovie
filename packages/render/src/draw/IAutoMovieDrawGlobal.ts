@@ -8,9 +8,9 @@ import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
  * it and releases the page's resources when the page is hidden. The same two
  * names are declared on `globalThis`, so a page's own global object is one.
  */
-export interface IAutoMovieDrawGlobal {
+export interface IAutoMovieDrawGlobal<Props = unknown> {
   /** The props the host injected; absent when the page is opened alone. */
-  __automovieDrawProps?: IAutoMovieDrawProps<unknown> | undefined;
+  __automovieDrawProps?: IAutoMovieDrawProps<Props> | undefined;
 
   /** The installed draw function; absent until the page installs it. */
   __automovieDraw?: IAutoMovieDrawFunction | undefined;
@@ -24,8 +24,13 @@ export interface IAutoMovieDrawGlobal {
 }
 
 declare global {
-  /** The props a draw page's host injected; see {@link IAutoMovieDrawGlobal}. */
-  var __automovieDrawProps: IAutoMovieDrawProps<unknown> | undefined;
+  /**
+   * The props a draw page's host injected; see {@link IAutoMovieDrawGlobal}.
+   * The host writes them as text before the page loads, so the page reads them
+   * as the props type its own subjects take; the declaration admits every such
+   * type.
+   */
+  var __automovieDrawProps: IAutoMovieDrawProps<never> | undefined;
 
   /** A draw page's installed draw function; see {@link IAutoMovieDrawGlobal}. */
   var __automovieDraw: IAutoMovieDrawFunction | undefined;

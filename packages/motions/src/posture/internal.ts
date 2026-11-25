@@ -59,3 +59,6 @@ export * from "./HumanArmSeedStarts";
 export * from "./HumanArmTrajectoryRangeExcess";
 export * from "./HumanArmTrajectoryRateProjection";
 export * from "./HumanArmSeedRestarts";
+export * from "./mixHumanPosture";
+export * from "./pelvisReachHeight";
+export * from "./HumanArmTrajectoryPaced";

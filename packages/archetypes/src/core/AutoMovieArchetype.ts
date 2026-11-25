@@ -459,9 +459,11 @@ export class AutoMovieArchetype<
   public broken(
     hit: AutoMovieArchetypeFracture.IHit,
   ): AutoMovieArchetypeFracture.IPieces<Id, Dimension> | null {
-    if (this.#rest.properties === null) return null;
+    const properties: AutoMovieArchetypeMass.IProperties | null =
+      this.#rest.properties;
+    if (properties === null) return null;
     const split: AutoMovieArchetypeFracture.IBroken<Id, Dimension> | null =
-      AutoMovieArchetypeFracture.split(this.#rest, hit);
+      AutoMovieArchetypeFracture.split({ ...this.#rest, properties }, hit);
     if (split === null) return null;
     return {
       remainder:

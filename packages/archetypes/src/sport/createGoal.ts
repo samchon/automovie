@@ -4,6 +4,7 @@ import { createBasketballHoop } from "./createBasketballHoop";
 import { createFieldGoal } from "./createFieldGoal";
 import { createTennisNet } from "./createTennisNet";
 import { createVolleyballNet } from "./createVolleyballNet";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * Reads a saved goal recipe using its canonical producer.
@@ -27,7 +28,27 @@ export function createGoal(
   );
 
   // The stored input can carry any former choice. The selected draw admits only its own profile.
-  return createGoal.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createGoal.Kind,
+      IArchetypeDispatch<
+        Omit<createGoal.IParams, "kind">,
+        AutoMovieArchetype<createGoal.Affordance, createGoal.Dimension>
+      >
+    >
+  > = {
+    footballGoal: { build: createFieldGoal },
+    fieldHockeyGoal: { build: createFieldGoal },
+    iceHockeyGoal: { build: createFieldGoal },
+    lacrosseGoal: { build: createFieldGoal },
+    handballGoal: { build: createFieldGoal },
+    basketballHoop: { build: createBasketballHoop },
+    volleyballNet: { build: createVolleyballNet },
+    tennisNet: { build: createTennisNet },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types, names and bands of {@link createGoal}. */

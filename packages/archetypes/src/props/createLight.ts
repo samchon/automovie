@@ -11,6 +11,7 @@ import { createFireTorch } from "./createFireTorch";
 import { createLantern } from "./createLantern";
 import { createPendantLamp } from "./createPendantLamp";
 import { createStandingLamp } from "./createStandingLamp";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * Replay a saved light variant with the original dimensions, identifier and
@@ -36,7 +37,25 @@ export function createLight(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  return createLight.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createLight.Kind,
+      IArchetypeDispatch<
+        Omit<createLight.IParams, "kind">,
+        AutoMovieArchetype<createLight.Affordance, createLight.Dimension>
+      >
+    >
+  > = {
+    candle: { build: createCandle },
+    fireTorch: { build: createFireTorch },
+    pendant: { build: createPendantLamp },
+    tableLamp: { build: createStandingLamp },
+    floorLamp: { build: createStandingLamp },
+    lantern: { build: createLantern },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createLight}. */

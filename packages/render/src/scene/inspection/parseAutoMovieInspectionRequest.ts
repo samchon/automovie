@@ -27,7 +27,7 @@ const TICKS: number = 5;
 /** Whether a text names a shade, narrowing it to the shade it names. */
 const isShade: (text: string) => text is AutoMovieInspectionShade = (
   text: string,
-): text is AutoMovieInspectionShade => Object.hasOwn(SHADES, text);
+): text is AutoMovieInspectionShade => SHADE_NAMES.has(text);
 
 /** Every shade, keyed so the compiler refuses a list that misses one. */
 const SHADES: Record<AutoMovieInspectionShade, true> = {
@@ -42,6 +42,9 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
   clay: true,
   faces: true,
 };
+
+/** The shade names, for membership checks. */
+const SHADE_NAMES: ReadonlySet<string> = new Set(Object.keys(SHADES));
 
 /**
  * Read an inspection request from named text values, the form both a page

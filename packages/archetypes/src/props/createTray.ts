@@ -35,7 +35,13 @@ export function createTray(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  return createTray.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createTray.PRODUCERS[kind] as (
+    params: createTray.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>;
+  return produce(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createTray}. */

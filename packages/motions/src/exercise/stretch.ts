@@ -108,7 +108,9 @@ export namespace stretch {
 
   /**
    * The stretch's timetable: entered over `ENTER`, held `hold`, left over
-   * `ENTER`, the manner's tempo and hold factor applied, with its own cues.
+   * `ENTER`, the manner's tempo and hold factor applied; the reach ends as the
+   * hold begins, the release opens the way out, the weight shifts halfway in
+   * and lowers halfway out.
    *
    * @param hold The held seconds.
    * @param modifiers The manner's timing.

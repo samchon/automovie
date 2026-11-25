@@ -10,6 +10,7 @@ export * from "./AutoMovieArchetypeConvexCell";
 export * from "./AutoMovieArchetypeCourse";
 export * from "./AutoMovieArchetypeDensity";
 export * from "./ArchetypeDraw";
+export * from "./IArchetypeDispatch";
 export * from "./AutoMovieArchetypeDrawSession";
 export * from "./AutoMovieArchetypeFracture";
 export * from "./AutoMovieArchetypeFrame";

@@ -50,7 +50,13 @@ export function createVessel(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  return createVessel.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createVessel.PRODUCERS[kind] as (
+    params: createVessel.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
+  return produce(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createVessel}. */

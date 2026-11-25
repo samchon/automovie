@@ -67,7 +67,13 @@ export function createProjectile(
     params.kind,
     createProjectile.KINDS,
   );
-  return createProjectile.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createProjectile.PRODUCERS[kind] as (
+    params: createProjectile.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension>;
+  return produce(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createProjectile}. */

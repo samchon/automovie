@@ -4,6 +4,7 @@ import { createStageLinkedProp } from "./createStageLinkedProp";
 import { createStageMaceProp } from "./createStageMaceProp";
 import { createStagePoleBladeProp } from "./createStagePoleBladeProp";
 import { createStageShaftProp } from "./createStageShaftProp";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * A digital stage prop with a padded silhouette. The mace has a round ornament,
@@ -32,7 +33,29 @@ export function createStageWeaponProp(
     params.kind,
     createStageWeaponProp.KINDS,
   );
-  return createStageWeaponProp.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createStageWeaponProp.Kind,
+      IArchetypeDispatch<
+        Omit<createStageWeaponProp.IParams, "kind">,
+        AutoMovieArchetype<createStageWeaponProp.Affordance, createStageWeaponProp.Dimension>
+      >
+    >
+  > = {
+    mace: { build: createStageMaceProp },
+    pike: { build: createStageShaftProp },
+    shuo: { build: createStageShaftProp },
+    halberd: { build: createStageShaftProp },
+    longBlade: { build: createStagePoleBladeProp },
+    crescentBlade: { build: createStagePoleBladeProp },
+    sideBlade: { build: createStagePoleBladeProp },
+    serpentBlade: { build: createStagePoleBladeProp },
+    offsetHammer: { build: createStageHammerProp },
+    linked: { build: createStageLinkedProp },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Authoring controls and affordance ids for the stage silhouettes. */

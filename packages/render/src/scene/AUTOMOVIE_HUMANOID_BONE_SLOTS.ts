@@ -1,12 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/**
- * Every humanoid bone slot, keyed so the compiler refuses a list that misses
- * one, for membership checks that narrow a text to its slot.
- */
-export const AUTOMOVIE_HUMANOID_BONE_SLOTS: Readonly<
-  Record<AutoMovieHumanoidBone, true>
-> = {
+/** Every humanoid bone slot, keyed so the compiler refuses a list that misses one. */
+const SLOTS: Readonly<Record<AutoMovieHumanoidBone, true>> = {
   hips: true,
   spine: true,
   chest: true,
@@ -63,3 +58,8 @@ export const AUTOMOVIE_HUMANOID_BONE_SLOTS: Readonly<
   rightLittleIntermediate: true,
   rightLittleDistal: true,
 };
+
+/** The names of every humanoid bone slot, for membership checks. */
+export const AUTOMOVIE_HUMANOID_BONE_SLOTS: ReadonlySet<string> = new Set(
+  Object.keys(SLOTS),
+);

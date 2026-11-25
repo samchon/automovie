@@ -11,6 +11,7 @@ import { createStageBladeCarrier } from "./createStageBladeCarrier";
 import { createStageHolster } from "./createStageHolster";
 import { createStagePouch } from "./createStagePouch";
 import { createStageQuiver } from "./createStageQuiver";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * A container worn on the body that a weapon or its ammunition is drawn from
@@ -70,7 +71,24 @@ export function createHolster(
     params.kind ?? "holster",
     createHolster.KINDS,
   );
-  return createHolster.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createHolster.Kind,
+      IArchetypeDispatch<
+        Omit<createHolster.IParams, "kind">,
+        AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension>
+      >
+    >
+  > = {
+    holster: { build: createStageHolster },
+    scabbard: { build: createStageBladeCarrier },
+    sheath: { build: createStageBladeCarrier },
+    quiver: { build: createStageQuiver },
+    pouch: { build: createStagePouch },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createHolster}. */
@@ -241,6 +259,20 @@ export namespace createHolster {
 
   /** A blade a scabbard or a sheath is made to. */
   export type Blade = ScabbardBlade | SheathBlade;
+
+  /** Every blade a scabbard is made to, for a caller that reads them at run time. */
+  export const SCABBARD_BLADES: readonly ScabbardBlade[] = [
+    "crecy",
+    "regent",
+    "knight",
+    "poitiers",
+    "sabre",
+    "katana",
+    "rapier",
+  ];
+
+  /** Every blade a sheath is made to, for a caller that reads them at run time. */
+  export const SHEATH_BLADES: readonly SheathBlade[] = ["dagger", "knife"];
 
   /**
    * A scabbard's or a sheath's two bands made to one blade, both always given:

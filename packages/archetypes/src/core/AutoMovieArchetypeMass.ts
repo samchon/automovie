@@ -9,6 +9,7 @@ import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import { ArchetypeMassLocal } from "./ArchetypeMassLocal";
 import { ArchetypeMassRecord } from "./ArchetypeMassRecord";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
  * The mass properties of primitive or convex-cell parts under one total mass.
@@ -329,6 +330,23 @@ export namespace AutoMovieArchetypeMass {
       tensor.yz.push(entry("y", "z"));
     });
     return ArchetypeMassRecord.finish(mass, centre, tensor);
+  }
+
+  /**
+   * The refusal for the moment of a visual-only model.
+   *
+   * @param archetype The producer's name.
+   * @returns The refusal to throw.
+   */
+  export function visualOnly(archetype: string): AutoMovieArchetypeRefusal {
+    return new AutoMovieArchetypeRefusal({
+      archetype,
+      kind: "parameter",
+      axis: "body",
+      value: null,
+      reason: "a visual-only model has no moment of inertia",
+      fix: "select a model with physical mass properties",
+    });
   }
 
   /**

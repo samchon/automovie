@@ -44,7 +44,7 @@ export function StrikingBladeCoursed(
   const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
   const duration: number = clock.duration;
   const ready: number = clock.at("strokeStart");
-  const reach: number = ready > 0 ? ((15 / 8) * travel) / ready : 0;
+  const reach: number = StrikingBladeCoursed.pace(travel, ready);
   const fastest: number = Math.max(
     precisionStrokePeak(goals.posture, `${tool.side}Arm`, duration),
     reach,
@@ -60,6 +60,18 @@ export function StrikingBladeCoursed(
 
 /** The planner a coursed stroke lays its arm over. */
 export namespace StrikingBladeCoursed {
+  /**
+   * The peak speed of a minimum-jerk travel: `15 / 8` of the travel over its
+   * time (Flash & Hogan 1985), none when there is no time.
+   *
+   * @param travel The travel, metres.
+   * @param ready The seconds it takes.
+   * @returns Metres per second.
+   */
+  export function pace(travel: number, ready: number): number {
+    return ready > 0 ? ((15 / 8) * travel) / ready : 0;
+  }
+
   /**
    * A fitted stroke's planner.
    *

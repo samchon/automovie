@@ -15,6 +15,7 @@ import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
+import { HumanArmTrajectoryPaced } from "./HumanArmTrajectoryPaced";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 import { HumanArmTrajectoryRetime as Retime } from "./HumanArmTrajectoryRetime";
@@ -293,12 +294,13 @@ export function planHumanArmTrajectory(
           initial.context,
           Pace.coursed(initial.context, course.trajectories),
         );
-  const seeded = (straight: boolean): Stretch.ISolved =>
-    Stretch.optimise(
-      whole,
-      initial,
-      HumanArmSeed.seed(problem, initial.context, hold, fine, straight),
-    );
+  const seeds: (straight: boolean) => number[][][] = (
+    straight: boolean,
+  ): number[][][] =>
+    HumanArmSeed.seed(problem, initial.context, hold, fine, straight);
+  const seeded: (straight: boolean) => Stretch.ISolved = (
+    straight: boolean,
+  ): Stretch.ISolved => Stretch.optimise(whole, initial, seeds(straight));
   let solved: Stretch.ISolved =
     earlier !== undefined
       ? Stretch.optimise(whole, earlier, earlier.x, earlier.penalty)
@@ -311,6 +313,13 @@ export function planHumanArmTrajectory(
   if (earlier === undefined && !Stretch.met(solved)) {
     const again: Stretch.ISolved = seeded(true);
     if (Stretch.met(again)) solved = again;
+    // Where the law's own pace is what holds the path off, the law re-times
+    // the action (`HumanArmTrajectoryPaced`).
+    const paced: HumanRefusal | undefined =
+      Stretch.met(solved) || !stretches
+        ? undefined
+        : HumanArmTrajectoryPaced(whole, initial, seeds(false), told);
+    if (paced !== undefined) throw paced;
   }
   // The path a refusal for time was reached at is the replan's start
   // (`Stretch.refused` tells it): over the span the refusal names, the same

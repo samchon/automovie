@@ -25,7 +25,13 @@ export function createClub(
   );
 
   // The stored input can carry any former choice. The selected draw admits only its own profile.
-  return createClub.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createClub.PRODUCERS[kind] as (
+    params: createClub.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createClub.Affordance, createClub.Dimension>;
+  return produce(params, seed);
 }
 
 /** Companion types and bands of {@link createClub}. */

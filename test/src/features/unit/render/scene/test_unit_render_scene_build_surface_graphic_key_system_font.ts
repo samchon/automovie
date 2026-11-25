@@ -6,7 +6,7 @@ import type {
 import {
   buildAutoMovieSurfaceGraphicKey,
   createAutoMovieSystemTextTexture,
-} from "@automovie/render";
+} from "@automovie/render/internal";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 

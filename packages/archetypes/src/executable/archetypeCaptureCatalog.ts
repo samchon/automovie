@@ -1,89 +1,15 @@
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  AutoMovieArchetypeEquineGait,
-  createHorse,
-  rideHorse,
-} from "../animals";
+import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieArchetypeEquineGait, createHorse, rideHorse } from "../animals";
 import type { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
-import {
-  createAppliance,
-  createDoor,
-  createSanitary,
-  createWindow,
-} from "../architecture";
-import {
-  type AutoMovieArchetype,
-  type AutoMovieArchetypeCourse,
-  AutoMovieArchetypeRide,
-} from "../core";
-import {
-  createBarrel,
-  createBed,
-  createConsole,
-  createHighChair,
-  createLectern,
-  createLoad,
-  createSafe,
-  createSeat,
-  createShowcase,
-  createStorage,
-  createTable,
-} from "../furniture";
-import {
-  createBalanceBeam,
-  createBoxingGlove,
-  createHeavyBag,
-  createRhythmicBall,
-  createStillRings,
-  createUnevenBars,
-  createWoodenDummy,
-} from "../gym";
+import { createAppliance, createDoor, createSanitary, createWindow } from "../architecture";
+import { type AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
+import { createBarrel, createBed, createConsole, createHighChair, createLectern, createLoad, createSafe, createSeat, createShowcase, createStorage, createTable } from "../furniture";
+import { createBalanceBeam, createBoxingGlove, createHeavyBag, createRhythmicBall, createStillRings, createUnevenBars, createWoodenDummy } from "../gym";
 import { createInstrument, createMicrophone } from "../music";
 import { createFireRing, createRock, createTent, createTree } from "../nature";
-import {
-  createBag,
-  createBox,
-  createCareItem,
-  createDevice,
-  createDrinkware,
-  createFood,
-  createLight,
-  createLongTool,
-  createMobilityAid,
-  createSmoking,
-  createStationery,
-  createTableware,
-  createTool,
-  createUmbrella,
-  createVessel,
-} from "../props";
-import {
-  createCue,
-  createCueTable,
-  createGoal,
-  createHighJump,
-  createPoolEdge,
-  createSkateboard,
-  createSki,
-  createStick,
-  createSurfboard,
-} from "../sport";
-import {
-  createBicycle,
-  createBoat,
-  createCar,
-  createCart,
-  createDeck,
-  createMotorcycle,
-  createWheelchair,
-  driveCar,
-  rideBicycle,
-  rideMotorcycle,
-} from "../vehicles";
+import { createBag, createBox, createCareItem, createDevice, createDrinkware, createFood, createLight, createLongTool, createMobilityAid, createSmoking, createStationery, createTableware, createTool, createUmbrella, createVessel } from "../props";
+import { createCue, createCueTable, createGoal, createHighJump, createPoolEdge, createSkateboard, createSki, createStick, createSurfboard } from "../sport";
+import { createBicycle, createBoat, createCar, createCart, createDeck, createMotorcycle, createWheelchair, driveCar, rideBicycle, rideMotorcycle } from "../vehicles";
 import { createLongGun } from "../weapons";
 import { archetypeCaptureAnimals } from "./archetypeCaptureAnimals";
 import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
@@ -97,22 +23,7 @@ import { archetypeCaptureReferenceAnimals } from "./archetypeCaptureReferenceAni
 import { archetypeCaptureRest } from "./archetypeCaptureRest";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
-
-/**
- * A course for the moving subjects: a short straight, a quarter turn to the
- * left, a short straight.
- */
-const COURSE: AutoMovieArchetypeCourse.ICourse = {
-  start: { x: 0, z: 0, heading: 0 },
-  legs: [
-    { kind: "straight", length: 8 },
-    { kind: "turn", radius: 8, angle: 90 },
-    { kind: "straight", length: 6 },
-  ],
-  cruise: 4,
-  acceleration: 2,
-  deceleration: 2,
-};
+import { COURSE } from "./archetypeCaptureCourse";
 
 /**
  * The archetypes the capture subjects module draws, by subject name: subjects

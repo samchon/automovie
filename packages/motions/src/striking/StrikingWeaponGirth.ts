@@ -24,10 +24,13 @@ export namespace StrikingWeaponGirth {
    * @param body The leg's body.
    * @returns The thigh's, the shank's and the foot's end radii.
    */
-  export function legRadii(
-    body: IAutoMovieMotionHumanBody,
-  ): [GirthRadii, GirthRadii, GirthRadii] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  export function legRadii(body: {
+    measure: Pick<
+      IAutoMovieMotionHumanBody["measure"],
+      "thighRadius" | "shankRadius" | "ankleHeight"
+    >;
+  }): [GirthRadii, GirthRadii, GirthRadii] {
+    const m: typeof body.measure = body.measure;
     const foot: number = KickForm.FOOT_RADIUS_SHARE * m.ankleHeight;
     return [
       [m.thighRadius, m.shankRadius],
@@ -46,10 +49,13 @@ export namespace StrikingWeaponGirth {
    * @param body The arm's body.
    * @returns The upper arm's, the forearm's and the fist's end radii.
    */
-  export function armRadii(
-    body: IAutoMovieMotionHumanBody,
-  ): [GirthRadii, GirthRadii, GirthRadii] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  export function armRadii(body: {
+    measure: Pick<
+      IAutoMovieMotionHumanBody["measure"],
+      "upperArmRadius" | "forearmRadius"
+    >;
+  }): [GirthRadii, GirthRadii, GirthRadii] {
+    const m: typeof body.measure = body.measure;
     return [
       [m.upperArmRadius, m.forearmRadius],
       [m.forearmRadius, m.forearmRadius],

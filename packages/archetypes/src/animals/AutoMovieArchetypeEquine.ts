@@ -340,10 +340,24 @@ export namespace AutoMovieArchetypeEquine {
       tack === "pack"
         ? { ...profile.bands, ...EquinePack.BANDS }
         : profile.bands;
-    const free: Record<Free, number> = {
+    const drawn: Partial<Record<Free, number>> = {
       ...draw.dimensions(bands),
       ...profile.figures,
-    } as Record<Free, number>;
+    };
+    const need = (name: Free): number => {
+      const value: number | undefined = drawn[name];
+      if (value === undefined)
+        throw new Error(`${profile.archetype}: no band or figure gives ${name}`);
+      return value;
+    };
+    const free: Record<Free, number> = {
+      withersHeight: need("withersHeight"),
+      stirrupDrop: need("stirrupDrop"),
+      stirrupWidth: need("stirrupWidth"),
+      tempo: need("tempo"),
+      breechingDrop: need("breechingDrop"),
+      croupClearance: need("croupClearance"),
+    };
     const girth: number = draw.derive(
       "girth",
       profile.girth(free.withersHeight),

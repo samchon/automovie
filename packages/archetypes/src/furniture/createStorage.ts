@@ -8,6 +8,7 @@ import { STORAGE_BANDS } from "./STORAGE_BANDS";
 import { createBookcase } from "./createBookcase";
 import { createDrawerUnit } from "./createDrawerUnit";
 import { createHingedCabinet } from "./createHingedCabinet";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * Replay a saved storage variant with the original dimensions, identifier and
@@ -33,7 +34,24 @@ export function createStorage(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  return createStorage.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createStorage.Kind,
+      IArchetypeDispatch<
+        Omit<createStorage.IParams, "kind">,
+        AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension>
+      >
+    >
+  > = {
+    wardrobe: { build: createHingedCabinet },
+    chest: { build: createDrawerUnit },
+    filingCabinet: { build: createDrawerUnit },
+    locker: { build: createHingedCabinet },
+    bookcase: { build: createBookcase },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types and bands of {@link createStorage}. */

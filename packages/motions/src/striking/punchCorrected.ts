@@ -50,9 +50,9 @@ export namespace punchCorrected {
   /** What `punchGeometry.build` prepared for its `corrected`. */
   export interface IPrepared {
     /** The `tracker` `punchGeometry.build` prepared. */
-    tracker: punchContact.IContact["tracker"];
+    tracker: Pick<punchContact.IContact["tracker"], "planned">;
 
     /** The `contact` `punchGeometry.build` prepared. */
-    contact: punchContact.IContact;
+    contact: Pick<punchContact.IContact, "corrected">;
   }
 }

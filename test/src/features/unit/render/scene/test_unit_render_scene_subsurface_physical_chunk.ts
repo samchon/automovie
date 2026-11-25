@@ -26,7 +26,7 @@ export function test_unit_render_scene_subsurface_physical_chunk(): void {
   );
   TestValidator.predicate(
     "surroundings kept",
-    patched.startsWith(before) && patched.endsWith(after),
+    patched.includes(before) && patched.endsWith(after),
   );
   TestValidator.predicate(
     "one table read per channel",

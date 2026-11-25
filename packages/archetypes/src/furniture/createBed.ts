@@ -11,6 +11,7 @@ import { createGurney } from "./createGurney";
 import { createHospitalBed } from "./createHospitalBed";
 import { createMattress } from "./createMattress";
 import { createPlatformBed } from "./createPlatformBed";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * Replay a saved bed variant with the original dimensions, identifier and model
@@ -36,7 +37,26 @@ export function createBed(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  return createBed.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createBed.Kind,
+      IArchetypeDispatch<
+        Omit<createBed.IParams, "kind">,
+        AutoMovieArchetype<createBed.Affordance, createBed.Dimension>
+      >
+    >
+  > = {
+    single: { build: createPlatformBed },
+    double: { build: createPlatformBed },
+    mattress: { build: createMattress },
+    hospital: { build: createHospitalBed },
+    gurney: { build: createGurney },
+    crib: { build: createCrib },
+    bunk: { build: createBunkBed },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types and bands of {@link createBed}. */

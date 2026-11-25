@@ -26,8 +26,14 @@ import { convertAutoMovieRecoveryCurve } from "./convertAutoMovieRecoveryCurve";
 export function convertAutoMovieRecoveryCurves<
   T extends IAutoMovieRecoveryCurveBundle,
   Format extends AutoMovieRecoveryCurveFormat,
->(input: T, format: Format): AutoMovieRecoveryCurveData<T, Format> {
-  const owned: T = structuredClone(input);
+>(input: T, format: Format): AutoMovieRecoveryCurveData<T, Format>;
+
+/** The implementation: the record with each declared cubic converted. */
+export function convertAutoMovieRecoveryCurves(
+  input: IAutoMovieRecoveryCurveBundle,
+  format: AutoMovieRecoveryCurveFormat,
+): IAutoMovieRecoveryCurveBundle {
+  const owned: IAutoMovieRecoveryCurveBundle = structuredClone(input);
   const curve = (
     value: IAutoMovieRecoveryCurveBundle.Curve,
   ): IAutoMovieRecoveryCurveBundle.Curve =>
@@ -88,6 +94,6 @@ export function convertAutoMovieRecoveryCurves<
   rebindRecoveryCurveAuthorities(input, result);
 
   // The result is the input's record with each declared curve place in the
-  // requested basis, which is what the mapped type states.
-  return result as AutoMovieRecoveryCurveData<T, Format>;
+  // requested basis, which is what the mapped type of the overload states.
+  return result;
 }

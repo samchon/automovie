@@ -19,7 +19,7 @@ import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /** The rig's own bones, which carry themselves. */
-const BONES: ReadonlySet<string> = new Set<string>([
+const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   "trunk",
   "hindquarters",
   "neck",
@@ -27,10 +27,12 @@ const BONES: ReadonlySet<string> = new Set<string>([
   "tail",
   ...Object.values(QuadrupedScapula.BONES),
   ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
-    (limb: AutoMovieArchetypeQuadrupedBody.Limb): readonly string[] =>
+    (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): readonly AutoMovieArchetypeQuadrupedBody.Bone[] =>
       AutoMovieArchetypeQuadrupedBody.BONES[limb],
   ),
-]);
+];
 
 /** The identity turn. */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
@@ -243,9 +245,10 @@ export namespace EquineExpressionPose {
     const parts: IAutoMovieModelPart[] = animal.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
         const carrier: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
-          BONES.has(part.id)
-            ? (part.id as AutoMovieArchetypeQuadrupedBody.Bone)
-            : prepared.parts[part.id];
+          BONES.find(
+            (bone: AutoMovieArchetypeQuadrupedBody.Bone): boolean =>
+              bone === part.id,
+          ) ?? prepared.parts[part.id];
         const source: IAutoMovieTransform =
           part.transform ??
           AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });

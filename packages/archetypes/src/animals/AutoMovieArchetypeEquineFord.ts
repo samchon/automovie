@@ -1,17 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieModelPart,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  type AutoMovieArchetype,
-  type AutoMovieArchetypeCourse,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  type AutoMovieArchetypeRide,
-} from "../core";
+import type { IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { type AutoMovieArchetype, type AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import { AutoMovieArchetypeEquineFordPlan } from "./AutoMovieArchetypeEquineFordPlan";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedDatumRide } from "./AutoMovieArchetypeQuadrupedDatumRide";
@@ -22,25 +11,8 @@ import { QuadrupedFootingClearance } from "./QuadrupedFootingClearance";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 import { createQuadruped } from "./createQuadruped";
-
-/** One-sided difference, seconds, for the offset rates at a cut. */
-const STEP: number = 1e-5;
-
-/** World up. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** A limb or trunk bar's solid, metres. */
-interface IBar {
-  /** Whether its ends are rounded. */
-  capsule: boolean;
-  /** Its radius. */
-  radius: number;
-  /** Its length along its axis. */
-  height: number;
-}
-
-/** Stroke phases sampled per cycle when the stroke's lowest sole is read. */
-const SWEEP: number = 96;
+import { STEP, SWEEP } from "./EquineFordConstants";
+import { part, top, shape } from "./EquineFordBarReads";
 
 /**
  * An equid crossing water on one film clock: it wades down a ford on its own
@@ -517,44 +489,4 @@ export function AutoMovieArchetypeEquineFord<
         `the head's lowest surface at ${lowest} m does not clear the water at ${water} m`,
       );
   }
-}
-
-/** A part of a model. */
-function part(
-  model: Pick<AutoMovieArchetype, "parts">,
-  id: string,
-): IAutoMovieModelPart {
-  const found: IAutoMovieModelPart | undefined = model.parts.find(
-    (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
-  );
-  if (found?.transform === undefined || found.transform === null)
-    throw new RangeError(`The crossing needs the transformed ${id} part`);
-  return found;
-}
-
-/** The highest surface of a bar, metres in its model. */
-function top(bar: IAutoMovieModelPart): number {
-  const solid: IBar = shape(bar);
-  const up: number = Quaternion.rotateVectorY(bar.transform!.rotation, UP);
-  const radial: number = solid.capsule
-    ? solid.radius
-    : solid.radius * Math.sqrt(Math.max(0, 1 - up * up));
-  return (
-    bar.transform!.translation.y + (Math.abs(up) * solid.height) / 2 + radial
-  );
-}
-
-/** A bar's cylinder or capsule. */
-function shape(bar: IAutoMovieModelPart): IBar {
-  const geometry: IAutoMovieModelPart["geometry"] = bar.geometry;
-  if (
-    geometry.type !== "primitive" ||
-    (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
-  )
-    throw new RangeError(`The crossing needs the actual ${bar.id} bar`);
-  return {
-    capsule: geometry.shape.type === "capsule",
-    radius: geometry.shape.radius,
-    height: geometry.shape.height,
-  };
 }

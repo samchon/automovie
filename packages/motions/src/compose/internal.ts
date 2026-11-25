@@ -47,3 +47,4 @@ export * from "./AutoMovieMotionWave";
 export * from "./AutoMovieMotionHumanArmJointCourse";
 export * from "./prepareHumanPostureCorrection";
 export * from "./AutoMovieMotionHumanTouchPath";
+export * from "./AutoMovieMotionHumanKneeBend";

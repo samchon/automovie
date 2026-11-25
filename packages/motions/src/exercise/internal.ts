@@ -34,3 +34,4 @@ export * from "./workoutSpans";
 export * from "./groupDance";
 export * from "./stiltWalk";
 export * from "./trampolineBounce";
+export * from "./lineWalkFootprints";

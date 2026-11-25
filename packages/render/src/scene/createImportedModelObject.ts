@@ -39,7 +39,7 @@ const wrapObject: (object: THREE.Object3D) => THREE.Group = (
 const isHumanoidBone: (text: string) => text is AutoMovieHumanoidBone = (
   text: string,
 ): text is AutoMovieHumanoidBone =>
-  Object.hasOwn(AUTOMOVIE_HUMANOID_BONE_SLOTS, text);
+  AUTOMOVIE_HUMANOID_BONE_SLOTS.has(text);
 
 const normalizeBones: (
   input: IAutoMovieImportedModelOptions["bones"],

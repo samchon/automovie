@@ -138,10 +138,7 @@ export namespace balletStep {
       AutoMovieMotionHumanRange.limit("leftUpperLeg", "external") ?? 0,
       AutoMovieMotionHumanRange.limit("rightUpperLeg", "external") ?? 0,
     );
-    const { turnout, position, turns }: balletStep.IAdmitted = admit(
-      p,
-      outward,
-    );
+    const { turnout, turns }: balletStep.IAdmitted = admit(p, outward);
     if (p.kind === "grandJete") {
       const leading: AutoMovieHumanSide = p.side ?? "right";
       const reach: number =

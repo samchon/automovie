@@ -150,7 +150,7 @@ export namespace stiltWalk {
               z: 1,
             },
           );
-    const { step, steps, stride, duration }: stiltWalk.IPacing = pacing(
+    const { steps, stride, duration }: stiltWalk.IPacing = pacing(
       length,
       body.measure.hipHeight,
       p.steps,

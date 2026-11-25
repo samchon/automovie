@@ -254,7 +254,7 @@ export namespace squatVault {
         reason: `the landing beyond ${context.params.on} lies ${d.toFixed(3)} m ahead of the push-off, so no flight carries the body over it`,
         fix: "vault a box that lies ahead of the body",
       });
-    const { angle, flight, rise }: squatVault.IArc = arc(h, d);
+    const { flight, rise }: squatVault.IArc = arc(h, d);
     const speed: IAutoMovieVector3 = Vector3.scale(run, 1 / flight);
     const hold: number = context.params.hold ?? 0.5;
     const touchdown: number = push + flight;

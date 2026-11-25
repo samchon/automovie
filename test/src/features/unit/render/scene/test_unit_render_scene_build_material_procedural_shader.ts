@@ -115,6 +115,9 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
     autoMovieProceduralFrame(piece.axis!);
   const vector: (name: string) => number[] = (name: string): number[] =>
     uniforms[name]!.value.toArray();
+  const roughnessMatches: boolean = uniforms.uProceduralRoughness!.value.equals(
+    new THREE.Vector2(0.45, 0.85),
+  );
   TestValidator.predicate(
     "frame, colours, roughness and relief uniforms",
     [
@@ -127,9 +130,7 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
         nclose(value, b![k]!, 1e-12),
       ),
     ) &&
-      uniforms.uProceduralRoughness!.value.equals(
-        new THREE.Vector2(0.45, 0.85),
-      ) &&
+      roughnessMatches &&
       uniforms.uProceduralRelief!.value === 0.001 &&
       uniforms.uProceduralSeed!.value === 31,
   );

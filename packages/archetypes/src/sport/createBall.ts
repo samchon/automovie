@@ -3,6 +3,7 @@ import { BallBuild } from "./BallBuild";
 import { createOvalBall } from "./createOvalBall";
 import { createPuck } from "./createPuck";
 import { createSphericalBall } from "./createSphericalBall";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * Reads a saved ball recipe using its canonical producer.
@@ -26,7 +27,39 @@ export function createBall(
   );
 
   // The stored input can carry any former choice. The selected draw admits only its own profile.
-  return createBall.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createBall.Kind,
+      IArchetypeDispatch<
+        Omit<createBall.IParams, "kind">,
+        AutoMovieArchetype<createBall.Affordance, createBall.Dimension>
+      >
+    >
+  > = {
+    football: { build: createSphericalBall },
+    futsal: { build: createSphericalBall },
+    basketball: { build: createSphericalBall },
+    volleyball: { build: createSphericalBall },
+    handball: { build: createSphericalBall },
+    tennis: { build: createSphericalBall },
+    tableTennis: { build: createSphericalBall },
+    padel: { build: createSphericalBall },
+    squash: { build: createSphericalBall },
+    baseball: { build: createSphericalBall },
+    softball: { build: createSphericalBall },
+    golf: { build: createSphericalBall },
+    cricket: { build: createSphericalBall },
+    bowling: { build: createSphericalBall },
+    pool: { build: createSphericalBall },
+    rugby: { build: createOvalBall },
+    americanFootball: { build: createOvalBall },
+    fieldHockey: { build: createSphericalBall },
+    lacrosse: { build: createSphericalBall },
+    puck: { build: createPuck },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createBall}. */

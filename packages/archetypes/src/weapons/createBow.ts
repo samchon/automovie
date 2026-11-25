@@ -13,6 +13,7 @@ import { bowLaunchSpeed } from "./bowLaunchSpeed";
 import { bowLimbs } from "./bowLimbs";
 import { createStageHandBowProp } from "./createStageHandBowProp";
 import { createStageStockBowProp } from "./createStageStockBowProp";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /** The Olympic recurve's maker's chart. */
 const HOYT: string =
@@ -73,7 +74,23 @@ export function createBow(
     params.kind,
     createBow.KINDS,
   );
-  return createBow.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createBow.Kind,
+      IArchetypeDispatch<
+        Omit<createBow.IParams, "kind">,
+        AutoMovieArchetype<createBow.Affordance, createBow.Dimension>
+      >
+    >
+  > = {
+    longbow: { build: createStageHandBowProp },
+    recurve: { build: createStageHandBowProp },
+    horseBow: { build: createStageHandBowProp },
+    crossbow: { build: createStageStockBowProp },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Companion types, constants, bands and rules of {@link createBow}. */

@@ -41,14 +41,52 @@ export function StrikingStrain(
   return (
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     shoulder: IAutoMovieVector3,
-  ): number => {
+  ): number =>
+    StrikingStrain.of(frame, shoulder, { grip, fingers, forearm, upperArm });
+}
+
+/** How far a hand frame strains the arm. */
+export namespace StrikingStrain {
+  /** The arm a hand frame is read against. */
+  export interface IArm {
+    /** The grip's offset in the hand's frame, metres. */
+    grip: IAutoMovieVector3;
+
+    /** The fingers' direction in the hand's frame. */
+    fingers: IAutoMovieVector3;
+
+    /** The forearm, metres. */
+    forearm: number;
+
+    /** The upper arm, metres. */
+    upperArm: number;
+  }
+
+  /**
+   * The strain of a hand frame: the elbow lies a forearm back along the fingers
+   * from the wrist, the wrist the grip's offset back from the held point, and
+   * the strain is how far that elbow misses the shoulder by an upper arm.
+   *
+   * @param frame The held point and the hand's attitude.
+   * @param shoulder The shoulder, world metres.
+   * @param arm The grip, the fingers and the arm's lengths.
+   * @returns The strain, metres, 0 for a reachable frame.
+   */
+  export function of(
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    shoulder: IAutoMovieVector3,
+    arm: IArm,
+  ): number {
     const elbow: IAutoMovieVector3 = Vector3.subtract(
       Vector3.subtract(
         frame.point,
-        Quaternion.rotateVector(frame.rotation, grip),
+        Quaternion.rotateVector(frame.rotation, arm.grip),
       ),
-      Vector3.scale(Quaternion.rotateVector(frame.rotation, fingers), forearm),
+      Vector3.scale(
+        Quaternion.rotateVector(frame.rotation, arm.fingers),
+        arm.forearm,
+      ),
     );
-    return Math.abs(Vector3.distance(elbow, shoulder) - upperArm);
-  };
+    return Math.abs(Vector3.distance(elbow, shoulder) - arm.upperArm);
+  }
 }

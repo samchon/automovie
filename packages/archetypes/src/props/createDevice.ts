@@ -27,7 +27,13 @@ export function createDevice(
   );
 
   // Saved model inputs are a wider union. The selected draw checks them with the selected kind's table.
-  return createDevice.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createDevice.PRODUCERS[kind] as (
+    params: createDevice.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension>;
+  return produce(params, seed);
 }
 
 /**

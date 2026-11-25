@@ -45,7 +45,13 @@ export function createBoat(
     createBoat.KINDS,
   );
   // The selected producer validates its options from the saved parameter union.
-  return createBoat.PRODUCERS[kind](params, seed);
+  // The saved input spans every variant; the selected producer admits its own
+  // parameters with its own draw.
+  const produce = createBoat.PRODUCERS[kind] as (
+    params: createBoat.IParams,
+    seed?: number,
+  ) => AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>;
+  return produce(params, seed);
 }
 
 /** Companion types, constants and bands of {@link createBoat}. */

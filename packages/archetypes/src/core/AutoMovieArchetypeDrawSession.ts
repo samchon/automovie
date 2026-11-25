@@ -173,7 +173,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
           });
 
     const values: Partial<Record<Drawn, number>> = {};
-    for (const name of Object.keys(bands) as Drawn[]) {
+    for (const name in bands) {
       const band: IAutoMovieArchetypeBand | undefined = bands[name];
       if (band === undefined) continue;
       if (band.unit !== this.#units[name])
@@ -267,8 +267,8 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
         >
       | undefined,
   ): AutoMovieArchetypeDrawSession.IModel<Name, Dimension> {
-    const names: Name[] =
-      models === undefined ? [] : (Object.keys(models) as Name[]);
+    const names: Name[] = [];
+    if (models !== undefined) for (const named in models) names.push(named);
     if (names.length === 0) {
       if (value !== undefined)
         ArchetypeDraw.choice(this.archetype, axis, value, names);
@@ -294,7 +294,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
             ]!;
     const figures: Readonly<Partial<Record<Dimension, number>>> =
       models![name]!;
-    for (const dimension of Object.keys(figures) as Dimension[])
+    for (const dimension in figures)
       if (this.#fixed[dimension] !== undefined)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
@@ -305,7 +305,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
           reason: `${dimension} is the ${axis} ${name}'s own figure, ${figures[dimension]}`,
           fix: `leave ${dimension} out, and give the ${axis} whose ${dimension} you want`,
         });
-    for (const dimension of Object.keys(figures) as Dimension[]) {
+    for (const dimension in figures) {
       const unit: AutoMovieArchetypeDrawSession.Unit = this.#units[dimension];
       this.#values[dimension] = figures[dimension];
       this.#figures[dimension] = axis;

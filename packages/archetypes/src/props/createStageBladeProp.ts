@@ -2,6 +2,7 @@ import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { createStageFencingProp } from "./createStageFencingProp";
 import { createStagePracticeSwordProp } from "./createStagePracticeSwordProp";
 import { createStageTwoHandedSwordProp } from "./createStageTwoHandedSwordProp";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
  * A digital padded blade silhouette for sport or theatrical staging. The handle
@@ -31,7 +32,24 @@ export function createStageBladeProp(
     params.kind,
     createStageBladeProp.KINDS,
   );
-  return createStageBladeProp.PRODUCERS[kind](params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createStageBladeProp.Kind,
+      IArchetypeDispatch<
+        Omit<createStageBladeProp.IParams, "kind">,
+        AutoMovieArchetype<createStageBladeProp.Affordance, createStageBladeProp.Dimension>
+      >
+    >
+  > = {
+    foil: { build: createStageFencingProp },
+    epee: { build: createStageFencingProp },
+    sabre: { build: createStageFencingProp },
+    shinai: { build: createStagePracticeSwordProp },
+    longsword: { build: createStageTwoHandedSwordProp },
+  };
+  return variants[kind].build(params, seed);
 }
 
 /** Authoring controls for the padded blade silhouette. */
