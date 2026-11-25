@@ -33,7 +33,13 @@ export const autoMovieHemisphereDirections: (
   props: IAutoMovieHemisphereDirections.IProps,
 ): IAutoMovieVector3[] => {
   const count: number = props.count;
-  if (count < 1)
+  if (
+    !(
+      count >= 1 &&
+      count <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(count) === count
+    )
+  )
     throw new Error(
       `hemisphere sample count must be a positive safe integer, but was ${count}`,
     );

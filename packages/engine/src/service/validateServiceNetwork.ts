@@ -293,7 +293,7 @@ const positive: (
   label: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  if (value <= 0)
+  if (!(value > 0 && value < Infinity))
     out.push(
       "range",
       path,

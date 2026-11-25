@@ -70,11 +70,19 @@ export const resolveAutoMovieDaylightRequest: (
       throw new Error(
         `workplane ${axis} must be a finite number above zero, but was ${workplane[axis]}`,
       );
-  for (const axis of ["countU", "countV"] as const)
-    if (workplane[axis] < 1)
+  for (const axis of ["countU", "countV"] as const) {
+    const count: number = workplane[axis];
+    if (
+      !(
+        count >= 1 &&
+        count <= Number.MAX_SAFE_INTEGER &&
+        Math.floor(count) === count
+      )
+    )
       throw new Error(
-        `workplane ${axis} must be a whole number at or above one, but was ${workplane[axis]}`,
+        `workplane ${axis} must be a whole number at or above one, but was ${count}`,
       );
+  }
   const cells: number = workplane.countU * workplane.countV;
   if (cells > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
     throw new Error(
@@ -94,9 +102,16 @@ export const resolveAutoMovieDaylightRequest: (
     throw new Error(
       "a workplane needs two non-parallel in-plane axes to have a normal",
     );
-  if (request.diffuseSamples < 1)
+  const diffuseSamples: number = request.diffuseSamples;
+  if (
+    !(
+      diffuseSamples >= 1 &&
+      diffuseSamples <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(diffuseSamples) === diffuseSamples
+    )
+  )
     throw new Error(
-      `a daylight study needs a positive whole sky sample count, but was ${request.diffuseSamples}`,
+      `a daylight study needs a positive whole sky sample count, but was ${diffuseSamples}`,
     );
   const luminaires: Set<string> = new Set<string>();
   for (const luminaire of request.luminaires) {

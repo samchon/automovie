@@ -206,9 +206,16 @@ const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (
     throw new Error(
       `a supply flow must be null or a finite number at or above zero, but was ${request.supplyFlow}`,
     );
-  if (request.occupants < 0)
+  const occupants: number = request.occupants;
+  if (
+    !(
+      occupants >= 0 &&
+      occupants <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(occupants) === occupants
+    )
+  )
     throw new Error(
-      `an occupancy must be a whole number at or above zero, but was ${request.occupants}`,
+      `an occupancy must be a whole number at or above zero, but was ${occupants}`,
     );
   for (const key of ["occupantCarbonDioxide", "outdoorCarbonDioxide"] as const)
     if (request[key] < 0)
