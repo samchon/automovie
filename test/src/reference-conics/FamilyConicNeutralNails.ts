@@ -5,7 +5,6 @@ import {
 import {
   AutoMovieHumanBodyLaw as Body,
   AutoMovieHumanDigitNails as Nails,
-  AutoMovieHumanNailContact as Paired,
 } from "@automovie/human";
 import { AutoMovieHumanNeutralParameters } from "@automovie/human/capture";
 import type {
@@ -20,6 +19,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { FamilyConicMpfbNailJoin as Join } from "./FamilyConicMpfbNailJoin";
+import { FamilyConicMpfbNailPatch as Patch } from "./FamilyConicMpfbNailPatch";
 import { FamilyConicNeutralNailCapture as Capture } from "./FamilyConicNeutralNailCapture";
 
 /** Native contact observations on the actual arm/foot source factories. */
@@ -179,24 +179,22 @@ export namespace FamilyConicNeutralNails {
         attached: true,
       });
       const { nail, original } = fitted;
-      const digit = Nails.addReliefs(original, {}, [nail.bed, nail.strip]);
-      const plate = Nails.attachmentPlate(nail.plate, nail.bed);
-      const paired = Paired.prepare(
-        nail,
-        plate,
+      const patch: Patch.IPrepared = Patch.prepare(fitted, {});
+      const {
         digit,
-        fitted.support.domain[1],
-      );
-      const host = Full.create(digit);
-      const crown = Full.create(plate);
+        contact: {
+          host: { surface: host },
+          part: { surface: crown },
+          pair,
+        },
+      } = patch;
       const bare = Full.create(original);
       const aside: P3 = Vec.cross(nail.frame.distal, nail.frame.dorsal);
       // Twice the native contact guide density also exercises its interval interiors.
       const count: number = 32;
       const measured = Array.from({ length: count }, (_, index) => {
         const clock: number = (2 * Math.PI * index) / count;
-        const h = paired.at(clock),
-          p = paired.partAt(clock);
+        const { parent: h, plate: p } = pair(clock);
         const a = host.jet(...h.point),
           b = crown.jet(...p.point);
         const local: P3 = Vec.sub(a.p, nail.frame.origin);
@@ -213,17 +211,19 @@ export namespace FamilyConicNeutralNails {
           ),
         };
       });
+      const first = pair(0);
+      const last = pair(2 * Math.PI);
       const closure: number = Math.max(
         Vec.norm(
           Vec.sub(
-            host.point(...paired.at(0).point),
-            host.point(...paired.at(2 * Math.PI).point),
+            host.point!(...first.parent.point),
+            host.point!(...last.parent.point),
           ),
         ),
         Vec.norm(
           Vec.sub(
-            crown.point(...paired.partAt(0).point),
-            crown.point(...paired.partAt(2 * Math.PI).point),
+            crown.point!(...first.plate.point),
+            crown.point!(...last.plate.point),
           ),
         ),
       );
@@ -249,7 +249,7 @@ export namespace FamilyConicNeutralNails {
         pitch: nail.readings.pitch,
       };
       let exterior: Join.IExterior | undefined;
-      mesh = Join.observePatch(fitted, (built): void => {
+      mesh = Join.observePatch(patch, (built): void => {
         exterior = built;
       });
       const capture =

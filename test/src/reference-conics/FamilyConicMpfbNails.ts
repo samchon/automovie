@@ -13,6 +13,7 @@ import { FamilyConicMpfbDigitWalls as Walls } from "./FamilyConicMpfbDigitWalls"
 import { FamilyConicMpfbDigits as Digits } from "./FamilyConicMpfbDigits";
 import { FamilyConicMpfbNailCapture as Capture } from "./FamilyConicMpfbNailCapture";
 import { FamilyConicMpfbNailJoin as Join } from "./FamilyConicMpfbNailJoin";
+import { FamilyConicMpfbNailPatch as Patch } from "./FamilyConicMpfbNailPatch";
 import { FamilyConicMpfbNailStock as Stock } from "./FamilyConicMpfbNailStock";
 import { FamilyConicMpfbNailSupport as Support } from "./FamilyConicMpfbNailSupport";
 import { FamilyConicMpfbSource as Mpfb } from "./FamilyConicMpfbSource";
@@ -174,11 +175,10 @@ export namespace FamilyConicMpfbNails {
           try {
             join = skinPatch
               ? Join.observePatch(
-                  made,
+                  Patch.prepare(made, cap.family),
                   (result): void => {
                     mesh = result;
                   },
-                  cap.family,
                   fromStock ? patch : undefined,
                 )
               : Join.observe(

@@ -50,12 +50,12 @@ export namespace FamilyConicMpfbNailJoin {
 
   /** Verify a one-skin material patch from its committed mesh incidence. */
   export function observePatch(
-    made: IAutoMovieHumanDigitNails.IMade,
+    prepared: Patch.IPrepared,
     keep: (result: IExterior) => void,
-    sampling: Parameters<typeof Nails.addReliefs>[1] = {},
     stock?: Stock.IPatch,
   ) {
-    const patch = Patch.realize(made, sampling, stock);
+    const { made } = prepared;
+    const patch = Patch.realize(prepared, stock);
     const { mesh, seam, plateFrom } = patch;
     const topology = inspectAutoMovieMeshTopology(Mesh.topologyInput(mesh));
     const plateId: number = mesh.owners.indexOf(made.nail.plate.name);
@@ -119,6 +119,8 @@ export namespace FamilyConicMpfbNailJoin {
       retained,
       columns: patch.columns,
       rows: patch.rows,
+      skinStations: patch.skinStations,
+      skinPhases: patch.skinPhases,
       support: patch.support,
       profile: patch.milliseconds,
     };

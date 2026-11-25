@@ -7,8 +7,10 @@ import {
 import type {
   IAutoMovieConstructionSharedLoop,
   IAutoMovieHumanNail,
+  IAutoMovieLoftChain,
   IAutoMovieSolidSharedCurve,
   IAutoMovieSolidSurface,
+  IAutoMovieViewLoft,
   IAutoMovieViewPart,
   AutoMovieVector2Tuple as P2,
   AutoMovieVector3Tuple as P3,
@@ -36,6 +38,36 @@ export namespace AutoMovieHumanNailContact {
   const GUIDE: number = 16;
   const TURN: number = 2 * Math.PI;
 
+  /** An admitted pair's own loft and surface for one face. */
+  export interface IFace {
+    /** Chain that owns this face's retained original source. */
+    chain: IAutoMovieLoftChain;
+    /** Prepared reader of this same chain's world-millimetre surface. */
+    surface: IAutoMovieSolidSurface;
+  }
+
+  /** Two charts of the same physical contact at one clock. */
+  export interface IPair {
+    /** The parent's chart coordinates and first two clock derivatives. */
+    parent: Chart;
+    /** The plate's chart coordinates and first two clock derivatives. */
+    plate: Chart;
+  }
+
+  /** One preparation shared by contact verification and indexed skin. */
+  export interface IPrepared {
+    /** Bedded skin face. */
+    host: IFace;
+    /** Original nail plate face. */
+    part: IFace;
+    /** Loop in the engine's paired chart contract. */
+    edge: Ready;
+    /** The same part and host's placement and projection readers. */
+    footprint: ReturnType<typeof Loop.prepare>;
+    /** Read both chart addresses and jets from one solve. */
+    pair(clock: number): IPair;
+  }
+
   /** Return both original millimetre/radian curves on the same contact loop. */
   export function prepare(
     nail: IAutoMovieHumanNail.INail,
@@ -43,8 +75,21 @@ export namespace AutoMovieHumanNailContact {
     digit: IAutoMovieViewPart,
     tip: number,
   ): Ready {
-    const p = AutoMovieViewLoft.create(plate);
-    const h = AutoMovieViewLoft.create(digit);
+    return prepareLofts(
+      nail,
+      AutoMovieViewLoft.create(plate),
+      AutoMovieViewLoft.create(digit),
+      tip,
+    ).edge;
+  }
+
+  /** Use the same admitted lofts for solving, inspection and the retained skin. */
+  export function prepareLofts(
+    nail: IAutoMovieHumanNail.INail,
+    p: IAutoMovieViewLoft.IResult,
+    h: IAutoMovieViewLoft.IResult,
+    tip: number,
+  ): IPrepared {
     if (
       p.chain === null ||
       p.surface === null ||
@@ -57,7 +102,14 @@ export namespace AutoMovieHumanNailContact {
       );
     const part: IAutoMovieSolidSurface = p.surface;
     const host: IAutoMovieSolidSurface = h.surface;
-    const { centre, semi, read } = Loop.prepare(nail, p.chain, h.chain, tip);
+    const footprint: IPrepared["footprint"] = Loop.prepare(
+      nail,
+      p.chain,
+      h.chain,
+      tip,
+      { part, host },
+    );
+    const { centre, semi, read } = footprint;
 
     /** The first physical exit belongs to this ray's admitted interior. */
     function initial(clock: number): P3 {
@@ -98,10 +150,7 @@ export namespace AutoMovieHumanNailContact {
     }
 
     /** Exact first and second derivatives of the two joined charts. */
-    function readAt(
-      clock: number,
-      start: P3,
-    ): { parent: Chart; plate: Chart } | null {
+    function readAt(clock: number, start: P3): IPair | null {
       const d: P2 = [semi[0] * Math.cos(clock), semi[1] * Math.sin(clock)];
       const dc: P2 = [-semi[0] * Math.sin(clock), semi[1] * Math.cos(clock)];
       const fields = ([r, s, f]: P3) => {
@@ -195,7 +244,7 @@ export namespace AutoMovieHumanNailContact {
     const endPhase: number = nearest(controls[0]![2], controls.at(-1)![2]);
     const phaseTurn: number =
       TURN * Math.round((endPhase - controls[0]![2]) / TURN);
-    const at = (clock: number) => {
+    const at = (clock: number): IPair => {
       const laps: number = Math.floor(clock / TURN);
       const turn: number = clock - laps * TURN;
       const step: number = (turn * GUIDE) / TURN;
@@ -219,11 +268,17 @@ export namespace AutoMovieHumanNailContact {
       return direct;
     };
     return {
-      kind: "ready",
-      hostFace: digit.name,
-      partFace: plate.name,
-      at: (clock) => at(clock).parent,
-      partAt: (clock) => at(clock).plate,
+      host: { chain: h.chain, surface: host },
+      part: { chain: p.chain, surface: part },
+      footprint,
+      pair: at,
+      edge: {
+        kind: "ready",
+        hostFace: host.name,
+        partFace: part.name,
+        at: (clock) => at(clock).parent,
+        partAt: (clock) => at(clock).plate,
+      },
     };
   }
 

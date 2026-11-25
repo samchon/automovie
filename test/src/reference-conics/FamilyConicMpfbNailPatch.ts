@@ -1,6 +1,5 @@
 import {
   AutoMovieLoftAdmissionError,
-  AutoMovieLoftChain,
   AutoMovieLoftStations,
   AutoMovieSplineCurve,
   AutoMovieViewLoft,
@@ -8,7 +7,6 @@ import {
   AutoMovieSolidVector as Vec,
 } from "@automovie/engine";
 import {
-  AutoMovieHumanNailLoop as Loop,
   AutoMovieHumanNail as Nail,
   AutoMovieHumanDigitNails as Nails,
   AutoMovieHumanNailContact as Paired,
@@ -18,6 +16,7 @@ import type {
   IAutoMovieHumanDigitNails,
   IAutoMovieSolidMesh,
   IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
   AutoMovieVector2Tuple as P2,
   AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
@@ -29,34 +28,60 @@ import type { FamilyConicMpfbNailStock as Stock } from "./FamilyConicMpfbNailSto
  *
  * @see https://github.com/makehumancommunity/mpfb2/blob/650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a/src/mpfb/entities/socketobject/_extra_vertex_groups.py
  * @see https://occt3d.com/dev/doc/refman/html/class_b_rep_builder_a_p_i___sewing.html
+ * @see https://github.com/Open-Cascade-SAS/OCCT/blob/master/dox/user_guides/mesh/mesh.md The shared edge and face-interior deflection are separate inputs.
+ * @see https://doi.org/10.1016/S0010-4485(97)00047-X Subdivide by model-space error and triangulate in the trim chart.
  */
 export namespace FamilyConicMpfbNailPatch {
   const TURN: number = 2 * Math.PI;
 
-  /** Replace the parent chart's trimmed interior by the original plate crown. */
-  export function realize(
+  /** One distal source preparation for its contact and exterior. */
+  export interface IPrepared {
+    /** The original digit and its fitted plate. */
+    readonly made: IAutoMovieHumanDigitNails.IMade;
+    /** Digit declaration with its own reliefs and local sample rows. */
+    readonly digit: IAutoMovieViewPart;
+    /** The lofts, paired charts and their shared source projection. */
+    readonly contact: Paired.IPrepared;
+    /** Elapsed time for preparing these inputs, milliseconds. */
+    readonly milliseconds: number;
+  }
+
+  /** Prepare the exact lofts and paired contact once for this fitted digit. */
+  export function prepare(
     made: IAutoMovieHumanDigitNails.IMade,
     sampling: Parameters<typeof Nails.addReliefs>[1],
-    stock?: Stock.IPatch,
-  ) {
+  ): IPrepared {
     const started: number = performance.now();
     const { nail, original: source } = made;
+    const digit: IAutoMovieViewPart = Nails.addReliefs(source, sampling, [
+      nail.bed,
+      nail.strip,
+    ]);
+    const plate: IAutoMovieViewPart = Nails.attachmentPlate(
+      nail.plate,
+      nail.bed,
+    );
+    const contact: Paired.IPrepared = Paired.prepareLofts(
+      nail,
+      AutoMovieViewLoft.create(plate),
+      AutoMovieViewLoft.create(digit),
+      made.support.domain[1],
+    );
+    return { made, digit, contact, milliseconds: performance.now() - started };
+  }
+
+  /** Replace the parent chart's trimmed interior by the original plate crown. */
+  export function realize(prepared: IPrepared, stock?: Stock.IPatch) {
+    const started: number = performance.now();
+    const {
+      made,
+      digit,
+      contact: { host: skin, part: plate, edge, footprint },
+    } = prepared;
+    const { nail } = made;
     const tip: number = made.support.domain[1];
-    const rawPlate = Nails.attachmentPlate(nail.plate, nail.bed);
-    const rawSkin = Nails.addReliefs(source, sampling, [nail.bed, nail.strip]);
-    const plate = AutoMovieViewLoft.create(rawPlate),
-      skin = AutoMovieViewLoft.create(rawSkin);
-    if (plate.chain === null || skin.chain === null || skin.surface === null)
-      throw new AutoMovieLoftAdmissionError(
-        JSON.stringify([...plate.diagnostics, ...skin.diagnostics]),
-      );
     const host: IAutoMovieSolidSurface = skin.surface;
-    const edge = Paired.prepare(nail, rawPlate, rawSkin, tip);
-    const footprint = Loop.prepare(nail, plate.chain, skin.chain, tip);
-    const original = (s: number, phase: number): P3 =>
-      AutoMovieLoftChain.point(skin.chain!, s, phase);
-    const onPlate = (s: number, phase: number): P3 =>
-      AutoMovieLoftChain.point(plate.chain!, s, phase);
+    const original: NonNullable<IAutoMovieSolidSurface["point"]> = host.point!;
     const fold: number = made.row.proportions.fold;
     const pitch: number =
       (nail.bed.stations[1] - nail.bed.stations[0]) / (nail.bed.rows - 3);
@@ -137,7 +162,7 @@ export namespace FamilyConicMpfbNailPatch {
             " rad, share " +
             radius,
         );
-      const target: P3 = onPlate(q.station, q.phase);
+      const target: P3 = q.point;
       // Quintic Hermite step in the physical seam conormal, over one fold
       // depth. Both rates vanish at the shared edge and the original crown.
       const conormal: number = Nail.step(((1 - radius) * ray.reach) / fold);
@@ -157,18 +182,29 @@ export namespace FamilyConicMpfbNailPatch {
       Mesh.vertex(kernel, original(...point), hostId, ...point),
     );
     const [first, last]: [number, number] = host.domain!;
-    const bottom: boolean = rawSkin.pole === "both";
+    const bottom: boolean = digit.pole === "both";
+    const marks: number[] = columns.map(({ point }): number => point[0]);
+    const local: readonly (readonly [number, number])[] = [
+      [Math.min(...marks), Math.max(...marks)],
+      ...(digit.reliefs ?? []).map(({ stations }) => stations),
+    ];
+    // Sample the material boundary and its authored reliefs to the same chord
+    // as before. Away from them only the campaign's geometry resolution is due.
+    const chord = (a: number, b: number): number =>
+      local.some(([low, high]): boolean => a < high && b > low)
+        ? Nails.CLIP_MM / 4
+        : Nails.CLIP_MM;
     const stations: number[] = AutoMovieLoftStations.bisect(
       skin.chain,
       first,
       last,
-      Nails.CLIP_MM / 4,
+      chord,
     ).filter((s): boolean => s < tip && (!bottom || s > first));
     const phases: number[] =
       skin.chain.phases === undefined
         ? Array.from(
             { length: skin.chain.samples },
-            (_, i): number => (TURN * i) / skin.chain!.samples,
+            (_, i): number => (TURN * i) / skin.chain.samples,
           )
         : [...skin.chain.phases];
     const open = Mesh.face(kernel, {
@@ -276,11 +312,13 @@ export namespace FamilyConicMpfbNailPatch {
       plateFrom,
       columns: count,
       rows,
+      skinStations: stations.length,
+      skinPhases: phases.length,
       support: boundary.scale,
       inward,
       nominalInward,
       milliseconds: {
-        prepare: ready - started,
+        prepare: ready - started + prepared.milliseconds,
         skin: skinDone - ready,
         crown: performance.now() - skinDone,
       },

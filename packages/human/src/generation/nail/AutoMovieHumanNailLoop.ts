@@ -5,7 +5,9 @@ import type {
   IAutoMovieHumanNailLoop,
   IAutoMovieLoftChain,
   IAutoMovieLoftSectionFrame,
+  IAutoMovieSolidSurface,
   IAutoMovieViewAxis,
+  AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
 
 /**
@@ -24,8 +26,22 @@ export namespace AutoMovieHumanNailLoop {
   /** Phases a plate's ring is scanned at for its side extreme. */
   const SCAN: number = 24;
 
-  /** Prepare the actual plate and bedded skin at the nail's parent footprint. */
-  export function prepare(nail: IAutoMovieHumanNail.INail, plate: IAutoMovieLoftChain, host: IAutoMovieLoftChain, tip: number) {
+  /**
+   * Prepare the actual plate and bedded skin at the nail's parent footprint.
+   *
+   * @param nail Nail carrying the placement and parent chart footprint.
+   * @param plate Original chain of the placed plate.
+   * @param host Original bedded skin chain.
+   * @param tip Distal station of the parent chart, millimetres.
+   * @param surfaces If provided, the admitted readers of these same chains.
+   */
+  export function prepare(
+    nail: IAutoMovieHumanNail.INail,
+    plate: IAutoMovieLoftChain,
+    host: IAutoMovieLoftChain,
+    tip: number,
+    surfaces?: { part: IAutoMovieSolidSurface; host: IAutoMovieSolidSurface },
+  ) {
     const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(nail.plate);
     const knots: [number, number] = [nail.plate.knots[0]!, nail.plate.knots.at(-1)!];
     const [from, to]: [number, number] = [nail.plate.tips?.[0]?.tip ?? knots[0], nail.plate.tips?.[1]?.tip ?? knots[1]];
@@ -39,18 +55,24 @@ export namespace AutoMovieHumanNailLoop {
     const supported = source?.kind === "view" && plate.originalSection === undefined &&
       !plate.sectionSpans?.length && !plate.reliefs?.length
       ? AutoMovieLoftViewRead.prepare(source.data) : null;
-    // The plate's own chart point `[u, v]` of its ring at a station and a phase.
-    const ring = (station: number, frame: IAutoMovieLoftSectionFrame): ((phase: number) => [number, number]) => {
-      const reads = AutoMovieLoftChain.sampler(plate, station);
-      return (phase: number): [number, number] => {
-        const p: number[] = reads(phase);
-        const d: number[] = [0, 1, 2].map((k: number): number => p[k]! - frame.origin[k]!);
-        return [d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2], d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2]];
+
+    // Read the original world point and its two plate section coordinates.
+    const ring = (station: number, frame: IAutoMovieLoftSectionFrame) => {
+      const reads = surfaces?.part.pointAt?.(station) ??
+        AutoMovieLoftChain.sampler(plate, station);
+      return (phase: number): { point: P3; u: number; v: number } => {
+        const point: P3 = reads(phase);
+        const d: number[] = [0, 1, 2].map((k: number): number => point[k]! - frame.origin[k]!);
+        return {
+          point,
+          u: d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2],
+          v: d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2],
+        };
       };
     };
     // How far a point of the figure stands over the plate's upper face, mm, with the plate's chart point under it; null where no
     // upper face stands under or over it (past the plate's ends or its sides).
-    const over = (p: readonly number[], includeFloor: boolean = true): { gap: number; floorGap: number; station: number; phase: number; floorPhase: number } | null => {
+    const over = (p: readonly number[], includeFloor: boolean = true) => {
       // The station whose section plane holds the point: from its place along the first stretch, by the fixed point of its distance
       // along the course's own direction there, since the course turns past the free edge.
       let station: number = [0, 1, 2].reduce((sum: number, k: number): number => sum + (p[k]! - start.origin[k]!) * along[k]!, 0);
@@ -74,7 +96,7 @@ export namespace AutoMovieHumanNailLoop {
       // The upper face runs from the crown at phase 0 to the side extreme, the same on both sides; the side extreme is the ring's
       // farthest point from the median line.
       const sign: number = v < 0 ? -1 : 1;
-      const lateral = (phase: number): number => sign * section(sign * phase)[1];
+      const lateral = (phase: number): number => sign * section(sign * phase).v;
       const values = supported?.values(station);
       const guide: number = sign > 0 ? 1 : 3;
       // A native side guide is the exact support point. Its polar angle uses
@@ -94,17 +116,37 @@ export namespace AutoMovieHumanNailLoop {
       };
       const phase: number = phaseAt(0, edge);
       const floorPhase: number = includeFloor ? phaseAt(Math.PI, edge) : phase;
-      return { gap: u - section(phase)[0], floorGap: section(floorPhase)[0] - u, station, phase, floorPhase };
+      const top = section(phase);
+      return {
+        gap: u - top.u,
+        floorGap: (includeFloor ? section(floorPhase).u : top.u) - u,
+        station,
+        phase,
+        floorPhase,
+        point: top.point,
+      };
     };
     const { centre, semi }: { centre: [number, number]; semi: [number, number] } = nail.outline;
     const chart = (clock: number, share: number): [number, number] => [Math.min(tip, centre[0] + share * semi[0] * Math.cos(clock)), centre[1] + share * semi[1] * Math.sin(clock)];
     const read = (clock: number, share: number) => {
       const [s, t]: [number, number] = chart(clock, share);
-      return over(AutoMovieLoftChain.point(host, s, t));
+      return over(
+        surfaces?.host.point?.(s, t) ?? AutoMovieLoftChain.point(host, s, t),
+      );
     };
-    const project = (p: readonly number[]) => {
+    const project = (p: readonly number[]): {
+      gap: number;
+      station: number;
+      phase: number;
+      point: P3;
+    } | null => {
       const top = over(p, false);
-      return top === null ? null : { gap: top.gap, station: top.station, phase: top.phase };
+      return top === null ? null : {
+        gap: top.gap,
+        station: top.station,
+        phase: top.phase,
+        point: top.point,
+      };
     };
     return { centre, semi, chart, read, project };
   }

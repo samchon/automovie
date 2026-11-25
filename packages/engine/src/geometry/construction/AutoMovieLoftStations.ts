@@ -30,7 +30,8 @@ export namespace AutoMovieLoftStations {
    * @param chain The chain.
    * @param from First station, mm.
    * @param to Last station, mm.
-   * @param tolerance Largest departure of a band from its sections, mm.
+   * @param tolerance Largest departure of a band from its sections, mm, or a
+   *   function of its two bounding stations for a local feature's tolerance.
    * @param depth Largest bisection depth.
    * @returns Increasing stations including both ends.
    */
@@ -38,7 +39,7 @@ export namespace AutoMovieLoftStations {
     chain: IAutoMovieLoftChain,
     from: number,
     to: number,
-    tolerance: number,
+    tolerance: number | ((from: number, to: number) => number),
     depth: number = 8,
   ): number[] {
     const probes: number[] = Array.from(
@@ -84,7 +85,9 @@ export namespace AutoMovieLoftStations {
             ),
           );
         });
-        if (error > tolerance) {
+        if (
+          error > (typeof tolerance === "number" ? tolerance : tolerance(a, b))
+        ) {
           split(a, m, level + 1, ra, rm);
           split(m, b, level + 1, rm, rb);
           return;
