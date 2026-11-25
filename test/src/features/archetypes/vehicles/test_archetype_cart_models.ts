@@ -12,11 +12,10 @@ const figures =
     params: createCart.IParams,
     names: readonly createCart.Dimension[],
   ): ((seed: number) => number[]) =>
-  (seed: number): number[] =>
-    names.map(
-      (n: createCart.Dimension): number =>
-        createCart(params, seed).dimensions[n]!,
-    );
+  (seed: number): number[] => {
+    const dimensions = createCart(params, seed).dimensions;
+    return names.map((name: createCart.Dimension): number => dimensions[name]!);
+  };
 
 /** The refusal a call throws, or null. */
 const refusal = (call: () => unknown): AutoMovieArchetypeRefusal | null => {
@@ -138,6 +137,13 @@ export function test_archetype_cart_models(): void {
   }
   TestValidator.equals("a cart's shafts and horse fit", findings, []);
 
+  const chariot = createCart({ kind: "chariot", model: "carter333" });
+  TestValidator.equals(
+    "the explicit Carter model supplies its own wheel diameter",
+    [chariot.provenance.models.model, chariot.dimensions.wheelDiameter],
+    ["carter333", 0.8],
+  );
+
   TestValidator.equals(
     "a read figure and a missing axis are refused",
     [
@@ -147,7 +153,10 @@ export function test_archetype_cart_models(): void {
       refusal((): unknown =>
         createCart({ kind: "trolley", model: "brewster" }, 1),
       )?.axis,
+      refusal((): unknown =>
+        createCart({ kind: "chariot", model: "brewster" }, 1),
+      )?.axis,
     ],
-    ["shaftLength", "model"],
+    ["shaftLength", "model", "model"],
   );
 }

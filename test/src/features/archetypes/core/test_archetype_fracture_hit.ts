@@ -241,7 +241,8 @@ export function test_archetype_fracture_hit(): void {
         { id: "a", parts: ["left"] },
         { id: "b", parts: ["right"] },
       ]);
-    const invalidMass: boolean = !(mass > 0) || mass === Number.MIN_VALUE;
+    const invalidMass: boolean =
+      !(mass > 0 && mass < Infinity) || mass === Number.MIN_VALUE;
     const made: AutoMovieArchetype<never, never> = builder.build(
       invalidMass ? 3 : mass,
       {

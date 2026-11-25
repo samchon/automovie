@@ -199,15 +199,24 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
             fix: `set ${name} inside its band, or leave it out to draw it from the seed`,
           });
         values[name] = fixed;
-      } else if (this.#root === null)
-        values[name] = (band.minimum + band.maximum) / 2;
-      else
+      } else if (this.#root === null) {
+        const sum: number = band.minimum + band.maximum;
         values[name] =
-          band.minimum +
-          (band.maximum - band.minimum) *
-            createAutoMovieRandom(deriveAutoMovieSeed(this.#root, name)).float(
-              0,
-            );
+          Math.abs(sum) < Infinity
+            ? sum / 2
+            : band.minimum / 2 + band.maximum / 2;
+      } else {
+        const width: number = band.maximum - band.minimum;
+        const share: number = createAutoMovieRandom(
+          deriveAutoMovieSeed(this.#root, name),
+        ).float(0);
+        // If the interval spans zero and its width overflows, the two
+        // weighted endpoints remain finite and their sum cannot overflow.
+        values[name] =
+          width < Infinity
+            ? band.minimum + width * share
+            : band.minimum * (1 - share) + band.maximum * share;
+      }
       // A model's figure is the producer's word over a band's draw, whichever came first.
       if (Object.hasOwn(this.#figures, name)) continue;
       this.#values[name] = values[name];

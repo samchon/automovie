@@ -1,3 +1,4 @@
+import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
@@ -74,8 +75,8 @@ export namespace ArchetypeCoursePath {
    * @returns One row per leg, and the path's whole length along its grades,
    *   metres.
    * @throws {AutoMovieArchetypeRefusal} Through `refuse`, for a leg whose
-   *   length or radius is not positive, a turn of no angle, or a rise that is
-   *   not finite.
+   *   length or radius is not positive, a turn of no angle, or a path length
+   *   that is unrepresentable.
    */
   export function lay(
     course: AutoMovieArchetypeCourse.ICourse,
@@ -108,8 +109,16 @@ export namespace ArchetypeCoursePath {
           leg.kind === "straight"
             ? leg.length
             : leg.radius * Math.abs(leg.angle) * AutoMovieArchetypeUnits.DEGREE;
-        const span: number =
-          rise === 0 ? run : run * Math.sqrt(1 + (rise / run) * (rise / run));
+        const grade: number = rise === 0 ? 0 : rise / run;
+        const ordinary: number = rise === 0 ? run : run * Math.sqrt(1 + grade * grade);
+        const span: number = ordinary < Infinity ? ordinary : Math.hypot(run, rise);
+        const next: number = length + span;
+        if (!(next > length && next < Infinity))
+          refuse(
+            `legs[${index}]`,
+            span,
+            "the course must gain a representable distance along each leg",
+          );
         const row: IRow = {
           leg,
           from: length,
@@ -129,7 +138,7 @@ export namespace ArchetypeCoursePath {
         y = end.y;
         z = end.z;
         heading = end.heading;
-        length += span;
+        length = next;
         progress += leg.reverse === true ? -span : span;
       },
     );
@@ -146,9 +155,9 @@ export namespace ArchetypeCoursePath {
   export function advance(row: IRow, along: number): IPose {
     // The ground covered and the height gained, in the grade's proportion; a level leg covers what it travels.
     const ground: number =
-      row.rise === 0 ? along : (along * row.run) / row.span;
+      row.rise === 0 ? along : gradedComponent(row.run, along, row.span);
     const height: number =
-      row.rise === 0 ? row.y : row.y + (row.rise * along) / row.span;
+      row.rise === 0 ? row.y : row.y + gradedComponent(row.rise, along, row.span);
 
     // A reversed leg travels opposite to the heading it faces.
     const travel: number = row.reverse ? row.heading + 180 : row.heading;
@@ -172,5 +181,18 @@ export namespace ArchetypeCoursePath {
       z: cz + side * row.leg.radius * Math.sin(h + swept),
       heading: row.heading + swept / AutoMovieArchetypeUnits.DEGREE,
     };
+  }
+
+  /** Project one component without prematurely rounding the product to zero or infinity. */
+  function gradedComponent(component: number, along: number, span: number): number {
+    if (component === 0 || along === 0) return 0;
+    const product: number = component * along;
+    const magnitude: number = Math.abs(product);
+    // Below the least normal value an intermediate product loses significand bits.
+    if (magnitude >= 2 ** -1022 && magnitude < Infinity) return product / span;
+    return (
+      Math.sign(component) *
+      ArchetypeMassArithmetic.ratio(Math.abs(component), along, span, 1)
+    );
   }
 }

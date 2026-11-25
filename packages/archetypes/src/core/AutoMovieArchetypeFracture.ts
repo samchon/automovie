@@ -137,7 +137,7 @@ export namespace AutoMovieArchetypeFracture {
     rest: AutoMovieArchetype.IProps<Id, Dimension>,
     hit: IHit,
   ): IBroken<Id, Dimension> | null {
-    if (!(hit.energy >= 0))
+    if (!(hit.energy >= 0 && hit.energy < Infinity))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: rest.archetype,
@@ -147,11 +147,29 @@ export namespace AutoMovieArchetypeFracture {
         reason: "a hit needs finite nonnegative kinetic energy",
         fix: "give a finite energy at least zero",
       });
+    if (
+      !(
+        Math.max(
+          Math.abs(hit.momentum.x),
+          Math.abs(hit.momentum.y),
+          Math.abs(hit.momentum.z),
+        ) < Infinity
+      )
+    )
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: rest.archetype,
+        axis: "momentum",
+        value: hit.momentum,
+        feasible: null,
+        reason: "the hit needs finite momentum along each axis",
+        fix: "supply finite momentum components",
+      });
 
     const threshold: number | undefined = rest.contact?.fracture;
     if (rest.fractures.length === 0 || threshold === undefined) return null;
 
-    if (!(threshold > 0))
+    if (!(threshold > 0 && threshold < Infinity))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: rest.archetype,
@@ -180,7 +198,7 @@ export namespace AutoMovieArchetypeFracture {
       );
       const masses: number[] = parts.map((p: IAutoMovieModelPart): number => {
         const value: number | undefined = rest.masses[p.id];
-        if (!(value !== undefined && value >= 0))
+        if (!(value !== undefined && value >= 0 && value < Infinity))
           throw massRefusal(
             rest.archetype,
             value,

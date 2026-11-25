@@ -68,13 +68,27 @@ export function createCart(
       ) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>
     >
   > = {
-    trolley: ({ model: _model, ...rest }, s) => createShoppingTrolley(rest, s),
-    wheelbarrow: ({ model: _model, ...rest }, s) => createWheelbarrow(rest, s),
+    trolley: createShoppingTrolley,
+    wheelbarrow: createWheelbarrow,
     cart: (p, s) => createHorseCart({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["multiUse", "dennettGig"] as const) }, s),
     rickshaw: (p, s) => createRickshaw({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["edo89210382", "edo90360001", "powerhouse245268"] as const) }, s),
-    chariot: ({ model: _model, ...rest }, s) => createChariot(rest, s),
-    limber: ({ model: _model, ...rest }, s) => createLimber(rest, s),
-    wagon: ({ model: _model, ...rest }, s) => createWagon(rest, s),
+    chariot: (p, s) =>
+      createChariot(
+        {
+          ...p,
+          model: ArchetypeDraw.admit("cart", "model", p.model, [
+            "carter120",
+            "carter121",
+            "carter122",
+            "carter161",
+            "carter332",
+            "carter333",
+          ]),
+        },
+        s,
+      ),
+    limber: createLimber,
+    wagon: createWagon,
     carriage: (p, s) => createCarriage({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["brewster", "minerStevens", "peters"] as const) }, s),
   };
   return variants[kind](params, seed);

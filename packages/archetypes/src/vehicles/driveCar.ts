@@ -4,6 +4,7 @@ import {
   AutoMovieArchetypeRide,
   AutoMovieArchetypeUnits,
 } from "../core";
+import { CarSteering } from "./CarSteering";
 import type { createCar } from "./createCar";
 
 /**
@@ -42,23 +43,6 @@ export function driveCar(
   const lock: number = car.dimensions.lockTurns! * 180;
   const diameter: number = car.dimensions.wheelDiameter!;
 
-  /**
-   * The steering wheel's angle on a path of a signed curvature, degrees, going
-   * forward.
-   */
-  const steer = (curvature: number): number => {
-    if (curvature === 0) return 0;
-    const radius: number = 1 / Math.abs(curvature);
-    const axle: number = Math.sqrt(
-      Math.max(0, radius * radius - (wheelbase * wheelbase) / 4),
-    );
-    return (
-      Math.sign(curvature) *
-      ratio *
-      (Math.atan2(wheelbase, axle) / AutoMovieArchetypeUnits.DEGREE)
-    );
-  };
-
   // The tightest turn the lock allows: the road wheels at lock over ratio.
   const plan: AutoMovieArchetypeCourse.IPlan =
     course.kind === "plan"
@@ -84,11 +68,10 @@ export function driveCar(
       // Each road wheel rolls its circumference per turn, forward or back with the signed distance.
       const turns: number = state.progress / (Math.PI * diameter);
       const spin: number = (((turns * 360) % 360) + 360) % 360;
+      const steering: number = CarSteering(wheelbase, ratio, state.curvature);
       return {
         archetype: car.articulate({
-          wheel: state.reverse
-            ? -steer(state.curvature)
-            : steer(state.curvature),
+          wheel: state.reverse ? -steering : steering,
           frontLeftSpin: spin,
           frontRightSpin: spin,
           rearLeftSpin: spin,

@@ -197,7 +197,7 @@ export namespace AutoMovieArchetypeSpan {
     if (
       !(span.radius > 0) ||
       (span.length !== null && !(span.length >= 0)) ||
-      !(distance > 0)
+      !(distance > 0 && distance < Infinity)
     )
       refuse(
         archetype,
@@ -205,34 +205,28 @@ export namespace AutoMovieArchetypeSpan {
         distance,
         "span geometry and held overhang must be finite, with distinct anchors for an extension",
       );
-    const direction: IAutoMovieVector3 =
-      distance === 0
-        ? { x: 0, y: 0, z: 0 }
-        : {
-            x: offset.x / distance,
-            y: offset.y / distance,
-            z: offset.z / distance,
-          };
-    const from: IAutoMovieVector3 =
-      fromOverhang === 0
-        ? start
-        : Vector3.subtract(start, Vector3.scale(direction, fromOverhang));
-    const to: IAutoMovieVector3 =
-      toOverhang === 0
-        ? end
-        : Vector3.add(end, Vector3.scale(direction, toOverhang));
-    const length: number = Math.hypot(
-      to.x - from.x,
-      to.y - from.y,
-      to.z - from.z,
-    );
-    if (!(length > 0))
-      refuse(
-        archetype,
-        span.id,
-        length,
-        "the extended span cannot be represented as finite geometry",
-      );
+    let from: IAutoMovieVector3 = start;
+    let to: IAutoMovieVector3 = end;
+    let length: number = distance;
+    if (fromOverhang > 0 || toOverhang > 0) {
+      const direction: IAutoMovieVector3 = {
+        x: offset.x / distance,
+        y: offset.y / distance,
+        z: offset.z / distance,
+      };
+      if (fromOverhang > 0)
+        from = Vector3.subtract(start, Vector3.scale(direction, fromOverhang));
+      if (toOverhang > 0)
+        to = Vector3.add(end, Vector3.scale(direction, toOverhang));
+      length = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z);
+      if (!(length > 0 && length < Infinity))
+        refuse(
+          archetype,
+          span.id,
+          length,
+          "the extended span cannot be represented as finite geometry",
+        );
+    }
     return {
       from,
       to,
