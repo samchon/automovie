@@ -17,6 +17,7 @@ import type {
   IAutoMovieHumanCanonicalSolids,
   IAutoMovieHumanParameters,
   IAutoMovieHumanSkeleton,
+  IAutoMovieJointAxes,
   IAutoMoviePhysicalProfile,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -29,6 +30,7 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanCanonicalBind } from "./AutoMovieHumanCanonicalBind";
 import { AutoMovieHumanCanonicalProfile as Profile } from "./AutoMovieHumanCanonicalProfile";
 import type { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
+import { canonicalThumbHinges } from "./canonicalThumbHinges";
 
 /**
  * A Human's polygon man on the engine's canonical humanoid rig, so a motion
@@ -464,6 +466,7 @@ function canonical(
     segment.neutral.position = lift(segment.neutral.position);
 
   const bones: IAutoMovieBone[] = [];
+  const thumbAxes = canonicalThumbHinges(position);
   const placed: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   const add = (
     bone: AutoMovieHumanoidBone,
@@ -471,6 +474,7 @@ function canonical(
     at: IAutoMovieVector3,
   ): void => {
     placed.set(bone, at);
+    const axes: IAutoMovieJointAxes | undefined = thumbAxes.get(bone);
     bones.push({
       bone,
       parent,
@@ -483,6 +487,7 @@ function canonical(
         scale: Vector3.create(1, 1, 1),
       },
       constraint: null,
+      ...(axes === undefined ? {} : { axes }),
     });
   };
   for (const bone of bind) {
