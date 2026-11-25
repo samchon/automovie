@@ -23,6 +23,9 @@ import { serveAutoMovieInspectorPage } from "./serveAutoMovieInspectorPage";
  * `react` and `react-dom`, come from the production. On SIGINT or SIGTERM the
  * server stops, the page is deleted, and the status is 0; a refusal throws to
  * `run`, which prints it.
+ *
+ * The copied capture command uses the same module and optional props paths from
+ * the production's working directory.
  */
 export async function inspectAutoMovie(props: {
   /** The tokens after `inspect`. */
@@ -56,6 +59,11 @@ export async function inspectAutoMovie(props: {
     }
   }
 
+  const executable: string = path.join(__dirname, "..", "lib", "bin.js");
+  const launcher: readonly [string, ...string[]] = fs.existsSync(executable)
+    ? [process.execPath, executable]
+    : ["automovie"];
+
   // Vite's CommonJS entry warns once per load; the command loads it on purpose.
   process.env.VITE_CJS_IGNORE_WARNING = "true";
   const page: Awaited<ReturnType<typeof serveAutoMovieInspectorPage>> =
@@ -65,6 +73,12 @@ export async function inspectAutoMovie(props: {
       vite: loadAutoMovieProductionModule(root, "vite"),
       port: options.port,
       props: data,
+      captureCommand: [
+        ...launcher,
+        "capture",
+        `--module=${options.module}`,
+        ...(options.props === null ? [] : [`--props=${options.props}`]),
+      ],
     });
   process.stdout.write(
     `inspect ${options.module}: ${formatAutoMovieInspectUrl(page.url, render.formatAutoMovieCapturePlanRequest(request))}\nPress Ctrl+C to stop.\n`,

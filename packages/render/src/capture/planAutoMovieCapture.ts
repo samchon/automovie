@@ -99,7 +99,7 @@ export function planAutoMovieCapture(
     });
   const { times, windows } = frames;
   const cells: IAutoMovieCaptureCell[] = [];
-  const names: Set<string> = new Set();
+  const names: Map<string, string> = new Map();
 
   // Named instants by their second to the millisecond, the resolution a cell is named at.
   const labels: Map<string, string> = new Map(
@@ -122,11 +122,13 @@ export function planAutoMovieCapture(
               ? []
               : [selection.kind, slug(selection.unit)]),
           ].join("-");
-          if (names.has(name))
+          const key: string = name.toLowerCase();
+          const previous: string | undefined = names.get(key);
+          if (previous !== undefined)
             throw new Error(
-              `Two capture cells take the name ${name}; give seconds at least a millisecond apart and views that differ in letters or digits`,
+              `Capture cells "${previous}" and "${name}" would write the same PNG on a case-insensitive file system. Choose times, views or swept units that give distinct file names.`,
             );
-          names.add(name);
+          names.set(key, name);
           const label: string | null =
             labels.get(time.seconds.toFixed(3)) ?? null;
           cells.push({

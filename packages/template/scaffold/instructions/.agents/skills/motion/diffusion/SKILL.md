@@ -23,6 +23,6 @@ Generate a stretch the user chose in these steps:
 3. Hint it from the composed performance.
 4. Freeze the result and check it as a clip.
 5. [Retarget](../retargeting.md) it onto the cast member's polygon man, then run the [hint checks](hints.md#checks).
-6. Accept it in the catalog as a [retargeted clip](../catalog-cases.md#what-each-case-owes).
+6. Review the [retargeted clip](../catalog-cases.md#what-each-case-owes) in its commissioned use or a separate case.
 
-The checks of steps 4 and 5 are that catalog case's tests.
+Use the clip and retargeting checks as the evidence for step 6.

@@ -2,19 +2,19 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Production films and scenes trigger the same layout that the scaffold specifies. A catalog case, the catalog film and its acceptance record serve different consumers and are checked together.
+Explicit selection or an existing catalog artifact activates the catalog layout. The catalog case sources, film and acceptance record serve different consumers and are checked together.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-A source glob determines applicability, followed by one check for each fixed input and one for the case population.
+The catalog film, acceptance record and case glob determine applicability. The film and at least one case need a function or public method exported from its implementation module, and the acceptance record needs an ordinary file.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The generated starter, film registry, catalog and declaration files supply no production performance. File presence establishes only layout, and the director still has to replay the actual cases.
+The case scan excludes declaration files and directories. The TypeScript syntax tree distinguishes implemented functions from types, unrelated values, and export text inside strings and comments. The graph checks the configured evidence, and the director replays the actual cases.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Two scoped source searches and two fixed file probes run during configuration, outside film evaluation.
+Two fixed probes and one scoped case search run during configuration. The source check parses the film and reads case files until it finds an exported function or public method.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -26,4 +26,4 @@ The synchronous filesystem calls retain no handles or state.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names the submission that opens the check, the starter exception, the failure and the judgment retained by the director.
+Names explicit and existing selection, the return meaning, the failure and the judgment retained by the director.

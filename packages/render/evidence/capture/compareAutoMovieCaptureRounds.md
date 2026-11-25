@@ -2,21 +2,23 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States both matching rules and why the camera matters, when a pair is measured or laid side by side, every unmatched cause, what a sheet row holds and what files are written.
+States both matching rules, how repeated keys and incompatible rows are handled, why the camera matters, when a pair is measured or laid side by side, and what the sheet and difference files hold.
 
-## @evidence contracts/development/implementation.md#principled-implementation `.agents/skills/visual-debugging/comparison.md`: pair two cells only when everything but the compared thing agrees, and report a cell one capture lacks as unmatched with its cause; the campaign's renderer decision compares pixels only within one backend, since bit identity across backends is not documented.
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The visual debugging comparison rules require corresponding cells and preserve unmatched causes. Cell matching keeps the view and checks reported camera identity. Time matching uses the recorded second rounded to six decimal places, pass and selection. A unique compatible pair can compare the file view with its source view, and repeated groups pair only where a view identifies exactly one row on both sides. Pixel differences require the same stated backend and raster size.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Index the earlier rows by their key, decide every entry, claim the files, then read, measure and lay out each entry in order; the findings are diffed by diffAutoMovieCaptureFindings from the two records' audits.
+Index every row from both captures by its key and resolve unique counterparts before claiming output names. Read, measure and lay out the resulting entries in current plan order, then the unmatched earlier rows in earlier plan order. The finding diff reads the two records' audits independently.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No picture is resampled to force a comparison, and an unmatched cell is never counted as unchanged.
+Repeated keys retain every row. Pass compatibility precedes view selection, and neither insertion order nor a raster resample forces a match. Unmatched cells carry causes in place of pixel metrics.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the cells of both captures for the pairing, plus each pair's pixels once for decoding and measuring.
+Pairing indexes both captures and visits each row once more for view matching in repeated groups. It uses linear auxiliary space in the number of cells. Pixel work additionally scales with the stills decoded, compared and written to sheets.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -24,4 +26,4 @@ Each pair is read and measured once.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-One pair of decoded stills, one difference image and the comparison sheet being filled are held at a time.
+The temporary comparison plan retains at most one entry per input cell. Picture work holds at most one pair of decoded stills, one difference image and the sheet being filled. Folder storage owns the written files.

@@ -10,7 +10,7 @@ One table maps each checklist population to its stage, folders, symbol kinds and
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Source folders are the scaffold layout's documented locations, not fixture paths; nothing is inferred from file presence.
+The scaffold layout determines the source folders. The public configuration resolves catalog selection before this factory maps it to its own population. Scene and film references continue to require the actual screenplay's coverage.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -70,10 +70,7 @@ export type IAutoMovieCaptureCellComparison =
       earlier: string;
     }
   | {
-      /**
-       * One capture holds the cell and the other does not, or one of them could
-       * not draw it.
-       */
+      /** A compatible counterpart is absent, ambiguous or undrawn. */
       state: "unmatched";
 
       /** Cell name in this capture, or null when only the earlier round has it. */

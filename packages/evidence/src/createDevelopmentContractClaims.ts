@@ -22,9 +22,9 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * answer `composition.md` and cite the screenplay scene file, or the sections
  * and beats of it they realize, and every H2 section and H3 beat must be
  * realized; screenplay films answer `films.md` and cite each scene file they
- * order, and every scene file must belong to a film. Catalog cases and the
- * catalog film answer `catalog.md` alone. With `instructions`, the composition
- * and entities must also realize every instruction section, which no narrative
+ * order, and every scene file must belong to a film. A selected catalog's cases
+ * and review film answer `catalog.md`. With `instructions`, the composition and
+ * entities must also realize every instruction section, which no narrative
  * layer then cites, with no exclusion. The public configuration adds coverage
  * of the route's subject records when entities or composition are submitted.
  */
@@ -98,7 +98,7 @@ export function createDevelopmentContractClaims(
       cited: { type: "markdown", files: screenplay, symbol: "file" },
     },
     {
-      stage: "composition",
+      stage: "catalog",
       name: "review catalog",
       checklist: "catalog",
       files: [

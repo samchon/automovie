@@ -34,8 +34,8 @@ export interface IAutoMovieEvidenceConfigProps {
   narrative?: IAutoMovieNarrativeProps | IAutoMovieNoNarrativeProps;
 
   /**
-   * Entity, behavior and composition development contracts; omitted stages stay
-   * disabled.
+   * Selects development contracts for entities, behaviors, composition and a
+   * separate review catalog.
    */
   development?: IAutoMovieDevelopmentProps;
 

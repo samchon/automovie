@@ -24,7 +24,7 @@ States which round's coverage each cause reports and when `not-sampled` applies.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The three open coverage statuses plus an absent coverage row, the four reasons an absent finding is not a fix.
+The three open coverage statuses and a sampling gap express why a required interval could not support a comparison.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -32,7 +32,7 @@ A closed literal union read only by unmatched entries.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-A deferred or unsampled interval is a cause, never a fix.
+A deferred or unsampled interval prevents a fix or a severity comparison where checked coverage is required.
 
 # src/render/capture/IAutoMovieCaptureFindingDiff.ts#IAutoMovieCaptureFindingDiff.IEntry
 
@@ -42,7 +42,7 @@ States each state's condition, which observations it carries and what `change` c
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Fixed, new, carried and unmatched identities are union members keyed by `state`; each carries exactly the observations its rounds have, and only a carried entry has a change and only an unmatched one a cause.
+Fixed, new, carried and unmatched identities are union members keyed by `state`. The carried entry requires mutually checked coverage and carries its change. The unmatched entry carries its cause and the available witnesses, including both when the identity was observed in each round.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

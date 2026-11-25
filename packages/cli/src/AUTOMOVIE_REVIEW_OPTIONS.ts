@@ -9,4 +9,13 @@ export const AUTOMOVIE_REVIEW_OPTIONS: readonly string[] = [
   "url",
   "seconds",
   "out",
+  "file",
+  "mark",
+  "at",
+  "from",
+  "to",
+  "note",
+  "reviewer",
+  "decision",
+  "viewed",
 ];

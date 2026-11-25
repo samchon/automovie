@@ -77,6 +77,11 @@ export function test_unit_render_scene_reduce_inspection_episodes(): void {
     [["room/shot", "checked", 0, 5, 6]],
   );
   TestValidator.equals(
+    "unaddressed film samples keep clock provenance too",
+    impact.coverage[0]?.sampledShotClock,
+    true,
+  );
+  TestValidator.equals(
     "confirmed error blocks known coverage",
     impact.hasBlockingFinding,
     true,
@@ -240,6 +245,34 @@ export function test_unit_render_scene_reduce_inspection_episodes(): void {
         },
       ]);
     },
+  );
+
+  const placed: IAutoMovieInspectionDiagnostics.IAudit =
+    reduceAutoMovieInspectionEpisodes(
+      [28, 29, 30].map(
+        (outputFrame: number): IAutoMovieInspectionDiagnostics => {
+          const filmSeconds: number = outputFrame / 24;
+          return {
+            ...frame(outputFrame, observation(1)),
+            time: {
+              filmSeconds,
+              outputFrame,
+              shot: { path: "room/shot", seconds: filmSeconds - 0.17 },
+            },
+          };
+        },
+      ),
+    );
+  TestValidator.equals(
+    "one 24 fps shot stays compact when subtracting from its nonzero origin",
+    [
+      placed.coverage.map((range) => [range.samples, range.sampledShotClock]),
+      placed.episodes.map((episode) => [
+        episode.samples,
+        episode.sampledShotClock,
+      ]),
+    ],
+    [[[3, true]], [[3, true]]],
   );
 }
 

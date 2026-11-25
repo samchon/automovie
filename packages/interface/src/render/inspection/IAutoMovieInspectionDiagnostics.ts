@@ -192,6 +192,9 @@ export namespace IAutoMovieInspectionDiagnostics {
 
     /** Number of distinct samples in this episode. */
     readonly samples: number;
+
+    /** Whether the samples and witnesses all share the last shot clock. */
+    readonly sampledShotClock?: boolean;
   }
 
   /**
@@ -210,6 +213,9 @@ export namespace IAutoMovieInspectionDiagnostics {
 
     /** Number of distinct samples with this outcome. */
     readonly samples: number;
+
+    /** Present when every sample shares the first sample’s shot clock. */
+    readonly sampledShotClock?: true;
 
     /** An unchanged coverage outcome across the range. */
     readonly coverage: ICoverage;

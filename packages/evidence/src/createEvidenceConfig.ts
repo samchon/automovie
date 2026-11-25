@@ -21,9 +21,10 @@ import { createProductionConfig } from "./narrative/createProductionConfig";
  * under `<location>/docs/contracts`, and its root relative to `location` goes
  * to the default engineering, development and research claims. Caller-supplied
  * `claims` are added after the defaults as written, so they name their own
- * root. A short narrative includes its studies by default once one exists. Film
- * composition validates its catalog inputs before building claims. On a story
- * route the production's entity types cite their subject records.
+ * root. A short narrative includes its studies by default once one exists.
+ * Catalog selection checks the three catalog inputs before building claims.
+ * Ordinary film composition can be checked directly against the screenplay. On
+ * a story route the production's entity types cite their subject records.
  */
 export function createEvidenceConfig(
   props: IAutoMovieEvidenceConfigProps,
@@ -33,8 +34,14 @@ export function createEvidenceConfig(
       "Evidence location must be an absolute project directory, such as import.meta.dirname.",
     );
   assertProductionContractLayout(props.location);
-  if (props.development?.composition === "evidence")
-    assertFilmCatalogLayout(props.location);
+  const catalog: boolean =
+    (props.development?.catalog === "evidence" ||
+      (props.development?.catalog === undefined &&
+        props.development?.composition === "evidence")) &&
+    assertFilmCatalogLayout(
+      props.location,
+      props.development?.catalog === "evidence",
+    );
   const skills: string = resolveSkillsDirectory(props);
   const root: string = createReferenceRoot(props.location, skills);
 
@@ -45,6 +52,7 @@ export function createEvidenceConfig(
   claims.push(
     ...createDevelopmentContractClaims({
       ...props.development,
+      catalog: catalog ? "evidence" : "disabled",
       skills: root,
       instructions:
         props.narrative?.mode === "none" &&

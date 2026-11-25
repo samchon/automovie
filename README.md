@@ -119,6 +119,8 @@ automovie capture --module <file> [--props <json>] [--backend software|gpu] [--o
 automovie capture --file <video> [--out <dir>] [<request>]
 automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
 automovie review --url <inspector address> --seconds <s> [--out <dir>]
+automovie review --file <video> (--at <s> | --from <s> --to <s>) --note <text> [--out <dir>]
+automovie review --mark <review.json> [--file <video>] [--out <dir>]
 ```
 
 ### create
@@ -142,6 +144,8 @@ automovie review --url <inspector address> --seconds <s> [--out <dir>]
 ### review
 
 `review` records real-time playback of the production's running inspector page, `pnpm run dev`, at `--url` for `--seconds` of wall time after pressing its Play button, into a video with `playback.json` of the readings and page errors, in `--out` or `media/automovie/review`. `npx playwright-core install ffmpeg` provides the recorder. It exits 1 when the page reported a script error.
+
+File review writes `review.json` after matching the published video to its render report by SHA-256. Reopen the original with `automovie review --mark <review.json>` for stills at its selected frame boundaries and adjacent context. Supply the archived video with `--file` if it moved. For a retake, also give a new point or range explicitly. Use `--reviewer`, `--decision accepted|needs-repair` and `--viewed still|playback|listening` together to record a person's judgment of the selected scope.
 
 ## Packages
 

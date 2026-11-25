@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what each field shows, when an edit is dispatched, the refusal, the command's quoting, what copying does and what it says when the clipboard is missing or refused.
+States what each field shows, when an edit is dispatched, the refusal, the host command condition and shell default, and the clipboard feedback.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Both texts are written from the request by the grammar's writers, so the address, the command and the picture name one request; copying goes through the platform's clipboard.
+Both texts use the same request writer. The command formats the host's fixed arguments and those request arguments for the selected shell. Copying goes through the platform clipboard.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One editable field and one read-only field, each with a copy button.
+One editable address field with a copy button. Hosts with a capture command also get a shell selector and a read-only command with its own copy button.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ The typed text is held only until it is dispatched; the request stays the reduce
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Two writes of the request per render, linear in its text.
+At most two writes of the request per render, linear in its text and the optional host command text.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -26,4 +26,4 @@ A view with handlers.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Holds only the text being typed and the last copy's note.
+Local state holds the text being typed, the last copy note and the selected shell while the panel is mounted.

@@ -121,9 +121,10 @@ export async function test_unit_engine_physics_measure_physical_authored_locomot
         targets[step]!.segments;
       // The target's rate toward the neighbouring key frame, in the parent's
       // anchor frame: the rotation between them over their interval.
-      const neighbour: number = frames[
-        index + 1 < frames.length ? index + 1 : index - 1
-      ]!;
+      const neighbour: number | undefined =
+        frames[index + 1 < frames.length ? index + 1 : index - 1];
+      if (neighbour === undefined)
+        throw new Error("A target rate needs at least two authored key frames");
       const beside: Record<string, IAutoMovieRigidTransform> =
         targets[neighbour]!.segments;
       const interval: number = (neighbour - step) / 120;

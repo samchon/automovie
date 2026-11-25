@@ -4,6 +4,7 @@ import type {
   IAutoMovieCaptureFindingDiff,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
+  IAutoMovieCaptureStorage,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
@@ -48,6 +49,15 @@ export async function captureAutoMovie(props: {
 
   /** The environment, read for `CHROME_PATH` and `FFMPEG_PATH`. */
   env: Readonly<Record<string, string | undefined>>;
+
+  /** The caller's output sink, default standard output. */
+  write?: (text: string) => void;
+
+  /** The absolute record path verification expects this capture to write. */
+  expectedRecord?: string;
+
+  /** Receives the absolute path of this attempt's completed capture record. */
+  recorded?: (file: string, text: string) => void;
 }): Promise<number> {
   const { root } = props;
   const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
@@ -61,35 +71,83 @@ export async function captureAutoMovie(props: {
   const request: IAutoMovieCapturePlanRequest =
     render.parseAutoMovieCapturePlanRequest(options.request);
 
+  const recordPath = (folder: string): string =>
+    path.join(
+      folder,
+      ...(request.round === null ? [] : ["rounds", request.round]),
+      "record.json",
+    );
+  const admitFolder = (folder: string): void => {
+    if (props.expectedRecord === undefined) return;
+    const file: string = recordPath(folder);
+    if (path.relative(props.expectedRecord, file) !== "")
+      throw new Error(
+        `The configured capture would write ${file}. The check declares ${props.expectedRecord}.`,
+      );
+  };
+  if (options.out !== null && props.expectedRecord !== undefined)
+    admitFolder(path.resolve(root, options.out));
+
+  let recordText: string | undefined;
+  const storage: IAutoMovieCaptureStorage =
+    props.recorded === undefined
+      ? fs
+      : {
+          ...fs,
+          writeFile: async (
+            file: string,
+            data: Parameters<IAutoMovieCaptureStorage["writeFile"]>[1],
+          ): Promise<void> => {
+            await fs.writeFile(file, data);
+            if (
+              typeof data === "string" &&
+              path.basename(file) === "record.json"
+            )
+              recordText = data;
+          },
+        };
+
   let record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>;
   let backend: string;
   let folder: string;
   if (options.file !== null) {
     // A video file: probe it, then capture its own frames.
-    const ffmpeg: string = resolveAutoMovieFfmpeg({
-      env: props.env,
-      load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
-        loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
-    });
     const file: string = path.resolve(root, options.file);
-    const probe: ReturnType<typeof readAutoMovieVideoProbe> =
-      readAutoMovieVideoProbe(
-        await runAutoMovieFfmpeg(
-          ffmpeg,
-          ["-hide_banner", "-i", file],
-          (): boolean => true,
-        ),
-      );
     const name: string = request.subject ?? path.parse(file).name;
     folder = path.resolve(
       root,
       options.out ?? path.join("media", "capture", name),
     );
+    if (options.out === null) admitFolder(folder);
+    const ffmpeg: string = resolveAutoMovieFfmpeg({
+      env: props.env,
+      load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
+        loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
+    });
+    const probe: ReturnType<typeof readAutoMovieVideoProbe> =
+      readAutoMovieVideoProbe(
+        await runAutoMovieFfmpeg(ffmpeg, [
+          "-hide_banner",
+          "-threads",
+          "1",
+          "-i",
+          file,
+          "-map",
+          "0:v:0",
+          "-vf",
+          "showinfo=checksum=0",
+          "-frames:v",
+          "1",
+          "-f",
+          "null",
+          "-",
+        ]),
+      );
     record = await render.runAutoMovieVideoCapture({
       file,
       subject: { name, ...probe },
       request,
-      storage: fs,
+      storage,
       root: folder,
       run: async (args: readonly string[]): Promise<void> => {
         await runAutoMovieFfmpeg(ffmpeg, args);
@@ -115,7 +173,8 @@ export async function captureAutoMovie(props: {
             : JSON.parse(
                 await fs.readFile(path.resolve(root, options.props), "utf8"),
               ),
-        ...(options.out === null ? {} : { out: options.out }),
+        ...(options.out === null ? { admitFolder } : { out: options.out }),
+        storage,
       });
     } finally {
       await host.close();
@@ -158,7 +217,14 @@ export async function captureAutoMovie(props: {
       ? []
       : describeFindings(record.comparison.findings)),
   ];
-  process.stdout.write(`${lines.join("\n")}\n`);
+  if (props.recorded !== undefined) {
+    if (recordText === undefined)
+      throw new Error("The capture completed without writing its record.");
+    props.recorded(recordPath(folder), recordText);
+  }
+  const output: string = `${lines.join("\n")}\n`;
+  if (props.write === undefined) process.stdout.write(output);
+  else props.write(output);
   return failed.length === 0 ? 0 : 1;
 }
 

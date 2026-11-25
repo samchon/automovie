@@ -10,11 +10,11 @@ One options object selects engineering alone, engineering whose code realizes ev
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The returned object is an ordinary native configuration; this function neither evaluates diagnostics nor grants creative approval, an omitted skills tree yields exactly the standalone roots, and assertProductionContractLayout refuses a production still keeping its own contracts in the retired skills location rather than letting their duties vanish.
+The returned object is a native configuration. An omitted skills tree yields the standalone roots. The layout guards preserve duties of moved contracts and existing catalogs. Explicit catalog selection works without a composition claim.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Only submitted entities or composition on a story route probe for subject files. Only an omitted research option on the short route probes for studies. Enabled composition checks catalog inputs and mode none probes for instructions.
+Only submitted entities or composition on a story route probe for subject files. Only an omitted research option on the short route probes for studies. Explicit catalog selection and composition with an unset catalog option inspect catalog artifacts. Mode none probes for instructions.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -26,4 +26,4 @@ The caller owns the returned configuration; this function retains no registry, n
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The comment states how the shared tree reaches each factory and that supplied claims keep their own root; the input types explain routes, disabled stage defaults and additional native claims.
+The comment states how the shared tree reaches each factory, how supplied claims keep their own root and how catalog validation relates to ordinary composition. The input types explain stage selection and additional native claims.

@@ -237,24 +237,122 @@ export function test_cli_render_review_options(): void {
       return true;
     }),
   );
-  TestValidator.predicate(
-    "every review option is admitted",
-    AUTOMOVIE_REVIEW_OPTIONS.every((option: string): boolean => {
-      readAutoMovieReviewOptions(
-        new Map([
-          ["url", "http://127.0.0.1/"],
-          ["seconds", "1"],
-          [
-            option,
-            option === "url"
-              ? "http://127.0.0.1/"
-              : option === "seconds"
-                ? "1"
-                : "value",
-          ],
-        ]),
-      );
-      return true;
-    }),
+  const examples: [string, string][][] = [
+    [
+      ["url", "http://127.0.0.1/"],
+      ["seconds", "1"],
+      ["out", "media/review"],
+    ],
+    [
+      ["file", "film.mp4"],
+      ["at", "0.12"],
+      ["note", "The hands miss"],
+    ],
+    [
+      ["file", "film.mp4"],
+      ["at", "0.12"],
+      ["note", "The hands meet"],
+      ["reviewer", "Director"],
+      ["decision", "accepted"],
+      ["viewed", "still"],
+    ],
+    [
+      ["mark", "old/review.json"],
+      ["file", "film.mp4"],
+      ["from", "0.1"],
+      ["to", "0.2"],
+      ["reviewer", "Director"],
+      ["decision", "accepted"],
+      ["viewed", "playback"],
+    ],
+    [
+      ["file", "film.mp4"],
+      ["from", "0.1"],
+      ["to", "0.2"],
+      ["note", "The footsteps line up"],
+      ["reviewer", "Director"],
+      ["decision", "accepted"],
+      ["viewed", "listening"],
+    ],
+  ];
+  const admitted: string[] = [
+    ...new Set(
+      examples.flatMap((pairs): string[] => {
+        readAutoMovieReviewOptions(new Map(pairs));
+        return pairs.map(([key]): string => key);
+      }),
+    ),
+  ];
+  const byKey = (left: string, right: string): number =>
+    left < right ? -1 : left > right ? 1 : 0;
+  TestValidator.equals(
+    "review examples cover every option",
+    admitted.sort(byKey),
+    [...AUTOMOVIE_REVIEW_OPTIONS].sort(byKey),
   );
+  for (const [values, fragment] of [
+    [
+      [
+        ["file", "film.mp4"],
+        ["at", "0"],
+        ["from", "0"],
+        ["to", "1"],
+      ],
+      "--at excludes",
+    ],
+    [
+      [
+        ["file", "film.mp4"],
+        ["at", "0"],
+        ["note", "Review"],
+        ["decision", "accepted"],
+      ],
+      "together",
+    ],
+    [
+      [
+        ["file", "film.mp4"],
+        ["at", "0"],
+        ["note", "Review"],
+        ["reviewer", "Director"],
+        ["decision", "accepted"],
+        ["viewed", "listening"],
+      ],
+      "need --from and --to",
+    ],
+    [
+      [
+        ["file", "film.mp4"],
+        ["from", "0"],
+        ["to", "1"],
+        ["note", "Review"],
+        ["reviewer", "Director"],
+        ["decision", "accepted"],
+        ["viewed", "still"],
+      ],
+      "Still review needs --at",
+    ],
+    [
+      [
+        ["mark", "old/review.json"],
+        ["at", "0"],
+      ],
+      "with --file",
+    ],
+    [
+      [
+        ["mark", "old/review.json"],
+        ["note", "Review"],
+      ],
+      "explicit position",
+    ],
+  ] as [string[][], string][])
+    TestValidator.predicate(
+      `review refuses ${JSON.stringify(values)}`,
+      throwsError(
+        (): unknown =>
+          readAutoMovieReviewOptions(new Map(values as [string, string][])),
+        fragment,
+      ),
+    );
 }

@@ -4,6 +4,7 @@ import type {
   IAutoMovieCapturePlan,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
+  IAutoMovieCaptureStorage,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
@@ -249,6 +250,10 @@ export class AutoMovieCaptureHost {
      */
     out?: string;
 
+    admitFolder?: (folder: string) => void;
+
+    storage?: IAutoMovieCaptureStorage;
+
     /** The subject owner's own section of the record, or absent. */
     section?: Readonly<Record<string, unknown>>;
   }): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
@@ -258,6 +263,12 @@ export class AutoMovieCaptureHost {
       props: props.props,
     });
     try {
+      const root: string = path.resolve(
+        this.root,
+        props.out ?? path.join("media", "capture", session.subject.name),
+      );
+      props.admitFolder?.(root);
+
       // A film with a sound list speaks in its stills as in its delivered
       // frames: the same lines on the same clock give the same mouths.
       const { sound, fps, durationSeconds } = session.subject;
@@ -289,11 +300,8 @@ export class AutoMovieCaptureHost {
       });
       const folder: Render.AutoMovieCaptureFolder =
         await render.AutoMovieCaptureFolder.open({
-          storage: fs,
-          root: path.resolve(
-            this.root,
-            props.out ?? path.join("media", "capture", session.subject.name),
-          ),
+          storage: props.storage ?? fs,
+          root,
           round: props.request.round,
           compare: props.request.compare,
         });

@@ -10,7 +10,7 @@ description: Composes and verifies performance through the installed motion voca
 | [Programmed performance](performance.md) | Building and verifying a scene, film or standalone case |
 | [Composition](compose/composition.md) | Joining installed actions into a performance |
 | [Refusals](compose/refusals.md) | Diagnosing a refused composition |
-| [Catalog cases](catalog-cases.md) | Accepting a module before composing it |
+| [Catalog cases](catalog-cases.md) | Reviewing a capability in use or in a separate case |
 | [Staging](staging.md) | Listing a scene's beat elements and planning blocking and camera |
 | [Motion judgment](judgment.md) | Judging form, contact, pace and the central passage before widening |
 | [Segment review](segment-review.md) | Reviewing staged intervals and joins |

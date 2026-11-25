@@ -7,7 +7,7 @@ Each exported function and method of a catalog case in `src/composition/scenes/c
 | A catalog case | What it exhibits, named in prose |
 | The catalog film | What each of its cases exhibits, named in prose |
 
-The catalog names these in prose because it realizes no screenplay beat or instruction: screenplay coverage comes from the scenes and films. Playback, capture and the acceptance record follow [catalog cases](../../motion/catalog-cases.md).
+Name the exhibited conditions in prose. The production scenes and films own screenplay coverage. Playback, capture and the acceptance record follow [catalog cases](../../motion/catalog-cases.md).
 
 ## Exhibited fact
 
@@ -17,9 +17,9 @@ Name the fact each case exhibits, and pass the parameters of the behavior or ent
 
 ## Catalog film
 
-Does the catalog film list and play every case the screenplay uses, and resolve once from one seed?
+Does the catalog film list and play every case adopted for its scope, and resolve once from one seed?
 
-The catalog film lists every case the screenplay uses and gives each its labeled interval under [catalog cases](../../motion/catalog-cases.md). Resolve the film once from one seed. A case answers with the interval the film gives it.
+The catalog film lists the cases selected for independent review and gives each its labeled interval under [catalog cases](../../motion/catalog-cases.md). Resolve the film once from one seed. A case answers with the interval the film gives it.
 
 ## Realization comments
 

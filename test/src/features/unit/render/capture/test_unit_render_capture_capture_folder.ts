@@ -184,6 +184,62 @@ export async function test_unit_render_capture_capture_folder(): Promise<void> {
   );
 
   // 7. Names.
+  const locations: Record<string, string> = {
+    "out/rounds/before": "out/rounds/before",
+    "out/rounds/Before": "out/rounds/before",
+  };
+  const aliases: createCaptureMemory.IMemory = createCaptureMemory({
+    "out/rounds/before/record.json": complete(["prior.png", "record.json"]),
+    "out/rounds/before/prior.png": "prior still",
+    "out/rounds/Before/record.json": complete(["other.png", "record.json"]),
+    "out/rounds/Before/other.png": "other still",
+  });
+  const storage = {
+    ...aliases.storage,
+    realpath: async (path: string): Promise<string> => locations[path]!,
+  };
+  const open = (round: string, compare: string | null): Promise<unknown> =>
+    AutoMovieCaptureFolder.open({ storage, root: "out", round, compare });
+  TestValidator.predicate(
+    "using the same name twice is refused even without host resolution",
+    await rejectsError(
+      (): Promise<unknown> =>
+        AutoMovieCaptureFolder.open({
+          storage: aliases.storage,
+          root: "out",
+          round: "before",
+          compare: "before",
+        }),
+      ["itself"],
+    ),
+  );
+  TestValidator.predicate(
+    "different spellings of the same folder are refused",
+    await rejectsError(() => open("Before", "before"), ["same folder"]),
+  );
+  TestValidator.predicate(
+    "a capture cannot replace a round under a different spelling",
+    await rejectsError(() => open("Before", null), ['existing round "before"']),
+  );
+  TestValidator.equals(
+    "neither round's files changed after the refusals",
+    [
+      aliases.text("out/rounds/before/prior.png"),
+      aliases.text("out/rounds/Before/other.png"),
+    ],
+    ["prior still", "other still"],
+  );
+  locations["out/rounds/Before"] = "out/rounds/Before";
+  await open("Before", "before");
+  TestValidator.equals(
+    "distinct directory spellings keep the earlier round and replace the output",
+    [
+      aliases.text("out/rounds/before/prior.png"),
+      aliases.files.has("out/rounds/Before/other.png"),
+    ],
+    ["prior still", false],
+  );
+
   const folder: AutoMovieCaptureFolder = await AutoMovieCaptureFolder.open({
     storage: createCaptureMemory().storage,
     root: "out",

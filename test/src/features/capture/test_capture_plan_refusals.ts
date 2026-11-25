@@ -127,4 +127,22 @@ export function test_capture_plan_refusals(): void {
     "a zero raster is refused",
     refuses("at=1", ["0x360"], { ...SUBJECT, width: 0 }),
   );
+
+  const views: IAutoMovieCaptureSubject = {
+    ...SUBJECT,
+    views: ["Front", "front"],
+  };
+  TestValidator.equals(
+    "a single view keeps its case in the file name",
+    plan("at=1&views=Front", views).cells[0]?.name,
+    "t001.000-Front-beauty",
+  );
+  TestValidator.predicate(
+    "two file names differing only in case are refused",
+    refuses(
+      "at=1&views=Front;front",
+      ["t001.000-Front-beauty", "t001.000-front-beauty", "same PNG"],
+      views,
+    ),
+  );
 }

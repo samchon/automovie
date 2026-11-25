@@ -1,3 +1,4 @@
+import { digestAutoMovieBytes } from "@automovie/engine";
 import type {
   IAutoMovieCaptureCell,
   IAutoMovieCaptureCellRecord,
@@ -168,18 +169,17 @@ export async function runAutoMovieCapture(
       stampAutoMovieRasterLabel(picture, label.text, labelScale, label);
     const file: string = `${cell.name}.png`;
     // The graphics plate keeps its straight alpha as the compositing matte.
-    await folder.write(
-      file,
-      await encodeAutoMovieRasterPng(picture, {
-        alpha: cell.pass === "graphics",
-      }),
-    );
+    const bytes: Uint8Array = await encodeAutoMovieRasterPng(picture, {
+      alpha: cell.pass === "graphics",
+    });
+    await folder.write(file, bytes);
     rows.push({
       ...fixed,
       ...place,
       state: "drawn",
       file,
       hash: hashAutoMovieRasterImage(picture),
+      fileSha256: digestAutoMovieBytes(bytes).slice("sha256:".length),
       backend: drawing.backend ?? null,
       camera: drawing.camera ?? null,
       repeat: drawing.repeat ?? null,

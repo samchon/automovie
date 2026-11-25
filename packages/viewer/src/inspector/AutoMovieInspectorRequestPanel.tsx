@@ -1,5 +1,4 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-
 import {
   type CSSProperties,
   type ChangeEvent,
@@ -10,13 +9,18 @@ import {
 } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
+import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import { formatAutoMovieInspectorAddress } from "./formatAutoMovieInspectorAddress.js";
 import { formatAutoMovieInspectorCommand } from "./formatAutoMovieInspectorCommand.js";
 
 /**
- * The request as text: the address query, editable, and the `automovie capture` command that repeats the picture, each with a button named for what it copies.
+ * Copy or edit the address and, when the host supplies a command, copy its
+ * capture command in the selected shell syntax.
  *
- * The query field shows the request's address text; an edit is dispatched as a `text` action when the field is left or Enter is pressed, and a text the grammar refuses keeps the previous request with the refusal shown above. The command is read-only, quoted for a POSIX shell. Copying writes the field's text to the clipboard where the page may, and says so under the fields, in a status region that stays mounted so each note is announced; where the page has no clipboard, as outside a secure context, or is refused it, the note says to select the text and copy it instead.
+ * The query field dispatches edits on blur or Enter. A refused edit keeps the
+ * previous request. The command is read-only and initially uses POSIX syntax.
+ * Copying reports success in a live status region, or tells the reader to
+ * select the text if clipboard access is unavailable.
  */
 export function AutoMovieInspectorRequestPanel(props: {
   /** The request shown. */
@@ -24,8 +28,12 @@ export function AutoMovieInspectorRequestPanel(props: {
 
   /** Where an edited text goes. */
   dispatch: (action: IAutoMovieInspectorAction) => void;
+
+  /** Executable and fixed arguments from the host for the optional command. */
+  captureCommand?: IAutoMovieInspectorProps["captureCommand"];
 }): JSX.Element {
   const [typed, setTyped] = useState<string | null>(null);
+  const [shell, setShell] = useState<"posix" | "powershell">("posix");
   const [copied, setCopied]: [
     string | null,
     Dispatch<SetStateAction<string | null>>,
@@ -58,7 +66,12 @@ export function AutoMovieInspectorRequestPanel(props: {
   };
   const address: string =
     typed ?? formatAutoMovieInspectorAddress(props.request);
-  const command: string = formatAutoMovieInspectorCommand(props.request).text;
+  const command: string | null = props.captureCommand
+    ? formatAutoMovieInspectorCommand(props.request, {
+        command: props.captureCommand,
+        shell,
+      }).text
+    : null;
   const row: CSSProperties = {
     display: "flex",
     gap: 4,
@@ -89,23 +102,46 @@ export function AutoMovieInspectorRequestPanel(props: {
           </button>
         </span>
       </label>
-      <label style={{ display: "block" }}>
-        Capture command
-        <span style={row}>
-          <input
-            aria-label="Capture command"
-            readOnly
-            style={{ flex: "1 1 auto", minWidth: 0, fontFamily: "monospace" }}
-            value={command}
-          />
-          <button
-            type="button"
-            onClick={(): void => void copy("command", command)}
-          >
-            Copy command
-          </button>
-        </span>
-      </label>
+      {command !== null && (
+        <>
+          <label style={{ display: "block" }}>
+            Shell{" "}
+            <select
+              aria-label="Command shell"
+              value={shell}
+              onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
+                setShell(
+                  event.target.value === "powershell" ? "powershell" : "posix",
+                )
+              }
+            >
+              <option value="posix">POSIX</option>
+              <option value="powershell">PowerShell 7.3+</option>
+            </select>
+          </label>
+          <label style={{ display: "block" }}>
+            Capture command
+            <span style={row}>
+              <input
+                aria-label="Capture command"
+                readOnly
+                style={{
+                  flex: "1 1 auto",
+                  minWidth: 0,
+                  fontFamily: "monospace",
+                }}
+                value={command}
+              />
+              <button
+                type="button"
+                onClick={(): void => void copy("command", command)}
+              >
+                Copy command
+              </button>
+            </span>
+          </label>
+        </>
+      )}
       {/* The live region stays mounted and only its text changes, so each
           copy's note is announced. */}
       <p role="status" style={{ margin: "4px 0 0", fontSize: 12 }}>

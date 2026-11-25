@@ -8,10 +8,9 @@ import { readAutoMovieCreateArguments } from "./readAutoMovieCreateArguments";
  * `args` excludes the node executable and script positions. No arguments, or a
  * lone `-h`/`--help`, means help; a lone `-v`/`--version` means version.
  * `create` and `add` delegate their grammars to
- * {@link readAutoMovieCreateArguments} and {@link readAutoMovieAddArguments};
- * `capture`, `inspect`, `render` and `review` keep their tokens for the
- * production's option reader, which `run` loads. Every refusal throws an
- * `Error` whose message names the correction.
+ * {@link readAutoMovieCreateArguments} and {@link readAutoMovieAddArguments}.
+ * Production operations keep their tokens for their own option reader. Every
+ * refusal throws an `Error` whose message names the correction.
  *
  * @param args The command-line tokens after the executable and script.
  * @returns The admitted request.
@@ -32,8 +31,9 @@ export function readAutoMovieCommandArguments(
   if (command === "inspect") return { command: "inspect", args: [...rest] };
   if (command === "render") return { command: "render", args: [...rest] };
   if (command === "review") return { command: "review", args: [...rest] };
+  if (command === "verify") return { command: "verify", args: [...rest] };
   throw new Error(
-    `Unknown command ${JSON.stringify(command)}; the commands are create, add, capture, inspect, render and review (see --help).`,
+    `Unknown command ${JSON.stringify(command)}; the commands are create, add, capture, inspect, render, review and verify (see --help).`,
   );
 }
 

@@ -117,4 +117,14 @@ export type AutoMovieCommand =
        * production's option reader.
        */
       args: string[];
+    }
+  | {
+      /** Verify scoped production checks and observations. */
+      command: "verify";
+
+      /**
+       * The tokens after `verify`, as typed; the verification command reads
+       * them.
+       */
+      args: string[];
     };

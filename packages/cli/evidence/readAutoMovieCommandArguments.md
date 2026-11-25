@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Standalone flags are decided before any command because they admit no other token, and each command's grammar validates the whole request before returning, so `run` never begins publication on a partially understood command line.
+Standalone flags are decided before any command because they admit no other token. Create and add fully admit scaffold publication requests; production commands leave their named options to their owning host.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
