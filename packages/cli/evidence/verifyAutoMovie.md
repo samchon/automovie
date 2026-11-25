@@ -6,7 +6,7 @@ States the module owner, working directory, output formats, status behavior and 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Node resolves the editable module from its production directory and supplies each measurement's observed local source to the shared evaluator. Both output formats present the same report.
+Node resolves the editable module from its production directory. The shared evaluator computes one report, and both output formats present that report.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -26,4 +26,4 @@ The report determines its output and exit together; no outcome cache persists in
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Node retains the authored module during the command process. The loader releases its temporary hooks. The formatter holds one report and one text or JSON output.
+The module is retained by Node during the command process. The formatter holds one report and one text or JSON output. Stream ownership remains with Node.

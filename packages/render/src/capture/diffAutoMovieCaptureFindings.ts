@@ -15,15 +15,11 @@ type ICoverageRange = IAutoMovieInspectionDiagnostics.ICoverageRange;
 /** A captured film sample or exact witness clock. */
 type ITime = IAutoMovieInspectionDiagnostics.ITime;
 
-/** Closed bounds of a coverage gap on the film clock. */
 type IInterval = IAutoMovieInspectionDiagnostics.IInterval;
 
-/** What one compared audit could not establish across the required episodes. */
 interface IUncovered {
-  /** The first episode's open status or missing sample cause. */
   cause: IAutoMovieCaptureFindingDiff.Cause;
 
-  /** Every interval where checked and comparable samples are missing. */
   uncovered: IInterval[];
 }
 
@@ -53,13 +49,13 @@ interface ISummary {
  *
  * An identity only one round has is `fixed` or `new` only when the other round
  * checked its episode samples. An isolated second can match a recorded sample
- * exactly. A match inside a range also needs a shared output grid and a proven
- * matching source shot clock. Every required frame must be checked. An identity
- * both rounds have is `carried` only if each audit checked the samples of both
- * sets of episodes. Its change compares the worst observations. With
- * insufficient coverage it is `unmatched` with the open coverage status or
- * `not-sampled`, retaining the worst witnesses and the intervals that still
- * need coverage.
+ * exactly. To match inside a range, the captured frame clocks must agree on the
+ * zero-origin output grid and every required frame must be checked. The elapsed
+ * bounds of two ranges cannot establish that on their own. An identity both
+ * rounds have is `carried` only if each audit checked the samples of both sets
+ * of episodes. Its change compares the worst observations. With insufficient
+ * coverage it is `unmatched` with the open coverage status or `not-sampled`,
+ * retaining all available witnesses.
  *
  * The outcome reads errors only: `worse` when an error is new or carried worse,
  * `better` when none is new, carried worse or unmatched and one is fixed or
@@ -263,7 +259,7 @@ function lone(
     : { ...identity, state: "new", earlier: null, current: summary.worst };
 }
 
-/** Keep the first cause and all uncovered spans among this identity's episodes. */
+/** Read one audit's first uncovered span among episodes of the same identity. */
 function findUncovered(
   ranges: readonly ICoverageRange[],
   ...summaries: ISummary[]
@@ -331,8 +327,8 @@ function obligationKey(
 }
 
 /**
- * Find the unchecked parts of an episode's sampled frames. Exact or otherwise
- * unproven clocks keep the enclosing interval when comparison fails.
+ * Match an episode's concrete sampled frames, preserving the temporal bounds of
+ * an exact witness that differs from the enclosing sample.
  */
 function uncoveredOf(
   ranges: readonly ICoverageRange[],
@@ -441,10 +437,6 @@ function uncoveredOf(
   };
 }
 
-/**
- * Include the retained witness clocks when the full sample extent is
- * unresolved.
- */
 function episodeExtent(episode: IEpisode): IInterval {
   const first: number = episode.first.time.filmSeconds;
   const worst: number = episode.worst.time.filmSeconds;
@@ -455,10 +447,6 @@ function episodeExtent(episode: IEpisode): IInterval {
   };
 }
 
-/**
- * Place a gap on a proven zero-origin grid, allowing for division round-off
- * when another round records its sample directly as frame divided by fps.
- */
 function gridInterval(anchor: ITime, first: number, last: number): IInterval {
   const from: number = (first / anchor.outputFrame!) * anchor.filmSeconds;
   const to: number = (last / anchor.outputFrame!) * anchor.filmSeconds;

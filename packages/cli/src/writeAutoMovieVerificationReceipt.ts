@@ -4,14 +4,6 @@ import * as path from "node:path";
 
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 
-/**
- * Atomically publish a verification receipt and preserve independent bytes for
- * the first failure of its scope.
- *
- * @param file The latest receipt path.
- * @param contents The complete receipt as written by its owner.
- * @param retainFailure Whether this observation is a witnessed failure.
- */
 export async function writeAutoMovieVerificationReceipt(
   file: string,
   contents: string,

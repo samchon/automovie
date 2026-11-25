@@ -17,25 +17,17 @@ const CHECKED: IAutoMovieInspectionDiagnostics.ICoverage = {
  *
  * Scenarios:
  *
- * 1. Repeating a capture cell does not raise the sample count. Consecutive
- *    findings preserve the first observation and the strongest confirmed
- *    witness. A clear sample ends an episode.
- * 2. Concurrent shot occurrences keep separate episodes. Missing frame indices,
- *    omitted check coverage and explicit deferral break continuity.
- * 3. A between-frame witness and native timestamp keep their clocks. Sparse
- *    off-grid samples remain isolated and never gain an output frame.
- * 4. Candidate errors, confirmed warnings, authored exclusions and optional
- *    unsupported rows stay distinct from confirmed errors and missing required
- *    coverage.
+ * 1. Repeating a capture cell does not raise the sample count. Consecutive findings preserve the first observation and the strongest confirmed witness. A clear sample ends an episode.
+ * 2. Concurrent shot occurrences keep separate episodes. Missing frame indices, omitted check coverage and explicit deferral break continuity.
+ * 3. A between-frame witness and native timestamp keep their clocks. Sparse off-grid samples remain isolated and never gain an output frame.
+ * 4. Candidate errors, confirmed warnings, authored exclusions and optional unsupported rows stay distinct from confirmed errors and missing required coverage.
  * 5. Unordered samples and conflicting repeats are refused.
- * 6. A normally timed shot with a nonzero origin keeps one proven range across
- *    rounding noise at 24 fps.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the public reducer with in-memory packets and checks the returned clocks, episodes, coverage and delivery flags.
  * @evidence contracts/development/testing.md#independent-expectations The authored frame ordinals, absence of coverage, confidence, ranks and native timestamp provide an independent expectation for each selected witness and outcome.
  * @evidence contracts/development/testing.md#distinguishing-cases Separate cases distinguish duplicate from conflicting samples, owner concurrency from ordered adjacency, confirmed from candidate errors, and required from optional or explicitly excluded coverage.
  * @evidence contracts/development/testing.md#execution-ownership This portable unit uses data only and needs no browser, process, renderer or filesystem.
- * @evidence contracts/development/common.md#meaningful-documentation Lists six scenarios and the specific distinction each observes.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists five scenarios and the specific distinction each observes.
  */
 export function test_inspection_diagnostic_episodes(): void {
   const repeated: IAutoMovieInspectionDiagnostics = frame(

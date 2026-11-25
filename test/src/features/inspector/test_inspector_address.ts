@@ -30,8 +30,8 @@ import { readAutoMovieCaptureHostOptions } from "automovie";
  *    `automovie capture`, and split as a POSIX shell splits single-quoted words
  *    it gives back the same arguments.
  * 5. PowerShell text preserves a host module path and the request through shell,
- *    host and request parsing. It can call an executable whose path contains
- *    spaces, or a production script.
+ *    host and request parsing. A production script can also provide the host
+ *    prefix.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Writes requests with the public address and command writers and reads them back with the inspector's address reader and the capture command's own argument reader.
  * @evidence contracts/development/testing.md#independent-expectations The requests come from written input texts; the shell split uses each shell's single-quote rule and the module path is written independently of the formatter. The readable characters are those RFC 3986 allows in a query.

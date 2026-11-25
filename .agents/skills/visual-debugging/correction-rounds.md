@@ -26,6 +26,4 @@ The inspection findings a capture records are the defects its checks report on t
 
 Open the current capture before accepting it.
 
-In a production with `pnpm run verify`, select the affected target and read its current results. Reuse a useful check or add one beside the affected asset, motion case or shot. In its source comment, state what should happen, where and what observation decides it. Run a reproducible defect check on the old and rebuilt work over the same bounds. Keep recurring checks with their owner and remove one-off definitions when the round ends.
-
-Require an agreed stage at its handoff. Carry the selected scoped observations and the director's decision to the existing review record.
+In a production with `pnpm run verify`, select the affected target and read its current results. Reuse a useful check or add one beside the affected asset, motion case or shot. In its source comment, state what should happen, where and what observation decides it. Run a reproducible defect check on the old and rebuilt work over the same bounds. Keep recurring checks with their owner and remove one-off definitions when the round ends. Require an agreed stage only at its handoff. Record the director's visual or listening decision on the observed candidate and interval under the existing review route.

@@ -40,4 +40,4 @@ Comment each such value with its source and how it realizes it, so a reader can 
 
 Does the film compose only its scenes and accepted module capabilities using installed operators and the screenplay's decisions?
 
-Resolve the film once from one seed. Place absolute time only at screenplay anchors. Order the scenes and compose any capability the film calls with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections.
+Resolve the film once from one seed. Place absolute time only at screenplay anchors. Order the scenes and compose any capability the film calls with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections. Use the same capabilities as the catalog.

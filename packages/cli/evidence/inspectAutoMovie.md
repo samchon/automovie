@@ -14,7 +14,7 @@ Read, serve, print, wait, close.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A request is read before serving. The installed capture command names its Node executable and CLI entry so it can run in another terminal. The validated module and props paths stay separate fixed arguments.
+A request is read before serving. The validated module path and any supplied props path are passed as fixed capture arguments, including when a path contains spaces or a shell character.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

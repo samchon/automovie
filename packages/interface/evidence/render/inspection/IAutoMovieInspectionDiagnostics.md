@@ -164,7 +164,7 @@ Describes the exact time chosen for the observation.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-First and worst observations preserve distinct evidence. The last sample and count describe the observed extent. The optional clock proof includes both the enclosing samples and shot-addressed witnesses, including those outside the retained observations.
+First and worst observations preserve distinct evidence. The last sample clock and count describe observed coverage rather than inferred event boundaries.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -172,17 +172,17 @@ Supports review jumps, delivery diagnostics and inspection history with two full
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The reducer joins only adjacent output frames with checked coverage for that identity and a matching shot clock.
+The reducer joins only adjacent output frames with checked coverage for that identity.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the scope, first and worst observation, last sample, sample count and the optional clock proof.
+States the meaning of the scope, first and worst observation, last sample and sample count.
 
 # src/render/inspection/IAutoMovieInspectionDiagnostics.ts#IAutoMovieInspectionDiagnostics.ICoverageRange
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A scoped status and two sample clocks describe the observed range, with a count that measures records actually seen. The optional continuity proof records whether those samples share the first sample's shot clock.
+A scoped status and two sample clocks describe the observed range, with a count that measures records actually seen.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -190,11 +190,11 @@ Reports long unchanged coverage without repeating the same row for every frame.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Adjacency comes from output indices. The reducer splits ranges on skipped frames, changed scope, changed shot clock and changed outcomes.
+Adjacency comes from output indices. The reducer splits ranges on skipped frames, scope changes and changed outcomes.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States that the endpoints are observations, what the count measures and why older audits can omit clock proof.
+States that the endpoints are observations and what the count measures.
 
 # src/render/inspection/IAutoMovieInspectionDiagnostics.ts#IAutoMovieInspectionDiagnostics.IAudit
 

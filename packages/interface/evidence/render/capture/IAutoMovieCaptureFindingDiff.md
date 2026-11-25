@@ -38,19 +38,19 @@ A deferred or unsampled interval prevents a fix or a severity comparison where c
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each state's condition, which observations it carries, what `change` compares and what a legacy unmatched entry can omit.
+States each state's condition, which observations it carries and what `change` compares.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Fixed, new, carried and unmatched identities are union members keyed by `state`. The carried entry requires mutually checked coverage and carries its change. The unmatched entry carries its cause, any uncovered film intervals and the available worst witnesses.
+Fixed, new, carried and unmatched identities are union members keyed by `state`. The carried entry requires mutually checked coverage and carries its change. The unmatched entry carries its cause and the available witnesses, including both when the identity was observed in each round.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The identity plus the worst observation of each round. Unmatched entries published by Render also retain the closed intervals needed to scope another observation. The intervals reuse the diagnostic film clock across capture schedules.
+The identity plus the worst observation of each round; episode spans stay in the records.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-A missing observation is null. An older comparison whose affected intervals are absent cannot establish that a different selection is clear of its unmatched error.
+A missing observation is null, never an empty placeholder finding.
 
 # src/render/capture/IAutoMovieCaptureFindingDiff.ts#IAutoMovieCaptureFindingDiff.IIdentity
 

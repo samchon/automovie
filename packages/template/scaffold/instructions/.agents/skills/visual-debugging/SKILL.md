@@ -20,7 +20,7 @@ The installed renderer drives both the inspector and capture from one request. R
 | Read also | For |
 | --- | --- |
 | [Inspecting a form](../3d-modeling/inspection.md) | An entity's form |
-| [Catalog cases](../motion/catalog-cases.md) | A capability that needs separate review |
+| [Catalog cases](../motion/catalog-cases.md) | One module alone |
 | [Segment review](../motion/segment-review.md) | A segment of the film |
 | [Control channels](../motion/control-channels.md) | A control channel |
 | [Image](../image/SKILL.md) | A generated image |

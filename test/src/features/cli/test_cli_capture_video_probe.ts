@@ -1,17 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 import { readAutoMovieVideoProbe } from "automovie";
 
-/**
- * The decoder's nominal rate preserves the fractional frame grid when the input
- * banner rounds it. Input-only logs retain their fps and tbr fallback. An
- * unavailable filter rate also uses the printed rate.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Reads a decoder log containing an exact and a rounded rate, then reads logs without usable decoded rates. Taking the rounded value in all cases fails.
- * @evidence contracts/development/testing.md#independent-expectations A 24000/1001 stream gives a rational frame-rate ratio in the filter configuration and displays 23.98 in the input banner.
- * @evidence contracts/development/testing.md#distinguishing-cases The decoded ratio supersedes fps, while an absent ratio, a zero ratio and a tbr-only stream use the legacy rate.
- * @evidence contracts/development/testing.md#execution-ownership The portable test reads literal FFmpeg logs through the CLI's exported reader.
- * @evidence contracts/development/common.md#meaningful-documentation Explains the distinction between the exact decoded rate and the input-only fallback.
- */
 export function test_cli_capture_video_probe(): void {
   const input: string =
     "  Duration: 00:00:00.33, start: 0.000000, bitrate: 53 kb/s\n" +

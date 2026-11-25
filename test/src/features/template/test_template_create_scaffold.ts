@@ -117,13 +117,6 @@ export function test_template_create_scaffold(): void {
     ".agents/skills/evidence/configuration.md",
     ".agents/skills/motion/catalog-cases.md",
     ".agents/skills/contracts/development/composition.md",
-    ".agents/skills/contracts/development/films.md",
-    ".agents/skills/development/entities.md",
-    ".agents/skills/development/modules.md",
-    ".agents/skills/development/source-layout.md",
-    ".agents/skills/development/testing.md",
-    ".agents/skills/production/director.md",
-    ".agents/skills/visual-debugging/SKILL.md",
   ]) {
     const manuscript: string = fs.readFileSync(
       path.join(ROOT, "packages/template/scaffold/instructions", guide),

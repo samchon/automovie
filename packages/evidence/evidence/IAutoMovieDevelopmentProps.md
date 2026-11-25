@@ -10,7 +10,7 @@ Four optional fields use the narrative stage vocabulary. Folders, populations an
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-With composition selected, an omitted catalog setting preserves selection based on the existing catalog source paths. An explicit setting controls the catalog independently. The other stages require explicit selection.
+An omitted catalog setting preserves a catalog already present when composition is selected. An explicit setting controls the catalog independently. The other stages require explicit selection.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

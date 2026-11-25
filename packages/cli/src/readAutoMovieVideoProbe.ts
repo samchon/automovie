@@ -1,14 +1,13 @@
 /**
- * Read the runtime, raster and nominal frame rate of the first video stream
- * from FFmpeg. A decoded `showinfo` probe supplies its exact frame-rate ratio.
- * Input-only logs supply the printed `fps` or, when absent, `tbr`. It throws
- * when the duration, stream, size or rate is missing.
+ * Read a video file's clock and raster from the log FFmpeg writes when it opens the file: the `Duration:` of the input and the size and rate of its first video stream.
+ *
+ * The rate is the stream's `fps` value, or its `tbr` when FFmpeg prints no `fps`. It throws naming what is missing when the log holds no duration, no video stream, or a stream without a size or a rate.
  */
 export function readAutoMovieVideoProbe(log: string): {
   /** Running time in seconds. */
   durationSeconds: number;
 
-  /** Nominal frames per second. */
+  /** Frames per second. */
   fps: number;
 
   /** Width in pixels. */

@@ -48,7 +48,7 @@ Mount the flames and surface graphics in the film as [modules](modules.md#shots-
 
 Build commissioned detail as an option on the same entity definition. Keep identity, dimensions, pivots, attachments, contacts and controls independent of surface detail.
 
-Author motion and review the affected intervals on coarse forms.
+Author motion, accept catalog cases and review segments on coarse forms.
 
 Enable detail only for commissioned delivery and record it in [project context](../production/project-context.md). Compare both settings on the same segments for proportion, pivots, contacts, deformation, visibility, timing and silhouette.
 
@@ -56,4 +56,4 @@ The 3D modeling skill makes, rigs and verifies a detailed form, and the video sk
 
 ## Inspection and handoff
 
-Inspect the entity against the facts it realizes under the [entity contract](../contracts/development/entities.md#settings-realization). For a standalone asset, test the views and controls in its commission under [asset review](../review/delivery-review.md#assets). For a scene, inspect its states with the actual cameras, neighboring subjects and motion under [segment review](../motion/segment-review.md). Use a [separate case](../motion/catalog-cases.md) when a state needs independent review.
+Inspect the entity in its [catalog cases](../motion/catalog-cases.md) against the facts it realizes under the [entity contract](../contracts/development/entities.md#settings-realization). For a standalone asset, test the views and controls in its commission under [asset review](../review/delivery-review.md#assets). For a scene, inspect its states with the actual cameras, neighboring subjects and motion under [segment review](../motion/segment-review.md).

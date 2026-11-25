@@ -16,7 +16,7 @@ A failed draw is recorded, never retried or replaced by a blank still, and a pic
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One encoding and one image reduction per still, one encoding per sheet. The still's written bytes and RGB identity are hashed separately from their existing buffers. Only diagnostic packets are sorted before grouping their findings and coverage.
+One encoding, one hash and one image reduction per still, one encoding per sheet. Only diagnostic packets are sorted before grouping their findings and coverage.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

@@ -17,12 +17,10 @@ export interface IAutoMovieCaptureComparison {
   round: string;
 
   /**
-   * `cell` pairs by selection, second, view and pass. `time` pairs by second,
-   * pass and selection. A unique time pair may have different views, as with an
-   * encoded file and its source. Where a time key repeats, only unique equal
-   * views pair. Both modes leave the cells unmatched when both report different
-   * resolved cameras. Draw cameras compare by their settings. Other host camera
-   * identifiers compare literally.
+   * `cell` pairs by selection, second, view and pass with the resolved camera;
+   * `time` pairs by second, pass and selection. A unique pair may have
+   * different views, as with an encoded file and its source. Where a key
+   * repeats, only unique equal views pair.
    */
   match: "cell" | "time";
 

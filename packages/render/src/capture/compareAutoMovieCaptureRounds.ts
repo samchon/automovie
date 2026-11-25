@@ -45,21 +45,19 @@ interface IRowGroup {
  * difference image for every changed pair, and lay every pair on comparison
  * sheets.
  *
- * Under `cell`, counterparts must share their selection, second, view and pass.
- * Under `time`, counterparts must share their second, pass and selection. A
+ * Under `cell`, two cells pair when their selection, second, view and pass
+ * agree; when both state a resolved camera and the cameras differ, the cells
+ * stay unmatched, because a view that fits itself to its subject can resolve to
+ * another camera. Under `time`, cells pair by second, pass and selection. A
  * unique pair may have different views, as when an encoded file is compared
- * with its drawn source. Where a key repeats, only unique equal views pair. In
- * both modes, cells with different resolved cameras stay unmatched when both
- * cameras are known. Fitting a view to its subject can move its camera. The
- * draw page's camera record compares by its settings; its view text names how
- * the camera was requested. Other host camera identifiers compare literally.
+ * with its drawn source. Where a key repeats, only unique equal views pair.
  * Surplus, incompatible or ambiguous rows are reported as unmatched. A pair
  * whose stills name the same backend is measured by `compareAutoMovieRasters`
  * at `tolerance`, and a changed pair gets `diff-<name>.png`, the newer picture
  * dimmed with every changed pixel in magenta. A pair drawn by different or
  * unstated backends is laid side by side without a difference image. A cell
  * either capture failed to draw, a cell only one capture holds and a measured
- * pair whose raster sizes differ are unmatched, each with the cause.
+ * pair whose rasters differ are unmatched, each with the cause.
  *
  * The findings of the two rounds are compared by diffAutoMovieCaptureFindings,
  * from the earlier record's diagnostics and this round's, which the caller
@@ -411,20 +409,12 @@ function decide(
       };
 }
 
-/**
- * Match opaque camera strings literally and compare known draw cameras by their
- * settings.
- */
 function sameResolvedCamera(earlier: string, current: string): boolean {
   if (earlier === current) return true;
   const settings: string | null = inspectionCameraSettings(earlier);
   return settings !== null && settings === inspectionCameraSettings(current);
 }
 
-/**
- * Read only the draw camera's complete schema, omitting the request's view
- * text.
- */
 function inspectionCameraSettings(text: string): string | null {
   if (!text.trimStart().startsWith("{")) return null;
   let parsed: unknown;
@@ -479,10 +469,6 @@ function inspectionCameraSettings(text: string): string | null {
   ]);
 }
 
-/**
- * Require every coordinate and reject vector fields outside the draw camera
- * schema.
- */
 function isCameraVector(value: unknown): value is IAutoMovieVector3 {
   if (value === null || typeof value !== "object") return false;
   const { x, y, z, ...extra }: Partial<IAutoMovieVector3> = value;

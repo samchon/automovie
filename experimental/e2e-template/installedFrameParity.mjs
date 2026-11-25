@@ -507,7 +507,6 @@ function verification(root, { capture, published, blocked }) {
   }
 }
 
-/** Refuse a verification refresh addressed to a different retained round. */
 async function verifyRejectsWrongCaptureRound(root) {
   const recordPath = path.join(root, source, "record.json");
   const originalRecord = await fs.readFile(recordPath);
@@ -593,7 +592,6 @@ async function verifyRejectsWrongCaptureRound(root) {
   await assert.rejects(fs.access(path.join(root, other)), { code: "ENOENT" });
 }
 
-/** A video-file capture can seek to a known frame on a fractional-rate grid. */
 async function captureFractionalFrame(root, ffmpeg) {
   const directory = ".cache/e2e-fractional";
   const file = path.join(directory, "film.mp4");

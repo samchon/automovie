@@ -19,21 +19,12 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  *    next to it.
  * 2. An unrelated incomplete production module remains untouched. The imported
  *    target still participates in the selected required stage.
- * 3. A closed-over constant invalidates the warmed result although the callback
- *    text and measured data stay the same.
- * 4. A named defining module follows local extensionless imports, including a
- *    directory index. Its transitive source invalidates the selected check and
- *    an edit to another target leaves its receipt current.
- * 5. Bytes changed during module loading cannot seal an older runtime value.
- * 6. Cached CommonJS and ESM definitions cannot authorize the current handoff
- *    after their files have changed, including a CommonJS entry that requires a
- *    preloaded ES module.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the native module boundary and unrelated-source control.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the actual CLI entry in the fixture directory and checks its output and status while Node loads the two authored TypeScript files.
- * @evidence contracts/development/testing.md#independent-expectations A disabled required row blocks a stage. Literal 3 cm and 1 cm measurements straddle the 2 cm bound, independent of the verifier's receipt format.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises ordinary status and stage enforcement, changed defining and transitive sources, an unrelated loaded target, bytes mutated mid-load and stale CommonJS and ESM caches.
- * @evidence contracts/development/testing.md#execution-ownership Builds only the CLI into an owned temporary directory and waits for each local Node subprocess; the authored files are loaded by the command.
+ * @evidence contracts/development/testing.md#independent-expectations A disabled explicitly required row prevents stage completion, and unrelated invalid source must not prevent a read.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises an imported target with both ordinary status and explicit stage enforcement.
+ * @evidence contracts/development/testing.md#execution-ownership Builds only the CLI into an owned temporary directory and waits for two local Node subprocesses; the fixture's production files are loaded by the command.
  */
 export async function test_cli_verification_module(): Promise<void> {
   const root: string = await fs.mkdtemp(

@@ -41,19 +41,13 @@ export namespace IAutoMovieVerification {
     readonly kind: "measure";
 
     /**
-     * Production-relative module that defines this check. The CLI observes its
-     * loaded local imports. When omitted, the verification entry module and its
-     * local graph supply the source identity.
+     * Project-relative files the computation depends on, including its
+     * implementation or data imports and the actual model or motion inputs. Use
+     * the smallest complete set for this check. A nested production can name
+     * paths to shared files within its Git checkout.
      */
     readonly source?: string;
 
-    /**
-     * Project-relative data, actual model or motion inputs, and dependencies
-     * loaded after the module or outside its observed local imports. SDK
-     * callers also name implementation dependencies their caller supplied. Use
-     * the smallest complete set. A nested production can name shared files
-     * within its Git checkout.
-     */
     readonly inputs: readonly string[];
 
     /** Unit shared by the measurement and its inclusive bounds. */

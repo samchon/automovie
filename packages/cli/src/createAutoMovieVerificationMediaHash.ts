@@ -3,12 +3,6 @@ import * as fs from "node:fs/promises";
 
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
 
-/**
- * Reuse a media digest inside one verification while the file's filesystem
- * identity stays unchanged. A file modified during a read is unobserved.
- *
- * @returns A reader local to the verification that created it.
- */
 export function createAutoMovieVerificationMediaHash(): (
   file: string,
 ) => Promise<string> {
@@ -28,7 +22,6 @@ export function createAutoMovieVerificationMediaHash(): (
   };
 }
 
-/** Compare actual identity, size and both high-resolution change clocks. */
 async function fingerprint(file: string): Promise<string> {
   const info: BigIntStats = await fs.stat(file, { bigint: true });
   return `${info.dev}:${info.ino}:${info.size}:${info.mtimeNs}:${info.ctimeNs}`;

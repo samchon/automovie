@@ -6,11 +6,11 @@ States what is read from where, the rate's fallback and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The input log supplies duration and raster. The first video filter supplies the exact nominal frame-rate ratio through `showinfo`. Input-only logs and unavailable ratios fall back to the printed `fps` or `tbr`.
+FFmpeg prints `Duration: HH:MM:SS.ss` for every input and, for a video stream, `WxH` followed by `fps` and `tbr`, its frame and base rates; reading the log FFmpeg already writes needs no `ffprobe`, which `ffmpeg-static` does not ship.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Read the input metadata and choose the nominal rate from the filter or the input stream.
+One expression per value.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

@@ -55,7 +55,7 @@ createRoot(document.getElementById("root")!).render(
 
 `initialText` is read once. `onRequestChange` receives the request's address text after every change; `createAutoMovieInspectorAddressWriter` gives the listener that writes it into the query through the injected `history`, keeping the path and fragment and adding no history entry. Without a listener the inspector leaves the address alone.
 
-Provide `captureCommand`, an executable followed by its fixed arguments, to show a command in the Request panel. For a production whose `capture` script supplies its module, use `["pnpm", "run", "capture"]`. The panel appends the current request and formats it for POSIX or PowerShell 7.3 and later. Use PowerShell's standard native argument passing for values containing literal double quotes. The address remains available with or without a command.
+Provide `captureCommand`, an executable followed by its fixed arguments, to show a command in the Request panel. For a production whose `capture` script supplies its module, use `["pnpm", "run", "capture"]`. The panel appends the current request and formats it for POSIX or PowerShell. The address remains available with or without a command.
 
 ## Imperative mount
 

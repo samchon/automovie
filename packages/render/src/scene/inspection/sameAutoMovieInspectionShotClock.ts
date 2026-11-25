@@ -1,10 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 
-/**
- * Compare two observed shot clocks by path and the film second of shot-local
- * zero. Two samples without a shot clock share the unaddressed film clock. The
- * tolerance covers rounding in the clock subtractions.
- */
 export function sameAutoMovieInspectionShotClock(
   left: IAutoMovieInspectionDiagnostics.ITime,
   right: IAutoMovieInspectionDiagnostics.ITime,

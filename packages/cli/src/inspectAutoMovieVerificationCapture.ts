@@ -13,16 +13,15 @@ import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 
 /**
  * Read one source-owned diagnostic from a capture's selected camera and pass. A
- * still covers one second. A frame interval needs a retained drawn cell and
- * checked diagnostic coverage for each consecutive frame in its half-open
- * range. The aggregate capture audit carries no cell address, so a record
- * mixing views or passes at one of the chosen times cannot establish this
- * particular observation.
+ * still covers one second. A frame interval needs a drawn cell and checked
+ * diagnostic coverage for each consecutive frame in its half-open range. The
+ * aggregate capture audit carries no cell address, so a record mixing views or
+ * passes at one of the chosen times cannot establish this particular
+ * observation.
  *
  * @param check The authored capture criterion.
  * @param record The capture writer's persisted JSON.
  * @param root The production directory resolving the record and its stills.
- * @param hashFile The verification's encoded-file digest reader.
  * @returns The supported verdict with the exact record to reopen.
  */
 export async function inspectAutoMovieVerificationCapture(
@@ -199,7 +198,10 @@ function validSelection(at: IAutoMovieVerification.ICapture["at"]): boolean {
         at.fromFrame < at.endFrame;
 }
 
-/** Relate the exact witnesses and enclosing sample to the selected film times. */
+/**
+ * Relate a finding's observed extent to a requested time. Unknown frame
+ * identity stays unresolved.
+ */
 function overlaps(
   episode: IAutoMovieInspectionDiagnostics.IEpisode,
   from: number,
@@ -213,7 +215,6 @@ function overlaps(
   );
 }
 
-/** Legacy or invalid gap lists provide no proof that a selection is separate. */
 function touchesUncovered(
   ranges: readonly IAutoMovieInspectionDiagnostics.IInterval[] | undefined,
   from: number,
@@ -232,7 +233,10 @@ function touchesUncovered(
   );
 }
 
-/** Check the encoded file, or the decoded RGB and size of a legacy still. */
+/**
+ * Availability of an existing still. Keep permission and other read failures
+ * visible.
+ */
 async function retainsStill(
   row: Extract<IAutoMovieCaptureCellRecord, { state: "drawn" }>,
   directory: string,
@@ -264,7 +268,6 @@ async function retainsStill(
     throw error;
   }
 
-  // Keep Render optional for verification which does not read legacy stills.
   const render: typeof import("@automovie/render") =
     await import("@automovie/render").catch(
       (error: unknown): typeof import("@automovie/render") => {

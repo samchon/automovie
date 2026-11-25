@@ -20,9 +20,7 @@ import * as path from "node:path";
  *    occurrence, a changed required interval and replacement bytes cannot
  *    inherit that verdict.
  * 3. A single-frame still decision certifies its frame. A saved multi-frame still
- *    decision supplies no proof, and the report points to that receipt.
- * 4. A same-byte repair decision applies when its receipt is selected. Each
- *    verdict identifies its own observation and reported activity.
+ *    decision supplies no proof even for one frame inside the interval.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the media, interval, file identity and approval requirements demonstrated.
  * @evidence contracts/development/testing.md#behavioral-verification Consumes actual current bytes and an admitted observation through the named review verification path.

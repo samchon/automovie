@@ -72,7 +72,7 @@ With `narrative.mode: "short"`, the first study under `docs/research/` activates
 
 Review a capability in the production scene when its interval exhibits the conditions the scene needs. Enable `development.catalog: "evidence"` for a separate review catalog. It requires case sources under `src/composition/scenes/catalog/`, the film at `src/composition/films/catalog.ts` and the record at `docs/acceptance/catalog.md`. Export the case and film functions or methods in their implementation modules. The director verifies the registered catalog plays and judges the tested conditions.
 
-With composition Evidence enabled, existing catalog film or case source keeps catalog validation selected by default. An archived acceptance record may stay in place during ordinary composition. Set `development.catalog: "disabled"` to clear the inherited selection.
+Projects that enabled composition Evidence with existing catalog artifacts keep catalog validation by default. Set `development.catalog: "disabled"` to clear that selection.
 
 ```ts
 export default createEvidenceConfig({

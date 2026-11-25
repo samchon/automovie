@@ -226,8 +226,7 @@ export class AutoMovieCaptureHost {
   /**
    * Capture one subject: open a page with the subject and props injected, plan
    * the request against what it describes, and draw every cell into the folder
-   * at `out`. The destination can be checked after the subject is known and
-   * before any output files are touched.
+   * at `out`.
    *
    * A subject with a sound list is first handed its dialogue mouths: its lines
    * are read from the production root, admitted on the clock
@@ -252,10 +251,8 @@ export class AutoMovieCaptureHost {
      */
     out?: string;
 
-    /** Accept or refuse the absolute output root before the folder opens. */
     admitFolder?: (folder: string) => void;
 
-    /** Storage for this capture, defaulting to the production filesystem. */
     storage?: IAutoMovieCaptureStorage;
 
     /** The subject owner's own section of the record, or absent. */

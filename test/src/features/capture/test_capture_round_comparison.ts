@@ -59,15 +59,10 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * 7. A time comparison cannot choose between two source views of one pass when the
  *    current view identifies neither. All three cells are unmatched and explain
  *    the ambiguity.
- * 8. Time matching leaves a pair of known different cameras unmatched. It still
- *    measures same-backend pairs when the cameras agree or one is unstated, and
- *    lays an eligible pair from different backends side by side. Two drawn
- *    names for the same physical camera can pair; a lens change or a different
- *    opaque camera identifier still prevents a match.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage and reads the comparison in each record and the files written; a comparison over only the matching cells, one that measured across backends, or one that paired cells seen through different cameras fails.
  * @evidence contracts/development/testing.md#independent-expectations Every still is a flat colour this test chooses, so which pixels change, where, and whether hashes agree is known by hand; the pairing and unmatched rules are those of `.agents/skills/visual-debugging/comparison.md`.
- * @evidence contracts/development/testing.md#distinguishing-cases An unchanged pair, a one-pixel change, one-sided and failed cells, repeated keys and ambiguous views. Both matching rules reject known unequal cameras. Time matching admits identical camera settings under different draw views and unstated cameras, and rejects a lens change and unequal opaque identifiers. Folder refusals are owned by `test_capture_folder_ownership`.
+ * @evidence contracts/development/testing.md#distinguishing-cases An unchanged pair, a one-pixel change, a cell only in the earlier round, a cell only in the later round, a backend change, a camera change, an earlier failure, and several same-time cells with either uniquely corresponding or ambiguous views. Folder refusals of a missing round are owned by `test_capture_folder_ownership`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_round_comparison`; it draws in memory.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases, each naming the input and the behavior it pins.
  */
@@ -334,7 +329,6 @@ export async function test_capture_round_comparison(): Promise<void> {
     ],
   );
 
-  // 8. Check the resolved camera for time matches before computing differences.
   const camera: IAutoMovieInspectionCamera = {
     view: "film",
     projection: "perspective",

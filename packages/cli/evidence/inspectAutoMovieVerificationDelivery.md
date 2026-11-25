@@ -2,28 +2,28 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Explains how the audited staging digest binds the promoted movie and the required control record. A blocked or failed attempt exposes the former movie.
+Explains how the audited staging digest binds the promoted file and its controls, with blocked and failed attempts distinct.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The published report names the promoted movie and retains the staged source and its audit digest. The current movie digest binds the report and the control record. The record matches the report's frame count and rational rate. Each required channel lists the exact authored index and second written by the draw loop to both outputs, plus one digest per frame and a matching sequence checksum. Use the frame digests when transferring the control PNG files.
+The published report names the promoted file beside the report and retains the staged source path and its audit digest. Streaming the promoted bytes and requiring the same digest in the control receipt binds those artifacts to the publication.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The reader establishes report, movie bytes and required control record in that order. A malformed report or control record points to the file that needs repair.
+The reader establishes report, bytes and control association in that order and reports the record a director needs to reopen.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A former render beside a blocked or failed report cannot clear delivery. Matching movie and sequence digests do not substitute for the frame addresses in the report. The authored times come from the draw loop that writes both records.
+A former render beside a blocked or failed report cannot clear delivery. An unrelated subject or mismatched bytes cannot borrow the report's verdict.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One report read, one movie digest lookup and at most one control record read. For required controls, examine the report's drawn frames once. Compare addresses and hash listed ASCII digests in one pass per required channel. A failed attempt checks at most two former paths.
+One read of the report and at most one control record scan plus a streaming movie digest, with at most two former-file checks on a failed attempt.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-The injected evaluator reader shares a movie digest for an unchanged file during one verification run. The render report and required control record are read for each check.
+Each call reads current artifacts. It caches neither a previous digest nor an acceptance decision.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Parsed records remain local to the call. Each channel's digest is computed from its rows in order without building a second sequence buffer. The shared digest reader releases the movie stream.
+Report and control JSON remain local to a call and scale with their record lengths. The shared digest helper releases the movie stream.

@@ -30,10 +30,7 @@ import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
  * `AutoMovieCaptureHost`, its module called with the JSON of `--props` when
  * given; with `--file` the file is probed by FFmpeg and captured by
  * `runAutoMovieVideoCapture`, its subject named by `subject` or the file's
- * name. Both write into `--out`, or `media/capture/<subject>`. A caller that
- * declares its expected record path can refuse a different destination before
- * opening the output. Its record callback receives the completed attempt's
- * serialized record directly from the storage writer.
+ * name. Both write into `--out`, or `media/capture/<subject>`.
  *
  * It prints the folder and how many cells were drawn, the backend, every sheet,
  * every cell not drawn with its cause, each unmatched or changed comparison
@@ -55,9 +52,8 @@ export async function captureAutoMovie(props: {
   /** The caller's output sink, default standard output. */
   write?: (text: string) => void;
 
-  /** Absolute record address that the output must match, when specified. */
   expectedRecord?: string;
-  /** Receives this attempt's completed record address and exact UTF-8 text. */
+  /** Receives the absolute path of this attempt's completed capture record. */
   recorded?: (file: string, text: string) => void;
 }): Promise<number> {
   const { root } = props;
@@ -89,8 +85,6 @@ export async function captureAutoMovie(props: {
   if (options.out !== null && props.expectedRecord !== undefined)
     admitFolder(path.resolve(root, options.out));
 
-  // Keep the caller's observation tied to this attempt even when another
-  // command replaces the record on disk before the caller can read it.
   let recordText: string | undefined;
   const storage: IAutoMovieCaptureStorage =
     props.recorded === undefined

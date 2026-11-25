@@ -73,11 +73,6 @@ type ISample = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  *     failing sample. Carried, fixed and new classifications all need that
  *     sample, while a shared exact second and a same-grid interior sample
  *     remain comparable.
- * 19. The same three-frame grid covers an interior former error. A shot-clock shift
- *     across the whole range or at that one frame leaves it unmatched. A legacy
- *     record can still prove an exact endpoint.
- * 20. Film-only layered coverage cannot clear a shot-addressed witness, even when
- *     it is weaker than its episode's first and worst observations.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the diff from the completed comparison. It observes comparison of recorded witnesses instead of calculating the result in the test harness.
  * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows from the severity order and which seconds each round actually checks. A 2 fps capture of 0 s to 1 s observes 0 s, 0.5 s and 1 s. It cannot decide an error at 0.1 s on the 10 fps grid.
@@ -511,7 +506,6 @@ export async function test_capture_finding_diff(): Promise<void> {
     ["better", ["a:fixed"]],
   );
 
-  // 19. Equal film frame schedules can be on different source shot clocks.
   const shotTime = (seconds: number): number => seconds;
   await capture(
     "at=1&round=k1",

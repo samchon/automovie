@@ -9,24 +9,12 @@ import { readAutoMovieInspectHostOptions } from "./readAutoMovieInspectHostOptio
 import { serveAutoMovieInspectorPage } from "./serveAutoMovieInspectorPage";
 
 /**
- * Run `automovie inspect` in a production or package: serve the inspector page
- * over a subject module, print its address with the request as the query, and
- * keep serving until the process is interrupted.
+ * Run `automovie inspect` in a production or package: serve the inspector page over a subject module, print its address with the request as the query, and keep serving until the process is interrupted.
  *
- * Options are read by the production's `readAutoMovieCaptureArguments` and
- * split by `readAutoMovieInspectHostOptions`; the rest is read by
- * `parseAutoMovieCapturePlanRequest`, so a request the capture command would
- * refuse is refused here before anything is served, as is a `--props` file that
- * is not JSON, and an accepted one is written back by
- * `formatAutoMovieCapturePlanRequest` as the address's query.
- * `@automovie/render`, `vite`, and through the page `@automovie/viewer`,
- * `react` and `react-dom`, come from the production. On SIGINT or SIGTERM the
- * server stops, the page is deleted, and the status is 0; a refusal throws to
- * `run`, which prints it.
+ * Options are read by the production's `readAutoMovieCaptureArguments` and split by `readAutoMovieInspectHostOptions`; the rest is read by `parseAutoMovieCapturePlanRequest`, so a request the capture command would refuse is refused here before anything is served, as is a `--props` file that is not JSON, and an accepted one is written back by `formatAutoMovieCapturePlanRequest` as the address's query. `@automovie/render`, `vite`, and through the page `@automovie/viewer`, `react` and `react-dom`, come from the production. On SIGINT or SIGTERM the server stops, the page is deleted, and the status is 0; a refusal throws to `run`, which prints it.
  *
- * The copied capture command starts the installed CLI through Node from the
- * production's working directory, using the same module and optional props
- * paths.
+ * The copied capture command uses the same module and optional props paths from
+ * the production's working directory.
  */
 export async function inspectAutoMovie(props: {
   /** The tokens after `inspect`. */

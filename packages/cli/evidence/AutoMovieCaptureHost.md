@@ -6,7 +6,7 @@ States what open loads, builds and launches, every step of a capture, what close
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A host keeps the three long-lived resources a capture needs and their render module. A capture takes a request, module props and a folder, with optional destination admission and storage supplied by the caller.
+A host is the three long-lived resources a capture needs and the render module they were loaded with; a capture is a request, the module's props and a folder.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface `open`, `capture`, `close`, and the `backend` the command reports; planning, drawing, files and records are the render package's.
 
@@ -78,7 +78,7 @@ The page passes to the returned session, or is closed here when opening fails.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the steps, when the output address is admitted, how a subject with a sound list is handed its dialogue mouths and on which clock, the revision and the page's lifetime.
+States the steps, how a subject with a sound list is handed its dialogue mouths and on which clock, the revision and the page's lifetime, and which refusals precede drawing.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -86,11 +86,11 @@ The capture core plans, writes, records and compares; this host only supplies th
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Open the session, resolve and admit the destination, hand a film with a sound list its mouths, plan, open the folder, run and close the page.
+Open the session, hand a film with a sound list its mouths, plan, open the folder, run, close the page.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Storage defaults to `node:fs/promises`. A caller can supply the capture core's storage port to observe its own writes. A destination refusal occurs before opening or replacing the capture folder.
+Storage is `node:fs/promises` itself, with no adapter.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

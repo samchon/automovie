@@ -6,7 +6,7 @@ States both matching rules, how repeated keys and incompatible rows are handled,
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The visual debugging comparison rules require corresponding cells and preserve unmatched causes. Cell matching keeps the view. Time matching uses the recorded second rounded to six decimal places, pass and selection. A unique compatible pair can compare the file view with its source view, and repeated groups pair only where a view identifies exactly one row on both sides. In both modes, unequal reported cameras yield an unmatched entry with both stills. Complete draw camera records compare their projection, placement, lens and clips independently of the requested view text. Other host camera text compares literally. Pixel differences require the same stated backend and raster size.
+The visual debugging comparison rules require corresponding cells and preserve unmatched causes. Cell matching keeps the view and checks reported camera identity. Time matching uses the recorded second rounded to six decimal places, pass and selection. A unique compatible pair can compare the file view with its source view, and repeated groups pair only where a view identifies exactly one row on both sides. Pixel differences require the same stated backend and raster size.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

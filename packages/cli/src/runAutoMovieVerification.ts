@@ -40,7 +40,6 @@ type AutoMovieVerificationInputScope = ReturnType<
   typeof createAutoMovieVerificationInputScope
 >;
 
-/** A known local record is damaged and needs repair at its owner. */
 const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
 
 /**
@@ -68,7 +67,6 @@ export async function runAutoMovieVerification(props: {
   /** Explicit workload and optional gate. */
   readonly options: ISelection;
 
-  /** Native module observations supplied by the CLI loader for measurements. */
   readonly measurementSources?: (
     file: string | undefined,
   ) => ReadonlyMap<string, string>;
@@ -462,7 +460,7 @@ async function readJson(file: string): Promise<unknown> {
   }
 }
 
-/** Keep a damaged JSON file distinguishable from an absent or old record. */
+/** Publish the latest receipt and retain independent first-failure bytes. */
 function parseJson(contents: string): unknown {
   try {
     return JSON.parse(contents) as unknown;
@@ -472,7 +470,6 @@ function parseJson(contents: string): unknown {
   }
 }
 
-/** Explain which file is damaged and how to obtain usable evidence. */
 function damaged(evidence: string, recovery: string): IOutcome {
   return {
     state: "unobserved",
@@ -481,7 +478,6 @@ function damaged(evidence: string, recovery: string): IOutcome {
   };
 }
 
-/** Encode the durable record before handing it to the atomic publisher. */
 function writeReceipt(file: string, latest: IReceipt): Promise<void> {
   return writeAutoMovieVerificationReceipt(
     file,

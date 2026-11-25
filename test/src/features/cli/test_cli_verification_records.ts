@@ -33,21 +33,18 @@ import * as path from "node:path";
  * 1. A single still in a right view supplies one supporting sample. It cannot
  *    supply a different pass, mixed view audit or a two-frame interval.
  * 2. A real adjacent frame and bounded diagnostic coverage complete the interval.
- *    Only finding and unmatched ranges touching the selected scope affect it.
- *    Legacy comparison entries with unknown ranges are conservative. A still
- *    replaced after capture supplies no evidence, including an alpha-only
- *    change.
+ *    An unmatched error still calls for comparable observations.
  * 3. A legacy capture from a nested production cannot prove the sibling model it
  *    used, even after that sibling is cleaned. Exact named sibling inputs are
  *    sealed inside the owning checkout. Unrelated paths refuse before use.
  * 4. The report retains the staging path and identifies the promoted movie and
- *    required control record by digest. Incomplete channels, different frame
- *    times and malformed reports leave the result unobserved. Replaced bytes or
- *    old records are stale and a blocked attempt keeps the previous file.
+ *    required controls by digest. A malformed output path or audit digest
+ *    leaves the result unobserved. Replaced bytes or old controls are stale and
+ *    a newer blocked attempt leaves the previous output available for repair.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the selected scope, artifact identity and preserved blocked-attempt behavior.
  * @evidence contracts/development/testing.md#behavioral-verification Reads retained capture and delivery inputs through the shared evaluator used by the CLI.
- * @evidence contracts/development/testing.md#independent-expectations The fixture supplies checked and missed frames, a changed shot clock, literal pixels and independently hashed publication bytes.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies individual checked frames, unmatched observations and independently hashed literal publication bytes.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts root and nested legacy captures, sealed shared and external files, one sample and two, matched and mixed views or passes, and current, stale and blocked delivery.
  * @evidence contracts/development/testing.md#execution-ownership The CLI test owns a temporary Git fixture and launches no graphics, encoding or browser process.
  */
@@ -454,7 +451,6 @@ export async function test_cli_verification_records(): Promise<void> {
     const filmSha256: string = createHash("sha256")
       .update("film")
       .digest("hex");
-    // The commissioned drawing rate gives a second distinct from the encoded rational rate.
     const authoredSecond: number = 0.12500000000000003;
     const published = {
       subject: "walk",

@@ -6,12 +6,12 @@ import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation";
 
 /**
- * Check the selected review receipt for the exact file. Its reviewer, activity,
- * frame scope and decision apply to the observation at the selected path.
+ * Check the existing review owner's explicit observation of the exact file. Its
+ * author, activity, actual frame scope and decision are all required. A machine
+ * locator or a still satisfies no playback or listening check.
  *
  * @param check The production's required file observation and frame interval.
  * @param root The production directory that resolves both source files.
- * @param hashFile The current media digest reader for this verification run.
  * @returns The current review outcome and its owning observation.
  */
 export async function inspectAutoMovieVerificationReview(

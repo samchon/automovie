@@ -18,7 +18,6 @@ interface IOpenScope {
   /** Last distinct sample seen for this occurrence. */
   packet: IAutoMovieInspectionDiagnostics;
 
-  /** First sample of the current uninterrupted shot clock. */
   shotClock: IAutoMovieInspectionDiagnostics.ITime;
 
   /** Episodes with checked coverage in that sample. */
@@ -33,7 +32,7 @@ interface IOpenScope {
  *
  * A repeat of the same scoped sample must carry the same serialized packet. It
  * counts once, even when several capture cells draw it. Only consecutive output
- * indices within one continuity occurrence and shot clock can extend a range.
+ * indices within one continuity occurrence can extend a range.
  *
  * @param packets Packets in nondecreasing film time for one inspection run. The
  *   producers supply every expected obligation within the visited samples.

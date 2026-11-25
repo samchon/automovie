@@ -14,7 +14,7 @@ The returned object is a native configuration. An omitted skills tree yields the
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Only submitted entities or composition on a story route probe for subject files. Only an omitted research option on the short route probes for studies. Explicit catalog selection and composition with an unset catalog option inspect catalog source paths. Mode none probes for instructions.
+Only submitted entities or composition on a story route probe for subject files. Only an omitted research option on the short route probes for studies. Explicit catalog selection and composition with an unset catalog option inspect catalog artifacts. Mode none probes for instructions.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

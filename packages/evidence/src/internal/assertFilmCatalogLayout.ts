@@ -6,8 +6,8 @@ import { hasMatchingFile } from "./hasMatchingFile";
 
 /**
  * Check the inputs for a separate catalog. An explicit selection always
- * requires its inputs. With composition alone, source in the catalog paths
- * retains the catalog check. The director verifies registration, playback and
+ * requires its inputs. With composition alone, existing catalog artifacts
+ * retain the catalog check. The director verifies registration, playback and
  * the tested conditions at the handoff.
  *
  * @param location Absolute production directory.
@@ -144,7 +144,6 @@ function hasPublicCaseMethod(
       return false;
     if (member.type === "ClassMethod") return member.kind === "method";
 
-    // Evidence addresses initialized class fields with an inline function type.
     const annotation: typeof member.typeAnnotation = member.typeAnnotation;
     if (annotation?.type !== "TSTypeAnnotation")
       return isCallableExpression(member.value);
@@ -154,7 +153,7 @@ function hasPublicCaseMethod(
   });
 }
 
-/** Recognizes a function expression or a factory call in a typed class field. */
+/** Looks through type annotations to the attached function expression. */
 function isCallableExpression(
   expression: CatalogExpression | null | undefined,
   allowFactory: boolean = false,

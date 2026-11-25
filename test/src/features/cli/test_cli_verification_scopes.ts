@@ -18,8 +18,7 @@ import * as path from "node:path";
  *    chosen check and a status read runs none.
  * 2. Below-bound and valid measurements derive their verdicts from file contents.
  *    An input or bound change invalidates an earlier result. An explicit run
- *    repairs damaged latest JSON and preserves the first observed failure. A
- *    damaged measurement or capture record names its own repair path.
+ *    repairs damaged latest JSON and preserves the first observed failure.
  * 3. An optional disabled and removed check has no gate effect. A removed or
  *    disabled required check blocks the stage even with another check
  *    selected.
@@ -28,13 +27,11 @@ import * as path from "node:path";
  *    check.
  * 6. Two runs of one check overlap. The passing run finishes last and leaves the
  *    first failure separate from its current result.
- * 7. A repeated SDK target executes only once. A movie replaced between two checks
- *    is stale for the second check in the same evaluation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the scope, criterion, evidence and required-stage distinctions exercised.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the shared installed command evaluator, observes selected execution and reads its scoped output and receipts.
  * @evidence contracts/development/testing.md#independent-expectations The fixture writes literal lengths and bounds, with expected outcomes derived from those values and declared required IDs.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, receipt recovery, repeated and multi-target selection, and a changed movie snapshot within one evaluation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, a damaged receipt and its recreated replacement, successful and blocked stages, and isolated and multi-target selection.
  * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit owns an isolated temporary directory and spawns no process or browser.
  */
 export async function test_cli_verification_scopes(): Promise<void> {
@@ -319,7 +316,6 @@ export async function test_cli_verification_scopes(): Promise<void> {
       ...chair,
       id: "simulate-republish",
       measure: async (): Promise<number> => {
-        // Simulate another process superseding the published file mid-readout.
         await fs.writeFile(movie, "other movie");
         return 3;
       },

@@ -13,18 +13,17 @@ import { hashAutoMovieFile } from "./hashAutoMovieFile";
  * only when a declared file or a legacy capture needs it.
  *
  * @param root The production directory.
- * @returns Lazy directories and a reader that seals a check's inputs.
+ * @returns Lazy production and checkout directories and an input resolver.
  */
 export function createAutoMovieVerificationInputScope(root: string): {
   /** Canonical production directory. */
   readonly project: () => Promise<string>;
   /** Canonical Git worktree containing the project, when there is one. */
   readonly checkout: () => Promise<string | null>;
-  /** Confirm that each source still has the bytes observed by the loader. */
+  /** The normalized input name and its admitted filesystem location. */
   readonly verifySources: (
     sources: ReadonlyMap<string, string>,
   ) => Promise<void>;
-  /** Bind the criterion and exact files, including any observed source graph. */
   readonly identify: (
     check:
       | IAutoMovieVerification.IMeasurement
@@ -73,6 +72,10 @@ export function createAutoMovieVerificationInputScope(root: string): {
         if (current !== loaded) throw changedSource(relative);
       }
     },
+    /**
+     * Hash a check definition and the exact named inputs without walking the
+     * project.
+     */
     identify: async (check, sources): Promise<string> => {
       const names: readonly string[] = check.inputs ?? [];
       const source: string | undefined =
@@ -116,7 +119,6 @@ export function createAutoMovieVerificationInputScope(root: string): {
   };
 }
 
-/** Keep one repair instruction for a source that differs from its loaded bytes. */
 function changedSource(relative: string): Error {
   return new Error(
     `Verification source changed after it loaded: ${relative}. Run verify again.`,

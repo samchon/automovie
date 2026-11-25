@@ -9,19 +9,16 @@ import * as path from "node:path";
 
 import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 
-/** The audited frame grid shared by the published movie and control record. */
 type AutoMovieAuditedClock = Pick<
   IAutoMovieDeliveryContentAudit.IResult["expected"],
   "frameRate" | "frameCount"
 >;
 
-/** The exact authored address of one drawn frame in the render report. */
 type AutoMovieReportedFrame = Pick<
   IAutoMovieDrawnVideoResult["frames"][number],
   "index" | "seconds"
 >;
 
-/** The delivery evidence and the criterion's verdict. */
 type AutoMovieDeliveryOutcome = Pick<
   IAutoMovieVerification.IResult,
   "state" | "message" | "evidence"
@@ -40,14 +37,11 @@ interface IRenderReport {
 
 /**
  * Verify the promoted movie beside its report using the digest of the staged
- * bytes audited before publication. Check required channels in the bound
- * control record using the audited count and rate, the reported time of each
- * frame and the ordered digest sequence. A blocked or failed attempt reports
- * any previous movie.
+ * bytes audited before publication. Required controls carry the same digest. A
+ * blocked or failed attempt reports any previous movie separately.
  *
  * @param check The production's delivery criterion.
  * @param root The directory holding the production and its outputs.
- * @param hashFile The current media digest reader for this verification run.
  * @returns The file-binding verdict and its owning report.
  */
 export async function inspectAutoMovieVerificationDelivery(
@@ -173,7 +167,6 @@ export async function inspectAutoMovieVerificationDelivery(
     : controls;
 }
 
-/** Reads the selected channels from the record beside the audited publication. */
 async function inspectControlRecord(props: {
   recordPath: string;
   evidence: string;
@@ -247,7 +240,6 @@ async function inspectControlRecord(props: {
   };
 }
 
-/** Matches the control record's frame count and rational rate to the report. */
 function matchesClock(
   clock: IAutoMovieControlRecord.IClock | null | undefined,
   expected: AutoMovieAuditedClock | null | undefined,
@@ -273,7 +265,6 @@ function matchesClock(
   );
 }
 
-/** Matches each frame's exact authored time and checks the digest sequence. */
 function completeSequence(
   channel: IAutoMovieControlRecord.IChannel,
   reported: readonly AutoMovieReportedFrame[],
@@ -301,7 +292,6 @@ function completeSequence(
   return sequence.digest("hex") === channel.sequenceSha256;
 }
 
-/** A SHA-256 digest as it appears in an AutoMovie publication record. */
 function validDigest(value: unknown): value is string {
   return (
     typeof value === "string" &&

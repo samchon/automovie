@@ -32,7 +32,7 @@ An entity realizes its settings or brief record's facts and the research its mea
 
 A scene realizes its screenplay file, sections and beats. A film owns scene order, transitions, titles and subtitles. A direct 3D film also owns its camera response, grade included, its sound list and its loudness record. A film's delivered render implements the [delivery profile](../production/project-context.md#the-delivery-profile), and a [channel render](../video/requests.md#inputs) departs from it. Apply the [composition contract](../contracts/development/composition.md) to the screenplay's scenes, the [films contract](../contracts/development/films.md) to its films, and the [catalog contract](../contracts/development/catalog.md) to the catalog.
 
-A catalog case exports a function or public method from its implementation module and takes the parameters of the behavior or entity state it exhibits. For a factory-produced case held in a top-level constant, call the prepared case from an exported function so Evidence can attach answers to the case. The catalog film exports its composition and gives the case its interval.
+A catalog case exports a function or public method from its implementation module and takes the parameters of the behavior or entity state it exhibits. The catalog film exports its composition and gives the case its interval.
 
 Every film is registered in `src/composition/films/index.ts`.
 

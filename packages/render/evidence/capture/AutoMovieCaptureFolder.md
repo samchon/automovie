@@ -22,7 +22,7 @@ States the three things it does and every refusal, all of which precede the firs
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Steps 1 to 3 of the class's order check the compared round, directory identity and ownership before the first deletion. The actual path from the host detects folder aliases and other spellings.
+Steps 1 to 3 of the class's order: the compared round and the folder are checked before the first deletion, so a refused capture leaves the previous one readable.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

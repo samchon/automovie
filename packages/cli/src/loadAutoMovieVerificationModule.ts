@@ -14,23 +14,11 @@ import { createAutoMovieVerificationInputScope } from "./createAutoMovieVerifica
 import { importAutoMovieVerificationEntry } from "./importAutoMovieVerificationEntry.mjs";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 
-/**
- * Load the verification module through Node and remember the source it actually
- * read. Return each requested local source graph by its defining module. A
- * reused module or missing load observation cannot establish the active
- * checks.
- *
- * @param root The production's working directory.
- * @param module The user-selected verification entry.
- * @returns The authored targets and observed bytes for their source scopes.
- */
 export async function loadAutoMovieVerificationModule(
   root: string,
   module: string,
 ): Promise<{
-  /** The module's default export consumed by the command. */
   readonly targets: readonly IAutoMovieVerification[];
-  /** Relative local graph paths and the SHA-256 of each native load. */
   readonly sources: (file: string | undefined) => ReadonlyMap<string, string>;
 }> {
   const directory: string = realpathSync.native(root);
@@ -120,8 +108,6 @@ export async function loadAutoMovieVerificationModule(
   });
   let namespace: { default?: unknown } | null | undefined;
   try {
-    // Requiring ESM can report new source bytes before returning old evaluated
-    // exports. Native import skips the load of a cached ESM entry instead.
     namespace = (
       isJson ? load(entry) : await importAutoMovieVerificationEntry(entryUrl)
     ) as typeof namespace;
@@ -129,8 +115,6 @@ export async function loadAutoMovieVerificationModule(
     hooks.deregister();
   }
 
-  // CommonJS may answer a cached relative request before invoking the hooks.
-  // Its actual child modules still identify edges whose load bytes are unknown.
   const common: Map<string, NodeJS.Module> = new Map();
   for (const [native, file] of names) {
     const loaded: NodeJS.Module | undefined = load.cache[native];
@@ -185,7 +169,6 @@ export async function loadAutoMovieVerificationModule(
   return { targets, sources };
 }
 
-/** Supply the two Node-safe TypeScript endings used by the production scaffold. */
 function resolveProjectImport(
   root: string,
   parent: string,
@@ -223,7 +206,6 @@ function resolveProjectImport(
   }
 }
 
-/** Keep extensionless fallback inside the production directory. */
 function within(root: string, file: string): boolean {
   const relative: string = path.relative(root, file);
   return (
