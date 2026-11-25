@@ -51,8 +51,8 @@ export namespace IAutoMovieWorldBlock {
    * size.
    *
    * Inputs are borrowed during construction; the returned model, node and
-   * corner vectors are newly allocated. Derived coordinate overflow is not
-   * separately checked by this constructor.
+   * corner vectors are newly allocated. Each computed bound span must be
+   * positive and representable at the block's placed coordinates.
    */
   export type IInput = {
     /**

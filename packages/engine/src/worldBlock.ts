@@ -9,7 +9,8 @@ import { productionRuntimeModelId } from "./productionRuntimeModelId";
 
 /**
  * Build a box model group, placed node and bounds from a grounded base and
- * size.
+ * size. Each span of the resulting world bounds must be positive and
+ * representable at the block's placed coordinates.
  */
 export const worldBlock: (
   input: IAutoMovieWorldBlock.IInput,
@@ -21,6 +22,25 @@ export const worldBlock: (
       throw new Error(
         `World block "${input.id}" size.${name} must be positive.`,
       );
+  const bounds: IAutoMovieWorldBlock["bounds"] = {
+    min: {
+      x: input.base.x - input.size.x / 2,
+      y: input.base.y,
+      z: input.base.z - input.size.z / 2,
+    },
+    max: {
+      x: input.base.x + input.size.x / 2,
+      y: input.base.y + input.size.y,
+      z: input.base.z + input.size.z / 2,
+    },
+  };
+  for (const axis of ["x", "y", "z"] as const) {
+    const span: number = bounds.max[axis] - bounds.min[axis];
+    if (!(span > 0 && span < Infinity))
+      throw new Error(
+        `World block "${input.id}" base must be finite and its bounds must span a representable positive distance on ${axis}.`,
+      );
+  }
   if (/^#[0-9a-f]{6}$/i.test(input.color) === false)
     throw new Error(`World block "${input.id}" color must be #RRGGBB.`);
   const model: IAutoMovieModel = {
@@ -79,17 +99,6 @@ export const worldBlock: (
       motion: null,
       pose: null,
     },
-    bounds: {
-      min: {
-        x: input.base.x - input.size.x / 2,
-        y: input.base.y,
-        z: input.base.z - input.size.z / 2,
-      },
-      max: {
-        x: input.base.x + input.size.x / 2,
-        y: input.base.y + input.size.y,
-        z: input.base.z + input.size.z / 2,
-      },
-    },
+    bounds,
   };
 };

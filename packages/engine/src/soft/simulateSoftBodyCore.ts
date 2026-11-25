@@ -32,8 +32,9 @@ import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
  * asks for self-collision keeps its segments apart after each sweep
  * (`projectSoftCordSelfContact`). A moving anchor a boundary sample lists as
  * released regains its mass for that step, leaving with the velocity its target
- * last moved at. An observer reads every completed step, with the force each
- * held particle bears when the solve is compliant.
+ * last moved at. Each position and rate must be representable at the step
+ * boundary. An observer reads every completed step, with the force each held
+ * particle bears when the solve is compliant.
  */
 export const simulateSoftBodyCore: (
   domain: IAutoMovieSoftBodyDomain,
@@ -254,21 +255,18 @@ export const simulateSoftBodyCore: (
 
     for (let particle: number = 0; particle < count; ++particle) {
       const base: number = particle * 3;
-      if (inverseMass[particle] === 0) {
-        velocity[base] = 0;
-        velocity[base + 1] = 0;
-        velocity[base + 2] = 0;
-        position[base] = predicted[base];
-        position[base + 1] = predicted[base + 1];
-        position[base + 2] = predicted[base + 2];
-        continue;
+      const held: boolean = inverseMass[particle] === 0;
+      for (let axis: number = 0; axis < 3; ++axis) {
+        const coordinate: number = base + axis;
+        const next: number = predicted[coordinate];
+        const rate: number = held ? 0 : (next - position[coordinate]) / dt;
+        if (!(Math.max(Math.abs(next), Math.abs(rate)) < Infinity))
+          throw new Error(
+            `soft body "${domain.id}" produced a non-finite state at step ${index + 1}`,
+          );
+        velocity[coordinate] = rate;
+        position[coordinate] = next;
       }
-      velocity[base] = (predicted[base] - position[base]) / dt;
-      velocity[base + 1] = (predicted[base + 1] - position[base + 1]) / dt;
-      velocity[base + 2] = (predicted[base + 2] - position[base + 2]) / dt;
-      position[base] = predicted[base];
-      position[base + 1] = predicted[base + 1];
-      position[base + 2] = predicted[base + 2];
     }
 
     observer?.step(

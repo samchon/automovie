@@ -198,8 +198,18 @@ function admitFollows(
           follows.ratio,
         );
       if (follows.ratio === 0) outputs.push(0);
-    } else
-      outputs.push(follows.ratio * lead.minimum, follows.ratio * lead.maximum);
+    } else {
+      const first: number = follows.ratio * lead.minimum;
+      const last: number = follows.ratio * lead.maximum;
+      if (!(Math.max(Math.abs(first), Math.abs(last)) < Infinity))
+        collector.push(
+          "range",
+          `${fp}.ratio`,
+          `a ratio of ${follows.ratio} cannot drive "${follower.id}" across "${leader.id}"'s range with finite travel`,
+          follows.ratio,
+        );
+      else outputs.push(first, last);
+    }
   } else {
     const table: [number, number][] = follows.table;
     let ordered: boolean = table.length >= 2;

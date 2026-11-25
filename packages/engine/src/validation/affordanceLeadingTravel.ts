@@ -37,7 +37,8 @@ export function affordanceLeadingTravel(
       if (end !== undefined) return end;
     }
     const leader: number = follower / follows.ratio;
-    return leader;
+    const image: number = affordanceFollowedTravel(follows, leader);
+    return Math.abs(image) < Infinity ? leader : null;
   }
   const table: [number, number][] = follows.table;
   if (table.length < 2) return null;
@@ -45,12 +46,18 @@ export function affordanceLeadingTravel(
   const last: [number, number] = table[table.length - 1]!;
   const direction: number = Math.sign(last[1] - first[1]);
   if (direction === 0) return null;
-  for (let k: number = 0; k < table.length; k++) {
+  for (let k: number = 1; k < table.length; k++) {
+    const previous: [number, number] = table[k - 1]!;
     const row: [number, number] = table[k]!;
+    const inputSpan: number = row[0] - previous[0];
+    const outputSpan: number = direction * (row[1] - previous[1]);
     if (
-      k > 0 &&
-      (!(row[0] > table[k - 1]![0]) ||
-        !(direction * (row[1] - table[k - 1]![1]) > 0))
+      !(
+        inputSpan > 0 &&
+        inputSpan < Infinity &&
+        outputSpan > 0 &&
+        outputSpan < Infinity
+      )
     )
       return null;
   }
@@ -82,7 +89,7 @@ export function affordanceLeadingTravel(
   const [x0, y0]: [number, number] = table[low]!;
   const [x1, y1]: [number, number] = table[high]!;
   const leader: number = x0 + ((x1 - x0) * (follower - y0)) / (y1 - y0);
-  return leader;
+  return Math.abs(leader) < Infinity ? leader : null;
 }
 
 /**
@@ -101,6 +108,7 @@ function endpoint(
   ] as const) {
     if (bound === null) continue;
     const image: number = affordanceFollowedTravel(follows, bound);
+    if (!(Math.abs(image) < Infinity)) return null;
     if (direction * sign * (follower - image) > 0) return null;
     if (follower === image) return bound;
   }

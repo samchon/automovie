@@ -79,12 +79,10 @@ import {
  * positive damping this reduces magnitude without reversing sign; damping and
  * other intermediate products are not independently checked.
  *
- * Throws for a noninteger, negative or over-budget step and for non-finite
- * depth/face velocities remaining after an update. Step zero skips that finite
- * scan. The assignment `updated > 0 ? updated : 0` also turns NaN into zero
- * before the scan, and clock, source/drain/outflow ledgers and final volume
- * have no finite-result gate. Extreme finite flow products can therefore
- * corrupt totals without a named refusal.
+ * A replay uses whole absolute steps within the domain's declared budget.
+ * Each computed face velocity and depth update must fit in the field before
+ * it is written. The depth clamp applies only after this check, so it cannot
+ * turn an indeterminate update into an apparently dry cell.
  */
 export const simulateFluidDomain: (
   domain: IAutoMovieFluidDomain,
@@ -156,6 +154,8 @@ export const simulateFluidDomain: (
           span: dx,
           damping,
         });
+        if (!(Math.abs(speed) < Infinity))
+          throw nonFiniteState(domain.id, index + 1);
         velocityX[face] = speed;
         const donor: number = speed > 0 ? left : speed < 0 ? right : -1;
         donorX[face] = donor;
@@ -185,6 +185,8 @@ export const simulateFluidDomain: (
           span: dz,
           damping,
         });
+        if (!(Math.abs(speed) < Infinity))
+          throw nonFiniteState(domain.id, index + 1);
         velocityZ[face] = speed;
         const donor: number = speed > 0 ? back : speed < 0 ? front : -1;
         donorZ[face] = donor;
@@ -255,6 +257,8 @@ export const simulateFluidDomain: (
         const netZ: number = fluxZ[southFace] - fluxZ[southFace + columns];
         const net: number = netX + netZ + (sourceCell[cell] - drainCell[cell]);
         const updated: number = (depth[cell] * area + net) / area;
+        if (!(Math.abs(updated) < Infinity))
+          throw nonFiniteState(domain.id, index + 1);
         depth[cell] = updated > 0 ? updated : 0;
       }
   }
@@ -275,6 +279,13 @@ export const simulateFluidDomain: (
   };
 };
 
+/** Identify the first tick whose derived velocity or depth cannot be stored. */
+function nonFiniteState(domain: string, step: number): Error {
+  return new Error(
+    `fluid domain "${domain}" produced a non-finite state at step ${step}`,
+  );
+}
+
 /**
  * One face's velocity after this step's momentum update.
  *
@@ -283,8 +294,8 @@ export const simulateFluidDomain: (
  * side at or below dryDepth also blocks when its bed-plus-depth elevation is at
  * least the opposite elevation. Otherwise pressure updates the previous
  * velocity before implicit damping. All work is scalar and call-local; finite
- * inputs can still produce non-finite sums/products, which the owning replay
- * checks only after its update.
+ * inputs can still produce non-finite sums or products. The owning replay
+ * checks the returned velocity before it writes the face.
  */
 const faceSpeed: (props: {
   previous: number;

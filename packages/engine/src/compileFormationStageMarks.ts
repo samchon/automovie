@@ -56,9 +56,10 @@ export function compileFormationStageMarks(
     if (ids.has(set.id))
       throw new RangeError("Formation stage mark set ids must be unique.");
     ids.add(set.id);
-    if (set.start < end || set.end <= set.start)
+    const duration: number = set.end - set.start;
+    if (set.start < end || !(duration > 0 && duration < Infinity))
       throw new RangeError(
-        `Stage marks "${set.id}" must have a positive interval starting at or after ${end}s.`,
+        `Stage marks "${set.id}" must have a positive finite interval starting at or after ${end}s.`,
       );
     end = set.end;
     if (set.marks.length === 0)
@@ -81,6 +82,19 @@ export function compileFormationStageMarks(
         offset: { x: mark.lateral - origin.x, y: 0, z: mark.depth - origin.z },
         facingOffsetDeg: mark.facingOffsetDeg ?? before.facingOffsetDeg,
       };
+      const dx: number = to.offset.x - before.offset.x;
+      const dz: number = to.offset.z - before.offset.z;
+      const turn: number = to.facingOffsetDeg - before.facingOffsetDeg;
+      if (
+        !(
+          Math.abs(dx) < Infinity &&
+          Math.abs(dz) < Infinity &&
+          Math.abs(turn) < Infinity
+        )
+      )
+        throw new RangeError(
+          `Stage marks "${set.id}" must give finite coordinates and facing for slot ${mark.slot}.`,
+        );
       motions.push({
         id: `${set.id}.slot.${mark.slot}`,
         formation: design.id,

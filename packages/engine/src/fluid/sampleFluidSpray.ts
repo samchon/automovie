@@ -43,11 +43,9 @@ const JITTER_Z: number = 0x7370727a;
  * representable indices, in increasing spawn order. LOD and caps are applied in
  * the CPU sample; this does not prove GPU display agreement.
  *
- * Throws for a mismatched state domain id or non-finite camera distance.
+ * Throws for a mismatched state domain id or an unrepresentable LOD stride.
  * Negative distance uses the nearest LOD, and omitted distance defaults to
- * zero. Caller-run domain admission remains required; finite authored fields do
- * not prove finite/safe spawn indices, finite stride or ballistic arithmetic,
- * or a finite nonzero jitter norm. Those derived values are not checked here.
+ * zero. The caller admits the domain before sampling.
  */
 export const sampleFluidSpray: (
   props: IAutoMovieSampleFluidSpray.IProps,
@@ -100,10 +98,13 @@ const emit: (props: {
     y: domain.grid.origin.y + domain.bed[cell]! + props.state.depth[cell]!,
     z: domain.grid.origin.z + (spray.row + 0.5) * domain.grid.cellZ,
   };
-  // Negative distance uses the nearest LOD. Without clamping it could produce
-  // a nonpositive stride; the finite quotient can still overflow here.
+  // Reject a stride that cannot select spawn indices before taking a remainder.
   const stride: number =
     1 + Math.floor(Math.max(0, props.cameraDistance) / spray.lodDistance);
+  if (!(stride > 0 && stride < Infinity))
+    throw new Error(
+      `fluid domain "${domain.id}" cannot sample spray at a non-finite camera distance or LOD stride`,
+    );
   const newest: number = Math.floor(props.time * spray.rate);
   const oldest: number = Math.floor((props.time - spray.lifetime) * spray.rate);
   const gravity: number = domain.solver.gravity;
