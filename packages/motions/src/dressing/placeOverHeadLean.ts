@@ -99,7 +99,7 @@ export function placeOverHeadLean(
             ): IAutoMovieMotionHumanArmTarget.ITarget =>
               arm === side
                 ? holding(path.at(progress))
-                : grasping(path.at(progress)),
+                : grasping(path.at(Math.min(progress, path.assistUntil ?? 1))),
           }),
           // The holding hand keeps the fingers it holds the loop with.
           ...(arm === side ? { channels: [`${arm}Arm`] } : {}),
@@ -141,11 +141,12 @@ export function placeOverHeadLean(
   const keyed: readonly number[] = Array.from(
     { length: HINGES + 1 },
     (_: unknown, k: number): number => {
-      const at: IAutoMovieRigidTransform = path.at(k / HINGES);
-      return HumanTrunkLean.least(on(stance.posture), [
-        wrist(side, holding(at)),
-        wrist(other, grasping(at)),
-      ]);
+      const progress: number = k / HINGES;
+      const at: IAutoMovieRigidTransform = path.at(progress);
+      const wrists: HumanTrunkLean.IWrist[] = [wrist(side, holding(at))];
+      if (progress <= (path.assistUntil ?? 1))
+        wrists.push(wrist(other, grasping(at)));
+      return HumanTrunkLean.least(on(stance.posture), wrists);
     },
   );
   const hinged: (progress: number) => number = (progress: number): number => {

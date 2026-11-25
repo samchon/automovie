@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
@@ -27,10 +28,10 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { requireOtherPerformer } from "../touch/requireOtherPerformer";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { requireOtherPerformer } from "../touch/requireOtherPerformer";
 import { HumanWornItem } from "./HumanWornItem";
 import { placeOverHeadHandGap } from "./placeOverHeadHandGap";
 import { placeOverHeadLean } from "./placeOverHeadLean";
@@ -60,14 +61,15 @@ type Handle = "holdLeft" | "holdRight";
  * hand that holds the loop at entry first presents it level before the chest
  * (its nearest edge `PRESENT` off the chest, `BELOW` the shoulders), turned as
  * it will go over the head, and the other hand closes on the loop's other
- * handle there by `ready`, without carrying it. Both hands carry it along the
- * path over the stroke; at `strokeEnd` it is worn on the partner's upper chest
- * (the sternum region's bone) and both grips end, and the hands return. Both
- * arms are laid in one course (`courseArmGoal` with `with`). Before any of it,
- * the loop's inner half-breadth is checked against the partner's head radius,
- * and the hands' highest places, above the crown, against the arm's reach from
- * each shoulder, from the dresser's stance: chosen as Vahrenkamp, Asfour and
- * Dillmann 2013's Algorithm 1 tries base poses
+ * handle there by `ready`, without carrying it. Both hands guide the loop over
+ * the head. If both grips cannot reach the nape together, the assisting hand
+ * releases at `assistRelease` once the loop clears the head. At `strokeEnd` the
+ * loop is worn on the partner's upper chest (the sternum region's bone) and the
+ * carrying grip ends. Both arms are laid in one course (`courseArmGoal` with
+ * `with`). Before any of it, the loop's inner half-breadth is checked against
+ * the partner's head radius, and the hands' highest places, above the crown,
+ * against the arm's reach from each shoulder, from the dresser's stance: chosen
+ * as Vahrenkamp, Asfour and Dillmann 2013's Algorithm 1 tries base poses
  * (`AutoMovieMotionHumanTouchStance.choose`) between standing where it entered
  * and one adjustment step toward the hands' place at the crown
  * (`pickUpAdjust.stepped`), the first that clears it. A loop too narrow for the
@@ -134,12 +136,12 @@ function planPlaceOverHead(
   );
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     partner.bones(context.start);
-  const start: IAutoMovieRigidTransform = context
-    .prop(p.prop)
-    .frame(context.start);
+  const loop: ReturnType<typeof context.prop> = context.prop(p.prop);
+  const start: IAutoMovieRigidTransform = loop.frame(context.start);
   // The loop's inside: its centre half the opening's length in from its
   // back edge, and its half-breadth.
   const opening: IAutoMovieAffordance = site("opening");
+  const wear: IAutoMovieVector3 = site("wear").frame.translation;
   const centre: IAutoMovieVector3 = Vector3.add(
     opening.frame.translation,
     Quaternion.rotateVector(opening.frame.rotation, {
@@ -155,7 +157,7 @@ function planPlaceOverHead(
   ): placeOverHeadPath.IPath =>
     placeOverHeadPath.prepare({
       start: from,
-      wear: site("wear").frame.translation,
+      wear,
       front: site("front").frame.translation,
       centre,
       halfBreadth: inner,
@@ -227,6 +229,8 @@ function planPlaceOverHead(
     presented,
     placeOverHeadHandGap({
       body,
+      shapes: loop.prop.shapes ?? [],
+      wear,
       posture: entry,
       pose,
       side,
@@ -284,7 +288,7 @@ function planPlaceOverHead(
       grasping(presented).point,
     ),
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const phrase: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare,
     attack: AutoMovieMotionHumanTiming.transport(path.length),
     hold: AutoMovieMotionHumanTiming.seconds("beat"),
@@ -301,6 +305,17 @@ function planPlaceOverHead(
       ),
     ),
   });
+  const release: number | undefined =
+    path.assistUntil === undefined
+      ? undefined
+      : assistRelease(phrase, path.assistUntil);
+  const clock: IAutoMovieMotionClock =
+    release === undefined
+      ? phrase
+      : AutoMovieMotionClock(phrase.duration, [
+          ...phrase.instants,
+          { name: "assistRelease", seconds: release },
+        ]);
   const { leaned, span }: placeOverHeadLean.ILean = placeOverHeadLean({
     context,
     body,
@@ -313,7 +328,8 @@ function planPlaceOverHead(
     path,
     holding,
     grasping,
-  }); // The partner's body is both arms' obstacle, the shoulders the hands
+  });
+  // The partner's body is both arms' obstacle, the shoulders the hands
   // lower the loop onto their rests, read at every planned second.
   const cleared: IAutoMovieMotionHumanActionPlan = placeOverHeadPartner(
     body,
@@ -321,6 +337,8 @@ function planPlaceOverHead(
     partner,
     context.start,
   );
+  const assisted: IAutoMovieMotionHumanArmPlanned.ISpan =
+    release === undefined ? span : { ...span, relax: release };
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
     context,
     plan: cleared,
@@ -330,6 +348,7 @@ function planPlaceOverHead(
     with: [
       {
         side: other,
+        span: assisted,
         grasp: ["hand", "lowerArm"],
       },
     ],
@@ -350,7 +369,7 @@ function planPlaceOverHead(
         part: other === "left" ? "leftHand" : "rightHand",
         kind: "grip",
         from: clock.at("ready") / clock.duration,
-        to: worn,
+        to: release === undefined ? worn : release / clock.duration,
         support: { kind: "prop", subject: p.prop, carries: false },
       },
     ],
@@ -366,6 +385,18 @@ function planPlaceOverHead(
   };
 }
 
+/** Locate the path's release key on the monotone minimum-jerk stroke clock. */
+function assistRelease(clock: IAutoMovieMotionClock, share: number): number {
+  let lo: number = clock.at("strokeStart");
+  let hi: number = clock.at("strokeEnd");
+  for (let i: number = 0; i < 40; ++i) {
+    const mid: number = (lo + hi) / 2;
+    if (clock.progress("strokeStart", "strokeEnd", mid) < share) lo = mid;
+    else hi = mid;
+  }
+  return hi;
+}
+
 /**
  * Set a neck loop over a partner's head. The loop's path is
  * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
@@ -373,14 +404,15 @@ function planPlaceOverHead(
  * hand that holds the loop at entry first presents it level before the chest
  * (its nearest edge `PRESENT` off the chest, `BELOW` the shoulders), turned as
  * it will go over the head, and the other hand closes on the loop's other
- * handle there by `ready`, without carrying it. Both hands carry it along the
- * path over the stroke; at `strokeEnd` it is worn on the partner's upper chest
- * (the sternum region's bone) and both grips end, and the hands return. Both
- * arms are laid in one course (`courseArmGoal` with `with`). Before any of it,
- * the loop's inner half-breadth is checked against the partner's head radius,
- * and the hands' highest places, above the crown, against the arm's reach from
- * each shoulder, from the dresser's stance: chosen as Vahrenkamp, Asfour and
- * Dillmann 2013's Algorithm 1 tries base poses
+ * handle there by `ready`, without carrying it. Both hands guide the loop over
+ * the head. If both grips cannot reach the nape together, the assisting hand
+ * releases at `assistRelease` once the loop clears the head. At `strokeEnd` the
+ * loop is worn on the partner's upper chest (the sternum region's bone) and the
+ * carrying grip ends. Both arms are laid in one course (`courseArmGoal` with
+ * `with`). Before any of it, the loop's inner half-breadth is checked against
+ * the partner's head radius, and the hands' highest places, above the crown,
+ * against the arm's reach from each shoulder, from the dresser's stance: chosen
+ * as Vahrenkamp, Asfour and Dillmann 2013's Algorithm 1 tries base poses
  * (`AutoMovieMotionHumanTouchStance.choose`) between standing where it entered
  * and one adjustment step toward the hands' place at the crown
  * (`pickUpAdjust.stepped`), the first that clears it. A loop too narrow for the
