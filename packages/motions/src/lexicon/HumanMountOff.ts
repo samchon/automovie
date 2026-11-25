@@ -352,9 +352,9 @@ export namespace HumanMountOff {
         const down: IAutoMovieHumanLimbGoal = standing[limb]!;
         const [departs, arrives]: readonly [number, number] = flight[side];
         // A foot that bears nothing turns its toes down about its ball
-        // within the unloaded ankle's range (`HumanMountPush.tip`): a held
-        // foot as it sheds the body before it leaves its rest, a landed one
-        // lowering its heel as it takes the body.
+        // within the unloaded ankle's range (`HumanMountPush.tip`). A held
+        // foot eases into its flight pose while the seat bears the body. A
+        // landed foot lowers its heel as it takes the body.
         if (t >= arrives)
           limbs[limb] = HumanMountPush.tip(
             body,
@@ -370,7 +370,7 @@ export namespace HumanMountOff {
             hips[side],
             HumanMount.leg(body, side, holds[side], entry.feet[side].planted),
             entry.feet[side].planted
-              ? 1 - AutoMovieMotionHumanFootRelax.load(t, departs)
+              ? minimumJerk.share(t / departs)
               : 1,
           );
         else
