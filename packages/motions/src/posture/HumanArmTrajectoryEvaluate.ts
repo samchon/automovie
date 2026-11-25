@@ -60,13 +60,12 @@ type FixedPlacements = readonly (readonly (
  * A reading of an iterate that differs from an earlier one's only at some
  * waypoints (`kept`: a laid course's detour round, or an optimiser's trial that
  * leaves some knots as they were) takes the earlier reading's arm placement at
- * every waypoint it does not name, its pairs and crossings at every read
- * waypoint it does not name, and its sweeps over every read interval whose
- * window (the interval's waypoints and the waypoints about them) it does not
- * name: each is a function of the context and the coordinates in its window
- * alone, so they are the same values. Every term is then summed by the same
- * loop in the same order, so the objective, the violation and the worst term
- * are the ones a reading of the whole iterate gives, bit for bit.
+ * every waypoint it does not name, and its pairs and crossings at those read
+ * waypoints. An arm without native material encounters also keeps a sweep
+ * whose interval and adjoining waypoints did not change. A native encounter
+ * depends on the full minimum-jerk curve and shares its sweep array with the
+ * interval's chord readings. Rebuild both there to report every term in the
+ * same order as a whole reading.
  *
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
@@ -130,12 +129,11 @@ export function HumanArmTrajectoryEvaluate(
             : G.placed(c.setups[a]!, c.frames[a]![k]!, v, true)),
       ),
   );
-  // Whether a read interval's sweeps are the earlier reading's: they depend
-  // on its waypoints and the waypoints about them; a material encounter also
-  // on the pairs at its two ends.
+  // A native material encounter can change when a remote knot changes the
+  // curve's derivatives. Its rows join the chord rows later in this reading.
   const sameInterval = (a: number, k: number): boolean =>
-    unchanged(k - 1, following[k]! + 1) &&
-    ((c.material?.parts[a] ?? -1) < 0 || (same(k) && same(following[k]!)));
+    (c.material?.parts[a] ?? -1) < 0 &&
+    unchanged(k - 1, following[k]! + 1);
   // The arm on the way from read waypoint `k` to its neighbour `n`: every
   // frame between and the neighbour, the course's swept readings read it by.
   const nearOf = (
@@ -421,7 +419,7 @@ export function HumanArmTrajectoryEvaluate(
     if (!c.still && (c.material?.parts[a] ?? -1) >= 0) {
       for (let k: number = 0; k + 1 < n; ++k) {
         const next: number = following[k]!;
-        if (!reads(k) || next < 0 || sameInterval(a, k)) continue;
+        if (!reads(k) || next < 0) continue;
         const material: HumanArmTrajectorySweep.ISwept[] =
           HumanArmTrajectoryMaterialSweep(
             c,
