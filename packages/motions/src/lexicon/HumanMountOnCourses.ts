@@ -38,27 +38,37 @@ import { HumanSwungLeg } from "./HumanSwungLeg";
 export function HumanMountOnCourses(
   props: HumanMountOnCourses.IProps,
 ): IAutoMovieMotionHumanActionPlan {
-  const { body, climb, duration }: HumanMountOnCourses.IProps = props;
+  const { body, climb, crossing, duration }: HumanMountOnCourses.IProps = props;
   const swung: IAutoMovieMotionHumanActionPlan = HumanSwungLeg.plan(
     body,
     props.plan,
     props.swing,
   );
+  const approach: Omit<sitHandMeet.IProps, "side"> = {
+    body,
+    posture: swung.posture,
+    entry: props.pose,
+    until: climb,
+  };
+  const meetings: Partial<Record<AutoMovieHumanSide, number>> | undefined =
+    crossing === undefined
+      ? sitHandMeet({
+          ...approach,
+          sides: new Set<AutoMovieHumanSide>(["left", "right"]),
+        })
+      : undefined;
   // The far palm waits for its thigh to finish crossing onto its support.
   // Other palms meet the rising thigh or rest at the climb's end.
   const span = (
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmPlanned.ISpan => {
     let ready: number = climb;
-    if (props.crossing?.side === side) ready = props.crossing.landing;
+    if (crossing?.side === side) ready = crossing.landing;
     else {
-      const meet: number | undefined = sitHandMeet({
-        body,
-        posture: swung.posture,
-        entry: props.pose,
-        side,
-        until: climb,
-      });
+      const meet: number | undefined =
+        meetings === undefined
+          ? sitHandMeet({ ...approach, side })
+          : meetings[side];
       if (meet !== undefined && meet > 0 && meet < climb) ready = meet;
     }
     return {
