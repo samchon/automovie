@@ -349,6 +349,78 @@ export namespace HumanArmTrajectoryContext {
           : undefined,
       );
   }
+
+  /**
+   * Project prepared waypoint geometry and pair allowances onto a window of
+   * the same physical frames. The last fixed waypoint may read the return
+   * arm instead of the rest arm. A window that changes that reference at any
+   * waypoint needs a fresh reading.
+   *
+   * @param context The original trajectory's prepared context.
+   * @param frames The window's waypoint indices in that context, in order.
+   * @param still Whether the window omits speeds and sweeps.
+   * @returns The same geometry on the selected clock, if its references agree.
+   */
+  export function window(
+    context: M.IContext,
+    frames: readonly number[],
+    still: boolean,
+  ): M.IContext | undefined {
+    const last: number = frames.length - 1;
+    const open: boolean =
+      !still &&
+      last > 0 &&
+      context.sites.every(
+        (sites: readonly (M.ISite | undefined)[]): boolean =>
+          sites[frames[last]!] !== undefined,
+      );
+    const back: number = context.open ? -1 : context.n - 1;
+    if (
+      frames.some(
+        (source: number, k: number): boolean =>
+          (source === back) !== (k === last && !open),
+      )
+    )
+      return undefined;
+
+    /** Read the same waypoint fields in the window's order. */
+    const rows = <T>(fields: readonly (readonly T[])[]): T[][] =>
+      fields.map((field: readonly T[]): T[] =>
+        frames.map((source: number): T => field[source]!),
+      );
+
+    return {
+      ...context,
+      n: frames.length,
+      still,
+      open,
+      times: frames.map((source: number): number => context.times[source]!),
+      frames: rows(context.frames),
+      sites: rows(context.sites),
+      normals: rows(context.normals),
+      touched: rows(context.touched),
+      siteHeights: rows(context.siteHeights),
+      reachable: rows(context.reachable),
+      allowed: (a: number, k: number, probe: number, shape: number): number =>
+        context.allowed(a, frames[k]!, probe, shape),
+      between: (a: number, k: number, probe: number, shape: number): number =>
+        context.between(a, frames[k]!, probe, shape),
+      grasped: (
+        a: number,
+        k: number,
+        own: M.Segment,
+        other: M.Segment,
+        shape: number,
+      ): number | undefined =>
+        context.grasped(a, frames[k]!, own, other, shape),
+      inside: (a: number, k: number, at: number, shape: number): number =>
+        context.inside(a, frames[k]!, at, shape),
+      lying: (a: number, k: number, own: M.Segment, bone: string): boolean =>
+        context.lying(a, frames[k]!, own, bone),
+      rested: (a: number, k: number, probe: number, bone: string): boolean =>
+        context.rested(a, frames[k]!, probe, bone),
+    };
+  }
 }
 
 /** The record of `IBoxesR`'s site. */

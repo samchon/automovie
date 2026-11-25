@@ -11,6 +11,7 @@ import { HumanArmGeometry } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
+import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs } from "./HumanArmTrajectoryPairs";
@@ -58,6 +59,7 @@ export function HumanArmTrajectoryContactContinuation(
 
   // Retain the original geometry and allowances at each physical instant.
   const subcontext = (frames: readonly number[], still: boolean): M.IContext =>
+    HumanArmTrajectoryContext.window(c, frames, still) ??
     course.read.of(
       {
         ...canonical,

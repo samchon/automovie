@@ -360,14 +360,28 @@ export namespace HumanArmTrajectorySweep {
             !c.rested(a, k, link.probes[0]!, frame.shapes[shape]!.bone),
         ),
     );
+
+    // The first cast frame uses the same part solids that screened the cast.
     const steps: HumanArmTrajectoryLinks.IStep[] = casts
       ? frames.map(
-          (at: number): HumanArmTrajectoryLinks.IStep => ({
+          (at: number, i: number): HumanArmTrajectoryLinks.IStep => ({
             at,
-            solids: HumanArmTrajectoryLinks.shapes(
-              c.frames[a]![at]!,
-              placed[at]!,
-            ),
+            solids:
+              i === 0
+                ? new Map<number, physicalShapeGjk.ISolid[]>(
+                    parts.map(
+                      (
+                        link: HumanArmTrajectoryLinks.ILink,
+                      ): [number, physicalShapeGjk.ISolid[]] => [
+                        link.part,
+                        link.solids,
+                      ],
+                    ),
+                  )
+                : HumanArmTrajectoryLinks.shapes(
+                    c.frames[a]![at]!,
+                    placed[at]!,
+                  ),
           }),
         )
       : [];

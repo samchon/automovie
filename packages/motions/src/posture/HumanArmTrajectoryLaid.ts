@@ -158,7 +158,13 @@ export namespace HumanArmTrajectoryLaid {
     held: IHeld,
     tempo: number = 1,
   ): IAdmitted {
-    return layCourse(course.read, held, tempo, course.read.context.speed);
+    return layCourse(
+      course.read,
+      held,
+      tempo,
+      course.read.context.speed,
+      course.read,
+    );
   }
 
   /** Lay, time and certify the path on the prepared problem's frames. */
@@ -167,6 +173,7 @@ export namespace HumanArmTrajectoryLaid {
     held: IHeld,
     tempo: number,
     inheritedPace: M.IContext["speed"] | undefined,
+    earlier?: IRead,
   ): IAdmitted {
     const { problem: read, of } = prepared;
     // A course owns only its pace and candidate coordinates. Its geometry,
@@ -326,7 +333,29 @@ export namespace HumanArmTrajectoryLaid {
             ? backPace
             : onHold);
 
-    let reading: M.IEvaluation = M.evaluate(context, x);
+    // The earlier reading shares this exact clock, pace and geometry. Mark
+    // any changed coordinate so evaluation also rereads the adjacent sweep
+    // windows that use it.
+    let kept: Parameters<typeof M.evaluate>[2] = undefined;
+    if (earlier?.evaluation !== undefined) {
+      const laid: boolean[] = times.map(
+        (_: number, k: number): boolean =>
+          x.some((arm: number[][], a: number): boolean => {
+            const before: number[] = earlier.x[a]![k]!;
+            const after: number[] = arm[k]!;
+            return (
+              before.length !== after.length ||
+              after.some(
+                (value: number, d: number): boolean =>
+                  !Object.is(value, before[d]),
+              )
+            );
+          }),
+      );
+      if (laid.some((changed: boolean): boolean => !changed))
+        kept = { reading: earlier.evaluation, laid };
+    }
+    let reading: M.IEvaluation = M.evaluate(context, x, kept);
     const relaid: boolean[] = new Array<boolean>(n).fill(false);
     for (const t of transports) {
       if (
