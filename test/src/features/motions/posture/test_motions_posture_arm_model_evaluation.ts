@@ -32,8 +32,8 @@ const MERIT_ROUNDING_MM: number = 64 * 1000 * Number.EPSILON;
  *
  * 1. Compare the held, masked and approaching reads of the same two directed
  *    clearance pairs and task points.
- * 2. Change only the fifth knot's wrist angle. The first edge keeps its
- *    endpoint chord, but the material encounter on its interior curve clears.
+ * 2. Change only the fifth knot's wrist angle. The first interior edge keeps
+ *    its endpoint chord, but the material encounter between them clears.
  */
 export async function test_motions_posture_arm_model_evaluation(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -198,9 +198,10 @@ export async function test_motions_posture_arm_model_evaluation(): Promise<void>
 /**
  * A native material encounter takes the entire minimum-jerk curve. Solving
  * the jerk and snap continuity equations on seconds 0 through 4 with only the
- * last angle nonzero gives `q(0.5) / q(4) = -36945 / 2480128`. A 45-degree
- * turn therefore moves the 1/8-m corner by about 1.462 mm at the obstacle's
- * centre. Its spherical penetration reduces from 1.953 mm to 0.491 mm.
+ * last angle nonzero gives `q(1.5) / q(4) = 210705 / 2480128`. A 45-degree
+ * turn therefore moves the 1/8-m corner by 8.339 mm at the obstacle's centre.
+ * The 1.953-mm sphere no longer contains it. The chord on seconds 1 to 2
+ * still crosses the centre, and knot 4 lies beyond its adjacent knots 0 to 3.
  */
 function readMaterialAfterRemoteKnot(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -239,7 +240,7 @@ function readMaterialAfterRemoteKnot(
     radius,
   };
 
-  /** The wrist translates along its flexion axis, then holds. */
+  /** The wrist translates along its flexion axis from seconds 1 to 2. */
   const frame = (
     seconds: number,
   ): IAutoMovieMotionHumanArmGeometry.IFrame => ({
@@ -250,7 +251,7 @@ function readMaterialAfterRemoteKnot(
       position: Vector3.addScaled(
         base.parent.position,
         axis,
-        (Math.min(1, seconds) - 1 / 2) / 128,
+        (Math.min(2, Math.max(1, seconds)) - 3 / 2) / 128,
       ),
     },
     shapes: [shape],
@@ -276,12 +277,12 @@ function readMaterialAfterRemoteKnot(
     });
   TestValidator.equals(
     "a remote turn clears only the native material encounter",
-    [before.swept[0]![0]!.length, fresh.swept[0]![0]!.length],
+    [before.swept[0]![1]!.length, fresh.swept[0]![1]!.length],
     [2, 1],
   );
   TestValidator.equals(
-    "retaining the first edge's coordinates still recomputes its material",
-    kept.swept[0]![0]!.length,
-    fresh.swept[0]![0]!.length,
+    "retaining the first interior edge still recomputes its material",
+    kept.swept[0]![1]!.length,
+    fresh.swept[0]![1]!.length,
   );
 }
