@@ -97,9 +97,9 @@ export function archetypeCatalogueSeatContact(
         (event): boolean => event.name === "seated",
       )!.share;
       const at: number = sit!.start + settled * sit!.plan.duration;
+      // The first grid point already reads the entry of the held act.
       for (const seconds of [
         at,
-        hold!.entryTime,
         ...Array.from(
           { length: 9 },
           (_: unknown, index: number): number =>

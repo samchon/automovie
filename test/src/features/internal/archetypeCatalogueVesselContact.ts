@@ -195,7 +195,7 @@ export function archetypeCatalogueVesselContact(
       const seam: number = film.performance.segments(ACTOR)[0]!.end;
       const meet: number | undefined =
         action === "use" ? motionHumanLaw.event(film, "atMouth") : undefined;
-      for (const seconds of [
+      const samples: readonly number[] = [
         seam - 1e-5,
         seam + 1e-5,
         ...Array.from(
@@ -204,12 +204,13 @@ export function archetypeCatalogueVesselContact(
             start + (end - start) * (index / 8),
         ),
         ...(meet === undefined ? [] : [meet]),
-      ]) {
-        const bones: motionHumanLaw.Bones = film.bones(ACTOR, seconds);
-        const prop: IAutoMovieRigidTransform = film.performance.prop(
-          "vessel",
-          seconds,
-        );
+      ];
+      let carryEnd: IAutoMovieRigidTransform | undefined;
+      for (const [index, seconds] of samples.entries()) {
+        const bones: motionHumanLaw.Bones =
+          seconds === start ? closedBones : film.bones(ACTOR, seconds);
+        const prop: IAutoMovieRigidTransform =
+          seconds === start ? placed : film.performance.prop("vessel", seconds);
         const current: IAutoMovieRigidTransform =
           archetypeCatalogueRigidGrip.relative(wristOf(bones), prop);
         const drift: number = archetypeCatalogueRigidGrip.drift(
@@ -248,28 +249,25 @@ export function archetypeCatalogueVesselContact(
           seed,
           seconds,
         );
-      }
-      if (meet !== undefined) {
-        const prop: IAutoMovieRigidTransform = film.performance.prop(
-          "vessel",
-          meet,
-        );
-        const rim: IAutoMovieVector3 = archetypeCatalogueRigidGrip.point(prop, {
-          x: 0,
-          y: height,
-          z: radius,
-        });
-        const mouth: IAutoMovieHumanoidSurfaces.IFrame =
-          body.surfaces.regions.mouth;
-        const lips: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-          mouth,
-          film.bones(ACTOR, meet).get(mouth.bone)!,
-        ).point;
-        observe(worst, "physical rim", Vector3.distance(rim, lips), seed, meet);
+        if (action === "carry" && seconds === end) carryEnd = prop;
+        if (meet !== undefined && index === samples.length - 1) {
+          const rim: IAutoMovieVector3 = archetypeCatalogueRigidGrip.point(
+            prop,
+            { x: 0, y: height, z: radius },
+          );
+          const mouth: IAutoMovieHumanoidSurfaces.IFrame =
+            body.surfaces.regions.mouth;
+          const lips: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+            mouth,
+            bones.get(mouth.bone)!,
+          ).point;
+          observe(worst, "physical rim", Vector3.distance(rim, lips), seed, meet);
+        }
       }
       if (
         action === "carry" &&
-        film.performance.prop("vessel", end).position.z - placed.position.z <
+        (carryEnd ?? film.performance.prop("vessel", end)).position.z -
+          placed.position.z <
           0.5
       )
         record(
