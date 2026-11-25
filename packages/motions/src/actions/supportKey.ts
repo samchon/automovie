@@ -373,18 +373,18 @@ export namespace supportKey {
         };
       },
     );
-    const generic: boolean = pairs.some(
-      (pair: IBlendPair): boolean => pair.read === undefined,
+    const fallback: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      pairs.flatMap((pair: IBlendPair): AutoMovieHumanoidBone[] =>
+        pair.read === undefined ? [pair.bone] : [],
+      ),
     );
+    const blend: ReturnType<typeof blendHumanJoint.prepare> =
+      blendHumanJoint.prepare(body, fallback);
     const yaw: number = wrapDegrees(b.yaw - a.yaw);
     const pitch: number = b.pitch - a.pitch;
     const roll: number = b.roll - a.roll;
     return (w: number): IAutoMovieMotionHumanPosture => {
       const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-      const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
-        !generic || w <= 0 || w >= 1
-          ? undefined
-          : blendHumanJoint.prepare(body);
       for (const pair of pairs) {
         if (pair.read !== undefined) {
           joints[pair.bone] = pair.read(w);
@@ -392,12 +392,7 @@ export namespace supportKey {
         }
         const from: readonly [number, number, number] = pair.from ?? [0, 0, 0];
         const to: readonly [number, number, number] = pair.to ?? [0, 0, 0];
-        joints[pair.bone] =
-          blend === undefined
-            ? w >= 1
-              ? to
-              : from
-            : blend(pair.bone, from, to, w);
+        joints[pair.bone] = blend(pair.bone, from, to, w);
       }
       return {
         root: Vector3.lerp(a.root, b.root, w),
@@ -422,8 +417,8 @@ export namespace supportKey {
     to: readonly [number, number, number] | undefined;
 
     /**
-     * The joint owner's lazy fixed-endpoint reader, absent when an endpoint
-     * falls back to clinical zero.
+     * The joint owner's fixed-endpoint reader, absent when an endpoint falls
+     * back to clinical zero.
      */
     read: ReturnType<typeof blendHumanJoint.between> | undefined;
   }

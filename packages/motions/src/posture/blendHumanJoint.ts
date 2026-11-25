@@ -100,7 +100,9 @@ function axesOf(
   const rows: IAutoMovieBone[] = body.skeleton.bones;
   for (let i: number = rows.length - 1; i >= 0; --i) {
     const row: IAutoMovieBone | undefined = rows[i];
-    if (row?.bone === bone && row.axes !== undefined) return row.axes;
+    const axes: IAutoMovieJointAxes | undefined =
+      row?.bone === bone ? row.axes : undefined;
+    if (axes !== undefined) return axes;
   }
   return HUMANOID_JOINT_AXES[bone];
 }
@@ -125,24 +127,28 @@ function frameOf(
     axes ?? DEFAULT_JOINT_AXES,
     "jointToQuaternion axes",
   );
-  const joint: ReturnType<typeof swingTwistRange.fromAxes> =
-    constraint?.swingTwist == null
-      ? undefined
-      : swingTwistRange.fromAxes(bone, axes);
+  const swing: IAutoMovieJointConstraint["swingTwist"] = constraint?.swingTwist;
+  const bounded: boolean = swing !== undefined && swing !== null;
+  const joint: ReturnType<typeof swingTwistRange.fromAxes> = bounded
+    ? swingTwistRange.fromAxes(bone, axes)
+    : undefined;
   return {
     basis,
     rest: HUMANOID_REST_FRAME[bone],
     domain: {
       bone,
       constraint:
-        constraint === null || constraint.swingTwist != null
+        constraint === null || swing === null
           ? constraint
           : { ...constraint, swingTwist: null },
     },
     range:
       joint === undefined || constraint === null
         ? undefined
-        : { constraint, joint: swingTwistRange.prepare(bone, joint, constraint) },
+        : {
+            constraint,
+            joint: swingTwistRange.prepare(bone, joint, constraint),
+          },
   };
 }
 
@@ -167,33 +173,55 @@ function prepareLookup(
   body: IBlendBody,
   needed: ReadonlySet<AutoMovieHumanoidBone>,
 ): ILookup {
-  const constraints: Map<AutoMovieHumanoidBone, IAutoMovieJointConstraint | null> = new Map();
-  const axes: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes | undefined> = new Map();
+  const constraints: Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieJointConstraint | null
+  > = new Map();
+  const axes: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes | undefined> =
+    new Map();
   for (const bone of needed) {
-    const constraint: IAutoMovieJointConstraint | null = COLD.constraint(body, bone);
+    const constraint: IAutoMovieJointConstraint | null = COLD.constraint(
+      body,
+      bone,
+    );
     constraints.set(bone, constraint);
     if (!linear(constraint)) axes.set(bone, HUMANOID_JOINT_AXES[bone]);
   }
 
   if (axes.size !== 0)
-    for (const row of body.skeleton.bones)
-      if (axes.has(row.bone) && row.axes !== undefined)
-        axes.set(row.bone, row.axes);
+    for (const row of body.skeleton.bones) {
+      if (!axes.has(row.bone)) continue;
+      const declared: IAutoMovieJointAxes | undefined = row.axes;
+      if (declared !== undefined) axes.set(row.bone, declared);
+    }
   const joints: ReadonlyMap<AutoMovieHumanoidBone, IPreparedJoint> = new Map(
-    [...constraints].map(([bone, constraint]): [AutoMovieHumanoidBone, IPreparedJoint] => [
-      bone,
-      {
-        constraint,
-        frame: axes.has(bone) ? preparedFrame(bone, axes.get(bone), constraint) : undefined,
-      },
-    ]),
+    [...constraints].map(
+      ([bone, constraint]): [AutoMovieHumanoidBone, IPreparedJoint] => [
+        bone,
+        {
+          constraint,
+          frame: axes.has(bone)
+            ? preparedFrame(bone, axes.get(bone), constraint)
+            : undefined,
+        },
+      ],
+    ),
   );
   return {
-    constraint: (current: IBlendBody, bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null => {
+    constraint: (
+      current: IBlendBody,
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieJointConstraint | null => {
       const prepared: IPreparedJoint | undefined = joints.get(bone);
-      return prepared === undefined ? COLD.constraint(current, bone) : prepared.constraint;
+      return prepared === undefined
+        ? COLD.constraint(current, bone)
+        : prepared.constraint;
     },
-    frame: (current: IBlendBody, bone: AutoMovieHumanoidBone, constraint: IAutoMovieJointConstraint | null): IFrame =>
+    frame: (
+      current: IBlendBody,
+      bone: AutoMovieHumanoidBone,
+      constraint: IAutoMovieJointConstraint | null,
+    ): IFrame =>
       joints.get(bone)?.frame?.() ?? COLD.frame(current, bone, constraint),
   };
 }
@@ -288,75 +316,31 @@ export namespace blendHumanJoint {
   }
 
   /**
-   * Prepare one body's metadata for a synchronous joint-blend pass; the body
-   * and canonical ROM, axes and rest-frame mappings stay unchanged until
-   * release. Endpoint shares still return the original from/to tuple before any
-   * rig lookup, and hinge joints still blend linearly without reading axes.
+   * Prepare the selected joints' constraints, conversion bases and bounded
+   * swing regions. A selected hinge needs only its constraint. A name without
+   * selected metadata uses the standalone blend, including canonical fallback
+   * for an absent bone. The body, axes and ranges stay unchanged for the
+   * reader. Each share borrows its input tuples and returns a fresh interior
+   * reading.
    *
-   * The first interior query lazily indexes B bones with first-match constraint
-   * semantics. A ball query resolves the canonical axes table once with its
-   * existing last-declared precedence; each requested name owns one lazy
-   * admitted basis and prepared swing frame. Numerical from/to/share
-   * interpolation and output allocation still run on every query.
-   *
-   * Metadata costs O(B+D) time and space for D queried names, plus each actual
-   * blend's existing numerical cost. Release the returned function on operation
-   * completion or failure; it holds only the body and this bounded metadata,
-   * with no retained input tuples, outputs or global collection.
-   *
-   * @param body The unchanged body used by every joint of this operation.
-   * @returns A joint blender whose endpoint tuples retain input identity.
+   * @param body The unchanged body for this operation.
+   * @param needed The joints bound before sampling, when known.
+   * @returns A joint blender whose clipped endpoints return the supplied
+   *   tuples.
    */
   export function prepare(
-    body: IAutoMovieMotionHumanBody,
+    body: IBlendBody,
+    needed?: ReadonlySet<AutoMovieHumanoidBone>,
   ): (
     bone: AutoMovieHumanoidBone,
     from: readonly [number, number, number],
     to: readonly [number, number, number],
     share: number,
   ) => readonly [number, number, number] {
-    let bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> | undefined;
-    let axes:
-      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-      | undefined;
-    const constraints: Map<
-      AutoMovieHumanoidBone,
-      IAutoMovieJointConstraint | null
-    > = new Map();
-    const frames: Map<AutoMovieHumanoidBone, IFrame> = new Map();
-    const lookup: ILookup = {
-      constraint: (
-        current: IAutoMovieMotionHumanBody,
-        name: AutoMovieHumanoidBone,
-      ): IAutoMovieJointConstraint | null => {
-        let constraint: IAutoMovieJointConstraint | null | undefined =
-          constraints.get(name);
-        if (constraint === undefined) {
-          if (bones === undefined) {
-            bones = new Map();
-            for (const candidate of current.skeleton.bones)
-              if (!bones.has(candidate.bone))
-                bones.set(candidate.bone, candidate);
-          }
-          constraint = getConstraint(name, bones.get(name)?.constraint ?? null);
-          constraints.set(name, constraint);
-        }
-        return constraint;
-      },
-      frame: (
-        current: IAutoMovieMotionHumanBody,
-        name: AutoMovieHumanoidBone,
-        constraint: IAutoMovieJointConstraint | null,
-      ): IFrame => {
-        let frame: IFrame | undefined = frames.get(name);
-        if (frame === undefined) {
-          axes ??= skeletonJointAxes(current.skeleton, HUMANOID_JOINT_AXES);
-          frame = frameOf(name, axes[name], constraint);
-          frames.set(name, frame);
-        }
-        return frame;
-      },
-    };
+    const lookup: ILookup =
+      needed === undefined || needed.size === 0
+        ? COLD
+        : prepareLookup(body, needed);
     return (
       bone: AutoMovieHumanoidBone,
       from: readonly [number, number, number],
@@ -372,7 +356,7 @@ export namespace blendHumanJoint {
  * before frame admission.
  */
 function blend(
-  body: IAutoMovieMotionHumanBody,
+  body: IBlendBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],
@@ -386,32 +370,23 @@ function blend(
     body,
     bone,
   );
-  if (
-    constraint !== null &&
-    (constraint.flexion === null ||
-      constraint.abduction === null ||
-      constraint.twist === null)
-  )
+  if (linear(constraint))
     return [
       from[0] + (to[0] - from[0]) * s,
       from[1] + (to[1] - from[1]) * s,
       from[2] + (to[2] - from[2]) * s,
     ];
   const rig: IFrame = lookup.frame(body, bone, constraint);
-  const axes: IAutoMovieJointAxes | undefined = rig.axes;
-  const gated: boolean =
-    constraint !== null &&
-    constraint.swingTwist !== undefined &&
-    constraint.swingTwist !== null &&
-    axes !== undefined;
-  const a: IAutoMovieQuaternion = rotationOf(from, rig, bone);
-  const b: IAutoMovieQuaternion = rotationOf(to, rig, bone);
+  const range: IRange | undefined = rig.range;
+  const a: IAutoMovieQuaternion = rotationOf(from, rig);
+  const b: IAutoMovieQuaternion = rotationOf(to, rig);
   // A joint ranged by swing and twist is blended inside its range
   // (`swingTwistRange.blend`); another ball joint on the shorter arc.
-  const blended: IAutoMovieQuaternion = gated
-    ? swingTwistRange.blend(a, b, s, constraint!, rig.joint!)
-    : Quaternion.normalize(Quaternion.slerp(a, b, s));
-  return readRotation(blended, rig, bone, constraint);
+  const blended: IAutoMovieQuaternion =
+    range === undefined
+      ? Quaternion.normalize(Quaternion.slerp(a, b, s))
+      : swingTwistRange.blend(a, b, s, range.constraint, range.joint);
+  return readRotation(blended, rig);
 }
 
 /**
@@ -420,7 +395,7 @@ function blend(
  * its two rotations, or inside its swing-twist range where it declares one.
  */
 function pair(
-  body: IAutoMovieMotionHumanBody,
+  body: IBlendBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],
@@ -430,34 +405,24 @@ function pair(
     body,
     bone,
   );
-  if (
-    constraint !== null &&
-    (constraint.flexion === null ||
-      constraint.abduction === null ||
-      constraint.twist === null)
-  )
+  if (linear(constraint))
     return (at: number): readonly [number, number, number] => [
       from[0] + (to[0] - from[0]) * at,
       from[1] + (to[1] - from[1]) * at,
       from[2] + (to[2] - from[2]) * at,
     ];
   const rig: IFrame = lookup.frame(body, bone, constraint);
-  const gated: boolean =
-    constraint !== null &&
-    constraint.swingTwist !== undefined &&
-    constraint.swingTwist !== null &&
-    rig.axes !== undefined;
-  const a: IAutoMovieQuaternion = rotationOf(from, rig, bone);
-  const b: IAutoMovieQuaternion = rotationOf(to, rig, bone);
-  const turn: (share: number) => IAutoMovieQuaternion = gated
-    ? swingTwistRange.prepareBlend(a, b, constraint!, rig.joint!)
-    : Quaternion.prepareSlerp(a, b);
+  const range: IRange | undefined = rig.range;
+  const a: IAutoMovieQuaternion = rotationOf(from, rig);
+  const b: IAutoMovieQuaternion = rotationOf(to, rig);
+  const turn: (share: number) => IAutoMovieQuaternion =
+    range === undefined
+      ? Quaternion.prepareSlerp(a, b)
+      : swingTwistRange.prepareBlend(a, b, range.constraint, range.joint);
   return (at: number): readonly [number, number, number] =>
     readRotation(
-      gated ? turn(at) : Quaternion.normalize(turn(at)),
+      range === undefined ? Quaternion.normalize(turn(at)) : turn(at),
       rig,
-      bone,
-      constraint,
     );
 }
 
@@ -468,13 +433,12 @@ function pair(
 function rotationOf(
   of: readonly [number, number, number],
   rig: IFrame,
-  bone: AutoMovieHumanoidBone,
 ): IAutoMovieQuaternion {
   return Quaternion.normalize(
     jointToQuaternionOnBasis(
       { flexion: of[0], abduction: of[1], twist: of[2] },
       rig.basis,
-      HUMANOID_REST_FRAME[bone],
+      rig.rest,
     ),
   );
 }
@@ -483,21 +447,12 @@ function rotationOf(
 function readRotation(
   blended: IAutoMovieQuaternion,
   rig: IFrame,
-  bone: AutoMovieHumanoidBone,
-  constraint: IAutoMovieJointConstraint | null,
 ): readonly [number, number, number] {
   const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
     blended,
     rig.basis,
-    HUMANOID_REST_FRAME[bone],
-    {
-      bone,
-      constraint:
-        constraint === null ||
-        (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
-          ? constraint
-          : { ...constraint, swingTwist: null },
-    },
+    rig.rest,
+    rig.domain,
   );
   return [read.flexion, read.abduction, read.twist];
 }
