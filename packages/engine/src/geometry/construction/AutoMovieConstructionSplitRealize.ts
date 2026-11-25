@@ -176,7 +176,7 @@ export function AutoMovieConstructionSplitRealize(
     for (let i: number = 0; i < 2; ++i) {
       const child: IAutoMovieConstructionSplit.IChild = node.children[i]!;
       const { index, surface, into, kind }: IFace = admitted[i]!;
-      const rail: IRail | string = railOf(child, admitted[i]!, derived?.cuts[i], hostBasis, n);
+      const rail: IRail | string = railOf(child, admitted[i]!, derived?.cuts[i], hostBasis, n, nativeRails?.get(child.partFace));
       if (typeof rail === "string") return fail(rail);
       const band: IAutoMovieConstructionSplitBand.IBand | string =
         AutoMovieConstructionSplitBand.create({
@@ -616,13 +616,8 @@ function fan(
     for (const [c, child] of node.children.entries()) {
       const { index, surface, into, kind }: IFace = admitted[c]!;
       const revised: IRelocatedRail | undefined = childCuts?.get(child.partFace);
-      const station: number | undefined = nativeRails?.get(child.partFace);
-      const native: IAutoMovieConstructionSkinCut.ICut | undefined = station === undefined ? undefined : {
-        at: (): [number, number, number] => [station, 0, 0],
-        point: surface.pointAt?.(station) ?? ((phase: number): Vec3 => surface.point?.(station, phase) ?? surface.jet(station, phase).p),
-        reach: [station, station],
-      };
-      const rail: IRail | string = railOf(child, admitted[c]!, revised?.cut ?? native ?? derived?.cuts[c], hostBasis, n);
+      const station: number | undefined = revised === undefined ? nativeRails?.get(child.partFace) : undefined;
+      const rail: IRail | string = railOf(child, admitted[c]!, revised?.cut ?? derived?.cuts[c], hostBasis, n, station);
       if (typeof rail === "string") {
         if (valley === undefined) return fail(rail);
         refusals.push(rail);
@@ -1140,19 +1135,29 @@ function admit(
   return out;
 }
 
-/** A child's rail from its declaration: its own cut, else the composed end's, else its one station; or the refusal. */
+/** A rail from the explicit cut, named native station, composed cut or scalar distance. */
 function railOf(
   child: IAutoMovieConstructionSplit.IChild,
   face: IFace,
   derived: IAutoMovieConstructionSkinCut.ICut | undefined,
   hostBasis: IAutoMovieConstructionSplitCompose.IBasis | null,
   count: number,
+  fixed?: number,
 ): IRail | string {
   const [first, last]: [number, number] = face.domain;
-  if (child.cut === undefined && derived === undefined) {
-    const station: number = end(face.chain, child.partEnd) + face.into * child.rail * AutoMovieConstructionViews.SCALE;
+  if (child.cut === undefined && (fixed !== undefined || derived === undefined)) {
+    const station: number = fixed ?? end(face.chain, child.partEnd) + face.into * child.rail * AutoMovieConstructionViews.SCALE;
     if (!(station > first && station < last)) return `the child face ${child.partFace}'s rail at station ${station} mm lies outside its domain [${first}, ${last}] mm`;
-    return { station, at: (): number => station };
+    const rail: IRail = { station, at: (): number => station };
+    if (fixed !== undefined) {
+      const surface: IAutoMovieSolidSurface = face.surface;
+      rail.cut = {
+        at: (): [number, number, number] => [station, 0, 0],
+        point: surface.pointAt?.(station) ?? ((phase: number): Vec3 => surface.point?.(station, phase) ?? surface.jet(station, phase).p),
+        reach: [station, station],
+      };
+    }
+    return rail;
   }
   let made: IAutoMovieConstructionSkinCut.ICut | undefined = derived;
   if (child.cut !== undefined) {

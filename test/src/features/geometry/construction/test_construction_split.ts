@@ -26,12 +26,13 @@ type V3 = [number, number, number];
  * 7. Crease: with band a's window `[pi/4, pi/2]` and transition `pi/8`, the band arrives along its column chord at column 6 (C0: more than 0.01 rad from the child's direction) and with the child's own 2-jet at columns 0, 1 and 11 to 16.
  * 8. Refusals: a seam `[pi, 0]` is refused by admission; a rail of 0.5 m outside the child leaves one diagnostic on the split and no band, child or host end cycle; a child whose rail ring's centroid lies outside its loop (both children on `y = +0.0105`) is refused with the loop's turn.
  * 9. Red: the arc check read against the host's station 0 instead of its end fails.
+ * 10. Fixed original rails override the fallback with exact 40 and 50 mm stations and carry both analytic circles between columns. An out-of-range named station refuses before reading its rail.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes split trees with `realizeAutoMovieConstruction` and reads the bands', host's and children's realized surfaces, the published body's cycles and the skin mesh. It catches a band that misses the host ring or the child's rail, a band whose cross derivatives are not the sides' (a crease or curvature step), a chord ruled in the wrong direction, a chord duplicated instead of shared, an open skin, a crease that is ignored or applied outside its window, and a refusal that leaves partial geometry; any band that copies both rails' 2-jets on the declared loop passes.
- * @evidence contracts/development/testing.md#independent-expectations Points come from the fixture's closed forms at knot stations, where the view loft's section is the exact circle (ConstructionShapes); cross jets from the node contract (each side's own 2-jet, scale-free as `uu / |u|^2`) read on the sides' realized surfaces, which the split does not produce; watertightness from the manifold rule that an interior edge bounds two triangles. Oracle limit: between columns the band is the strip's B-spline and is not asserted here.
+ * @evidence contracts/development/testing.md#independent-expectations Points come from the fixture's closed forms at knot stations, where the view loft's section is the exact circle (ConstructionShapes); cross jets from the node contract (each side's own 2-jet, scale-free as `uu / |u|^2`) read on the sides' realized surfaces, which the split does not produce; watertightness from the manifold rule that an interior edge bounds two triangles. The fixed station scenario separately uses the fixture circle at an off-column clock; the unowned scalar case asserts only its emitted columns.
  * @evidence contracts/development/testing.md#distinguishing-cases Positive tree, a crease window against columns outside its transition, the boundary columns 0 and 16 at the seam's corners, and three refusals (admission, rollback, nonmonotone loop) plus a red reading. Join blends belong to the join tests; the strip's between-column bound belongs to `AutoMovieSolidBlendChain`.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_split`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the body's faces are exactly the host, both children and both bands.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the ten numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the body's faces are exactly the host, both children and both bands.).
  */
 export function test_construction_split(): void {
   const failures: string[] = [];
@@ -401,6 +402,66 @@ export function test_construction_split(): void {
     failures.push(
       "proof: the bands' arcs read equal to the host's middle section",
     );
+
+  // 10. The original station owns the complete off-column rail.
+  const fixed: IAutoMovieConstructionSplit = split({});
+  const fixedStations = new Map<string, number>([
+    ["leg.a", 40],
+    ["leg.b", 50],
+  ]);
+  const actual = realizeAutoMovieConstruction(
+    { name: "made", root: fixed },
+    { chord: 1e-4, splitChildRails: new Map([[fixed.name, fixedStations]]) },
+  );
+  if (actual.diagnostics.length !== 0)
+    failures.push(
+      `fixed rail diagnostics: ${ConstructionRead.diagnostics(actual)}`,
+    );
+  else
+    for (const [part, station] of fixedStations) {
+      const cycle = actual.body.faces
+        .find(({ chain }): boolean => chain === part)
+        ?.cycles.find(({ kind }): boolean => kind === "start");
+      if (
+        cycle === undefined ||
+        cycle.chart.some(([s]): boolean => s !== station)
+      )
+        failures.push(
+          `${part}: expected the exact ${station} mm original station`,
+        );
+      const suffix: string = part.slice(-1);
+      const band: IAutoMovieSolidSurface = ConstructionRead.surface(
+        actual,
+        "band." + suffix,
+      );
+      const p: readonly number[] = band.jet(band.domain![1], clock(3.5)).p;
+      const y: number = suffix === "a" ? 10.5 : -10.5;
+      const radius: number = 8 + 2 * ((2 * station) / 80 - 1) ** 2;
+      if (
+        Math.hypot(
+          Math.hypot(p[0]!, p[1]! - y) - radius,
+          p[2]! + 30 + station,
+        ) > 1e-6
+      )
+        failures.push(
+          `${part}: expected the original circle at the off-column read`,
+        );
+    }
+  const outOfRange = realizeAutoMovieConstruction(
+    { name: "made", root: fixed },
+    {
+      chord: 1e-4,
+      splitChildRails: new Map([[fixed.name, new Map([["leg.a", 90]])]]),
+    },
+  );
+  if (
+    outOfRange.body.faces.length !== 1 ||
+    outOfRange.body.faces[0]?.cycles.length !== 0 ||
+    !outOfRange.diagnostics.some(({ detail }): boolean =>
+      detail.includes("rail at station 90 mm lies outside its domain"),
+    )
+  )
+    failures.push("an out-of-domain original rail was not refused without partial output");
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} split failures:\n${failures.join("\n")}`,

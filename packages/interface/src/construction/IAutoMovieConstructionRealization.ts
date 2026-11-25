@@ -45,7 +45,7 @@ export namespace IAutoMovieConstructionRealization {
     splitLineProbes?: ReadonlyMap<string, IAutoMovieConstructionSplitBand.LineProbe>;
 
 
-    /** Independent native rail stations by fan split and child face, millimetres. */
+    /** Independent native rail stations by split and child face, millimetres. */
     splitChildRails?: ReadonlyMap<string, ReadonlyMap<string, number>>;
   }
 
