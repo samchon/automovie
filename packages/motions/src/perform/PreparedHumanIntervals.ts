@@ -86,7 +86,7 @@ export namespace PreparedHumanIntervals {
       ),
     ].sort((a: number, b: number): number => a - b);
     const size: number = 2 ** Math.ceil(Math.log2(2 * times.length - 1));
-    const owners: number[] = Array<number>(2 * size).fill(admitted.length);
+    const owners: number[] = new Array<number>(2 * size).fill(admitted.length);
     const timeAt = (index: number): number => times[index]!;
     admitted.forEach((entry: T, owner: number): void => {
       let left: number =

@@ -25,7 +25,7 @@ import { vclose } from "../../internal/vclose";
  * 2. The third rung alone turns 30 degrees and narrows to 0.28 m. A reach beyond
  *    its end stops at 0.14 m along its visible axis.
  */
-export function test_motions_climbing_climb_ladder_material(): void {
+function materialContact(): void {
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
@@ -206,4 +206,5 @@ namespace part_climb_ladder_contacts {
 export async function test_motions_climbing_climb_ladder(): Promise<void> {
   part_climb_ladder_beats.verify();
   part_climb_ladder_contacts.verify();
+  materialContact();
 }

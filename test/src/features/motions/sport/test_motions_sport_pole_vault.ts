@@ -1,16 +1,16 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import {
   poleVaultBend,
   poleVaultOnLine,
   poleVaultSwing,
   poleVaultTakeoffAngle,
+  preparePoleVaultLinks,
 } from "@automovie/motions/internal";
-import { preparePoleVaultLinks } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,7 +25,7 @@ import { vclose } from "../../internal/vclose";
  *    hinge. The upper grip at y = 1.6 m stays in the root link.
  * 2. Out-of-order zero, positive, and negative bends yield their own frames.
  */
-export function test_motions_sport_pole_vault_material(): void {
+function materialContact(): void {
   const rest = hinge("middle", 1);
   const lower = { x: 0, y: 0.4, z: 0 };
   const upper = { x: 0, y: 1.6, z: 0 };
@@ -177,4 +177,5 @@ export function test_motions_sport_pole_vault(): void {
       1e-12,
     ) && poleVaultOnLine(from, slide, grip, 0.5) === undefined,
   );
+  materialContact();
 }

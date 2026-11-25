@@ -25,7 +25,7 @@ import { throwsError } from "../../internal/throwsError";
  * 2. A level deck with the same origin, a missing face and a trajectory leaving
  *    the matched deck are refused.
  */
-export function test_motions_carrier_human_snow_glide_material(): void {
+function materialContact(): void {
   const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     10,
@@ -149,4 +149,5 @@ export function test_motions_carrier_human_snow_glide(): void {
       "edgeTransfer.next.degrees",
     ],
   );
+  materialContact();
 }

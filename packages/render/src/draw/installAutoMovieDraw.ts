@@ -178,15 +178,16 @@ export function installAutoMovieDraw<Props = unknown>(
   target.addEventListener?.(
     "pagehide",
     (): void => {
-      void loading?.then(
-        (loaded: ILoaded): void => {
+      void loading
+        ?.catch((): undefined => undefined)
+        .then((loaded: ILoaded | undefined): void => {
+          if (loaded === undefined) return;
+
           loaded.placement.restore();
           loaded.scene.dispose();
           loaded.beauty.dispose();
           loaded.renderer.dispose();
-        },
-        (): void => {},
-      );
+        });
     },
     { once: true },
   );

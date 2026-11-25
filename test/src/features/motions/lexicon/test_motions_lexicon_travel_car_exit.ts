@@ -34,7 +34,7 @@ import { vclose } from "../../internal/vclose";
  * 2. A strip covering the displayed foot refuses the low crossing. The same strip
  *    away from the actor, or at a safe height, is admitted.
  */
-export async function test_motions_lexicon_travel_car_exit_material(): Promise<void> {
+async function materialContact(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const upright: IAutoMovieMotionHumanPosture = stand.posture(
     body,
@@ -190,7 +190,7 @@ const landing = (
  * 2. A landing foot still inside, or feet so wide that with a 0.25 m clearance
  *    they need more than the 0.8 m opening, are refused.
  */
-export function test_motions_lexicon_travel_car_exit(): void {
+export async function test_motions_lexicon_travel_car_exit(): Promise<void> {
   const input = (
     gap: number,
     landed: IAutoMovieMotionHumanPosture,
@@ -237,4 +237,5 @@ export function test_motions_lexicon_travel_car_exit(): void {
         ),
       ),
   );
+  await materialContact();
 }

@@ -23,7 +23,7 @@ import { nclose } from "../../internal/nclose";
  *    wall-step and catch times. The flight midpoint moves by 0.1 m.
  * 2. Foot ownership ends at takeoff and the hand starts at the catch.
  */
-export async function test_motions_terrain_wall_run_top_prepared_flight(): Promise<void> {
+async function preparedFlight(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const base: IAutoMovieMotionHumanPosture = stand.posture(
     body,
@@ -113,7 +113,7 @@ const ROUNDING: number = 8 * Number.EPSILON * 3;
  *    m in world coordinates when the floor stands at 2 m.
  * 2. A top at 4.6 m is refused with the 2.55 m local bound and its 0.05 m miss.
  */
-export function test_motions_terrain_wall_run_top(): void {
+export async function test_motions_terrain_wall_run_top(): Promise<void> {
   const measure: planWallRun.IReachMeasure = {
     hipHeight: 1,
     shoulderHeight: 1.25,
@@ -138,4 +138,5 @@ export function test_motions_terrain_wall_run_top(): void {
       range.maximum !== null &&
       nclose(range.maximum, 2.55, ROUNDING),
   );
+  await preparedFlight();
 }

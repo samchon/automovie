@@ -34,7 +34,7 @@ import { vclose } from "../../internal/vclose";
  * 2. Both displayed ankles enter in swing and arbitrary seeks keep the same next
  *    contact regardless of requested order.
  */
-export async function test_motions_actions_run_flight_cut(): Promise<void> {
+async function flightCut(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const origin = { x: 0, y: 0, z: 0 };
   const posture = stand.posture(body, origin, 0);
@@ -161,7 +161,7 @@ export async function test_motions_actions_run_flight_cut(): Promise<void> {
  *    middle and carry the same remaining ground-contact gap.
  * 2. Both visible ankles stay continuous through the cut in shuffled reads.
  */
-export async function test_motions_actions_run_flight_cut_playback(): Promise<void> {
+async function flightCutPlayback(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const input: Omit<IAutoMovieMotionHumanPerformance.IInput, "composition"> = {
     seed: "flight-cut",
@@ -280,4 +280,6 @@ export async function test_motions_actions_run(): Promise<void> {
     nclose(run.speed(body, "jog"), Math.sqrt(0.6 * g * HIP), ROUNDING) &&
       nclose(run.speed(body, "sprint"), Math.sqrt(5 * g * HIP), ROUNDING),
   );
+  await flightCut();
+  await flightCutPlayback();
 }

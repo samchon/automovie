@@ -400,8 +400,9 @@ function roundSupport(
     z: r === 0 ? 0 : (d.z * shape.radius) / r,
   };
   if (shape.kind === "cone" && d.y * shape.height + r * shape.radius < 0) {
-    p.x = p.z = 0;
+    p.x = 0;
     p.y = -half;
+    p.z = 0;
   }
   return Vector3.add(centre, Quaternion.rotateVector(rotation, p));
 }

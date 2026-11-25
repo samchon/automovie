@@ -118,6 +118,7 @@ export async function test_motions_lexicon_crutch_raised_support(): Promise<void
     ),
   );
   TestValidator.error("a hovering tip is refused", () => plan(0.03));
+  scenarioRaisedSupportPivot();
 }
 
 /**
@@ -130,7 +131,7 @@ export async function test_motions_lexicon_crutch_raised_support(): Promise<void
  * 3. At a half-turn plus 16 cm of travel, a root 10 cm to one side of its tip ends
  *    10 cm to the other side while the displayed tip travels straight.
  */
-export function test_motions_lexicon_crutch_raised_support_pivot(): void {
+function scenarioRaisedSupportPivot(): void {
   const staged: IAutoMovieRigidTransform = {
     position: { x: 0.32, y: HEIGHT, z: 0.19 },
     rotation: UPRIGHT,

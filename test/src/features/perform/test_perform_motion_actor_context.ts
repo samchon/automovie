@@ -31,7 +31,7 @@ import { throwsError, vclose } from "../internal/predicates";
  *    still through the second half of the stride.
  * 2. A legacy context without a source period keeps its seconds.
  */
-export function test_perform_motion_actor_context_gait_period(): void {
+function gaitPeriod(): void {
   const context: IAutoMovieActorContext = {
     skeleton: "rig",
     gaits: [
@@ -233,4 +233,5 @@ export function test_perform_motion_actor_context(): void {
     "changing observer changes gaze",
     Math.abs(off(4) - off(0)) > 1,
   );
+  gaitPeriod();
 }
