@@ -1,6 +1,12 @@
-import { Vector3, minimumJerk, windowSampleTimes } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  windowSampleTimes,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -11,6 +17,8 @@ import type {
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,16 +34,19 @@ import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
+import { HumanMountOffSupports } from "./HumanMountOffSupports";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 import { prepareMountOffFloor } from "./prepareMountOffFloor";
 
 /** The alternatives of `Frame2`'s site. */
-type Frame2 = "root" | "yaw" | "pitch" | "joints";
+type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";
 
 /**
  * Where the pelvis is at an instant of getting off: the root, the heading, the
@@ -56,6 +67,14 @@ type IPlanFrameAtTilt = {
 
 /** Samples per second of the action clock used to find floor reach. */
 const REACH_RATE: number = 60;
+
+/** Trunk joints carried unchanged on the seat and then released into the lean. */
+const TRUNK: readonly AutoMovieHumanoidBone[] = [
+  "hips",
+  "spine",
+  "chest",
+  "upperChest",
+];
 
 /**
  * Getting off a high seat onto the floor: what `rise` plans where a foot is off
@@ -88,23 +107,18 @@ export namespace HumanMountOff {
    * Plan getting off a seat.
    *
    * @param context The rise's context.
-   * @param start The seat socket where it rests, world metres.
+   * @param entered The seat socket where it rests at entry, world metres.
    * @param r The socket's height as a share of the popliteal height.
    * @returns The plan, with the rise's events `seatOff` and `standing`.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRise.IParams>,
-    start: IAutoMovieVector3,
+    entered: IAutoMovieVector3,
     r: number,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const entry: IAutoMovieMotionHumanEntryState = context.entry;
-    const yaw: number = entry.posture.yaw;
-    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
-      body,
-      yaw,
-    );
     const pitch0: number = entry.posture.pitch;
     const sat: IAutoMovieMotionHumanBase.ISeat | undefined =
       entry.base.kind === "seated" ? entry.base.seat : undefined;
@@ -131,12 +145,58 @@ export namespace HumanMountOff {
         : "left"
       : "left";
     const follower: AutoMovieHumanSide = leader === "left" ? "right" : "left";
+    const duration: number =
+      Math.min(4, 2 * (1 + 0.6 * Math.max(0, r - 1))) *
+      AutoMovieMotionManner(context, context.params.manner).tempo;
+    const seatOff: number = 0.15 * duration;
+    const footOff = (side: AutoMovieHumanSide): number =>
+      side === leader ? seatOff / 3 : (2 / 3) * seatOff;
+    const seat: IAutoMovieMotionHumanEntryState.ISupport | undefined =
+      entry.supports.find(
+        (bearing): boolean => bearing.part === "seat" && bearing.kind === "seat",
+      );
+    const carriedSeat: HumanMountOffSupports.IFrame | undefined =
+      sat?.astride === true && seat?.support.kind === "prop"
+        ? HumanMountOffSupports.material(
+            context.prop(seat.support.subject),
+            seat.support.point,
+            context.start,
+            seatOff,
+            {
+              position: entry.pose.root?.translation ?? entry.posture.root,
+              rotation:
+                entry.pose.root?.rotation ?? humanPostureHeading(entry.posture),
+            },
+          )
+        : undefined;
+    const exitHeading: ReturnType<typeof humanPostureHeading.angles> | undefined =
+      carriedSeat === undefined
+        ? undefined
+        : humanPostureHeading.angles(carriedSeat.end.rotation);
+    const yaw: number = exitHeading?.yaw ?? entry.posture.yaw;
+    const start: IAutoMovieVector3 =
+      carriedSeat === undefined || exitHeading === undefined
+        ? entered
+        : seated.socket(body, {
+            ...entry.posture,
+            ...exitHeading,
+            root: carriedSeat.end.position,
+          });
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      yaw,
+    );
+
+    const carriedFeet: ReturnType<typeof HumanMountOffSupports.feet> =
+      sat?.astride === true ? HumanMountOffSupports.feet(context, footOff) : {};
 
     // Where it stands afterwards: the pelvis clear of the seat, the feet at their rest places under it.
     const under: IAutoMovieMotionHumanFrame = {
       origin: { ...start, y: seated.floor(body, entry) },
       yaw,
     };
+    const nearAnkle: IAutoMovieVector3 =
+      carriedFeet[near]?.end.point ?? entry.feet[near].ankle;
     const stood: IAutoMovieMotionHumanFrame = {
       origin: HumanFrame.point(
         under,
@@ -144,7 +204,7 @@ export namespace HumanMountOff {
           ? {
               x:
                 (near === "left" ? 1 : -1) *
-                (Math.abs(HumanFrame.local(under, entry.feet[near].ankle).x) +
+                (Math.abs(HumanFrame.local(under, nearAnkle).x) +
                   HumanMount.BESIDE * m.thigh),
               y: 0,
               z: 0,
@@ -174,10 +234,6 @@ export namespace HumanMountOff {
       limbs: {},
     });
 
-    const duration: number =
-      Math.min(4, 2 * (1 + 0.6 * Math.max(0, r - 1))) *
-      AutoMovieMotionManner(context, context.params.manner).tempo;
-    const seatOff: number = 0.15 * duration;
     const handRelease: number = 0.3 * duration;
     const standing: number = 0.9 * duration;
     const hop: number = sideways ? HumanMount.HOP * m.thigh : 0;
@@ -188,7 +244,45 @@ export namespace HumanMountOff {
     const crossing: readonly [number, number] = sideways
       ? [0.3 * duration, 0.8 * duration]
       : [seatOff, 0.8 * duration];
+    const enteredJoints: IAutoMovieMotionHumanPosture["joints"] = {};
+    if (carriedSeat !== undefined)
+      for (const joint of entry.pose.joints)
+        enteredJoints[joint.bone] = [
+          joint.flexion ?? 0,
+          joint.abduction ?? 0,
+          joint.twist ?? 0,
+        ];
+    const leanAt: number = 0.4 * duration;
+    const seatMotion: HumanMountOffSupports.Offset | undefined =
+      carriedSeat === undefined
+        ? undefined
+        : HumanMountOffSupports.departure(carriedSeat, leanAt - seatOff);
+    const peak: IPlanFrameAtTilt = HumanTrunk.incline(relaxed, HumanMount.LEAN);
+    const trunk = carriedSeat === undefined
+      ? []
+      : TRUNK.map((bone: AutoMovieHumanoidBone) => ({
+          bone,
+          read: blendHumanJoint.between(
+            body,
+            bone,
+            enteredJoints[bone] ?? [0, 0, 0],
+            peak.joints[bone] ?? [0, 0, 0],
+          ),
+        }));
+    const peakRotation: IAutoMovieQuaternion = humanPostureHeading({
+      yaw,
+      pitch: peak.pitch,
+      roll: 0,
+    });
     const frameAt = (t: number): Frame => {
+      if (carriedSeat !== undefined && t <= seatOff) {
+        const frame: IAutoMovieRigidTransform = carriedSeat.at(t);
+        return {
+          root: frame.position,
+          ...humanPostureHeading.angles(frame.rotation),
+          joints: enteredJoints,
+        };
+      }
       const across: number = minimumJerk.share(
         (t - crossing[0]) / (crossing[1] - crossing[0]),
       );
@@ -201,17 +295,48 @@ export namespace HumanMountOff {
             minimumJerk.share((t - 0.35 * duration) / (0.5 * duration)),
         z: start.z + (goal.z - start.z) * across,
       };
+      if (carriedSeat !== undefined && t < leanAt) {
+        const share: number = minimumJerk.share(
+          (t - seatOff) / (leanAt - seatOff),
+        );
+        const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+          carriedSeat.end.rotation,
+          peakRotation,
+          share,
+        );
+        const root: IAutoMovieVector3 = seated.root(
+          body,
+          socket,
+          humanPostureHeading.angles(rotation),
+        );
+        const moving: IAutoMovieRigidTransform | undefined = seatMotion?.(
+          t - seatOff,
+        );
+        const heading: ReturnType<typeof humanPostureHeading.angles> =
+          humanPostureHeading.angles(
+            moving === undefined
+              ? rotation
+              : Quaternion.multiply(moving.rotation, rotation),
+          );
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
+        for (const { bone, read } of trunk) joints[bone] = read(share);
+        return {
+          root: moving === undefined ? root : Vector3.add(root, moving.position),
+          ...heading,
+          joints,
+        };
+      }
       const lean: number =
-        t < 0.4 * duration
-          ? pitch0 +
-            (HumanMount.LEAN - pitch0) * minimumJerk.share(t / (0.4 * duration))
+        t < leanAt
+          ? pitch0 + (HumanMount.LEAN - pitch0) * minimumJerk.share(t / leanAt)
           : HumanMount.LEAN *
-            (1 - minimumJerk.share((t - 0.4 * duration) / (0.6 * duration)));
+            (1 - minimumJerk.share((t - leanAt) / (0.6 * duration)));
       const tilt: IPlanFrameAtTilt = HumanTrunk.incline(relaxed, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
         yaw,
         pitch: tilt.pitch,
+        roll: 0,
         joints: tilt.joints,
       };
     };
@@ -228,7 +353,7 @@ export namespace HumanMountOff {
           hipJoints(
             body,
             frame.root,
-            humanPostureHeading({ ...frame, roll: 0 }),
+            humanPostureHeading(frame),
             frame.joints.hips,
           )[side],
         ),
@@ -268,9 +393,19 @@ export namespace HumanMountOff {
     };
 
     // Where each foot is held until it leaves: its rest, or where it hangs.
+    const leaving = (side: AutoMovieHumanSide): HumanMount.IFoot => {
+      const held: HumanMountOffSupports.IFoot | undefined = carriedFeet[side];
+      return held === undefined
+        ? HumanMount.held(entry, side)
+        : {
+            ankle: held.end.point,
+            bend: held.end.bend,
+            yaw: HumanFoot.heading(held.end.rotation),
+          };
+    };
     const holds: Record<AutoMovieHumanSide, HumanMount.IFoot> = {
-      left: HumanMount.held(entry, "left"),
-      right: HumanMount.held(entry, "right"),
+      left: leaving("left"),
+      right: leaving("right"),
     };
 
     // Both feet leave their rests while the seat still bears the body, the leader first: a leg cannot hold a fixed rest under a pelvis that travels. Each lands when its leg first reaches its floor place.
@@ -279,12 +414,12 @@ export namespace HumanMountOff {
       duration,
       (t: number): boolean => reaches(t, leader, landing[leader]),
     );
-    const leaves: number = (2 / 3) * seatOff;
+    const leaves: number = footOff(follower);
     const flight: Record<AutoMovieHumanSide, readonly [number, number]> = {
       left: [0, 0],
       right: [0, 0],
     };
-    flight[leader] = [seatOff / 3, lands];
+    flight[leader] = [footOff(leader), lands];
     flight[follower] = [
       leaves,
       Math.min(
@@ -298,6 +433,17 @@ export namespace HumanMountOff {
       ),
     ];
     const lastLanding: number = Math.max(flight.left[1], flight.right[1]);
+    const footMotion: Partial<
+      Record<AutoMovieHumanSide, HumanMountOffSupports.Offset>
+    > = {};
+    for (const side of ["left", "right"] as const) {
+      const held: HumanMountOffSupports.IFoot | undefined = carriedFeet[side];
+      if (held === undefined) continue;
+      const [off, on]: readonly [number, number] = flight[side];
+      const moving: HumanMountOffSupports.Offset | undefined =
+        HumanMountOffSupports.departure(held, on - off);
+      if (moving !== undefined) footMotion[side] = moving;
+    }
     const over: IAutoMovieVector3 = HumanFrame.point(
       { origin: start, yaw },
       {
@@ -307,15 +453,8 @@ export namespace HumanMountOff {
       },
     );
 
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      {
-        part: "seat",
-        kind: "seat",
-        from: 0,
-        to: seatOff / duration,
-        support: { kind: "ground" },
-      },
-    ];
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
+      seat === undefined ? [] : [{ ...seat, from: 0, to: seatOff / duration }];
     for (const side of ["left", "right"] as const) {
       const part: PlanPart = `${side}Foot`;
       if (entry.feet[side].planted)
@@ -349,18 +488,15 @@ export namespace HumanMountOff {
         needsGoal ? legged(frame.root, landing) : undefined;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       const joints: IAutoMovieMotionHumanPosture["joints"] = { ...frame.joints };
-      const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> | undefined =
-        needsGoal && t <= lastLanding
-          ? hipJoints(
-              body,
-              frame.root,
-              humanPostureHeading({ ...frame, roll: 0 }),
-              frame.joints.hips,
-            )
-          : undefined;
+      let hips: Record<AutoMovieHumanSide, IAutoMovieVector3> | undefined;
       for (const side of ["left", "right"] as const) {
         const limb: PlanLowerLimb = `${side}Leg`;
         const [departs, arrives]: readonly [number, number] = flight[side];
+        const carried: HumanMountOffSupports.IFoot | undefined = carriedFeet[side];
+        if (carried !== undefined && t <= departs) {
+          limbs[limb] = carried.at(t);
+          continue;
+        }
         const plant: prepareMountOffFloor.IPlaced | undefined =
           t >= arrives ? plants?.[side](t) : undefined;
         if (plant !== undefined) {
@@ -375,7 +511,13 @@ export namespace HumanMountOff {
           limbs[limb] = down;
           continue;
         }
-        const hip: IAutoMovieVector3 = hips![side];
+        hips ??= hipJoints(
+          body,
+          frame.root,
+          humanPostureHeading(frame),
+          frame.joints.hips,
+        );
+        const hip: IAutoMovieVector3 = hips[side];
         // A foot that bears nothing turns its toes down about its ball
         // within the unloaded ankle's range (`HumanMountPush.tip`). A held
         // foot eases into its flight pose while the seat bears the body. A
@@ -392,31 +534,74 @@ export namespace HumanMountOff {
               ? minimumJerk.share(t / departs)
               : 1,
           );
-        else
-          limbs[limb] = HumanMountPush.tip(
+        else {
+          const share: number = minimumJerk.share(
+            (t - departs) / (arrives - departs),
+          );
+          const flightGoal: IAutoMovieHumanLimbGoal = HumanMount.leg(
+            body,
+            side,
+            HumanMount.between(
+              holds[side],
+              {
+                ankle: landing[side],
+                bend: down.bend,
+                yaw: yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+              },
+              share,
+              walk.LIFT * m.hipHeight,
+              sideways && side === leader ? over : undefined,
+            ),
+            false,
+          );
+          const tipped: IAutoMovieHumanLimbGoal = HumanMountPush.tip(
             body,
             side,
             hip,
-            HumanMount.leg(
-              body,
-              side,
-              HumanMount.between(
-                holds[side],
-                {
-                  ankle: landing[side],
-                  bend: down.bend,
-                  yaw: yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
-                },
-                minimumJerk.share((t - departs) / (arrives - departs)),
-                walk.LIFT * m.hipHeight,
-                sideways && side === leader ? over : undefined,
-              ),
-              false,
-            ),
+            flightGoal,
             1,
           );
+          if (carried === undefined) {
+            limbs[limb] = tipped;
+            continue;
+          }
+          const ankle: IAutoMovieVector3 = Vector3.lerp(
+            flightGoal.point,
+            tipped.point,
+            share,
+          );
+          const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+            carried.end.rotation,
+            tipped.rotation!,
+            share,
+          );
+          const moving: IAutoMovieRigidTransform | undefined = footMotion[
+            side
+          ]?.(t - departs);
+          const point: IAutoMovieVector3 = moving === undefined
+            ? ankle
+            : Vector3.add(ankle, moving.position);
+          limbs[limb] = {
+            ...tipped,
+            point,
+            rotation:
+              moving === undefined
+                ? rotation
+                : Quaternion.multiply(moving.rotation, rotation),
+            bend:
+              moving === undefined
+                ? tipped.bend
+                : Vector3.add(
+                    point,
+                    Quaternion.rotateVector(
+                      moving.rotation,
+                      Vector3.subtract(tipped.bend, ankle),
+                    ),
+                  ),
+          };
+        }
       }
-      return { ...frame, roll: 0, limbs, joints };
+      return { ...frame, limbs, joints };
     };
 
     // Prepare the leg goals and their joint-space fallback before a palm
@@ -440,8 +625,11 @@ export namespace HumanMountOff {
     samples.clear();
     const flying = (t: number): IAutoMovieMotionHumanPosture => {
       const at: IAutoMovieMotionHumanPosture = lower(t, plants);
-      if (t >= flight.left[1]) delete at.limbs.leftLeg;
-      if (t >= flight.right[1]) delete at.limbs.rightLeg;
+      for (const side of ["left", "right"] as const) {
+        const [off, on]: readonly [number, number] = flight[side];
+        if (t >= on || (carriedFeet[side] !== undefined && t < off))
+          delete at.limbs[`${side}Leg`];
+      }
       return at;
     };
     const legs: courseHumanLegs.Seeded = courseHumanLegs({
@@ -468,10 +656,15 @@ export namespace HumanMountOff {
           const at: IAutoMovieMotionHumanPosture = lower(t, plants);
           if (t >= lastLanding) return at;
           const coursed: IAutoMovieMotionHumanPosture = legs(at, t);
-          if (t >= flight.left[1] && at.limbs.leftLeg !== undefined)
-            coursed.limbs.leftLeg = at.limbs.leftLeg;
-          if (t >= flight.right[1] && at.limbs.rightLeg !== undefined)
-            coursed.limbs.rightLeg = at.limbs.rightLeg;
+          for (const side of ["left", "right"] as const) {
+            const limb: PlanLowerLimb = `${side}Leg`;
+            const [off, on]: readonly [number, number] = flight[side];
+            if (
+              (t >= on || (carriedFeet[side] !== undefined && t <= off)) &&
+              at.limbs[limb] !== undefined
+            )
+              coursed.limbs[limb] = at.limbs[limb];
+          }
           return coursed;
         },
       },

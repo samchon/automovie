@@ -1,4 +1,9 @@
-import { Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -7,8 +12,10 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSit,
+  IAutoMovieRigidTransform,
   IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,11 +23,13 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { courseHumanLegs } from "../compose/courseHumanLegs";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
 import { seated } from "../everyday/seated";
 import { sitCarried } from "../everyday/sitCarried";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
@@ -33,6 +42,9 @@ import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanMountTrack } from "./HumanMountTrack";
 import { HumanSwungLeg } from "./HumanSwungLeg";
+import { prepareCoupledMount } from "./prepareCoupledMount";
+import { prepareMountMaterialSeat } from "./prepareMountMaterialSeat";
+import { prepareMountTransfer } from "./prepareMountTransfer";
 
 /** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
 type Frame = HumanMountOnFrame.Frame;
@@ -70,7 +82,18 @@ export function HumanMountOnPlan(
   const yaw0: number = context.entry.posture.yaw;
   const yaw1: number = yaw0 + turn;
   const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
-  const goal: IAutoMovieVector3 = seated.point(body, seat);
+  const finalFrame = (): Frame => ({
+    root: context.entry.posture.root,
+    yaw: yaw1,
+    pitch: HumanTrunk.pelvisPitch(final.pitch) + (seat.pitch ?? 0),
+    roll: seat.roll ?? 0,
+    joints: final.joints.hips === undefined ? {} : { hips: final.joints.hips },
+  });
+  const material = prepareMountMaterialSeat.context(context, seat, finalFrame);
+  const goal: IAutoMovieVector3 =
+    material?.goal ??
+    prepareMountMaterialSeat(context, seat, finalFrame) ??
+    seated.point(body, seat);
 
   // The body gets on from within a leg's length of its place on the seat.
   const away: number = Math.hypot(goal.x - start.x, goal.z - start.z);
@@ -112,17 +135,48 @@ export function HumanMountOnPlan(
     climb,
     astride,
   );
-  const frameAt: (t: number) => Frame = HumanMountOnFrame({
-    body,
-    seat,
-    start,
-    goal,
-    climb,
-    hop,
-    yaw: yaw0,
-    turn,
-    final,
-  });
+  const course = (target: IAutoMovieVector3): ((t: number) => Frame) =>
+    HumanMountOnFrame({
+      body,
+      seat,
+      start,
+      goal: target,
+      climb,
+      hop,
+      yaw: yaw0,
+      turn,
+      final,
+    });
+  const nominal = course(goal);
+  const end: Frame = nominal(climb);
+  const seating =
+    material === undefined
+      ? undefined
+      : prepareCoupledMount(body, material, { ...end, limbs: {} });
+  const seatedKey = seating?.key;
+  if (seating?.reason !== undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "footrests",
+      value: seat.point ?? "seat",
+      feasible: null,
+      reason: seating.reason,
+      fix: "use a seat and treads whose physical bearing areas fit this rider",
+    });
+  const placedFrame =
+    seatedKey === undefined
+      ? nominal
+      : course(
+          Vector3.add(goal, Vector3.subtract(seatedKey.posture.root, end.root)),
+        );
+  const pitchChange = (seatedKey?.posture.pitch ?? end.pitch) - end.pitch;
+  const authoredFrame = (t: number): Frame => {
+    const at = placedFrame(t);
+    return pitchChange === 0
+      ? at
+      : { ...at, pitch: at.pitch + pitchChange * minimumJerk.share(t / climb) };
+  };
+  let frameAt = authoredFrame;
   const hipsAt = (t: number): Record<AutoMovieHumanSide, IAutoMovieVector3> => {
     const frame: Frame = frameAt(t);
     return hipJoints(
@@ -143,8 +197,24 @@ export function HumanMountOnPlan(
     hipsAt(climb);
   // The seated pelvis's pitch, which the hip's flexion to a rest is read off.
   const seatedPitch: number = frameAt(climb).pitch;
-  const place = (side: AutoMovieHumanSide): HumanMountPlace.IPlace =>
-    HumanMountPlace(
+  const place = (side: AutoMovieHumanSide): HumanMountPlace.IPlace => {
+    const held: IAutoMovieHumanLimbGoal | undefined = seatedKey?.feet[side];
+    if (held !== undefined) {
+      const rotation = held.rotation!;
+      const forward = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+      return {
+        foot: {
+          ankle: held.point,
+          bend: held.bend,
+          yaw: Math.atan2(forward.x, forward.z) / Quaternion.DEG2RAD,
+        },
+        rests: true,
+        tread: true,
+        height:
+          held.point.y + Quaternion.rotateVector(rotation, held.contact!).y,
+      };
+    }
+    return HumanMountPlace(
       body,
       side,
       seatedHips[side],
@@ -154,6 +224,7 @@ export function HumanMountOnPlan(
       seat.footrests?.[side],
       under,
     );
+  };
   const places: Record<AutoMovieHumanSide, HumanMountPlace.IPlace> = {
     left: place("left"),
     right: place("right"),
@@ -211,21 +282,107 @@ export function HumanMountOnPlan(
     left: stay("left"),
     right: stay("right"),
   };
-  // The pushing leg extends as it pushes: as the pelvis rises its knee straightens and its heel rolls up over the ball, by as much as the shank, in the knee's own plane, would bend the flat foot's ankle past what an unloaded ankle holds. The foot leaves when the extended leg's toes leave: when even the rolled foot's ankle is past the leg's reach, or the toes are extended as far as they go.
   const longest: number = m.thigh + m.shank;
-  const rolledAt = (t: number): HumanMountPush.IRoll =>
-    HumanMountPush.roll(
+  const leadLeaves: number = onFloor[lead] ? 0.1 * climb : 0;
+  const leadReady: number = 0.45 * climb;
+  const nearCapture: number = crossing[0];
+  const nearGoal: IAutoMovieHumanLimbGoal | undefined = seatedKey?.feet[lead];
+  const transfer =
+    !settled && astride && onFloor[push] && !stays[lead] && nearGoal !== undefined;
+  // The far foot stays on its actual MTP as the rider first loads the near
+  // tread. Both hips must share a feasible reach at that pose.
+  const pushGround: IAutoMovieHumanLimbGoal | undefined = transfer
+    ? legged(authoredFrame(0).root, floor)[`${push}Leg`]
+    : undefined;
+  if (transfer && pushGround !== undefined && nearGoal !== undefined) {
+    const transferFrame = authoredFrame(nearCapture);
+    const hips = hipJoints(
       body,
-      push,
-      legged(frameAt(t).root, floor)[`${push}Leg`]!,
-      hipsAt(t)[push],
-      yaw0 + (push === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+      transferFrame.root,
+      humanPostureHeading(transferFrame),
+      transferFrame.joints.hips,
     );
+    const root = prepareMountTransfer(
+      transferFrame.root,
+      Vector3.add(
+        transferFrame.root,
+        Vector3.subtract(nearGoal.point, hips[lead]),
+      ),
+      Vector3.add(
+        transferFrame.root,
+        Vector3.subtract(pushGround.point, hips[push]),
+      ),
+      HumanMount.SWING_REACH * longest,
+    );
+    if (root === undefined)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "footrests",
+        value: seat.point ?? "seat",
+        reason: "the ground toe and near tread have no common reach",
+        fix: "start closer to the tread or use a mounting step",
+      });
+    const captured: Frame = { ...transferFrame, root };
+    const initial = authoredFrame(leadLeaves);
+    const hipAt = (frame: Frame, side: AutoMovieHumanSide): IAutoMovieVector3 =>
+      hipJoints(body, frame.root, humanPostureHeading(frame), frame.joints.hips)[
+        side
+      ];
+    const pushStart = hipAt(initial, push);
+    const pushEnd = hipAt(captured, push);
+    frameAt = (t: number): Frame => {
+      const nominal = authoredFrame(t);
+      if (t <= leadLeaves || t >= climb) return nominal;
+      if (t < nearCapture) {
+        const hip = Vector3.lerp(
+          pushStart,
+          pushEnd,
+          minimumJerk.share((t - leadLeaves) / (nearCapture - leadLeaves)),
+        );
+        return {
+          ...nominal,
+          root: Vector3.add(
+            nominal.root,
+            Vector3.subtract(hip, hipAt(nominal, push)),
+          ),
+        };
+      }
+      if (t <= leadReady) return captured;
+      const share = minimumJerk.share((t - leadReady) / (contact - leadReady));
+      const frame: Frame = {
+        ...nominal,
+        root: Vector3.lerp(captured.root, nominal.root, share),
+        yaw: captured.yaw + wrapDegrees(nominal.yaw - captured.yaw) * share,
+        pitch: captured.pitch + (nominal.pitch - captured.pitch) * share,
+        roll: captured.roll + (nominal.roll - captured.roll) * share,
+      };
+      const hip = hipAt(frame, lead);
+      const reachable = prepareMountTransfer.restrict(hip, nearGoal.point, longest);
+      return { ...frame, root: Vector3.add(frame.root, Vector3.subtract(reachable, hip)) };
+    };
+  }
+  // The pushing leg extends as it pushes: as the pelvis rises its knee straightens and its heel rolls up over the ball, by as much as the shank, in the knee's own plane, would bend the flat foot's ankle past what an unloaded ankle holds. The foot leaves when the extended leg's toes leave: when even the rolled foot's ankle is past the leg's reach, or the toes are extended as far as they go.
+  const rolledAt = (t: number): HumanMountPush.IRoll =>
+    pushGround === undefined
+      ? HumanMountPush.roll(
+          body,
+          push,
+          legged(frameAt(t).root, floor)[`${push}Leg`]!,
+          hipsAt(t)[push],
+          yaw0 + (push === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+        )
+      : {
+          goal: pushGround,
+          roll: 0,
+          reach: Vector3.distance(pushGround.point, hipsAt(t)[push]),
+        };
   const off: number = onFloor[push]
-    ? first(0, astride ? 0.35 * climb : contact, (t: number): boolean => {
-        const rolled: HumanMountPush.IRoll = rolledAt(t);
-        return rolled.reach > longest || rolled.roll > HumanMount.TOE_ROLL;
-      })
+    ? transfer
+      ? leadReady
+      : first(0, astride ? 0.35 * climb : contact, (t: number): boolean => {
+          const rolled: HumanMountPush.IRoll = rolledAt(t);
+          return rolled.reach > longest || rolled.roll > HumanMount.TOE_ROLL;
+        })
     : 0;
   // As the foot leaves the floor, read once.
   const leaving: HumanMountPush.IRoll | undefined = onFloor[push]
@@ -236,14 +393,14 @@ export function HumanMountOnPlan(
     left: [0, 0],
     right: [0, 0],
   };
-  flight[lead] = [onFloor[lead] ? 0.1 * climb : 0, 0.45 * climb];
+  flight[lead] = [leadLeaves, transfer ? nearCapture : leadReady];
   // The far leg crosses a saddle's croup as the pelvis crosses onto it: a foot that crossed ahead of the pelvis would have to rise above its hip.
   flight[push] = [
     off,
     astride ? crossing[1] : Math.min(climb, off + 0.3 * climb),
   ];
 
-  // Astride, the leading foot bears on its rest from its arrival: the body rises standing in the near stirrup while the far leg swings over (Geutjens, Clayton and Kuhnke 2008). Any other foot bears once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and nothing else holds that rest under it.
+  // Astride, the leading foot bears on its rest from its arrival: the body rises standing in the near stirrup while the far leg swings over (Geutjens, Clayton and Kaiser 2008). Any other foot bears once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and nothing else holds that rest under it.
   const bears = (side: AutoMovieHumanSide): number =>
     stays[side]
       ? 0
@@ -286,19 +443,24 @@ export function HumanMountOnPlan(
       kind: "seat",
       from: touch / duration,
       to: 1,
-      support: carried(seat.point) ?? { kind: "ground" },
+      support: carried(material?.seat.affordance.id ?? seat.point) ?? {
+        kind: "ground",
+      },
     },
   ];
   for (const side of ["left", "right"] as const) {
     const part: PlanPart = `${side}Foot`;
-    if (onFloor[side] && flight[side][0] > 0)
-      contacts.push({
+    if (onFloor[side] && flight[side][0] > 0) {
+      const plant: IAutoMovieMotionHumanContactWindow = {
         part,
         kind: "plant",
         from: 0,
         to: flight[side][0] / duration,
         support: { kind: "ground", height: under },
-      });
+      };
+      if (side === push && pushGround !== undefined) plant.socket = "ball";
+      contacts.push(plant);
+    }
     if (places[side].rests)
       contacts.push({
         part,
@@ -306,11 +468,10 @@ export function HumanMountOnPlan(
         from: bearing[side] / duration,
         to: 1,
         // A foot rest bears at its own height, a stirrup's above the floor, under the ball the foot is placed on it by, on the carrier it hangs from when there is one.
-        support:
-          (places[side].tread
-            ? carried(seat.footrestPoints?.[side])
-            : undefined) ?? { kind: "ground", height: places[side].height },
-        socket: "ball",
+        support: (places[side].tread
+          ? carried(material?.treads[side].affordance.id ?? seat.footrestPoints?.[side])
+          : undefined) ?? { kind: "ground", height: places[side].height },
+        socket: seatedKey?.feet[side].contact ?? "ball",
       });
   }
   // A swinging leg's goal at an instant, before its toes turn down.
@@ -362,6 +523,24 @@ export function HumanMountOnPlan(
     for (const side of ["left", "right"] as const) {
       if (side === without) continue;
       const limb: PlanLowerLimb = `${side}Leg`;
+      if (seatedKey !== undefined && t >= bearing[side]) {
+        const goal = seatedKey.feet[side];
+        // The terminal seed belongs to the hip on the seat. On the approach
+        // the prepared climb course continues the leg on its actual branch.
+        limbs[limb] = t < climb
+          ? {
+              point: goal.point,
+              bend: goal.bend,
+              rotation: goal.rotation!,
+              contact: goal.contact!,
+              planted: true,
+            }
+          : goal;
+        const toe = `${side}Toes` as const;
+        const turn = seatedKey.posture.joints[toe];
+        if (turn !== undefined) toes[toe] = turn;
+        continue;
+      }
       if (stays[side]) {
         limbs[limb] = HumanMount.leg(body, side, places[side].foot, true);
         continue;
@@ -390,7 +569,7 @@ export function HumanMountOnPlan(
       if (side === push && onFloor[side])
         toes[`${side}Toes`] = [left().roll * (1 - share), 0, 0];
       // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the seat takes the body, from its bearing to seated.
-      limbs[limb] = HumanMountPush.tip(
+      const tipped = HumanMountPush.tip(
         body,
         side,
         hip,
@@ -414,6 +593,30 @@ export function HumanMountOnPlan(
             : 0
           : 1,
       );
+      if (transfer && side === lead && nearGoal?.rotation !== undefined) {
+        // Land on the full admitted ankle and toe configuration. The
+        // earlier flight's reach cap and heel tip do not own the hold.
+        limbs[limb] = {
+          ...tipped,
+          point: Vector3.lerp(tipped.point, nearGoal.point, eased),
+          bend: Vector3.lerp(tipped.bend, nearGoal.bend, eased),
+          rotation: Quaternion.slerp(
+            tipped.rotation ?? nearGoal.rotation,
+            nearGoal.rotation,
+            eased,
+          ),
+        };
+        const toe = `${side}Toes` as const;
+        const to = seatedKey?.posture.joints[toe];
+        if (to !== undefined) {
+          const from = frame.joints[toe] ?? [0, 0, 0];
+          toes[toe] = [
+            from[0] + (to[0] - from[0]) * eased,
+            from[1] + (to[1] - from[1]) * eased,
+            from[2] + (to[2] - from[2]) * eased,
+          ];
+        }
+      } else limbs[limb] = tipped;
     }
     return { ...frame, joints: { ...frame.joints, ...toes }, limbs };
   };
@@ -447,6 +650,8 @@ export function HumanMountOnPlan(
     duration,
     contacts,
   );
+  const materialReader: IAutoMovieMotionHumanPropReader | undefined =
+    material === undefined ? undefined : context.prop(material.subject);
   const placed = (
     t: number,
     without?: AutoMovieHumanSide,
@@ -464,7 +669,13 @@ export function HumanMountOnPlan(
       freeCrossing(t) ? push : undefined,
     );
     const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[far];
-    if (t === landing && seed !== undefined && seed !== null && goal !== undefined)
+    if (
+      seatedKey === undefined &&
+      t === landing &&
+      seed !== undefined &&
+      seed !== null &&
+      goal !== undefined
+    )
       posture.limbs[far] = { ...goal, seed };
     return posture;
   };
@@ -479,11 +690,52 @@ export function HumanMountOnPlan(
     body,
     posture: support,
     span: { start: 0, end: duration },
-    instants: [commit, touch, climb, ...(crossingSwing ?? [])],
+    instants: [
+      commit,
+      touch,
+      climb,
+      ...flight.left,
+      ...flight.right,
+      ...(crossingSwing ?? []),
+    ],
     entry: context.entry.pose,
   });
+  const localHeld: IAutoMovieRigidTransform | undefined =
+    seatedKey === undefined || material === undefined
+      ? undefined
+      : HumanPropFrame.relative(material.seat.frame, {
+          position: seatedKey.posture.root,
+          rotation: humanPostureHeading(seatedKey.posture),
+        });
+  const held =
+    seatedKey === undefined
+      ? undefined
+      : {
+          ...seatedKey.posture,
+          limbs: {
+            leftLeg: seatedKey.feet.left,
+            rightLeg: seatedKey.feet.right,
+          },
+        };
+  const settledAt = (t: number): IAutoMovieMotionHumanPosture => {
+    const posture = carry(held!, t);
+    const site: IAutoMovieRigidTransform | undefined = materialReader?.site?.(
+      material!.seat.affordance.id,
+      context.start + t,
+    );
+    if (site === undefined || localHeld === undefined) return posture;
+    const carried: IAutoMovieRigidTransform = HumanPropFrame.compose(
+      site,
+      localHeld,
+    );
+    return {
+      ...posture,
+      root: carried.position,
+      ...humanPostureHeading.angles(carried.rotation),
+    };
+  };
   const supported = (t: number): IAutoMovieMotionHumanPosture =>
-    legs(support(t), t);
+    seatedKey !== undefined && t >= climb ? settledAt(t) : legs(support(t), t);
   const keys: HumanSwungLeg.IKeys | null =
     crossingSwing === null
       ? null
