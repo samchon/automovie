@@ -32,8 +32,12 @@ export function ArchetypePendulumFrequency(
   const weight: number = body.mass * AutoMovieGravity.STANDARD;
   const numerator: number = weight * body.arm;
   const squared: number = numerator / body.moment;
+  // The square can overflow even when the frequency itself is representable.
   const omega: number =
-    weight >= 2 ** -1022 && numerator >= 2 ** -1022 && squared >= 2 ** -1022
+    weight >= 2 ** -1022 &&
+    numerator >= 2 ** -1022 &&
+    squared >= 2 ** -1022 &&
+    squared !== Infinity
       ? Math.sqrt(squared)
       : Math.exp(
           (Math.log(body.mass) +
@@ -42,7 +46,7 @@ export function ArchetypePendulumFrequency(
             Math.log(body.moment)) /
             2,
         );
-  if (!(omega > 0))
+  if (!(omega > 0) || omega === Infinity)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,

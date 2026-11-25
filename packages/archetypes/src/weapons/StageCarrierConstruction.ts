@@ -54,12 +54,14 @@ export function StageCarrierConstruction(
   // The slots a quiver holds, from one to the most its source holds.
   const slotted: createHolster.ISlots | undefined = createHolster.SLOTS[kind];
   const capacity: number | undefined = slotted?.capacity;
-  const slots: number =
-    slotted === undefined ? 0 : (params.slots ?? slotted.slots);
-  if (
-    params.slots !== undefined &&
-    (capacity === undefined || params.slots < 1 || params.slots > capacity)
-  )
+  const slots: number | undefined =
+    params.slots === undefined
+      ? (slotted?.slots ?? 0)
+      : Array.from(
+          { length: capacity ?? 0 },
+          (_: unknown, index: number): number => index + 1,
+        ).find((count: number): boolean => count === params.slots);
+  if (slots === undefined)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "holster",

@@ -88,17 +88,21 @@ export function createSeat(
     createSeat.KINDS,
   );
   const shared: boolean = kind === "bench" || kind === "sofa";
-  const places: number = params.places ?? (shared ? 2 : 1);
-  if (places < 1 || places > (shared ? 4 : 1))
+  const layouts: readonly number[] = shared ? [1, 2, 3, 4] : [1];
+  const requested: number = params.places ?? (shared ? 2 : 1);
+  const places: number | undefined = layouts.find(
+    (count: number): boolean => count === requested,
+  );
+  if (places === undefined)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "seat",
       axis: "places",
-      value: places,
+      value: requested,
       feasible: {
         kind: "range",
         minimum: 1,
-        maximum: shared ? 4 : 1,
+        maximum: layouts.at(-1)!,
         unit: "",
       },
       reason: `a ${kind} seats ${shared ? "one to four" : "one"}`,

@@ -28,7 +28,7 @@ export namespace ArchetypeTrackTime {
         fix: "give a positive finite duration in seconds",
       });
     const result: number = start + seconds;
-    if (!(result > start))
+    if (!(result > start) || result === Infinity)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,

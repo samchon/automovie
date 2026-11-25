@@ -189,7 +189,7 @@ export namespace AutoMovieArchetypeFracture {
         return value;
       });
       const mass: number = ArchetypeMassArithmetic.sum(masses);
-      if (!(mass > 0))
+      if (!(mass > 0) || mass === Infinity)
         throw massRefusal(
           rest.archetype,
           mass,
@@ -265,7 +265,7 @@ export namespace AutoMovieArchetypeFracture {
     const total: number = ArchetypeMassArithmetic.sum(
       fragments.map((f: FragmentRecord): number => f.props.properties.mass),
     );
-    if (!(total > 0))
+    if (!(total > 0) || total === Infinity)
       throw massRefusal(
         rest.archetype,
         total,
@@ -277,6 +277,22 @@ export namespace AutoMovieArchetypeFracture {
       y: hit.momentum.y / total,
       z: hit.momentum.z / total,
     };
+    if (
+      Math.max(
+        Math.abs(velocity.x),
+        Math.abs(velocity.y),
+        Math.abs(velocity.z),
+      ) === Infinity
+    )
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: rest.archetype,
+        axis: "momentum",
+        value: hit.momentum,
+        feasible: null,
+        reason: "the departing mass cannot carry a representable velocity",
+        fix: "give a momentum whose velocity is representable for the departing mass",
+      });
 
     const energy: ReturnType<typeof ArchetypeFractureEnergy> =
       ArchetypeFractureEnergy(hit.energy, total, hit.momentum);

@@ -49,20 +49,25 @@ export function createStartingGate(
   createStartingGate.Affordance,
   createStartingGate.Dimension
 > {
-  const stalls: number = params.stalls ?? createStartingGate.STALLS;
-  if (!(stalls >= 1 && stalls <= createStartingGate.MOST_STALLS))
+  const requested: number = params.stalls ?? createStartingGate.STALLS;
+  const row: number[] = Array.from(
+    { length: Math.min(requested, createStartingGate.MOST_STALLS) },
+    (_: unknown, index: number): number => index,
+  );
+  const stalls: number = row.length;
+  if (stalls === 0 || stalls !== requested)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "startingGate",
       axis: "stalls",
-      value: stalls,
+      value: requested,
       feasible: {
         kind: "range",
         minimum: 1,
         maximum: createStartingGate.MOST_STALLS,
         unit: "",
       },
-      reason: `a gate of ${stalls} stalls is not a whole number from 1 to ${createStartingGate.MOST_STALLS}`,
+      reason: `a gate of ${requested} stalls is not a whole number from 1 to ${createStartingGate.MOST_STALLS}`,
       fix: "give a whole number of stalls a racing gate carries",
     });
   const draw: AutoMovieArchetypeDrawSession<createStartingGate.Dimension> =
@@ -123,7 +128,7 @@ export function createStartingGate(
   }
 
   // Each stall: two front leaves hinged at its partitions, a rear door and its floor.
-  for (let k: number = 0; k < stalls; ++k) {
+  for (const k of row) {
     const middle: number = (k + 0.5 - stalls / 2) * d.pitch;
     for (const [index, sign] of [
       [2 * k, -1],

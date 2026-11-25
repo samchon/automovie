@@ -12,7 +12,7 @@ export namespace ArchetypeMassRecord {
    * @throws {Error} Unless mass is finite and positive.
    */
   export function mass(value: number): void {
-    if (!(value > 0))
+    if (!(value > 0) || value === Infinity)
       throw new Error("Mass properties need a finite positive total mass");
   }
 
@@ -59,6 +59,13 @@ export namespace ArchetypeMassRecord {
         yz: ArchetypeMassArithmetic.sum(terms.yz),
       },
     };
+    if (
+      Object.values(result.inertia).some(
+        (moment: number): boolean => Math.abs(moment) === Infinity,
+      )
+    )
+      throw new Error("The complete inertia tensor is not representable");
+
     admit(result);
     return result;
   }

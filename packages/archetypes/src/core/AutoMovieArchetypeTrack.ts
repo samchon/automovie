@@ -414,6 +414,17 @@ export namespace AutoMovieArchetypeTrack {
           fix: "choose a passed travel and a clock that represents its crossing instant",
         });
       const launchRate: number = rate(atPhase);
+      if (Math.abs(launchRate) === Infinity)
+        throw new AutoMovieArchetypeRefusal({
+          kind: "parameter",
+          archetype: name,
+          axis: "launch",
+          value: requested,
+          feasible: null,
+          reason: "the crossing rate is not representable",
+          fix: "use a pendulum whose crossing rate is representable",
+        });
+
       launch = {
         seconds: ArchetypeTrackTime.instant(name, start, end, seconds, at),
         travel: requested,

@@ -42,6 +42,9 @@ export function ArchetypeTrackProfile(
 ): IProfile {
   const span: number = to - from;
   const magnitude: number = Math.abs(span);
+  if (magnitude === Infinity)
+    refuse("travel", span, "the endpoint difference is not representable");
+
   return { value, crossing };
 
   /** The positive remainder factor of the quintic, in [4,10] on its nearer half. */
@@ -123,6 +126,9 @@ export function ArchetypeTrackProfile(
         seconds,
         root * polynomial(root),
       );
+    if (Math.abs(rate) === Infinity)
+      refuse("launch", requested, "the crossing rate is not representable");
+
     return { offset, fromEnd, rate };
   }
 
