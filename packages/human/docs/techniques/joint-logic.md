@@ -30,10 +30,10 @@ The interface's construction types are the vocabulary every proposal below is wr
 | Shoulder | The trunk is clipped at a sagittal armscye plane; the arm's course leaves square to it and turns down at the shoulder; a `port` band spans from a chart loop (ellipse with shares) to a 24-phase rail curve on the arm, ribbons per column; a `diff` cutter family digs the slit under the arm |
 | Elbow, knee, ankle, ball of foot, interphalangeal joints | Turns of one family's `jointed` course (arm 65, 30, 10, 16 mm; leg 40, 62, 10 mm; digits 5 mm), with reliefs for the hollows |
 | Wrist | The arm family ends before the wrist and a `continue` band joins the hand family, which shares the arm's course centres with a wider knuckle turn |
-| Finger and toe rows | The hand's and the foot's open ends are `split` along nested seams whose knots are web depths read every 2 mm on the reference; bands land 3 mm into each digit; fork fairing over half to 0.7 of each seam's chord |
+| Finger and toe rows | Split the parent at the person's web guides. Join with the parent and protected digit jets. [Digital webs](rule-basis.md#digital-webs) |
 | Thumb | A capsule closed behind its first joint, `merge`d on the hand's side with a 0.5 mm blend and a 14 mm mesh fairing |
-| Crotch | A `split` of the trunk's bottom end along the median seam, knots read on the reference midline, fork fairing |
-| Nose | A `port` on the face with a 32-phase rail curve and four depth profiles read on the reference; each nostril a `diff` cutter |
+| Crotch | Split the last regular common trunk section along a median guide from the person's trunk and proximal thighs. [Pelvic branch](rule-basis.md#pelvic-branch) |
+| Nose | Locate the root from the person's facial landmarks. Each nostril cutter reads the same side of the original nose. [Head sources](head-pieces.md) |
 | Ear | A lens-layout plate `merge`d on the head, helix and antihelix tubes `merge`d on the plate, a concha `diff` cutter, each merge with a mesh fairing |
 | Breast | A `port` on the chest with a 1 mm rail and a fill at the fan point |
 
