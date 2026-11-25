@@ -13,6 +13,8 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    order, then stores matching samples and authored lattice metadata.
  * 2. An unfillable lattice refuses before any callback runs.
  * 3. A non-finite sample refuses at its authored cell and stops traversal.
+ * 4. A coarse world origin visits distinct rounded knots and stores their
+ *    corresponding callback values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the world coordinates, visit and storage order, metadata and refusal effects.
  * @evidence contracts/development/testing.md#behavioral-verification Reads exact metadata and samples from the owning builder and records its callback visits independently. Swapped indices, repeated sampling, invalid lattice metadata, or sampling past a refusal fails.
@@ -69,6 +71,23 @@ export function test_engine_space_world_heightfield(): void {
       field.height.samples.length === cells.length &&
       field.height.samples.every((value, at): boolean =>
         nclose(value, cells[at]![2], 0),
+      ),
+  );
+  const coarseOrigin: number = 2 ** 53;
+  const rounded: ReturnType<typeof worldHeightfield> = worldHeightfield({
+    ...input,
+    origin: { x: coarseOrigin, z: -6 },
+    spacing: { x: 3, z: 2 },
+    height: ({ x }): number => x - coarseOrigin,
+  });
+  // Nearest-even rounds the first step of 3 m to 4 m at this origin.
+  const offsets: readonly number[] = [0, 4, 6, 0, 4, 6];
+  TestValidator.predicate(
+    "each stored sample reflects the rounded world coordinate it was given",
+    rounded.height.kind === "heightfield" &&
+      rounded.height.samples.length === offsets.length &&
+      rounded.height.samples.every((sample, index): boolean =>
+        nclose(sample, offsets[index]!, 0),
       ),
   );
 

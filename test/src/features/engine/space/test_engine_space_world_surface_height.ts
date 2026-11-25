@@ -16,6 +16,8 @@ import { nclose } from "../../internal/predicates";
  * 1. An offset lattice interpolates on both axes and clamps at the edges.
  * 2. Constant, plane, and incomplete heightfield records return known heights.
  * 3. Ground selection retains declaration order, edges, corners and absence.
+ * 4. A rounded sample position reads its own height, and the intervals
+ *    on either side interpolate over their represented widths.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sampling, incomplete-corner and ground-selection contracts for resident surfaces.
  * @evidence contracts/development/testing.md#behavioral-verification Reads authored constant, plane and lattice rules through the world API, then checks ordered support, edge admission and null absence.
@@ -83,6 +85,23 @@ export function test_engine_space_world_surface_height(): void {
       samples: [-limit, limit, -limit, limit],
     },
   };
+  // The binary64 spacing at 2^53 m is two metres. A three-metre pitch
+  // rounds to opposite sides of its midpoint on the two offset axes.
+  const coarseOrigin: number = 2 ** 53;
+  const rounded: IAutoMovieWorldSurface = {
+    ...asymmetric,
+    id: "rounded-knots",
+    height: {
+      kind: "heightfield",
+      originX: coarseOrigin,
+      originZ: coarseOrigin + 2,
+      spacingX: 3,
+      spacingZ: 3,
+      columns: 3,
+      rows: 3,
+      samples: [0, 12, 24, 6, 18, 30, 16, 28, 40],
+    },
+  };
   const cases: readonly [
     IAutoMovieWorldSurface,
     readonly (readonly [number, number, number])[],
@@ -135,6 +154,15 @@ export function test_engine_space_world_surface_height(): void {
         [0, 0, -limit],
         [1, 0, limit],
         [0.5, 0.5, 0],
+      ],
+    ],
+    [
+      rounded,
+      [
+        [coarseOrigin + 4, coarseOrigin + 4, 18],
+        [coarseOrigin + 2, coarseOrigin + 2, 6],
+        [coarseOrigin, coarseOrigin + 6, 11],
+        [coarseOrigin + 8, coarseOrigin + 10, 40],
       ],
     ],
   ];

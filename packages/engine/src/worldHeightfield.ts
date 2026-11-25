@@ -6,7 +6,8 @@ import {
 /**
  * Bake a supplied height callback into a row-major terrain lattice.
  *
- * Each axis is prepared once, with distinct representable sample positions.
+ * Each axis is prepared once at origin + index × spacing, with distinct
+ * representable sample positions. The height reader uses those same knots.
  * The callback reads each Cartesian pair once, in increasing row and column
  * order, and every stored height supports interpolation.
  */

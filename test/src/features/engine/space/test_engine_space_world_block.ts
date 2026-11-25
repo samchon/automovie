@@ -11,6 +11,10 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  *
  * 1. Width, height and depth determine the model, center and all six bounds.
  * 2. Zero size, a NaN base, collapsed float geometry or invalid color refuses.
+ * 3. The box bounds agree with the translated shape even when its represented
+ *    center and top round. A center that lands on an exterior face or moves
+ *    the bottom beyond contact precision refuses.
+ * 4. A decimal base remains admissible when rounding moves it only one ulp.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the grounded box, linked material, model and node placement, exact bounds and each refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the builder directly and observes the primitive dimensions, linked material and node, translated center, all six bounds and separate refusals. Wrong size, center, binding or acceptance of an unrepresentable span fails.
@@ -54,6 +58,31 @@ export function test_engine_space_world_block(): void {
       vclose(block.bounds.min, { x: 6.5, y: 1, z: 5.5 }, 0) &&
       vclose(block.bounds.max, { x: 9.5, y: 5, z: 10.5 }, 0),
   );
+  const highBase: number = 2 ** 53;
+  const high: IAutoMovieWorldBlock = worldBlock({
+    ...input,
+    base: { ...input.base, y: highBase },
+    size: { ...input.size, y: 6 },
+  });
+  // A 3 m half-height puts the represented center at base + 4. Moving
+  // 3 m either way from there rounds to base and base + 8 respectively.
+  TestValidator.predicate(
+    "the upper envelope follows the actual high box translation",
+    nclose(high.node.transform.translation.y, highBase + 4, 0) &&
+      nclose(high.bounds.min.y, highBase, 0) &&
+      nclose(high.bounds.max.y, highBase + 8, 0),
+  );
+  const decimal: IAutoMovieWorldBlock = worldBlock({
+    ...input,
+    base: { ...input.base, y: 0.3 },
+    size: { ...input.size, y: 0.2 },
+  });
+  TestValidator.predicate(
+    "decimal rounding keeps the box grounded within contact precision",
+    nclose(decimal.node.transform.translation.y, 0.4, 0) &&
+      nclose(decimal.bounds.min.y, 0.3 + 2 ** -54, 0) &&
+      nclose(decimal.bounds.max.y, 0.5, 0),
+  );
 
   const invalid: readonly [Partial<IAutoMovieWorldBlock.IInput>, string][] = [
     [{ size: { x: 0, y: 4, z: 5 } }, "size.x must be positive"],
@@ -61,6 +90,14 @@ export function test_engine_space_world_block(): void {
     [
       { base: { x: 2 ** 54, y: 1, z: 8 }, size: { x: 1, y: 4, z: 5 } },
       "representable positive distance",
+    ],
+    [
+      { base: { ...input.base, y: highBase }, size: { ...input.size, y: 2 } },
+      "representable center",
+    ],
+    [
+      { base: { ...input.base, y: highBase + 2 }, size: { ...input.size, y: 6 } },
+      "bottom within",
     ],
     [{ color: "white" }, "color must be #RRGGBB"],
   ];

@@ -27,15 +27,17 @@ export const surfaceHeightAt: (
   if (rule.kind === "constant") return rule.value;
   if (rule.kind === "plane")
     return rule.originHeight + rule.slopeX * x + rule.slopeZ * z;
-  // Bilinear over the cell the point falls in. The lattice coordinate is
-  // clamped before the cell is chosen, so a query outside the grid reads its
-  // nearest edge instead of extrapolating relief nobody authored.
+  // Bilinear over the cell that contains the point's represented coordinates.
   const column: { index: number; fraction: number } = latticeCell(
-    (x - rule.originX) / rule.spacingX,
+    x,
+    rule.originX,
+    rule.spacingX,
     rule.columns,
   );
   const row: { index: number; fraction: number } = latticeCell(
-    (z - rule.originZ) / rule.spacingZ,
+    z,
+    rule.originZ,
+    rule.spacingZ,
     rule.rows,
   );
   const near: number = mix(
@@ -76,25 +78,58 @@ const anchoredHeightAt: (
 /**
  * Which cell of a lattice a coordinate falls in, and how far across it.
  *
- * The coordinate is clamped into the lattice first, so a point outside reads
- * the edge cell at fraction zero or one rather than an extrapolated one. A
- * lattice of a single line has no cell to cross and reads that line.
+ * Start from the nominal lattice coordinate. Compare the two candidate knots
+ * at the world positions the builder actually sampled, so a rounded location
+ * still returns its own height. Only search when the estimate misses its cell.
  */
-const latticeCell: (
-  coordinate: number,
+function latticeCell(
+  point: number,
+  origin: number,
+  spacing: number,
   count: number,
-) => { index: number; fraction: number } = (
-  coordinate: number,
-  count: number,
-): { index: number; fraction: number } => {
+): { index: number; fraction: number } {
+  const coordinate: number = (point - origin) / spacing;
   const last: number = Math.max(0, count - 2);
   const clamped: number = Math.min(
     Math.max(coordinate, 0),
     Math.max(0, count - 1),
   );
-  const index: number = Math.min(Math.floor(clamped), last);
-  return { index, fraction: clamped - index };
-};
+  const estimate: number = Math.min(Math.floor(clamped), last);
+  let index: number = estimate;
+  let from: number = origin + index * spacing;
+  let to: number = origin + (index + 1) * spacing;
+  if (!(count > 1 && from < to))
+    return { index, fraction: clamped - index };
+
+  if (point < from || point > to) {
+    if (index === 0 && point < from) return { index, fraction: 0 };
+    if (index === last && point > to) return { index, fraction: 1 };
+
+    let low: number = point < from ? 0 : index + 1;
+    let high: number = point < from ? index : count - 1;
+    while (high - low > 1) {
+      const middle: number = low + Math.floor((high - low) / 2);
+      if (origin + middle * spacing <= point) low = middle;
+      else high = middle;
+    }
+    index = low;
+    from = origin + low * spacing;
+    to = origin + high * spacing;
+  }
+  if (point <= from) return { index, fraction: 0 };
+  if (point >= to) return { index, fraction: 1 };
+
+  const width: number = to - from;
+  return {
+    index,
+    fraction:
+      index === estimate &&
+      width === spacing &&
+      from - origin === index * spacing
+        ? clamped - index
+        : (point - from) / width,
+  };
+}
 
 /**
  * One stored sample, with its indices clamped into the declared grid.

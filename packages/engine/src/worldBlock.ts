@@ -3,6 +3,7 @@ import {
   type IAutoMovieWorldBlock,
 } from "@automovie/interface";
 
+import { AUTOMOVIE_SUPPORT_TOLERANCE } from "./architecture/constants/AUTOMOVIE_SUPPORT_TOLERANCE";
 import { Transform } from "./math/Transform";
 import { srgbHexToLinearColor } from "./math/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "./productionRuntimeModelId";
@@ -10,7 +11,9 @@ import { productionRuntimeModelId } from "./productionRuntimeModelId";
 /**
  * Build a box model group, placed node and bounds from a grounded base and
  * size. Each span of the resulting world bounds must be positive and
- * representable at the block's placed coordinates.
+ * representable at the block's placed coordinates. Its Y center must also
+ * remain inside both vertical bounds. The computed bottom must stay within
+ * building contact precision of the authored base.
  */
 export const worldBlock: (
   input: IAutoMovieWorldBlock.IInput,
@@ -22,15 +25,17 @@ export const worldBlock: (
       throw new Error(
         `World block "${input.id}" size.${name} must be positive.`,
       );
+  const halfHeight: number = input.size.y / 2;
+  const centerY: number = input.base.y + halfHeight;
   const bounds: IAutoMovieWorldBlock["bounds"] = {
     min: {
       x: input.base.x - input.size.x / 2,
-      y: input.base.y,
+      y: centerY - halfHeight,
       z: input.base.z - input.size.z / 2,
     },
     max: {
       x: input.base.x + input.size.x / 2,
-      y: input.base.y + input.size.y,
+      y: centerY + halfHeight,
       z: input.base.z + input.size.z / 2,
     },
   };
@@ -41,6 +46,21 @@ export const worldBlock: (
         `World block "${input.id}" base must be finite and its bounds must span a representable positive distance on ${axis}.`,
       );
   }
+  if (
+    !(
+      input.base.y < centerY &&
+      centerY < input.base.y + input.size.y &&
+      bounds.min.y < centerY &&
+      centerY < bounds.max.y
+    )
+  )
+    throw new Error(
+      `World block "${input.id}" needs a representable center above its base and below its top.`,
+    );
+  if (Math.abs(bounds.min.y - input.base.y) > AUTOMOVIE_SUPPORT_TOLERANCE)
+    throw new Error(
+      `World block "${input.id}" cannot place its bottom within ${AUTOMOVIE_SUPPORT_TOLERANCE} m of its base.`,
+    );
   if (/^#[0-9a-f]{6}$/i.test(input.color) === false)
     throw new Error(`World block "${input.id}" color must be #RRGGBB.`);
   const model: IAutoMovieModel = {
@@ -91,7 +111,7 @@ export const worldBlock: (
       transform: Transform.of(
         {
           x: input.base.x,
-          y: input.base.y + input.size.y / 2,
+          y: centerY,
           z: input.base.z,
         },
         { x: 0, y: 0, z: 0, w: 1 },
