@@ -1,4 +1,3 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -10,7 +9,6 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -21,6 +19,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
+import { admitLeadReach } from "./admitLeadReach";
 import { humanRideGripTiming } from "./humanRideGripTiming";
 
 /** Fit and verify the displayed hand against one actual moving lead. */
@@ -180,33 +179,12 @@ function planHumanLeadHorse(
           read(),
           requested,
         ).get(wrist)!;
-        const effector: IAutoMovieVector3 =
-          hand.arm.contact === undefined
-            ? actual.worldPosition
-            : Vector3.add(
-                actual.worldPosition,
-                Quaternion.rotateVector(actual.worldRotation, hand.arm.contact),
-              );
-        const skin: IAutoMovieVector3 = Vector3.addScaled(
-          grip.point,
-          grip.normal,
-          grip.radius ?? 0,
-        );
-        const distance: number = Vector3.distance(effector, skin);
-        if (!(distance <= 0.01))
-          throw new HumanRefusal({
-            kind: "affordance",
-            axis: "leadReach",
-            value: distance,
-            feasible: {
-              kind: "range",
-              minimum: 0,
-              maximum: 0.01,
-              unit: "m",
-            },
-            reason: `the displayed ${side} hand misses ${on}.${point} by ${distance} m at film second ${film}`,
-            fix: "Stage the handler's path within reach of the lead frame.",
-          });
+        admitLeadReach(actual, hand.arm.contact, grip, {
+          side,
+          subject: on,
+          point,
+          film,
+        });
       }
       return shown;
     },
