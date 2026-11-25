@@ -3,6 +3,8 @@ import type {
   IAutoMovieSpatialQueryEntry,
 } from "@automovie/interface";
 
+import { AutoMovieSpatialCandidates } from "./AutoMovieSpatialCandidates";
+
 /**
  * Collect the hierarchy entries whose boxes can meet a subject box, ordered by
  * the first cell of an XYZ grid they share with the subject.
@@ -39,36 +41,14 @@ export function collectAutoMovieSpatialQueryCandidates<
 ): T[] {
   if (!(cell > 0))
     throw new Error("Spatial candidate ordering needs a positive cell width.");
-  const cellOf = (value: number): number => Math.floor(value / cell);
-  const coordinate: (value: number) => number =
-    population === "shared-cell" ? cellOf : (value: number): number => value;
-  const overlaps = (low: number[], high: number[]): boolean => {
-    for (let axis: number = 0; axis < 3; axis++)
-      if (
-        coordinate(high[axis]!) < coordinate(subject.low[axis]!) ||
-        coordinate(low[axis]!) > coordinate(subject.high[axis]!)
-      )
-        return false;
-    return true;
-  };
-  const candidates: T[] = [];
-  const pending: IAutoMovieMeshQueryHierarchy<T>[] = [hierarchy];
-  while (pending.length > 0) {
-    const node: IAutoMovieMeshQueryHierarchy<T> = pending.pop()!;
-    if (!overlaps(node.low, node.high)) continue;
-    if ("triangles" in node) {
-      for (const entry of node.triangles)
-        if (overlaps(entry.low, entry.high)) candidates.push(entry);
-    } else pending.push(node.left, node.right);
-  }
-  return candidates.sort((a: T, b: T): number => {
-    for (let axis: number = 0; axis < 3; axis++) {
-      const floor: number = cellOf(subject.low[axis]!);
-      const first: number = Math.max(floor, cellOf(a.low[axis]!));
-      const second: number = Math.max(floor, cellOf(b.low[axis]!));
-      if (first < second) return -1;
-      if (first > second) return 1;
-    }
-    return a.ordinal - b.ordinal;
-  });
+  const candidates: T[] = AutoMovieSpatialCandidates.read(
+    hierarchy,
+    subject,
+    population === "shared-cell"
+      ? (value: number): number => Math.floor(value / cell)
+      : undefined,
+  );
+  return candidates.sort((a: T, b: T): number =>
+    AutoMovieSpatialCandidates.compare(subject, cell, a, b),
+  );
 }

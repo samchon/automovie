@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMeshCrossingGeometry as Geometry } from "./AutoMovieMeshCrossingGeometry";
+import { AutoMovieSpatialCandidates } from "./AutoMovieSpatialCandidates";
 import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatialQueryCandidates";
 
 /**
@@ -54,7 +55,8 @@ export function createAutoMovieMeshCrossingQuery(
  */
 export namespace createAutoMovieMeshCrossingQuery {
   /**
-   * Report a mesh's strict crossings in the ordinary census order.
+   * Report a mesh's strict crossings in the ordinary census order. A pure
+   * per-triangle census compares the order of actual witnesses only.
    *
    * @param mesh Indexed or implicit triangles in metres.
    * @param options Witness multiplicity, interior tolerance and classification.
@@ -66,7 +68,7 @@ export namespace createAutoMovieMeshCrossingQuery {
   ): IAutoMovieMeshCrossing[] {
     const snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot =
       Geometry.prepare(mesh);
-    return prepareWalk(snapshot)(
+    return prepareWalk(snapshot, true)(
       (): IIndexed[] => snapshot.triangles,
       options,
       false,
@@ -110,7 +112,10 @@ function createQuery(
 }
 
 /** Prepare the target hierarchy's traversal independently of subject ownership. */
-function prepareWalk(snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot): Walk {
+function prepareWalk(
+  snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot,
+  self: boolean = false,
+): Walk {
   const theirs: IIndexed[] = snapshot.triangles;
   const hierarchy: IAutoMovieMeshQueryHierarchy<IIndexed> | undefined =
     snapshot.hierarchy;
@@ -144,14 +149,18 @@ function prepareWalk(snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot): Walk {
     if (ours.length === 0 || hierarchy === undefined) return [];
     const acceptTransverse: IAutoMovieMeshCrossingOptions["acceptTransversePoint"] =
       options?.acceptTransversePoint;
+    const rankWitnesses: boolean =
+      self && !allPairs && !stopAtFirst && acceptTransverse === undefined;
     const crossings: IAutoMovieMeshCrossing[] = [];
     for (const triangle of ours) {
-      const candidates: IIndexed[] = collectAutoMovieSpatialQueryCandidates(
-        hierarchy,
-        triangle,
-        cell,
-        "overlap",
-      );
+      const candidates: IIndexed[] = rankWitnesses
+        ? AutoMovieSpatialCandidates.read(hierarchy, triangle)
+        : collectAutoMovieSpatialQueryCandidates(
+            hierarchy,
+            triangle,
+            cell,
+            "overlap",
+          );
       let pierced: IIndexed | undefined;
       let flat: IIndexed | undefined;
       for (const candidate of candidates) {
@@ -182,8 +191,18 @@ function prepareWalk(snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot): Walk {
             });
             continue;
           }
-          pierced = candidate;
-          break;
+          if (
+            pierced === undefined ||
+            AutoMovieSpatialCandidates.compare(
+              triangle,
+              cell,
+              candidate,
+              pierced,
+            ) < 0
+          )
+            pierced = candidate;
+          if (!rankWitnesses) break;
+          continue;
         }
         if (allPairs || stopAtFirst) {
           if (sharePlaneAndOverlap(triangle.corners, candidate.corners)) {
@@ -202,8 +221,12 @@ function prepareWalk(snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot): Walk {
             });
           }
         } else if (
-          flat === undefined &&
-          sharePlaneAndOverlap(triangle.corners, candidate.corners)
+          pierced === undefined &&
+          (flat === undefined || rankWitnesses) &&
+          sharePlaneAndOverlap(triangle.corners, candidate.corners) &&
+          (flat === undefined ||
+            AutoMovieSpatialCandidates.compare(triangle, cell, candidate, flat) <
+              0)
         )
           flat = candidate;
       }

@@ -1,4 +1,6 @@
 import {
+  buildAutoMovieMeshQueryHierarchy,
+  collectAutoMovieSpatialQueryCandidates,
   createAutoMovieMeshCrossingQuery,
   measureAutoMovieMeshCrossings,
 } from "@automovie/engine";
@@ -9,6 +11,8 @@ import type {
   IAutoMovieMeshCrossingQuery,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 
 import { throwsError } from "../internal/throwsError";
 
@@ -76,14 +80,25 @@ function resident(): IAutoMovieMesh {
  *    census continues through both independently crossing subject faces.
  * 9. A self census of a plane and a blade preserves both directed crossing
  *    witnesses and the classifier's original triangle ordinals.
+ * 10. A self census with multiple tree leaves ranks actual witnesses by cell
+ *     and ordinal, keeps the direction of a nearly degenerate flat pair and
+ *     retains the ordered per-point classifier trace.
+ * 11. The public ordered collector distinguishes actual box overlap from the
+ *     shared-cell neighbourhood even when both use the same ranking.
+ * 12. An optional local assembly receipt supplies unchanged indexed geometry
+ *     for a timed self census and exact witness digest.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Executes the reusable callable, its boolean and the one-shot census, including a shared self snapshot. Checks authored ordinal/coplanar records, per-point classification, mutation ownership, current-query admission and clear/contact outcomes, catching stale target references, lost pairs and box-only true answers.
  * @evidence contracts/development/testing.md#independent-expectations Hand-authored vertical blades cross z=0 at two interior points; a small flat triangle lies strictly inside the reference triangle, thirteen blades share one ordering cell, and the contained triangle is strictly within the tetrahedron. These geometry-derived expectations are asserted before parity checks; they prove neither penetration depth nor continuous motion.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers default and all-pairs ordering, a self census with an asymmetric classifier, transverse preference, multiple hierarchy leaves, one rejected endpoint and all rejected witnesses, flat callback bypass, clear/touch/empty cases, resident and current mutation, containment, malformed buffers and tolerance bounds.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry calls portable public Engine queries and local authored mesh builders only. It uses the existing synchronous refusal helper and starts no process, browser, GPU, native build or benchmark.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A preceding flat witness loses to a later transverse witness in default).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 12 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A preceding flat witness loses to a later transverse witness in default).
  */
 export function test_geometry_mesh_crossing_query(): void {
+  const receipt: string | undefined = process.env.AUTOMOVIE_CROSSING_SNAPSHOT;
+  if (receipt !== undefined) snapshot(receipt);
+  selfWitnesses();
+  spatialPopulations();
   const target: IAutoMovieMesh = resident();
   const query: IAutoMovieMeshCrossingQuery =
     createAutoMovieMeshCrossingQuery(target);
@@ -379,5 +394,116 @@ export function test_geometry_mesh_crossing_query(): void {
         query({ ...plane, positions: [NaN, ...plane.positions.slice(1)] }),
       "finite complete triangle buffers",
     ),
+  );
+}
+
+/** Time the existing census on a previously emitted skin, without generation. */
+function snapshot(file: string): void {
+  const row: string | undefined = readFileSync(file, "utf8")
+    .split(/\r?\n/u)
+    .find((line): boolean => line.startsWith('{"assembly"'));
+  if (row === undefined) throw new Error("Expected an assembly capture row.");
+  const { positions, indices } = (JSON.parse(row) as {
+    assembly: { skin: { positions: number[]; indices: number[] } };
+  }).assembly.skin;
+  const surface: IAutoMovieMesh = {
+    positions,
+    indices,
+    normals: null,
+    uvs: null,
+    skin: null,
+  };
+  const started = performance.now();
+  const witnesses = measureAutoMovieMeshCrossings(surface, surface);
+  const milliseconds = performance.now() - started;
+  const digest = createHash("sha256")
+    .update(JSON.stringify(witnesses))
+    .digest("hex");
+  console.log(
+    JSON.stringify({
+      triangles: indices.length / 3,
+      witnesses: witnesses.length,
+      milliseconds,
+      digest,
+    }),
+  );
+}
+
+/** Force rank to differ from partition traversal and ordinal alone. */
+function selfWitnesses(): void {
+  const smallFlat: number[] = resident().positions.slice(0, 9);
+  const population: IAutoMovieMesh = mesh([
+    0, 0, 0, 10, 0, 0, 0, 10, 0,
+    ...smallFlat,
+    ...[4, 0.8, 0.2, 1.2, 3, 3.5, 4.5, 4.75, 5, 5.5, 6, 6.5, 7].flatMap(blade),
+  ]);
+  const ordered = createAutoMovieMeshCrossingQuery(population);
+  const expected: IAutoMovieMeshCrossing[] = ordered(population);
+  TestValidator.equals("first transverse in the nearest cell", expected[0], {
+    triangle: 0,
+    other: 3,
+    coplanar: false,
+  });
+  for (const options of [
+    undefined,
+    { allPairs: false },
+    { interiorTolerance: 0.01 },
+  ])
+    TestValidator.equals(
+      "per-subject ordered witnesses from one admitted self snapshot",
+      measureAutoMovieMeshCrossings(population, population, options),
+      ordered(population, options),
+    );
+  const classify = (visits: number[][]): IAutoMovieMeshCrossingOptions => ({
+    acceptTransversePoint(point, first, second): boolean {
+      visits.push([first, second, ...point]);
+      return point[0]! > 0.9;
+    },
+  });
+  const orderedVisits: number[][] = [];
+  const selfVisits: number[][] = [];
+  TestValidator.equals(
+    "classifier results retain the ordered witness preference",
+    measureAutoMovieMeshCrossings(population, population, classify(selfVisits)),
+    ordered(population, classify(orderedVisits)),
+  );
+  TestValidator.equals("classifier point order", selfVisits, orderedVisits);
+
+  const directional: IAutoMovieMesh = mesh([
+    ...plane.positions,
+    0.5, 0.5, 0, 0.5 + 1e-9, 0.5, 0, 0.5, 0.5 + 1e-9, 0,
+  ]);
+  TestValidator.equals(
+    "the first triangle's plane retains its own degeneracy threshold",
+    measureAutoMovieMeshCrossings(directional, directional),
+    [{ triangle: 0, other: 1, coplanar: true }],
+  );
+}
+
+/** A nearby box can share a cell without reaching the subject's closed box. */
+function spatialPopulations(): void {
+  const entry = (ordinal: number, from: number, to: number) => ({
+    ordinal,
+    low: [from, 0, 0],
+    high: [to, 0, 0],
+    centre: [(from + to) / 2, 0, 0],
+  });
+  const subject = entry(3, 1, 1.25);
+  const hierarchy = buildAutoMovieMeshQueryHierarchy([
+    entry(2, 1.5, 1.5),
+    entry(1, 1.25, 1.25),
+    entry(0, 0.25, 0.25),
+  ]);
+  TestValidator.equals(
+    "closed coordinate overlap",
+    collectAutoMovieSpatialQueryCandidates(hierarchy, subject, 1, "overlap")
+      .map(({ ordinal }) => ordinal),
+    [1],
+  );
+  TestValidator.equals(
+    "shared cell and original ordinal order",
+    collectAutoMovieSpatialQueryCandidates(hierarchy, subject, 1, "shared-cell")
+      .map(({ ordinal }) => ordinal),
+    [1, 2],
   );
 }
