@@ -69,14 +69,11 @@ export namespace AutoMovieHumanSkeleton {
 
   /**
    * Prepare one fixed body's joints, clinical axes and mm-to-metre scales once.
-   * The returned evaluator reuses the existing channel/clamp/FK code and owns
-   * joint arrays/maps, compiled canonical readers and one private local/world
-   * placement cache, optional exterior neck data and scales. Its optional project
-   * capability compiles requested bones and their ancestors for numerical trials,
-   * retaining all channel clamps while omitting rest/exterior snapshot copies. Each evaluation
-   * reads all current scalar values; identical applied local controls and parent
-   * placement reuse exact branch arithmetic. Public tuples/arrays are copied,
-   * so caller mutation and later evaluations cannot change earlier snapshots.
+   * The returned evaluator holds the body's joint axes, compiled channel readers,
+   * scales and any requested exterior data. Projection selects requested bones
+   * and their ancestors while preserving the same channel clamps. Each evaluation
+   * reads its own pose and computes its own local and world placements. Returned
+   * tuples and arrays are independent snapshots.
    * The calibration and input are not retained. Recreate when the body changes.
    * Exterior admission runs only when requested; ordinary skeleton generation does not depend on it. Foot courses are deeply frozen once and shared, rather than copied during every numerical FK evaluation.
    * @param params Fixed body input; each evaluation supplies its own public pose.
