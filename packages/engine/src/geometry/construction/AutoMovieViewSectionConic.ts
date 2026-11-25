@@ -179,9 +179,9 @@ export namespace AutoMovieViewSectionConic {
   ): string | null {
     if (section.conics.failure !== null) return section.conics.failure;
 
-    // A girth is a positive length; the quadrature reports one it could not
-    // admit as no length at all (`girth`).
-    if (!(section.girth > 0))
+    // Bare sections declare zero because the caller only prepared geometry.
+    // A measured section reports unreadable arclength as a nonfinite value.
+    if (!Number.isFinite(section.girth) || section.girth < 0)
       return "the actual native arclength has no admitted finite quadrature";
     const e: readonly number[] = section.box.extents;
     for (let q: number = 0; q < 4; q++)
@@ -190,10 +190,10 @@ export namespace AutoMovieViewSectionConic {
         const phi: number = start + (k * Math.PI) / 192;
         const [r, first, second]: IAutoMoviePolarSector.Jet =
           AutoMovieViewConic.radius(section.conics, phi);
-        if (!(r > 0))
+        if (![r, first, second].every(Number.isFinite) || !(r > 0))
           return `nonfinite/nonpositive radius jet ${[r, first, second]} at angle ${phi}`;
         const turn: number = r * r + 2 * first * first - r * second;
-        if (turn < -1e-12 * r * r)
+        if (!Number.isFinite(turn) || turn < -1e-12 * r * r)
           return `concave or unrepresentable at angle ${phi} (curvature numerator ${turn})`;
         const along: number = r * Math.cos(phi - start);
         const across: number = r * Math.sin(phi - start);
