@@ -16,7 +16,6 @@ jobs:
   test:
     name: test (shard ${{ matrix.shard }}/12)
     runs-on: ubuntu-latest
-    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
