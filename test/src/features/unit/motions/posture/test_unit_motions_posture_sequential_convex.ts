@@ -23,6 +23,12 @@ const STEP_ROUNDING: number = 12 * 3 * Number.EPSILON;
  *    0.25, so the box shrinks to 0.2; the step to 0.8 predicts 0.8 and improves
  *    by `1 − 0.8⁴ = 0.5904`, a ratio of 0.738, and is taken. One iteration then
  *    ends the solve at its limit.
+ * 3. Starting the exact constrained quadratic at zero with penalty one
+ *    gives the unconstrained penalized minimum at `x = 1/2`. TrajOpt's outer
+ *    penalty loop multiplies by ten and reaches `x = 1`; a single allowed
+ *    coefficient leaves `x = 1/2` and reports the penalty iteration limit.
+ *
+ * @see https://escholarship.org/content/qt6km506db/qt6km506db.pdf Schulman et al. 2014, §3, Algorithm 1.
  */
 export function test_unit_motions_posture_sequential_convex(): void {
   type IReading = IAutoMovieMotionHumanSequentialConvex.IEvaluation;
@@ -52,9 +58,10 @@ export function test_unit_motions_posture_sequential_convex(): void {
       solve: (
         box: number,
       ): IAutoMovieMotionHumanSequentialConvex.IStep<number> => {
-        // The model x² + c max(0, 1 − x) is minimised at 1 (c > 2): the step
-        // toward 1, inside the box.
-        const trial: number = x + clamp(1 - x, box);
+        // The derivative below the hinge is 2x − c. Its zero minimises the
+        // merit up to x = 1, where the derivative above the hinge is positive.
+        const minimum: number = Math.min(1, coefficient / 2);
+        const trial: number = x + clamp(minimum - x, box);
         return {
           trial,
           merit: trial * trial + coefficient * Math.max(0, 1 - trial),
@@ -121,5 +128,31 @@ export function test_unit_motions_posture_sequential_convex(): void {
       nclose(boxes[1]!, 0.2, STEP_ROUNDING) &&
       nclose(shrunk.x, 0.8, STEP_ROUNDING) &&
       shrunk.status === "scoIterationLimit",
+  );
+
+  const starts: IAutoMovieMotionHumanSequentialConvex.IParameters = {
+    ...HumanSequentialConvex.DEFAULTS,
+    meritErrorCoeff: 1,
+    trustBoxSize: 1,
+  };
+  const adjusted = HumanSequentialConvex.minimise(constrained, 0, starts);
+  const exhausted = HumanSequentialConvex.minimise(constrained, 0, {
+    ...starts,
+    maxMeritCoeffIncreases: 1,
+  });
+  TestValidator.equals(
+    "the penalty increases until the constraint is satisfied",
+    [
+      adjusted.status,
+      adjusted.coefficient,
+      adjusted.x,
+      adjusted.evaluation.greatest,
+    ],
+    ["converged", 10, 1, 0],
+  );
+  TestValidator.equals(
+    "one allowed coefficient ends at the infeasible penalized minimum",
+    [exhausted.status, exhausted.x, exhausted.evaluation.greatest],
+    ["penaltyIterationLimit", 1 / 2, 1 / 2],
   );
 }

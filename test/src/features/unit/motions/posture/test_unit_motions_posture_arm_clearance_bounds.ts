@@ -14,6 +14,9 @@ import { nclose } from "../../../internal/nclose";
 /** Four additions at the three-second scale cover the non-dyadic crossing. */
 const TIME_ROUNDING: number = 4 * 3 * Number.EPSILON;
 
+/** Sixteen rounded operations on unit-scale face normals and their weights. */
+const FACE_ROUNDING: number = 16 * Number.EPSILON;
+
 /**
  * An arm's clearance screens use every step's travel and a sphere covering
  * every corner of each obstacle part.
@@ -39,6 +42,12 @@ const TIME_ROUNDING: number = 4 * 3 * Number.EPSILON;
  * 6. A quarter-metre capsule's axis stays an eighth of a metre from a point.
  *    Its signed clearance is −1/8. An allowance of −3/8 must still locate
  *    the separating direction. A point on the axis has no core separation.
+ * 7. Inside a unit cube, the chord from (1/2, 1/8, 0) to (1/4, 5/8, 0)
+ *    minimizes the two active planes' maximum at (3/8, 3/8, 0). Their
+ *    slopes along the chord are −1/4 and 1/2. The stationarity condition for
+ *    this epigraph problem gives weights 2/3 and 1/3 on +X and +Y.
+ *
+ * @see https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf Boyd and Vandenberghe, §5.5.3, Eq. (5.49).
  */
 export function test_unit_motions_posture_arm_clearance_bounds(): void {
   const clock: Parameters<typeof HumanArmTrajectorySweepBound.chords>[0] = {
@@ -170,5 +179,38 @@ export function test_unit_motions_posture_arm_clearance_bounds(): void {
   TestValidator.predicate(
     "negative allowance still requires separation of the convex cores",
     separated(1 / 8) && !separated(0),
+  );
+
+  const sides: readonly number[] = [-1, 1];
+  const cube: Parameters<typeof HumanArmSweepGradient>[0] = {
+    pose: { position: start, rotation: identity },
+    shape: {
+      id: "cube",
+      material: "skin",
+      kind: "hull",
+      transform: { position: start, rotation: identity },
+      points: sides.flatMap((x: number): IAutoMovieVector3[] =>
+        sides.flatMap((y: number): IAutoMovieVector3[] =>
+          sides.map((z: number): IAutoMovieVector3 => ({ x, y, z })),
+        ),
+      ),
+    },
+  };
+  const covector: IAutoMovieVector3 = HumanArmSweepGradient(
+    cube,
+    {
+      distance: -5 / 8,
+      at: { x: 3 / 8, y: 3 / 8, z: 0 },
+      point: { x: 1, y: 3 / 8, z: 0 },
+      normal: { x: 1, y: 0, z: 0 },
+    },
+    { x: -1 / 4, y: 1 / 2, z: 0 },
+    1 / 2,
+  );
+  TestValidator.predicate(
+    "the two penetrating faces balance at the interior chord minimum",
+    nclose(covector.x, 2 / 3, FACE_ROUNDING) &&
+      nclose(covector.y, 1 / 3, FACE_ROUNDING) &&
+      covector.z === 0,
   );
 }
