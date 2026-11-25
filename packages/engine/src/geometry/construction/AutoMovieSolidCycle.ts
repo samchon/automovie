@@ -298,7 +298,8 @@ export namespace AutoMovieSolidCycle {
   export function prepare(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along">,
     period: number | undefined,
-  ): (u: number, v: number) => boolean {
+    phases?: readonly number[],
+  ): (u: number, v: number, column?: number) => boolean {
     const curve: ((v: number) => number) | undefined = cycle.along;
     const prepared: IPrepared =
       cycle.kind === "hole" || cycle.kind === "island"
@@ -320,8 +321,32 @@ export namespace AutoMovieSolidCycle {
                   ),
                 }),
           };
-    return (u: number, v: number): boolean =>
-      read(cycle, u, v, period, prepared);
+    const columns =
+      phases !== undefined && prepared.ends !== undefined && curve === undefined
+        ? windingColumns(cycle.chart, prepared.ends, period, phases)
+        : undefined;
+    return (u: number, v: number, column?: number): boolean =>
+      columns !== undefined && column !== undefined && phases![column] === v
+        ? windingKept(cycle.kind, u, columns[column]!)
+        : read(cycle, u, v, period, prepared);
+  }
+
+  /** Prepare the ray crossings of a straight-segment winding cycle at grid phases. */
+  function windingColumns(
+    chart: readonly [number, number][],
+    ends: readonly [number, number, number][],
+    period: number | undefined,
+    phases: readonly number[],
+  ): number[][] {
+    const p: number = period ?? 2 * Math.PI;
+    return phases.map((v) => {
+      const stations: number[] = [];
+      for (const [k, a] of chart.entries()) {
+        const x: number | undefined = windingCrossing(a, ends[k]!, v, p);
+        if (x !== undefined) stations.push(x);
+      }
+      return stations;
+    });
   }
 
   /** Cycle-invariant values; coordinates and kind are owned unchanged by the caller. */
@@ -436,43 +461,70 @@ export namespace AutoMovieSolidCycle {
     // the query's cover: shifting the query instead can round a negative
     // sub-ULP phase to the closing endpoint and lose both adjacent crossings.
     const p: number = period ?? 2 * Math.PI;
-    let count: number = 0;
+    let kept: boolean = false;
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = cycle.chart[k]!;
       const raw: [number, number] = cycle.chart[(k + 1) % n]!;
       const b: [number, number, number] =
         prepared === undefined ? windingEnd(a, raw, p) : prepared.ends![k]!;
-      const turn: number = b[2];
-      const end: number = b[1] + turn * p;
-      const reference: number = (a[1] + end) / 2;
-      let translation: number = 0;
-      let bv: number = end;
-      let w: number = v;
-      if (Number.isFinite(p) && p > 0) {
-        const image: number = -Math.round((reference - v) / p);
-        translation = image * p;
-        bv = b[1] + (turn + image) * p;
-      } else {
-        // Preserve the legacy invalid-period result; this branch admits no new source.
-        w = shift(v, reference, p);
-      }
-      const av: number = a[1] + translation;
-      if (av > w === bv > w) continue;
-
-      // The crossing's station: on the exact curve when the segment samples it, since a face beside this one may end on that curve
-      // itself (a port's band ends on the part's curved rail), and the chord between two vertices then stands off it by its sagitta,
-      // a strip that belonged to neither face (0.03 mm on f1's arm under its armpit band). Otherwise the chord, the source start
-      // coordinates keeping the original reached getter sequence.
-      const curve: ((v: number) => number) | undefined = cycle.along;
-      const x: number =
-        curve !== undefined && (prepared?.on?.[k] ?? on(curve, a, raw))
-          ? curve(w - translation)
-          : a[0] +
-            ((w - (a[1] + translation)) * (b[0] - a[0])) /
-              (bv - (a[1] + translation));
-      if (cycle.kind === "start" ? x <= u : x >= u) count++;
+      const x: number | undefined = windingCrossing(
+        a,
+        b,
+        v,
+        p,
+        cycle,
+        raw,
+        prepared?.on?.[k],
+      );
+      if (x !== undefined && (cycle.kind === "start" ? x <= u : x >= u))
+        kept = !kept;
     }
-    return count % 2 === 1;
+    return kept;
+  }
+
+  /** Read the crossing in the query's cover with the original endpoint ties. */
+  function windingCrossing(
+    a: [number, number],
+    b: [number, number, number],
+    v: number,
+    period: number,
+    source?: Pick<IAutoMovieSolidCycle.ICycle, "along">,
+    raw?: [number, number],
+    exact?: boolean,
+  ): number | undefined {
+    const turn: number = b[2];
+    const end: number = b[1] + turn * period;
+    const reference: number = (a[1] + end) / 2;
+    let translation: number = 0;
+    let bv: number = end;
+    let w: number = v;
+    if (Number.isFinite(period) && period > 0) {
+      const image: number = -Math.round((reference - v) / period);
+      translation = image * period;
+      bv = b[1] + (turn + image) * period;
+    } else w = shift(v, reference, period);
+    const av: number = a[1] + translation;
+    if (av > w === bv > w) return undefined;
+
+    // The adjoining face can end on the exact curve. Reading its chord
+    // instead leaves the sagitta between the two faces without an owner.
+    const curve: ((phase: number) => number) | undefined = source?.along;
+    return curve !== undefined && (exact ?? on(curve, a, raw!))
+      ? curve(w - translation)
+      : a[0] +
+          ((w - (a[1] + translation)) * (b[0] - a[0])) /
+            (bv - (a[1] + translation));
+  }
+
+  function windingKept(
+    kind: IAutoMovieSolidCycle.ICycle["kind"],
+    u: number,
+    crossings: readonly number[],
+  ): boolean {
+    let kept: boolean = false;
+    for (const x of crossings)
+      if (kind === "start" ? x <= u : x >= u) kept = !kept;
+    return kept;
   }
 
   /**

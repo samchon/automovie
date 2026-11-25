@@ -46,11 +46,20 @@ export namespace AutoMovieSolidMeshLoop {
    * Accessors, inherited entries and unsuitable data use the original live walk.
    * Eligibility inspection invokes no ordinary object's getters; proxies with
    * non-transparent reads or effectful descriptor traps are outside this premise.
+   * A grid can supply its phase range and pass the corresponding column at
+   * each query so every station shares the crossings of that phase.
    */
   export function prepare(
     loops: readonly IAutoMovieSolidMesh.ILoop[],
     period: number | undefined,
-  ): IAutoMovieSolidMeshLoop.Classifier {
+    phases?: readonly number[],
+  ): (
+    u: number,
+    v: number,
+    jet: IAutoMovieSolidSurface.IFirst,
+    margin: number,
+    column?: number,
+  ) => boolean {
     const raw: IAutoMovieSolidMeshLoop.Classifier = (
       u: number,
       v: number,
@@ -87,6 +96,7 @@ export namespace AutoMovieSolidMeshLoop {
       v: number,
       jet: IAutoMovieSolidSurface.IFirst,
       margin: number,
+      column?: number,
     ): boolean => {
       if (eager) return raw(u, v, jet, margin);
       let metric: IAutoMovieSolidSurface.IFirst | undefined;
@@ -99,13 +109,13 @@ export namespace AutoMovieSolidMeshLoop {
           state.chart = snapshot(state.input);
           state.checked = true;
           if (state.chart !== null)
-            state.side = AutoMovieSolidCycle.prepare(state.chart, period);
+            state.side = AutoMovieSolidCycle.prepare(state.chart, period, phases);
         }
         if (state.chart === null) {
           eager = true;
           return raw(u, v, jet, margin);
         }
-        if (!state.side!(u, v)) return false;
+        if (!state.side!(u, v, column)) return false;
         if (metric === undefined) {
           if (
             typeof u !== "number" ||
@@ -199,6 +209,7 @@ export namespace AutoMovieSolidMeshLoop {
     /** Existing kept-side predicate over that copy. */ side?: (
       u: number,
       v: number,
+      column?: number,
     ) => boolean;
     /** Metric segment differences, dx/dy per edge. */ deltas?: Float64Array;
     /** The copied chart's box: lowest and highest station, then the middle and half width of its unwrapped phases, NaN when they span half a period or more. */ box?: [

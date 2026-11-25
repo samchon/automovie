@@ -5,7 +5,6 @@ import type {
   IAutoMovieGridSolidMeshSample,
   IAutoMovieSolidMesh,
   IAutoMovieSolidMeshConstraints,
-  IAutoMovieSolidMeshLoop,
   IAutoMovieSolidMeshPlan,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
@@ -263,8 +262,7 @@ export function gridAutoMovieSolidMesh(
       ? [shear, scale]
       : [0, metric];
   };
-  const classify: IAutoMovieSolidMeshLoop.Classifier =
-    AutoMovieSolidMeshLoop.prepare(loops, period);
+  const classify = AutoMovieSolidMeshLoop.prepare(loops, period, phases);
   const du: number[] = stations.map((u: number, i: number): number =>
     Math.min(
       ...[stations[i - 1], stations[i + 1]]
@@ -296,6 +294,7 @@ export function gridAutoMovieSolidMesh(
             norm(jets[i]![j]!.u) * du[i]!,
             norm(jets[i]![j]!.v) * dv[j]!,
           ),
+        j,
       ),
     ),
   );

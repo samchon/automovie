@@ -254,6 +254,21 @@ export function test_construction_operator_trim_classification(): void {
                 );
       }
 
+  const phases = [-turn, -Number.MIN_VALUE, 0, Number.MIN_VALUE, 1, 1.5, 2, turn, 3 * turn];
+  for (const kind of ["start", "end"] as const)
+    for (const chart of [charts[0]!, turnback, charts[3]!]) {
+      const shape: Loop = loop(kind, chart);
+      const scalar = AutoMovieSolidMeshLoop.prepare([shape], turn);
+      const grid = AutoMovieSolidMeshLoop.prepare([shape], turn, phases);
+      for (const [column, v] of phases.entries())
+        for (const u of [-1, 0, 1, 2, 3.5, 5, 6])
+          for (const margin of [0, 0.25])
+            TestValidator.predicate(
+              "grid column " + [kind, chart.length, column, u, margin].join("/"),
+              grid(u, v, stretch, margin, column) === scalar(u, v, stretch, margin),
+            );
+    }
+
   const pair: Loop[] = [
     island,
     loop("hole", [

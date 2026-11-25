@@ -170,7 +170,7 @@ Returns a boolean and retains no input or scratch after the call.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Reuses only cycle-invariant centre/endpoints; the shared reader retains the existing parity comparisons.
+Reuses the cycle-invariant centre or endpoints. When a grid supplies its phases, a straight winding cycle intersects each ray once and reuses its station crossings for the whole column. The existing half-open tests and periodic cover arithmetic apply. [Haines, Point in Polygon Strategies](https://erich.realtimerendering.com/ptinpoly/)
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -182,11 +182,11 @@ Keeps the period fallback, Math.round ties and strict crossing tests; the existi
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the unchanged-input lifetime and the existing boundary-tie limitation.
+States the unchanged-input lifetime and the existing boundary-tie limitation. A grid query identifies its prepared phase by column index and the original phase value.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O(S) preparation and O(S) per query for S edges; cached endpoints avoid per-query tuple allocation.
+For S edges and P supplied phases, winding preparation takes O(SP) and retains the crossed stations. A grid query reads the crossings of its own phase. A scalar query takes O(S) after O(S) endpoint preparation.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -194,7 +194,7 @@ The caller keeps cycle kind/chart and period unchanged while using the reader; a
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The returned closure owns O(S) endpoint scratch, with no global cache; dropping the reader releases those references.
+The returned closure owns O(S) endpoint scratch and, for a phase range, one array per phase holding its crossed stations. Dropping the reader releases the arrays.
 
 # src/geometry/construction/AutoMovieSolidCycle.ts#AutoMovieSolidCycle.station
 
