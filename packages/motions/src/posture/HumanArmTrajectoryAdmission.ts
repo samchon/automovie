@@ -3,11 +3,11 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
  * The reading of an arms' trajectory as it is played back: the knots'
- * interpolant (`HumanArmRefine.hermite`, the one playback reads) placed at
- * every instant of the frame grid and read by the trajectory model's own
- * evaluation (`HumanArmTrajectoryModel.evaluate`) as the optimiser reads its
- * iterates: every motion term at every grid instant, with every site, allowance
- * and base of that instant, and the clearance at and between frame instants.
+ * interpolant (`HumanArmTrajectoryKnots.read`, the one playback reads) at every
+ * instant of the frame grid and read by the trajectory model's own evaluation
+ * (`HumanArmTrajectoryModel.evaluate`) as the optimiser reads its iterates:
+ * every motion term at every grid instant, with every site, allowance and base
+ * of that instant, and the clearance at and between frame instants.
  *
  * This entry validates an earlier plan's solution before reusing it.
  */

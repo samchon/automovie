@@ -10,7 +10,7 @@ import { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
 
 /**
  * One arm's reader of a trajectory's knots: the arm at any second, the knots'
- * C² quintic Hermite interpolant (`HumanArmRefine.hermite`) read back as
+ * C² quintic Hermite interpolant (`HumanArmTrajectoryKnots.positions`) as
  * clinical triples. It owns only the playback's inputs, so a returned reader
  * keeps none of the problem, the contexts or the readings it was solved with.
  *

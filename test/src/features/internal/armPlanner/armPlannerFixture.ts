@@ -93,25 +93,43 @@ export namespace armPlannerFixture {
       ...c,
       shapes: stored.shapes[c.shapes]!,
     });
+    const obstacles = (source: IStoredObstacles): RestoredObstacles => {
+      const others: IAutoMovieMotionHumanColliders.IPlaced[] =
+        source.others.map(collider);
+      const rests: IAutoMovieMotionHumanColliders.IPlaced[] | undefined =
+        source.rests?.map((item, i): IAutoMovieMotionHumanColliders.IPlaced => {
+          const borrowed: number | null | undefined =
+            source.restReferences?.[i];
+          return borrowed === undefined || borrowed === null
+            ? collider(item)
+            : others[borrowed]!;
+        });
+      return { others, ...(rests === undefined ? {} : { rests }) };
+    };
     const own = (
       b: IStoredArmBase,
     ): HumanArmTrajectory.IProblem["bases"][number] => {
-      const { others, rests, ...rest }: IStoredArmBase = b;
+      const { others, rests, restReferences, ...rest }: IStoredArmBase = b;
       return {
         ...rest,
-        others: others.map(collider),
-        ...(rests === undefined ? {} : { rests: rests.map(collider) }),
+        ...obstacles(b),
       };
     };
     const base = (
       b: IStoredBase,
     ): HumanArmTrajectory.IProblem["bases"][number] => {
-      const { pose, others, rests, arms, ...rest }: IStoredBase = b;
+      const {
+        pose,
+        others,
+        rests,
+        restReferences,
+        arms,
+        ...rest
+      }: IStoredBase = b;
       return {
         ...rest,
         pose: stored.poses[pose]!,
-        others: others.map(collider),
-        ...(rests === undefined ? {} : { rests: rests.map(collider) }),
+        ...obstacles(b),
         ...(arms === undefined ? {} : { arms: arms.map(own) }),
       };
     };
@@ -458,31 +476,41 @@ export namespace armPlannerFixture {
   }
 
   /** One arm's own reading of a base. */
-  export interface IStoredArmBase extends Omit<
-    HumanArmTrajectory.IProblem["bases"][number],
-    "others" | "rests"
-  > {
-    /** Its obstacles. */
-    others: IStoredCollider[];
-    /** Its rests. */
-    rests?: IStoredCollider[];
-  }
+  export interface IStoredArmBase
+    extends
+      Omit<HumanArmTrajectory.IProblem["bases"][number], "others" | "rests">,
+      IStoredObstacles {}
 
   /** A base, its pose and colliders by index. */
-  export interface IStoredBase extends Omit<
-    HumanArmTrajectory.IProblem["bases"][number],
-    "pose" | "others" | "rests" | "arms"
-  > {
+  export interface IStoredBase
+    extends
+      Omit<
+        HumanArmTrajectory.IProblem["bases"][number],
+        "pose" | "others" | "rests" | "arms"
+      >,
+      IStoredObstacles {
     /** Its pose's index in `IStored.poses`. */
     pose: number;
-    /** The other bodies' colliders within the reach envelope. */
-    others: IStoredCollider[];
-    /** The ones the hand rests on. */
-    rests?: IStoredCollider[];
     /** Each planned arm's own reading. */
     arms?: IStoredArmBase[];
   }
 }
+
+/** Packed obstacle placements and the rests that borrow those same objects. */
+interface IStoredObstacles {
+  /** The other bodies' colliders within the reach envelope. */
+  others: armPlannerFixture.IStoredCollider[];
+  /** The colliders the hand rests on. */
+  rests?: armPlannerFixture.IStoredCollider[];
+  /** An obstacle index for each shared rest, or null for an independent one. */
+  restReferences?: (number | null)[];
+}
+
+/** The hydrated obstacle placements and declared rests of one base. */
+type RestoredObstacles = Pick<
+  HumanArmTrajectory.IProblem["bases"][number],
+  "others" | "rests"
+>;
 
 /**
  * Integer numerators of the first two derivatives of the degree-five Lagrange

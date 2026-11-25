@@ -5,7 +5,6 @@ import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmSeedHold } from "./HumanArmSeedHold";
 import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
-import { HumanArmSeedTransition } from "./HumanArmSeedTransition";
 import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
@@ -13,8 +12,8 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * Hold poses solved by inverse kinematics, plus the initial path connecting
  * them. MoveIt's CHOMP adapter seeds its optimiser with a sampling planner
  * (`OptimizerAdapter::adaptAndPlan`, moveit/moveit, BSD-3-Clause,
- * 811328b1ba700f5d2dff69afc9737ac6cab66c9b). RRT-Connect reads valid poses at
- * their own times as in EXOTica's `TimeIndexedSamplingProblem::Update`.
+ * 811328b1ba700f5d2dff69afc9737ac6cab66c9b). RRT-Connect reads valid poses
+ * at their own times as in EXOTica's `TimeIndexedSamplingProblem::Update`.
  */
 export namespace HumanArmSeed {
   /** What the seed reads. */
@@ -30,15 +29,14 @@ export namespace HumanArmSeed {
   export type IHolds = ReadonlyMap<number, number[][]>;
 
   /**
-   * Solve at each hold knot where an arm has a site. Carry the preceding pose
-   * into the next solve, and reuse exact poses at existing knots during
+   * Solve at each hold knot where an arm has a site. Carry the preceding
+   * pose into the next solve, and reuse exact poses at existing knots during
    * refinement.
    *
    * @param problem The problem.
    * @param context Its context.
    * @param from A proposed course's coordinates at these knots, by arm.
    * @param fixed Hold poses already solved on a subset of these knots.
-   * @param fine The original frame grid for admissions to adjacent holds.
    * @returns The hold poses.
    * @throws {HumanRefusal} When a hold waypoint has no feasible pose.
    */
@@ -47,12 +45,8 @@ export namespace HumanArmSeed {
     context: M.IContext,
     from?: readonly (readonly (readonly number[])[])[],
     fixed?: IHolds,
-    fine?: M.IContext,
   ): IHolds {
     const out: Map<number, number[][]> = new Map(fixed);
-    const frames: Map<number, number> = new Map(
-      fine?.times.map((t: number, i: number): [number, number] => [t, i]),
-    );
     let previous: number[][] | undefined;
     for (let k: number = 1; k < context.n; ++k) {
       if (
@@ -69,57 +63,27 @@ export namespace HumanArmSeed {
       const proposed: readonly (readonly number[])[] | undefined = from?.map(
         (arm: readonly (readonly number[])[]): readonly number[] => arm[k]!,
       );
-      const settled: number[][] | undefined = out.get(seconds);
-      if (settled !== undefined) {
-        previous = settled;
-        continue;
-      }
-      const frame: number | undefined = frames.get(seconds);
-      const next: number[][] | undefined = out.get(context.times[k + 1]!);
-      const anchors: Parameters<typeof HumanArmSeedTransition>[2] =
-        frame === undefined
-          ? []
-          : [
-              ...(previous !== undefined &&
-              frames.get(context.times[k - 1]!) === frame - 1
-                ? [{ frame: frame - 1, pose: previous }]
-                : []),
-              ...(next !== undefined &&
-              frames.get(context.times[k + 1]!) === frame + 1
-                ? [{ frame: frame + 1, pose: next }]
-                : []),
-            ];
-      previous = HumanArmSeedHold(
-        problem,
-        context,
-        k,
-        previous,
-        proposed,
-        fine === undefined || frame === undefined
-          ? undefined
-          : HumanArmSeedTransition(fine, frame, anchors),
-      );
+      previous =
+        out.get(seconds) ??
+        HumanArmSeedHold(problem, context, k, previous, proposed);
       out.set(seconds, previous);
     }
     return out;
   }
 
   /**
-   * Build one seed through the fixed poses. Run the sampling planner once for
-   * each reach, return or gap that contains free knots.
+   * Build one seed through the fixed poses. Run the sampling planner once
+   * for each reach, return or gap that contains free knots.
    *
    * @param context The context on the seed's knots.
    * @param pinned The hold poses.
    * @param fine The context on the finer frame grid.
-   * @param laid The authored coordinates on these knots when a law supplies a
-   *   course. They seed a gap when the sampling planner cannot connect it.
    * @returns Each arm's coordinates at every knot.
    */
   export function seed(
     context: M.IContext,
     pinned: IHolds,
     fine: M.IContext,
-    laid?: readonly (readonly (readonly number[])[])[],
   ): number[][][] {
     const times: readonly number[] = context.times;
     const space: Space.ISpace = Space.sampler(context);
@@ -137,37 +101,20 @@ export namespace HumanArmSeed {
         const begin: number = times[back ? k : previous]!;
         const end: number = times[back ? previous : k]!;
         const start: number[][] = knots[previous]!;
-        const route: number[][] | null = back
+        const route: number[][] = back
           ? path(space, fine, destination, start, begin, end, true)
-          : path(
-              space,
-              fine,
-              start,
-              destination,
-              begin,
-              end,
-              held !== undefined,
-            );
+          : path(space, fine, start, destination, begin, end, held !== undefined);
         for (let j: number = previous + 1; j < k; ++j) {
-          if (route !== null) {
-            const share: number = (times[j]! - begin) / (end - begin);
-            knots[j] = Space.split(Space.at(route, share));
-          } else if (laid !== undefined) {
-            knots[j] = laid.map((arm, a) => M.ranged(context, a, arm[j]!));
-          } else {
-            const share: number =
-              (times[j]! - times[previous]!) / (times[k]! - times[previous]!);
-            knots[j] = start.map((arm, a) =>
-              HumanArmConnect.lerp(arm, destination[a]!, share),
-            );
-          }
+          const share: number = (times[j]! - begin) / (end - begin);
+          knots[j] = Space.split(Space.at(route, share));
         }
       }
       knots[k] = destination;
       previous = k;
     }
-    return context.rest.map((_: number[], a: number): number[][] =>
-      knots.map((pose: number[][]): number[] => [...pose[a]!]),
+    return context.rest.map(
+      (_: number[], a: number): number[][] =>
+        knots.map((pose: number[][]): number[] => [...pose[a]!]),
     );
   }
 
@@ -198,8 +145,8 @@ export namespace HumanArmSeed {
           context,
           k,
           undefined,
-          from.map(
-            (arm: readonly (readonly number[])[]): readonly number[] => arm[k]!,
+          from.map((arm: readonly (readonly number[])[]): readonly number[] =>
+            arm[k]!,
           ),
         );
     return undefined;
@@ -208,10 +155,9 @@ export namespace HumanArmSeed {
 
 /**
  * Search in joint space and time. A state approaching a hold uses the
- * allowances at that frame, with task points enforced at the goal itself. Where
- * no path is found, the law's own initialisation is carried on to TrajOpt,
- * whose initialisation is straight only without a known course (Schulman et al.
- * 2014, IJRR 33:1251, section VIII-A).
+ * allowances at that frame, with task points enforced at the goal itself.
+ * Where the sampler finds no path, TrajOpt's straight line is its initial
+ * iterate (Schulman et al. 2014, IJRR 33:1251, section VIII-A).
  */
 function path(
   space: Space.ISpace,
@@ -221,27 +167,29 @@ function path(
   begin: number,
   end: number,
   hold: boolean,
-): number[][] | null {
+): number[][] {
   const dims: number = from.length * G.DIMENSIONS;
   const start: number[] = [...from.flat(), 0];
   const goal: number[] = [...to.flat(), 1];
-  return HumanArmConnect.connect({
-    start,
-    goal,
-    low: space.low,
-    high: space.high,
-    discs: space.discs,
-    valid: (q: readonly number[]): boolean =>
-      M.invalid(
-        scene,
-        nearest(scene.times, begin + q[dims]! * (end - begin)),
-        Space.split(q.slice(0, dims)),
-        false,
-        hold && q[dims]! >= 1,
-      ).value <= M.TOLERANCE,
-    seconds: Math.abs(end - begin),
-    velocities: from.flatMap((): readonly number[] => RATES),
-  });
+  return (
+    HumanArmConnect.connect({
+      start,
+      goal,
+      low: space.low,
+      high: space.high,
+      discs: space.discs,
+      valid: (q: readonly number[]): boolean =>
+        M.invalid(
+          scene,
+          nearest(scene.times, begin + q[dims]! * (end - begin)),
+          Space.split(q.slice(0, dims)),
+          false,
+          hold && q[dims]! >= 1,
+        ).value <= M.TOLERANCE,
+      seconds: Math.abs(end - begin),
+      velocities: from.flatMap((): readonly number[] => RATES),
+    }) ?? [start, goal]
+  );
 }
 
 /** Find the nearest frame to a sample on the ascending frame grid. */

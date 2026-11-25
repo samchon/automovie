@@ -239,13 +239,7 @@ export namespace HumanArmTrajectoryStretch {
       );
       at = next;
       if (pinned !== undefined)
-        pinned = HumanArmSeed.holds(
-          at.problem,
-          at.context,
-          carried,
-          pinned,
-          grid.fine,
-        );
+        pinned = HumanArmSeed.holds(at.problem, at.context, carried, pinned);
       solved = HumanArmOptimiser.optimise(
         at.context,
         carried,

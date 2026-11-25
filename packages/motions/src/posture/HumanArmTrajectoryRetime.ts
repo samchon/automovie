@@ -19,10 +19,10 @@ import { HumanPathParameterization as TOPP } from "./HumanPathParameterization";
  * the path the course plays, its parameter the course's own seconds. The joints
  * stay within their velocity and acceleration limits, and each probe against
  * its base within the law's own pace (`M.IContext.speed`). The path's
- * derivatives at the gridpoints are those of the minimum-jerk path through the
- * course (`HumanMinimumJerkSpline`), the curve the course is played on. The
- * paper's premise is a fixed path: a retimed course is read again in full, so
- * whatever moves around it in time is read at the new instants.
+ * derivatives at the gridpoints are those of the bounded quintic path the
+ * course plays (`HumanArmTrajectoryKnots.bounded`). The paper's premise is a
+ * fixed path: a retimed course is read again in full, so whatever moves around
+ * it in time is read at the new instants.
  */
 export namespace HumanArmTrajectoryRetime {
   /**

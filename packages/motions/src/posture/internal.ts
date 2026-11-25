@@ -82,6 +82,7 @@ export * from "./HumanHandDirection";
 export * from "./HumanHandTarget";
 export * from "./humanLimbGoalWorld";
 export * from "./HumanArmSeedHold";
+export * from "./HumanArmWristShell";
 export * from "./HumanArmSiteStepFeasible";
 export * from "./HumanArmConnect";
 export * from "./HumanArmTrajectoryStep";

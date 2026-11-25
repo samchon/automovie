@@ -284,11 +284,9 @@ export function planHumanArmTrajectory(
     from.problem,
     from.context,
     earlier?.x ?? laid,
-    undefined,
-    fine,
   );
   const seed: number[][][] =
-    earlier?.x ?? HumanArmSeed.seed(from.context, pinned, fine, laid);
+    earlier?.x ?? HumanArmSeed.seed(from.context, pinned, fine);
   const solved: Stretch.ISolved = Stretch.optimise(
     whole,
     from,
