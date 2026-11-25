@@ -16,6 +16,7 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
   IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
@@ -150,6 +151,43 @@ export namespace HumanSwungLeg {
   }
 
   /**
+   * Prepare the three joint keys of a swing chosen by the law. Its release and
+   * landing keep the support course's fitted poses. Only the airborne middle
+   * fits the world goal independently, where there is no support to continue.
+   *
+   * @param body The performer.
+   * @param side The swinging leg.
+   * @param span The exact release and landing, action seconds.
+   * @param supported The law's prepared world goals at the two contacts.
+   * @param middle The law's airborne midpoint goal on the same clock.
+   * @returns The keys of the swing read by `at`.
+   */
+  export function anchored(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    [start, end]: Swing,
+    supported: (seconds: number) => IAutoMovieMotionHumanPosture,
+    middle: IAutoMovieMotionHumanPosture,
+  ): IKeys {
+    const limb: AutoMovieHumanLimb = `${side}Leg`;
+    const fitted = (posture: IAutoMovieMotionHumanPosture): Joints =>
+      angles(
+        side,
+        resolveHumanPosture(body, {
+          ...posture,
+          limbs: { [limb]: posture.limbs[limb] },
+        }),
+      );
+    return {
+      start,
+      end,
+      from: fitted(supported(start)),
+      apex: fitted(middle),
+      to: fitted(supported(end)),
+    };
+  }
+
+  /**
    * The keys of a swing whose world course leaves the leg's range. The swing is
    * fitted on the frame grid (`STEP`), its first frame cold and each later one
    * continuing the frame before, as a display continues a free leg; a frame
@@ -214,15 +252,7 @@ export namespace HumanSwungLeg {
           ),
         ),
       );
-      const out: Joints = {};
-      for (const joint of solved.pose.joints)
-        if (BONES[side].includes(joint.bone))
-          out[joint.bone] = [
-            joint.flexion ?? 0,
-            joint.abduction ?? 0,
-            joint.twist ?? 0,
-          ];
-      return out;
+      return angles(side, solved.pose);
     };
     const times: number[] = [];
     for (let t: number = swing[0]; t < swing[1]; t += STEP) times.push(t);
@@ -334,6 +364,19 @@ export namespace HumanSwungLeg {
       };
       out[bone] = [angle(0), angle(1), angle(2)];
     }
+    return out;
+  }
+
+  /** Read the leg's fitted joints in the clinical angle order of the keys. */
+  function angles(side: AutoMovieHumanSide, pose: IAutoMoviePose): Joints {
+    const out: Joints = {};
+    for (const joint of pose.joints)
+      if (BONES[side].includes(joint.bone))
+        out[joint.bone] = [
+          joint.flexion ?? 0,
+          joint.abduction ?? 0,
+          joint.twist ?? 0,
+        ];
     return out;
   }
 

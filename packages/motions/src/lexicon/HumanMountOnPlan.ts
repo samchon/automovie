@@ -29,7 +29,7 @@ import { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanMountTrack } from "./HumanMountTrack";
-import type { HumanSwungLeg } from "./HumanSwungLeg";
+import { HumanSwungLeg } from "./HumanSwungLeg";
 
 /** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
 type Frame = HumanMountOnFrame.Frame;
@@ -339,7 +339,10 @@ export function HumanMountOnPlan(
       ];
 
   // The body over the climb with its legs' goals, before the hands.
-  const lower = (t: number): IAutoMovieMotionHumanPosture => {
+  const lower = (
+    t: number,
+    without?: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanPosture => {
     const frame: Frame = frameAt(t);
     const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
       frame.root,
@@ -348,6 +351,7 @@ export function HumanMountOnPlan(
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     const toes: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const side of ["left", "right"] as const) {
+      if (side === without) continue;
       const limb: PlanLowerLimb = `${side}Leg`;
       if (stays[side]) {
         limbs[limb] = HumanMount.leg(body, side, places[side].foot, true);
@@ -405,6 +409,21 @@ export function HumanMountOnPlan(
     return { ...frame, joints: { ...frame.joints, ...toes }, limbs };
   };
 
+  const swingOf = (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {
+    const leaves: number = flight[side][0];
+    const lands: number = landsAt(side);
+    return !stays[side] && lands > leaves ? [leaves, lands] : null;
+  };
+  // An astride mount's far leg crosses the saddle unloaded after the floor
+  // push. Its hip can lose the connected swivel interval of a world ankle
+  // path during this crossing. Key the swing from its floor and stirrup poses.
+  const crossingSwing: HumanSwungLeg.Swing | null =
+    astride && onFloor[push] && places[push].rests ? swingOf(push) : null;
+  const freeCrossing = (t: number): boolean =>
+    crossingSwing !== null && t > crossingSwing[0] && t < crossingSwing[1];
+  const support = (t: number): IAutoMovieMotionHumanPosture =>
+    lower(t, freeCrossing(t) ? push : undefined);
+
   // Prepare the leg course and the palm geometry before laying the arms on
   // the displayed thighs.
   const palms: ReturnType<typeof prepareSeatedPalms> = prepareSeatedPalms(
@@ -413,11 +432,23 @@ export function HumanMountOnPlan(
   );
   const legs: courseHumanLegs.Seeded = courseHumanLegs({
     body,
-    posture: lower,
+    posture: support,
     span: { start: 0, end: duration },
-    instants: [commit, touch, climb],
+    instants: [commit, touch, climb, ...(crossingSwing ?? [])],
     entry: context.entry.pose,
   });
+  const supported = (t: number): IAutoMovieMotionHumanPosture =>
+    legs(support(t), t);
+  const keys: HumanSwungLeg.IKeys | null =
+    crossingSwing === null
+      ? null
+      : HumanSwungLeg.anchored(
+          body,
+          push,
+          crossingSwing,
+          supported,
+          lower((crossingSwing[0] + crossingSwing[1]) / 2, lead),
+        );
   const mounted: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
@@ -430,7 +461,19 @@ export function HumanMountOnPlan(
     base: { kind: "seated", seat },
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      return legs(lower(t), t);
+      const posture: IAutoMovieMotionHumanPosture = supported(t);
+      if (keys === null || !freeCrossing(t)) return posture;
+      return {
+        ...posture,
+        joints: {
+          ...posture.joints,
+          ...HumanSwungLeg.at(
+            body,
+            keys,
+            minimumJerk.share((t - keys.start) / (keys.end - keys.start)),
+          ),
+        },
+      };
     },
   };
 
@@ -442,13 +485,7 @@ export function HumanMountOnPlan(
     palms,
     climb,
     duration,
-    swing: (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {
-      if (stays[side]) return null;
-      const [leaves, arrives]: readonly [number, number] = flight[side];
-      const lands: number = places[side].rests
-        ? Math.min(arrives, bearing[side])
-        : arrives;
-      return lands > leaves ? [leaves, lands] : null;
-    },
+    swing: (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null =>
+      side === push && keys !== null ? null : swingOf(side),
   });
 }
