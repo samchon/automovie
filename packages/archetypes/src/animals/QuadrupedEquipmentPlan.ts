@@ -196,6 +196,20 @@ export class QuadrupedEquipmentPlan {
     clearance: number = 0,
   ): void {
     const half: number = hook.opening / 2 + hook.radius;
+    const bearing: IAutoMovieVector3 = { ...base, y: base.y + hook.radius };
+
+    // Budget the rise from the bearing before adding it to the ordinate.
+    // IEEE Std 754-2019 §7.4 defines overflow beyond the finite binary64 range.
+    const maximumDepth: number = Number.MAX_VALUE - Math.max(0, bearing.y);
+    if (!(hook.depth <= maximumDepth))
+      this.refuse(
+        id === "hitch" ? "yoke.hook.depth" : "pack.hook.depth",
+        hook.depth,
+        "the hook depth exceeds the remaining vertical range above its bearing",
+        "reduce the hook depth or lower its bearing surface",
+      );
+    const top: number = bearing.y + hook.depth;
+
     this.rod(
       `${name}-base`,
       hook.radius,
@@ -211,13 +225,12 @@ export class QuadrupedEquipmentPlan {
         { ...base, z: base.z + end * half },
         {
           ...base,
-          y: base.y + hook.radius + hook.depth,
+          y: top,
           z: base.z + end * half,
         },
         color,
         clearance,
       );
-    const bearing: IAutoMovieVector3 = { ...base, y: base.y + hook.radius };
     this.#contacts.push({
       id,
       kind: "hook",

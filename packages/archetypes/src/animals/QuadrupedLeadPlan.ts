@@ -25,6 +25,8 @@ export class QuadrupedLeadPlan {
   /** Authored lead radius and length, metres. */
   readonly #radius: number;
   readonly #length: number;
+  /** Lead diameter, metres, read as grip width from the rein affordance. */
+  readonly #aperture: number;
   /** Midpoint grasp of that same real lead. */
   readonly #frame: IAutoMovieTransform;
 
@@ -62,6 +64,21 @@ export class QuadrupedLeadPlan {
             "authored tack lengths must be positive and the collar must fit the actual neck",
           fix: "supply positive lengths and shorten the collar to fit its neck",
         });
+
+    // Doubling the radius shifts the binary exponent of the grip diameter.
+    // IEEE Std 754-2019 §§3.6, 7.4 give the finite range and overflow rule.
+    const maximumLeadRadius: number = Number.MAX_VALUE / 2;
+    if (tack.leadRadius > maximumLeadRadius)
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype,
+        axis: "collar.leadRadius",
+        value: tack.leadRadius,
+        feasible: null,
+        reason: "the lead diameter exceeds the representable grip aperture",
+        fix: "reduce the lead radius",
+      });
+
     const centre: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(rig.neck, rig.poll),
       0.5,
@@ -77,6 +94,7 @@ export class QuadrupedLeadPlan {
     this.#end = { ...this.#attached, x: this.#attached.x + tack.leadLength };
     this.#radius = tack.leadRadius;
     this.#length = tack.leadLength;
+    this.#aperture = 2 * tack.leadRadius;
     this.#frame = AutoMovieArchetypeFrame.facing(
       Vector3.scale(Vector3.add(this.#attached, this.#end), 0.5),
       Vector3.create(0, 1, 0),
@@ -106,7 +124,7 @@ export class QuadrupedLeadPlan {
         scale: { ...this.#frame.scale },
       },
       extent: null,
-      aperture: 2 * this.#radius,
+      aperture: this.#aperture,
       length: this.#length,
     });
   }
