@@ -1,11 +1,13 @@
 import type { AutoMovieMotionBound } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
+  HumanArmSweepGradient,
   HumanArmTrajectoryClusters,
   HumanArmTrajectorySweepBound,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { armTrajectoryReading } from "../../../internal/armTrajectoryReading";
 import { nclose } from "../../../internal/nclose";
 
 /** Four additions at the three-second scale cover the non-dyadic crossing. */
@@ -25,6 +27,10 @@ const TIME_ROUNDING: number = 4 * 3 * Number.EPSILON;
  *    sphere at the origin. A different part at x = 7 stays separate. A
  *    probe sphere centred at x = 1.08 with radius 0.05 enters the first
  *    part's nominal 0.05-m reach, whereas one at x = 1.12 stays outside.
+ * 4. A chord of length four has its closest point at three. The closest
+ *    normal apportions to the two endpoints by one quarter and three
+ *    quarters. A half-turn of the second endpoint reverses its local normal.
+ *    With a collapsed chord the normal stays entirely on the first point.
  */
 export function test_unit_motions_posture_arm_clearance_bounds(): void {
   const clock: Parameters<typeof HumanArmTrajectorySweepBound.chords>[0] = {
@@ -64,5 +70,40 @@ export function test_unit_motions_posture_arm_clearance_bounds(): void {
     "retain potentially close spheres and omit separated spheres",
     HumanArmTrajectoryClusters.reaches(clusters[0]!, { x: 1.08, y: 0, z: 0 }, 0.05) &&
       !HumanArmTrajectoryClusters.reaches(clusters[0]!, { x: 1.12, y: 0, z: 0 }, 0.05),
+  );
+
+  const start: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const centre: IAutoMovieVector3 = { x: 3, y: 2, z: 0 };
+  const normal: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const sphere: Parameters<typeof HumanArmSweepGradient.ends>[0] = {
+    pose: { position: centre, rotation: identity },
+    shape: armTrajectoryReading.sphere(1),
+  };
+  const witness: Parameters<typeof HumanArmSweepGradient.ends>[1] = {
+    start,
+    to: { x: 4, y: 0, z: 0 },
+    first: identity,
+    turn: { x: 1, y: 0, z: 0, w: 0 },
+    near: {
+      at: { x: 3, y: 0, z: 0 },
+      point: { x: 3, y: 1, z: 0 },
+      normal,
+      distance: 1,
+    },
+  };
+  TestValidator.equals(
+    "the closest-point gradient in the two endpoint frames",
+    HumanArmSweepGradient.ends(sphere, witness),
+    [{ x: 0, y: -1 / 4, z: 0 }, { x: 0, y: 3 / 4, z: 0 }],
+  );
+  TestValidator.equals(
+    "a collapsed chord reads only its first endpoint",
+    HumanArmSweepGradient.ends(sphere, {
+      ...witness,
+      start: witness.near.at,
+      to: witness.near.at,
+    }),
+    [normal, start],
   );
 }

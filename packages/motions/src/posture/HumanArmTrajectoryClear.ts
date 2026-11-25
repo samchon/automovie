@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmSweepGradient } from "./HumanArmSweepGradient";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
@@ -65,6 +66,112 @@ export namespace HumanArmTrajectoryClear {
    * shallower: TrajOpt's trust_expand_ratio, the arm optimiser's own.
    */
   export const EXPAND: number = 1.5;
+
+  /**
+   * Move the free poses of the obstructed release prefix together. At each
+   * pose and chord use its deepest pair. TrajOpt's swept gradient distributes
+   * a chord's change to both endpoints; the settled pose and the rejoin pose
+   * have no variables (Schulman et al. 2014, §4.2, equations 17–20).
+   *
+   * @param c The complete motion's prepared frame-grid context.
+   * @param x Each arm's course on that frame grid.
+   * @param at The course's clearance reading there.
+   * @param from The pinned start of the release.
+   * @param to The unchanged pose at the end of the prefix.
+   * @param region The largest coordinate change in the trust region.
+   * @returns Each arm's corrections at the free frames of the prefix.
+   */
+  export function prefix(
+    c: M.IContext,
+    x: readonly (readonly number[])[][],
+    at: M.IEvaluation,
+    from: number,
+    to: number,
+    region: number,
+  ): number[][][] {
+    const count: number = to - from - 1;
+    return c.free.map((free: number[], arm: number): number[][] => {
+      const first: number = from + 1;
+      const jac: J.IJacobian[][] = [];
+      jac[arm] = [];
+      for (let k: number = first; k < to; ++k)
+        jac[arm]![k] = J.waypoint(c, x, at, arm, k);
+      const rows: IOfArmRowsItem[] = [];
+      const row = (gain: number): IOfArmRowsItem => ({
+        gain,
+        coef: new Array<number>(count * free.length).fill(0),
+      });
+      const put = (
+        into: IOfArmRowsItem,
+        k: number,
+        coefficients: readonly number[],
+      ): void => {
+        const start: number = (k - first) * free.length;
+        coefficients.forEach((v: number, i: number): void => {
+          into.coef[start + i] = v;
+        });
+      };
+      for (let k: number = from; k < to; ++k) {
+        if (k > from) {
+          const local: IOfArmRowsItem | undefined = pointRows(
+            c,
+            at,
+            jac,
+            arm,
+            k,
+          ).reduce(
+            (best: IOfArmRowsItem | undefined, item: IOfArmRowsItem) =>
+              item.gain > (best?.gain ?? M.TOLERANCE) ? item : best,
+            undefined,
+          );
+          if (local !== undefined) {
+            const out: IOfArmRowsItem = row(local.gain);
+            put(out, k, local.coef);
+            rows.push(out);
+          }
+        }
+        let sweep: HumanArmTrajectorySweep.ISwept | undefined;
+        let short: number = M.TOLERANCE / 1000;
+        for (const item of at.swept[arm]![k]!) {
+          const over: number = item.lower - item.clear;
+          if (over <= short) continue;
+          short = over;
+          sweep = item;
+        }
+        if (sweep === undefined) continue;
+        const [start, end]: [IAutoMovieVector3, IAutoMovieVector3] =
+          HumanArmSweepGradient.ends(
+            c.frames[arm]![k]!.shapes[sweep.shape]!,
+            sweep,
+          );
+        const out: IOfArmRowsItem = row(1000 * short + M.TOLERANCE);
+        const move = (k: number, gradient: IAutoMovieVector3): void => {
+          if (k <= from || k >= to) return;
+          put(
+            out,
+            k,
+            jac[arm]![k]!.probe(sweep.probe).map(
+              (v: IAutoMovieVector3): number => Vector3.dot(v, gradient),
+            ),
+          );
+        };
+        move(sweep.from, start);
+        move(sweep.other, end);
+        rows.push(out);
+      }
+      const step: number[] | undefined = least(rows, region);
+      return Array.from(
+        { length: count },
+        (_: unknown, i: number): number[] => {
+          const out: number[] = new Array<number>(x[arm]![from]!.length).fill(0);
+          free.forEach((d: number, f: number): void => {
+            out[d] = step?.[i * free.length + f] ?? 0;
+          });
+          return out;
+        },
+      );
+    });
+  }
 
   /**
    * The detour of a transport's deepest waypoint, none where every pair of
@@ -175,12 +282,6 @@ export namespace HumanArmTrajectoryClear {
     const all: J.IJacobian[][] = [];
     all[arm] = [];
     all[arm]![waypoint] = jac;
-    const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
-      c.frames[arm]![waypoint]!;
-    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced =
-      at.placed[arm]![waypoint]!;
-    const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> =
-      at.pairs[arm]![waypoint]!;
     const rows: IOfArmRowsItem[] = [];
 
     // A sweep's row at its inner end: the shape's normal at that end of the
@@ -204,37 +305,7 @@ export namespace HumanArmTrajectoryClear {
         gain: deepest + M.TOLERANCE,
       });
     }
-    // A declared rest is drawn to its contact, not cleared of it.
-    for (const pair of pairs.deepest.values()) {
-      if (pair.rested || pair.short < -M.TOLERANCE) continue;
-      const g: IAutoMovieVector3 = S.normal(
-        frame,
-        pair.shape,
-        placed.probes[pair.probe]![0],
-      );
-      rows.push({
-        coef: jac
-          .probe(pair.probe)
-          .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
-        gain: pair.short + M.TOLERANCE,
-      });
-    }
-    for (const pair of pairs.embedded.values()) {
-      if (pair.rested || pair.short < -M.TOLERANCE) continue;
-      const p: IAutoMovieVector3 = frame.body[pair.corner]!.point;
-      const g: IAutoMovieVector3 = physicalShapeNormal(
-        pair.shape.pose,
-        pair.shape.shape,
-        p,
-        Vector3.normalize(Vector3.subtract(p, pair.shape.centre)),
-      );
-      rows.push({
-        coef: J.carried(at, all, arm, waypoint, pair.owner, p).map(
-          (v: IAutoMovieVector3): number => -Vector3.dot(v, g),
-        ),
-        gain: pair.short + M.TOLERANCE,
-      });
-    }
+    rows.push(...pointRows(c, at, all, arm, waypoint));
     const step: number[] | undefined = least(rows, region);
     if (step === undefined) return undefined;
     const delta: number[][] = x.map(
@@ -261,6 +332,53 @@ export namespace HumanArmTrajectoryClear {
     const u: number = share <= at ? share / at : (1 - share) / (1 - at);
     return u * u * (3 - 2 * u);
   }
+}
+
+/** Linearised forward and reverse clearances of a free arm pose. */
+function pointRows(
+  c: M.IContext,
+  at: M.IEvaluation,
+  jac: J.IJacobian[][],
+  arm: number,
+  k: number,
+): IOfArmRowsItem[] {
+  const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![k]!;
+  const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[arm]![k]!;
+  const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> =
+    at.pairs[arm]![k]!;
+  const rows: IOfArmRowsItem[] = [];
+  // A declared rest contributes to the contact objective.
+  for (const pair of pairs.deepest.values()) {
+    if (pair.rested || pair.short < -M.TOLERANCE) continue;
+    const g: IAutoMovieVector3 = S.normal(
+      frame,
+      pair.shape,
+      placed.probes[pair.probe]![0],
+    );
+    rows.push({
+      coef: jac[arm]![k]!
+        .probe(pair.probe)
+        .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+      gain: pair.short + M.TOLERANCE,
+    });
+  }
+  for (const pair of pairs.embedded.values()) {
+    if (pair.rested || pair.short < -M.TOLERANCE) continue;
+    const p: IAutoMovieVector3 = frame.body[pair.corner]!.point;
+    const g: IAutoMovieVector3 = physicalShapeNormal(
+      pair.shape.pose,
+      pair.shape.shape,
+      p,
+      Vector3.normalize(Vector3.subtract(p, pair.shape.centre)),
+    );
+    rows.push({
+      coef: J.carried(at, jac, arm, k, pair.owner, p).map(
+        (v: IAutoMovieVector3): number => -Vector3.dot(v, g),
+      ),
+      gain: pair.short + M.TOLERANCE,
+    });
+  }
+  return rows;
 }
 /** The record of `ILeastRow`'s site. */
 type ILeastRow = { coef: number[] };

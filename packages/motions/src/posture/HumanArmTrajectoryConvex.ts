@@ -180,13 +180,7 @@ export namespace HumanArmTrajectoryConvex {
         // frame step's, both its ends already in the shape's frame at this
         // waypoint, each end's gradient carried back by its own turn.
         for (const sweep of at.swept[a]![k] ?? []) {
-          const {
-            probe,
-            shape,
-            to: pb,
-            near,
-          }: HumanArmTrajectorySweep.ISwept = sweep;
-          const pa: IAutoMovieVector3 = sweep.start;
+          const { probe, shape }: HumanArmTrajectorySweep.ISwept = sweep;
           const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
             c.frames[a]![k]!;
           const start: number = sweep.from;
@@ -206,24 +200,8 @@ export namespace HumanArmTrajectoryConvex {
           // continuous-time gradient, Schulman et al. 2014, section IV-C).
           const s0: IAutoMovieMotionHumanArmGeometry.IShape =
             frame.shapes[shape]!;
-          const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
-          const u: number = Math.min(
-            1,
-            Math.max(
-              0,
-              Vector3.dot(Vector3.subtract(near.at, pa), span) /
-                Math.max(1e-12, Vector3.dot(span, span)),
-            ),
-          );
-          const g: IAutoMovieVector3 = HumanArmSweepGradient(s0, near, span, u);
-          const ga: IAutoMovieVector3 = Quaternion.rotateVector(
-            Quaternion.inverse(sweep.first),
-            Vector3.scale(g, 1 - u),
-          );
-          const gb: IAutoMovieVector3 = Quaternion.rotateVector(
-            Quaternion.inverse(sweep.turn),
-            Vector3.scale(g, u),
-          );
+          const [ga, gb]: [IAutoMovieVector3, IAutoMovieVector3] =
+            HumanArmSweepGradient.ends(s0, sweep);
           const s: ILinear = join(
             ...(inner(start)
               ? [along(a, start, jac[a]![start]!.probe(probe), ga)]
