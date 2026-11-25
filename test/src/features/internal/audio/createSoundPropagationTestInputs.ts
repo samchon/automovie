@@ -10,7 +10,8 @@ import type {
 import { shotContractFixture } from "../shotContractFixture";
 
 /**
- * Existing propagation inputs and partial planning carriers borrowed by portable sound units.
+ * Existing propagation inputs and partial planning carriers borrowed by
+ * portable sound units.
  */
 interface ISoundPropagationTestInputs {
   /** Declared identity string; this helper computes no content provenance. */
@@ -24,10 +25,16 @@ interface ISoundPropagationTestInputs {
     propagation?: IAutoMovieProductionSoundPlan["events"][number]["propagation"],
   ) => IAutoMovieProductionSoundPlan;
 
-  /** First stereo sample frame with a nonzero sample, or -1; no perceptual hearing threshold is modeled. */
+  /**
+   * First stereo sample frame with a nonzero sample, or -1; no perceptual
+   * hearing threshold is modeled.
+   */
   firstAudibleFrame: (pcm: Float32Array) => number;
 
-  /** Sum of adjacent left-channel sample differences, a comparison proxy rather than a spectral analysis. */
+  /**
+   * Sum of adjacent left-channel sample differences, a comparison proxy rather
+   * than a spectral analysis.
+   */
   adjacentEnergy: (pcm: Float32Array) => number;
 
   /** Fresh identity rotation/unit scale translated along the x axis in metres. */
@@ -39,20 +46,34 @@ interface ISoundPropagationTestInputs {
   /** Partial shot carrier exposing the existing contact event. */
   minimalContract: () => IAutoMovieShotContract;
 
-  /** Partial compiled carrier; returning it does not prove full compiled-source admission. */
+  /**
+   * Partial compiled carrier; returning it does not prove full compiled-source
+   * admission.
+   */
   minimalCompiled: () => IAutoMovieCompiledShotSource;
 }
 
 /**
- * Supply the existing propagation and sound-planning inputs without rendering a predicted answer.
+ * Supply the existing propagation and sound-planning inputs without rendering a
+ * predicted answer.
  *
- * Consumers run actual propagation, planning and PCM mixing; the returned functions only construct their existing mutable arrangements or observe resulting PCM.
+ * Consumers run actual propagation, planning and PCM mixing; the returned
+ * functions only construct their existing mutable arrangements or observe
+ * resulting PCM.
  *
- * Authored speed=100 m/s, gain coefficient=0.01, loss=1 dB/m and the frame/sample clocks support independent arithmetic in the units. The nonzero-frame search and adjacent-sample sum are observation carriers with no perceptual or full spectral guarantee.
+ * Authored speed=100 m/s, gain coefficient=0.01, loss=1 dB/m and the
+ * frame/sample clocks support independent arithmetic in the units. The
+ * nonzero-frame search and adjacent-sample sum are observation carriers with no
+ * perceptual or full spectral guarantee.
  *
- * Optional propagation and caller edits preserve zero-distance, carried/trimmed arrival, spectral twins, profile snapshots, moving endpoints, short dialogue and malformed-input cases. The asserted minimal timeline/contract/compiled shapes exercise planner fields rather than certify complete production records.
+ * Optional propagation and caller edits preserve zero-distance, carried/trimmed
+ * arrival, spectral twins, profile snapshots, moving endpoints, short dialogue
+ * and malformed-input cases. The asserted minimal timeline/contract/compiled
+ * shapes exercise planner fields rather than certify complete production
+ * records.
  *
- * Each call returns fresh mutable inputs and closures for portable units, with no retained cache, filesystem access, audio device, decoder or new host.
+ * Each call returns fresh mutable inputs and closures for portable units, with
+ * no retained cache, filesystem access, audio device, decoder or new host.
  */
 export const createSoundPropagationTestInputs: () => ISoundPropagationTestInputs =
   (): ISoundPropagationTestInputs => {

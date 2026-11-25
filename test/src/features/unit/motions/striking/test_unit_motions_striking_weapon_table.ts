@@ -24,7 +24,7 @@ export function test_unit_motions_striking_weapon_table(): void {
     "the seeds",
     kept(2).seeds === seeds &&
       kept(2).ends[0]!.x === 2 &&
-      Object.keys(none(1).seeds).length === 0 &&
       StrikingWeaponTable.STEP === 1 / 120,
   );
+  TestValidator.equals("no seeds", none(1).seeds, {});
 }

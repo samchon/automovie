@@ -15,10 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. hips → spine, radius 0.1, is valid with no finding.
- * 2. hips → leftFoot names a declared but unreachable bone at `to`.
- * 3. hips → head names a bone the skeleton lacks at `to`.
- * 4. hips → hips with radius 0 is refused at the capsule and at its radius.
+ * 1. Hips → spine, radius 0.1, is valid with no finding.
+ * 2. Hips → leftFoot names a declared but unreachable bone at `to`.
+ * 3. Hips → head names a bone the skeleton lacks at `to`.
+ * 4. Hips → hips with radius 0 is refused at the capsule and at its radius.
  */
 export function test_unit_engine_validation_validate_capsule(): void {
   const skeleton: ReadonlySet<AutoMovieHumanoidBone> = new Set([

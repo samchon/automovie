@@ -119,12 +119,7 @@ export function kickChainRead(
     reached,
     slip: slip(body, support, base, bones),
     residual,
-    status:
-      residual > KickForm.RESIDUAL
-        ? "short"
-        : flexion > KickForm.FLEXION[props.technique][1] + ROM_TOLERANCE
-          ? "jammed"
-          : "reached",
+    status: kickChainRead.status(residual, flexion, props.technique),
   };
 }
 
@@ -151,4 +146,30 @@ function slip(
     ),
     Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, offset)),
   );
+}
+
+/** Reading a solved kick chain back. */
+export namespace kickChainRead {
+  /**
+   * Whether a solved kick reached its target: short when its weapon misses by
+   * more than `KickForm.RESIDUAL`, jammed when its knee folds past the
+   * technique's greatest flexion beyond the joint tolerance, and reached
+   * otherwise.
+   *
+   * @param residual How far the weapon misses, metres.
+   * @param flexion The knee's flexion, degrees.
+   * @param technique The kick.
+   * @returns The status.
+   */
+  export function status(
+    residual: number,
+    flexion: number,
+    technique: KickChain.IProps["technique"],
+  ): KickChain.IFit["status"] {
+    return residual > KickForm.RESIDUAL
+      ? "short"
+      : flexion > KickForm.FLEXION[technique][1] + ROM_TOLERANCE
+        ? "jammed"
+        : "reached";
+  }
 }

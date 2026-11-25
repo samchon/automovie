@@ -12,7 +12,7 @@ import {
 } from "../core";
 import { ArchetypeCourseLegs } from "../core/ArchetypeCourseLegs";
 import { BoatOars } from "./BoatOars";
-import type { createBoat } from "./createBoat";
+import { createBoat } from "./createBoat";
 
 /** Complete rowboat state at a film second. */
 type Sample = AutoMovieArchetypeRide.ISample<
@@ -277,8 +277,15 @@ export namespace rowBoat {
           rotation: placement.rotation,
         };
       },
-      (id: string, seconds: number): IAutoMovieTransform =>
-        source.frame(id as createBoat.Affordance, clock(seconds)),
+      (id: string, seconds: number): IAutoMovieTransform => {
+        const affordance: createBoat.Affordance | undefined =
+          createBoat.AFFORDANCES.find(
+            (known: createBoat.Affordance): boolean => known === id,
+          );
+        if (affordance === undefined)
+          throw new RangeError(`A boat has no affordance "${id}".`);
+        return source.frame(affordance, clock(seconds));
+      },
       holds,
     );
   }

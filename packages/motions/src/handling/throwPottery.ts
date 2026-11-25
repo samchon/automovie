@@ -82,9 +82,7 @@ export const throwPottery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanT
     plan,
   };
 
-/**
- * Admit the wheel, then place both palms on the rising wall and drive it.
- */
+/** Admit the wheel, then place both palms on the rising wall and drive it. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,
 ): IAutoMovieMotionHumanActionPlan {

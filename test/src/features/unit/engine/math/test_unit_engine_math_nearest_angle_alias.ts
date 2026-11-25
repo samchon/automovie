@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. In [-90, 90]: 45 stays, 300 becomes -60.
- * 2. In [-400, 400], where 10 has three admitted aliases, 10 stays; 500 has
- *    140 and -220 admitted and takes 140, one turn away.
+ * 2. In [-400, 400], where 10 has three admitted aliases, 10 stays; 500 has 140
+ *    and -220 admitted and takes 140, one turn away.
  * 3. In [10, 20], which admits no alias of 200: -160 is 170 below the range and
  *    200 is 180 above it, so -160; 195 has -165 and 195 at 175 either way, and
  *    the tie goes below.

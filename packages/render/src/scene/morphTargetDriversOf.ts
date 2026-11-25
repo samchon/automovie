@@ -11,7 +11,9 @@ export const morphTargetDriversOf: (
   object: THREE.Object3D,
 ) => readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[] | null = (
   object: THREE.Object3D,
-): readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[] | null =>
-  (object.userData.automovieMorphTargetDrivers as
+): readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[] | null => {
+  const drivers:
     | readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[]
-    | undefined) ?? null;
+    | undefined = object.userData.automovieMorphTargetDrivers;
+  return drivers ?? null;
+};

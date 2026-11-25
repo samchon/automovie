@@ -45,13 +45,22 @@ export function createBoat(
     createBoat.KINDS,
   );
   // The selected producer validates its options from the saved parameter union.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createBoat.PRODUCERS[kind] as (
-    params: createBoat.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createBoat.Kind,
+      (
+        params: createBoat.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>
+    >
+  > = {
+    rowboat: (p, s) => createRowboat({ ...p, model: ArchetypeDraw.admit("boat", "model", p.model, ["thamesSkiff", "whitehallSkiff", "whitehall17"] as const) }, s),
+    canoe: (p, s) => createCanoe({ ...p, model: ArchetypeDraw.admit("boat", "model", p.model, ["prospector16", "discovery169", "spiritII", "minnesotaII"] as const) }, s),
+    launch: ({ model: _model, ...rest }, s) => createPullingBoat(rest, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createBoat}. */
@@ -256,6 +265,26 @@ export namespace createBoat {
     | "rightOar"
     | "leftHandle"
     | "rightHandle";
+
+  /** Every affordance id, for a caller that reads an id at run time. */
+  export const AFFORDANCES: readonly Affordance[] = [
+    "thwart0",
+    "thwart1",
+    "thwart2",
+    "thwart3",
+    "thwart4",
+    "sternSeat",
+    "floor",
+    "gunwale",
+    "bow",
+    "stern",
+    "leftOarlock",
+    "rightOarlock",
+    "leftOar",
+    "rightOar",
+    "leftHandle",
+    "rightHandle",
+  ];
 
   /**
    * The free dimensions, metres unless stated; a kind lacks those of the parts

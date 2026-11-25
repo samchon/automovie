@@ -67,13 +67,26 @@ export function createProjectile(
     params.kind,
     createProjectile.KINDS,
   );
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createProjectile.PRODUCERS[kind] as (
-    params: createProjectile.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createProjectile.Kind,
+      (
+        params: createProjectile.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension>
+    >
+  > = {
+    ball: ({ model: _model, ...rest }, s) => createStageBallProp(rest, s),
+    arrow: (p, s) => createStageShaftToken({ ...p, kind: "arrow", model: ArchetypeDraw.admit("projectile", "model", p.model, ["westminster", "az472", "nmm11461", "met33754"] as const) }, s),
+    bolt: (p, s) => createStageShaftToken({ ...p, kind: "bolt", model: ArchetypeDraw.admit("projectile", "model", p.model, ["westminster", "az472", "nmm11461", "met33754"] as const) }, s),
+    roundShot: (p, s) => createStageRoundProp({ ...p, model: ArchetypeDraw.admit("projectile", "model", p.model, ["sixPounder", "twelvePounder"] as const) }, s),
+    grenade: ({ model: _model, ...rest }, s) => createStageGrenadeProp(rest, s),
+    cartridge: ({ model: _model, ...rest }, s) => createStageCartridgeProp(rest, s),
+    stone: ({ model: _model, ...rest }, s) => createStageStoneProp(rest, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createProjectile}. */

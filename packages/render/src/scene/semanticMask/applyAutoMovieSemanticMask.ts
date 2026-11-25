@@ -223,9 +223,7 @@ export const applyAutoMovieSemanticMask: (props: {
         return;
       }
       const instanced: THREE.InstancedMesh = mesh;
-      const slots: number[] | undefined = instanced.userData.automovieSlots as
-        | number[]
-        | undefined;
+      const slots: number[] | undefined = instanced.userData.automovieSlots;
       if (slots === undefined || slots.length === 0) {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;

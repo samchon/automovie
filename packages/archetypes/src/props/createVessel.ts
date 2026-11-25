@@ -50,13 +50,24 @@ export function createVessel(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createVessel.PRODUCERS[kind] as (
-    params: createVessel.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createVessel.Kind,
+      (
+        params: createVessel.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>
+    >
+  > = {
+    bowl: (p, s) => createBowl({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["ikea365", "sunnyDay18", "sunnyDayCereal"] as const) }, s),
+    ashtray: (p, s) => createAshtray({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["nachtmann", "harris"] as const) }, s),
+    saucepan: ({ model: _model, ...rest }, s) => createCookingPot({ ...rest, kind: "saucepan" }, s),
+    stockpot: ({ model: _model, ...rest }, s) => createCookingPot({ ...rest, kind: "stockpot" }, s),
+    vase: ({ model: _model, ...rest }, s) => createVase(rest, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createVessel}. */

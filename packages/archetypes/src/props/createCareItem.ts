@@ -30,13 +30,25 @@ export function createCareItem(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createCareItem.PRODUCERS[kind] as (
-    params: createCareItem.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createCareItem.Kind,
+      (
+        params: createCareItem.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension>
+    >
+  > = {
+    tissue: ({ model: _model, ...rest }, s) => createTissue(rest, s),
+    comb: ({ model: _model, ...rest }, s) => createComb(rest, s),
+    toothbrush: ({ model: _model, ...rest }, s) => createToothbrush(rest, s),
+    tube: (p, s) => createSqueezeTube({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["alltub13_5", "alltub19", "alltub22", "alltub25", "alltub28", "alltub30", "alltub35", "alltub38", "alltub40", "alltub50"] as const) }, s),
+    razor: (p, s) => createShavingRazor({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["edwinJagger", "gilletteMach3"] as const) }, s),
+    lipstick: ({ model: _model, ...rest }, s) => createLipstick(rest, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Compatibility tables and types for saved grooming prop recipes. */

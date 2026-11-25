@@ -24,13 +24,21 @@ export function createKeyboard(
   );
 
   // The saved model union is wider than each producer's model table.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createKeyboard.PRODUCERS[kind] as (
-    params: createKeyboard.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createKeyboard.Kind,
+      (
+        params: createKeyboard.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension>
+    >
+  > = {
+    keyboard: (p, s) => createDesktopKeyboard({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["numericKeypad", "touchId"] as const) }, s),
+    laptop: (p, s) => createLaptop({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["air13", "air15"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Compatibility types and manufacturer records for the saved recipe. */

@@ -20,14 +20,10 @@ export class AutoMovieGeometryPhysicalVertices {
   public static read(
     geometry: THREE.BufferGeometry,
   ): IAutoMovieMesh["physicalVertices"] {
-    const raw: boolean = Object.hasOwn(
-      geometry.userData,
-      "automovieMeshPhysicalVertices",
-    );
-    const wire: boolean = Object.hasOwn(
-      geometry.userData,
-      "automoviePhysicalVertices",
-    );
+    const raw: boolean =
+      geometry.userData.automovieMeshPhysicalVertices !== undefined;
+    const wire: boolean =
+      geometry.userData.automoviePhysicalVertices !== undefined;
     const attribute: ReturnType<THREE.BufferGeometry["getAttribute"]> =
       geometry.getAttribute("_automovie_physical_source");
     if (!raw && !wire) {
@@ -104,7 +100,7 @@ export class AutoMovieGeometryPhysicalVertices {
     metadata: IAutoMovieMesh["physicalVertices"],
   ): void {
     if (
-      Object.hasOwn(geometry.userData, "automoviePhysicalVertices") ||
+      geometry.userData.automoviePhysicalVertices !== undefined ||
       geometry.getAttribute("_automovie_physical_source") !== undefined
     )
       throw new Error("Imported physical source metadata is readonly.");

@@ -27,13 +27,24 @@ export function createDevice(
   );
 
   // Saved model inputs are a wider union. The selected draw checks them with the selected kind's table.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createDevice.PRODUCERS[kind] as (
-    params: createDevice.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createDevice.Kind,
+      (
+        params: createDevice.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension>
+    >
+  > = {
+    phone: ({ model: _model, ...rest }, s) => createPhone(rest, s),
+    camera: (p, s) => createCamera({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["grIII", "x100vi"] as const) }, s),
+    remote: ({ model: _model, ...rest }, s) => createRemote(rest, s),
+    tablet: (p, s) => createTablet({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["wifi", "cellular"] as const) }, s),
+    walkieTalkie: (p, s) => createRadio({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["nimh1400", "liIon1600", "liIon2250", "liIon2900"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /**

@@ -9,9 +9,9 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. A neutral expression at intensity 0.5 with one 0.5 jaw weight passes.
- * 2. Intensity 1.5, then a second jaw channel weighing 2: a range finding at
- *    the intensity, then at the second weight, then a type finding at the
- *    repeated channel.
+ * 2. Intensity 1.5, then a second jaw channel weighing 2: a range finding at the
+ *    intensity, then at the second weight, then a type finding at the repeated
+ *    channel.
  */
 export function test_unit_engine_validation_validate_expression(): void {
   const findings = (intensity: number, weights: number[]): string[][] =>

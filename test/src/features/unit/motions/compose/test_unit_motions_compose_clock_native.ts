@@ -1,0 +1,87 @@
+import { minimumJerk } from "@automovie/engine";
+import type { IAutoMovieMotionClock } from "@automovie/interface";
+import { AutoMovieMotionClock } from "@automovie/motions/internal";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../../internal/nclose";
+import { throwsError } from "../../../internal/throwsError";
+
+/** Rounding of a quintic, a share. */
+const ROUNDING: number = 1e-12;
+
+/**
+ * An action's clock: named instants over a positive duration, `start` at zero
+ * and `end` at the duration, each other name once and within the duration (one
+ * a rounding past the end held at it), the instants sorted by second; a
+ * window's linear share, its minimum-jerk progress, an envelope rising over one
+ * window and falling over another, never below zero, and the instants as events
+ * at their shares.
+ *
+ * Scenarios, a 4 s clock naming `b` at 3 s and `a` at 1 s:
+ *
+ * 1. The instants sorted, `start` and `end` at 0 and 4, the events at 0.25 and
+ *    0.75.
+ * 2. From `a` to `b` at 2 s: linear 0.5, progress s(0.5); before and after held.
+ * 3. Rising from `start` to `a` and falling from `a` to `b`: at 2 s, 1 − s(½).
+ * 4. A zero duration, a repeated name, `start` named again, an instant past the
+ *    end and an unknown name are refused; an instant a rounding past the end is
+ *    held at it.
+ */
+export function test_unit_motions_compose_clock_native(): void {
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
+    { name: "b", seconds: 3 },
+    { name: "a", seconds: 1 },
+  ]);
+
+  // 1. Instants and events.
+  TestValidator.equals(
+    "sorted instants and their shares",
+    [
+      clock.instants.map((i: { name: string }): string => i.name),
+      clock.at("start"),
+      clock.at("end"),
+      clock.events().map((e: { share: number }): number => e.share),
+    ],
+    [["a", "b"], 0, 4, [0.25, 0.75]],
+  );
+
+  // 2. Linear and progress.
+  TestValidator.predicate(
+    "a window's linear share and its minimum-jerk progress",
+    clock.linear("a", "b", 2) === 0.5 &&
+      nclose(clock.progress("a", "b", 2), minimumJerk.share(0.5), ROUNDING) &&
+      clock.linear("a", "b", 0) === 0 &&
+      clock.linear("a", "b", 4) === 1,
+  );
+
+  // 3. The envelope.
+  TestValidator.predicate(
+    "the envelope",
+    nclose(
+      clock.envelope(["start", "a"], ["a", "b"], 2),
+      1 - minimumJerk.share(0.5),
+      ROUNDING,
+    ) && clock.envelope(["a", "b"], ["start", "a"], 2) === 0,
+  );
+
+  // 4. Refusals.
+  TestValidator.predicate(
+    "invalid clocks and names are refused, a rounding past the end held",
+    throwsError((): unknown => AutoMovieMotionClock(0, [])) &&
+      throwsError((): unknown =>
+        AutoMovieMotionClock(4, [
+          { name: "a", seconds: 1 },
+          { name: "a", seconds: 2 },
+        ]),
+      ) &&
+      throwsError((): unknown =>
+        AutoMovieMotionClock(4, [{ name: "start", seconds: 1 }]),
+      ) &&
+      throwsError((): unknown =>
+        AutoMovieMotionClock(4, [{ name: "a", seconds: 5 }]),
+      ) &&
+      throwsError((): unknown => clock.at("c"), "no instant") &&
+      AutoMovieMotionClock(4, [{ name: "a", seconds: 4 + 1e-12 }]).at("a") ===
+        4,
+  );
+}

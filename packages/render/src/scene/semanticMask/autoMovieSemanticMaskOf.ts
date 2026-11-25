@@ -8,7 +8,8 @@ export const autoMovieSemanticMaskOf: (
   scene: THREE.Scene,
 ) => IAutoMovieSemanticMaskBinding | null = (
   scene: THREE.Scene,
-): IAutoMovieSemanticMaskBinding | null =>
-  (scene.userData[SCENE_MASK_KEY] as
-    | IAutoMovieSemanticMaskBinding
-    | undefined) ?? null;
+): IAutoMovieSemanticMaskBinding | null => {
+  const binding: IAutoMovieSemanticMaskBinding | undefined =
+    scene.userData[SCENE_MASK_KEY];
+  return binding ?? null;
+};

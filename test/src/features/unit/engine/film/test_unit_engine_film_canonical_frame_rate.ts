@@ -29,7 +29,10 @@ export function test_unit_engine_film_canonical_frame_rate(): void {
   );
   TestValidator.predicate(
     "nonpositive rates are refused",
-    throwsError(() => canonicalProductionFrameRate(0), "positive safe integer") &&
+    throwsError(
+      () => canonicalProductionFrameRate(0),
+      "positive safe integer",
+    ) &&
       throwsError(
         () => canonicalProductionFrameRate({ numerator: 24, denominator: 0 }),
         "positive safe-integer terms",

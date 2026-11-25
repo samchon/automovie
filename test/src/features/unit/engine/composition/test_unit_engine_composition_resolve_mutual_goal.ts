@@ -24,17 +24,17 @@ const SHOULDER: number = 1.5;
  *
  * Scenarios:
  *
- * 1. 1 m apart, the spheres meet on the circle at x = 0.5, radius
- *    sqrt(0.36 - 0.25) = sqrt(0.11); its lowest point is (0.5, 1.5 - sqrt(0.11),
- *    0), 0.6 m from each shoulder.
+ * 1. 1 m apart, the spheres meet on the circle at x = 0.5, radius sqrt(0.36 -
+ *    0.25) = sqrt(0.11); its lowest point is (0.5, 1.5 - sqrt(0.11), 0), 0.6 m
+ *    from each shoulder.
  * 2. 1.5 m apart, both reaches scale by 1.5 / 1.2 = 1.25 to 0.75 m, within the
  *    limit's 4/3, and the spheres touch at the midpoint (0.75, 1.5, 0).
  * 3. 2 m apart needs 5/3 > 4/3: refused, naming the 1.6 m the limits close.
  * 4. 1 m apart preferring 1.2 m: by symmetry the arms share at the midpoint, and
- *    1.2 m lies inside the band 1.5 ± sqrt(0.64 - 0.25), so the point is
- *    (0.5, 1.2, 0); preferring 0.5 m clamps to the band's floor.
- * 5. 2 m apart preferring 1.5 m: no point lies within both limits, refused at
- *    the 1.6 m the straight arms span.
+ *    1.2 m lies inside the band 1.5 ± sqrt(0.64 - 0.25), so the point is (0.5,
+ *    1.2, 0); preferring 0.5 m clamps to the band's floor.
+ * 5. 2 m apart preferring 1.5 m: no point lies within both limits, refused at the
+ *    1.6 m the straight arms span.
  * 6. A zero reach, a reach past the limit and coincident shoulders are refused.
  */
 export function test_unit_engine_composition_resolve_mutual_goal(): void {
@@ -47,7 +47,10 @@ export function test_unit_engine_composition_resolve_mutual_goal(): void {
     reach,
     limit,
   });
-  const goal = (gap: number, height?: number): IAutoMovieResolveMutualGoal.IGoal =>
+  const goal = (
+    gap: number,
+    height?: number,
+  ): IAutoMovieResolveMutualGoal.IGoal =>
     resolveAutoMovieMutualGoal({
       a: side(0),
       b: side(gap),

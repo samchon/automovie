@@ -56,13 +56,27 @@ export function createArmour(
     params.kind,
     createArmour.KINDS,
   );
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createArmour.PRODUCERS[kind] as (
-    params: createArmour.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createArmour.Kind,
+      (
+        params: createArmour.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>
+    >
+  > = {
+    openHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "openHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    closedHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "closedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    brimmedHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "brimmedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    cuirass: (p, s) => createCostumeCuirass({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22359", "met23084"] as const) }, s),
+    mail: (p, s) => createCostumeMail({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met34324", "met22415", "met633538", "met27635"] as const) }, s),
+    gauntlet: (p, s) => createCostumeGauntlet({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met23255", "met23256", "met23199"] as const) }, s),
+    vambrace: (p, s) => createCostumeVambrace({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met24896", "met35850"] as const) }, s),
+    greave: (p, s) => createCostumeGreave({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22970", "met22276"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** The plate thickness read. */

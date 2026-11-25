@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Stop at 0.4 s, sweep 0.75 to 1.5 s, release 1.75 s of 2 s, down: prepared
- *    at 0.2 s, crossings at 1 s and 1.25 s.
+ * 1. Stop at 0.4 s, sweep 0.75 to 1.5 s, release 1.75 s of 2 s, down: prepared at
+ *    0.2 s, crossings at 1 s and 1.25 s.
  * 2. A sweep that starts before the stop is refused on `stopAt`.
  * 3. A sweep one ulp wide has no distinct crossings: refused on `sweepStartAt`.
  */

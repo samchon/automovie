@@ -2,12 +2,11 @@ import type {
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionPropDrive,
 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
 
-import { standingPerformanceState } from "./standingPerformanceState";
+import { actingPerformanceState } from "./actingPerformanceState";
 import { testAffordance } from "./testAffordance";
 
 /**
@@ -40,28 +39,14 @@ export async function drivenDoorState(
     { affordances: [testAffordance("lid", "handle", { x: 0, y: 0.5, z: 0 })] },
     { at: { x: 2, y: 0, z: 0 }, yaw: 0 },
   );
-  const { state } = await standingPerformanceState([prop, box]);
-  const person: IAutoMovieMotionHumanSegment.IPerson =
-    state.people.get("actor")!;
-  const template: IAutoMovieMotionHumanSegment = person.segments[0]!;
-  const segments: IAutoMovieMotionHumanSegment[] = actions.map(
-    (action: drivenDoorState.IAction): IAutoMovieMotionHumanSegment => ({
-      ...template,
-      start: action.start,
-      entryTime: action.entryTime ?? action.start,
-      end: action.end,
-      plan: {
-        ...template.plan,
-        duration: action.duration,
-        drives: action.drives,
-      },
-    }),
-  );
-  const self: IAutoMovieMotionHumanPerformanceState = {
-    ...state,
-    people: new Map([["actor", { ...person, segments, overlays: [] }]]),
-    writers: new Map(),
-  };
+  const self: IAutoMovieMotionHumanPerformanceState =
+    await actingPerformanceState(
+      [prop, box],
+      actions.map((action: drivenDoorState.IAction) => ({
+        ...action,
+        plan: { drives: action.drives },
+      })),
+    );
   return { self, door: prop, box };
 }
 

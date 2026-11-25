@@ -55,7 +55,10 @@ export function test_unit_engine_math_prepare_linear_system(): void {
   ];
   TestValidator.equals(
     "dependent rows are singular",
-    [prepareLinearSystem(dependent), prepareLinearSystem.solve(dependent, [1, 2])],
+    [
+      prepareLinearSystem(dependent),
+      prepareLinearSystem.solve(dependent, [1, 2]),
+    ],
     [null, null],
   );
   TestValidator.equals(

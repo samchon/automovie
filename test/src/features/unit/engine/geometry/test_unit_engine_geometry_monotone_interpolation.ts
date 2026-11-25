@@ -22,7 +22,8 @@ import { throwsError } from "../../../internal/throwsError";
  * 3. A rise and fall 0, 1, 0 has slope 0 at its peak, and the curve never
  *    exceeds 1 or drops below 0 between knots.
  * 4. Between knots the curve is the cubic Hermite of the slopes: at 1.5 in case
- *    1 it is 0.5 + 0.1875 + 1.5 = 2.1875; outside it holds 0 and 3.
+ *    1 it is 0.5 + 0.1875 + 1.5 = 2.1875; outside it holds 0 and 3; linear data
+ *    on uneven knots 0, 2, 3 stays linear.
  * 5. Periodic knots 0, 1, 2 with values 0, 1, 2 and period 3 take the wrap
  *    secant -2 at knot 0 (slope 0 there) and repeat every 3.
  * 6. One knot is constant; no knot, a missing value, knots not increasing and a
@@ -55,6 +56,8 @@ export function test_unit_engine_geometry_monotone_interpolation(): void {
   // 4.
   const curve = interpolateAutoMovieMonotone({ knots: [0, 1, 2, 3], values: [0, 1, 3, 3] });
   TestValidator.predicate("hermite", near(curve(1.5), 2.1875));
+  const line = interpolateAutoMovieMonotone({ knots: [0, 2, 3], values: [0, 2, 3] });
+  TestValidator.predicate("uneven spacing", [0.5, 1, 1.5, 2.5].every((x: number): boolean => near(line(x), x)));
   TestValidator.equals("flat ends", [curve(-2), curve(7)], [0, 3]);
 
   // 5.

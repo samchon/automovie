@@ -15,10 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *    window's closed end, carrying 2 N s satisfies it: no finding.
  * 2. The same contact at 0.6 s is outside the window: "no measured contact".
  * 3. Two contacts of 0.25 and 0.5 N s: the strongest, 0.5 N s, is below 1 N s.
- * 4. An expectation naming no regions matches any region, and with no minimum a
- *    0 N s touch satisfies it.
- * 5. The expectation as forbidden reports the matching contact, while a contact
- *    on another region (`a.foot`) does not match it.
+ * 4. An expectation naming no regions matches any region, and with no minimum a 0
+ *    N s touch satisfies it.
+ * 5. The expectation as forbidden reports the matching contact, while a contact on
+ *    another region (`a.foot`) does not match it.
  */
 export function test_unit_engine_composition_audit_outcome(): void {
   const expectation: IAutoMovieAuditOutcome.IExpectation = {

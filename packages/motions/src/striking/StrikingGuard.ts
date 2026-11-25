@@ -103,39 +103,23 @@ export function StrikingGuard(
     //   ones they stood at 1.14 to 1.17 m and stopped every staged kick;
     // - neither glove is carried beyond `near`, or the two guards stand
     //   inside each other at the kick's range.
-    const near: number = 2 * m.forearmRadius + 0.25 * m.forearm;
     const ear: IAutoMovieVector3 = StrikingBody.region(
       body,
       bones,
       side === "left" ? "earLeft" : "earRight",
     ).point;
-    // A close boxing guard brings the gloves toward the jaw. Half a radius
-    // of clearance is a provisional visual choice in body-relative units.
-    const boxing: boolean = style === "boxing";
-    const leading: number = lead ? 1 - leadBlend : leadBlend;
-    const outsideEar: number =
-      boxing || leading < 1
-        ? Math.max(0, Vector3.dot(Vector3.subtract(ear, jaw.point), outward))
-        : 0;
-    const inFrontOfShoulder: number =
-      !boxing && leading > 0
-        ? Vector3.dot(Vector3.subtract(shoulder, jaw.point), outward)
-        : 0;
-    const beside: number = boxing
-      ? outsideEar + m.forearmRadius * (0.5 - leading)
-      : inFrontOfShoulder * leading +
-        (outsideEar + m.forearmRadius) * (1 - leading);
-    const fistAt: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
-        { ...jaw.point, y: boxing ? 0.5 * (ear.y + jaw.point.y) : ear.y },
-        Vector3.scale(outward, beside),
-      ),
-      Vector3.scale(forward, boxing ? near - 0.5 * m.forearmRadius : near),
-    );
-    const sag: IAutoMovieVector3 = {
-      ...fistAt,
-      y: fistAt.y - (drop[side] ?? 0),
-    };
+    const sag: IAutoMovieVector3 = StrikingGuard.fist({
+      jaw: jaw.point,
+      outward,
+      ear,
+      shoulder,
+      forward,
+      forearmRadius: m.forearmRadius,
+      forearm: m.forearm,
+      leading: lead ? 1 - leadBlend : leadBlend,
+      boxing: style === "boxing",
+      drop: drop[side] ?? 0,
+    });
     const bend: IAutoMovieVector3 = Vector3.add(
       shoulder,
       Vector3.add(
@@ -157,6 +141,81 @@ export function StrikingGuard(
  * The existing horizontal-normal convention, with +Z when horizontal length is
  * at most 1e-9.
  */
+/** Where a striking guard holds its fists. */
+export namespace StrikingGuard {
+  /** What a fist's place in the guard is read from. */
+  export interface IFist {
+    /** The jaw's point on this side, world metres. */
+    jaw: IAutoMovieVector3;
+
+    /** The jaw's horizontal outward, unit. */
+    outward: IAutoMovieVector3;
+
+    /** The ear's point on this side, world metres. */
+    ear: IAutoMovieVector3;
+
+    /** The shoulder, world metres. */
+    shoulder: IAutoMovieVector3;
+
+    /** The face's horizontal forward, unit. */
+    forward: IAutoMovieVector3;
+
+    /** The forearm's radius, metres. */
+    forearmRadius: number;
+
+    /** The forearm, metres. */
+    forearm: number;
+
+    /** How far this is the leading hand, 0 (rear) to 1 (lead). */
+    leading: number;
+
+    /** Whether the guard is a boxing guard. */
+    boxing: boolean;
+
+    /** How far the fist drops, metres. */
+    drop: number;
+  }
+
+  /**
+   * A guarding fist: a forearm's girth and a quarter forearm ahead of the jaw;
+   * a rear hand at ear height a forearm radius outside the ear, a lead hand in
+   * front of the shoulder, blended between; a boxing guard between jaw and ear
+   * height, half a radius nearer, hugging the ear more the more it leads; then
+   * dropped.
+   *
+   * @param at The face, the shoulder, the arm and the guard.
+   * @returns The fist, world metres.
+   */
+  export function fist(at: IFist): IAutoMovieVector3 {
+    const near: number = 2 * at.forearmRadius + 0.25 * at.forearm;
+    const outsideEar: number =
+      at.boxing || at.leading < 1
+        ? Math.max(0, Vector3.dot(Vector3.subtract(at.ear, at.jaw), at.outward))
+        : 0;
+    const inFrontOfShoulder: number =
+      !at.boxing && at.leading > 0
+        ? Vector3.dot(Vector3.subtract(at.shoulder, at.jaw), at.outward)
+        : 0;
+    const beside: number = at.boxing
+      ? outsideEar + at.forearmRadius * (0.5 - at.leading)
+      : inFrontOfShoulder * at.leading +
+        (outsideEar + at.forearmRadius) * (1 - at.leading);
+    const fistAt: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(
+        {
+          ...at.jaw,
+          y: at.boxing ? 0.5 * (at.ear.y + at.jaw.y) : at.ear.y,
+        },
+        Vector3.scale(at.outward, beside),
+      ),
+      Vector3.scale(
+        at.forward,
+        at.boxing ? near - 0.5 * at.forearmRadius : near,
+      ),
+    );
+    return { ...fistAt, y: fistAt.y - at.drop };
+  }
+}
 function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
   const h: IAutoMovieVector3 = { x: v.x, y: 0, z: v.z };
   return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };

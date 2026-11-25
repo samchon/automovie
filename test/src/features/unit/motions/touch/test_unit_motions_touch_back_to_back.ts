@@ -2,8 +2,8 @@ import { HumanRefusal, backToBackTogether } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `backToBackTogether`, the pairing rule of `backToBack.plan`: two backs leaning
- * on each other must bear and sit up together, within one 24 Hz frame.
+ * `backToBackTogether`, the pairing rule of `backToBack.plan`: two backs
+ * leaning on each other must bear and sit up together, within one 24 Hz frame.
  *
  * This lean bears from 1 s to 3 s.
  *

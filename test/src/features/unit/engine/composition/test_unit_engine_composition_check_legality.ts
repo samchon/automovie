@@ -13,9 +13,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios, three entries over 3 s:
  *
- * 1. A rule refusing turns and a rule refusing entries that end with the
- *    schedule both fire on the last entry, in rule order, after the turn's own
- *    finding on the middle entry.
+ * 1. A rule refusing turns and a rule refusing entries that end with the schedule
+ *    both fire on the last entry, in rule order, after the turn's own finding
+ *    on the middle entry.
  * 2. No rule, or rules that always answer null, report nothing.
  */
 export function test_unit_engine_composition_check_legality(): void {
@@ -51,7 +51,9 @@ export function test_unit_engine_composition_check_legality(): void {
         e: IAutoMovieScheduleEntry,
         whole: IAutoMovieSchedule,
       ): string | null =>
-        e.end === whole.duration ? `ends at ${e.end} of ${whole.duration}` : null,
+        e.end === whole.duration
+          ? `ends at ${e.end} of ${whole.duration}`
+          : null,
     },
   ];
   TestValidator.equals(

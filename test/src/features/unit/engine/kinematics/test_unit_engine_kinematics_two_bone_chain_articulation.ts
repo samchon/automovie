@@ -20,10 +20,11 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Target (0, -2, 0), fully extended: both deltas are the identity within
  *    1e-12.
  * 2. Target (1, -1, 0), at distance sqrt 2 (a 45 degree lift): the end lands on
- *    it within 1e-12, with and without an explicit bend normal (0, 0, 1).
+ *    it within 1e-12, with and without an explicit bend normal (0, 0, 1); by
+ *    default the mid joint bends toward world-down, to (0, -1, 0).
  * 3. Target (0, -5, 0) beyond reach: the end stops at (0, -2, 0).
  * 4. The prepared solve equals the direct one exactly.
- * 5. A target at the root and a zero-length segment give null.
+ * 5. A target at the root and a zero-length upper or fore segment give null.
  */
 export function test_unit_engine_kinematics_two_bone_chain_articulation(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
@@ -48,6 +49,7 @@ export function test_unit_engine_kinematics_two_bone_chain_articulation(): void 
   // 2.
   const target: IAutoMovieVector3 = { x: 1, y: -1, z: 0 };
   TestValidator.predicate("lands", close(end(solve(target)), target));
+  TestValidator.predicate("bends down", close(Quaternion.rotateVector(solve(target).upper, down), { x: 0, y: -1, z: 0 }));
   TestValidator.predicate("lands with normal", close(end(solve(target, { x: 0, y: 0, z: 1 })), target));
 
   // 3.
@@ -62,7 +64,8 @@ export function test_unit_engine_kinematics_two_bone_chain_articulation(): void 
     [
       twoBoneChainArticulation({ ...chain, target: { x: 0, y: 0, z: 0 } }),
       twoBoneChainArticulation({ ...chain, lower: bone(0), target }),
+      twoBoneChainArticulation({ ...chain, end: { x: 0, y: -1, z: 0 }, target }),
     ],
-    [null, null],
+    [null, null, null],
   );
 }

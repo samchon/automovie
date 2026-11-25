@@ -17,19 +17,25 @@ import { nclose } from "../../../internal/nclose";
  *
  * 1. The four corners of the unit right tetrahedron give exactly that one
  *    tetrahedron, volume 1/6, each corner neighbouring the other three.
- * 2. Adding its interior point (1/4, 1/4, 1/4) splits it into four, still
- *    filling 1/6.
- * 3. The eight corners of the unit cube fill volume 1 with tetrahedra all of
- *    one orientation and nonzero volume.
+ * 2. Adding its interior point (1/4, 1/4, 1/4) splits it into four, still filling
+ *    1/6.
+ * 3. The eight corners of the unit cube fill volume 1 with tetrahedra all of one
+ *    orientation and nonzero volume.
  * 4. Every joggled point stays within 30000 ulps of 1 of its input.
  */
 export function test_unit_engine_math_tetrahedralize_delaunay(): void {
-  const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+  const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+    x,
+    y,
+    z,
+  });
   const volume = (
     mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
     t: readonly [number, number, number, number],
   ): number => {
-    const [a, b, c, d] = t.map((i: number): IAutoMovieVector3 => mesh.points[i]!);
+    const [a, b, c, d] = t.map(
+      (i: number): IAutoMovieVector3 => mesh.points[i]!,
+    );
     const u: IAutoMovieVector3 = v(b!.x - a!.x, b!.y - a!.y, b!.z - a!.z);
     const w: IAutoMovieVector3 = v(c!.x - a!.x, c!.y - a!.y, c!.z - a!.z);
     const s: IAutoMovieVector3 = v(d!.x - a!.x, d!.y - a!.y, d!.z - a!.z);

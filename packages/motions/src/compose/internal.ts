@@ -48,3 +48,8 @@ export * from "./AutoMovieMotionHumanArmJointCourse";
 export * from "./prepareHumanPostureCorrection";
 export * from "./AutoMovieMotionHumanTouchPath";
 export * from "./AutoMovieMotionHumanKneeBend";
+export * from "./courseLimbSwivelKnots";
+export * from "./AutoMovieMotionHumanFootSwing";
+export * from "./AutoMovieMotionHumanElbowPole";
+export * from "./AutoMovieMotionHumanElbowPlace";
+export * from "./AutoMovieMotionHumanToesOnFloor";

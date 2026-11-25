@@ -87,8 +87,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     releaseAt,
     direction,
   }: IAutoMovieMotionHumanGuitarChord = context.params;
-  const { prep, firstAt, secondAt }: guitarChordTimes.ITimes =
-    guitarChordTimes(context.params);
+  const { prep, firstAt, secondAt }: guitarChordTimes.ITimes = guitarChordTimes(
+    context.params,
+  );
   if (
     context.entry.holds.left !== undefined ||
     context.entry.holds.right !== undefined

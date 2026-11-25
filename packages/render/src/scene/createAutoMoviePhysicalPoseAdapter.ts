@@ -52,7 +52,7 @@ export function createAutoMoviePhysicalPoseAdapter(
         throw new Error(`Invalid physical display bone frame: ${bone}`);
     model.object.updateWorldMatrix(true, true);
     for (const { name, object } of ordered)
-      if (Object.hasOwn(poses, name)) {
+      if (poses[name] !== undefined) {
         for (
           let ancestor: THREE.Object3D | null = object;
           ancestor;
@@ -81,8 +81,8 @@ export function createAutoMoviePhysicalPoseAdapter(
           );
       }
     for (const { name, object } of ordered) {
-      if (!Object.hasOwn(poses, name)) continue;
-      const pose: IAutoMovieRigidTransform = poses[name]!;
+      const pose: IAutoMovieRigidTransform | undefined = poses[name];
+      if (pose === undefined) continue;
       const parent: THREE.Object3D | null = object.parent;
       position.set(pose.position.x, pose.position.y, pose.position.z);
       if (parent) {

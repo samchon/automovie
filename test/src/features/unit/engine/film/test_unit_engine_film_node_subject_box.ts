@@ -8,17 +8,16 @@ import { TestValidator } from "@nestia/e2e";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * `nodeSubjectBox` places a node's rest extent in the world: a vertical
- * segment at the node's place when the extent has no horizontal size,
- * otherwise the axis-aligned box of its eight placed corners.
+ * `nodeSubjectBox` places a node's rest extent in the world: a vertical segment
+ * at the node's place when the extent has no horizontal size, otherwise the
+ * axis-aligned box of its eight placed corners.
  *
  * Scenarios:
  *
- * 1. A heights-only extent 0…1.8 at (2, 0.5, -3) is the segment from
- *    (2, 0.5, -3) to (2, 2.3, -3).
- * 2. The extent x 0…2, y 0…1, z -1…1 turned a quarter about +Y, which takes
- *    (x, y, z) to (z, y, -x), and placed at (10, 0, 0) fills x 9…11, y 0…1,
- *    z -2…0.
+ * 1. A heights-only extent 0…1.8 at (2, 0.5, -3) is the segment from (2, 0.5, -3)
+ *    to (2, 2.3, -3).
+ * 2. The extent x 0…2, y 0…1, z -1…1 turned a quarter about +Y, which takes (x, y,
+ *    z) to (z, y, -x), and placed at (10, 0, 0) fills x 9…11, y 0…1, z -2…0.
  */
 export function test_unit_engine_film_node_subject_box(): void {
   const place = (

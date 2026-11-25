@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * `affordanceTravelRange` is the range an articulation may travel: a crank with
  * no travel turns without bound, a wheel turns its travel either way, a hinge,
- * knob or slider may go back by its `reverse`, and anything else runs from 0
- * to its travel (0 when none is given).
+ * knob or slider may go back by its `reverse`, and anything else runs from 0 to
+ * its travel (0 when none is given).
  *
  * Scenarios:
  *

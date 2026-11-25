@@ -57,13 +57,27 @@ export function createCart(
     createCart.KINDS,
   );
   // The selected producer validates its options from the saved parameter union.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createCart.PRODUCERS[kind] as (
-    params: createCart.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createCart.Kind,
+      (
+        params: createCart.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>
+    >
+  > = {
+    trolley: ({ model: _model, ...rest }, s) => createShoppingTrolley(rest, s),
+    wheelbarrow: ({ model: _model, ...rest }, s) => createWheelbarrow(rest, s),
+    cart: (p, s) => createHorseCart({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["multiUse", "dennettGig"] as const) }, s),
+    rickshaw: (p, s) => createRickshaw({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["edo89210382", "edo90360001", "powerhouse245268"] as const) }, s),
+    chariot: ({ model: _model, ...rest }, s) => createChariot(rest, s),
+    limber: ({ model: _model, ...rest }, s) => createLimber(rest, s),
+    wagon: ({ model: _model, ...rest }, s) => createWagon(rest, s),
+    carriage: (p, s) => createCarriage({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["brewster", "minerStevens", "peters"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createCart}. */
@@ -301,6 +315,43 @@ export namespace createCart {
     | "rightLineGrip"
     | "leftLineEnd"
     | "rightLineEnd";
+
+  /** Every affordance id, for a caller that reads an id at run time. */
+  export const AFFORDANCES: readonly Affordance[] = [
+    "handle",
+    "leftHandle",
+    "rightHandle",
+    "load",
+    "coupling",
+    "leftShaft",
+    "rightShaft",
+    "seat",
+    "footboard",
+    "floor",
+    "rim",
+    "chest",
+    "pintle",
+    "leftSpin",
+    "rightSpin",
+    "frontAxle",
+    "drawbarPitch",
+    "frontLeftSpin",
+    "frontRightSpin",
+    "rearLeftSpin",
+    "rearRightSpin",
+    "bed",
+    "box",
+    "leftDoor",
+    "rightDoor",
+    "leftAperture",
+    "rightAperture",
+    "leftLine",
+    "rightLine",
+    "leftLineGrip",
+    "rightLineGrip",
+    "leftLineEnd",
+    "rightLineEnd",
+  ];
 
   /**
    * The free dimensions, metres unless stated; a kind lacks those of the parts

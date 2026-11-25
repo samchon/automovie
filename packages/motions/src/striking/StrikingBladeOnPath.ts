@@ -78,7 +78,10 @@ export namespace StrikingBladeOnPath {
   /** What `StrikingBlade.plan` prepared for its `onPath`. */
   export interface IPrepared {
     /** The `stroke` `StrikingBlade.plan` prepared. */
-    stroke: IAutoMovieMotionHumanStrikingBlade.IStroke;
+    stroke: Pick<
+      IAutoMovieMotionHumanStrikingBlade.IStroke,
+      "path" | "stop" | "follow" | "advance"
+    >;
 
     /** The `shoulderOf` `StrikingBlade.plan` prepared. */
     shoulderOf: (

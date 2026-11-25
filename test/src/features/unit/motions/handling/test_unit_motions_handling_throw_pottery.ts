@@ -13,8 +13,8 @@ const TRAVEL: number = 0.375;
  *
  * Scenarios:
  *
- * 1. No authored rise takes the remaining 0.25 m when the slider stands at
- *    0.125 m; an authored 0.125 m is kept.
+ * 1. No authored rise takes the remaining 0.25 m when the slider stands at 0.125
+ *    m; an authored 0.125 m is kept.
  * 2. A rise of 0.375 m from 0.125 m would end at 0.5 m, past the travel, and a
  *    zero rise, and a slider already at the top, are refused on `rise`.
  */

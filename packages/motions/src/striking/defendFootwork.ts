@@ -33,15 +33,16 @@ export function defendFootwork(
       ...StrikingTarget.feet(context.entry),
       ...recovery.landings,
     };
-  const arrival: number = Math.max(timing.begin, 0.5 * timing.movement);
-  const touchdown: defendFootwork.ISupport["touchdown"] = {
-    left: recovery.landings.left === undefined ? 0 : arrival,
-    right: recovery.landings.right === undefined ? 0 : arrival,
-  };
-  const release: number =
-    checking !== undefined && checking === recovery.bearing
-      ? arrival
-      : timing.begin;
+  const { touchdown, release }: defendFootwork.ISchedule =
+    defendFootwork.schedule(
+      timing,
+      {
+        left: recovery.landings.left !== undefined,
+        right: recovery.landings.right !== undefined,
+      },
+      checking,
+      recovery.bearing,
+    );
   return {
     touchdown,
     release,
@@ -59,8 +60,13 @@ export function defendFootwork(
             };
       };
       const down = (side: AutoMovieHumanSide): boolean =>
-        seconds >= touchdown[side] &&
-        (side !== checking || seconds <= release || seconds >= timing.duration);
+        defendFootwork.down(
+          side,
+          seconds,
+          { touchdown, release },
+          checking,
+          timing.duration,
+        );
       return StrikingStance.legs(
         context.body,
         { left: foot("left"), right: foot("right") },
@@ -72,6 +78,68 @@ export function defendFootwork(
 
 /** The landing a defence completes after a cut from an interrupted step. */
 export namespace defendFootwork {
+  /** When each foot lands and when a checking leg leaves. */
+  export interface ISchedule {
+    /** Each foot's touchdown, seconds; 0 for a foot already down. */
+    touchdown: Record<AutoMovieHumanSide, number>;
+
+    /** The checking leg's release, seconds. */
+    release: number;
+  }
+
+  /**
+   * The footwork's schedule after a step: a landing foot touches down at the
+   * defence's start or halfway through its movement, whichever is later; a
+   * check by the bearing leg waits for that landing, any other leaves at the
+   * start.
+   *
+   * @param timing The defence's start and movement, seconds.
+   * @param landing Which feet are still landing.
+   * @param checking The checking leg, if any.
+   * @param bearing The leg that bore the step, if any.
+   * @returns The schedule.
+   */
+  export function schedule(
+    timing: Pick<defendGeometry.ITiming, "begin" | "movement">,
+    landing: Record<AutoMovieHumanSide, boolean>,
+    checking: AutoMovieHumanSide | undefined,
+    bearing: AutoMovieHumanSide | undefined,
+  ): ISchedule {
+    const arrival: number = Math.max(timing.begin, 0.5 * timing.movement);
+    return {
+      touchdown: {
+        left: landing.left ? arrival : 0,
+        right: landing.right ? arrival : 0,
+      },
+      release:
+        checking !== undefined && checking === bearing ? arrival : timing.begin,
+    };
+  }
+
+  /**
+   * Whether a foot bears at a second: once it has touched down, and for the
+   * checking leg, not between its release and the defence's end.
+   *
+   * @param side The foot.
+   * @param seconds The defence's seconds.
+   * @param schedule The touchdowns and the release.
+   * @param checking The checking leg, if any.
+   * @param duration The defence's seconds in all.
+   * @returns Whether it bears.
+   */
+  export function down(
+    side: AutoMovieHumanSide,
+    seconds: number,
+    schedule: ISchedule,
+    checking: AutoMovieHumanSide | undefined,
+    duration: number,
+  ): boolean {
+    return (
+      seconds >= schedule.touchdown[side] &&
+      (side !== checking || seconds <= schedule.release || seconds >= duration)
+    );
+  }
+
   /**
    * The landing a defence completes after a cut from an interrupted step,
    * shared by its waiting and reacting poses, on the defence's own clock.

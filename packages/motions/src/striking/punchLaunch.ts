@@ -15,7 +15,10 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingTwist } from "./StrikingTwist";
 import { punchContact } from "./punchContact";
 import { punchFootwork } from "./punchFootwork";
-import type { punchGeometry } from "./punchGeometry";
+import type {
+  IAutoMovieMotionHumanSkill,
+  punchGeometry,
+} from "./punchGeometry";
 
 /**
  * Read what a punch fixes of its own entry alone: the trunk's turn, the
@@ -39,10 +42,13 @@ export function punchLaunch(
   const { side, lead, which }: punchGeometry.ITiming = timing;
   const body: IAutoMovieMotionHumanBody = context.body;
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const turn: number =
-    (lead === "left" ? 1 : -1) *
-    punchContact.TURN[context.params.technique][which] *
-    StrikingSkill.amplitude(context.skill);
+  const turn: number = punchLaunch.turn(
+    lead,
+    context.params.technique,
+    which,
+    context.skill,
+  );
+
   return {
     turn,
 
@@ -71,6 +77,30 @@ export function punchLaunch(
 
 /** Companion type of {@link punchLaunch}. */
 export namespace punchLaunch {
+  /**
+   * The punch's trunk turn at the launch: the technique's turn for the lead or
+   * the rear hand (`punchContact.TURN`), scaled by the skill's amplitude, and
+   * signed toward the lead side.
+   *
+   * @param lead The lead side.
+   * @param technique The punch.
+   * @param which The lead or the rear hand.
+   * @param skill The puncher's skill.
+   * @returns Degrees.
+   */
+  export function turn(
+    lead: AutoMovieHumanSide,
+    technique: IAutoMovieMotionHumanPunch.IParams["technique"],
+    which: punchGeometry.ITiming["which"],
+    skill: IAutoMovieMotionHumanSkill,
+  ): number {
+    return (
+      (lead === "left" ? 1 : -1) *
+      punchContact.TURN[technique][which] *
+      StrikingSkill.amplitude(skill)
+    );
+  }
+
   /** What a punch reads of its own entry alone. */
   export interface ILaunch {
     /** The trunk turn at contact, degrees. */

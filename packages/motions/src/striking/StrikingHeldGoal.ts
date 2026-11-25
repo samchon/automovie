@@ -12,6 +12,30 @@ import { StrikingRoll } from "./StrikingRoll";
 
 /** The held tool's original rigid wrist goal and fixed hand-local task geometry. */
 export namespace StrikingHeldGoal {
+  /**
+   * The arm goal that holds a tool at a hand frame, given the grip's offset in
+   * the hand: the wrist the grip's offset back from the held point, the contact
+   * the tool's tip drawn `back` along its axis from the grip, and for a prop
+   * two planted limits, at the drawn point (or the tool's length) and at the
+   * tip, within `StrikingRoll.MISS`.
+   *
+   * @param tool The held tool.
+   * @param frame The held point and the hand's attitude.
+   * @param back How far the contact is drawn back along the axis, metres.
+   * @param bend The elbow's bend direction.
+   * @param grip The grip's offset in the hand's frame, metres.
+   * @returns The goal.
+   */
+  export function of(
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    back: number,
+    bend: IAutoMovieVector3,
+    grip: IAutoMovieVector3,
+  ): IAutoMovieHumanLimbGoal {
+    return read(tool, frame, back, bend, grip);
+  }
+
   /** Read the original wrist goal without retaining a fixed producer. */
   export function goal(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,

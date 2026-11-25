@@ -62,3 +62,4 @@ export * from "./HumanArmSeedRestarts";
 export * from "./mixHumanPosture";
 export * from "./pelvisReachHeight";
 export * from "./HumanArmTrajectoryPaced";
+export * from "./HumanLimbMirror";

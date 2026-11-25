@@ -67,9 +67,7 @@ export function CloseStrikeNeck(
         // brought home; the path arcs round the partner's trunk rather than
         // through it, as the grapple's reach to a shoulder does.
         weight: (seconds: number): number =>
-          seconds <= release
-            ? minimumJerk.share(Math.min(1, seconds / take))
-            : 1 - minimumJerk.share((seconds - release) / (duration - release)),
+          CloseStrikeNeck.weight(seconds, take, release, duration),
         curvature: CloseStrikeNeck.ARC,
         target: (
           posture: IAutoMovieMotionHumanPosture,
@@ -111,6 +109,27 @@ export function CloseStrikeNeck(
 
 /** Companion types of {@link CloseStrikeNeck}. */
 export namespace CloseStrikeNeck {
+  /**
+   * How far the hands have taken the neck at a second: in over `take` on a
+   * minimum-jerk share, held to the release, then let go over the rest.
+   *
+   * @param seconds The strike's seconds.
+   * @param take When the hands close on the neck, seconds.
+   * @param release When they let go, seconds.
+   * @param duration The strike's seconds in all.
+   * @returns 0 to 1.
+   */
+  export function weight(
+    seconds: number,
+    take: number,
+    release: number,
+    duration: number,
+  ): number {
+    return seconds <= release
+      ? minimumJerk.share(Math.min(1, seconds / take))
+      : 1 - minimumJerk.share((seconds - release) / (duration - release));
+  }
+
   /**
    * The hands' path's bow round the partner's trunk, the grapple's arc to a
    * shoulder (`grapple`'s curvature).

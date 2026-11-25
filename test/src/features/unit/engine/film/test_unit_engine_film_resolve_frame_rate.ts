@@ -10,8 +10,8 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. `fps` 24 alone is 24/1; `fps` 30 with 60/2 reduces to 30/1; `fps`
- *    30000 / 1001 with 30000/1001 keeps the NTSC ratio.
+ * 1. `fps` 24 alone is 24/1; `fps` 30 with 60/2 reduces to 30/1; `fps` 30000 /
+ *    1001 with 30000/1001 keeps the NTSC ratio.
  * 2. `fps` 29.97 with 30000/1001 disagrees and is refused.
  */
 export function test_unit_engine_film_resolve_frame_rate(): void {
@@ -26,7 +26,11 @@ export function test_unit_engine_film_resolve_frame_rate(): void {
       }),
       resolveProductionFrameRate({ fps: 30000 / 1001, frameRate: ntsc }),
     ],
-    [{ numerator: 24, denominator: 1 }, { numerator: 30, denominator: 1 }, ntsc],
+    [
+      { numerator: 24, denominator: 1 },
+      { numerator: 30, denominator: 1 },
+      ntsc,
+    ],
   );
   TestValidator.predicate(
     "a rational rate disagreeing with fps is refused",

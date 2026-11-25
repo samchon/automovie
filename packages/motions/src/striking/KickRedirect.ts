@@ -30,6 +30,20 @@ import { KickLaunch } from "./KickLaunch";
  */
 export namespace KickRedirect {
   /**
+   * How far a redirected kick has turned from its old geometry to the fresh one
+   * at a second: a minimum-jerk share from the cut to the impact, over at least
+   * a millisecond.
+   *
+   * @param seconds The kick's seconds.
+   * @param cut The redirect's seconds.
+   * @param impact The impact's seconds.
+   * @returns 0 to 1.
+   */
+  export function weight(seconds: number, cut: number, impact: number): number {
+    return minimumJerk.share((seconds - cut) / Math.max(1e-3, impact - cut));
+  }
+
+  /**
    * The redirecting kick's parameters and draws on its source's context and
    * clock.
    */
@@ -94,8 +108,7 @@ export namespace KickRedirect {
       launch,
     );
     const cut: number = context.start - t0;
-    const span: number = Math.max(1e-3, timing.impact - cut);
-    const blend = (t: number): number => minimumJerk.share((t - cut) / span);
+    const blend = (t: number): number => weight(t, cut, timing.impact);
     const mix = (from: number, to: number, w: number): number =>
       from + (to - from) * w;
     return KickGeometry.compose(

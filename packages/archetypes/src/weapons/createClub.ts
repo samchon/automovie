@@ -25,13 +25,21 @@ export function createClub(
   );
 
   // The stored input can carry any former choice. The selected draw admits only its own profile.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createClub.PRODUCERS[kind] as (
-    params: createClub.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createClub.Affordance, createClub.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createClub.Kind,
+      (
+        params: createClub.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createClub.Affordance, createClub.Dimension>
+    >
+  > = {
+    bat: (p, s) => createBaseballBat({ ...p, model: ArchetypeDraw.admit("club", "model", p.model, ["s154", "s155", "t153", "t156"] as const) }, s),
+    baton: (p, s) => createPracticeBaton({ ...p, model: ArchetypeDraw.admit("club", "model", p.model, ["mp24", "mp26"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createClub}. */

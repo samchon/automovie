@@ -46,9 +46,7 @@ export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     plan,
   };
 
-/**
- * Resolve a seated right-foot path and independent pedal travel.
- */
+/** Resolve a seated right-foot path and independent pedal travel. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoPedal>,
 ): IAutoMovieMotionHumanActionPlan {

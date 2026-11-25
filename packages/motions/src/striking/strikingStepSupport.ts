@@ -66,15 +66,31 @@ export function strikingStepSupport(
       side: AutoMovieHumanSide,
       seconds: number,
       touchdown: number,
-    ): number =>
-      seconds >= touchdown
-        ? 0
-        : rise[side] * (1 - minimumJerk.share(seconds / touchdown)),
+    ): number => strikingStepSupport.settle(rise[side], seconds, touchdown),
   };
 }
 
 /** The support a striking action inherits from an interrupted step. */
 export namespace strikingStepSupport {
+  /**
+   * How far a landing foot still hangs above its landing: the step's rise,
+   * lowered on a minimum-jerk share until the touchdown.
+   *
+   * @param rise The foot's height above its landing at the cut, metres.
+   * @param seconds The seconds since the cut.
+   * @param touchdown The touchdown's seconds.
+   * @returns Metres.
+   */
+  export function settle(
+    rise: number,
+    seconds: number,
+    touchdown: number,
+  ): number {
+    return seconds >= touchdown
+      ? 0
+      : rise * (1 - minimumJerk.share(seconds / touchdown));
+  }
+
   /**
    * The ground contact and pending touchdowns inherited from an interrupted
    * step, in world metres on the incoming action's local clock.

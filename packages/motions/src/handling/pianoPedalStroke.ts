@@ -9,8 +9,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  */
 export namespace pianoPedalStroke {
   /**
-   * Admit the strokes: at least one, each with `0 < from < at <= release <
-   * to < duration`, none starting before the previous one ended.
+   * Admit the strokes: at least one, each with `0 < from < at <= release < to <
+   * duration`, none starting before the previous one ended.
    */
   export function admit(
     presses: readonly IAutoMovieMotionHumanPianoPedal.IPress[],

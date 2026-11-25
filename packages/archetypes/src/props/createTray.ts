@@ -35,13 +35,21 @@ export function createTray(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createTray.PRODUCERS[kind] as (
-    params: createTray.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createTray.Kind,
+      (
+        params: createTray.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>
+    >
+  > = {
+    tray: (p, s) => createServingTray({ ...p, model: ArchetypeDraw.admit("tray", "model", p.model, ["smorling", "grilltider", "smula"] as const) }, s),
+    basket: (p, s) => createCarryBasket({ ...p, model: ArchetypeDraw.admit("tray", "model", p.model, ["risatorp25", "risatorp42"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createTray}. */

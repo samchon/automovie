@@ -11,11 +11,11 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. The pedal is up before and between strokes and at each stroke's start,
- *    fully down from `at` to `release`, and halfway at the middle of the press
- *    and of the release, where the minimum-jerk share of 1/2 is 1/2.
- * 2. No stroke is refused on `duration`; a stroke starting before the previous
- *    one ends, and one ending at the duration, are refused on `presses`.
+ * 1. The pedal is up before and between strokes and at each stroke's start, fully
+ *    down from `at` to `release`, and halfway at the middle of the press and of
+ *    the release, where the minimum-jerk share of 1/2 is 1/2.
+ * 2. No stroke is refused on `duration`; a stroke starting before the previous one
+ *    ends, and one ending at the duration, are refused on `presses`.
  */
 export function test_unit_motions_handling_piano_pedal(): void {
   const presses: IAutoMovieMotionHumanPianoPedal.IPress[] = [
@@ -24,8 +24,8 @@ export function test_unit_motions_handling_piano_pedal(): void {
   ];
   TestValidator.equals(
     "the pedal's travel through the strokes",
-    [0.25, 0.5, 0.75, 1.25, 1.75, 2.1, 2.5, 2.9].map((seconds: number): number =>
-      pianoPedalStroke.travel(presses, seconds),
+    [0.25, 0.5, 0.75, 1.25, 1.75, 2.1, 2.5, 2.9].map(
+      (seconds: number): number => pianoPedalStroke.travel(presses, seconds),
     ),
     [0, 0, 0.5, 1, 0.5, 0, 1, 0],
   );

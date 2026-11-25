@@ -152,24 +152,65 @@ export function KickClear(
   // leg, while the way is not clear, no further than a backward step goes.
   const stride: number = 2 * body.measure.thighRadius;
   const furthest: number = -KickForm.STEP_BACK_SHARE * body.measure.stature;
-  let planned: KickLaunch.IPlanned = folded;
-  // The backward step's own length bounds the search, a girth at a time.
-  for (;;) {
-    const back: number = planned.carriage.step - stride;
-    if (back < furthest) break;
-    planned = launch.contact(
-      launch.planned,
-      back,
-      undefined,
-      planned.carriage.drive,
-      tight,
-    );
+  // The backward step's own length bounds the search, a girth at a time; a
+  // step back that puts the target out of the leg's reach clears the way by
+  // missing it, which is no answer.
+  const cleared: KickLaunch.IPlanned | undefined = KickClear.retreat(
+    folded,
+    stride,
+    furthest,
+    (back: number, from: KickLaunch.IPlanned): KickLaunch.IPlanned =>
+      launch.contact(
+        launch.planned,
+        back,
+        undefined,
+        from.carriage.drive,
+        tight,
+      ),
+    (planned: KickLaunch.IPlanned): boolean => !early(planned),
+  );
+  return cleared === undefined
+    ? launch
+    : { ...launch, chamber: tight, launched: cleared };
+}
 
-    // A step back that puts the target out of the leg's reach clears the
-    // way by missing it, which is no answer.
-    if (planned.fit.status === "short") break;
-    if (!early(planned))
-      return { ...launch, chamber: tight, launched: planned };
+/** Clearing a kick's chamber of the target. */
+export namespace KickClear {
+  /** A planned kick's step and fit, as the retreat reads them. */
+  export interface IStepped {
+    /** The carriage's step along the line, metres. */
+    carriage: { step: number };
+
+    /** Whether the kick still reaches. */
+    fit: { status: IAutoMovieMotionHumanStrikingReach.ISolution["status"] };
   }
-  return launch;
+
+  /**
+   * Step a kick back a stride at a time until its chamber clears the target:
+   * replanned at each step back, giving up once the step would pass the
+   * furthest or the kick falls short.
+   *
+   * @param from The folded kick the retreat starts from.
+   * @param stride How far each step goes back, metres.
+   * @param furthest The furthest step back, metres along the line (negative).
+   * @param plan The kick replanned at a step from the last plan.
+   * @param clear Whether a planned kick's chamber clears the target.
+   * @returns The first plan that clears, or `undefined`.
+   */
+  export function retreat<Planned extends IStepped>(
+    from: Planned,
+    stride: number,
+    furthest: number,
+    plan: (back: number, from: Planned) => Planned,
+    clear: (planned: Planned) => boolean,
+  ): Planned | undefined {
+    let planned: Planned = from;
+    for (;;) {
+      const back: number = planned.carriage.step - stride;
+      if (back < furthest) return undefined;
+      planned = plan(back, planned);
+      if (planned.fit.status === "short") return undefined;
+      if (clear(planned)) return planned;
+    }
+  }
 }

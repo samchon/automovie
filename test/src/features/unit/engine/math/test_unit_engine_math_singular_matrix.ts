@@ -18,7 +18,7 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. diag(3, 4) needs no rotation: values (4, 3), its columns swapped in the
+ * 1. Diag(3, 4) needs no rotation: values (4, 3), its columns swapped in the
  *    factors, rank 2, one sweep to see it is already orthogonal.
  * 2. [[1, 0], [0, 1], [1, 1]] has AᵀA = [[2, 1], [1, 2]], eigenvalues 3 and 1:
  *    values (sqrt 3, 1), right columns (1, 1)/sqrt 2 and (1, -1)/sqrt 2, the
@@ -34,7 +34,10 @@ export function test_unit_engine_math_singular_matrix(): void {
     maxSweeps: 30,
     orthogonalityTolerance: 1e-12,
   };
-  const near = (actual: readonly number[], expected: readonly number[]): boolean =>
+  const near = (
+    actual: readonly number[],
+    expected: readonly number[],
+  ): boolean =>
     actual.length === expected.length &&
     actual.every((value: number, index: number): boolean =>
       nclose(value, expected[index]!, 1e-12),

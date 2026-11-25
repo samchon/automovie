@@ -125,7 +125,7 @@ export function resolveAutoMovieInspectionView(props: {
     | undefined =
     view.type === "named" &&
     props.views !== undefined &&
-    Object.hasOwn(props.views, view.name)
+    Object.keys(props.views).includes(view.name)
       ? props.views[view.name]
       : undefined;
   if (view.type === "fixed" || own !== undefined) {

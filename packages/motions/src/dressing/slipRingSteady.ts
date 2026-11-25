@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
@@ -20,10 +21,11 @@ import { poseBones } from "../posture/poseBones";
 
 /**
  * A ring dresser's steadying palm (`slipRing`): laid on the partner's forearm
- * collider a third of the way from the wrist to the elbow, from the side facing
- * the steadying shoulder, its fingers toward the partner's wrist, found by a
- * ray in from that side (`HumanColliders.cast`). Read from the plan's context,
- * body, partner and its bones, the presented hand and the steadying arm.
+ * collider a third of the way from the wrist to the elbow, or farther where the
+ * flat palm's fingers would pass the wrist, from the side facing the steadying
+ * shoulder, its fingers toward the partner's wrist, found by a ray in from that
+ * side (`HumanColliders.cast`). Read from the plan's context, body, partner and
+ * its bones, the presented hand and the steadying arm.
  *
  * @param scope What the plan lays the steadying palm from.
  * @returns The steadying hand's target.
@@ -55,7 +57,27 @@ export function slipRingSteady(
   const elbow: IAutoMovieVector3 = bones.get(
     `${hand}LowerArm` as AutoMovieHumanoidBone,
   )!.worldPosition;
-  const grasped: IAutoMovieVector3 = Vector3.lerp(wrist, elbow, 1 / 3);
+  // The flat palm's fingers run toward the partner's wrist, so the palm lies
+  // far enough up the forearm that its fingertips end the audit's skin short
+  // of the wrist: laid a third of the way up, a flat hand longer than that
+  // put its fingers 10 mm into the presented hand (the slip-ring fixture's
+  // refusal at 1.067 s). No farther than the elbow.
+  const forearm: number = Vector3.distance(wrist, elbow);
+  const fingers: number = Vector3.distance(
+    HumanHand.offset(body, steady, "palm", "flat").point,
+    HumanHand.offset(body, steady, "indexTip", "flat").point,
+  );
+  const grasped: IAutoMovieVector3 = Vector3.lerp(
+    wrist,
+    elbow,
+    Math.min(
+      1,
+      Math.max(
+        1 / 3,
+        (fingers + AutoMovieMotionHumanAuditSkin.BUILT) / forearm,
+      ),
+    ),
+  );
   const along: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(wrist, elbow),
   );

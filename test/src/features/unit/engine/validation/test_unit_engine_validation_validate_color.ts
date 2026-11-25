@@ -13,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. Mid grey with no alpha or hex, and white labelled `#FFFFFF`, pass.
- * 2. r = 1.5 and a = 2 are range findings at their channels.
+ * 2. R = 1.5 and a = 2 are range findings at their channels.
  * 3. A label `red` is a type finding at `hex`.
  * 4. White labelled `#000000` contradicts its channels: a type finding at `hex`.
  * 5. With r out of range the label is not compared: only the range finding.

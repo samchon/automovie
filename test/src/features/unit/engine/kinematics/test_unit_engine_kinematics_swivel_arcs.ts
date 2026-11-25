@@ -20,7 +20,8 @@ import { TestValidator } from "@nestia/e2e";
  *    cos 30, over [90, 270] and over a whole turn at least -1.
  * 4. cos s vanishes at 270 and 90; 1 + cos s only at 180; 2 + cos s and a constant
  *    never.
- * 5. Union M as above; [0, 200] with [190, 370] is every swivel.
+ * 5. Union M as above; [0, 10] and [10, 20] touch and merge; [0, 200] with [190,
+ *    370] is every swivel.
  * 6. M covers [355, 365] and [715, 718], not [25, 30]; every swivel covers all.
  * 7. Nearest outside M: 0 to -10, 15 to 20, 100 stays; none outside every swivel.
  * 8. Complement of M is [20, 350]; of none, [0, 360]; of every swivel, none; of
@@ -67,6 +68,18 @@ export function test_unit_engine_kinematics_swivel_arcs(): void {
     { from: 350, to: 380 },
     { from: 710, to: 730 },
   ]);
+  TestValidator.equals(
+    "touching arcs merge",
+    swivelArcs.union([
+      { from: 0, to: 10 },
+      { from: 10, to: 20 },
+    ]),
+    [
+      { from: -360, to: -340 },
+      { from: 0, to: 20 },
+      { from: 360, to: 380 },
+    ],
+  );
   TestValidator.equals(
     "every swivel",
     swivelArcs.union([

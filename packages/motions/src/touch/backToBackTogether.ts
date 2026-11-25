@@ -1,13 +1,13 @@
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Admit two backs leaning on each other together: each window is when that
- * back bears, from its lean being ready to its relaxing, in shot seconds.
+ * Admit two backs leaning on each other together: each window is when that back
+ * bears, from its lean being ready to its relaxing, in shot seconds.
  *
  * Refuses on `with` when the partner's back sits up before this lean ends or
  * bears only after it is ready, by more than one 24 Hz frame, so this back
- * would lean on nothing; refuses on `hold` when this back is withdrawn more than
- * a frame before the partner's, which would leave the partner leaning on
+ * would lean on nothing; refuses on `hold` when this back is withdrawn more
+ * than a frame before the partner's, which would leave the partner leaning on
  * nothing.
  */
 export function backToBackTogether(

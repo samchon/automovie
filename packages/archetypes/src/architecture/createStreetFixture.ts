@@ -38,13 +38,24 @@ export function createStreetFixture(
   );
 
   // Saved recipes may state any model. The canonical draw checks it against this kind's table.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createStreetFixture.PRODUCERS[kind] as (
-    params: createStreetFixture.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createStreetFixture.Affordance, createStreetFixture.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createStreetFixture.Kind,
+      (
+        params: createStreetFixture.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createStreetFixture.Affordance, createStreetFixture.Dimension>
+    >
+  > = {
+    trafficCone: (p, s) => createTrafficCone({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["cone 18 in", "cone 28 in"] as const) }, s),
+    bollard: (p, s) => createBollard({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["R-1007-04", "R-1007-06", "R-1007-08", "R-1007-10"] as const) }, s),
+    hydrant: ({ model: _model, ...rest }, s) => createFireHydrant(rest, s),
+    lampPost: ({ model: _model, ...rest }, s) => createLampPost(rest, s),
+    signPost: (p, s) => createSignPost({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["STOP 30 in", "STOP 36 in"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createStreetFixture}. */

@@ -56,12 +56,7 @@ export function StrikingRollHand(
     tool.side,
   );
   const along: IAutoMovieVector3 = Vector3.normalize(axis);
-  const aside: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(
-      along,
-      Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
-    ),
-  );
+  const aside: IAutoMovieVector3 = StrikingRollHand.aside(along);
   const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>([`${tool.side}UpperArm`]);
   const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> =
@@ -72,9 +67,11 @@ export function StrikingRollHand(
     values: readonly number[],
   ): ReturnType<typeof StrikingHeld.prepareHand> => {
     const [tilt, around, turn] = values as readonly [number, number, number];
-    const run: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(along, around),
-      Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
+    const run: IAutoMovieVector3 = StrikingRollHand.run(
+      along,
+      aside,
+      tilt,
+      around,
     );
     return StrikingHeld.prepareHand(
       tool,
@@ -90,16 +87,8 @@ export function StrikingRollHand(
     string,
     ReturnType<typeof StrikingHeld.prepareHand>
   > = new Map();
-  const grid: number[][] = [];
-  for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
-    for (let around: number = 0; around < 360; around += 45) {
-      for (let turn: number = 0; turn < 360; turn += 30) {
-        const values: number[] = [tilt, around, turn];
-        grid.push(values);
-        fixed.set(key(values), rigid(values));
-      }
-      if (tilt === 0) break;
-    }
+  const grid: number[][] = StrikingRollHand.grid(cone);
+  for (const values of grid) fixed.set(key(values), rigid(values));
   return (
     at: IAutoMovieVector3,
     posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"],
@@ -151,6 +140,66 @@ export function StrikingRollHand(
 }
 
 /** Exact finite angle identity; do not conflate negative and positive zero. */
+/** The hand frames a roll searches. */
+export namespace StrikingRollHand {
+  /**
+   * A unit perpendicular to an axis: across it from the vertical, or from +Z
+   * when the axis is near vertical.
+   *
+   * @param along The unit axis.
+   * @returns The unit perpendicular.
+   */
+  export function aside(along: IAutoMovieVector3): IAutoMovieVector3 {
+    return Vector3.normalize(
+      Vector3.cross(
+        along,
+        Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
+      ),
+    );
+  }
+
+  /**
+   * The tool's run tilted off its axis: tilted about the perpendicular, then
+   * turned about the axis.
+   *
+   * @param along The unit axis.
+   * @param aside The unit perpendicular.
+   * @param tilt The tilt, degrees.
+   * @param around The turn about the axis, degrees.
+   * @returns The unit run.
+   */
+  export function run(
+    along: IAutoMovieVector3,
+    aside: IAutoMovieVector3,
+    tilt: number,
+    around: number,
+  ): IAutoMovieVector3 {
+    return Quaternion.rotateVector(
+      Quaternion.fromAxisAngle(along, around),
+      Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
+    );
+  }
+
+  /**
+   * The search grid of tilt, turn about the axis and roll about the run,
+   * degrees: the untilted run rolled every 30 degrees, and each tilt every 10
+   * degrees within the cone turned every 45 degrees and rolled every 30.
+   *
+   * @param cone The greatest tilt, degrees.
+   * @returns The [tilt, around, turn] triples.
+   */
+  export function grid(cone: number): number[][] {
+    const grid: number[][] = [];
+    for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
+      for (let around: number = 0; around < 360; around += 45) {
+        for (let turn: number = 0; turn < 360; turn += 30)
+          grid.push([tilt, around, turn]);
+        if (tilt === 0) break;
+      }
+    return grid;
+  }
+}
+
 function key(values: readonly number[]): string {
   return values
     .map((value: number): string =>

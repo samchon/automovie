@@ -11,7 +11,8 @@ export const formationCycleOf: (
   object: THREE.Object3D,
 ) => IAutoMovieFormationCycle | null = (
   object: THREE.Object3D,
-): IAutoMovieFormationCycle | null =>
-  (object.userData.automovieFormationCycle as
-    | IAutoMovieFormationCycle
-    | undefined) ?? null;
+): IAutoMovieFormationCycle | null => {
+  const cycle: IAutoMovieFormationCycle | undefined =
+    object.userData.automovieFormationCycle;
+  return cycle ?? null;
+};

@@ -17,8 +17,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. At 1 s the reach has just ended (its end is exclusive) and the turn has
- *    just begun at local 0, phase 0; `a` reads the reach's state and `b` the
+ * 1. At 1 s the reach has just ended (its end is exclusive) and the turn has just
+ *    begun at local 0, phase 0; `a` reads the reach's state and `b` the
  *    dodge's, since the stateless walk leaves it.
  * 2. At 1.25 s the turn is halfway (local 0.25, phase 0.5) and the nod starts.
  * 3. At 2 s nothing runs, and `a` reads the nod, which ends with the turn but is
@@ -41,7 +41,14 @@ export function test_unit_engine_composition_evaluate_schedule(): void {
     ...(state === undefined ? {} : { state }),
   });
   const reach: IAutoMovieScheduleEntry = entry(0, "a", "reach", 0, 1, "reach");
-  const dodge: IAutoMovieScheduleEntry = entry(1, "b", "dodge", 0.5, 0.75, "dodge");
+  const dodge: IAutoMovieScheduleEntry = entry(
+    1,
+    "b",
+    "dodge",
+    0.5,
+    0.75,
+    "dodge",
+  );
   const walk: IAutoMovieScheduleEntry = entry(2, "b", "walk", 0.75, 1);
   const turn: IAutoMovieScheduleEntry = entry(3, "a", "turn", 1, 1.5, "turn");
   const nod: IAutoMovieScheduleEntry = entry(4, "a", "nod", 1.25, 1.5, "nod");

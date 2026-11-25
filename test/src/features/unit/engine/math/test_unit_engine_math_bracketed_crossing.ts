@@ -11,10 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. With a 1e-9 tolerance the bracket holds 0.3, its low end below and its
- *    high end at or above, no wider than 1e-9.
- * 2. With the ends' values given as known, the function is never read at 0 or
- *    1, and the result is the same bracket.
+ * 1. With a 1e-9 tolerance the bracket holds 0.3, its low end below and its high
+ *    end at or above, no wider than 1e-9.
+ * 2. With the ends' values given as known, the function is never read at 0 or 1,
+ *    and the result is the same bracket.
  */
 export function test_unit_engine_math_bracketed_crossing(): void {
   const f = (x: number): number => x - 0.3;

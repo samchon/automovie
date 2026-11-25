@@ -33,10 +33,18 @@ export function test_unit_engine_validation_material_texture_slots(): void {
       },
     ],
   };
-  TestValidator.equals("every bound slot and its color space", materialTextureSlots(material), [
-    { path: ".baseColorTexture", binding: "oak-albedo", colorSpace: "srgb" },
-    { path: ".normalTexture", binding: "oak-normal", colorSpace: "linear" },
-    { path: ".emissiveTexture", binding: "oak-glow", colorSpace: "srgb" },
-    { path: ".overlays[0].baseColorTexture", binding: "grime", colorSpace: "srgb" },
-  ]);
+  TestValidator.equals(
+    "every bound slot and its color space",
+    materialTextureSlots(material),
+    [
+      { path: ".baseColorTexture", binding: "oak-albedo", colorSpace: "srgb" },
+      { path: ".normalTexture", binding: "oak-normal", colorSpace: "linear" },
+      { path: ".emissiveTexture", binding: "oak-glow", colorSpace: "srgb" },
+      {
+        path: ".overlays[0].baseColorTexture",
+        binding: "grime",
+        colorSpace: "srgb",
+      },
+    ],
+  );
 }

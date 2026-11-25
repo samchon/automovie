@@ -10,7 +10,7 @@ import type { AutoMovieArchetype } from "../core/AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "../core/AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeRide } from "../core/AutoMovieArchetypeRide";
-import type { createCart } from "./createCart";
+import { createCart } from "./createCart";
 
 /**
  * Bind a towed cart's driver to its placement, footboard, seat and driving
@@ -36,9 +36,13 @@ export function prepareTowedCartDriver(
       return {
         frame,
         point: (id: string): IAutoMovieTransform => {
-          const nominal: IAutoMovieTransform = current.frame(
-            id as createCart.Affordance,
-          );
+          const affordance: createCart.Affordance | undefined =
+            createCart.AFFORDANCES.find(
+              (known: createCart.Affordance): boolean => known === id,
+            );
+          if (affordance === undefined)
+            throw new RangeError(`A cart has no affordance "${id}".`);
+          const nominal: IAutoMovieTransform = current.frame(affordance);
           if (id !== "leftLineGrip" && id !== "rightLineGrip") return nominal;
           const line: string =
             id === "leftLineGrip" ? "line-left" : "line-right";

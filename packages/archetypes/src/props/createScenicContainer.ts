@@ -44,13 +44,24 @@ export function createScenicContainer(
     return ScenicContainerConstruction.scenicPod(params, seed);
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  // The saved input spans every variant; the selected producer admits its own
-  // parameters with its own draw.
-  const produce = createScenicContainer.PRODUCERS[kind] as (
-    params: createScenicContainer.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createScenicContainer.Affordance, createScenicContainer.Dimension>;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createScenicContainer.Kind,
+      (
+        params: createScenicContainer.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createScenicContainer.Affordance, createScenicContainer.Dimension>
+    >
+  > = {
+    coilBasket: (p, s) => createScenicBasket({ ...p, kind: "coilBasket" }, s),
+    woodenFishBasket: (p, s) => createScenicBasket({ ...p, kind: "woodenFishBasket" }, s),
+    plankCoffer: (p, s) => createPlankCoffer({ ...p }, s),
+    moldedCrate: (p, s) => createMoldedCrate({ ...p }, s),
+    cargoPod: (p, s) => createCargoPod({ ...p }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /**

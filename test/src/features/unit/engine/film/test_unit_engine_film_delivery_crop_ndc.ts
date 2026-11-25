@@ -6,9 +6,8 @@ import { throwsError } from "../../../internal/throwsError";
 
 /**
  * `deliveryCropNdc` turns a normalized delivery crop (top-left origin, y down)
- * into normalized device coordinates (centre origin, y up): x ↦ 2x - 1,
- * y ↦ 1 - 2y, with its normalized width and height and whether it is the whole
- * frame.
+ * into normalized device coordinates (centre origin, y up): x ↦ 2x - 1, y ↦ 1 -
+ * 2y, with its normalized width and height and whether it is the whole frame.
  *
  * Scenarios:
  *

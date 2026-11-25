@@ -24,7 +24,9 @@ export function test_unit_engine_composition_resolve_outcome(): void {
   const has =
     (capability: string) =>
     (intents: readonly IAutoMovieIntent[]): boolean =>
-      intents.some((i: IAutoMovieIntent): boolean => i.capability === capability);
+      intents.some(
+        (i: IAutoMovieIntent): boolean => i.capability === capability,
+      );
   const table: IAutoMovieResolveOutcome.ITable<"lands" | "misses" | "blocked"> =
     {
       rules: [

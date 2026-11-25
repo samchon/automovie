@@ -51,3 +51,6 @@ export * from "./prepareRigidFlightMass";
 export * from "./HumanPerformanceContactSpeed";
 export * from "./HumanPerformanceSite";
 export * from "./validateInitialPropMounts";
+export * from "./HumanPerformanceGrips";
+export * from "./HumanPropHold";
+export * from "./prepareHumanGripHand";

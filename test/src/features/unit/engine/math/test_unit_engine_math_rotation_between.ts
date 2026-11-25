@@ -14,8 +14,8 @@ import { qclose } from "../../../internal/qclose";
  *
  * Scenarios:
  *
- * 1. +X onto +Y, from any lengths, is a quarter turn about +Z:
- *    (0, 0, sqrt(1/2), sqrt(1/2)).
+ * 1. +X onto +Y, from any lengths, is a quarter turn about +Z: (0, 0, sqrt(1/2),
+ *    sqrt(1/2)).
  * 2. A direction onto itself is the identity.
  * 3. +X onto -X turns half about +X × +Y = +Z, (0, 0, 1, 0); +Y onto -Y, whose x
  *    is small, turns half about +Y × +X = -Z, (0, 0, -1, 0).
@@ -32,7 +32,11 @@ export function test_unit_engine_math_rotation_between(): void {
   };
   TestValidator.predicate(
     "a quarter turn from any lengths",
-    qclose(rotationBetween({ x: 2, y: 0, z: 0 }, { x: 0, y: 5, z: 0 }), quarter, 1e-12),
+    qclose(
+      rotationBetween({ x: 2, y: 0, z: 0 }, { x: 0, y: 5, z: 0 }),
+      quarter,
+      1e-12,
+    ),
   );
   TestValidator.predicate(
     "a direction onto itself is the identity",
@@ -40,8 +44,16 @@ export function test_unit_engine_math_rotation_between(): void {
   );
   TestValidator.predicate(
     "opposite directions turn half about a perpendicular",
-    qclose(rotationBetween(x, { x: -1, y: 0, z: 0 }), { x: 0, y: 0, z: 1, w: 0 }, 1e-12) &&
-      qclose(rotationBetween(y, { x: 0, y: -1, z: 0 }), { x: 0, y: 0, z: -1, w: 0 }, 1e-12),
+    qclose(
+      rotationBetween(x, { x: -1, y: 0, z: 0 }),
+      { x: 0, y: 0, z: 1, w: 0 },
+      1e-12,
+    ) &&
+      qclose(
+        rotationBetween(y, { x: 0, y: -1, z: 0 }),
+        { x: 0, y: 0, z: -1, w: 0 },
+        1e-12,
+      ),
   );
   TestValidator.predicate(
     "a prepared source gives the same turn",

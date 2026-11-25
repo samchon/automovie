@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. A work that only moves the prop, or only takes one, over 1 s is admitted.
- * 2. No drive, no place and no take, and an empty drive list alike, are refused
- *    on `drive`.
+ * 2. No drive, no place and no take, and an empty drive list alike, are refused on
+ *    `drive`.
  * 3. A move over 0 s is refused on `duration`.
  */
 export function test_unit_motions_handling_work_held(): void {

@@ -19,16 +19,16 @@ import { TestValidator } from "@nestia/e2e";
  * - `b` dodges 0–2 (lateral 0.25, linear 0.25) and walks 2–4 (linear 0.5),
  *   present only over 0–10;
  * - `c` watches 0–30, classified idle;
- * - the camera moves 10–20 and 15–25 and cuts twice, at 20 and at 25.
+ * - The camera moves 10–20 and 15–25 and cuts twice, at 20 and at 25.
  *
  * Scenarios:
  *
  * 1. Three actions over half a minute are 6 per minute. Only the second follows
  *    its predecessor within the default 0.5 s gap (0.25 s), a share of 1/3.
- * 2. `a` is busy 1 + 0.75 + 1 = 2.75 s of 30, idle 27.25 s, with no
- *    displacement; `b` moves 0.25 of 1 m laterally, a share of 0.25, and is busy
- *    4 of its 10 present seconds; `c` is idle all 30 s; the camera is busy over
- *    the union 10–25, idle 15 s, its zero-length cuts adding nothing.
+ * 2. `a` is busy 1 + 0.75 + 1 = 2.75 s of 30, idle 27.25 s, with no displacement;
+ *    `b` moves 0.25 of 1 m laterally, a share of 0.25, and is busy 4 of its 10
+ *    present seconds; `c` is idle all 30 s; the camera is busy over the union
+ *    10–25, idle 15 s, its zero-length cuts adding nothing.
  * 3. The moving union 10–25 is half the runtime; two cuts are 4 per minute.
  * 4. An empty schedule of no duration measures zero throughout.
  */
