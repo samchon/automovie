@@ -293,6 +293,9 @@ export function realizeAutoMovieConstruction(
     input = { seed, parameter, count: node.count, tolerance, grazing: node.grazing, width, ...(traced === null ? {} : { curve: traced.curve }) };
     }
     if (node.kind === "diff") body.faces[partIndex]!.inverted = true;
+    const source = node.loop !== undefined && "source" in node.loop
+      ? props.loopSources?.get(node.loop.source)
+      : undefined;
     const merged: IAutoMovieSolidBody.IMerged = AutoMovieSolidBody.merge(body, {
       name: node.name,
       kind: node.kind,
@@ -300,6 +303,9 @@ export function realizeAutoMovieConstruction(
       join: input,
       count: node.count,
       rows: node.rows,
+      ...(source?.kind === "ready" && source.railChord !== undefined
+        ? { railChord: source.railChord }
+        : {}),
     });
     absorb(node.name, merged.diagnostics);
     if (merged.blend === null || merged.join === null)

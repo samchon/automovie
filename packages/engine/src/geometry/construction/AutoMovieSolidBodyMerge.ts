@@ -15,6 +15,7 @@ import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSolidClip } from "./AutoMovieSolidClip";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDiff } from "./AutoMovieSolidDiff";
+import { AutoMovieSolidExactBlend } from "./AutoMovieSolidExactBlend";
 import { AutoMovieSolidMerge } from "./AutoMovieSolidMerge";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidMeshAuthorities } from "./AutoMovieSolidMeshAuthorities";
@@ -157,10 +158,10 @@ export namespace AutoMovieSolidBodyMerge {
    * @param input The merge.
    * @returns The blend or null with observed diagnostics. Returned rail/trim
    *   failures restore face count, copied cycles and mesh populations. A
-   *   callback exception preserves the state at the throw and propagates to
-   *   the caller. An existing part's new rail must
-   *   remain on its retained chart. Its constraints may not cross earlier trim
-   *   segments without a shared vertex.
+   *   callback exception preserves the state at the throw and propagates to the
+   *   caller. An existing part's new rail must remain on its retained chart.
+   *   Its constraints may not cross earlier trim segments without a shared
+   *   vertex.
    */
   export function merge(
     body: IAutoMovieSolidBody.IBody,
@@ -241,10 +242,46 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** Accepted join whose original callbacks supply the rails. */
     const join: IAutoMovieSolidJoin.IJoin = created.join;
-
     /** Existing blend publication with aligned rail charts. */
-    const blend: IAutoMovieSolidBlendChain.IBlend | null =
+    const original: IAutoMovieSolidBlendChain.IBlend | null =
       AutoMovieSolidBlendChain.of(input.name, join, input.count);
+    if (original === null)
+      return fail("rails", "a column of the blend has no rail");
+    const native =
+      input.railChord === undefined
+        ? null
+        : AutoMovieSolidExactBlend.prepare(join, original, partSurface, host);
+    if (input.railChord !== undefined && native === null)
+      return fail(
+        "native rail grid",
+        "closed rails must occupy one chart per original",
+      );
+    const basis =
+      native === null
+        ? null
+        : AutoMovieSolidExactBlend.adaptive(
+            native.at,
+            input.count,
+            input.rows,
+            input.railChord!,
+          );
+    if (typeof basis === "string") return fail("native rail grid", basis);
+    const rows = basis?.rows ?? input.rows;
+    const phases =
+      basis?.phases ??
+      Array.from(
+        { length: input.count },
+        (_, k) => (2 * Math.PI * k) / input.count,
+      );
+    const blend =
+      native === null
+        ? original
+        : AutoMovieSolidExactBlend.discretize(
+            original,
+            join,
+            native.column,
+            phases,
+          );
     if (blend === null)
       return fail("rails", "a column of the blend has no rail");
 
@@ -271,10 +308,20 @@ export namespace AutoMovieSolidBodyMerge {
     }
 
     /** Original analytic surface adapter for the published chain. */
-    const blendSurface: IAutoMovieSolidSurface | null =
-      AutoMovieSolidChain.surface(blend.chain);
-    if (blendSurface === null)
+    const sampled: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(
+      blend.chain,
+    );
+    if (sampled === null)
       return fail("blend surface", "the blend chain carries no jets");
+    const blendSurface =
+      native === null
+        ? sampled
+        : AutoMovieSolidExactBlend.surface(
+            native.at,
+            input.name,
+            blend.length,
+            sampled.orientation,
+          );
 
     // The faces: the part's (new or known) and the blend's.
 
@@ -292,15 +339,15 @@ export namespace AutoMovieSolidBodyMerge {
     const blendFace: number = body.faces.length;
     body.faces.push({
       surface: blendSurface,
+      ...(native === null
+        ? {}
+        : { retainSurface: true as const, retainPhases: true as const }),
       stations: Array.from(
-        { length: input.rows + 1 },
+        { length: rows + 1 },
         (_: unknown, i: number): number =>
-          i === input.rows ? blend.length : (blend.length * i) / input.rows,
+          i === rows ? blend.length : (blend.length * i) / rows,
       ),
-      phases: Array.from(
-        { length: input.count },
-        (_: unknown, k: number): number => (2 * Math.PI * k) / input.count,
-      ),
+      phases,
       cycles: [],
     });
 
@@ -308,7 +355,7 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** Host rail including existing cross-face bisection observations. */
     const rail: IAutoMovieSolidClip.IRailPoint[] | string =
-      AutoMovieSolidClip.rail(body, join, blend, index, input.count);
+      AutoMovieSolidClip.rail(body, join, blend, index, phases);
     if (typeof rail === "string")
       return fail(
         "rails",
@@ -330,9 +377,8 @@ export namespace AutoMovieSolidBodyMerge {
         ),
     );
 
-    /** Original uniform column phase, radians. */
-    const phase: (k: number) => number = (k: number): number =>
-      (2 * Math.PI * k) / input.count;
+    /** The shared column's physical phase, radians. */
+    const phase = (k: number): number => phases[k]!;
 
     const partCycle: IAutoMovieSolidCycle.ICycle = {
       kind: blend.part.kind,

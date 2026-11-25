@@ -304,7 +304,10 @@ export namespace AutoMovieSolidBody {
                 };
           return {
             chain: f.surface.name,
-            ...(f.retainSurface === true ? { surface: f.surface, stations: [...f.stations] } : {}),
+            ...(f.retainSurface === true
+              ? { surface: f.surface, stations: [...f.stations] }
+              : {}),
+            ...(f.retainPhases === true ? { samplePhases: [...f.phases] } : {}),
             cycles: f.cycles.map(cycle),
             ...(domains === undefined
               ? {}

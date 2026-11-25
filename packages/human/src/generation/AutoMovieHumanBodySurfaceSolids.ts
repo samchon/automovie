@@ -102,14 +102,17 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     // Prepare the original surface range selected by the complete body and
     // its shared points. A published face remains its own explicit owner.
     const published = new Map<string, IAutoMovieSolidSurface>();
-    const explicit = new Map<string, number[]>();
+    const explicit = new Map<string, { stations: number[]; phases?: number[] }>();
     const required = names(calibration);
     for (const body of calibration.bodies ?? []) {
       for (const point of body.points) required.add(point.chain);
       for (const face of body.faces)
         if (face.surface !== undefined) {
           published.set(face.chain, face.surface);
-          explicit.set(face.chain, face.stations ?? []);
+          explicit.set(face.chain, {
+            stations: face.stations ?? [],
+            phases: face.samplePhases,
+          });
         }
     }
     const surfaces: Map<string, IAutoMovieSolidSurface> = new Map(
@@ -283,7 +286,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         ? AutoMovieHumanLoftStations.bisectRings(
             [
               from,
-              ...explicit.get(name)!.filter((y) => y > from && y < to),
+              ...explicit.get(name)!.stations.filter((y) => y > from && y < to),
               to,
             ],
             (phases) => {
@@ -320,7 +323,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         );
         continue;
       }
-      const phases: number[] = Array.from(
+      const phases: number[] = explicit.get(name)?.phases ?? Array.from(
         { length: chain.samples },
         (_: unknown, k: number): number =>
           grid === undefined

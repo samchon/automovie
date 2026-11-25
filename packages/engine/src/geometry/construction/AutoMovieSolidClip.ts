@@ -62,7 +62,7 @@ export namespace AutoMovieSolidClip {
    * @param join The join.
    * @param blend Its published blend.
    * @param index The body face of each atlas face the join was traced on.
-   * @param count The blend's columns.
+   * @param phases The blend's shared column phases without the repeated endpoint.
    * @returns The points in rail order, or where a crossing's rail fails.
    */
   export function rail(
@@ -70,8 +70,9 @@ export namespace AutoMovieSolidClip {
     join: IAutoMovieSolidJoin.IJoin,
     blend: IAutoMovieSolidBlendChain.IBlend,
     index: number[],
-    count: number,
+    phases: readonly number[],
   ): IAutoMovieSolidClip.IRailPoint[] | string {
+    const count: number = phases.length;
     const faces: number[] = (
       blend.host.faces ?? blend.host.chart.map((): number => 0)
     ).map((f: number): number => index[f]!);
@@ -104,7 +105,7 @@ export namespace AutoMovieSolidClip {
         point(
           faces[k]!,
           blend.host.chart[k]!,
-          (2 * Math.PI * k) / count,
+          phases[k]!,
           blend.across[k]!,
         ),
       );
@@ -112,8 +113,8 @@ export namespace AutoMovieSolidClip {
       if (next === faces[k]) continue;
 
       // The crossing: the last parameter on this face and the first on the next.
-      let lo: number = blend.seed + (2 * Math.PI * k) / count;
-      let hi: number = blend.seed + (2 * Math.PI * (k + 1)) / count;
+      let lo: number = blend.seed + phases[k]!;
+      let hi: number = blend.seed + (phases[k + 1] ?? 2 * Math.PI);
       let low: IAutoMovieSolidRail.IRail | null = blend.rails?.[k] ?? join.rail(lo);
       // A full turn can land on a different atlas chart branch than its seed.
       let high: IAutoMovieSolidRail.IRail | null =

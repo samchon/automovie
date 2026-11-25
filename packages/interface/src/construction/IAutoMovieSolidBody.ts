@@ -20,6 +20,9 @@ export namespace IAutoMovieSolidBody {
     /** Preserve this analytic owner in the detached body publication as well. */
     retainSurface?: true;
 
+    /** Publish the same explicitly owned nonuniform angular sampling grid. */
+    retainPhases?: true;
+
     /** Finite strictly increasing samples of surface u, in that chart's units, usually station millimetres; shared arrays may be retained from inputs. */
     stations: number[];
 
@@ -100,6 +103,12 @@ export namespace IAutoMovieSolidBody {
 
     /** Positive integer subdivision count across the blend span, yielding rows+1 station samples; BodyMerge relies on this caller premise. */
     rows: number;
+
+    /**
+     * Retain the exact mixed-join ribbons and derive the grid for this chord
+     * deflection in millimetres.
+     */
+    railChord?: number;
   }
 
   /**
@@ -147,6 +156,9 @@ export namespace IAutoMovieSolidBody {
 
       /** The explicit analytic owner's shape-derived sampling stations in mm. */
       stations?: number[];
+
+      /** Explicit angular samples when both incident rails own this partition. */
+      samplePhases?: number[];
 
       /** Its trim cycles, as points. */
       cycles: {

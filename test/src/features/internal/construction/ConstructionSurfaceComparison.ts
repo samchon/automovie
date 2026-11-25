@@ -20,7 +20,7 @@ export namespace ConstructionSurfaceComparison {
     const out: string[] = [];
     const count: number = blend.host.chart.length;
     for (let k: number = 0; k < count; k++) {
-      const phase: number = (2 * Math.PI * k) / count;
+      const phase: number = blend.phases?.[k] ?? (2 * Math.PI * k) / count;
       const across: [number, number] = blend.across[k]!;
       const partAcross: [number, number] = blend.partAcross[k]!;
       for (const [side, at, face, chart, d] of [

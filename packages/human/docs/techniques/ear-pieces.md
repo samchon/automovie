@@ -28,6 +28,12 @@ Cho's g-h and b-k means supply the dimensions of the conchal oval. Zhu's rim-pla
 
 The join uses the carrier half-thickness as its local extent. The resulting part-rail cap and the two-span support radius of a cubic control reserve the scalp attachment. Crest contributions ease to zero with a quintic across the next crest radius. Conchal depth loses any amount that would consume either the attachment clearance or the rear cartilage allowance. A conchal survey value is a nominal target for this placement, and the resulting floor depth is an output measurement.
 
+## Attachment rails
+
+The closed contact establishes each rail's physical anchors on the scalp or auricle. A periodic cubic curve through those anchors defines the rail in its original chart. Both incident faces evaluate the same chart curve on the original surface. The blend inherits its position and transverse two-jet there. This preserves the connected branch between anchors where the prescribed normal-section chord can exceed the auricle's first radial turning point. [Hartmann, section 11.3](https://www2.mathematik.tu-darmstadt.de/~ehartmann/cdgen.pdf)
+
+The draw refines the shared angular partition where the original rails or the sampled ribbon depart from their midpoint chords. The 0.01 mm chord target is an ESTIMATE tied to the campaign's overlap tolerance. Each surface draws the accepted rail occurrences in the same order and uses the original contact for its other chart coordinates. Check the emitted triangles for overlap and the published original jets for continuity. [Open CASCADE Technology mesh guide](https://dev.opencascade.org/doc/overview/html/occt_user_guides__mesh.html)
+
 ## Verification
 
 Check the named sa-sba and c-j calipers, original scalp endpoints, and the two auricle joins. Each ear has five crest fields and a negative conchal field on the same declared source. Read the actual profile and posterolateral skin against the pinned public HM08 reference. The curve overlay reads the same source in transverse and longitudinal sections.

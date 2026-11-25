@@ -25,6 +25,9 @@ export namespace IAutoMovieSolidBlendChain {
     /** The curve parameter of the chain's phase 0, radians (`AutoMovieSolidIntersection.IPoint.t`). */
     seed: number;
 
+    /** Exact sample phases when the shared rails use a nonuniform partition. */
+    readonly phases?: readonly number[];
+
     /** The host's rail at the columns, as a trim of the host's face. */
     host: IAutoMovieSolidMesh.ILoopChart;
 

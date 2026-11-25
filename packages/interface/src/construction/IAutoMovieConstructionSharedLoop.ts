@@ -42,6 +42,9 @@ export namespace IAutoMovieConstructionSharedLoop {
 
         /** The same boundary in the part's original chart with its actual two clock derivatives, in mm and radians. */
         readonly partAt: IAutoMovieSolidSharedCurve.Loop;
+
+        /** Sample the two native rails and their blend to this mesh deflection in millimetres. */
+        readonly railChord?: number;
       }
     | {
         /** The source could not establish a boundary on the original charts. */

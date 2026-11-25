@@ -349,6 +349,9 @@ export namespace AutoMovieHumanHeadEarContact {
     return {
       ...names,
       kind: "ready",
+      // ESTIMATE. Request the body's 0.01 mm overlap budget as a local chord
+      // target. Emitted crossing and continuity checks use the actual mesh.
+      railChord: 0.01,
       at: (t) => {
         const p = meet(t);
         return {
