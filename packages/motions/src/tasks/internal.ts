@@ -12,3 +12,5 @@ export * from "./extinguishSweep";
 export * from "./hoseLineReaction";
 export * from "./wipe";
 export * from "./HumanToolWork";
+export { HumanToolTurn } from "./HumanToolTurn";
+export { useToolCycle } from "./useToolCycle";

@@ -91,8 +91,8 @@ export namespace useToolCycle {
     /** The `pose` `useTool.plan` prepared. */
     pose: useTool.IWork;
 
-    /** The `m` `useTool.plan` prepared. */
-    m: IAutoMovieMotionHumanBody["measure"];
+    /** The body's forearm length, metres. */
+    m: Pick<IAutoMovieMotionHumanBody["measure"], "forearm">;
 
     /** The `work` `useTool.plan` prepared. */
     work: HumanToolWork.IWork;
