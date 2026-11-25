@@ -357,7 +357,7 @@ export namespace AutoMovieHumanBodyLane {
               left,
               right,
               input.trunk.nativeGluteal === true
-                ? (input.trunk.gluteal ?? undefined)
+                ? { gluteal: input.trunk.gluteal }
                 : undefined,
             )
           : "Both original lower branches and the torso are required";

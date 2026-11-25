@@ -64,7 +64,10 @@ export namespace IAutoMovieHumanTrunkBuild {
     /** The gluteal masses' law, or null. */
     gluteal: IMassLaw | null;
 
-    /** Use the prepared rear trunk field as the gluteal source. */
+    /**
+     * Use the native radial pelvis and prepare the rear trunk field when a mass
+     * law exists.
+     */
     nativeGluteal?: boolean;
   }
 

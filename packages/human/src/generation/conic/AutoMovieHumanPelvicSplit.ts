@@ -45,7 +45,7 @@ export namespace AutoMovieHumanPelvicSplit {
     host: IAutoMovieConstructionNode,
     left: IBranch,
     right: IBranch,
-    gluteal?: IAutoMovieHumanTrunkBuild.IMassLaw,
+    continued?: { gluteal: IAutoMovieHumanTrunkBuild.IMassLaw | null },
   ) {
     const owner = (part: IAutoMovieViewPart): Owner => ({
       part,
@@ -55,9 +55,9 @@ export namespace AutoMovieHumanPelvicSplit {
       const hostSource = owner(parent);
       const receivers = [owner(left.part), owner(right.part)] as const;
       const native =
-        gluteal === undefined
+        continued === undefined
           ? source(hostSource, receivers, CHORD_MM)
-          : retained(hostSource, receivers, CHORD_MM, gluteal);
+          : retained(hostSource, receivers, CHORD_MM, continued.gluteal);
       return typeof native === "string"
         ? native
         : prepare(native, host, [left.branch, right.branch]);
@@ -66,26 +66,37 @@ export namespace AutoMovieHumanPelvicSplit {
     }
   }
 
-  /** Keep the authored crests and continue their original posterior courses. */
+  /**
+   * Continue the original radial courses and retain authored crests where
+   * present.
+   */
   export function retained(
     parent: Owner,
     donors: readonly [Owner, Owner],
     chordMm: number,
-    gluteal: IAutoMovieHumanTrunkBuild.IMassLaw,
+    gluteal: IAutoMovieHumanTrunkBuild.IMassLaw | null,
     stations?: readonly [number, number],
   ): ReturnType<typeof source> {
-    const graphs = parent.part.originalGraphs;
-    if (graphs === undefined || graphs.length === 0)
+    const graphs = gluteal === null ? [] : (parent.part.originalGraphs ?? []);
+    if (gluteal !== null && graphs.length === 0)
       return "The pelvic split has no prepared native gluteal graph";
-    const [, y, z] = gluteal.target;
-    const row = parent.field.pointAt(y);
-    const left = AutoMovieHumanGlutealRelief.posteriorPhase(row, z, 1);
-    const right =
-      2 * Math.PI - AutoMovieHumanGlutealRelief.posteriorPhase(row, -z, -1);
-    const input = source(parent, donors, chordMm, stations, "continued", [
-      left,
-      right,
-    ]);
+    const crests = (): [number, number] | undefined => {
+      if (gluteal === null) return undefined;
+      const [, y, z] = gluteal.target;
+      const row = parent.field.pointAt(y);
+      return [
+        AutoMovieHumanGlutealRelief.posteriorPhase(row, z, 1),
+        2 * Math.PI - AutoMovieHumanGlutealRelief.posteriorPhase(row, -z, -1),
+      ];
+    };
+    const input = source(
+      parent,
+      donors,
+      chordMm,
+      stations,
+      "continued",
+      crests(),
+    );
     if (typeof input === "string") return input;
     const { parent: cut } = input.input;
     return {
@@ -94,16 +105,19 @@ export namespace AutoMovieHumanPelvicSplit {
         ...input.input,
         radial: true,
         radialContact: true,
-        parent: {
-          ...cut,
-          forwardWeight: (phase): number => {
-            const station = cut.station(phase);
-            return Math.max(
-              0,
-              ...graphs.map((graph) => graph.weight(station, phase)),
-            );
-          },
-        },
+        parent:
+          graphs.length === 0
+            ? cut
+            : {
+                ...cut,
+                forwardWeight: (phase): number => {
+                  const station = cut.station(phase);
+                  return Math.max(
+                    0,
+                    ...graphs.map((graph) => graph.weight(station, phase)),
+                  );
+                },
+              },
       },
     };
   }
