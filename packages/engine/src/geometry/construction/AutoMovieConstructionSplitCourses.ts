@@ -187,7 +187,7 @@ export namespace AutoMovieConstructionSplitCourses {
         const width = cycle(end - begin);
         const at = (t: number): number => origin + span * t;
         const basis = (s: number) => ({
-          along: Vec.unit(first(seam.cubic, s))!,
+          along: Vec.unit(Cubic.first(seam.cubic, s))!,
           across: seam.transverse(s),
         });
         const coeff = (s: number, ray: P3): [number, number] => {
@@ -202,8 +202,8 @@ export namespace AutoMovieConstructionSplitCourses {
           seam: { id: k, reverse },
           count: seam.count,
           point: (t) => ({
-            p: value(seam.cubic, at(t)),
-            d: Vec.scale(first(seam.cubic, at(t)), span),
+            p: Cubic.value(seam.cubic, at(t)),
+            d: Vec.scale(Cubic.first(seam.cubic, at(t)), span),
           }),
           angle: (t) => ({ value: cycle(begin + width * t), rate: width }),
           direction: (t, from, to): P3 => {
@@ -387,8 +387,8 @@ export namespace AutoMovieConstructionSplitCourses {
   }
 
   /**
-   * Apply the requested 0.01 mm geometric resolution to a chord. The deviation of
-   * a twice-differentiable curve from a chord is at most max |C''| h²/8.
+   * Apply the requested 0.01 mm geometric resolution to a chord. The deviation
+   * of a twice-differentiable curve from a chord is at most max |C''| h²/8.
    */
   function deflectionSamples([a, b, c, d]: Cubic.Cubic): number {
     const curvature =
