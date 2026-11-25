@@ -242,17 +242,16 @@ export namespace courseLimbSwivels {
       };
     };
 
-    // The knots' seconds: the frame grid from the span's start, the plan's
-    // instants and the span's end.
-    const step: number = AutoMovieMotionHumanArmCourse.STEP;
-    const grid: number[] = [span.start, span.end];
-    for (let k: number = 1; span.start + k * step < span.end - 1e-9; ++k)
-      grid.push(span.start + k * step);
-    for (const t of props.instants ?? [])
-      if (t > span.start && t < span.end) grid.push(t);
-    const times: readonly number[] = [...new Set<number>(grid)].sort(
-      (x: number, y: number): number => x - y,
-    );
+    // Put the frame grid between the plan's instants so a rounded frame and
+    // its event cannot introduce a near-zero interval in the spline.
+    const times: readonly number[] = AutoMovieMotionHumanArmCourse.grid({
+      ...span,
+      ready: span.start,
+      relax: span.start,
+      knots: (props.instants ?? []).filter(
+        (t: number): boolean => t > span.start && t < span.end,
+      ),
+    });
 
     // The first knot places the limbs at the swivels they enter the span
     // with (prescribed: refined only where that placement does not stand),

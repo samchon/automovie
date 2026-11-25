@@ -52,6 +52,9 @@ type IPlanFrameAtTilt = {
   joints: IAutoMovieMotionHumanPosture["joints"];
 };
 
+/** Samples per second of the action clock used to find floor reach. */
+const REACH_RATE: number = 60;
+
 /**
  * Getting off a high seat onto the floor: what `rise` plans where a foot is off
  * the floor, on a rest or hanging.
@@ -246,8 +249,17 @@ export namespace HumanMountOff {
       before: number,
       found: (t: number) => boolean,
     ): number => {
-      for (let t: number = after; t < before; t += 1 / 60)
+      if (after < before && found(after)) return after;
+      // Each foot searches on the same clock after its own release so that
+      // two feet that first reach the floor on one tick land together.
+      for (
+        let tick: number = Math.floor(after * REACH_RATE) + 1;
+        tick / REACH_RATE < before;
+        ++tick
+      ) {
+        const t: number = tick / REACH_RATE;
         if (found(t)) return t;
+      }
       return before;
     };
 
