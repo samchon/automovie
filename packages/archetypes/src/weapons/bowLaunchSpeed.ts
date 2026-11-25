@@ -22,7 +22,7 @@ export function bowLaunchSpeed(
   mass: number,
   travel: number,
 ): number {
-  if (!(mass > 0))
+  if (!(mass > 0 && mass < Infinity))
     refuse(
       "mass",
       mass,
@@ -39,7 +39,7 @@ export function bowLaunchSpeed(
       reason: `no source read gives the ${bow.name}'s draw weight, so its stored energy is unknown`,
       fix: "launch from a bow whose draw weight is read",
     });
-  if (!(draw > 0))
+  if (!(draw > 0 && draw < Infinity))
     refuse(
       "draw",
       draw,
@@ -47,7 +47,7 @@ export function bowLaunchSpeed(
       "give a sourced positive draw weight in newtons",
     );
   const stroke: number | undefined = bow.affordance("string").travel;
-  if (!(stroke !== undefined && stroke > 0))
+  if (!(stroke !== undefined && stroke > 0 && stroke < Infinity))
     refuse(
       "string",
       stroke,
@@ -72,25 +72,41 @@ export function bowLaunchSpeed(
       : createBow.KOOI.recurve;
   if (travel === 0) return 0;
   const share: number = travel / stroke;
-  const stored: number = q * draw * stroke * share ** (1 / q);
+  const force: number = q * draw;
+  const full: number = force * stroke;
+  const fraction: number = share ** (1 / q);
+  const stored: number = full * fraction;
   const virtual: number =
     (createBow.KOOI.arrow * (1 - createBow.KOOI.efficiency)) /
     createBow.KOOI.efficiency;
   const squared: number = (2 * stored) / (mass + virtual);
-  const speed: number = Math.sqrt(squared);
 
-  // The least normal binary64 value marks lost energy precision, not a physical draw cutoff.
+  // A subnormal intermediate can lose precision even if a later factor
+  // recovers its range. The least normal binary64 value is 2 to the -1022.
+  const normal: number = 2 ** -1022;
   const result: number =
-    stored < 2 ** -1022 || squared < 2 ** -1022
-      ? Math.exp(
+    force >= normal &&
+    full >= normal &&
+    fraction >= normal &&
+    stored >= normal &&
+    squared >= normal &&
+    squared < Infinity
+      ? Math.sqrt(squared)
+      : Math.exp(
           (Math.log(2 * q) +
             Math.log(draw) +
             Math.log(stroke) -
             Math.log(mass + virtual)) /
             2 +
             (Math.log(travel) - Math.log(stroke)) / (2 * q),
-        )
-      : speed;
+        );
+  if (!(result >= 0 && result < Infinity))
+    refuse(
+      "speed",
+      result,
+      "the sampled speed is outside the representable range",
+      "use animation values with a representable speed",
+    );
   return result;
 
   /** Keep invalid physical inputs in the public structured refusal contract. */

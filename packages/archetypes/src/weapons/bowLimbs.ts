@@ -26,16 +26,22 @@ export function bowLimbs(
     ["half", half],
     ["brace", brace],
   ] as const)
-    if (!(value > 0))
+    if (!(value > 0 && value < Infinity))
       refuse(
         axis,
         value,
         "a bow's limb and brace dimensions need finite positive lengths",
       );
-  if (!(travel >= 0))
+  if (!(travel >= 0 && travel < Infinity))
     refuse("travel", travel, "a string draw needs finite nonnegative travel");
   const reach: number = Math.hypot(half, brace);
   const nock: number = brace + travel;
+  if (!(reach < Infinity && nock < Infinity))
+    refuse(
+      "geometry",
+      travel,
+      "the limb reach or drawn nock lies outside the coordinate range",
+    );
   if (travel > 0 && !(nock > brace))
     refuse(
       "geometry",
@@ -83,6 +89,8 @@ export function bowLimbs(
     const y: number = reach * Math.cos(alpha + phi);
     const z: number = reach * Math.sin(alpha + phi);
     const result: number = Math.abs(Math.hypot(y, z - (brace + x)) - half);
+    if (!(result < Infinity))
+      refuse("geometry", x, "the sampled string gap is not representable");
     return result;
   };
   const rows: [number, number][] = [[0, 0]];
