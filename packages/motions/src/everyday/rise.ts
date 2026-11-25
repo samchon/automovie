@@ -362,14 +362,33 @@ export namespace rise {
     const seatOff: number = prepared + away;
     const duration: number = prepared + rising;
     const share: (t: number) => number = (t: number): number => t / duration;
+    const seatedSupport: IAutoMovieMotionHumanEntryState.ISupport | undefined =
+      context.entry.supports.find(
+        (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          contact.part === "seat",
+      );
+    const backSupport: IAutoMovieMotionHumanEntryState.ISupport | undefined =
+      context.entry.supports.find(
+        (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          contact.part === "back" && contact.material !== undefined,
+      );
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "seat",
         kind: "seat",
         from: 0,
         to: share(seatOff),
-        support: HumanSupportFrame.contact(context, "seat"),
+        support:
+          seatedSupport?.support ?? HumanSupportFrame.contact(context, "seat"),
+        ...(edging !== 0 || seatedSupport?.material === undefined
+          ? {}
+          : {
+              material: seatedSupport.material,
+            }),
       },
+      ...(backSupport === undefined
+        ? []
+        : [{ ...backSupport, from: 0, to: 0 }]),
     ];
     for (const side of ["left", "right"] as const) {
       const swing: [number, number] | undefined = swings[side];

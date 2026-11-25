@@ -5,11 +5,11 @@ description: Sets what the public website says, how its pages are built and how 
 
 # Website
 
-The site in `website/` tells a visitor what AutoMovie does and lets a developer or a coding agent look up what it composes. [DESIGN.md](../../../website/DESIGN.md) owns each page's layout and the visual rules a change keeps; the [website README](../../../website/README.md) owns the routes and commands.
+The [website](../../../website/README.md) presents AutoMovie's guide, catalog and API. Follow [DESIGN.md](../../../website/DESIGN.md) for layouts and [package scripts](../../../website/package.json) for local commands.
 
 ## What the site says
 
-Lead with the product's strongest claim: the coding agent writes the screenplay through the authoring chain, the evidence graph makes every principle and decision an obligation the screenplay and the code answer in writing, so the screenplay and the film never drift, and the engine computes the motion hint from code into the same frames every time. Present the motions, the archetypes and the scene studies as the kit a production composes with, after that claim: any action is a typed call over the engine's primitives, and calls compose. Never lead with how many there are, since the count changes with every release.
+Lead with the screenplay, its staged performance and deterministic frame generation. Describe Evidence as linking selected requirements to their answers. Show motions, archetypes and scene studies through examples of typed actions composing into a take.
 
 State only what the repository does. Take a command, a file path, an option, a diagnostic or a number from the source or a run. Show real output, or mark an excerpt as abridged and say whose numbers it shows. Leave out what a release does not ship, and describe people only as the polygon man.
 
@@ -30,6 +30,7 @@ Verify on the production build, because the dev server compiles the packages for
 1. Run `pnpm --filter @automovie/website typecheck`.
 2. Run `build`, which runs the checks and the bake before the export and the bundle check after it.
 3. Run `smoke`, which opens every case in a headless browser.
-4. Look at each changed page with `shots --full --scroll` at 1440 px and at 390 px, in both themes and under `--reduced`, and at the stills with `posters`.
+4. Use `shots --full --scroll` at 1440 and 390 px in both themes and reduced motion.
+5. Inspect the take stills with `posters`.
 
 Judge the screenshots under [visual debugging](../visual-debugging/SKILL.md) and against the rules in DESIGN.md. Fix every finding of a round by cause before the next round.

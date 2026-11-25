@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanLadder,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -17,6 +18,9 @@ export interface ILadderAccessGrip {
 
   /** Whether the held bar is an upright side rail rather than a rung. */
   rail: boolean;
+
+  /** The held rung's exact frame if the grip is on a material rung. */
+  rung?: IAutoMovieMotionHumanLadder.IRung;
 
   /** The window over which the support plan keeps this grip. */
   window: IAutoMovieMotionHumanContactWindow;

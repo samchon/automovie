@@ -1,14 +1,12 @@
 # Project context
 
-The production's `PROJECT.md` is its one current account of what is made and how, written for the user and the next agent. It states only the current choices; Git keeps the superseded ones.
+Keep current production choices in `PROJECT.md` for the user and the next agent. Use Git for earlier decisions.
 
 ## Intake
 
-Read the request, `PROJECT.md`, the instructions and existing work. Establish what the user wants to make and receive. Where the answer is open, ask which outputs they want and where the work should stop.
+Read the request, existing context, instructions and work. Record the outputs and where the commission ends. For a screenplay, confirm the [writing route](../story/workflow/routes.md#who-writes-the-screenplay) and [creative requirements](../story/planning/requirements.md#asking-the-user). For an asset, determine its use and required views, movement or controls.
 
-Present the choices those outputs require. For a screenplay, confirm the [writing route](../story/workflow/routes.md#who-writes-the-screenplay) and [creative requirements](../story/planning/requirements.md#asking-the-user). For an image or motion, establish its use and the views, movement or controls to deliver.
-
-Use decisions already given. Ask the user to choose or delegate unresolved matters when the work first depends on them, including a method or model.
+Reuse decisions already given. Ask about a user-reserved choice when the work first depends on it.
 
 ## What to record
 
@@ -26,7 +24,7 @@ On long work a settings record owns both, and a link to it may replace them.
 
 Record the commissioned output and its boundary, with any authorized slice, deferred work and exclusions.
 
-When an output depends on earlier work, check that its inputs exist. An exclusion applies only to the delivery for which it was agreed. Resolve missing inputs within the delegation and refer any change in deliverables to the user.
+Check required inputs. Fill gaps within the delegation and refer a change in deliverables to the user.
 
 ### Representation
 
@@ -85,8 +83,4 @@ Read project context when starting or resuming. Record adopted changes before co
 
 ## How it controls the work
 
-The recorded scope sets the acceptance boundary. An adopted user decision is fixed within its scope, and the agent makes routine delegated decisions and records them without another permission round.
-
-Preserve adopted exclusions in planning and production.
-
-Mark undecided choices explicitly. Continue independent work.
+Use the recorded scope for acceptance. Respect fixed decisions and exclusions. Record routine delegated decisions as you make them. Mark choices still open and continue independent work.

@@ -7,9 +7,9 @@ import * as path from "node:path";
  * `ffmpeg-static`.
  *
  * The command itself depends on none of them, so `npx automovie create`
- * installs nothing a capture needs; a production that captures installs them,
- * and this resolves the copies it installed. It throws naming the package and
- * the production when it is not installed there.
+ * installs nothing a capture needs. Resolve dependencies from the production in
+ * order to diagnose a missing package or an installed module that fails to
+ * initialize. Preserve the original failure as the cause.
  *
  * @param root The production's folder.
  * @param id The package to load.
@@ -23,9 +23,15 @@ export function loadAutoMovieProductionModule<T = unknown>(
   try {
     return load(id);
   } catch (error) {
-    throw new Error(
-      `${id} is not installed in ${root}; capture loads it from the production, so add it to the production's dependencies`,
-      { cause: error },
-    );
+    let resolved: string;
+    try {
+      resolved = load.resolve(id);
+    } catch {
+      throw new Error(
+        `${id} is not installed in ${root}. Add it to the production's dependencies.`,
+        { cause: error },
+      );
+    }
+    throw new Error(`Could not load ${id} at ${resolved}`, { cause: error });
   }
 }

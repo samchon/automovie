@@ -12,11 +12,11 @@ A [direct writer](../workflow/routes.md#direct-writing) studies the screenplay's
 
 ### What needs a study
 
-A skilled performance needs a basis for the actions chosen, including when `@automovie/motions` supplies them all. Reuse a study that covers the depicted conditions. The package README explains its mechanics.
+Study a skilled performance even when installed actions cover it. Reuse studies that cover the depicted conditions.
 
 ### Performance study
 
-Study a complete passage of the practice at the depicted level. Follow the [research criteria](../../contracts/story/principles/research.md#depicted-practice) for timing, action density and variation, and study how the passage is filmed when the camera matters.
+Study a complete passage at the depicted level and in its relevant cultural, historical or genre context. Follow the [research criteria](../../contracts/story/principles/research.md#depicted-practice) for timing, action density and variation. Study its filming when camera choices matter.
 
 ## Sources
 

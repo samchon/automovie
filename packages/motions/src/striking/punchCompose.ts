@@ -12,10 +12,8 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingStance } from "./StrikingStance";
-import { punchContact } from "./punchContact";
 import { punchFootwork } from "./punchFootwork";
 import { punchGeometry } from "./punchGeometry";
-import type { punchReach } from "./punchReach";
 
 /**
  * The punch's posture at a time and a clock: the footwork's base or a bare
@@ -48,8 +46,7 @@ export function punchCompose(
     raised,
     guardAt,
     startElbow,
-    carry,
-    contact,
+    hint,
     arm,
     drop,
     sag,
@@ -92,9 +89,7 @@ export function punchCompose(
     );
     const elbow: IAutoMovieVector3 = punchCompose.elbow(
       startElbow,
-      bare === undefined
-        ? carry(contact.hint, clock, (c: punchReach.ICorrection) => c.hint)
-        : bare.hint(clock),
+      bare === undefined ? hint(clock) : bare.hint(clock),
       guard[arm]!.bend,
       gone,
       back(clock),
@@ -213,15 +208,8 @@ export namespace punchCompose {
     /** The `startElbow` `punchGeometry.build` prepared. */
     startElbow: IAutoMovieVector3;
 
-    /** The `carry` `punchGeometry.build` prepared. */
-    carry: (
-      origin: IAutoMovieVector3,
-      t: number,
-      of: (c: punchReach.ICorrection) => IAutoMovieVector3,
-    ) => IAutoMovieVector3;
-
-    /** The `contact` `punchGeometry.build` prepared. */
-    contact: punchContact.IContact;
+    /** The contact elbow hint updated by the prepared tracking corrections. */
+    hint: (clock: number) => IAutoMovieVector3;
 
     /** The `arm` `punchGeometry.build` prepared. */
     arm: BuildArm;

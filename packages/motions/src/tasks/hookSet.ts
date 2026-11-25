@@ -42,10 +42,18 @@ function planHookSet(
   );
   const duration: number = tip.duration;
   const turned: (t: number) => IAutoMovieRigidTransform = tip.turned;
+  const arm: ReturnType<typeof wardrobeHands.prepareArm> =
+    wardrobeHands.prepareArm(
+      body,
+      () => entry.posture,
+      hand,
+      turned,
+      duration,
+      [params.duration],
+    );
   const posture: (t: number) => IAutoMovieMotionHumanPosture = (
     t: number,
-  ): IAutoMovieMotionHumanPosture =>
-    wardrobeHands.arm(body, entry.posture, hand, turned(t));
+  ): IAutoMovieMotionHumanPosture => arm(entry.posture, t);
   wardrobeHands.verify(
     context,
     posture(params.duration),

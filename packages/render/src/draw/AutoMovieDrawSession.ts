@@ -96,9 +96,8 @@ export class AutoMovieDrawSession {
    * Inject the props, load the draw page, wait for its draw function and
    * describe its subject.
    *
-   * It rejects when the page does not install the draw function within the
-   * timeout, naming the address, and when describing the subject fails or
-   * outlasts the timeout. A rejected open leaves the page with the caller.
+   * Navigation, draw-function readiness and subject description each get the
+   * session timeout. A rejected open leaves the page with the caller.
    */
   public static async open(props: {
     /** A fresh page, which the session owns once open resolves. */
@@ -123,7 +122,7 @@ export class AutoMovieDrawSession {
     await page.addInitScript({
       content: `globalThis[${JSON.stringify(AUTO_MOVIE_DRAW_GLOBALS.props)}] = ${JSON.stringify(props.props)};`,
     });
-    await page.goto(props.url, { waitUntil: "load" });
+    await page.goto(props.url, { waitUntil: "load", timeout });
     try {
       await page.waitForFunction(
         (name: typeof AUTO_MOVIE_DRAW_GLOBALS.draw): boolean =>

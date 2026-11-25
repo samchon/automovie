@@ -148,7 +148,9 @@ type IGoal = (
  * @param socket The sole socket each floor foot holds through its window
  *   (`supportHeldSocket`); the lower of its heel and ball at the key before
  *   when absent.
- * @param bind The exact reader of a shared contact's named material, when given.
+ * @param bind The exact reader of a shared contact's named material, when
+ *   given.
+ * @param floor The unchanged body's prepared floor bound, shared by the plan.
  * @returns The interior writer and invalidation of its target observations at
  *   plan settlement.
  */
@@ -161,6 +163,7 @@ export function prepareSupportInterval(
   ) => IAutoMovieVector3 | null,
   socket?: prepareSupportHeldFrames.Socket,
   bind?: prepareSupportInterval.Material,
+  floor: ReturnType<typeof knockdown.prepareRest> = knockdown.prepareRest(body),
 ): IInterval {
   const blend: ReturnType<typeof supportKey.prepareBlended> =
     supportKey.prepareBlended(body, a.posture, b.posture);
@@ -178,8 +181,6 @@ export function prepareSupportInterval(
         !contact.part.endsWith("Foot") && !contact.part.endsWith("Hand"),
     ) ?? common[0];
   const limbs: prepareSupportHeldFrames.IHeld[] = heldLimbs(common);
-  const floor: ReturnType<typeof knockdown.prepareRest> =
-    knockdown.prepareRest(body);
   // The finest spacing of the lift course's knots: the frame grid's share
   // of the interval's seconds.
   const span: number = b.seconds - a.seconds;
@@ -244,12 +245,10 @@ export function prepareSupportInterval(
       );
     const pinned: IPinned = {
       fixed,
-      goals: frames.map(
-        (frame, i): IPinned["goals"][number] => [
-          frame.limb,
-          heldGoal(frame, material(limbs[i]!.contact)),
-        ],
-      ),
+      goals: frames.map((frame, i): IPinned["goals"][number] => [
+        frame.limb,
+        heldGoal(frame, material(limbs[i]!.contact)),
+      ]),
       sites,
       elevatedFoot: frames.some(
         (frame: prepareSupportHeldFrames.IHeldFrames): boolean =>

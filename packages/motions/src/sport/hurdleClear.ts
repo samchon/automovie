@@ -22,6 +22,7 @@ import { HumanObstacle } from "../everyday/HumanObstacle";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { crossingClearance } from "../terrain/crossingClearance";
 import { AthleticsRunUp } from "./AthleticsRunUp";
 import { AthleticsSwing } from "./AthleticsSwing";
 
@@ -39,8 +40,8 @@ import { AthleticsSwing } from "./AthleticsSwing";
  * foot lands flat and bears; a run cut there takes the stride on.
  *
  * Refused: a take-off outside `TAKEOFF` metres before the bar (an unsuitable
- * approach), and a flight whose hips pass the bar's plane lower than its top
- * plus `CLEAR`.
+ * approach), a flight whose crossing order is invalid, or a displayed lower leg
+ * intersecting the finite obstacle.
  *
  * First pass: the root stands in for the centre of mass on the parabola; the
  * arms keep the run's entry angles; the lead foot lands flat, not on its
@@ -142,8 +143,8 @@ export namespace hurdleClear {
    * @param context The action's context, entered from a run.
    * @returns The plan.
    * @throws {HumanRefusal} When the entry is no run cut at a footfall, the
-   *   hurdle declares no bar, the take-off lies outside `TAKEOFF`, or the hips
-   *   pass the bar lower than its top plus `CLEAR`.
+   *   hurdle declares no bar, the take-off lies outside `TAKEOFF`, or a
+   *   displayed lower leg intersects its finite geometry.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHurdleClear.IParams>,
@@ -307,21 +308,14 @@ export namespace hurdleClear {
         Vector3.subtract(Vector3.add(bar.at, Vector3.scale(ahead, middle)), r1),
       ) /
         approach.speed;
-    const hipsAt: number =
-      r1.y + vy * (crossing - off) - (g * (crossing - off) ** 2) / 2;
-    if (!(crossing > off && crossing < down && hipsAt >= top + CLEAR))
+    if (!(crossing > off && crossing < down))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "hurdle",
-        value: top,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: hipsAt - CLEAR - bar.at.y,
-          unit: "m",
-        },
-        reason: `at ${approach.speed.toFixed(2)} m/s the hips pass the bar's plane at ${hipsAt.toFixed(2)} m, below its top at ${top.toFixed(2)} m plus ${CLEAR} m`,
-        fix: "use a lower hurdle or take off farther from it",
+        value: crossing,
+        reason:
+          "the body must cross the bar's plane after takeoff and before landing",
+        fix: "change the staged approach and landing",
       });
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
     const root: (t: number) => IAutoMovieVector3 = (
@@ -359,19 +353,13 @@ export namespace hurdleClear {
       body.rest.get(`${take}UpperLeg`)!.y -
       hipsRest.y -
       body.rest.get(`${take}Foot`)!.y;
-    if (!(tucked < down && tuck >= top + CLEAR))
+    if (!(tucked < down))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "hurdle",
-        value: top,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: tuck - CLEAR - bar.at.y,
-          unit: "m",
-        },
-        reason: `at ${approach.speed.toFixed(2)} m/s the trail foot passes the bar's plane with its sole at ${tuck.toFixed(2)} m, below the top at ${top.toFixed(2)} m plus ${CLEAR} m`,
-        fix: "use a lower hurdle or take off farther from it",
+        value: tucked,
+        reason: "the trailing foot must cross before lead touchdown",
+        fix: "change the staged approach and landing",
       });
 
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
@@ -468,25 +456,33 @@ export namespace hurdleClear {
         planted: (seconds: number): boolean => seconds >= down,
       }),
     ];
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, entry, [
-        {
-          part: `${take}Foot`,
-          kind: "plant",
-          from: 0,
-          to: off / duration,
-          support: { kind: "ground" },
-        },
-        {
-          part: `${lead}Foot`,
-          kind: "plant",
-          from: down / duration,
-          to: 1,
-          support: { kind: "ground" },
-        },
-      ]),
-      clock,
-      primitives,
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, entry, [
+          {
+            part: `${take}Foot`,
+            kind: "plant",
+            from: 0,
+            to: off / duration,
+            support: { kind: "ground" },
+          },
+          {
+            part: `${lead}Foot`,
+            kind: "plant",
+            from: down / duration,
+            to: 1,
+            support: { kind: "ground" },
+          },
+        ]),
+        clock,
+        primitives,
+      });
+    crossingClearance(context, plan, [context.params.hurdle], {
+      bones: crossingClearance.LOWER_LEGS,
+      marks: [off, crossing, down / 2, tucked, down],
+      rate: 240,
+      allowance: 0.001,
     });
+    return plan;
   }
 }

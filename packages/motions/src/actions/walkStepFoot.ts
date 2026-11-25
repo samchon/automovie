@@ -1,4 +1,9 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -111,6 +116,19 @@ export namespace walkStepFoot {
      * run in reverse (`walkFoot.prepareStance`). False when absent.
      */
     backward?: boolean;
+
+    /** The next forefoot or heel plant carried from an outgoing run. */
+    inherited?: IInherited;
+  }
+
+  /** Material contact and the displayed foot arriving at it. */
+  export interface IInherited extends IAutoMovieMotionHumanWalkFoot.IFoot {
+    /** Contact offset in the entering foot's own frame, if declared. */
+    contact?: IAutoMovieVector3;
+    /** Fixed world contact point, metres. */
+    anchor: IAutoMovieVector3;
+    /** Foot socket that retains the anchor through the first stance. */
+    socket: "heel" | "mtp";
   }
 
   /**
@@ -257,26 +275,37 @@ export namespace walkStepFoot {
       // The opening stance follows its first step's direction; later ones
       // retain the direction of the footprint they stand on.
       const backward: boolean = (previous ?? next)?.backward === true;
+      const staged = inPlace
+        ? (): IAutoMovieMotionHumanWalkFoot.IFoot => ({
+            placement: {
+              ankle: { ...flat.ankle },
+              rotation: { ...flat.rotation },
+            },
+            toes: 0,
+          })
+        : walkFoot.prepareStance(
+            body,
+            side,
+            flat,
+            facing,
+            strike,
+            next?.toeOff ?? Infinity,
+            next?.push ?? -PUSH,
+            typical,
+            raised,
+            backward,
+          );
       stances.push(
-        inPlace
-          ? (): IAutoMovieMotionHumanWalkFoot.IFoot => ({
-              placement: {
-                ankle: { ...flat.ankle },
-                rotation: { ...flat.rotation },
-              },
-              toes: 0,
-            })
-          : walkFoot.prepareStance(
+        previous?.inherited === undefined
+          ? staged
+          : inheritedStance(
               body,
               side,
-              flat,
-              facing,
+              previous.inherited,
               strike,
               next?.toeOff ?? Infinity,
-              next?.push ?? -PUSH,
               typical,
-              raised,
-              backward,
+              staged,
             ),
       );
     }
@@ -336,4 +365,56 @@ export namespace walkStepFoot {
       };
     };
   }
+}
+
+/**
+ * Ease a previously scheduled landing into its new gait about the same sole
+ * datum.
+ */
+function inheritedStance(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  foot: walkStepFoot.IInherited,
+  strike: number,
+  leaving: number,
+  typical: number,
+  staged: (seconds: number) => IAutoMovieMotionHumanWalkFoot.IFoot,
+): (seconds: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
+  const settle: number = Math.min(typical, leaving - strike) / 3;
+  const placed: IAutoMovieMotionHumanWalkFoot.IFoot = staged(strike + settle);
+  const output: IAutoMovieVector3 = HumanFoot.offset(body, side, foot.socket);
+  const input: IAutoMovieVector3 = foot.contact ?? output;
+  const contact: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+    input,
+    output,
+  );
+  const anchor: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+    foot.anchor,
+    Vector3.add(
+      placed.placement.ankle,
+      Quaternion.rotateVector(placed.placement.rotation, output),
+    ),
+  );
+  return (seconds: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
+    if (seconds <= strike)
+      return { placement: foot.placement, toes: foot.toes };
+    if (seconds >= strike + settle) return staged(seconds);
+    const share: number = minimumJerk.share((seconds - strike) / settle);
+    const rotation: IAutoMovieMotionHumanFoot.IPlacement["rotation"] =
+      Quaternion.slerp(
+        foot.placement.rotation,
+        placed.placement.rotation,
+        share,
+      );
+    return {
+      placement: {
+        rotation,
+        ankle: Vector3.subtract(
+          anchor(share),
+          Quaternion.rotateVector(rotation, contact(share)),
+        ),
+      },
+      toes: foot.toes + (placed.toes - foot.toes) * share,
+    };
+  };
 }

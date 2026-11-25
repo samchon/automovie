@@ -2,98 +2,89 @@
 
 ## Tree
 
-- Build the whole figure as one construction tree of the interface's construction types. The engine realizes it once into chains, joins, trims and one skin. The Human package derives the nodes from the person's inputs and laws and reads what the realization publishes. Lofting, joining, trimming and tessellation belong to the engine, so every person and every form share one tested kernel.
-- Compose compatible original profiles and section pieces in one declared physical plane and frame before lofting. Their guides, extrema, fullness and measurement constraints stay explicit, so the surface traces back to them. A logical anatomical part need not be an independent loft.
-- Derive ports, join seeds, trim landmarks and regional domains from shared landmark curves, courses and the bind skeleton in relative coordinates, so each follows the person's edits.
-- Take a form the tree cannot express to the kernel as a general capability. Design it in the interface, then implement it in the engine with an operator test that fails first, before any part uses it. A part-local workaround forks the kernel and escapes its tests.
-- Publish the realized chains and body as the one source for every later stage (rig, binding, appearance, garments), because a second body drifts from the first.
+Build one tree from the interface's construction types. Human derives nodes from measurements and laws. The engine realizes their chains, joins, trims and skin. Downstream rigs, bindings, appearance and garments use that realization.
+
+Compose profiles and section pieces in a declared plane before lofting. Keep guides, extrema, fullness and measurement constraints explicit. Derive ports, trim landmarks and domains in relative coordinates from the landmark curves, courses and bind skeleton.
+
+A missing capability belongs in the interface and engine. Add an independent operator test before a part uses it.
 
 ## Connections
 
-The parts' topology selects the operator:
+Choose the operator by the parts' topology.
 
-| Where two parts meet | Operator |
+| Where parts meet | Operator |
 | --- | --- |
-| A child leaves the side of a parent that continues past it: an arm at the armscye, the neck at its base, a nose or an ear on the head | A port on a published landmark loop of the parent |
-| Two or more children leave the same open end of a parent: the thighs from the trunk, the fingers from the hand | A split of that end along a shared chord or seam at the saddle |
-| Two compatible open ends continue each other | A continuation |
-| A part comes out through another's surface: a digit capsule, the ear's plate | A merge traced from a seed on shared landmarks |
-| Volume is removed or an opening is cut: a nostril, the space between the lips | A diff or a trim |
+| A child branches from a continuing parent | Port on the parent's landmark loop |
+| Children branch from the same open end | Split along a shared saddle seam |
+| Two compatible open ends meet | Continuation |
+| A part emerges through a surface | Merge from a shared landmark seed |
+| A recess or opening removes volume | Diff or trim |
 
-**Ownership.** One generating owner supplies each shared boundary: the common section family, or both complete port curves with their transverse data. Both parts consume that definition directly, under declared frame and direction maps. Building one part's loft to discover the other's boundary, a later fit, a reverse measurement of the output mesh, or a shared centre with four edge values is no substitute, because each leaves two interiors free to separate when a dimension changes. A derivative the owner cannot supply is marked unavailable; zero would assert geometry the source does not have.
+### Ownership
 
-**Ports.**
+One owner supplies the common section or both complete port curves with transverse data. Each part reads it under declared frame and direction maps. Mark an unavailable derivative explicitly. Reading coordinates from a realized mesh leaves both interiors free to drift after an edit.
 
-- The parent publishes the landmark loop, its outline values and slopes in every view, in its frame, and owns the contours that lead to it. The loop passes through the landmarks that define it by their published definitions, such as the armscye over the shoulder joint, the anterior and posterior axillary folds and the axilla. A loop placed for the band's convenience leaves the joint without an anatomical owner.
-- Generate the loop as the parent's skin cut by a surface fixed in the skeleton's frames, such as a plane set by its tilt and offset in the parent's frame or a cone about the child's bone, with those numbers a law of the person's measures, and check it against every point its published definition names. A loop read from landmark coordinates follows neither a pose nor another person, and rereading the landmarks to correct it never converges.
-- The child's view curves start from those values in its own frame, chained from the parent's. The two sides' lines are checked overlaid at the joint before either side is lofted.
-- The child owns the mass between its joint and the port and extends its field past its root rail, so the band blends two real fields. The engine's strip takes each side's own 2-jet across its rail and spans them with the quintic Hermite blend, G2 to both sides.
-- A band that must span a radial gap or turn through a steep angle shows that the 2D lines were not shared. Correct the lines. A band's margins, rails, ribbons, profiles and ring placement follow from the shared lines, because a band tuned to hide a gap carries the gap into every person.
-- Size the port so its loops cannot cross each other or the parent's section family. Read the port's margin from the landmark loop along the skin.
-- Over a crest of the landmark loop, such as the axilla's vault, place the port on the landmark loop.
+### Ports
 
-**Splits.** The parent ends open at its last section that is single-loop and star-shaped about its course, and each child starts at its saddle. Between them the children's bands carry the valleys: each seam follows the web from its fork on the parent's end out to the saddle and across, read from the reference.
+Use the published anatomical landmarks to define the parent loop, such as the shoulder and axillary folds for the armscye. Cut the loop from the parent's skin with a surface in skeleton coordinates. Derive the cut's offset and orientation from the person's measures. Verify that every defining landmark lies on the result.
 
-**Recesses.** Preserve real recesses and openings, such as the slit under the arm or the gap between the lips. A tape hull bridges them, and a common outward envelope cannot replace them.
+The parent publishes the loop's outlines and slopes. Start the child's view curves from those values in its own frame. [Compare both sides](verification.md#shared-connections) before lofting.
 
-**Merges.** A merge or diff combines defined volumes; it neither establishes shared ownership nor repairs independent boundaries. Verify the source connection under [Shared connections](verification.md#shared-connections) first, then judge the realized band, continuation, trim or Boolean separately. An operator failure never justifies distorting a valid anatomical input.
+The child forms its mass from its joint through the port and extends its field past the root rail. Blend both 2-jets with the engine's quintic Hermite strip for G2. Derive margins, rails, ribbons and ring placement from the same curves. Size loops to clear neighbouring loops and the section family, and put the port on the landmark loop at a crest.
+
+### Splits
+
+End the parent at its last single-loop section that is star-shaped about its course. Start each child at its saddle. Trace each seam from its fork through the web to the saddle. The children's bands carry the valleys.
+
+### Recesses and merges
+
+Preserve recesses and openings, including the underarm slit and lip gap. Establish the shared source before inspecting a realized continuation, trim or Boolean. If the input meets its anatomical and representational constraints, fix the failing operator.
 
 ## Repair
 
-Fix a defect where it is made, in this order. A fix at a later stage hides the earlier cause, and the next person shows it again. A region's fix stays within the region, on the stored representation of every working part around it. Changing a working family's layout or representation is a planned item of its own, surveyed and scheduled with the whole issue.
+Find each defect from the first stage that produces it. Keep working neighbours in their existing representation. Plan changes to a working family's layout as a separate part of the issue.
 
-1. **Own it.** Name the face that owns the defect (owner-coloured frames), the fold or deviation it makes, and the stage that produced it. Change nothing before the owner and the measured cause are known.
-2. **The lines.** A connection defect is a 2D line defect until the overlaid lines at the joint agree. Correct the lines under [Connections](#connections).
-3. **The wall.** For a crease, slash, notch or step on a conic wall, read the wall's own curves there: the anchor lines, the curvature across each anchor, and each field between its knots. List the values at a bound or near a chord, then lay them again from the sound neighbouring knots, checking each neighbour in turn. Cover nothing with a net or relief.
-4. **The dependents.** Refit every relief, cutter and band that sits on a changed wall, on the new wall, in the same change. A relief whose window lies wholly past a splice is carried unchanged.
-5. **The reliefs.** A relief carries only skin its cast sees, under [Lofting](../3d-modeling/crafting/lofting.md#composition-before-lofting). A form a relief cannot see belongs to the wall as an inflection line, or to its own family.
-6. **The kernel.** A missing capability goes into the engine under the [Tree](#tree) rule.
+1. Identify the owning face, observed deviation and generating stage.
+2. Reconcile the 2D source lines at shared boundaries.
+3. Trace a wall defect to the anchor curves, curvature or field between knots.
+   - Record bound or near-chord values and reconstruct from sound neighbouring knots.
+4. Refit all dependent reliefs, cutters and bands affected by the change.
+5. Use a relief where its [cast](../3d-modeling/crafting/lofting.md#composition-before-lofting) sees the skin.
+   - Use an inflection line or a family for skin outside that cast.
+6. Extend the [tree](#tree) when the kernel lacks a capability.
 
-Before the first change to an item, reread the governing skill sections, read the engine code at the operator and the record, research the method, and decide by the measured cause.
-
-A method grounded in the skills is not dropped for a failed run. A refusal measures a binding cause in the run, such as its target, windows, seed, knots or bounds. Isolate that cause with controls: the tool's existing mode as designed, then one change at a time against it. Fix the cause and keep the method. A method is set aside only when a measured cause shows it cannot express the form.
+Follow [research](SKILL.md#research) before editing. For a refusal, isolate the target, window or bound against a passing control. Change the method when measured constraints show it cannot express the form.
 
 ## Parametric identity and binding
 
-- Keep logical anatomical names, source controls, generated streams and surface charts as distinct identities. Map each logical region to its source subdomain, ports and material charts. Duplicating geometry to keep an old chain name forks it.
-- Keep semantic measurement constraints distinct from direct curve authority. A curve edit that changes a locked measurement needs its declared constraint solve or an explicit refusal.
-- Publish shared boundary bindings and material coordinates with the realized atlas, so every copy of a physical boundary consumes the same binding field. Derive joint datums from the common source and the relative skeleton, never from a tessellation or a patch centre.
-- Coincident contact is not sewn identity. Upper and lower lips keep distinct sheets and binding weights where they touch.
-- A topology or chart edit invalidates the affected addresses and bindings, and a changed rest skeleton invalidates its inverse binds. An unaffected bone keeps its identity when a surface is repartitioned.
+Map every anatomical region to its source subdomain, ports and material charts. Keep those identities distinct from generated streams. Fit a curve edit against locked measurements or refuse it explicitly.
+
+Publish boundary bindings and material coordinates with the realized atlas. Derive joint datums from the common source and skeleton. Coincident sheets such as closed lips retain separate bindings.
+
+Recompute affected addresses and bindings after topology or chart edits. Recompute inverse binds after rest-skeleton edits. Retain the identity of unaffected bones.
 
 ## Form
 
-- Author original curves through the [2D sketch workflow](curves.md) and keep that source authoritative through composition and lofting.
-- Author a contour that neighbouring parts share once, in its owner's frame: a midline, a shoulder top line, a trunk-thigh or ankle-heel line. Each part reads its interval through a declared frame map, because separate lines meeting at a seam leave shelves, creases and collars.
-- Build both sides through one construction and a declared reflection, including boundary maps, derivatives and orientation. A twin is reflected, never fitted on its own.
-- Keep anatomical controls and relative frames in named modules under a common body frame, with common mathematics in shared modules. Build limb and digit sources in their bone-relative frames.
-- Give every piece its own file, named for its part and piece, so it is found, read, tested and replaced alone. Split surface domains where topology, continuity or the editing contract requires it.
-- Let one section hold several pieces or loops. A single closed star-shaped contour cannot represent every branch, undercut, cavity or disconnected section.
-- Differentiate only smooth functions, analytically or on a smooth fit. A finite difference across a clamp or a step throws the surface.
-- Make skin and junctions smooth through their generating mathematics, and keep declared creases. Apply C2 or G2 only on the domains that promise it.
-- Let a part or join that cannot keep its contract leave the tree with one diagnostic, so generation returns a figure for every valid person and names the defect.
-- Choose a representation that carries the anatomy, topology, measurement and editing contracts. An exact adapter proves preservation; a changed law or bounded approximation states its basis and its error.
-- Keep full skin, the generation path, rigs, export and other consumers working at every commit.
-- Leave genitals and nipples out of the modelled skin.
+Use the [2D curves](curves.md) as the source through composition and lofting. Author each shared contour in one frame and map its interval into the neighbouring parts. Reflect both sides from one construction, including boundary maps, derivatives and orientation.
+
+Keep part files named for their region and piece, with controls in common body or bone-relative frames. Split domains where topology, continuity or editability requires it. Use multiple pieces or loops when a section has branches or undercuts.
+
+Differentiate smooth functions or fits. Preserve declared creases and apply C2 or G2 only on their promised domains. For a changed representation, verify exact preservation or state the approximation and its error.
+
+When a part or join fails, return its diagnostic and keep the rest of the figure available. Keep skin, rigs, export and other consumers working through the change. Omit genitals and nipples.
 
 ## Numbers
 
-These rules govern step 3 of the [three steps](SKILL.md#three-steps); steps 1 and 2 hold one person's traced coordinates as tables.
+The first two [steps](SKILL.md#three-steps) trace one reference. Step 3 derives from anatomical inputs, published laws, geometry and population priors.
 
-- Reduce redundant independent numbers while keeping the curves, guides, sections and controls the anatomy needs. Fewer files or patches alone prove nothing, and a domain too sparse to carry its shape is raised.
-- Hold a fact of the world as a named constant shared by every person: a definition, a unit factor, a published range, a cited ratio, or a shape prior in normalized part coordinates. Compute every value that must follow the person's inputs.
-- Give every constant and every curve a published source, a population measurement or a derivation, and state that basis in its doc comment. Turn a value repeated across features into the rule that produces it.
-- When an input or its definition changes, replace a prior fitted to it by the definition and solve the measure against the construction's own surface.
+Use the fewest independent values that still express the guides, sections and measurements. Use named constants for fixed definitions, unit factors, published ranges, ratios and normalized priors. Calculate values that depend on the person's inputs. Cite each constant and curve in its doc comment.
+
+When an input definition changes, solve that measure against the construction's surface using the new definition.
 
 ## Inputs
 
-- Construct and measure each input at its published site by its published definition: ISO 8559-1 and ANSUR II for the body, Farkas for the head.
-- Make every public parameter an anatomical measurement with a published definition, a unit and a population range. Replace a control without a definition, such as a blend slider, by the measure it stands for.
-- Check an input against its definition and its population relations before relying on it, and correct a wrong input at the input.
+Each public parameter has a published measurement definition, unit and population range. Use ISO 8559-1 and ANSUR II for body sites and Farkas for face sites. Validate measurements and their population relations at admission.
 
 ## Evidence
 
-- Read every difference from a reference or an earlier figure as evidence for or against a law.
-- Resolve every finding in the round's authorized scope together by cause, including inherited defects. Record other findings with their acceptance unclaimed.
-- Use reference meshes and curves as observations for rules, and judge appearance against the original [photographs](screenshot.md#references).
-- Check a law estimated from observed people on people outside its fit, and replace it with a published source when one is found, because an estimate reproduces the people it came from.
+Use reference meshes and curves as observations for deriving laws. Compare appearance against the [photographs](screenshot.md#references). Test an estimated law on people outside its fit and replace it when a published law covers the definition. Resolve in-scope findings together by cause and report other findings as open.

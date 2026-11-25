@@ -21,13 +21,16 @@ import type {
   IAutoMoviePose,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { walkPoleFrame } from "../actions/walkPoleFrame";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import type { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -71,6 +74,7 @@ export function poleVaultFinish(
     bend,
     bow,
     swinging,
+    swingGripOffset,
     pushing,
   }: poleVaultFinish.IPrepared = prepared;
   const degrees: number = 180 / Math.PI;
@@ -132,31 +136,65 @@ export function poleVaultFinish(
     );
 
   // The touchdown on the landing surface, and the landing.
-  const surface: number =
+  const release: number = off + swing.duration;
+  const pad: HumanMaterialContact.ISite | undefined =
     p.on === undefined
+      ? undefined
+      : HumanMaterialContact.prepare(
+          context.prop(p.on),
+          "surface",
+          context.start + release,
+        );
+  const surface: number =
+    pad?.at(context.start + release).frame.position.y ??
+    (p.on === undefined
       ? 0
-      : WorkoutSupport.at(context, { prop: p.on, affordance: "surface" }).y;
-  const down: number = ((): number => {
-    const [floorResolution, floorProjection]: [
-      ReturnType<typeof preparePoseResolution>,
-      ReturnType<typeof prepareHumanPostureProjection>,
-    ] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
-    const readLowest: ReturnType<typeof GymnasticsFlight.prepareLowest> =
-      GymnasticsFlight.prepareLowest(body);
-    const lowest: (t: number) => number = (t: number): number =>
-      readLowest(flying(t), floorResolution, floorProjection);
-    const releaseLowest: number = lowest(0);
-    if (!(releaseLowest > surface))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "on",
-        value: surface,
-        reason: `at the release the body's lowest point is at ${releaseLowest.toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
-        fix: "land on a lower surface, or run faster",
-      });
-    const fallen: number = GymnasticsFlight.fall(cr.y, velocity.y, surface)!;
-    return GymnasticsFlight.touchdown(0, fallen, lowest, surface);
-  })();
+      : WorkoutSupport.at(context, { prop: p.on, affordance: "surface" }).y);
+  const fallen: number = GymnasticsFlight.fall(cr.y, velocity.y, surface) ?? 0;
+  const exterior:
+    | ReturnType<typeof HumanMaterialContact.preparePosture>
+    | undefined =
+    pad === undefined ? undefined : HumanMaterialContact.preparePosture(body);
+  const material: ReturnType<typeof HumanMaterialContact.arrival> =
+    pad === undefined || exterior === undefined
+      ? undefined
+      : HumanMaterialContact.arrival(
+          fallen + GymnasticsMat.HOLD,
+          (
+            time: number,
+          ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined =>
+            exterior(flying(time), pad.at(context.start + release + time)),
+        );
+  if (pad !== undefined && material === undefined)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "on",
+      value: p.on,
+      reason: "the released body misses the finite landing surface",
+      fix: "move the mat under the vaulter's flight",
+    });
+  const down: number =
+    material?.seconds ??
+    ((): number => {
+      const [floorResolution, floorProjection]: [
+        ReturnType<typeof preparePoseResolution>,
+        ReturnType<typeof prepareHumanPostureProjection>,
+      ] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
+      const readLowest: ReturnType<typeof GymnasticsFlight.prepareLowest> =
+        GymnasticsFlight.prepareLowest(body);
+      const lowest: (t: number) => number = (t: number): number =>
+        readLowest(flying(t), floorResolution, floorProjection);
+      const releaseLowest: number = lowest(0);
+      if (!(releaseLowest > surface))
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "on",
+          value: surface,
+          reason: `at the release the body's lowest point is at ${releaseLowest.toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
+          fix: "land on a lower surface, or run faster",
+        });
+      return GymnasticsFlight.touchdown(0, fallen, lowest, surface);
+    })();
   const landing: ReturnType<typeof GymnasticsMat.lie> = GymnasticsMat.lie({
     body,
     model,
@@ -166,9 +204,44 @@ export function poleVaultFinish(
       y: velocity.y - AutoMovieGravity.STANDARD * down,
     },
     height: surface,
+    ...(pad === undefined || exterior === undefined
+      ? {}
+      : {
+          support: (
+            posture: IAutoMovieMotionHumanPosture,
+            time: number,
+          ): number => {
+            const face: HumanMaterialContact.IFace = pad.at(
+              context.start + release + down + time,
+            );
+            const bearing:
+              | IAutoMovieMotionHumanContactWindow.IMaterial
+              | undefined = exterior(posture, face);
+            const up: number = Quaternion.rotateVectorY(
+              face.frame.rotation,
+              HumanMaterialContact.NORMAL,
+            );
+            if (bearing === undefined || up <= 0)
+              throw new HumanRefusal({
+                kind: "reach",
+                axis: "on",
+                value: p.on,
+                reason: "the settling body leaves the finite landing surface",
+                fix: "use a landing mat that covers the settling path",
+              });
+            if (up < 1 - 1e-12)
+              throw new HumanRefusal({
+                kind: "affordance",
+                axis: "on",
+                value: p.on,
+                reason: "the landing settle requires a level receiving mat",
+                fix: "place the landing mat level",
+              });
+            return posture.root.y - bearing.clearance;
+          },
+        }),
   });
 
-  const release: number = off + swing.duration;
   const touchdown: number = release + down;
   const settled: number = touchdown + GymnasticsMat.SETTLE;
   const duration: number = settled + GymnasticsMat.HOLD;
@@ -183,6 +256,13 @@ export function poleVaultFinish(
         from: 0,
         to: release / duration,
         support: { kind: "prop", subject: p.pole },
+        inHand: (share: number): IAutoMovieRigidTransform =>
+          share * release <= off
+            ? {
+                position: { x: 0, y: 0, z: 0 },
+                rotation: Quaternion.identity(),
+              }
+            : swingGripOffset(hand.side, share * release - off),
       }),
     ),
     {
@@ -191,9 +271,11 @@ export function poleVaultFinish(
       from: touchdown / duration,
       to: 1,
       support:
-        p.on === undefined
+        pad?.support ??
+        (p.on === undefined
           ? { kind: "ground" }
-          : { kind: "prop", subject: p.on },
+          : { kind: "prop", subject: p.on }),
+      ...(material === undefined ? {} : { material: material.material }),
     },
   ];
   const events: IAutoMovieMotionEvent[] = [
@@ -211,21 +293,24 @@ export function poleVaultFinish(
   const hand: IAutoMovieResolvedBone = releasedGrip.get(
     side === "left" ? "leftHand" : "rightHand",
   )!;
-  const origin: IAutoMovieVector3 = Vector3.add(
-    HumanHand.frame(body, releasedGrip, side, "grip").point,
-    Quaternion.rotateVector(hand.worldRotation, held.frame.position),
+  const poleFrame: IAutoMovieRigidTransform = HumanPropFrame.compose(
+    {
+      position: HumanHand.frame(body, releasedGrip, side, "grip").point,
+      rotation: hand.worldRotation,
+    },
+    HumanPropFrame.compose(swingGripOffset(side, swing.duration), held.frame),
   );
-  const arm: IAutoMovieVector3 = Vector3.subtract(origin, tipAt);
+  const arm: IAutoMovieVector3 = Vector3.subtract(poleFrame.position, tipAt);
   const launch: IAutoMovieMotionPropLaunch = {
     prop: p.pole,
     seconds: release,
-    point: origin,
+    point: poleFrame.position,
     velocity: Vector3.add(Vector3.scale(ahead, omega * arm.y), {
       x: 0,
       y: -omega * Vector3.dot(arm, ahead),
       z: 0,
     }),
-    rotation: Quaternion.multiply(hand.worldRotation, held.frame.rotation),
+    rotation: poleFrame.rotation,
   };
 
   // The pole's hinges, driven by the bend through the swing and turned the
@@ -316,6 +401,12 @@ export namespace poleVaultFinish {
 
     /** The vaulter's posture at seconds since the take-off. */
     swinging: (t: number) => IAutoMovieMotionHumanPosture;
+
+    /** The articulated material displacement in each hand's grip frame. */
+    swingGripOffset: (
+      side: AutoMovieHumanSide,
+      seconds: number,
+    ) => IAutoMovieRigidTransform;
 
     /** The push-off's posture at a second, before the take-off. */
     pushing: (

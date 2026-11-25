@@ -10,7 +10,7 @@ Derive the fit from the contact points, the rig's segment lengths and joint limi
 
 Match contact tolerances to the resolution of the posed rig and its material.
 
-Transfer weight to the next support before releasing the current one.
+During continuous bearing, transfer weight to the next support before releasing the current one. Where the authored action goes airborne, check that release ends bearing and touchdown opens it again.
 
 ## Feet
 

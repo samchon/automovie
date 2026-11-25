@@ -21,6 +21,7 @@ import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -111,18 +112,28 @@ export function planLadderAccess(
     );
   const near: number = local.z - surface.depth / 2;
   const height: number = local.y;
+  const lastRung: number =
+    (ladder.rungs?.at(-1)?.center.y ??
+      ladder.frame.origin.y + ladder.count * ladder.spacing) -
+    ladder.frame.origin.y;
   if (
     -near > 0.03 ||
     near > planLadderAccessBounds.MAX_GAP ||
     height < ladder.spacing ||
-    height > (ladder.count + 0.5) * ladder.spacing
+    height > lastRung + 0.5 * ladder.spacing
   )
     return refuse(
       "the staged landing does not meet the ladder at a reachable height and depth",
     );
   const expected: number = Math.max(
     1,
-    Math.floor((height - 0.35 * ladder.spacing) / ladder.spacing),
+    ladder.rungs === undefined
+      ? Math.floor((height - 0.35 * ladder.spacing) / ladder.spacing)
+      : ladder.rungs.filter(
+          (rung: IAutoMovieMotionHumanLadder.IRung): boolean =>
+            rung.center.y <=
+            ladder.frame.origin.y + height - 0.35 * ladder.spacing,
+        ).length,
   );
   if (context.params.rungs !== undefined && context.params.rungs !== expected)
     return refuse(
@@ -169,7 +180,16 @@ export function planLadderAccess(
     HumanLadder.prepareRung(ladder);
   const dip: number = Math.abs(body.rest.get("leftFoot")!.x);
   if (
-    dip + planLadderAccessBounds.SOLE_MARGIN > ladder.width / 2 ||
+    dip + planLadderAccessBounds.SOLE_MARGIN >
+      Math.min(
+        ladder.width,
+        ...(ladder.rungs
+          ?.slice(0, expected)
+          .map(
+            (rung: IAutoMovieMotionHumanLadder.IRung): number => rung.width,
+          ) ?? []),
+      ) /
+        2 ||
     Math.abs(local.x) + dip + planLadderAccessBounds.SOLE_MARGIN >
       surface.width / 2 ||
     heelRoom + planLadderAccessBounds.LANDING_MARGIN > surface.depth
@@ -271,7 +291,10 @@ export function planLadderAccess(
           rung(
             level,
             (side === "left" ? 1 : -1) *
-              Math.min(ladder.width * 0.37, body.measure.chestBreadth / 2),
+              Math.min(
+                (ladder.rungs?.[level - 1]?.width ?? ladder.width) * 0.37,
+                body.measure.chestBreadth / 2,
+              ),
           ),
         ),
       };
@@ -291,13 +314,17 @@ export function planLadderAccess(
     };
   };
   const foot = (side: AutoMovieHumanSide, level: number): Contact => {
-    const center: IAutoMovieVector3 = rung(level, side === "left" ? dip : -dip);
+    const crown: IAutoMovieVector3 = rung(
+      level,
+      side === "left" ? dip : -dip,
+      "crown",
+    );
     return {
       part: side === "left" ? "leftFoot" : "rightFoot",
       kind: "bear",
       target: target(context.params.ladder, "foot" + level + ":" + side, {
-        ...center,
-        y: center.y + ladder.radius + soleLift[side],
+        ...crown,
+        y: crown.y + soleLift[side],
       }),
     };
   };
@@ -431,10 +458,16 @@ export function planLadderAccess(
           reference.subject + "/" + reference.point,
         );
         if (point === undefined) return;
+        const ordinal: number = Number(
+          /^rung(\d+):/.exec(reference.point)?.[1],
+        );
+        const material: IAutoMovieMotionHumanLadder.IRung | undefined =
+          ladder.rungs?.[ordinal - 1];
         gripWindows.push({
           side: contact.part === "leftHand" ? "left" : "right",
           point,
           rail: !reference.point.startsWith("rung"),
+          ...(material === undefined ? {} : { rung: material }),
           window,
         });
       },
@@ -445,9 +478,17 @@ export function planLadderAccess(
     origin: { x: 0, y: 0, z: 0 },
     yaw,
   }).point({ x: 0, y: 0, z: -1 });
-  return {
+  let seated: IAutoMovieMotionHumanActionPlan["posture"] =
+    seatLadderAccessGrips(body, intoLadder, plan, gripWindows);
+  const access: IAutoMovieMotionHumanActionPlan = {
     ...plan,
-    posture: seatLadderAccessGrips(body, intoLadder, plan, gripWindows),
+    prepare: (): void => {
+      plan.prepare?.();
+      seated = seatLadderAccessGrips(body, intoLadder, plan, gripWindows);
+    },
+    posture: (
+      ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+    ): IAutoMovieMotionHumanPosture => seated(...args),
     contacts: plan.contacts.map(
       (
         window: IAutoMovieMotionHumanContactWindow,
@@ -458,4 +499,5 @@ export function planLadderAccess(
     ),
     base: { kind: "standing" },
   };
+  return HumanPreparedPlayback.rebindPosture(access, plan, body);
 }

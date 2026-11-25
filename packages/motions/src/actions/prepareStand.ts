@@ -111,6 +111,52 @@ export function prepareStand(
     const noiseZ: ReturnType<typeof seededSmoothNoise.prepare> =
       seededSmoothNoise.prepare(sz, duration, stand.SWAY_FREQUENCY);
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...aligned };
+    const write = (seconds: number): IAutoMovieMotionHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const s: number = minimumJerk.share(t / settle);
+      const u: number = t / duration;
+      const feet: standFeet.ISample = course.sample(s);
+      const offset: IAutoMovieVector3 = feet.offset;
+
+      // Sign lateral sway in the acting side's frame, as the standing law does.
+      const swayed: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw },
+        {
+          x: (side === "left" ? -1 : 1) * sway * Math.SQRT2 * noiseX(u),
+          y: 0,
+          z: sway * Math.SQRT2 * noiseZ(u),
+        },
+      );
+      const root: IAutoMovieVector3 = {
+        x:
+          from.x +
+          (middle.x - from.x) * s +
+          offset.x -
+          initial.x * (1 - s) +
+          swayed.x,
+        y: from.y + (middle.y - from.y) * s + offset.y - initial.y * (1 - s),
+        z:
+          from.z +
+          (middle.z - from.z) * s +
+          offset.z -
+          initial.z * (1 - s) +
+          swayed.z,
+      };
+      const carry: IAutoMovieMotionHumanSupportCarry.ICarry | undefined =
+        carried(t);
+      return feet.write(
+        {
+          root: carry?.point(root) ?? root,
+          yaw: yaw + (carry?.yaw ?? 0),
+          pitch: 0,
+          roll: 0,
+          joints,
+          limbs: {},
+        },
+        carry,
+      );
+    };
+    let arms: ReturnType<typeof HumanArmSwing.course> | undefined;
     return {
       duration,
       events: [{ name: "settled", share: settle / duration }],
@@ -132,53 +178,43 @@ export function prepareStand(
               : { kind: "prop", subject: on.prop },
         }),
       ),
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number = minimumJerk.share(t / settle);
-        const u: number = t / duration;
-        const feet: standFeet.ISample = course.sample(s);
-        const offset: IAutoMovieVector3 = feet.offset;
-
-        // Sign lateral sway in the acting side's frame, as the standing law does.
-        const swayed: IAutoMovieVector3 = HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw },
-          {
-            x: (side === "left" ? -1 : 1) * sway * Math.SQRT2 * noiseX(u),
-            y: 0,
-            z: sway * Math.SQRT2 * noiseZ(u),
-          },
+      ...(on !== undefined
+        ? {}
+        : {
+            prepare: (): void => {
+              arms ??= HumanArmSwing.course(
+                context.body,
+                0,
+                settle,
+                write,
+                SIDES,
+              );
+            },
+          }),
+      posture: (
+        seconds,
+        channels,
+        resolution,
+        projection,
+      ): IAutoMovieMotionHumanPosture => {
+        const written: IAutoMovieMotionHumanPosture = write(seconds);
+        if (
+          seconds >= settle ||
+          (channels !== undefined &&
+            !channels.includes("leftArm") &&
+            !channels.includes("rightArm"))
+        )
+          return written;
+        return HumanArmSwing(
+          context.body,
+          written,
+          SIDES,
+          resolution,
+          projection,
+          undefined,
+          undefined,
+          arms?.(seconds),
         );
-        const root: IAutoMovieVector3 = {
-          x:
-            from.x +
-            (middle.x - from.x) * s +
-            offset.x -
-            initial.x * (1 - s) +
-            swayed.x,
-          y: from.y + (middle.y - from.y) * s + offset.y - initial.y * (1 - s),
-          z:
-            from.z +
-            (middle.z - from.z) * s +
-            offset.z -
-            initial.z * (1 - s) +
-            swayed.z,
-        };
-        const carry: IAutoMovieMotionHumanSupportCarry.ICarry | undefined =
-          carried(t);
-        const written: IAutoMovieMotionHumanPosture = feet.write(
-          {
-            root: carry?.point(root) ?? root,
-            yaw: yaw + (carry?.yaw ?? 0),
-            pitch: 0,
-            roll: 0,
-            joints,
-            limbs: {},
-          },
-          carry,
-        );
-        // Settled, the arms hang clear of the thighs they were found clear
-        // of; while settling, the thighs move under them.
-        return s < 1 ? HumanArmSwing(context.body, written, SIDES) : written;
       },
     };
   };

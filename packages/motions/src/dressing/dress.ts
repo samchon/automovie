@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDress,
   IAutoMovieMotionHumanFrame,
@@ -26,12 +27,12 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { prepareHumanElbowPath } from "../compose/prepareHumanElbowPath";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -360,6 +361,18 @@ export namespace dress {
       }),
       modifiers,
     );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, clock.duration);
+    const events: readonly number[] = [
+      clock.at("ready"),
+      clock.at("strokeStart"),
+      clock.at("strokeEnd"),
+      clock.at("relax"),
+    ];
+    const travel = (seconds: number): number =>
+      lead * (1 - clock.progress("strokeStart", "strokeEnd", seconds));
+    const weight = (seconds: number): number =>
+      clock.envelope(["start", "ready"], ["relax", "end"], seconds);
 
     // The carrying hand: the item held up the lead before its place.
     const carry: () => IAutoMovieMotionHumanPrimitive =
@@ -372,88 +385,150 @@ export namespace dress {
           "grip",
           "relaxed",
         );
-        return AutoMovieMotionHumanArm.stroke({
-          body,
-          clock,
-          side: holder,
-          origin: holding,
-          path: (
-            posture: IAutoMovieMotionHumanPosture,
-            _: number,
-            progress: number,
-            resolution?: Parameters<
-              IAutoMovieMotionHumanActionPlan["posture"]
-            >[2],
-          ): IAutoMovieMotionHumanArmTarget.ITarget => {
-            const { grip: on, rotation }: ReturnType<typeof carried> = carried(
-              posture,
-              turn,
-              resolution,
-            );
-            const grip: IAutoMovieVector3 = Vector3.add(
-              on,
-              Vector3.scale(forward, lead * (1 - progress)),
-            );
-            return emit({
-              point: grip,
-              rotation,
-              bend: AutoMovieMotionHumanBend.solve({
+        const geometry = (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+        ): IPlanCarriedResult => {
+          const { grip: on, rotation }: ReturnType<typeof carried> = carried(
+            posture,
+            turn,
+            resolution,
+          );
+          const grip: IAutoMovieVector3 = Vector3.add(
+            on,
+            Vector3.scale(forward, travel(seconds)),
+          );
+          return { grip, rotation };
+        };
+        const elbow: (seconds: number) => IAutoMovieVector3 =
+          prepareHumanElbowPath(
+            clock.duration,
+            events,
+            (seconds: number): IAutoMovieMotionHumanBend.ISolve => {
+              const posture: IAutoMovieMotionHumanPosture =
+                base.posture(seconds);
+              const { grip, rotation }: IPlanCarriedResult = geometry(
+                posture,
+                seconds,
+              );
+              return {
                 body,
                 posture,
                 side: holder,
                 point: placeHumanHandSurface(socket, grip, rotation).point,
                 rotation,
                 fallback: "hang",
-              }),
-            });
+              };
+            },
+          );
+        return AutoMovieMotionHumanArm.move({
+          body,
+          side: holder,
+          origin: holding,
+          from: 0,
+          to: clock.duration,
+          weight,
+          target: (posture, seconds, resolution) => {
+            const { grip, rotation }: IPlanCarriedResult = geometry(
+              posture,
+              seconds,
+              resolution,
+            );
+            return emit({ point: grip, rotation, bend: elbow(seconds) });
           },
         });
       };
     // The other hand: on its place on the head, the lead before it.
     const steady: () => IAutoMovieMotionHumanPrimitive =
       (): IAutoMovieMotionHumanPrimitive => {
+        const shape: IAutoMovieMotionHumanHand.Shape =
+          item === "hat" ? "relaxed" : "point";
         const prepared: ReturnType<typeof HumanHandTarget.prepareMoving> =
           HumanHandTarget.prepareMoving(body, other, {
             surface,
-            shape: item === "hat" ? "relaxed" : "point",
+            shape,
           });
-        return AutoMovieMotionHumanArm.stroke({
+        const emit: ReturnType<
+          typeof AutoMovieMotionHumanArmTarget.prepareTarget
+        > = AutoMovieMotionHumanArmTarget.prepareTarget(
           body,
-          clock,
+          other,
+          surface,
+          shape,
+        );
+        const geometry = (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+        ): Pick<
+          IAutoMovieMotionHumanArmTarget.ITarget,
+          "point" | "rotation"
+        > => {
+          const at: ReturnType<typeof place> = place(
+            body,
+            posture,
+            item,
+            other,
+            resolution,
+          );
+          return {
+            point: Vector3.add(
+              at.point,
+              Vector3.scale(forward, travel(seconds)),
+            ),
+            rotation: prepared.frame(posture, at.normal, at.forward).rotation,
+          };
+        };
+        const elbow: (seconds: number) => IAutoMovieVector3 =
+          prepareHumanElbowPath(
+            clock.duration,
+            events,
+            (seconds: number): IAutoMovieMotionHumanBend.ISolve => {
+              const posture: IAutoMovieMotionHumanPosture =
+                base.posture(seconds);
+              const target: ReturnType<typeof geometry> = geometry(
+                posture,
+                seconds,
+              );
+              return {
+                body,
+                posture,
+                side: other,
+                rotation: target.rotation,
+                fallback: "hang",
+                point: HumanHand.place(
+                  body,
+                  other,
+                  surface,
+                  target.point,
+                  target.rotation,
+                  shape,
+                ).point,
+              };
+            },
+          );
+        return AutoMovieMotionHumanArm.move({
+          body,
           side: other,
           origin: steadying,
-          path: (
-            posture: IAutoMovieMotionHumanPosture,
-            _: number,
-            progress: number,
-            resolution?: Parameters<
-              IAutoMovieMotionHumanActionPlan["posture"]
-            >[2],
-          ): IAutoMovieMotionHumanArmTarget.ITarget => {
-            const at: ReturnType<typeof place> = place(
-              body,
-              posture,
-              item,
-              other,
-              resolution,
-            );
-            return prepared.target(
-              posture,
-              {
-                point: Vector3.add(
-                  at.point,
-                  Vector3.scale(forward, lead * (1 - progress)),
-                ),
-                normal: at.normal,
-              },
-              at.forward,
-            );
-          },
+          from: 0,
+          to: clock.duration,
+          weight,
+          target: (posture, seconds, resolution) =>
+            emit({
+              ...geometry(posture, seconds, resolution),
+              bend: elbow(seconds),
+            }),
         });
       };
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
-        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+        base,
         clock,
         contact: "stroke",
         primitives: [

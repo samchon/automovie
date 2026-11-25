@@ -34,7 +34,6 @@ export function useToolTarget(
 ): (
   posture: IAutoMovieMotionHumanPosture,
   seconds: number,
-  bends?: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
 ) => IAutoMovieMotionHumanArmTarget.ITarget {
   const {
     cycle,
@@ -49,6 +48,8 @@ export function useToolTarget(
   }: useToolTarget.IPrepared = prepared;
 
   // The bend at each knot, solved once on the entry's trunk.
+  const trunk: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
+    AutoMovieMotionHumanBend.prepare({ body, posture: entry, side });
   const solved: IAutoMovieVector3[] = Array.from(
     { length: useToolTarget.KNOTS },
     (_: unknown, j: number): IAutoMovieVector3 => {
@@ -63,7 +64,7 @@ export function useToolTarget(
         rotation: at.rotation,
         fallback: "hang",
       };
-      return AutoMovieMotionHumanBend.solve(wrist);
+      return trunk.solve(wrist);
     },
   );
   const h: number = 1 / useToolTarget.KNOTS;
@@ -83,7 +84,6 @@ export function useToolTarget(
   return (
     _posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-    _bends?: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
   ): IAutoMovieMotionHumanArmTarget.ITarget => {
     const working: boolean = !(seconds <= ready || seconds >= recover);
     const phase: number = working

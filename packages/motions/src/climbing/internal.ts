@@ -3,6 +3,7 @@
 export * from "./wallClimbSupport";
 export * from "./climbLadderContacts";
 export * from "./HumanLadder";
+export * from "./treeClimbDrop";
 export * from "./climbLadderBeats";
 export * from "./ladderAccessRails";
 export * from "./treeClimbRouteExpand";

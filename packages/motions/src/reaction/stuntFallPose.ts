@@ -6,15 +6,20 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -116,28 +121,74 @@ export namespace stuntFallPose {
     surface: IAutoMovieVector3,
     normal?: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture {
-    const placed: IAutoMovieMotionHumanPosture = {
-      ...posture,
-      root: { x: 0, y: 0, z: 0 },
-    };
-    const bones: ReturnType<typeof poseBones> = poseBones(
+    return prepareRest(body)(posture, surface, normal);
+  }
+
+  /**
+   * Bind the body and collider-bone request for changing floor poses. Read each
+   * sample's own articulation and its exact minimum on the given plane.
+   */
+  export function prepareRest(
+    body: IAutoMovieMotionHumanBody,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    surface: IAutoMovieVector3,
+    normal?: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanPosture {
+    const colliders: ReadonlySet<AutoMovieHumanoidBone> =
+      HumanColliders.bones(body);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = colliders.has("hips")
+      ? colliders
+      : new Set([...colliders, "hips"]);
+    const frames: ReturnType<typeof prepareAtOrigin> = prepareAtOrigin(
       body,
-      resolveHumanPosture.seeded(body, placed).pose,
+      requested,
     );
-    const hips: IAutoMovieVector3 = bones.get("hips")!.worldPosition;
-    if (normal === undefined)
-      return onto(posture, surface, hips, surfaceLow(body, bones));
-    // The root's height that puts the body's furthest support against the
-    // normal on the plane, its hips over the surface point.
-    const x: number = surface.x - hips.x;
-    const z: number = surface.z - hips.z;
-    const y: number =
-      (Vector3.dot(surface, normal) -
-        supportAlong(body, bones, normal) -
-        x * normal.x -
-        z * normal.z) /
-      normal.y;
-    return { ...posture, root: { x, y, z } };
+    const places: ReturnType<typeof HumanColliders.preparePlaced> =
+      HumanColliders.preparePlaced(body, colliders);
+    const lowestY: ReturnType<typeof HumanColliders.prepareMinima> =
+      HumanColliders.prepareMinima(body);
+    return (posture, surface, normal): IAutoMovieMotionHumanPosture => {
+      const bones: ReturnType<typeof poseBones> = frames(posture);
+      const hips: IAutoMovieVector3 = bones.get("hips")!.worldPosition;
+      if (normal === undefined)
+        return onto(posture, surface, hips, lowestY(bones)[0]!);
+      const x: number = surface.x - hips.x;
+      const z: number = surface.z - hips.z;
+      const y: number =
+        (Vector3.dot(surface, normal) -
+          supportAlong(places(bones), normal) -
+          x * normal.x -
+          z * normal.z) /
+        normal.y;
+      return { ...posture, root: { x, y, z } };
+    };
+  }
+
+  /**
+   * A fixed joint-only shape's support projection along varying unit normals in
+   * the coordinate frame of the supplied posture. Rigid translation and
+   * rotation are handled by the caller when selecting the normal and plane.
+   */
+  export function prepareSupport(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): (normal: IAutoMovieVector3) => number {
+    const shapes: IShapeFrame[] = HumanColliders.placed(
+      body,
+      poseBones(body, resolveHumanPosture.seeded(body, posture).pose),
+    ).flatMap(({ pose, shapes }) =>
+      shapes.map(
+        (shape: IAutoMoviePhysicalShape): IShapeFrame =>
+          shapeFrame(pose, shape),
+      ),
+    );
+    return (normal: IAutoMovieVector3): number => {
+      let least: number = Infinity;
+      for (const shape of shapes)
+        least = Math.min(least, projectShape(shape, normal));
+      return least;
+    };
   }
 
   /**
@@ -184,50 +235,71 @@ export namespace stuntFallPose {
     planted: IFeet,
     ground: number,
   ): IAutoMovieMotionHumanPosture {
-    const placed: IAutoMovieMotionHumanPosture = {
-      ...posture,
-      root: { x: 0, y: 0, z: 0 },
-    };
-    const bones: ReturnType<typeof poseBones> = poseBones(
+    return preparePlant(body, planted, ground)(posture);
+  }
+
+  /** Bind a landing's planted feet and the bone demand for the moving knees. */
+  export function preparePlant(
+    body: IAutoMovieMotionHumanBody,
+    planted: IFeet,
+    ground: number,
+  ): (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
+    const frames: ReturnType<typeof prepareAtOrigin> = prepareAtOrigin(
       body,
-      resolveHumanPosture.seeded(body, placed).pose,
+      new Set([
+        ...HumanColliders.bones(body),
+        "leftFoot",
+        "rightFoot",
+        "leftLowerLeg",
+        "rightLowerLeg",
+      ]),
     );
-    const own: IAutoMovieVector3 = Vector3.lerp(
-      bones.get("leftFoot")!.worldPosition,
-      bones.get("rightFoot")!.worldPosition,
-      0.5,
-    );
+    const lowestY: ReturnType<typeof HumanColliders.prepareMinima> =
+      HumanColliders.prepareMinima(body);
     const wanted: IAutoMovieVector3 = Vector3.lerp(
       planted.left.ankle,
       planted.right.ankle,
       0.5,
     );
-    const root: IAutoMovieVector3 = {
-      x: wanted.x - own.x,
-      y: ground - surfaceLow(body, bones),
-      z: wanted.z - own.z,
-    };
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    for (const side of ["left", "right"] as const) {
-      const foot: IFoot = planted[side];
-      const knee: IAutoMovieVector3 = Vector3.add(
-        bones.get(`${side}LowerLeg`)!.worldPosition,
-        root,
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => {
+      const bones: ReturnType<typeof poseBones> = frames(posture);
+      const own: IAutoMovieVector3 = Vector3.lerp(
+        bones.get("leftFoot")!.worldPosition,
+        bones.get("rightFoot")!.worldPosition,
+        0.5,
       );
-      // Forward along the foot, as far as the shin is long.
-      const ahead: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, {
-        x: 0,
-        y: 0,
-        z: Vector3.distance(knee, foot.ankle),
-      });
-      limbs[`${side}Leg`] = {
-        point: foot.ankle,
-        rotation: foot.rotation,
-        bend: Vector3.add(knee, { x: ahead.x, y: 0, z: ahead.z }),
-        planted: true,
+      const root: IAutoMovieVector3 = {
+        x: wanted.x - own.x,
+        y: ground - lowestY(bones)[0]!,
+        z: wanted.z - own.z,
       };
-    }
-    return { ...posture, root, limbs };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      for (const side of ["left", "right"] as const) {
+        const foot: IFoot = planted[side];
+        const knee: IAutoMovieVector3 = Vector3.add(
+          bones.get(`${side}LowerLeg`)!.worldPosition,
+          root,
+        );
+        // Forward along the foot, as far as the shin is long.
+        const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+          foot.rotation,
+          {
+            x: 0,
+            y: 0,
+            z: Vector3.distance(knee, foot.ankle),
+          },
+        );
+        limbs[`${side}Leg`] = {
+          point: foot.ankle,
+          rotation: foot.rotation,
+          bend: Vector3.add(knee, { x: ahead.x, y: 0, z: ahead.z }),
+          planted: true,
+        };
+      }
+      return { ...posture, root, limbs };
+    };
   }
 
   /**
@@ -254,29 +326,19 @@ export namespace stuntFallPose {
    * @param from The posture at weight 0.
    * @param to The posture at weight 1.
    * @param w The weight.
+   * @param joints The same interpolation from a prepared joint blend, if the
+   *   caller's input joint maps are fixed.
    * @returns The blend.
    */
   export function blend(
     from: IAutoMovieMotionHumanPosture,
     to: IAutoMovieMotionHumanPosture,
     w: number,
+    joints: IAutoMovieMotionHumanPosture["joints"] = prepareHumanShapeBlend(
+      from.joints,
+      to.joints,
+    )(w),
   ): IAutoMovieMotionHumanPosture {
-    // Every joint either end names, a joint the other leaves out at rest.
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-    for (const bone of new Set([
-      ...Object.keys(from.joints),
-      ...Object.keys(to.joints),
-    ]) as Set<keyof IAutoMovieMotionHumanPosture["joints"]>) {
-      const a: readonly [number, number, number] = from.joints[bone] ?? [
-        0, 0, 0,
-      ];
-      const b: readonly [number, number, number] = to.joints[bone] ?? [0, 0, 0];
-      joints[bone] = [
-        a[0] + (b[0] - a[0]) * w,
-        a[1] + (b[1] - a[1]) * w,
-        a[2] + (b[2] - a[2]) * w,
-      ];
-    }
     // An explicit rotation is the attitude the blended yaw, pitch and roll
     // carry, so it is left out rather than taken whole from either end.
     const shape: IAutoMovieMotionHumanPosture = { ...to };
@@ -317,50 +379,96 @@ export namespace stuntFallPose {
   }
 }
 
+/** Reuse the bone demand when measuring different postures at root zero. */
+function prepareAtOrigin(
+  body: IAutoMovieMotionHumanBody,
+  requested: ReadonlySet<AutoMovieHumanoidBone>,
+): (posture: IAutoMovieMotionHumanPosture) => ReturnType<typeof poseBones> {
+  const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    requested,
+  );
+  return (
+    posture: IAutoMovieMotionHumanPosture,
+  ): ReturnType<typeof poseBones> => {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const placed: IAutoMovieMotionHumanPosture = {
+      ...posture,
+      root: { x: 0, y: 0, z: 0 },
+    };
+    return frames(
+      resolveHumanPosture.seeded(body, placed, undefined, undefined, resolution)
+        .pose,
+      resolution(),
+    );
+  };
+}
+
 /**
  * The least projection of a resolved body's collider surfaces on a unit normal,
  * metres: how far the body reaches against it.
  */
 function supportAlong(
-  body: IAutoMovieMotionHumanBody,
-  bones: ReturnType<typeof poseBones>,
+  placed: ReturnType<typeof HumanColliders.placed>,
   normal: IAutoMovieVector3,
 ): number {
   let least: number = Infinity;
-  for (const { pose, shapes } of HumanColliders.placed(body, bones))
-    for (const shape of shapes) {
-      const centre: IAutoMovieVector3 = Vector3.add(
-        pose.position,
-        Quaternion.rotateVector(pose.rotation, shape.transform.position),
-      );
-      const turn: IAutoMovieQuaternion = Quaternion.multiply(
-        pose.rotation,
-        shape.transform.rotation,
-      );
-      const along: number = Vector3.dot(centre, normal);
-      // The shape's local axes projected on the normal.
-      const axis: (local: IAutoMovieVector3) => number = (
-        local: IAutoMovieVector3,
-      ): number => Vector3.dot(Quaternion.rotateVector(turn, local), normal);
-      const reach: number =
-        shape.kind === "sphere"
-          ? along - shape.radius
-          : shape.kind === "capsule"
-            ? along -
-              Math.abs(axis({ x: 0, y: 1, z: 0 })) * shape.halfLength -
-              shape.radius
-            : shape.kind === "box"
-              ? along -
-                Math.abs(axis({ x: 1, y: 0, z: 0 })) * shape.halfExtents.x -
-                Math.abs(axis({ x: 0, y: 1, z: 0 })) * shape.halfExtents.y -
-                Math.abs(axis({ x: 0, y: 0, z: 1 })) * shape.halfExtents.z
-              : Math.min(
-                  ...shape.points.map(
-                    (point: IAutoMovieVector3): number => along + axis(point),
-                  ),
-                );
-      least = Math.min(least, reach);
-    }
+  for (const { pose, shapes } of placed)
+    for (const shape of shapes)
+      least = Math.min(least, projectShape(shapeFrame(pose, shape), normal));
+  return least;
+}
+
+/** A collider's physical shape in its resolved body's frame. */
+interface IShapeFrame {
+  /** The source shape in its own coordinate system. */
+  shape: IAutoMoviePhysicalShape;
+
+  /** The collider's resolved centre, metres. */
+  centre: IAutoMovieVector3;
+
+  /** Rotation from the resolved body's frame to the shape's local axes. */
+  inverse: IAutoMovieQuaternion;
+}
+
+/** Compose the bone transform with the shape's local transform. */
+function shapeFrame(
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+): IShapeFrame {
+  return {
+    shape,
+    centre: Vector3.add(
+      pose.position,
+      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    ),
+    inverse: Quaternion.inverse(
+      Quaternion.multiply(pose.rotation, shape.transform.rotation),
+    ),
+  };
+}
+
+/** The projection of the shape's furthest point against the given normal. */
+function projectShape(
+  { shape, centre, inverse }: IShapeFrame,
+  normal: IAutoMovieVector3,
+): number {
+  const along: number = Vector3.dot(centre, normal);
+  if (shape.kind === "sphere") return along - shape.radius;
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(inverse, normal);
+  if (shape.kind === "capsule")
+    return along - Math.abs(local.y) * shape.halfLength - shape.radius;
+  if (shape.kind === "box")
+    return (
+      along -
+      Math.abs(local.x) * shape.halfExtents.x -
+      Math.abs(local.y) * shape.halfExtents.y -
+      Math.abs(local.z) * shape.halfExtents.z
+    );
+  let least: number = Infinity;
+  for (const point of shape.points)
+    least = Math.min(least, along + Vector3.dot(point, local));
   return least;
 }
 

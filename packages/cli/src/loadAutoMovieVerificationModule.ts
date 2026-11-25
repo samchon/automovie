@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
-import { realpathSync, statSync } from "node:fs";
+import { readFileSync, realpathSync, statSync } from "node:fs";
 import {
   type LoadHookSync,
   type ResolveHookSync,
   createRequire,
+  findPackageJSON,
   registerHooks,
 } from "node:module";
 import * as path from "node:path";
@@ -30,12 +31,19 @@ export async function loadAutoMovieVerificationModule(
     load.resolve(path.resolve(directory, module)),
   );
   const entryUrl: string = pathToFileURL(entry).href;
-  const isJson: boolean = path.extname(entry) === ".json";
+  const extension: string = path.extname(entry);
+  const requireEntry: boolean =
+    extension === ".json" || extension === ".cjs" || extension === ".cts";
   const prior: Set<NodeJS.Module | undefined> = new Set(
     Object.values(load.cache),
   );
   const names: Map<string, string> = new Map([[entry, entry]]);
-  const local = (file: string): string | undefined => {
+  const packages: Set<string> = new Set();
+  const local = (
+    file: string,
+    specifier?: string,
+    importer: string = entry,
+  ): string | undefined => {
     if (
       !path.isAbsolute(file) ||
       path.relative(directory, file).split(path.sep).includes("node_modules")
@@ -44,7 +52,21 @@ export async function loadAutoMovieVerificationModule(
     const known: string | undefined = names.get(file);
     if (known !== undefined) return known;
     const physical: string = realpathSync.native(file);
+
+    // Node follows pnpm links to their real paths. A package reached by name
+    // outside the production remains a dependency at that resolved path.
+    if (specifier === undefined) {
+      if (packages.has(file)) return undefined;
+    } else if (
+      !within(directory, physical) &&
+      isInstalledPackageFile(specifier, importer, physical)
+    ) {
+      packages.add(file);
+      packages.add(physical);
+      return undefined;
+    }
     names.set(file, physical);
+    names.set(physical, physical);
     return physical;
   };
   const fromUrl = (url: string | undefined): string | undefined =>
@@ -65,7 +87,7 @@ export async function loadAutoMovieVerificationModule(
     if (children !== undefined || specifier === entryUrl) {
       const filename: string | undefined = fromUrl(result.url);
       const child: string | undefined =
-        filename === undefined ? undefined : local(filename);
+        filename === undefined ? undefined : local(filename, specifier, parent);
       if (child !== undefined) {
         children?.add(child);
         if (!edges.has(child)) edges.set(child, new Set());
@@ -74,33 +96,42 @@ export async function loadAutoMovieVerificationModule(
     return result;
   };
   const trackLoad: LoadHookSync = (url, context, next) => {
-    const result: ReturnType<LoadHookSync> = next(url, context);
     const filename: string | undefined = fromUrl(url);
     const file: string | undefined =
       filename === undefined ? undefined : names.get(filename);
-    if (file !== undefined && edges.has(file)) {
-      if (
-        (result.format === "module" || result.format === "module-typescript") &&
-        context.conditions.includes("require")
-      )
-        throw new Error(
-          `Use a native import to verify the source of ${path.relative(directory, file)}. CommonJS require can return an earlier ES module evaluation.`,
-        );
+    if (file === undefined || !edges.has(file)) return next(url, context);
+    const format: typeof context.format = context.format;
 
-      if (file === entry) entryFormat = result.format;
-      const raw: typeof result.source = result.source;
-      const measured: string | null =
-        raw === null || raw === undefined
-          ? null
-          : createHash("sha256")
-              .update(raw instanceof ArrayBuffer ? new Uint8Array(raw) : raw)
-              .digest("hex");
-      const former: string | null | undefined = digests.get(file);
-      digests.set(
-        file,
-        former === undefined || former === measured ? measured : null,
+    // A linked CLI can run under ttsx, which rewrites TypeScript and CommonJS.
+    // Give Node the same authored bytes that identify the verification input.
+    const result: ReturnType<LoadHookSync> =
+      (format === "module-typescript" ||
+        format === "commonjs-typescript" ||
+        format === "commonjs") &&
+      Object.keys(context.importAttributes ?? {}).length === 0
+        ? { format, source: readFileSync(file), shortCircuit: true }
+        : next(url, context);
+    if (
+      (result.format === "module" || result.format === "module-typescript") &&
+      context.conditions.includes("require")
+    )
+      throw new Error(
+        `Use a native import to verify the source of ${path.relative(directory, file)}. CommonJS require can return an earlier ES module evaluation.`,
       );
-    }
+
+    if (file === entry) entryFormat = result.format;
+    const raw: typeof result.source = result.source;
+    const measured: string | null =
+      raw === null || raw === undefined
+        ? null
+        : createHash("sha256")
+            .update(raw instanceof ArrayBuffer ? new Uint8Array(raw) : raw)
+            .digest("hex");
+    const former: string | null | undefined = digests.get(file);
+    digests.set(
+      file,
+      former === undefined || former === measured ? measured : null,
+    );
     return result;
   };
   const hooks: ReturnType<typeof registerHooks> = registerHooks({
@@ -109,8 +140,12 @@ export async function loadAutoMovieVerificationModule(
   });
   let namespace: { default?: unknown } | null | undefined;
   try {
+    // Native CommonJS loading exposes the original dependency specifiers to
+    // the hooks, including require() of an installed ES module.
     namespace = (
-      isJson ? load(entry) : await importAutoMovieVerificationEntry(entryUrl)
+      requireEntry
+        ? load(entry)
+        : await importAutoMovieVerificationEntry(entryUrl)
     ) as typeof namespace;
   } finally {
     hooks.deregister();
@@ -162,12 +197,38 @@ export async function loadAutoMovieVerificationModule(
     sources(undefined),
   );
   const targets: unknown =
-    entryFormat === "commonjs" || entryFormat === "commonjs-typescript"
+    !requireEntry &&
+    (entryFormat === "commonjs" || entryFormat === "commonjs-typescript")
       ? (namespace?.default as typeof namespace)?.default
       : namespace?.default;
   if (!Array.isArray(targets))
     throw new Error(`${module} must default-export verification targets.`);
   return { targets, sources };
+}
+
+/** Confirm a bare import belongs to a package Node can resolve natively. */
+function isInstalledPackageFile(
+  specifier: string,
+  importer: string,
+  file: string,
+): boolean {
+  if (
+    specifier.startsWith(".") ||
+    specifier.startsWith("#") ||
+    specifier.startsWith("file:") ||
+    path.isAbsolute(specifier)
+  )
+    return false;
+  try {
+    // Native resolution ignores compiler aliases and canonicalizes pnpm links.
+    const manifest: string | undefined = findPackageJSON(specifier, importer);
+    return (
+      manifest !== undefined &&
+      within(path.dirname(realpathSync.native(manifest)), file)
+    );
+  } catch {
+    return false;
+  }
 }
 
 function resolveProjectImport(

@@ -22,6 +22,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
+import { stuntFallPose } from "../reaction/stuntFallPose";
 import { lieDownPoses } from "./lieDownPoses";
 import { logRollTurns } from "./logRollTurns";
 import { lyingTurn } from "./lyingTurn";
@@ -110,6 +111,16 @@ function planLogRoll(
     prepareHumanShapeBlend(entry.joints, LOG);
   const rest: ReturnType<typeof knockdown.prepareRest> =
     knockdown.prepareRest(body);
+  const straight: IAutoMovieMotionHumanPosture["joints"] = straighten(1);
+  const rolledSupport: ReturnType<typeof stuntFallPose.prepareSupport> =
+    stuntFallPose.prepareSupport(body, {
+      root: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      pitch: 0,
+      roll: 0,
+      joints: straight,
+      limbs: {},
+    });
   const at: (
     seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -121,15 +132,18 @@ function planLogRoll(
   ): IAutoMovieMotionHumanPosture => {
     const u: number = progress.progress(seconds);
     const turn: number = from.turn + (target - from.turn) * u;
+    const formed: boolean = u * halves >= 1;
     const posture: IAutoMovieMotionHumanPosture = {
       ...lyingTurn.tilt({ yaw: from.yaw, turn }),
       root: { x: 0, y: 0, z: 0 },
       // The log forms over the first half turn and is kept.
-      joints: straighten(Math.min(1, u * halves)),
+      joints: formed ? straight : straighten(u * halves),
       limbs: {},
     };
+    const attitude: ReturnType<typeof humanPostureHeading> =
+      humanPostureHeading(posture);
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-      humanPostureHeading(posture),
+      attitude,
       body.rest.get("hips")!,
     );
     const pelvis: IAutoMovieVector3 = Vector3.add(
@@ -140,11 +154,19 @@ function planLogRoll(
       ...posture,
       root: {
         x: pelvis.x - offset.x,
-        y: rest(
-          posture,
-          prepareHumanPoseResolution(resolution),
-          projection ?? prepareHumanPostureProjection(body),
-        ),
+        y: formed
+          ? -rolledSupport(
+              Quaternion.rotateVector(Quaternion.inverse(attitude), {
+                x: 0,
+                y: 1,
+                z: 0,
+              }),
+            )
+          : rest(
+              posture,
+              prepareHumanPoseResolution(resolution),
+              projection ?? prepareHumanPostureProjection(body),
+            ),
         z: pelvis.z - offset.z,
       },
     };

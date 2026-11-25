@@ -161,6 +161,15 @@ export interface IAutoMovieMotionHumanProp {
   ): IAutoMovieMotionHumanProp.IPosed;
 
   /**
+   * Read one contact in prop space at the supplied absolute articulation
+   * travels. Undefined leaves the contact to the full articulate callback.
+   */
+  articulateSite?(
+    id: string,
+    state: Readonly<Record<string, number>>,
+  ): IAutoMovieAffordance | undefined;
+
+  /**
    * The prop's own movements after a trigger, each an articulation's travel
    * from a start instant: a trebuchet's arm swinging once its pin is pulled, a
    * door swinging shut on its closer. They share one state with the

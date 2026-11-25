@@ -83,6 +83,12 @@ export namespace IAutoMovieMotionHumanWalkPace {
     stride?: number;
 
     /**
+     * Seconds remaining to the next footfall when entering during double
+     * flight.
+     */
+    firstPlant?: number;
+
+    /**
      * The share of the way the pelvis has gone at a second of the walk, from 0,
      * never falling and reaching 1, when the way is set from outside (a
      * cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and

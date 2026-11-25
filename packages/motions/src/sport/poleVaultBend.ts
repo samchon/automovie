@@ -59,13 +59,16 @@ export function poleVaultBend(
       ),
   );
   const parameter: (seconds: number) => number = (seconds: number): number => {
-    const at: number = Math.min(
-      parameters.length - 1,
-      Math.max(0, seconds / poleVaultSwing.STEP),
+    if (seconds >= swing.duration) return parameters.at(-1)!;
+    const k: number = Math.min(
+      parameters.length - 2,
+      Math.floor(Math.max(0, seconds) / poleVaultSwing.STEP),
     );
-    const k: number = Math.min(parameters.length - 2, Math.floor(at));
     if (k < 0) return parameters[0]!;
-    return parameters[k]! + (parameters[k + 1]! - parameters[k]!) * (at - k);
+    const from: number = swing.samples[k]!.seconds;
+    const to: number = swing.samples[k + 1]!.seconds;
+    const progress: number = Math.max(0, (seconds - from) / (to - from));
+    return parameters[k]! + (parameters[k + 1]! - parameters[k]!) * progress;
   };
   // A link's direction from the elastica's chord, toward the bow.
   const direction: (m: number, j: number) => number = (

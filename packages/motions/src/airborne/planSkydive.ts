@@ -15,7 +15,9 @@ import type {
 import { stand } from "../actions/stand";
 import { lieDown } from "../floor/lieDown";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { stuntFallPose } from "../reaction/stuntFallPose";
 import { skydivePath } from "./skydivePath";
 import { skydivePoses } from "./skydivePoses";
@@ -76,15 +78,9 @@ export function planSkydive(
     pose: IAutoMovieMotionHumanLieDown.IPose,
   ): IAutoMovieMotionHumanPosture => skydivePoses.at(pose, yaw, false);
   const flarePose: IAutoMovieMotionHumanPosture = posed(skydivePoses.FLARE);
-  const flareOffset: IAutoMovieVector3 = stuntFallPose.offset(
-    body,
-    flarePose,
-  );
+  const flareOffset: IAutoMovieVector3 = stuntFallPose.offset(body, flarePose);
   // The flight ends with the flare's lowest bone, its feet, on the ground.
-  const flareLow: number = stuntFallPose.lowest(
-    body,
-    flarePose,
-  );
+  const flareLow: number = stuntFallPose.lowest(body, flarePose);
   const path: skydivePath.IPath = skydivePath.prepare(
     p,
     hips0,
@@ -117,12 +113,20 @@ export function planSkydive(
   };
   // The airborne poses are known before playback. Only their heading and
   // hip placement change, so bind their offsets before the first read.
-  const preparePlace = (
-    pose: IAutoMovieMotionHumanPosture,
-    offset: IAutoMovieVector3 = stuntFallPose.offset(body, pose),
-  ): ((hips: IAutoMovieVector3, heading: number) => IAutoMovieMotionHumanPosture) =>
+  const preparePlace =
+    (
+      pose: IAutoMovieMotionHumanPosture,
+      offset: IAutoMovieVector3 = stuntFallPose.offset(body, pose),
+    ): ((
+      hips: IAutoMovieVector3,
+      heading: number,
+    ) => IAutoMovieMotionHumanPosture) =>
     (hips: IAutoMovieVector3, heading: number): IAutoMovieMotionHumanPosture =>
-      stuntFallPose.at({ ...pose, yaw: heading }, hips, turned(offset, heading));
+      stuntFallPose.at(
+        { ...pose, yaw: heading },
+        hips,
+        turned(offset, heading),
+      );
   const arch: ReturnType<typeof preparePlace> = preparePlace(
     posed(skydivePoses.ARCH),
   );
@@ -136,6 +140,20 @@ export function planSkydive(
     flarePose,
     flareOffset,
   );
+  const exitBlend: ReturnType<typeof prepareHumanShapeBlend> =
+    prepareHumanShapeBlend(entry.joints, skydivePoses.ARCH.joints);
+  const openingBlend: ReturnType<typeof prepareHumanShapeBlend> =
+    prepareHumanShapeBlend(
+      skydivePoses.ARCH.joints,
+      skydivePoses.SPREAD.joints,
+    );
+  const spreadBlend: ReturnType<typeof prepareHumanShapeBlend> =
+    prepareHumanShapeBlend(
+      skydivePoses.SPREAD.joints,
+      skydivePoses.HANG.joints,
+    );
+  const flareBlend: ReturnType<typeof prepareHumanShapeBlend> =
+    prepareHumanShapeBlend(skydivePoses.HANG.joints, skydivePoses.FLARE.joints);
   const pulled = (t: number, side: AutoMovieHumanSide): number => {
     let w: number = 0;
     for (const toggle of p.toggles ?? []) {
@@ -163,18 +181,37 @@ export function planSkydive(
     touched.heading,
     false,
   );
+  const braceBlend: ReturnType<typeof prepareHumanShapeBlend> =
+    prepareHumanShapeBlend(flared.joints, rest.joints);
+  const floor: ReturnType<typeof stuntFallPose.prepareRest> =
+    stuntFallPose.prepareRest(body);
+  const landingKeys: IAutoMovieMotionHumanPosture[] = keys.map(({ pose }) =>
+    skydivePoses.at(pose, touched.heading, false),
+  );
+  const landingBlends: ReturnType<typeof prepareHumanShapeBlend>[] = landingKeys
+    .slice(0, -1)
+    .map((a, i) =>
+      prepareHumanShapeBlend(a.joints, landingKeys[i + 1]!.joints),
+    );
+  const keyEnd = (i: number): number => keys[i + 1]!.at;
+  const landingDirection: IAutoMovieVector3 = Vector3.normalize(path.landing);
+  const landingDrift: number = Vector3.length(path.landing) * 0.25 * PLF;
   // The feet stand where the flare touched them down.
   const planted: stuntFallPose.IFeet | undefined =
     landing === "standUp"
       ? stuntFallPose.feet(
           body,
-          stuntFallPose.rest(body, flared, {
+          floor(flared, {
             x: touched.hips.x,
             y: ground,
             z: touched.hips.z,
           }),
         )
       : undefined;
+  const absorb: ReturnType<typeof stuntFallPose.preparePlant> | undefined =
+    planted === undefined
+      ? undefined
+      : stuntFallPose.preparePlant(body, planted, ground);
 
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
@@ -182,40 +219,37 @@ export function planSkydive(
     const t: number = Math.max(0, Math.min(duration, seconds));
     if (t >= touchdown) {
       const s: number = t - touchdown;
-      if (planted !== undefined)
+      if (absorb !== undefined) {
         // The flare's bent knees straighten into the stand on the feet
         // planted where they touched down.
-        return stuntFallPose.plant(
-          body,
-          stuntFallPose.blend(flared, rest, minimumJerk.share(s / ABSORB)),
-          planted,
-          ground,
-        );
+        const w: number = minimumJerk.share(s / ABSORB);
+        return absorb(stuntFallPose.blend(flared, rest, w, braceBlend(w)));
+      }
       const u: number = s / PLF;
       // The forward speed is spent while the feet still bear, over the first
       // quarter; the body then rolls where it came down.
       const v: number = Math.min(1, u / 0.25);
       const drift: number =
-        Vector3.length(path.landing) *
-        0.25 *
-        PLF *
-        (v - (2.5 * v ** 4 - 3 * v ** 5 + v ** 6));
+        landingDrift * (v - (2.5 * v ** 4 - 3 * v ** 5 + v ** 6));
       const along: IAutoMovieVector3 = Vector3.add(
         touched.hips,
-        Vector3.scale(Vector3.normalize(path.landing), drift),
+        Vector3.scale(landingDirection, drift),
       );
-      let k: number = 0;
-      while (k < keys.length - 2 && keys[k + 1]!.at <= u) k++;
+      const k: number = PreparedHumanIntervals.upperBound(
+        keys.length - 2,
+        keyEnd,
+        u,
+      );
       const a: skydivePoses.IKey = keys[k]!;
       const b: skydivePoses.IKey = keys[k + 1]!;
       const w: number = minimumJerk.share((u - a.at) / (b.at - a.at));
       // The blend rests its own lowest bone on the ground.
-      return stuntFallPose.rest(
-        body,
+      return floor(
         stuntFallPose.blend(
-          skydivePoses.at(a.pose, touched.heading, false),
-          skydivePoses.at(b.pose, touched.heading, false),
+          landingKeys[k]!,
+          landingKeys[k + 1]!,
           w,
+          landingBlends[k]!(w),
         ),
         { x: along.x, y: ground, z: along.z },
       );
@@ -233,21 +267,28 @@ export function planSkydive(
           from,
           arch(at.hips, at.heading),
           w,
+          exitBlend(w),
         );
       }
-      case "opening":
+      case "opening": {
         // The arms spread out first, then rise to the risers, wide of the head.
+        const w: number = minimumJerk.share(
+          at.share < 0.5 ? at.share * 2 : at.share * 2 - 1,
+        );
         return at.share < 0.5
           ? stuntFallPose.blend(
               arch(at.hips, at.heading),
               spread(at.hips, at.heading),
-              minimumJerk.share(at.share * 2),
+              w,
+              openingBlend(w),
             )
           : stuntFallPose.blend(
               spread(at.hips, at.heading),
               hanging(at.hips, at.heading),
-              minimumJerk.share(at.share * 2 - 1),
+              w,
+              spreadBlend(w),
             );
+      }
       case "canopy": {
         const hang: IAutoMovieMotionHumanPosture = hanging(at.hips, at.heading);
         const joints: IAutoMovieMotionHumanPosture["joints"] = {
@@ -270,12 +311,15 @@ export function planSkydive(
         }
         return { ...hang, joints };
       }
-      case "flare":
+      case "flare": {
+        const w: number = minimumJerk.share(at.share);
         return stuntFallPose.blend(
           hanging(at.hips, at.heading),
           flare(at.hips, at.heading),
-          minimumJerk.share(at.share),
+          w,
+          flareBlend(w),
         );
+      }
     }
   };
 

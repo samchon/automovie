@@ -2,6 +2,7 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanCrutchWalk,
   IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanCrutchWalkPlan } from "./HumanCrutchWalkPlan";
@@ -45,6 +46,7 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     params: IAutoMovieMotionHumanCrutchWalk,
     _side: AutoMovieHumanSide,
     startsAt: number = 0,
+    localTip?: IAutoMovieVector3,
   ): ((filmSecond: number) => IAutoMovieRigidTransform) => {
     const timing: crutchWalkCourse.IClock = crutchWalkCourse.clock(params);
     // A crutch moves rigidly with the walker: displaced by each station and
@@ -54,6 +56,7 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
       start,
       params,
       timing,
+      localTip,
     );
     return (filmSecond: number): IAutoMovieRigidTransform =>
       crutchWalkCourse.frameAt(moves, start, filmSecond - startsAt);

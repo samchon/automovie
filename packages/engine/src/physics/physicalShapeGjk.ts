@@ -85,6 +85,48 @@ export function physicalShapeGjk(
  * shapes and casts it reads them from.
  */
 export namespace physicalShapeGjk {
+  /** World support point in the given direction. */
+  export type Support = (direction: IAutoMovieVector3) => IAutoMovieVector3;
+
+  /**
+   * Closest distance and a witness on the second support-mapped solid. Uses the
+   * same simplex reduction as the point/radius query. Original second-solid
+   * vertices are retained alongside the simplex for its witness.
+   */
+  export function witness(
+    a: Support,
+    b: Support,
+    tolerance: number,
+  ): { distance: number; point: IAutoMovieVector3 } {
+    const source: Map<IAutoMovieVector3, IAutoMovieVector3> = new Map();
+    const difference = (direction: IAutoMovieVector3): IAutoMovieVector3 => {
+      const second: IAutoMovieVector3 = b(Vector3.scale(direction, -1));
+      const point: IAutoMovieVector3 = Vector3.subtract(a(direction), second);
+      source.set(point, second);
+      return point;
+    };
+    const simplex: IAutoMovieVector3[] = [difference({ x: 0, y: -1, z: 0 })];
+    let at: IAutoMovieVector3 = simplex[0]!;
+    let distance: number = Vector3.length(at);
+    for (let i: number = 0; i < 128 && distance > tolerance; ++i) {
+      const axis: IAutoMovieVector3 = Vector3.scale(at, 1 / distance);
+      const point: IAutoMovieVector3 = difference(Vector3.scale(axis, -1));
+      if (distance - Vector3.dot(point, axis) <= tolerance) break;
+      const candidate: IAutoMovieVector3[] = [...simplex, point];
+      const next: IAutoMovieVector3 | undefined = nearest(candidate);
+      if (next === undefined)
+        return {
+          distance: 0,
+          point: witnessPoint(candidate, { x: 0, y: 0, z: 0 }, source),
+        };
+      const length: number = Vector3.length(next);
+      if (length >= distance) break;
+      simplex.splice(0, simplex.length, ...candidate);
+      distance = length;
+      at = next;
+    }
+    return { distance, point: witnessPoint(simplex, at, source) };
+  }
   /** A convex solid: the convex hull of its core's points widened by a radius. */
   export interface ISolid {
     /** The core's points, world metres; at least one. */
@@ -170,6 +212,48 @@ export namespace physicalShapeGjk {
       radius: Math.max(from.radius, to.radius) + stray,
     };
   }
+}
+
+/** Map a point of the reduced difference simplex back to the second solid. */
+function witnessPoint(
+  simplex: readonly IAutoMovieVector3[],
+  at: IAutoMovieVector3,
+  source: ReadonlyMap<IAutoMovieVector3, IAutoMovieVector3>,
+): IAutoMovieVector3 {
+  const [a, b, c, d] = simplex;
+  const start: IAutoMovieVector3 = source.get(a!)!;
+  if (b === undefined) return start;
+  const u: IAutoMovieVector3 = Vector3.subtract(b, a!);
+  const p: IAutoMovieVector3 = Vector3.subtract(at, a!);
+  const along = (point: IAutoMovieVector3, weight: number): IAutoMovieVector3 =>
+    Vector3.scale(Vector3.subtract(source.get(point)!, start), weight);
+  if (c === undefined)
+    return Vector3.add(start, along(b, Vector3.dot(p, u) / Vector3.dot(u, u)));
+
+  const v: IAutoMovieVector3 = Vector3.subtract(c, a!);
+  const normal: IAutoMovieVector3 = Vector3.cross(u, v);
+  if (d === undefined) {
+    const area: number = Vector3.dot(normal, normal);
+    return Vector3.add(
+      start,
+      Vector3.add(
+        along(b, Vector3.dot(Vector3.cross(p, v), normal) / area),
+        along(c, Vector3.dot(Vector3.cross(u, p), normal) / area),
+      ),
+    );
+  }
+  const w: IAutoMovieVector3 = Vector3.subtract(d, a!);
+  const volume: number = Vector3.dot(normal, w);
+  return Vector3.add(
+    start,
+    Vector3.add(
+      along(b, Vector3.dot(p, Vector3.cross(v, w)) / volume),
+      Vector3.add(
+        along(c, Vector3.dot(p, Vector3.cross(w, u)) / volume),
+        along(d, Vector3.dot(p, normal) / volume),
+      ),
+    ),
+  );
 }
 
 /**

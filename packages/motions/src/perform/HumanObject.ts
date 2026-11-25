@@ -69,9 +69,10 @@ export namespace HumanObject {
    * @param tracks The object's own movements after a trigger, each an
    *   articulation's travel from its start (`IHumanProp.tracks`); none when
    *   absent.
-   * @param modelAt The model posed in its own frame at a film second, read
-   *   when action preparation asks for a material snapshot.
-   * @returns The prop with the pose readers supplied by the model and its track.
+   * @param modelAt The model posed in its own frame at a film second, read when
+   *   action preparation asks for a material snapshot.
+   * @returns The prop with the pose readers supplied by the model and its
+   *   track.
    */
   export function prop(
     subject: string,
@@ -90,6 +91,8 @@ export namespace HumanObject {
       ),
     );
     const shapes: IAutoMoviePhysicalShape[] | undefined = model.shapes?.();
+    const articulateSite: IAutoMovieMotionHumanProp["articulateSite"] =
+      model.prepareArticulateSite?.();
     const prop: IAutoMovieMotionHumanProp = {
       subject,
       frame: frame(placement),
@@ -110,6 +113,7 @@ export namespace HumanObject {
       ...(placement.fixed === true ? { fixed: true } : {}),
       ...(shapes === undefined ? {} : { shapes }),
       ...(tracks === undefined || tracks.length === 0 ? {} : { tracks }),
+      ...(articulateSite === undefined ? {} : { articulateSite }),
       ...(model.body === undefined || model.body === null
         ? {}
         : { body: model.body }),

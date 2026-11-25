@@ -89,34 +89,6 @@ export namespace AquaticFin {
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
 
-    // The cruising speed balances both blades' thrust with the trimmed
-    // body's drag as HumanWater sums it, fins included: drag grows with the
-    // square of speed, so one reading at 1 m/s gives the balance.
-    const deep: IAutoMovieMotionHumanPosture = AquaticPosture.translate(prone, {
-      ...prone.root,
-      y: water - body.measure.stature,
-    });
-    const ahead: IAutoMovieVector3 = Vector3.subtract(
-      AquaticPosture.along(entry.posture, 1, 0),
-      AquaticPosture.along(entry.posture, 0, 0),
-    );
-    const resistance: number = -Vector3.dot(
-      HumanWater.sum(
-        body,
-        poseBones(body, resolveHumanPosture(body, deep)),
-        ahead,
-        { surface: water, fins: area },
-      ).drag,
-      ahead,
-    );
-    const thrust: number =
-      0.5 *
-      WATER_DENSITY *
-      THRUST *
-      2 *
-      area *
-      (2 * Math.PI * KICK * HEAVE) ** 2;
-    const speed: number = Math.sqrt(thrust / resistance);
     // The flutter kick laid over a key's legs, at a share `k` of its
     // stroke, so a kick that starts from still legs grows in without a jump.
     const kick: (
@@ -129,7 +101,6 @@ export namespace AquaticFin {
       k: number = 1,
     ): IAutoMovieMotionHumanPosture => {
       const kicked: IAutoMovieMotionHumanPosture["joints"] = legs(
-        body,
         2 * Math.PI * KICK * t,
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
@@ -153,18 +124,12 @@ export namespace AquaticFin {
     const place = (
       posture: IAutoMovieMotionHumanPosture,
       hips: IAutoMovieVector3,
-    ): IAutoMovieMotionHumanPosture => {
-      const at: IAutoMovieVector3 = hipsAt(posture).get("hips")!.worldPosition;
-      return AquaticPosture.translate(
+      at: IAutoMovieVector3 = hipsAt(posture).get("hips")!.worldPosition,
+    ): IAutoMovieMotionHumanPosture =>
+      AquaticPosture.translate(
         posture,
         Vector3.add(posture.root, Vector3.subtract(hips, at)),
       );
-    };
-    // The swimmer travels along its entered heading.
-    const heading: IAutoMovieVector3 = Vector3.subtract(
-      AquaticPosture.along(entry.posture, 1, 0),
-      AquaticPosture.along(entry.posture, 0, 0),
-    );
     const entered: IAutoMovieVector3 = hipsAt(entry.posture).get(
       "hips",
     )!.worldPosition;
@@ -172,13 +137,45 @@ export namespace AquaticFin {
     if (kind !== "duckDive") {
       const seconds: number = params.duration ?? 4;
       const depth: number = kind === "snorkel" ? 0 : (params.depth ?? 2);
+      const hips: IAutoMovieVector3 = hipsAt(prone).get("hips")!.worldPosition;
+      const heading: IAutoMovieVector3 = Vector3.subtract(
+        AquaticPosture.along(entry.posture, 1, 0),
+        AquaticPosture.along(entry.posture, 0, 0),
+      );
+      // Only the cruising strokes need the drag and thrust balance. One
+      // reading at 1 m/s supplies the coefficient of quadratic resistance.
+      const deep: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
+        prone,
+        {
+          ...prone.root,
+          y: water - body.measure.stature,
+        },
+      );
+      const resistance: number = -Vector3.dot(
+        HumanWater.sum(
+          body,
+          poseBones(body, resolveHumanPosture(body, deep)),
+          heading,
+          { surface: water, fins: area },
+        ).drag,
+        heading,
+      );
+      const thrust: number =
+        0.5 *
+        WATER_DENSITY *
+        THRUST *
+        2 *
+        area *
+        (2 * Math.PI * KICK * HEAVE) ** 2;
+      const speed: number = Math.sqrt(thrust / resistance);
       // At the surface the face is in the water with the back of the head
       // just under it; under water the hips hold the authored depth.
-      const crown: number =
-        HumanTrunk.region(body, prone, "crown").point.y -
-        hipsAt(prone).get("hips")!.worldPosition.y;
       const hipsY: number =
-        kind === "snorkel" ? water - 0.03 - crown : water - depth;
+        kind === "snorkel"
+          ? water -
+            0.03 -
+            (HumanTrunk.region(body, prone, "crown").point.y - hips.y)
+          : water - depth;
       return {
         duration: seconds,
         contacts: [],
@@ -191,11 +188,15 @@ export namespace AquaticFin {
           const t: number = Math.max(0, Math.min(seconds, time));
           const settle: number = minimumJerk.share(Math.min(1, t));
           const travelled: number = speed * Math.max(0, t - 0.5);
-          return place(kick(prone, t), {
-            x: entered.x + heading.x * travelled,
-            y: entered.y + (hipsY - entered.y) * settle,
-            z: entered.z + heading.z * travelled,
-          });
+          return place(
+            kick(prone, t),
+            {
+              x: entered.x + heading.x * travelled,
+              y: entered.y + (hipsY - entered.y) * settle,
+              z: entered.z + heading.z * travelled,
+            },
+            hips,
+          );
         },
       };
     }
@@ -262,6 +263,9 @@ export namespace AquaticFin {
       headDown,
       headUp,
     );
+    const downHips: IAutoMovieVector3 =
+      hipsAt(headDown).get("hips")!.worldPosition;
+    const upHips: IAutoMovieVector3 = hipsAt(headUp).get("hips")!.worldPosition;
     return {
       duration,
       contacts: [],
@@ -293,7 +297,17 @@ export namespace AquaticFin {
                   t < tAscend
                   ? kick(c((t - tBottom) / TURN), t)
                   : kick(headUp, t);
-        return place(shaped, { x: entered.x, y: hipsY, z: entered.z });
+        const keyedHips: IAutoMovieVector3 | undefined =
+          t >= tAscend
+            ? upHips
+            : t >= PIKE + LIFT && t < tBottom
+              ? downHips
+              : undefined;
+        return place(
+          shaped,
+          { x: entered.x, y: hipsY, z: entered.z },
+          keyedHips,
+        );
       },
     };
   }
@@ -319,22 +333,14 @@ export namespace AquaticFin {
   }
 
   /** Alternating flutter-kick hip and knee joints at a kick phase. */
-  function legs(
-    body: AquaticPosture.Context["body"],
-    phase: number,
-  ): IAutoMovieMotionHumanPosture["joints"] {
-    const keyed: IAutoMovieMotionHumanPosture["joints"] = ExerciseKey.from(
-      body,
-      {},
-      {},
-      { hip: 10 * Math.sin(phase), knee: 15 + 15 * Math.sin(phase + 0.6) },
-      { hip: -10 * Math.sin(phase), knee: 15 - 15 * Math.sin(phase + 0.6) },
-    ).joints;
+  function legs(phase: number): IAutoMovieMotionHumanPosture["joints"] {
+    const hip: number = 10 * Math.sin(phase);
+    const knee: number = 15 * Math.sin(phase + 0.6);
     return {
-      leftUpperLeg: keyed.leftUpperLeg,
-      rightUpperLeg: keyed.rightUpperLeg,
-      leftLowerLeg: keyed.leftLowerLeg,
-      rightLowerLeg: keyed.rightLowerLeg,
+      leftUpperLeg: [hip, 0, 0],
+      rightUpperLeg: [-hip, 0, 0],
+      leftLowerLeg: [15 + knee, 0, 0],
+      rightLowerLeg: [15 - knee, 0, 0],
     };
   }
 }

@@ -111,10 +111,13 @@ export namespace StrikingStroke {
    * corrections and the struck body only at or before that second.
    *
    * @param input The stroke.
+   * @param preparedBack Fixed return point from this committed plan, when
+   *   available. The delivery's tracker must also belong to the same plan.
    * @returns The evaluator.
    */
   export function create(
     input: IAutoMovieMotionHumanStrikingStroke.IInput,
+    preparedBack?: IAutoMovieVector3,
   ): IAutoMovieMotionHumanStrikingStroke.IStroke {
     const corrections: (
       seconds: number,
@@ -133,7 +136,10 @@ export namespace StrikingStroke {
       input.rechamber === undefined
         ? [
             {
-              displacement: Vector3.subtract(input.back(), from),
+              displacement: Vector3.subtract(
+                preparedBack ?? input.back(),
+                from,
+              ),
               start: at,
               duration: input.recoil,
             },
@@ -145,30 +151,41 @@ export namespace StrikingStroke {
               duration: 0.45 * input.recoil,
             },
             {
-              displacement: Vector3.subtract(input.back(), input.rechamber),
+              displacement: Vector3.subtract(
+                preparedBack ?? input.back(),
+                input.rechamber,
+              ),
               start: at + 0.35 * input.recoil,
               duration: 0.65 * input.recoil,
             },
           ];
-    const free = (seconds: number): IAutoMovieVector3 => {
-      const units: IAutoMovieSuperposeMinimumJerk.IUnit[] = [
-        ...input.units,
-        ...corrections(seconds),
-      ];
-      if (seconds > input.contact) {
-        const settled: IAutoMovieVector3 = [
-          ...input.units,
-          ...corrections(input.contact),
-        ].reduce(
+    const freeRecoil = (): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
+      recoil(
+        [...input.units, ...corrections(input.contact)].reduce(
           (
             p: IAutoMovieVector3,
             u: IAutoMovieSuperposeMinimumJerk.IUnit,
           ): IAutoMovieVector3 => Vector3.add(p, u.displacement),
           input.origin,
-        );
-        units.push(...recoil(settled, input.contact));
-      }
-      return superposeMinimumJerk.position(input.origin, units, seconds);
+        ),
+        input.contact,
+      );
+    const preparedRecoil:
+      | readonly IAutoMovieSuperposeMinimumJerk.IUnit[]
+      | undefined = preparedBack === undefined ? undefined : freeRecoil();
+    const free = (seconds: number): IAutoMovieVector3 => {
+      const position: IAutoMovieVector3 = superposeMinimumJerk.position(
+        superposeMinimumJerk.position(input.origin, input.units, seconds),
+        corrections(seconds),
+        seconds,
+      );
+      return seconds > input.contact
+        ? superposeMinimumJerk.position(
+            position,
+            preparedRecoil ?? freeRecoil(),
+            seconds,
+          )
+        : position;
     };
 
     // The stop is the contact the performance resolved jointly with every
@@ -179,16 +196,24 @@ export namespace StrikingStroke {
       input.fixed <= seconds
         ? input.fixed
         : undefined;
+    const met: IAutoMovieVector3 | undefined =
+      preparedBack !== undefined && typeof input.fixed === "number"
+        ? free(input.fixed)
+        : undefined;
+    const preparedStop:
+      | readonly IAutoMovieSuperposeMinimumJerk.IUnit[]
+      | undefined =
+      met === undefined ? undefined : recoil(met, input.fixed! + DWELL);
     return {
       stop,
       free,
       end: (seconds: number): IAutoMovieVector3 => {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);
-        const met: IAutoMovieVector3 = free(at);
+        const from: IAutoMovieVector3 = met ?? free(at);
         return superposeMinimumJerk.position(
-          met,
-          recoil(met, at + DWELL),
+          from,
+          preparedStop ?? recoil(from, at + DWELL),
           seconds,
         );
       },

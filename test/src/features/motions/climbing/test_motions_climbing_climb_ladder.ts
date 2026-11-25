@@ -1,11 +1,84 @@
-import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanLadder,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 import {
+  HumanLadder,
   climbLadderBeats,
   climbLadderContacts,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
+
+/**
+ * Each ladder rung carries its own finite point and crown.
+ *
+ * Scenarios:
+ *
+ * 1. A third center at 0.92 m and radius 0.02 m put its crown at 0.94 m.
+ * 2. The third rung alone turns 30 degrees and narrows to 0.28 m. A reach beyond
+ *    its end stops at 0.14 m along its visible axis.
+ */
+export function test_motions_climbing_climb_ladder_material(): void {
+  const frame: IAutoMovieRigidTransform = {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: Quaternion.identity(),
+  };
+  const section: IAutoMovieAffordance["frame"]["rotation"] =
+    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90);
+  const ladder = (degrees: number): IAutoMovieMotionHumanLadder.ILadder => {
+    const affordances: IAutoMovieAffordance[] = [0.3, 0.6, 0.92].map(
+      (y: number, k: number): IAutoMovieAffordance => ({
+        id: `rung${k + 1}`,
+        kind: "bar",
+        extent: null,
+        frame: {
+          translation: { x: 0, y, z: 0 },
+          rotation:
+            k === 2
+              ? Quaternion.multiply(
+                  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, degrees),
+                  section,
+                )
+              : section,
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        aperture: k === 2 ? 0.04 : 0.03,
+        length: k === 2 ? 0.28 : 0.42,
+      }),
+    );
+    const prop = (): IAutoMovieMotionHumanPropReader => ({
+      prop: { subject: "ladder", fixed: true, frame, points: {}, affordances },
+      frame: (): IAutoMovieRigidTransform => frame,
+    });
+    return HumanLadder({ prop, start: 0 }, "ladder");
+  };
+  const upright: ReturnType<typeof HumanLadder.prepareRung> =
+    HumanLadder.prepareRung(ladder(0));
+  TestValidator.predicate(
+    "third crown uses the third center and radius",
+    nclose(upright(3, 0, "crown").y, 0.94, 1e-12),
+  );
+  const angled: ReturnType<typeof HumanLadder.prepareRung> =
+    HumanLadder.prepareRung(ladder(30));
+  const cosine: number = Math.sqrt(3) / 2;
+  TestValidator.predicate(
+    "shuffled reads retain the finite rung and its own crown frame",
+    vclose(angled(3, 0.4), { x: 0.14 * cosine, y: 0.99, z: 0 }, 1e-12) &&
+      vclose(angled(1, 0, "crown"), { x: 0, y: 0.315, z: 0 }, 1e-12) &&
+      vclose(
+        angled(3, 0.4, "crown"),
+        { x: 0.14 * cosine - 0.01, y: 0.99 + 0.02 * cosine, z: 0 },
+        1e-12,
+      ),
+  );
+}
 
 namespace part_climb_ladder_beats {
   /** Rounding of a few sums, seconds. */

@@ -23,21 +23,26 @@ If staging a passage requires inventing an exchange, response or pause, return t
 Trace each cited [beat element](../../motion/staging.md#reading-the-scene) to at least one [commented value](../../development/modules.md#documenting-source). Include the beat anchor and, for skilled practice, the study section.
 
 ```ts
-const rush = jun.run({
-  // #s02-b03 action, "he rushes Mara": at full speed.
-  pace: "sprint",
-  // #s02-b03 action, "Jun snaps": he lunges at her.
-  stride: 1.2,
-  // #s02-b03 action, "Jun snaps": all his weight thrown at once, straight at her, past control.
-  manner: { effort: { weight: 1, time: 1, space: 1, flow: -1 } },
-  // #s02-b03 Space, "Jun by the door, Mara at the sink": 5 m to her.
-  to: kitchen.sink.front,
-  // via omitted: #s02-b03 Space leaves the floor between them clear, so he runs straight.
-});
-// #s02-b03 action, "knife raised": held high through the run.
-overlay(rush, jun.raise(knife, { hand: "right" }));
-// #s02-b03 Intent, "before she can get round the table": he sets off on her first step back.
-sync(rush.start, maraBackStep.start);
+import { HumanChain } from "@automovie/motions";
+
+const composition = HumanChain.subject("mara")
+  .stand(
+    // #s02-b03 action, "Mara holds her place for two seconds."
+    { hold: 2 },
+    "wait",
+  )
+  .over((upper) =>
+    upper.gesture(
+      // #s02-b03 action, "She brings her palms together as she waits."
+      { kind: "palmsTogether" },
+    ),
+  )
+  .sync({
+    // #s02-b03 Sound, "She begins at the third beat."
+    of: "score",
+    event: "beat",
+    index: 2,
+  }).node;
 ```
 
 ## Composition only

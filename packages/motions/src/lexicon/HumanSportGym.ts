@@ -143,8 +143,8 @@ export namespace HumanSportGym {
   });
 
   /**
-   * A wall sit, the wall not shown. Held 30 s after a 1.5 s entry; provisional
-   * ({@link WorkoutGym.KINDS}).
+   * A wall sit that bears on a finite wall named by `on`. Held 30 s after a 1.5
+   * s entry; provisional ({@link WorkoutGym.KINDS}).
    */
   export const wallSit: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["wallSit"]

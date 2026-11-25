@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
 /**
@@ -31,53 +32,61 @@ export function planWallRunFlight(
   const t0: number = at("wallStep");
   const t1: number = at("catch");
   const span: number = t1 - t0;
-  const from: IAutoMovieMotionHumanPosture = plan.posture(t0);
-  const to: IAutoMovieMotionHumanPosture = plan.posture(t1);
-  const a: IAutoMovieMotionHumanPosture["joints"] = GymnasticsFlight.frozen(
-    body,
-    from,
-  ).joints;
-  const b: IAutoMovieMotionHumanPosture["joints"] = GymnasticsFlight.frozen(
-    body,
-    to,
-  ).joints;
   const g: number = AutoMovieGravity.STANDARD;
 
-  // The bones either key poses, in the keys' order, and whether each is an
-  // arm's, which reaches over the flight's first half: fixed by the keys.
-  const bones: Array<keyof IAutoMovieMotionHumanPosture["joints"]> = [
-    ...(new Set([...Object.keys(a), ...Object.keys(b)]) as Set<
-      keyof IAutoMovieMotionHumanPosture["joints"]
-    >),
-  ];
-  const arms: boolean[] = bones.map(
-    (bone: keyof IAutoMovieMotionHumanPosture["joints"]): boolean =>
-      /Arm$/.test(bone),
-  );
-  // The take-off velocity that lands the projectile on the hang's root.
-  const v: IAutoMovieVector3 = {
-    x: (to.root.x - from.root.x) / span,
-    y: (to.root.y - from.root.y + 0.5 * g * span * span) / span,
-    z: (to.root.z - from.root.z) / span,
+  const capture = (): IFlight => {
+    const from: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
+      body,
+      plan.posture(t0),
+    );
+    const to: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
+      body,
+      plan.posture(t1),
+    );
+    // The bones either key poses, in the keys' order, and whether each is an
+    // arm's, which reaches over the flight's first half: fixed by the keys.
+    const bones: Array<keyof IAutoMovieMotionHumanPosture["joints"]> = [
+      ...(new Set([
+        ...Object.keys(from.joints),
+        ...Object.keys(to.joints),
+      ]) as Set<keyof IAutoMovieMotionHumanPosture["joints"]>),
+    ];
+    const arms: boolean[] = bones.map(
+      (bone: keyof IAutoMovieMotionHumanPosture["joints"]): boolean =>
+        /Arm$/.test(bone),
+    );
+    // The take-off velocity that lands the projectile on the hang's root.
+    const v: IAutoMovieVector3 = {
+      x: (to.root.x - from.root.x) / span,
+      y: (to.root.y - from.root.y + 0.5 * g * span * span) / span,
+      z: (to.root.z - from.root.z) / span,
+    };
+    return { from, to, bones, arms, v };
   };
+  let flight: IFlight = capture();
   // Nothing bears in the air: a contact still declared into the flight (the
   // feet leaving the wall and the floor) ends at the take-off, and one
   // declared from within it (the hands) starts at the catch.
   const off: number = t0 / plan.duration;
   const on: number = t1 / plan.duration;
-  const contacts: IAutoMovieMotionHumanContactWindow[] = plan.contacts.map(
+  const contacts: IAutoMovieMotionHumanContactWindow[] = plan.contacts.flatMap(
     (
       window: IAutoMovieMotionHumanContactWindow,
-    ): IAutoMovieMotionHumanContactWindow =>
-      window.from < on && window.to > off
-        ? window.from <= off
-          ? { ...window, to: off }
-          : { ...window, from: on }
-        : window,
+    ): IAutoMovieMotionHumanContactWindow[] => {
+      if (window.from >= on || window.to <= off) return [window];
+      return [
+        ...(window.from <= off ? [{ ...window, to: off }] : []),
+        ...(window.to >= on ? [{ ...window, from: on }] : []),
+      ];
+    },
   );
-  return {
+  const result: IAutoMovieMotionHumanActionPlan = {
     ...plan,
     contacts,
+    prepare: (): void => {
+      plan.prepare?.();
+      flight = capture();
+    },
     posture: (
       seconds: number,
       channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -93,6 +102,7 @@ export function planWallRunFlight(
           projection,
           evaluation,
         );
+      const { from, to, bones, arms, v }: IFlight = flight;
       const tau: number = seconds - t0;
       const s: number = tau / span;
       const shaped: number = minimumJerk.share(s);
@@ -100,8 +110,12 @@ export function planWallRunFlight(
       const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (let k: number = 0; k < bones.length; ++k) {
         const bone: keyof IAutoMovieMotionHumanPosture["joints"] = bones[k]!;
-        const p: readonly [number, number, number] = a[bone] ?? [0, 0, 0];
-        const q: readonly [number, number, number] = b[bone] ?? [0, 0, 0];
+        const p: readonly [number, number, number] = from.joints[bone] ?? [
+          0, 0, 0,
+        ];
+        const q: readonly [number, number, number] = to.joints[bone] ?? [
+          0, 0, 0,
+        ];
         const w: number = arms[k]! ? reached : shaped;
         joints[bone] = [
           p[0] + (q[0] - p[0]) * w,
@@ -123,4 +137,19 @@ export function planWallRunFlight(
       };
     },
   };
+  return HumanPreparedPlayback.rebindPosture(result, plan, body);
+}
+
+/** Prepared endpoints and projectile velocity for the wall-run catch. */
+interface IFlight {
+  /** Released pose at the wall step. */
+  from: IAutoMovieMotionHumanPosture;
+  /** Catching pose at the next wall hold. */
+  to: IAutoMovieMotionHumanPosture;
+  /** Joints that have to join the locked support poses. */
+  bones: Array<keyof IAutoMovieMotionHumanPosture["joints"]>;
+  /** Whether each joint reaches on the earlier arm clock. */
+  arms: boolean[];
+  /** World take-off velocity, metres per second. */
+  v: IAutoMovieVector3;
 }

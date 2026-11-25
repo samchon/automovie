@@ -179,6 +179,9 @@ export class AutoMovieArchetypeAssembly<
           ...affordance,
           id: prefix(member.archetype.affordances[at]!.id),
           frame: AutoMovieArchetypeFrame.compose(placement, affordance.frame),
+          ...(affordance.materialPart === undefined
+            ? {}
+            : { materialPart: prefix(affordance.materialPart) }),
           ...(affordance.parts === undefined
             ? {}
             : {
@@ -395,9 +398,7 @@ export class AutoMovieArchetypeAssembly<
         affordance.follows !== undefined
       )
         continue;
-      const travel: number = this.travel(
-        `${key}/${affordance.id}`,
-      );
+      const travel: number = this.travel(`${key}/${affordance.id}`);
       if (travel !== 0) state[affordance.id] = travel;
     }
     return archetype.articulate(state);

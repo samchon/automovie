@@ -153,6 +153,7 @@ export function createLadder(
     builder.affordance({
       id: `rung${k}`,
       kind: "bar",
+      materialPart: `rung-${k}`,
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(at, out, Vector3.create(1, 0, 0)),
       extent: null,

@@ -1,3 +1,7 @@
+import {
+  AutoMovieArchetypeArticulation,
+  AutoMovieArchetypeFrame,
+} from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanOperateDrive,
@@ -25,6 +29,8 @@ const ROUNDING: number = 64 * Number.EPSILON * 7;
  *    instant even when progress matches an earlier read.
  * 2. The drive publishes the same slider coordinate along the stroke. The same
  *    chain cannot be used to drive another kind of joint.
+ * 3. A grip rides a latch which rides a hinge. Read the hinge at the same second
+ *    as the grip, even if the latch has already reached its final travel.
  */
 export function test_motions_affordance_operate_drive(): void {
   const frame: IAutoMovieAffordance["frame"] = {
@@ -132,4 +138,94 @@ export function test_motions_affordance_operate_drive(): void {
         "hinge",
       ) === undefined,
   );
+  nested();
+}
+
+/** Check the composed knob and hinge against an independent quarter-turn. */
+function nested(): void {
+  const origin: IAutoMovieAffordance["frame"] = AutoMovieArchetypeFrame.upright(
+    { x: 0, y: 0, z: 0 },
+  );
+  const hinge: IAutoMovieAffordance = {
+    id: "hinge",
+    kind: "hinge",
+    frame: origin,
+    extent: null,
+    travel: 90,
+  };
+  const latch: IAutoMovieAffordance = {
+    id: "latch",
+    kind: "knob",
+    frame: AutoMovieArchetypeFrame.upright({ x: 1, y: 0, z: 0 }),
+    extent: null,
+    travel: 90,
+    rides: hinge.id,
+  };
+  const grip: IAutoMovieAffordance = {
+    id: "grip",
+    kind: "handle",
+    frame: AutoMovieArchetypeFrame.upright({ x: 2, y: 0, z: 0 }),
+    extent: null,
+    rides: latch.id,
+  };
+  const unrelated: IAutoMovieAffordance = { ...hinge, id: "unrelated" };
+  const affordances: IAutoMovieAffordance[] = [hinge, latch, grip, unrelated];
+  const project = AutoMovieArchetypeArticulation.prepare("nested", {
+    parts: [],
+    affordances,
+  });
+  const articulate = (
+    state: Readonly<Record<string, number>>,
+  ): IAutoMovieMotionHumanProp.IPosed => {
+    const frames = project(new Map(Object.entries(state)));
+    return {
+      affordances: affordances.map(
+        (a: IAutoMovieAffordance): IAutoMovieAffordance => ({
+          ...a,
+          frame: frames.frame(a.id)!,
+        }),
+      ),
+    };
+  };
+  const reader: IAutoMovieMotionHumanPropReader = {
+    prop: {
+      subject: "door",
+      frame: { position: origin.translation, rotation: origin.rotation },
+      points: {},
+      affordances,
+      articulate,
+    },
+    frame: (): IAutoMovieRigidTransform => reader.prop.frame,
+    state: (seconds: number): Readonly<Record<string, number>> => ({
+      hinge: seconds < 1 ? 0 : 90,
+      latch: 0,
+      unrelated: seconds < 2 ? 0 : 90,
+    }),
+  };
+  const part: IAutoMovieMotionHumanOperateDrive.IPart | undefined =
+    operateDrive.part(
+      { start: 0, prop: (): IAutoMovieMotionHumanPropReader => reader },
+      { kind: "prop", subject: "door", point: grip.id },
+      90,
+      "knob",
+    );
+  if (part === undefined) throw new Error("Expected nested latch");
+  for (const [seconds, expected] of [
+    [2.5, { x: -1, y: 0, z: -1 }],
+    [0.25, { x: 1, y: 0, z: -1 }],
+    [1.5, { x: -1, y: 0, z: -1 }],
+    [2.5, { x: -1, y: 0, z: -1 }],
+  ] as const) {
+    const displayed: IAutoMovieAffordance = articulate({
+      ...reader.state!(seconds),
+      latch: 90,
+    }).affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === grip.id,
+    )!;
+    TestValidator.predicate(
+      `the same nested grip follows the displayed hinge at ${seconds} s`,
+      vclose(displayed.frame.translation, expected, ROUNDING) &&
+        vclose(part.place(1, seconds).point, expected, ROUNDING),
+    );
+  }
 }

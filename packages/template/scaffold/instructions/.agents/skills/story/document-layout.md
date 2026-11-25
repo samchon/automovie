@@ -19,11 +19,11 @@ Commit instructions, bodies and Evidence answers. Keep review records local. Ide
 | `docs/research/<discipline>/<topic>.md` | The studies of each practice and style |
 | `references/` | Retained research originals that are permitted copies |
 | Ignored `references/private/` | Retained research originals whose rights are unconfirmed |
-| `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contract items and their criteria |
+| `docs/contracts/work/...`, `docs/contracts/language/...` | Production story contracts |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance record |
 | `docs/acceptance/catalog.md` | The catalog's accepted cases |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files |
-| Ignored `docs/review/draft/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body |
+| Ignored `docs/review/draft/<layer>/<relative-file>.md` | Current unit reviews mirroring the manuscript |
 | Ignored `docs/review/draft/<layer>/verdict/index.md` | Current complete-population verdict |
 
 The verdict file also holds the findings and the author's decisions on them.

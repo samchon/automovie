@@ -298,6 +298,9 @@ export namespace HumanSocial {
           partner: cast[role === "one" ? "other" : "one"],
           table: params.table,
           wins: params.winner === role,
+          ...(params.pads?.[role] === undefined
+            ? {}
+            : { pad: params.pads[role] }),
           ...(params.seconds === undefined ? {} : { seconds: params.seconds }),
           ...(params.pin === undefined ? {} : { pin: params.pin }),
         },

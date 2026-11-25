@@ -10,6 +10,6 @@ Of the feasible repairs, choose the one that realizes the beat. Keep the refusal
 
 ## When no repair holds
 
-A feasible beat outside the installed vocabulary goes through [a motion law](../laws/SKILL.md). Return a physically infeasible beat to the screenplay under [upstream defects](../../story/correction/repair.md#upstream-defects).
+Use [Choosing movement](composition.md#choosing-movement) for a feasible beat that needs a custom interval. Return a physically infeasible beat to the screenplay under [upstream defects](../../story/correction/repair.md#upstream-defects).
 
 Report a package defect when documented use fails or its refusal gives no repairable axis. Include the composition and refusal or observed failure. Keep the case visible for repair at the package owner and continue independent work.

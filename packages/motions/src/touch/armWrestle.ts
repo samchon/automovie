@@ -1,4 +1,9 @@
-import { Vector3, bracketedBisection, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  bracketedBisection,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -8,6 +13,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmWrestle,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -22,6 +28,7 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanForceTrunk } from "../grappling/HumanForceTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { HumanTrunkTurn } from "../posture/HumanTrunkTurn";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -164,16 +171,43 @@ export namespace armWrestle {
     const height: number =
       0.85 * Math.min(forearm, span(partner, "LowerArm", "Hand"));
     const reach: number = Math.sqrt(forearm ** 2 - height ** 2);
-    const elbow: IAutoMovieVector3 = Vector3.add(
+    const nominal: IAutoMovieVector3 = Vector3.add(
       p.table,
       Vector3.scale(own, GAP / 2 + reach),
     );
+    const pad: HumanMaterialContact.ISite | undefined =
+      p.pad === undefined
+        ? undefined
+        : HumanMaterialContact.prepare(
+            context.prop(p.pad.prop),
+            p.pad.point,
+            context.start,
+          );
+    if (p.pad !== undefined && pad === undefined) throw padRefusal(p.pad.point);
+    if (
+      pad !== undefined &&
+      Quaternion.rotateVectorY(
+        pad.at(context.start).frame.rotation,
+        HumanMaterialContact.NORMAL,
+      ) <
+        1 - 1e-12
+    )
+      throw padRefusal(p.pad?.point);
+    const elbow: IAutoMovieVector3 =
+      pad === undefined
+        ? nominal
+        : {
+            ...nominal,
+            y:
+              pad.at(context.start).frame.position.y +
+              body.measure.forearmRadius,
+          };
 
     // The wrist with the forearm turned by an angle about the elbows' line.
     const wrist = (degrees: number): IAutoMovieVector3 => {
       const angle: number = (degrees * Math.PI) / 180;
       return Vector3.add(
-        Vector3.add(elbow, Vector3.scale(own, -reach)),
+        Vector3.add(nominal, Vector3.scale(own, -reach)),
         Vector3.add(
           Vector3.scale(up, height * Math.cos(angle)),
           Vector3.scale(left, height * Math.sin(angle)),
@@ -463,6 +497,45 @@ export namespace armWrestle {
         });
       },
     };
+    if (pad !== undefined) {
+      const measure: ReturnType<typeof HumanMaterialContact.preparePosture> =
+        HumanMaterialContact.preparePosture(body, elbowBones);
+      const bearing = (
+        time: number,
+      ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined =>
+        measure(plan.posture(time), pad.at(context.start + time));
+      const material: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
+        bearing(arrive);
+      if (material === undefined || Math.abs(material.clearance) > HELD)
+        throw padRefusal(p.pad?.point);
+      const check: number[] = [go, turn, pin, relax];
+      // The struggle's sine reversals and zeroes are its prepared branches.
+      for (let time: number = go + 1.5 / 4; time < turn; time += 1.5 / 4)
+        check.push(time);
+      for (const time of check) {
+        const candidate:
+          | IAutoMovieMotionHumanContactWindow.IMaterial
+          | undefined = bearing(time);
+        if (
+          candidate === undefined ||
+          Math.abs(candidate.clearance) > HELD ||
+          Vector3.distance(material.point, candidate.point) > HELD
+        )
+          throw padRefusal(p.pad?.point);
+      }
+      plan.contacts = [
+        ...plan.contacts,
+        {
+          part: "rightLowerArm",
+          kind: "bear",
+          region: "elbowRight",
+          from: arrive / duration,
+          to: relax / duration,
+          support: pad.support,
+          material,
+        },
+      ];
+    }
     plan.prepare = (): void => {
       base.prepare?.();
       // The envelope's two ramps, the stretches the arm is carried on.
@@ -476,4 +549,15 @@ export namespace armWrestle {
     };
     return plan;
   }
+}
+
+/** A proposed pad cannot bear the displayed elbow through the contest. */
+function padRefusal(point: string | undefined): HumanRefusal {
+  return new HumanRefusal({
+    kind: "reach",
+    axis: "pad",
+    value: point,
+    reason: "the elbow cannot hold contact on the named finite pad",
+    fix: "place the pad under the displayed elbow or choose a reachable pin",
+  });
 }

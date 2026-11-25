@@ -26,6 +26,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 import { admitCarExitSill } from "./admitCarExitSill";
 import { carExitAnkleAt } from "./carExitAnkleAt";
+import { verifyCarExitSill } from "./verifyCarExitSill";
 
 /** A quiet placement of both feet. */
 type Feet = IAutoMovieMotionHumanEntryState["feet"];
@@ -371,6 +372,21 @@ export namespace HumanTravelCarExit {
             duckDegrees * minimumJerk.share(u / lastSill),
           );
         };
+
+        verifyCarExitSill(
+          context,
+          posture,
+          prepare,
+          (["left", "right"] as const).flatMap(
+            (side: AutoMovieHumanSide): number[] => {
+              const [from, to]: readonly [number, number] = timing[side];
+              return [0, liftShare, 0.5, 1 - liftShare, 1].map(
+                (phase: number): number =>
+                  prepare * (from + (to - from) * phase),
+              );
+            },
+          ),
+        );
 
         // The transfer puts the crown near the header while the hips leave the bench.
         const crown: IAutoMovieVector3 = HumanTrunk.region(

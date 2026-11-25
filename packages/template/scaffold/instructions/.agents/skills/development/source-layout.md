@@ -86,7 +86,7 @@ Each source file exports one declaration named as the file. Split a file by resp
 
 Work starts at the document it realizes: a new subject from its settings or brief record, then its entity folder and tests, and a new scene from its screenplay scene file and its [beat elements](../motion/staging.md#reading-the-scene), then its composition folder and its place in the film.
 
-Compose the actions of a [studied performance](../story/planning/research.md#what-needs-a-study) with installed motion modules. [Extend the vocabulary](../motion/laws/SKILL.md) when those modules cannot realize the action.
+Use [Choosing movement](../motion/compose/composition.md#choosing-movement) to select installed actions and identify required production laws.
 
 ## Execution and runtime setup
 

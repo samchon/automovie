@@ -151,9 +151,11 @@ export class WalkPace {
     // gait in stride's next footfall one period after the standing foot's
     // stance began, `stride` seconds before the start.
     const opening = (period: number): number =>
-      props.stride === undefined
-        ? WalkPace.FIRST
-        : period * (1 - props.share) - props.stride;
+      props.firstPlant !== undefined
+        ? props.firstPlant - period * props.share
+        : props.stride === undefined
+          ? WalkPace.FIRST
+          : period * (1 - props.share) - props.stride;
     const n: number = props.steps;
     const floor: number = WalkPace.FLOOR;
     const base: number = props.period(

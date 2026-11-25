@@ -1,3 +1,4 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanFrame } from "../posture/IAutoMovieMotionHumanFrame";
 
 /**
@@ -69,6 +70,27 @@ export namespace IAutoMovieMotionHumanLadder {
      * The rungs' clear width between the rails, metres; unbounded when the rung
      * declares no length.
      */
+    width: number;
+
+    /** Measured rungs in ordinal order when resolved from a scene prop. */
+    rungs?: readonly IRung[];
+  }
+
+  /** The unchanged material frame and size of one authored rung. */
+  export interface IRung {
+    /** The rung's named scene affordance. */
+    id: string;
+    /** The centre of the rung's axis in world metres. */
+    center: IAutoMovieVector3;
+    /** Unit axis along the rung toward the ladder's positive lateral side. */
+    axis: IAutoMovieVector3;
+    /** Outward unit normal of the rung's grip frame. */
+    normal: IAutoMovieVector3;
+    /** World vector from the axis to the top of the physical cylinder. */
+    crown: IAutoMovieVector3;
+    /** Cross-section radius, metres. */
+    radius: number;
+    /** Available grip length, metres. */
     width: number;
   }
 }

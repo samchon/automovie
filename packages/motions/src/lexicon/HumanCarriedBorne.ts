@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -143,12 +144,27 @@ export namespace HumanCarriedBorne {
       coupling === undefined
         ? undefined
         : HumanCarriedCouplingPose.preparePosture(body, coupling, row);
-    const ownBones: ReadonlySet<AutoMovieHumanoidBone> =
-      new Set<AutoMovieHumanoidBone>([body.surfaces.regions[row.mine].bone]);
+    const legacy: IAutoMovieMotionHumanPosture =
+      HumanCarriedCouplingPose.key(row);
+    const ownRegion: IAutoMovieVector3 | undefined =
+      carrier === undefined || coupling !== undefined
+        ? undefined
+        : HumanCarriedCouplingPose.region(
+            body,
+            HumanTrunk.resolve(
+              body,
+              { ...legacy, yaw: 0 },
+              undefined,
+              undefined,
+              new Set<AutoMovieHumanoidBone>([
+                body.surfaces.regions[row.mine].bone,
+              ]),
+            ),
+            row.mine,
+          );
     // Unless `lift` says otherwise, the body is lifted into the carry over the
     // time the bearer's hands take to reach their hold (`HumanCarried.TAKE`),
-    // so it never jumps onto the carrier and the carrier bears it only once
-    // it rests there. It is set down only when `setDown` asks: a carry may
+    // so it never jumps onto the carrier. It is set down only when `setDown` asks: a carry may
     // end with the body still borne.
     return HumanCarriedLift.over(
       {
@@ -206,7 +222,6 @@ export namespace HumanCarriedBorne {
         posture: (
           at: number,
           _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-          source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         ): IAutoMovieMotionHumanPosture => {
           // With no carrier the carry's posture is taken where the body stands.
           if (carrier === undefined)
@@ -237,15 +252,11 @@ export namespace HumanCarriedBorne {
           );
           const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
           const turned: IAutoMovieMotionHumanPosture = {
-            root: { x: 0, y: 0, z: 0 },
+            ...legacy,
             yaw:
               (hips === undefined
                 ? 0
                 : HumanFrame.heading(hips.worldRotation)) + row.turn,
-            pitch: row.pitch,
-            roll: 0,
-            joints,
-            limbs: {},
           };
 
           // The root that puts the resting region on the carrier's region.
@@ -267,11 +278,7 @@ export namespace HumanCarriedBorne {
                   z: 0,
                 },
               ),
-              HumanCarriedCouplingPose.region(
-                body,
-                HumanTrunk.resolve(body, turned, undefined, source, ownBones),
-                row.mine,
-              ),
+              Quaternion.rotateVector(HumanFrame.turn(turned.yaw), ownRegion!),
             ),
           };
           const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};

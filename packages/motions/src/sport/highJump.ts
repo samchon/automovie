@@ -358,6 +358,7 @@ export namespace highJump {
       arch: arched(body),
       pike: piked(body),
       prepareFrame,
+      placeMass: prepareGymnasticsFrame.mass(body, model),
       c0,
       v,
       rising,

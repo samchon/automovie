@@ -1,29 +1,37 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPlayground,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRide } from "../lexicon/HumanRide";
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
+import { HumanFoot } from "../posture/HumanFoot";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 type Params = IAutoMovieMotionHumanPlayground.ISeesawRideParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;
 
-/** World vertical. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** Sampling step that finds when the seat is low enough for the feet, seconds. */
-const STEP: number = 1 / 120;
+/** Feet and toes needed to read the displayed soles. */
+const SOLES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftFoot",
+  "leftToes",
+  "rightFoot",
+  "rightToes",
+]);
 
 /** Seconds a foot takes to reach the ground or leave it (provisional staging). */
 const PLACE: number = 0.25;
@@ -34,23 +42,22 @@ const PLACE: number = 0.25;
  */
 const LIFT: number = 0.05;
 
-/**
- * How far ahead of the seat a planted ankle lies, thigh lengths: short of the
- * hanging knee, so the leg keeps slack as the seat rises to the end of its low
- * interval (provisional staging).
- */
-const SLACK: number = 0.9;
-
-/** One interval with the feet on the ground, ride seconds. */
+/** One foot's planted interval, in ride seconds. */
 interface ILow {
-  /** When the seat comes low enough. */
+  /** The free sole first reaches the floor. */
   from: number;
 
-  /** When it rises out of reach. */
+  /** The free sole leaves the floor. */
   to: number;
 
-  /** Each foot's ankle goal on the ground, world metres. */
-  ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+  /** The sole point kept still throughout. */
+  socket: IAutoMovieMotionHumanFoot.ISocket;
+
+  /** The level foot's ankle and heading for that sole point. */
+  planted: IAutoMovieMotionHumanFoot.IPlacement;
+
+  /** The fixed sole offset from the planted ankle, in the foot's frame. */
+  offset: IAutoMovieVector3;
 }
 
 /**
@@ -76,106 +83,153 @@ export function HumanSeesawRide(
     ...context,
     params: { on, duration: seconds, seat, hands },
   });
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(UP, context.entry.posture.yaw),
-    { x: 0, y: 0, z: 1 },
-  );
-  const across: IAutoMovieVector3 = Vector3.cross(UP, forward);
-  const ankle: number = body.measure.ankleHeight;
-  const hips: number = 2 * body.measure.hipHalfWidth;
-  // A planted foot lies flat on the ground, turned to the rider's heading.
-  const flat: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    UP,
-    context.entry.posture.yaw,
-  );
-  const seatAt = (at: number): IAutoMovieVector3 =>
-    context.aim({ kind: "prop", subject: on, point: seat }, context.start + at)
-      .point;
-
-  // The hanging soles' drop below the seat point, read from the seated
-  // entry: a foot meets the ground once the seat is that low.
-  const entered: ReturnType<typeof poseBones> = poseBones(
+  const posed: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
     body,
-    context.entry.pose,
+    SOLES,
   );
-  const drop: number =
-    seatAt(0).y -
-    Math.min(
-      entered.get("leftFoot")!.worldPosition.y,
-      entered.get("rightFoot")!.worldPosition.y,
-    ) +
-    ankle;
-
-  // The low intervals: the hanging feet at or below the ground. Each foot
-  // is placed `PLACE` before the seat gets that low and lifted `PLACE`
-  // after it rises again, so it bears only while the seat is low.
-  const lows: ILow[] = [];
-  let open: number | undefined;
-  for (let at: number = 0; at <= ride.duration + STEP / 2; at += STEP) {
-    const low: boolean = seatAt(at).y - drop <= ground;
-    if (low && open === undefined) open = at;
-    if ((!low || at + STEP > ride.duration) && open !== undefined) {
-      const from: IAutoMovieVector3 = seatAt(open);
-      const knee: IAutoMovieVector3 = Vector3.add(
-        { ...from, y: ground + ankle },
-        Vector3.scale(forward, SLACK * body.measure.thigh),
+  // Both feet share each preparation observation. The table does not survive
+  // the planning call; playback retains only true plant intervals.
+  const seen: Map<
+    number,
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.ISocket>
+  > = new Map();
+  const soles = (
+    time: number,
+  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.ISocket> => {
+    const kept:
+      | Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.ISocket>
+      | undefined = seen.get(time);
+    if (kept !== undefined) return kept;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
+      resolveHumanPosture(body, ride.posture(time)),
+    );
+    const lower = (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanFoot.ISocket =>
+      HumanFoot.sockets(body, bones, side).reduce((a, b) =>
+        a.point.y <= b.point.y ? a : b,
       );
-      if (Math.min(at, ride.duration) > open)
-        lows.push({
-          from: open,
-          to: Math.min(at, ride.duration),
-          ankles: {
-            left: Vector3.add(knee, Vector3.scale(across, hips / 2)),
-            right: Vector3.add(knee, Vector3.scale(across, -hips / 2)),
-          },
-        });
-      open = undefined;
-    }
-  }
-  const contacts: IAutoMovieMotionHumanContactWindow[] = [...ride.contacts];
-  for (const low of lows)
-    for (const side of ["left", "right"] as const)
+    const result: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.ISocket
+    > = {
+      left: lower("left"),
+      right: lower("right"),
+    };
+    seen.set(time, result);
+    return result;
+  };
+  const low = (side: AutoMovieHumanSide): ILow[] =>
+    HumanMaterialContact.intervals(
+      0,
+      ride.duration,
+      (time: number): number => soles(time)[side].point.y - ground,
+    ).map(({ from, to }: HumanMaterialContact.IInterval): ILow => {
+      const shown: IAutoMovieMotionHumanFoot.ISocket = soles(from)[side];
+      const socket: IAutoMovieMotionHumanFoot.ISocket = {
+        ...shown,
+        point: { ...shown.point, y: ground },
+      };
+      return {
+        from,
+        to,
+        socket,
+        planted: HumanFoot.prepareAt(
+          body,
+          side,
+          socket.socket,
+          ride.posture(from).yaw,
+          0,
+        )(socket.point),
+        offset: HumanFoot.offset(body, side, socket.socket),
+      };
+    });
+  const lows: Record<AutoMovieHumanSide, ILow[]> = {
+    left: low("left"),
+    right: low("right"),
+  };
+  seen.clear();
+  const reader = (
+    side: AutoMovieHumanSide,
+  ): {
+    held(time: number): ILow | undefined;
+    near(time: number): ILow | undefined;
+  } => {
+    const phases: ILow[] = lows[side];
+    const held: (time: number) => ILow | undefined =
+      PreparedHumanIntervals.first(phases);
+    const nearby = PreparedHumanIntervals.first(
+      phases.map((phase: ILow) => ({
+        from: phase.from - PLACE,
+        to: phase.to + PLACE,
+        phase,
+      })),
+    );
+    return {
+      held,
+      near: (time: number): ILow | undefined => nearby(time)?.phase,
+    };
+  };
+  const left: ReturnType<typeof reader> = reader("left");
+  const right: ReturnType<typeof reader> = reader("right");
+  const contacts: IAutoMovieMotionHumanContactWindow[] = ride.contacts.filter(
+    (contact): boolean =>
+      contact.part !== "leftFoot" && contact.part !== "rightFoot",
+  );
+  for (const side of ["left", "right"] as const)
+    for (const interval of lows[side])
       contacts.push({
         part: `${side}Foot`,
         kind: "plant",
-        from: low.from / ride.duration,
-        to: low.to / ride.duration,
+        from: interval.from / ride.duration,
+        to: interval.to / ride.duration,
         support: { kind: "ground", height: ground },
+        socket: interval.socket.socket,
+        material: {
+          bone: body.surfaces.sockets[
+            `${interval.socket.socket}${side === "left" ? "Left" : "Right"}`
+          ].bone,
+          point: { ...interval.socket.point, y: 0 },
+          normal: { x: 0, y: 1, z: 0 },
+          clearance: 0,
+        },
       });
-  const feet: Plan = {
+  return {
     ...ride,
     contacts,
     posture: (at: number): Posture => {
       const posture: Posture = ride.posture(at);
-      const low: ILow | undefined = lows.find(
-        (item: ILow): boolean =>
-          at >= item.from - PLACE && at <= item.to + PLACE,
-      );
-      if (low === undefined) return grounded(posture);
-      const share: number =
-        (low.from <= 0
-          ? 1
-          : minimumJerk.share((at - (low.from - PLACE)) / PLACE)) *
-        (low.to >= ride.duration
-          ? 1
-          : 1 - minimumJerk.share((at - low.to) / PLACE));
-      const seatNow: IAutoMovieVector3 = seatAt(at);
       const limbs: Posture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const) {
-        const goal: IAutoMovieVector3 = low.ankles[side];
+        const track: ReturnType<typeof reader> = side === "left" ? left : right;
+        const held: ILow | undefined = track.held(at);
+        const interval: ILow | undefined = held ?? track.near(at);
+        if (interval === undefined) continue;
+        const share: number =
+          held !== undefined
+            ? 1
+            : at < interval.from
+              ? minimumJerk.share(1 - (interval.from - at) / PLACE)
+              : 1 - minimumJerk.share((at - interval.to) / PLACE);
+        const goal: IAutoMovieVector3 = interval.planted.ankle;
         const carried: IAutoMovieHumanLimbGoal | undefined =
           posture.limbs[`${side}Leg`];
+        const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+          interval.planted.rotation,
+          { x: 0, y: 0, z: body.measure.thigh },
+        );
         const knee: IAutoMovieVector3 = {
-          ...goal,
-          y: Math.max(goal.y + body.measure.shank, seatNow.y),
+          ...Vector3.add(goal, forward),
+          y: Math.max(goal.y + body.measure.shank, posture.root.y),
         };
         limbs[`${side}Leg`] =
           carried === undefined
             ? {
                 point: goal,
                 bend: knee,
-                rotation: flat,
-                planted: at >= low.from && at <= low.to,
+                rotation: interval.planted.rotation,
+                planted: held !== undefined,
+                contact: interval.offset,
               }
             : {
                 ...carried,
@@ -189,29 +243,17 @@ export function HumanSeesawRide(
                 bend: Vector3.lerp(carried.bend, knee, share),
                 rotation:
                   carried.rotation === undefined
-                    ? flat
-                    : Quaternion.slerp(carried.rotation, flat, share),
-                planted: at >= low.from && at <= low.to,
+                    ? interval.planted.rotation
+                    : Quaternion.slerp(
+                        carried.rotation,
+                        interval.planted.rotation,
+                        share,
+                      ),
+                planted: held !== undefined,
+                contact: interval.offset,
               };
       }
-      return grounded({ ...posture, limbs });
+      return { ...posture, limbs };
     },
   };
-
-  return feet;
-
-  // No ankle goes below its height over the ground: a foot the seat lowers
-  // further than the shank reaches stands on the ground instead.
-  function grounded(posture: Posture): Posture {
-    const limbs: Posture["limbs"] = { ...posture.limbs };
-    for (const side of ["left", "right"] as const) {
-      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
-      if (goal !== undefined && goal.point.y < ground + ankle)
-        limbs[`${side}Leg`] = {
-          ...goal,
-          point: { ...goal.point, y: ground + ankle },
-        };
-    }
-    return { ...posture, limbs };
-  }
 }

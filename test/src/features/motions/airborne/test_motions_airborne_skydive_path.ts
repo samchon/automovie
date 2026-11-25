@@ -27,6 +27,8 @@ const TERMINAL: number = 53;
  *    heading 90 degrees by its end.
  * 3. A deployment above the exit, one too low for the canopy to open and slow
  *    before the flare, and overlapping toggles are refused.
+ * 4. The first turn advances one 90-degree arc before moving straight east. A
+ *    succeeding right turn starts from that heading and location.
  */
 export function test_motions_airborne_skydive_path(): void {
   const params: IAutoMovieMotionHumanSkydive.IParams = {
@@ -84,5 +86,28 @@ export function test_motions_airborne_skydive_path(): void {
       }),
     ],
     ["deploy", "deploy", "toggles[1]"],
+  );
+  const arcs: skydivePath.IPath = skydivePath.prepare(
+    {
+      ...params,
+      toggles: [{ at: 14, side: "right", hold: 3 }, ...params.toggles!],
+    },
+    { x: 0, y: 3000, z: 0 },
+    0,
+    0,
+  );
+  const radius: number = 60 / Math.PI;
+  const first: skydivePath.IAt = arcs.at(arcs.open + 10);
+  const second: skydivePath.IAt = arcs.at(arcs.open + 14);
+  const turned: skydivePath.IAt = arcs.at(arcs.open + 17);
+  TestValidator.predicate(
+    "the second arc starts at the first arc's endpoint plus the straight segment",
+    nclose(second.hips.x - first.hips.x, radius + 10, ROUNDING) &&
+      nclose(second.hips.z - first.hips.z, radius, ROUNDING) &&
+      nclose(turned.hips.x - second.hips.x, radius, ROUNDING) &&
+      nclose(turned.hips.z - second.hips.z, radius, ROUNDING) &&
+      nclose(arcs.at(arcs.open + 11.5).heading, 45, ROUNDING) &&
+      nclose(turned.heading, 0, ROUNDING) &&
+      nclose(arcs.at(arcs.open + 14).hips.x, second.hips.x, ROUNDING),
   );
 }

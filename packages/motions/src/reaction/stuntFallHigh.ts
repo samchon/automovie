@@ -5,16 +5,12 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStuntFall,
-  IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,7 +18,9 @@ import { stand } from "../actions/stand";
 import { lieDown } from "../floor/lieDown";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { stuntFallPose } from "./stuntFallPose";
 
 /** Take-off speed along the heading for a step, metres per second (provisional). */
@@ -90,12 +88,23 @@ export function stuntFallHigh(
       : Vector3.scale(forward, exit === "thrown" ? THROW : STEP);
 
   // The landing: a pad's top or the ground, and the hips' height on it.
-  let base: number = 0;
-  let pad: IPad | undefined;
-  if (p.pad !== undefined) {
-    pad = padTop(context, p.pad, p.top ?? "surface");
-    base = pad.centre.y;
-  }
+  const top: string = p.top ?? "surface";
+  const pad: HumanMaterialContact.ISite | undefined =
+    p.pad === undefined
+      ? undefined
+      : HumanMaterialContact.prepare(context.prop(p.pad), top, context.start);
+  if (p.pad !== undefined && pad === undefined)
+    throw refusal("top", top, `${p.pad} has no dimensioned top ${top}`);
+  if (
+    pad !== undefined &&
+    Quaternion.rotateVectorY(
+      pad.at(context.start).frame.rotation,
+      HumanMaterialContact.NORMAL,
+    ) <
+      1 - 1e-12
+  )
+    throw refusal("top", top, "the stunt pad needs a level receiving face");
+  const base: number = pad?.at(context.start).frame.position.y ?? 0;
   const descend: boolean = p.descender !== undefined;
   const target: number = base + (descend ? body.measure.hipHeight : FLAT);
   const drop: number = hips0.y - target;
@@ -109,40 +118,22 @@ export function stuntFallHigh(
   // Free fall, or a descent capped at the descender's speed.
   const cap: number = p.descender ?? Infinity;
   const free: number = Math.min(drop, (cap * cap) / (2 * g));
-  const freeTime: number = Math.sqrt((2 * free) / g);
-  const flight: number =
-    freeTime + (drop - free) / (cap === Infinity ? 1 : cap);
+  const nominal: number = Math.sqrt((2 * free) / g) + (drop - free) / cap;
+  const capTime: number = cap / g;
   const heightAt = (t: number): number =>
-    t <= freeTime
+    t <= capTime
       ? hips0.y - 0.5 * g * t * t
-      : hips0.y - free - cap * (t - freeTime);
-  const touch: IAutoMovieVector3 = {
-    ...Vector3.add(hips0, Vector3.scale(v0, flight)),
-    y: target,
-  };
-  if (pad !== undefined) {
-    const local: IAutoMovieVector3 = Vector3.subtract(touch, pad.centre);
-    if (
-      Math.abs(Vector3.dot(local, pad.across)) > pad.width / 2 ||
-      Math.abs(Vector3.dot(local, pad.along)) > pad.depth / 2
-    )
-      throw refusal(
-        "pad",
-        p.pad,
-        "the fall's first contact misses the pad's top",
-      );
-  }
-  const duration: number = flight + SETTLE;
+      : hips0.y - (cap * cap) / (2 * g) - cap * (t - capTime);
+  const hipsAt = (time: number): IAutoMovieVector3 => ({
+    ...Vector3.add(hips0, Vector3.scale(v0, time)),
+    y: heightAt(time),
+  });
   const lying: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw,
     pitch: lieDown.POSES.supine.pitch,
     roll: lieDown.POSES.supine.roll,
     joints: lieDown.POSES.supine.joints,
-    limbs: {},
-  };
-  const stood: IAutoMovieMotionHumanPosture = {
-    ...stand.posture(body, { ...touch, y: base }, yaw),
     limbs: {},
   };
   const flatOffset: IAutoMovieVector3 = stuntFallPose.offset(body, lying);
@@ -152,49 +143,91 @@ export function stuntFallHigh(
   };
   const uprightOffset: IAutoMovieVector3 = stuntFallPose.offset(body, upright);
 
-  const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
-    seconds: number,
-  ): IAutoMovieMotionHumanPosture => {
-    const t: number = Math.max(0, Math.min(duration, seconds));
-    const flying: number = Math.min(t, flight);
-    const hips: IAutoMovieVector3 = {
-      ...Vector3.add(hips0, Vector3.scale(v0, flying)),
-      y: heightAt(flying),
-    };
-    if (descend) {
-      // Landed on the feet, the body eases into the stand over the settle.
-      const shown: IAutoMovieMotionHumanPosture = stuntFallPose.at(
-        upright,
-        hips,
-        uprightOffset,
-      );
-      if (t < flight) return shown;
-      return stuntFallPose.blend(
-        shown,
-        stood,
-        minimumJerk.share((t - flight) / SETTLE),
-      );
-    }
-    // The pad yields under the landing and the body settles on it.
-    const sink: number =
-      t <= flight || pad === undefined
-        ? 0
-        : YIELD * Math.sin(Math.PI * minimumJerk.share((t - flight) / SETTLE));
-    const turn: number = minimumJerk.share(Math.min(1, flying / flight));
+  const flying = (time: number): IAutoMovieMotionHumanPosture => {
+    const hips: IAutoMovieVector3 = hipsAt(time);
     const a: IAutoMovieMotionHumanPosture = stuntFallPose.at(
       upright,
       hips,
       uprightOffset,
     );
-    const b: IAutoMovieMotionHumanPosture = stuntFallPose.at(
-      lying,
-      { ...hips, y: hips.y - sink },
-      flatOffset,
+    if (descend) return a;
+    return stuntFallPose.blend(
+      a,
+      stuntFallPose.at(lying, hips, flatOffset),
+      minimumJerk.share(time / nominal),
     );
-    return stuntFallPose.blend(a, b, turn);
   };
-  const lands: IAutoMovieMotionHumanContactWindow["support"] =
-    p.pad === undefined ? { kind: "ground" } : { kind: "prop", subject: p.pad };
+  const exterior:
+    | ReturnType<typeof HumanMaterialContact.preparePosture>
+    | undefined =
+    pad === undefined ? undefined : HumanMaterialContact.preparePosture(body);
+  const observation = (
+    shape: IAutoMovieMotionHumanPosture,
+    time: number,
+  ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined =>
+    pad === undefined
+      ? undefined
+      : exterior!(shape, pad.at(context.start + time));
+  const arrival: ReturnType<typeof HumanMaterialContact.arrival> =
+    pad === undefined
+      ? undefined
+      : HumanMaterialContact.arrival(
+          nominal + SETTLE,
+          (
+            time: number,
+          ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined =>
+            observation(flying(time), time),
+        );
+  if (pad !== undefined && arrival === undefined)
+    throw refusal("pad", p.pad, "the fall's exterior misses the pad's top");
+  const flight: number = arrival?.seconds ?? nominal;
+  const duration: number = flight + SETTLE;
+  const touch: IAutoMovieVector3 = hipsAt(flight);
+  const contacted: IAutoMovieMotionHumanPosture = flying(flight);
+  const endpoint: IAutoMovieMotionHumanPosture = descend
+    ? { ...stand.posture(body, { ...touch, y: base }, yaw), limbs: {} }
+    : stuntFallPose.at(lying, touch, flatOffset);
+  const settled = (time: number): IAutoMovieMotionHumanPosture =>
+    stuntFallPose.blend(contacted, endpoint, minimumJerk.share(time / SETTLE));
+  const fit: ((seconds: number) => number[]) | undefined =
+    pad === undefined
+      ? undefined
+      : prepareHumanSampledCourse({
+          from: 0,
+          to: SETTLE,
+          sample: (time: number): readonly number[] => {
+            const raw: IAutoMovieMotionHumanPosture = settled(time);
+            const fit:
+              | IAutoMovieMotionHumanContactWindow.IMaterial
+              | undefined = observation(raw, flight + time);
+            if (fit === undefined)
+              throw refusal(
+                "pad",
+                p.pad,
+                "the body leaves the pad while settling",
+              );
+            return [fit.clearance];
+          },
+          tolerance: { kind: "absolute", absolute: 0.0005 },
+          step: 1 / 120,
+        });
+  const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture => {
+    const t: number = Math.max(0, Math.min(duration, seconds));
+    if (t <= flight) return flying(t);
+    const time: number = t - flight;
+    const shown: IAutoMovieMotionHumanPosture = settled(time);
+    if (fit === undefined) return shown;
+    const sink: number = descend
+      ? 0
+      : YIELD * Math.sin(Math.PI * minimumJerk.share(time / SETTLE));
+    shown.root.y -= fit(time)[0]! + sink;
+    return shown;
+  };
+  const lands: IAutoMovieMotionHumanContactWindow["support"] = pad?.support ?? {
+    kind: "ground",
+  };
   return {
     duration,
     events: [
@@ -223,6 +256,7 @@ export function stuntFallHigh(
             part: "back",
             kind: "lie",
             support: lands,
+            ...(arrival === undefined ? {} : { material: arrival.material }),
             from: flight / duration,
             to: 1,
           },
@@ -230,53 +264,6 @@ export function stuntFallHigh(
     base: { kind: descend ? "standing" : "lying" },
     posture,
     yields: [],
-  };
-}
-
-/** A pad's top in world metres. */
-interface IPad {
-  /** Its centre. */
-  centre: IAutoMovieVector3;
-
-  /** Unit axis across its width. */
-  across: IAutoMovieVector3;
-
-  /** Unit axis along its depth. */
-  along: IAutoMovieVector3;
-
-  /** Its width, metres. */
-  width: number;
-
-  /** Its depth, metres. */
-  depth: number;
-}
-
-/** Read a pad's top surface. */
-function padTop(
-  context: IAutoMovieMotionHumanActionContext,
-  subject: string,
-  id: string,
-): IPad {
-  const reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
-  const top: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
-    (item: IAutoMovieAffordance): boolean => item.id === id,
-  );
-  if (top?.width === undefined || top.depth === undefined)
-    throw refusal("top", id, `${subject} has no dimensioned top ${id}`);
-  const world: IAutoMovieRigidTransform = reader.frame(context.start);
-  const turn: IAutoMovieQuaternion = Quaternion.multiply(
-    world.rotation,
-    top.frame.rotation,
-  );
-  return {
-    centre: Vector3.add(
-      world.position,
-      Quaternion.rotateVector(world.rotation, top.frame.translation),
-    ),
-    across: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
-    along: Quaternion.rotateVector(turn, { x: 0, y: 0, z: 1 }),
-    width: top.width,
-    depth: top.depth,
   };
 }
 

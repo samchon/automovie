@@ -34,18 +34,60 @@ export function jumpGroundPosture(
   phase: JumpGroundPosturePhase,
   read: ReturnType<typeof prepareHumanPoseResolution>,
   solved?: number,
+  hinted?: HumanArmSwing.Angles,
 ): IAutoMovieMotionHumanPosture {
   const lowered: IAutoMovieMotionHumanPosture =
     phase === "landing"
       ? posture
       : rangeSteppingFoot(body, posture, phase, read, undefined, solved);
-  return HumanArmSwing(body, lowered, ARMS, read);
+  return HumanArmSwing(
+    body,
+    lowered,
+    ARMS,
+    read,
+    undefined,
+    undefined,
+    undefined,
+    hinted,
+  );
 }
 /** The alternatives of `JumpGroundPostureSamplePhase`'s site. */
 type JumpGroundPostureSamplePhase = "left" | "right" | "landing";
 
 /** Native observation of the ground writer and its same-instant leg fit. */
 export namespace jumpGroundPosture {
+  /** Prepare the arm clearance hints over a fixed push or landing phase. */
+  export function course(
+    body: IAutoMovieMotionHumanBody,
+    from: number,
+    to: number,
+    phase: JumpGroundPosturePhase,
+    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
+    pitch?: (seconds: number) => number,
+  ): ReturnType<typeof HumanArmSwing.course> {
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    return HumanArmSwing.course(
+      body,
+      from,
+      to,
+      (seconds: number): IAutoMovieMotionHumanPosture => {
+        const raw: IAutoMovieMotionHumanPosture = posture(seconds);
+        return phase === "landing"
+          ? raw
+          : rangeSteppingFoot(
+              body,
+              raw,
+              phase,
+              read,
+              undefined,
+              pitch?.(seconds),
+            );
+      },
+      ARMS,
+    );
+  }
+
   /**
    * The ground writer's sample: the legs lowered onto the stepping foot's
    * range, fitted, and both arms cleared of those fitted legs.
@@ -65,6 +107,7 @@ export namespace jumpGroundPosture {
     read: ReturnType<typeof prepareHumanPoseResolution>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     solved?: number,
+    hinted?: HumanArmSwing.Angles,
   ): HumanPreparedPlayback.ISample {
     const lowered: IAutoMovieMotionHumanPosture =
       phase === "landing"
@@ -81,6 +124,8 @@ export namespace jumpGroundPosture {
       read,
       projection,
       seeded.pose,
+      undefined,
+      hinted,
     );
     return { posture: cleared };
   }

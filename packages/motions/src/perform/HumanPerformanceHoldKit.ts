@@ -123,8 +123,9 @@ export function HumanPerformanceHoldKit(
   const moved = (
     w: IAutoMovieMotionHumanPerformanceState.IGrip,
     at: number,
+    displayed: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform => {
-    const kept: IAutoMovieRigidTransform = inHand(w, at);
+    const kept: IAutoMovieRigidTransform = inHand(w, at, displayed);
     // A hand that sets the prop exactly on a socket at its grip's end
     // brings it there over the grip, on a minimum-jerk share: its offset
     // moves from the one it holds to the one that puts the prop on the
@@ -172,12 +173,14 @@ export function HumanPerformanceHoldKit(
   const inHand = (
     w: IAutoMovieMotionHumanPerformanceState.IGrip,
     at: number,
+    displayed?: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform => {
     const stored: IAutoMovieRigidTransform = seat(w);
     if (w.inHand === undefined) return stored;
     const span: number = w.to - w.from;
     const d: IAutoMovieRigidTransform = w.inHand(
       span > 0 ? Math.min(1, Math.max(0, (at - w.from) / span)) : 1,
+      displayed,
     );
     return {
       position: Vector3.add(
@@ -276,6 +279,7 @@ export namespace HumanPerformanceHoldKit {
     moved(
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
       at: number,
+      displayed: IAutoMovieRigidTransform,
     ): IAutoMovieRigidTransform;
   }
 }

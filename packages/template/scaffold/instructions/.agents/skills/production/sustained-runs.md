@@ -4,7 +4,7 @@ Keep one run record for sustained work or requested observation. Use it to track
 
 ## Actual state
 
-Before dispatch, read current instructions, bodies, source, outputs and run record. Use history and logs for recurring failures. Record scope, inputs, roles, process IDs, findings and next action in ignored `.cache/`. Link evidence and omit secrets.
+Before dispatch or resumption, inspect the current inputs, outputs and run record. Record actual scope, roles, runtime, model, effort, session and process IDs, findings and next action in ignored `.cache/`. Link evidence and omit secrets.
 
 ## Execution
 
@@ -12,9 +12,9 @@ Follow the director's [assignments](director.md#assignments). Assign one writer 
 
 Give additional authorized workers disjoint write scopes. Use reviewers who meet the production's [independence criteria](../review/independent-reading.md).
 
-Check processes, artifacts and errors before declaring a stall. Resume from the last valid output. Keep the failure on record. Start a new result when inputs change. Verify restarted work afresh.
+Check processes, artifacts and errors before declaring a stall. Record the failure and resume from the last valid output. Start a new result when inputs change and repeat the affected verification.
 
-When an installed package lacks a capability, tell the user and continue the independent work.
+For an installed capability defect, preserve its reproducer and send it to the package or scaffold owner. Continue independent work. Reinstall and verify the failing entry point before resuming the affected stage with the repair.
 
 ## Observation
 

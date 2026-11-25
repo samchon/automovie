@@ -258,6 +258,7 @@ export const SCENES_GAMES: readonly IScene[] = [
             sync: { of: "vb-dig3", event: "stroke", offset: 0.15 },
           },
         ),
+        act("stand", { hold: 0.3 }),
         act("readyPosition", { hold: 0.2 }),
         act("victory"),
       ]),

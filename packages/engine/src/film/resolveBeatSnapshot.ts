@@ -314,6 +314,15 @@ function actorState(props: {
     props.world !== null
       ? props.world.transform
       : foldRoot(props.node.transform, props.pose?.root ?? null);
+  const gaitPhase: number | null =
+    props.motion === null
+      ? null
+      : gaitPhaseOf(props.motion.clip, props.localTime);
+  const source: IAutoMovieMotion | undefined = props.motion?.clip;
+  const gaitPeriod: number | undefined =
+    gaitPhase === null
+      ? undefined
+      : (source?.gaitCycle?.period ?? source?.duration);
   return {
     node: props.node.id,
     transform,
@@ -321,10 +330,8 @@ function actorState(props: {
     pose: props.pose === null ? null : { ...props.pose, root: null },
     motion: props.motion === null ? null : props.motion.id,
     localTime: props.localTime,
-    gaitPhase:
-      props.motion === null
-        ? null
-        : gaitPhaseOf(props.motion.clip, props.localTime),
+    gaitPhase,
+    ...(gaitPeriod === undefined ? {} : { gaitPeriod }),
     // A baked child reads its carrier's world motion over its own active
     // performance window; any other actor's velocity is its clip root's.
     rootVelocity:

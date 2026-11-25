@@ -55,6 +55,7 @@ import { workoutFloorClearance } from "./workoutFloorClearance";
 import { workoutFloorStance } from "./workoutFloorStance";
 import { workoutLaidHands } from "./workoutLaidHands";
 import { workoutSpans } from "./workoutSpans";
+import { workoutWallSit } from "./workoutWallSit";
 
 /**
  * An exercise, a stretch or a pose done on a support that is not only the feet,
@@ -221,7 +222,29 @@ export namespace workout {
 
     // How far the supported posture at the far end of each way down or up
     // sinks itself, by span, read once.
+    const pin = (
+      key: IAutoMovieMotionHumanExerciseKey.IKey,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture =>
+      ExerciseKey.pinned(body, key, yaw, kind.pin, at, pins, read, project);
     const far: Map<IAutoMovieMotionHumanExerciseKey.IKey, number> = new Map();
+    if (kind.anchor !== "stance" && kind.base !== "hanging") {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      for (const span of spans) {
+        if (span.a !== stood && span.b !== stood) continue;
+        const endpoint: IAutoMovieMotionHumanExerciseKey.IKey =
+          span.a === stood ? span.b : span.a;
+        if (!far.has(endpoint))
+          far.set(
+            endpoint,
+            floorClearance(pin(endpoint, read, project), read, project),
+          );
+      }
+    }
     function posture(
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -231,12 +254,6 @@ export namespace workout {
         prepareHumanPoseResolution(resolution);
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         projection ?? prepareHumanPostureProjection(body);
-      const pinned: (
-        key: IAutoMovieMotionHumanExerciseKey.IKey,
-      ) => IAutoMovieMotionHumanPosture = (
-        key: IAutoMovieMotionHumanExerciseKey.IKey,
-      ): IAutoMovieMotionHumanPosture =>
-        ExerciseKey.pinned(body, key, yaw, kind.pin, at, pins, read, project);
       let lo: number = 0;
       let hi: number = starts.length;
       while (lo < hi) {
@@ -254,7 +271,11 @@ export namespace workout {
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
           : 1;
       const u: number = minimumJerk.share(x);
-      const placed: IAutoMovieMotionHumanPosture = pinned(blends[index]!(u));
+      const placed: IAutoMovieMotionHumanPosture = pin(
+        blends[index]!(u),
+        read,
+        project,
+      );
       // A stance is where the body already stands.
       if (kind.anchor === "stance") return footed(placed);
       // How far the body is on its support: carried there from standing.
@@ -280,14 +301,13 @@ export namespace workout {
       // sinks itself, so the way meets that posture continuously. Hands laid
       // on the floor are placed by the arm's solve after this, so a kind
       // that lays them is read without its keyed arms.
-      const sunk: (current: IAutoMovieMotionHumanPosture) => number = (
-        current: IAutoMovieMotionHumanPosture,
-      ): number => floorClearance(current, read, project);
       const endpoint: IAutoMovieMotionHumanExerciseKey.IKey =
         s.a === stood ? s.b : s.a;
-      const supported: number = far.get(endpoint) ?? sunk(pinned(endpoint));
-      far.set(endpoint, supported);
-      const rise: number = Math.max(0, sunk(carried) - down * supported);
+      const supported: number = far.get(endpoint)!;
+      const rise: number = Math.max(
+        0,
+        floorClearance(carried, read, project) - down * supported,
+      );
       return rise === 0
         ? carried
         : {
@@ -439,13 +459,19 @@ export namespace workout {
             holds: load.holds,
             hands: load.hands,
           };
-    const result: IAutoMovieMotionHumanActionPlan = stay
+    const finished: IAutoMovieMotionHumanActionPlan = stay
       ? {
           ...composed,
           base:
             kind.base === "seated" ? { kind: "seated" } : { kind: kind.base },
         }
       : composed;
+    const result: IAutoMovieMotionHumanActionPlan = workoutWallSit(
+      context,
+      finished,
+      workAt,
+      to * duration,
+    );
 
     // Keep repetition selection in the indexed clock, including zero-length
     // keys. Laid hands still read the earlier channels through composition.
@@ -463,8 +489,10 @@ export namespace workout {
             const [seconds, demand, resolution, projection] = args;
             return {
               posture:
-                kind.hands === true || demand !== undefined
-                  ? posed.posture(...args)
+                result !== finished ||
+                kind.hands === true ||
+                demand !== undefined
+                  ? result.posture(...args)
                   : merge(
                       standing,
                       hung(

@@ -164,20 +164,37 @@ function jacket(
         );
 
   // The free hand waits above the opening before the axial sleeve crossing.
-  const posture: (t: number) => IAutoMovieMotionHumanPosture = (
-    t: number,
-  ): IAutoMovieMotionHumanPosture => {
-    const inSleeve: IAutoMovieRigidTransform =
-      t <= arrival
-        ? wardrobeHands.path(free, reach.before, t / arrival)
-        : wardrobeHands.path(reach.before, reach.after, (t - arrival) / across);
-    return wardrobeHands.arm(
+  const inSleeve = (t: number): IAutoMovieRigidTransform =>
+    t <= arrival
+      ? wardrobeHands.path(free, reach.before, t / arrival)
+      : wardrobeHands.path(reach.before, reach.after, (t - arrival) / across);
+  const baseAt = (): IAutoMovieMotionHumanPosture => entry.posture;
+  const knots: readonly number[] = [
+    arrival,
+    arrival + across * reach.passage,
+    over,
+    finish,
+  ];
+  const carry: ReturnType<typeof wardrobeHands.prepareArm> =
+    wardrobeHands.prepareArm(
       body,
-      wardrobeHands.arm(body, entry.posture, hand, holding(t)),
+      baseAt,
+      hand,
+      holding,
+      durationSeconds,
+      knots,
+    );
+  const sleeve: ReturnType<typeof wardrobeHands.prepareArm> =
+    wardrobeHands.prepareArm(
+      body,
+      baseAt,
       side,
       inSleeve,
+      durationSeconds,
+      knots,
     );
-  };
+  const posture = (t: number): IAutoMovieMotionHumanPosture =>
+    sleeve(carry(entry.posture, t), t);
   for (const [t, acting, goal] of [
     [arrival, hand, kept],
     [arrival, side, reach.before],
@@ -207,14 +224,18 @@ function jacket(
       ...base.contacts,
       {
         ...wardrobeHands.contact(params.prop, hand, 0, time),
-        inHand: (share: number): IAutoMovieRigidTransform => {
+        inHand: (
+          share: number,
+          grip?: IAutoMovieRigidTransform,
+        ): IAutoMovieRigidTransform => {
           const at: number = share * finish;
           return wardrobeHands.roll(
             body,
-            posture(at),
+            grip === undefined ? posture(at) : entry.posture,
             hand,
             holding(at),
             at / arrival,
+            grip,
           );
         },
       },

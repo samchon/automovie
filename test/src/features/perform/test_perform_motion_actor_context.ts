@@ -8,6 +8,7 @@ import {
 import type {
   IAutoMovieActionCall,
   IAutoMovieActorContext,
+  IAutoMovieMotion,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,14 +19,72 @@ import {
   makeMotion,
   makePose,
 } from "../internal/fixtures";
+import { nclose } from "../internal/nclose";
 import { throwsError, vclose } from "../internal/predicates";
 
 /**
- * Actor-local synthesis resolves its gait, target and live frame before compiling owned channels.
+ * A change of gait period keeps the previous normalized phase.
  *
  * Scenarios:
- * 1. Two distinct rigs share a gaze and face instruction, with travel assigned to only one.
- * 2. Delayed gaze reads the moving observer. A rigidly moved preliminary root carries its staged heading.
+ *
+ * 1. The 0.6175 s mark in a 0.95 s walk resumes at 0.312 s in a 0.48 s sprint,
+ *    still through the second half of the stride.
+ * 2. A legacy context without a source period keeps its seconds.
+ */
+export function test_perform_motion_actor_context_gait_period(): void {
+  const context: IAutoMovieActorContext = {
+    skeleton: "rig",
+    gaits: [
+      {
+        name: "sprint",
+        period: 0.48,
+        limbs: [{ bone: "leftUpperLeg", phase: 0, duty: 0.25, amplitude: 25 }],
+      },
+    ],
+    position: { x: 0, y: 0, z: 0 },
+    facingDeg: 0,
+    speed: 4,
+    eyeHeight: 1.6,
+    restPose: makePose([]),
+    gaitPhase: 0.6175,
+  };
+  const call: IAutoMovieActionCall = {
+    verb: "locomote",
+    actor: "runner",
+    gait: "sprint",
+    start: 0,
+    duration: "auto",
+    to: { kind: "node", node: "unplaced" },
+  };
+  const resume = (given: IAutoMovieActorContext): IAutoMovieMotion =>
+    makeActorSynthesizer(new Map([["runner", given]]), new Map())(
+      call,
+      "runner",
+    )!;
+  TestValidator.predicate(
+    "walk phase maps to the same normalized sprint phase",
+    nclose(
+      resume({ ...context, gaitPeriod: 0.95 }).gaitCycle!.phaseAt,
+      0.312,
+      1e-12,
+    ),
+  );
+  TestValidator.predicate(
+    "older synthesis contexts retain their meaning",
+    nclose(resume(context).gaitCycle!.phaseAt, 0.1375, 1e-12),
+  );
+}
+
+/**
+ * Actor-local synthesis resolves its gait, target and live frame before
+ * compiling owned channels.
+ *
+ * Scenarios:
+ *
+ * 1. Two distinct rigs share a gaze and face instruction, with travel assigned to
+ *    only one.
+ * 2. Delayed gaze reads the moving observer. A rigidly moved preliminary root
+ *    carries its staged heading.
  * 3. A missing actor or gait omits the clip; duplicate gait names refuse lookup.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Examines generated channels, world frame and gaze.

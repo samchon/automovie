@@ -1,7 +1,24 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanRefusal, logRollTurns } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLogRoll,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { createHumanBody } from "@automovie/motions";
+import {
+  HumanColliders,
+  HumanRefusal,
+  lieDown,
+  logRoll,
+  logRollTurns,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { humanFixture } from "../../internal/fixtures/humanFixture";
+import { motionActionContext } from "../../internal/motionActionContext";
 import { nclose } from "../../internal/nclose";
 
 /** Rounding of Ramanujan's formula, metres. */
@@ -21,6 +38,8 @@ const ROUNDING: number = 1e-12;
  * 3. A place 1 m along takes round(2.5) = 3; ending on the back, the even count
  *    nearer, 2.
  * 4. A place 0.1 m along, under half a half turn, is refused on `to`.
+ * 5. The displayed colliders touch the floor both while the body straightens and
+ *    after the unchanged shape starts its second half turn.
  */
 export async function test_motions_floor_log_roll(): Promise<void> {
   const a: number = 0.16;
@@ -78,4 +97,40 @@ export async function test_motions_floor_log_roll(): Promise<void> {
       "to",
     ),
   );
+  const fixture: Awaited<ReturnType<typeof humanFixture>> =
+    await humanFixture("f-small");
+  const body: IAutoMovieMotionHumanBody = createHumanBody(
+    fixture.skeleton,
+    fixture.profile,
+  );
+  const entry: IAutoMovieMotionHumanPosture = {
+    ...lieDown.POSES.supine,
+    root: { x: 0.3, y: 0, z: -0.7 },
+    pitch: -90,
+    yaw: 31,
+    limbs: {},
+  };
+  const plan: IAutoMovieMotionHumanActionPlan = logRoll.plan(
+    motionActionContext<IAutoMovieMotionHumanLogRoll>(
+      body,
+      { toward: "left", halfTurns: 2 },
+      { posture: entry, base: { kind: "lying" } },
+    ),
+  );
+  for (const share of [0.82, 0.499, 0.5, 1, 0.501, 0.82]) {
+    const posture: IAutoMovieMotionHumanPosture = plan.posture(
+      plan.duration * share,
+    );
+    TestValidator.predicate(
+      `floor contact at ${share} of a roll`,
+      nclose(
+        HumanColliders.lowest(
+          body,
+          poseBones(body, resolveHumanPosture.seeded(body, posture).pose),
+        ),
+        0,
+        1e-9,
+      ),
+    );
+  }
 }

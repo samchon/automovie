@@ -2,19 +2,19 @@
 
 ## Pose by time
 
-Build every law, primitive and transition as a preparation that runs once from bound inputs, and a pose function `f(plan, t)`.
+Prepare a law once from its bound inputs and evaluate its pose by time.
 
 ### Preparation
 
-Compute only the knots and branch points the motion needs. Make every contact change, impact and touchdown a branch knot. Place the other knots adaptively until the path stays within a tolerance taken from the requirement bound at the call site (AutoKnots, Vitenti et al. 2024). Locate a one-dimensional extremum with Brent's method (Brent 1973), not on a sampling grid.
+Use a closed-form path or fit when it meets the bounds. Resolve contact changes, impacts and touchdowns at their event times. Restrict a coupled fit or physical solve to the interval and degrees of freedom required.
 
-Each knot carries its position and velocity, and may carry its own acceleration and dwell. Join neighboring knots with a minimum-jerk segment that matches both knots' position, velocity and acceleration (Flash and Hogan 1985). Time the segments with TOPP-RA against the velocity and acceleration limits (Pham and Pham 2018).
+For a fitted path, retain knots at its branch times and add others only to meet the required error bound (AutoKnots, Vitenti et al. 2024). Use Brent's method for a bracketed one-dimensional extremum. Join minimum-jerk segments with matched position, rate and acceleration (Flash and Hogan 1985). Use TOPP-RA when the path needs retiming to meet rate and acceleration limits (Pham and Pham 2018).
 
-Run physics only at a branch point, for the short response there, and resolve it during preparation. Use closed-form paths and fits where they satisfy the constraints. Limit coupled search to the interval and degrees of freedom that need it. Retain event states, curves or solver trajectories that preserve the checked result between events. Carry the resolved boundary state through dependent phases, cuts and layers.
+Retain exact event states and any curves or solver trajectories needed between events. Carry the displayed predecessor state through dependent phases, cuts and layers.
 
 ### Sampling
 
-Keep `f(plan, t)` pure, so any `t` in any order gives the same pose. Evaluate only what the caller reads at that instant, from the prepared segments, carrier-relative transforms and closed-form limb solutions. Run no search, re-solve or fit, and keep no cache or memo. Pass the evaluated pose to its consumers. When a sample seems to need a memo, move its time-independent work into preparation.
+Return the same pose for repeated and shuffled reads. Evaluate the requested channels from their prepared data and any current inputs they depend on, such as a moving support or tracked partner. Keep invariant work in preparation. Reuse the evaluated pose where consumers need the same sample.
 
 ## Transitions
 
@@ -22,9 +22,9 @@ Keep `f(plan, t)` pure, so any `t` in any order gives the same pose. Evaluate on
 
 Declare each cut's target action, legal window, target entry and transition kind. Reject undeclared cuts when building the plan.
 
-Inertialize action changes. Redirect target changes within a movement family. Join cyclic movements at the matching foot event.
+Use inertialization for a change of action, redirection for a new target in the same family and phase alignment for a cyclic join. Preserve the gait phase in force at the boundary, including flight where admitted.
 
-Declare the state each cut preserves. Plan the target action from that entry state.
+Plan the target action from the entry pose and rates. Preserve active supports and held objects in their owners' frames until the actual release or transfer. Check corresponding channels and contacts on both sides.
 
 If the vocabulary runs transitions, the law declares its cuts and delegates blending.
 

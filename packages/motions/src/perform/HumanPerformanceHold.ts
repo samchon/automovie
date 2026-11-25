@@ -179,14 +179,15 @@ export namespace HumanPerformanceHold {
     const hold = (
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
     ): HumanPropHold.IHand => {
-      const offset: IAutoMovieRigidTransform = moved(w, at);
       if (
         own === undefined ||
         active === undefined ||
         w.mount !== undefined ||
         w.subject !== own.subject
-      )
-        return { offset, hand: carrier(w, at, own) };
+      ) {
+        const hand: IAutoMovieRigidTransform = carrier(w, at, own);
+        return { offset: moved(w, at, hand), hand };
+      }
       const body: IAutoMovieMotionHumanBody = HumanPerformanceRead.person(
         self,
         own.subject,
@@ -195,10 +196,12 @@ export namespace HumanPerformanceHold {
         w.bone ??
         body.surfaces.sockets[w.side === "left" ? "gripLeft" : "gripRight"]
           .bone;
-      return {
-        offset,
-        hand: HumanPropHold.frame(body, own.bones(new Set([bone])), w),
-      };
+      const hand: IAutoMovieRigidTransform = HumanPropHold.frame(
+        body,
+        own.bones(new Set([bone])),
+        w,
+      );
+      return { offset: moved(w, at, hand), hand };
     };
     // Taken in both of the performer's hands at once, it is one rigid thing
     // between the two fists; a hand closing on it later only steadies it.

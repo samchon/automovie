@@ -1,20 +1,35 @@
+import { createPoolEdge } from "@automovie/archetypes";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanAquatic,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
+import { HumanObject } from "@automovie/motions";
 import {
   AquaticCrew,
   AquaticEdge,
   AquaticPosture,
   AquaticTeamBase,
+  HumanFoot,
+  HumanHand,
+  aquatic,
   aquaticArtisticSchedule,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
+import { motionActionContext } from "../../internal/motionActionContext";
 import { nclose } from "../../internal/nclose";
 import { qclose } from "../../internal/qclose";
 import { throwsError } from "../../internal/throwsError";
@@ -65,8 +80,10 @@ const ENTRY: IAutoMovieMotionHumanPosture = {
  *    left base's right palm and its right foot on the right base's left palm,
  *    the hands nearest the group's middle; a flyer with no bases, or one base
  *    twice, is refused.
+ * 9. The breaststroke hands meet the rotated wall separately, and each foot stays
+ *    at its own material anchor until push-off, in shuffled read order.
  */
-export function test_motions_sport_aquatic(): void {
+export async function test_motions_sport_aquatic(): Promise<void> {
   // 1. The crew's windows.
   TestValidator.equals(
     "the borne seat and the gripping hands",
@@ -238,4 +255,70 @@ export function test_motions_sport_aquatic(): void {
         }),
       ),
   );
+  await wallTurn();
+}
+
+/** Observe actual displayed contact sockets during a named-wall turn. */
+async function wallTurn(): Promise<void> {
+  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  const context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAquatic.IParams> =
+    motionActionContext<IAutoMovieMotionHumanAquatic.IParams>(
+      body,
+      { kind: "breaststrokeStartTurn", water: -0.15, support: "wall" },
+      {
+        at: { x: -5, y: 0.3, z: 0 },
+        yaw: 90,
+        props: [
+          HumanObject.prop("wall", createPoolEdge({ kind: "deckEdge" }), {
+            at: { x: 0, y: 0, z: 0 },
+            yaw: -90,
+            fixed: true,
+          }),
+        ],
+      },
+    );
+  const turn: IAutoMovieMotionHumanActionPlan = aquatic.plan(context);
+  const at = (name: string): number =>
+    turn.events.find((e: IAutoMovieMotionEvent): boolean => e.name === name)!
+      .share * turn.duration;
+  const touch: number = at("twoHandTouch");
+  const plant: number = at("wallPlant");
+  const push: number = at("pushOff");
+  const bones = AquaticPosture.markers(body, [
+    "leftHand",
+    "rightHand",
+    "leftFoot",
+    "rightFoot",
+  ]);
+  const shown = (
+    seconds: number,
+    kind: "Hand" | "Foot",
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 => {
+    const part: AutoMovieHumanoidBone = `${side}${kind}`;
+    const bone: IAutoMovieResolvedBone = bones(turn.posture(seconds)).get(
+      part,
+    )!;
+    const offset: IAutoMovieVector3 =
+      kind === "Hand"
+        ? HumanHand.offset(body, side, "palm", "flat").point
+        : HumanFoot.offset(body, side, "sole");
+    return Vector3.add(
+      bone.worldPosition,
+      Quaternion.rotateVector(bone.worldRotation, offset),
+    );
+  };
+  for (const side of HumanHand.SIDES) {
+    TestValidator.predicate(
+      `the ${side} palm meets the named wall`,
+      Math.abs(shown(touch, "Hand", side).x) < 0.006,
+    );
+    const anchor: IAutoMovieVector3 = shown(plant, "Foot", side);
+    for (const seconds of [push, plant + (push - plant) * 0.37, plant, push])
+      TestValidator.predicate(
+        `the ${side} sole keeps its material point at ${seconds} s`,
+        Math.abs(anchor.x) < 0.006 &&
+          vclose(shown(seconds, "Foot", side), anchor, 0.006),
+      );
+  }
 }

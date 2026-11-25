@@ -1,85 +1,73 @@
 ---
 name: human
-description: Builds and verifies parameterized Human geometry from conic families. Use for Human code, its viewer, and supervised Human work, with 3d-modeling for geometry and visual-debugging for pictures.
+description: Builds, inspects or supervises the parameterized Human figure and viewer.
 ---
 
 # Human
 
-The goal is one reusable construction that generates every supported person from parameters. It finds the major anatomical centres and axes and draws each region's view curves from them by sound laws. Its [construction tree](construction.md#tree) keeps logical anatomical identities independently of its surface decomposition, and the engine realizes the tree into one skin.
+Generate every supported person from one [construction tree](construction.md#tree). Derive each region's view curves from anatomical centres and axes. The engine realizes the tree as one skin while retaining region identities.
 
-The tasks and their order live in the issue tracker. An explicit stop overrides every instruction here.
+Follow the current issue's scope and order.
 
-Before supervising Human work, read [Supervision](supervision.md) and follow its [ten-minute checklist](supervision.md#every-ten-minutes).
+## Research
 
-## The skills are binding
-
-This skill and the skills it links are the owner's method. Follow them as written. When one blocks the work, report the conflict with its quote, then amend the skill before acting differently. A rule one worker bends is a rule no other worker can rely on, and a method agreed only in conversation is lost at the next session.
-
-Before each decision, reread the section that governs it. Research means reading these yourself:
-
-- the skill text;
-- the engine and interface code at the operator in question, starting from the capabilities it already has;
-- the Human package's record of what was tried;
-- the method's literature.
-
-A measurement order, or another value of a parameter, is not research.
+Before changing an operator, read the applicable skill, existing engine and interface capability, the Human package's record and the method's primary sources. Resolve conflicts at the governing rule or refer them to the user.
 
 ## Method
 
-1. **Centres.** Every part starts from its own centres: joint centres from the person's measures, then the course its sections are centred on, as [Centres before curves](curves.md#centres-before-curves) orders them.
-2. **Families.** Every part is a conic family: a few view curves (outline pairs, axis, fullness) and one inflection line for each groove along it. [Lofting](../3d-modeling/crafting/lofting.md#one-section-family) owns the section model and its one limit, star-shape about the course.
-3. **Connections.** Parts meet only through the operator their topology selects in [Connections](construction.md#connections). The joint is composed in 2D before either side is lofted.
-4. **Repair.** A defect is fixed at the curve that makes it, in the order [Repair](construction.md#repair) gives.
-5. **Seeing.** Nothing is true until it is seen. Every shape claim rests on renders opened beside the reference, as [Verification](verification.md) requires.
+1. Derive [joint and course centres](curves.md#centres-before-curves) from measurements.
+2. Build conic families from [view curves](curves.md#few-view-curves-per-segment).
+3. Compose [shared boundaries](construction.md#connections) in 2D before lofting.
+4. [Repair](construction.md#repair) defects at the curves that produce them.
+5. [Verify](verification.md) shape beside its references.
 
 ## Three steps
 
-Conquer one person before generalizing. Pass each step's [gates](verification.md#steps-one-and-two) before the next, because a formula fitted to an unmatched shape generalizes the error.
+Finish one reference before generalizing. Pass each step's [gates](verification.md#steps-one-and-two) before advancing.
 
-1. **Trace.**
-   - Extract the reference's representative 2D lines from its own mesh in its own pose. Take exact plane cuts at the stations the loft uses, read their extents and quarter shoulders, and reduce them to sparse knots within tolerance.
-   - Correct only the knots that follow a reference artifact, such as hatching, holes or saw-toothed slices. Name each one in a comment.
-   - Conic-loft those lines in absolute world coordinates.
-2. **Re-base.** Rewrite each part's traced coordinates about its own origin at its joint, with axes from its own landmarks. Chain the parts' relative frames so the round trip back to the reference pose is exact.
-3. **Generalize.** Derive, by reverse analysis of the re-based coordinates, the universal laws that produce them from parameters, under [Generate from parameters](curves.md#generate-from-parameters), [Numbers](construction.md#numbers) and [Inputs](construction.md#inputs).
+1. Trace the reference in its recorded pose.
+   - Cut exact planes at the loft stations and read extents and quarter shoulders.
+   - Reduce to sparse knots within tolerance. Document corrections for mesh artifacts.
+   - Loft the traced curves in world coordinates.
+2. Rebase each part to its joint origin and landmark axes. Verify the exact pose round trip.
+3. Derive shared laws that generate the curves from [inputs](construction.md#inputs).
+   - Follow [parameter generation](curves.md#generate-from-parameters) and [numerical sources](construction.md#numbers).
 
-Know the method's classical limits before a step begins and plan their standard remedies: a level section cannot hold a horizontal floor, a pole cannot host ports, and a branch needs its connection. A limit discovered through a refusal costs a fix-and-revert cycle.
+Plan for section limits before lofting. Use a suitable frame for a level floor, place ports away from poles and connect branches at their shared boundary.
 
 ## Order
 
 Work in [correction rounds](../visual-debugging/correction-rounds.md) over the whole figure:
 
-1. **Build.** Keep changed code compiling in its [watch](../development/validation.md#type-checking), produce the step's originals and run the selected producer.
-2. **Curves.** Inspect every part's [view curves over the reference](verification.md#curves-against-the-reference) and its [shared connections](verification.md#shared-connections).
-3. **Surfaces.** Sweep the whole person, its close-ups and every suspect piece in one [inspection round](verification.md#inspection-round).
-4. **Analyse.** Write one table: every phenomenon with its owner, its measured cause, and the same cause elsewhere.
-5. **Fix.** Fix every row in one batch under [Construction](construction.md), giving each fixed defect a test that fails if it returns.
-6. **Confirm.** Confirm with the [tests](testing.md) and the next round, and record what the round taught in the Human package's documentation.
+1. Compile in the [shared watch](../development/validation.md#type-checking) and produce the step's originals.
+2. Inspect [view curves](verification.md#curves-against-the-reference) and [shared connections](verification.md#shared-connections).
+3. Sweep the whole person, close-ups and suspect pieces in one [inspection round](verification.md#inspection-round).
+4. Record each finding, owner, measured cause and affected neighbours.
+5. Fix every cause in one [construction](construction.md) batch with regression checks.
+6. Confirm with [tests](testing.md) and the next round. Record the findings in the package.
 
-A change that follows a skill rule stays when it breaks something fitted to the old state; refit that dependent on the new state. Revert only when a measurement shows the change itself is wrong, because a revert made to quiet a dependent restores the defect the change removed.
-
-In step 3, derive every fix and expectation from the person's inputs, published laws, geometry or normalized population tables. A special case or an unsourced number fits one symptom and breaks the population.
+Refit affected dependents to a verified correction. Revert a correction when measurements disprove it.
 
 Finish the anatomical neutral and the bind before any other pose, because every motion starts from them.
 
 ## Polygon man
 
-The polygon man that `render` draws is a deliberately simple stand-in of a few rigid primitives on Human's skeleton, for motion verification and diffusion hints. Keep its primitives, segment count and style. A fix corrects a wrong value, such as a radius, a length or a frame. A change that would need more geometry, segments, smoothing, anatomy, a face or realism goes to the user as a report instead, because the stand-in's value is a cheap, readable and deterministic silhouette.
+Keep the polygon man's rigid primitives, segment count and style for motion verification and diffusion hints. Correct wrong dimensions or frames. Refer a change needing more geometry, anatomy or style to the user.
 
 ## Done when
 
 - Every public parameter changes the figure through the one construction, answered at its published site.
-- Every supported person comes from that construction with no person selector, and finite, connected, normal anatomy holds across the parameter domain, at rest and in every supported pose.
+- One construction yields finite, connected and anatomically valid skin across parameters and supported poses.
 - Generation returns a figure for every valid person with an empty diagnostics list.
 
 ## Files
 
-- [Construction](construction.md): the tree, the connection operators, the repair order, identity and binding, form, numbers and inputs.
-- [Original 2D curves](curves.md): sketches, view curves, representation choices and generation from parameters.
-- [Verification](verification.md): seeing before believing, the reference overlay, the step gates, the inspection round and verdicts.
-- [Testing](testing.md): which tests to write, how to write and run them.
-- [Screenshots](screenshot.md): the shared instrument's selections and passes for the Human figure.
-- [Supervision](supervision.md): briefs and the supervision cycle when workers build Human.
-- [Workspace](workspace.md): references and ignored paths.
-
-Tell the user only what you checked.
+| Read | To |
+| --- | --- |
+| [Construction](construction.md) | Build a tree, join parts or repair a region |
+| [Original 2D curves](curves.md) | Draw curves or derive them from parameters |
+| [Verification](verification.md) | Compare shapes or decide a step's acceptance |
+| [Testing](testing.md) | Write or run Human tests |
+| [Screenshots](screenshot.md) | Select subjects, views and passes |
+| [Supervision](supervision.md) | Brief or audit Human workers |
+| [Workspace](workspace.md) | Use references and ignored output paths |

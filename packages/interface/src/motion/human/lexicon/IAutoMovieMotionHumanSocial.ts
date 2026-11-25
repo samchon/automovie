@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
+import type { IAutoMovieMotionHumanArmWrestle } from "../touch/IAutoMovieMotionHumanArmWrestle";
 
 /**
  * Things two people do together or to each other in company, as rows of shipped
@@ -20,6 +21,14 @@ export namespace IAutoMovieMotionHumanSocial {
   export interface IArmWrestle {
     /** The table's point the hands meet over, world metres. */
     table: IAutoMovieVector3;
+
+    /** Finite elbow pads keyed by the role each receives. */
+    pads?: Partial<
+      Record<
+        "one" | "other",
+        NonNullable<IAutoMovieMotionHumanArmWrestle.IParams["pad"]>
+      >
+    >;
 
     /** The role that pins the other. */
     winner: "one" | "other";

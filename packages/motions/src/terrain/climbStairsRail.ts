@@ -122,12 +122,14 @@ export function climbStairsRail(
     channels,
     resolution,
     projection,
+    evaluation,
   ): IAutoMovieMotionHumanPosture => {
     const bodyPose: IAutoMovieMotionHumanPosture = stairs.posture(
       seconds,
-      undefined,
+      channels,
       resolution,
       projection,
+      evaluation,
     );
     if (
       seconds <= 0 ||

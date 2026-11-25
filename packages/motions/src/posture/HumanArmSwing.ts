@@ -20,7 +20,16 @@ import { poseBones } from "./poseBones";
 import { prepareHumanArmRoom } from "./prepareHumanArmRoom";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
+import { prepareHumanSampledCourse } from "./prepareHumanSampledCourse";
 import { resolveHumanPosture } from "./resolveHumanPosture";
+
+/** Quiet-arm tolerances are invariant for the same prepared body geometry. */
+const STANDING_ROOM: WeakMap<
+  IAutoMovieMotionHumanBody,
+  Partial<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
+  >
+> = new WeakMap();
 
 /**
  * The exact pose search, or a final-arm certificate in a stride-maximum
@@ -35,6 +44,7 @@ function cleared(
   resolved?: IAutoMoviePose,
   maxima?: Readonly<Record<AutoMovieHumanSide, number>>,
   entered?: HumanArmSwing.Entered,
+  hinted?: HumanArmSwing.Angles,
 ): IAutoMovieMotionHumanPosture {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution(source);
@@ -91,11 +101,13 @@ function cleared(
     // The least added abduction that keeps the arm's room within its
     // stance baseline, by bisection: the least moves continuously as the
     // swing does, where a local search could jump between frames.
-    const quietRoom: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
-      body,
-      side,
-      standing,
-    );
+    const rooms: Partial<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
+    > = STANDING_ROOM.get(body) ?? {};
+    const quietRoom: IAutoMovieMotionHumanArmClearance.IBaseline = (rooms[
+      side
+    ] ??= stance(body, side, standing));
+    STANDING_ROOM.set(body, rooms);
     // An arm handed on lying deeper may stay as deep as it entered.
     const handed: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
       entered?.[side];
@@ -148,12 +160,7 @@ function cleared(
       : short(HumanArmSwing.SPAN)
         ? HumanArmSwing.SPAN
         : maximum === undefined || maximum === 0
-          ? bracketedBisection(
-              short,
-              0,
-              HumanArmSwing.SPAN,
-              HumanArmSwing.precision(body),
-            )
+          ? hintedAngle(short, hinted?.[side], HumanArmSwing.precision(body))
           : winningAngle(short, wins, HumanArmSwing.precision(body));
     const clear: IAutoMovieMotionHumanArmClearance.IArm = out(added);
     joints[`${side}UpperArm`] = clear.upper;
@@ -166,6 +173,25 @@ function cleared(
     }
   }
   return { ...posture, joints };
+}
+
+/** Verify the nearest prepared bracket in the live displayed pose. */
+function hintedAngle(
+  short: (degrees: number) => boolean,
+  hint: number | undefined,
+  precision: number,
+): number {
+  if (hint !== undefined && hint > 0) {
+    const unit: number =
+      HumanArmSwing.SPAN /
+      2 ** Math.max(0, Math.ceil(Math.log2(HumanArmSwing.SPAN / precision)));
+    const high: number = Math.min(
+      HumanArmSwing.SPAN,
+      Math.max(unit, Math.round(hint / unit) * unit),
+    );
+    if (!short(high) && short(high - unit)) return high;
+  }
+  return bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
 }
 
 /**
@@ -238,6 +264,7 @@ function stance(
  * @param entered Each arm's room as it entered the action, where it entered
  *   lying deeper than in the quiet stance (a hand left on a thigh by the action
  *   before); the stance's alone when absent.
+ * @param hinted A prepared abduction bracket evaluated at the current second.
  * @returns The posture with the arms' upper arm joints let out.
  */
 export function HumanArmSwing(
@@ -248,6 +275,7 @@ export function HumanArmSwing(
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
   resolved?: IAutoMoviePose,
   entered?: HumanArmSwing.Entered,
+  hinted?: HumanArmSwing.Angles,
 ): IAutoMovieMotionHumanPosture {
   return cleared(
     body,
@@ -258,6 +286,7 @@ export function HumanArmSwing(
     resolved,
     undefined,
     entered,
+    hinted,
   );
 }
 
@@ -271,6 +300,55 @@ export function HumanArmSwing(
  * room the arm has in the quiet stance.
  */
 export namespace HumanArmSwing {
+  /** Extra abduction in degrees, indexed by swinging side. */
+  export type Angles = Readonly<Record<AutoMovieHumanSide, number>>;
+
+  /**
+   * Sample the expensive search over a fixed ground phase. Playback uses the
+   * sampled curve as a bracket hint and verifies the current shape's actual
+   * clearance before relying on it.
+   */
+  export function course(
+    body: IAutoMovieMotionHumanBody,
+    from: number,
+    to: number,
+    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
+    sides: readonly AutoMovieHumanSide[],
+  ): (seconds: number) => Angles {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const project: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const pick = (
+      side: AutoMovieHumanSide,
+      clear: IAutoMovieMotionHumanPosture,
+      raw: IAutoMovieMotionHumanPosture,
+    ): number =>
+      (clear.joints[`${side}UpperArm`]?.[1] ?? 0) -
+      (raw.joints[`${side}UpperArm`]?.[1] ?? 0);
+    const read: (seconds: number) => number[] = prepareHumanSampledCourse({
+      from,
+      to,
+      sample: (seconds: number): number[] => {
+        const raw: IAutoMovieMotionHumanPosture = posture(seconds);
+        const clear: IAutoMovieMotionHumanPosture = HumanArmSwing(
+          body,
+          raw,
+          sides,
+          resolution,
+          project,
+        );
+        return [pick("left", clear, raw), pick("right", clear, raw)];
+      },
+      tolerance: { kind: "absolute", absolute: precision(body) },
+      step: 1 / 30,
+    });
+    return (seconds: number): Angles => {
+      const [left, right]: number[] = read(seconds);
+      return { left: left!, right: right! };
+    };
+  }
+
   /**
    * The most abduction a swing is let out by, degrees (provisional: beyond it
    * the arm is no longer the gait's).

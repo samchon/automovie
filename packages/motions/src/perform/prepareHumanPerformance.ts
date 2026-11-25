@@ -8,6 +8,7 @@ import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -32,7 +33,8 @@ import { prepareHumanSegment } from "./prepareHumanSegment";
  * 3. Each prop's flights (`HumanPropFlight.sweep`);
  * 4. Each action's display record (`prepareHumanSegment`) and the carries of the
  *    holds it ends, in the depth-first order of the people's reads
- *    (`prepareHumanPerformanceOrder`);
+ *    (`prepareHumanPerformanceOrder`), followed by participant body contact
+ *    verification on the prepared records;
  * 5. Each hand span's hand course (`prepareHumanGripHand`), which a held prop is
  *    read on from then on;
  * 6. The hit record (`HumanPerformanceHits.solve`) and each soft prop's lattice
@@ -109,6 +111,17 @@ export function prepareHumanPerformance(
           held.carry = HumanSegmentCarry.capture(person, held);
     },
   );
+
+  for (const person of self.people.values())
+    for (const segment of [...person.segments, ...person.overlays])
+      segment.plan.verifyDisplayed?.((seconds, requested) =>
+        HumanPerformanceRead.bones(
+          self,
+          person.performer.subject,
+          seconds,
+          requested,
+        ),
+      );
 
   // A carry and its contact often declare the same hand interval. Lay its
   // course once and attach it to each grip that will read it during playback.

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanCrawl,
 } from "@automovie/interface";
@@ -20,6 +21,7 @@ export function crawlContacts(
     duration,
     kneesDown,
     bear,
+    support,
   }: crawlContacts.IPrepared = prepared;
   // The hands bear from landing. Each foot keeps its standing contact
   // through the descent, then bears while its knee is in stance, in both
@@ -49,7 +51,7 @@ export function crawlContacts(
         kind: "plant",
         from: from / duration,
         to: to / duration,
-        support: { kind: "ground" },
+        support: support[part.startsWith("left") ? "left" : "right"],
       });
     }
 
@@ -70,7 +72,7 @@ export function crawlContacts(
             region: side === "left" ? "kneeLeft" : "kneeRight",
             from: from / duration,
             to: to / duration,
-            support: { kind: "ground" },
+            support: support[side],
           });
       }
   return contacts;
@@ -106,5 +108,10 @@ export namespace crawlContacts {
 
     /** Whether it is a bear crawl, its knees held over the floor. */
     bear: boolean;
+    /** Material inherited from each side's entering plant. */
+    support: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanContactWindow.Support
+    >;
   }
 }

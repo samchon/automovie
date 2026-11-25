@@ -30,8 +30,4 @@ Audit every 10 minutes unless the user sets another interval.
 
 ## Subagents
 
-A Claude Code subagent may stop and say:
-
-> My context is nearly full. I'll stop here; a fresh agent can pick this up from my notes.
-
-Order it firmly to continue. Claude Code summarizes old turns when the context fills, so the subagent can keep working. A mild request does not work.
+Follow [worker resumption](continuing.md) when a worker pauses.

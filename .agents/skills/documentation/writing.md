@@ -6,7 +6,7 @@ Keep what the reader needs to understand or act. State each rule or fact once.
 
 ### Content and sentences
 
-- Keep the action, its conditions and the evidence needed to verify it. Cut qualifications, examples and summaries that add none of these.
+- Keep the action, its conditions and how to verify it.
 - Make one point per sentence.
 - Give the reason when it is not obvious.
 - Say what to do rather than what to avoid, and name the concrete pattern when a prohibition is needed.
@@ -50,7 +50,7 @@ Give each paragraph one topic and one source line. Lead with its point. Check pa
 
 Use lists for short parallel items or steps whose order matters. Keep each item to about 120 characters on one source line.
 
-Introduce each list. Use parallel grammar and at least two items. End sentences and the last fragment with a period. End other fragments with semicolons.
+Introduce each list. Use parallel grammar and at least two items. End complete sentences with periods.
 
 Keep items to one paragraph and distinguish nested list markers.
 

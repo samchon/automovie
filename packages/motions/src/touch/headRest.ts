@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanHeadRest,
   IAutoMovieMotionHumanJoints,
@@ -21,6 +22,7 @@ import type {
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionManner,
   IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -35,10 +37,13 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { requireOtherPerformer } from "./requireOtherPerformer";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
+import { requireOtherPerformer } from "./requireOtherPerformer";
 
 /**
  * How far the hand on the partner's side slides down its thigh toward the knee,
@@ -57,9 +62,6 @@ const NEAR: number = 0.01;
  * (provisional: the other half is held by the neck's own muscles).
  */
 const RESTING: number = 0.5;
-/** The alternatives of `PlanAddedBone2`'s site. */
-type PlanAddedBone2 = "neck" | "head";
-
 /** The alternatives of `PlanAddedBone`'s site. */
 type PlanAddedBone = "neck" | "head";
 
@@ -72,16 +74,14 @@ type PlanHeadRestPlanLimb = "leftArm" | "rightArm";
  * region. The body leans from the hips as a kiss does (`kissBody`, seated or on
  * planted feet), the neck flexes and the head bends to the side
  * (`headRestAim`): solved once against the region where the performer sees it
- * at the start, then corrected at every second against the region where it is
- * felt, a held limb's feedback delay before (`HumanPerception.HELD`, as
- * `touchHold.felt` reads a partner under the hand), so the head follows the
- * partner's shoulder as the partner breathes or turns. The head goes down in
- * the free transport time of its travel, rests the authored span on a `head`
- * window on the partner's region loaded with half the weight of the head and
- * neck segments in the body's own mass model, and comes up in the same time. A
- * region the lean, the neck and the side bend cannot bring the head to within
- * `NEAR` is refused with the miss and the angles, so a much shorter partner's
- * shoulder is out of reach standing.
+ * at the start, then corrected against the displayed region at the same second
+ * during bearing. Free transport uses the perception delay, eased to zero at
+ * contact. The head goes down in the free transport time of its travel, rests
+ * the authored span on a `head` window on the partner's region loaded with half
+ * the weight of the head and neck segments in the body's own mass model, and
+ * comes up in the same time. A region the lean, the neck and the side bend
+ * cannot bring the head to within `NEAR` is refused with the miss and the
+ * angles, so a much shorter partner's shoulder is out of reach standing.
  */
 function planHeadRest(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadRest>,
@@ -168,6 +168,7 @@ function planHeadRest(
     context,
     p,
     aim.follow(solved),
+    share,
   );
   const duration: number = clock.duration;
   const plan: IAutoMovieMotionHumanActionPlan =
@@ -176,21 +177,48 @@ function planHeadRest(
       clock,
       primitives: [
         {
-          channels: ["root", "trunk"],
+          channels: ["root", "trunk", "head"],
           from: 0,
           to: duration,
           write: (
             posture: IAutoMovieMotionHumanPosture,
             seconds: number,
-          ): IAutoMovieMotionHumanPosture =>
-            kissBody(
+          ): IAutoMovieMotionHumanPosture => {
+            const s: headRestAim.ISolved = aimed(seconds);
+            const k: number = share(seconds);
+            const leaned: IAutoMovieMotionHumanPosture = kissBody(
               body,
               posture,
               stance,
-              aimed(seconds),
-              share(seconds),
+              s,
+              k,
               seated,
-            ),
+            );
+            const flexion: IAutoMovieMotionHumanJoints.Angles =
+              AutoMovieMotionHumanHead.share(0, s.flexion * k);
+            const bend: IAutoMovieMotionHumanJoints.Angles =
+              AutoMovieMotionHumanHead.share(1, s.tilt * k);
+            const added = (
+              bone: PlanAddedBone,
+            ): readonly [number, number, number] => {
+              const held: readonly [number, number, number] = posture.joints[
+                bone
+              ] ?? [0, 0, 0];
+              return [
+                held[0] + flexion[bone]![0],
+                held[1] + bend[bone]![1],
+                held[2],
+              ];
+            };
+            return {
+              ...leaned,
+              joints: {
+                ...leaned.joints,
+                neck: added("neck"),
+                head: added("head"),
+              },
+            };
+          },
         },
         // The arm on the partner's side slides its hand down the thigh
         // toward the knee as the body leans, carrying that upper arm forward
@@ -228,62 +256,75 @@ function planHeadRest(
             };
           },
         },
-        {
-          channels: ["head"],
-          from: 0,
-          to: duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            seconds: number,
-          ): IAutoMovieMotionHumanPosture => {
-            const s: headRestAim.ISolved = aimed(seconds);
-            const k: number = share(seconds);
-            const flexion: IAutoMovieMotionHumanJoints.Angles =
-              AutoMovieMotionHumanHead.share(0, s.flexion * k);
-            const bend: IAutoMovieMotionHumanJoints.Angles =
-              AutoMovieMotionHumanHead.share(1, s.tilt * k);
-            const added: (
-              bone: PlanAddedBone,
-            ) => readonly [number, number, number] = (
-              bone: PlanAddedBone2,
-            ): readonly [number, number, number] => {
-              const held: readonly [number, number, number] = posture.joints[
-                bone
-              ] ?? [0, 0, 0];
-              return [
-                held[0] + flexion[bone]![0],
-                held[1] + bend[bone]![1],
-                held[2],
-              ];
-            };
-            return {
-              ...posture,
-              joints: {
-                ...posture.joints,
-                neck: added("neck"),
-                head: added("head"),
-              },
-            };
-          },
-        },
       ],
       contact: "contact",
     });
-  return {
+  const ownBone: AutoMovieHumanoidBone = body.surfaces.regions[own].bone;
+  const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+    p.partner,
+  );
+  const otherBone: AutoMovieHumanoidBone =
+    partner.body.surfaces.regions[p.region].bone;
+  const ownBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    new Set([ownBone]),
+  );
+  const otherBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([otherBone]);
+  const pair: ReturnType<typeof HumanMaterialContact.preparePair> =
+    HumanMaterialContact.preparePair(body, ownBone, partner.body, otherBone);
+  const result: IAutoMovieMotionHumanActionPlan = {
     ...plan,
-    contacts: [
-      ...plan.contacts,
-      {
-        part: "head",
-        kind: "bear",
-        region: own,
-        load: load(body),
-        from: clock.at("ready") / duration,
-        to: clock.at("relax") / duration,
-        support: { kind: "person", subject: p.partner, region: p.region },
-      },
-    ],
+    prepare: (): void => {
+      plan.prepare?.();
+      const ready: number = clock.at("ready");
+      const relax: number = clock.at("relax");
+      const fit = (
+        time: number,
+      ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined => {
+        const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = ownBones(
+          resolveHumanPosture(body, plan.posture(time)),
+        );
+        const b: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          partner.bones(context.start + time, otherBones);
+        return pair(
+          a,
+          b,
+          StrikingBody.region(body, a, own).normal,
+          StrikingBody.region(partner.body, b, p.region).normal,
+          NEAR,
+        )?.first;
+      };
+      const material: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
+        fit(ready);
+      if (
+        material === undefined ||
+        fit((ready + relax) / 2) === undefined ||
+        fit(relax) === undefined
+      )
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "region",
+          value: p.region,
+          reason:
+            "the displayed head cannot keep bearing on the partner's material",
+          fix: "stage the partner's shoulder or chest within the neck's supported range",
+        });
+      result.contacts = [
+        ...plan.contacts,
+        {
+          part: "head",
+          kind: "bear",
+          region: own,
+          load: load(body),
+          from: clock.at("ready") / duration,
+          to: clock.at("relax") / duration,
+          support: { kind: "person", subject: p.partner, region: p.region },
+          material,
+        },
+      ];
+    },
   };
+  return result;
 }
 
 /**
@@ -292,16 +333,14 @@ function planHeadRest(
  * region. The body leans from the hips as a kiss does (`kissBody`, seated or on
  * planted feet), the neck flexes and the head bends to the side
  * (`headRestAim`): solved once against the region where the performer sees it
- * at the start, then corrected at every second against the region where it is
- * felt, a held limb's feedback delay before (`HumanPerception.HELD`, as
- * `touchHold.felt` reads a partner under the hand), so the head follows the
- * partner's shoulder as the partner breathes or turns. The head goes down in
- * the free transport time of its travel, rests the authored span on a `head`
- * window on the partner's region loaded with half the weight of the head and
- * neck segments in the body's own mass model, and comes up in the same time. A
- * region the lean, the neck and the side bend cannot bring the head to within
- * `NEAR` is refused with the miss and the angles, so a much shorter partner's
- * shoulder is out of reach standing.
+ * at the start, then corrected against the displayed region at the same second
+ * during bearing. Free transport uses the perception delay, eased to zero at
+ * contact. The head goes down in the free transport time of its travel, rests
+ * the authored span on a `head` window on the partner's region loaded with half
+ * the weight of the head and neck segments in the body's own mass model, and
+ * comes up in the same time. A region the lean, the neck and the side bend
+ * cannot bring the head to within `NEAR` is refused with the miss and the
+ * angles, so a much shorter partner's shoulder is out of reach standing.
  */
 export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadRest> =
   {
@@ -336,13 +375,14 @@ function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
 }
 
 /**
- * The aim at each second: the plan's solution corrected onto the partner's
- * region where it is felt, a held limb's feedback delay before.
+ * The aim at each second. A bearing contact reads current material, whereas
+ * free transport gradually restores the feedback delay.
  */
 function following(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadRest>,
   p: IAutoMovieMotionHumanHeadRest,
   follow: (to: IAutoMovieVector3) => headRestAim.ISolved,
+  bearing: (seconds: number) => number,
 ): (seconds: number) => headRestAim.ISolved {
   const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
     p.partner,
@@ -351,18 +391,14 @@ function following(
     new Set<AutoMovieHumanoidBone>([
       partner.body.surfaces.regions[p.region].bone,
     ]);
-  let last: number | undefined;
-  let kept: headRestAim.ISolved | undefined;
   return (seconds: number): headRestAim.ISolved => {
-    if (kept !== undefined && last === seconds) return kept;
+    const delay: number = HumanPerception.HELD * (1 - bearing(seconds));
     const felt: IAutoMovieVector3 = StrikingBody.region(
       partner.body,
-      partner.bones(context.start + seconds - HumanPerception.HELD, bone),
+      partner.bones(context.start + seconds - delay, bone),
       p.region,
     ).point;
-    last = seconds;
-    kept = follow(felt);
-    return kept;
+    return follow(felt);
   };
 }
 

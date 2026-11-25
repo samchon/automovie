@@ -73,6 +73,10 @@ export function readHumanSegmentLeaf(
     person.overlays.length === 0 &&
     person.holds.length === 0 &&
     person.stops.size === 0;
+  // A partial observation only needs the channels its bones depend on,
+  // regardless of whether playback uses a native phase or the posture reader.
+  const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
+    observed === undefined ? undefined : demandedHumanChannels(observed);
   const sample: IAutoMovieMotionHumanPlayback.ISample | undefined =
     HumanPreparedPlayback.read(
       segment.plan,
@@ -81,17 +85,10 @@ export function readHumanSegmentLeaf(
       bare,
       fits === undefined && observed === undefined,
       localSeconds,
-      undefined,
+      channels,
       prepared.resolution,
       prepared.clamp,
     );
-  // An observation of some bones reads only the channels their frames hang
-  // from (`demandedHumanChannels`), so the plan evaluates no writer of a
-  // part the observation does not show (a trunk read never runs an arm's
-  // course, nor through it a partner's): the demand-driven evaluation of an
-  // animation graph's required bones.
-  const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
-    observed === undefined ? undefined : demandedHumanChannels(observed);
   const raw: IAutoMovieMotionHumanPosture =
     sample?.posture ??
     Reflect.apply(reader, segment.plan, [
@@ -229,13 +226,13 @@ export namespace readHumanSegmentLeaf {
   /**
    * A plan's swivel course of every arm goal it writes
    * (`courseLimbSwivels.swivels`): knots on the frame grid and at the plan's
-   * events, each continuing the one before, solved once when the performance
-   * is prepared (`IAutoMovieMotionHumanSegment.IPrepared.swivels`). A
-   * displayed second places each arm at the course's swivel and branch against
-   * the goal it shows, so a near-tie no longer hops between frames and no read
-   * sweeps. The course's first knot is placed at each arm as the entry displays
-   * it (`HumanLimbFit.seed` on the entry's pose), so an arm whose goal carries
-   * on across a cut keeps the branch and swivel it was shown with rather than a
+   * events, each continuing the one before, solved once when the performance is
+   * prepared (`IAutoMovieMotionHumanSegment.IPrepared.swivels`). A displayed
+   * second places each arm at the course's swivel and branch against the goal
+   * it shows, so a near-tie no longer hops between frames and no read sweeps.
+   * The course's first knot is placed at each arm as the entry displays it
+   * (`HumanLimbFit.seed` on the entry's pose), so an arm whose goal carries on
+   * across a cut keeps the branch and swivel it was shown with rather than a
    * cold fit's, which may take the other elbow side for the same goal.
    *
    * @param plan The segment's plan.
