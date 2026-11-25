@@ -26,12 +26,6 @@ const VASE: string =
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 
-/** A saved recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createVessel.IParams,
-  seed?: number,
-) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
-
 /**
  * Replay a saved vessel variant with the original dimensions, identifier and
  * model choices.
@@ -56,8 +50,7 @@ export function createVessel(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createVessel.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createVessel.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createVessel}. */

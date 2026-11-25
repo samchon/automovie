@@ -234,10 +234,18 @@ export namespace HandgunActions {
       travel: e.gate,
       parts: ["gate"],
     });
+    const chamberIds: readonly createHandgun.Affordance[] = [
+      "chamber1",
+      "chamber2",
+      "chamber3",
+      "chamber4",
+      "chamber5",
+      "chamber6",
+    ];
     for (let k: number = 0; k < CHAMBERS; k++) {
       const angle: number = (2 * Math.PI * k) / CHAMBERS;
       builder.affordance({
-        id: `chamber${k + 1}` as createHandgun.Affordance,
+        id: chamberIds[k]!,
         kind: "socket",
         frame: AutoMovieArchetypeFrame.facing(
           v(

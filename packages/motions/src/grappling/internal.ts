@@ -12,3 +12,5 @@ export * from "./HumanForceThrow";
 export * from "./HumanForceTrunk";
 export * from "./kuzushi";
 export * from "./PairWalk";
+export * from "./disarm";
+export * from "./disarmed";

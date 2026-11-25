@@ -53,7 +53,7 @@ export class AutoMovieSkinnedMesh<
     | THREE.Material[],
 > extends THREE.SkinnedMesh<THREE.BufferGeometry, TMaterial> {
   /** This class's literal type flag, as three.js flags its own classes. */
-  public readonly isAutoMovieSkinnedMesh: true = true;
+  public readonly isAutoMovieSkinnedMesh = true as const;
 
   /** Blend the shader draws this skin with; `linear` is Three's own. */
   public method: NonNullable<IAutoMovieMeshSkin["method"]>;

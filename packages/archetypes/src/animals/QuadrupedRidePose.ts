@@ -1,17 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieModelPart,
-  IAutoMovieQuaternion,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeFrame,
-  type AutoMovieArchetypeSpan,
-} from "../core";
+import type { IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame, type AutoMovieArchetypeSpan } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuadrupedJoints";
@@ -27,67 +16,7 @@ import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import { chooseQuadrupedBodyRoot } from "./chooseQuadrupedBodyRoot";
 import type { createQuadruped } from "./createQuadruped";
-
-/** The hind limbs, whose hips ride the pelvis. */
-const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
-  "leftHind",
-  "rightHind",
-];
-
-/** One sample's unchanged endpoint, relative fold and fixed neutral attachment. */
-interface Target {
-  /** Chain and terminal-axis binding used for this sample. */
-  solver: AutoMovieArchetypeQuadrupedLimb.IOriented;
-  /** Terminal endpoint, already including its sole clearance. */
-  endpoint: IAutoMovieVector3;
-  /** Declared relative carpus/hock fold, degrees. */
-  fold: number;
-  /** Proximal joint before the common body-root displacement. */
-  attachment: IAutoMovieVector3;
-  /** A fore limb's shoulder blade. */
-  blade?: QuadrupedScapula.Bone;
-  /** The root constraint this target yields, read again once the root is chosen. */
-  constraint: AutoMovieArchetypeQuadrupedRootRange.IConstraint;
-}
-
-/** A contact a body bone carries, with its neutral frame. */
-interface ICarried {
-  /** The carrying bone. */
-  bone: AutoMovieArchetypeQuadrupedBody.Bone;
-
-  /** The contact's frame in the neutral model, metres. */
-  frame: IAutoMovieTransform;
-}
-
-/**
- * What four goals settle under one nod before any chain is solved
- * (`QuadrupedRidePose.prepare`'s `settle`).
- */
-interface ISettled {
-  /** The axial goals: the neck's nod. */
-  axial: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>;
-
-  /** The body's frames at the nod, before the root is chosen. */
-  preview: QuadrupedPosePlan.IState;
-
-  /** Each limb's target, its constraint relaxed. */
-  targets: Map<AutoMovieArchetypeQuadrupedBody.Limb, Target>;
-
-  /** The body floor's lowest root translation, metres. */
-  floor: number;
-
-  /** The coordinates' scale, metres, for the roundoff budgets. */
-  coordinateScale: number;
-
-  /** The common root interval. */
-  range: AutoMovieArchetypeQuadrupedRootRange.IRange;
-
-  /** An axial bar's goal turned by an angle about model X. */
-  bar: (bone: QuadrupedPosePlan.Axial, angle: number) => QuadrupedPosePlan.Goal;
-
-  /** The pelvis's turn at a root height. */
-  pelvis: (height: number) => number;
-}
+import { HINDS, type Target, type ICarried, type ISettled } from "./QuadrupedRidePoseTypes";
 
 /** Fixed-attachment locomotion lowered through the animal's shared rig. */
 export namespace QuadrupedRidePose {

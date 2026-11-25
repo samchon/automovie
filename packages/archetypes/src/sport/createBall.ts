@@ -26,12 +26,7 @@ export function createBall(
   );
 
   // The stored input can carry any former choice. The selected draw admits only its own profile.
-  const produce: (
-    params: createBall.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createBall.Affordance, createBall.Dimension> =
-    createBall.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createBall.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createBall}. */

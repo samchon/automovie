@@ -54,25 +54,36 @@ export namespace balletStep {
   /** The default turnout, degrees of each hip's external rotation (provisional). */
   export const TURNOUT: number = 35;
 
+  /** A ballet step's admitted turnout, position and turns. */
+  export interface IAdmitted {
+    /** The turnout, degrees. */
+    turnout: number;
+
+    /** The position of the feet, one to five. */
+    position: number;
+
+    /** The turns, one or two. */
+    turns: number;
+  }
+
   /**
-   * Plan a ballet step.
+   * Admit a ballet step: a turnout within the hips' external rotation
+   * (`TURNOUT` by default), one of the five positions of the feet, and one or
+   * two turns.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the turnout exceeds the hip's external
-   *   rotation, the split exceeds the hips' flexion and extension, the position
-   *   is not one to five, the turns are not one or two, or the tempo or beat
-   *   count is not admitted.
+   * @param p The turnout, the position and the turns.
+   * @param outward The hips' lesser external rotation, degrees.
+   * @returns The admitted values.
+   * @throws {HumanRefusal} When a value lies outside its range.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const p: IAutoMovieMotionHumanBallet.IParams = context.params;
+  export function admit(
+    p: Pick<
+      IAutoMovieMotionHumanBallet.IParams,
+      "turnout" | "position" | "turns"
+    >,
+    outward: number,
+  ): IAdmitted {
     const turnout: number = p.turnout ?? TURNOUT;
-    const outward: number = Math.min(
-      AutoMovieMotionHumanRange.limit("leftUpperLeg", "external") ?? 0,
-      AutoMovieMotionHumanRange.limit("rightUpperLeg", "external") ?? 0,
-    );
     if (!(turnout >= 0 && turnout <= outward))
       throw new HumanRefusal({
         kind: "parameter",
@@ -107,6 +118,30 @@ export namespace balletStep {
         reason: `a pirouette here turns once or twice, not ${turns} times`,
         fix: "ask for a single or a double pirouette",
       });
+    return { turnout, position, turns };
+  }
+  /**
+   * Plan a ballet step.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} When the turnout exceeds the hip's external
+   *   rotation, the split exceeds the hips' flexion and extension, the position
+   *   is not one to five, the turns are not one or two, or the tempo or beat
+   *   count is not admitted.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanBallet.IParams = context.params;
+    const outward: number = Math.min(
+      AutoMovieMotionHumanRange.limit("leftUpperLeg", "external") ?? 0,
+      AutoMovieMotionHumanRange.limit("rightUpperLeg", "external") ?? 0,
+    );
+    const { turnout, position, turns }: balletStep.IAdmitted = admit(
+      p,
+      outward,
+    );
     if (p.kind === "grandJete") {
       const leading: AutoMovieHumanSide = p.side ?? "right";
       const reach: number =

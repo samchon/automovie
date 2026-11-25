@@ -10,6 +10,7 @@ export * from "./sitOnLap";
 export * from "./kissPitch";
 export * from "./touchLayouts";
 export * from "./backToBackLoad";
+export * from "./backToBackTogether";
 export * from "./embraceFromBehindSolve";
 export * from "./kissClock";
 export * from "./care/pulse";

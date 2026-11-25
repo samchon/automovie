@@ -88,24 +88,17 @@ export namespace gymnastics {
   export const ENTER: number = 1.5;
 
   /**
-   * Plan a handstand.
+   * The gymnastics's timetable: entered over `ENTER`, held `hold`, left over
+   * `ENTER`, the manner's tempo and hold factor applied, with its own cues.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * @param hold The held seconds.
+   * @param modifiers The manner's timing.
+   * @returns The clock.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const p: IAutoMovieMotionHumanGymnastics.IParams = context.params;
-    const body: IAutoMovieMotionHumanBody = context.body;
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const hold: number = p.hold ?? 2;
-    HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
-      context,
-      p.manner,
-    );
+  export function timetable(
+    hold: number,
+    modifiers: IAutoMovieMotionManner.IModifiers,
+  ): IAutoMovieMotionClock {
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
@@ -127,6 +120,28 @@ export namespace gymnastics {
         seconds: (timed.at("relax") + timed.duration) / 2,
       },
     ]);
+    return clock;
+  }
+  /**
+   * Plan a handstand.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} When the hold is negative.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanGymnastics.IParams = context.params;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const hold: number = p.hold ?? 2;
+    HumanBound.least("hold", hold, 0, "s");
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
+    const clock: IAutoMovieMotionClock = timetable(hold, modifiers);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },

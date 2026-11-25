@@ -99,7 +99,9 @@ export function test_unit_engine_physics_physical_stance_seat(): void {
     Math.max(...polygon.map((p) => p[axis])) -
     Math.min(...polygon.map((p) => p[axis]));
   if (
-    !(Math.abs(span("x") - (0.7 - 2 * margin)) < PhysicalTolerance.ACCUMULATED) ||
+    !(
+      Math.abs(span("x") - (0.7 - 2 * margin)) < PhysicalTolerance.ACCUMULATED
+    ) ||
     !(Math.abs(span("z") - (0.9 - 2 * margin)) < PhysicalTolerance.ACCUMULATED)
   )
     findings.push(`the four-foot support spans ${span("x")} by ${span("z")}`);
@@ -152,7 +154,10 @@ export function test_unit_engine_physics_physical_stance_seat(): void {
     physicalStanceSwing.reach(box, from, { x: 0, y: 0, z });
   for (const x of [-0.05, 0, 0.0731]) {
     const edge: IAutoMovieVector3 = { x, y: 0, z: 0.1 };
-    if (room(edge, 1) !== 0 || !(Math.abs(room(edge, -1) - 0.2) < PhysicalTolerance.ROUNDING))
+    if (
+      room(edge, 1) !== 0 ||
+      !(Math.abs(room(edge, -1) - 0.2) < PhysicalTolerance.ROUNDING)
+    )
       findings.push(
         `from the front edge at x ${x} the room is ${room(edge, 1)} forward and ${room(edge, -1)} back`,
       );

@@ -30,6 +30,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "../striking/StrikingBody";
 import { backToBackLoad } from "./backToBackLoad";
+import { backToBackTogether } from "./backToBackTogether";
 import { kissBody } from "./kissBody";
 
 /**
@@ -45,9 +46,6 @@ const BACK: number = 25;
  * skin contact, as `headRest`'s).
  */
 const NEAR: number = 0.01;
-
-/** How far apart the two leans may begin or end, seconds: one 24 Hz frame. */
-const TOGETHER: number = 1 / 24;
 /** The alternatives of `PlanAddedBone`'s site. */
 type PlanAddedBone = "neck" | "head";
 
@@ -209,27 +207,15 @@ function planBackToBack(
         (other.plan.events.find(
           (e: IAutoMovieMotionEvent): boolean => e.name === name,
         )?.share ?? 1);
-    const mineReady: number = context.start + clock.at("ready");
-    const mineRelax: number = context.start + clock.at("relax");
-    if (
-      at("relax") < mineRelax - TOGETHER ||
-      at("ready") > mineReady + TOGETHER
-    )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "with",
-        value: p.with,
-        reason: `the partner's back bears from ${at("ready").toFixed(2)} s to ${at("relax").toFixed(2)} s, but this lean bears on it from ${mineReady.toFixed(2)} s to ${mineRelax.toFixed(2)} s, so it would lean on nothing`,
-        fix: "lean and sit up together with the partner",
-      });
-    if (mineRelax < at("relax") - TOGETHER)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "hold",
-        value: p.hold,
-        reason: `this back is withdrawn at ${mineRelax.toFixed(2)} s while the partner still leans on it until ${at("relax").toFixed(2)} s`,
-        fix: "hold the lean as long as the partner's",
-      });
+    backToBackTogether(
+      {
+        ready: context.start + clock.at("ready"),
+        relax: context.start + clock.at("relax"),
+      },
+      { ready: at("ready"), relax: at("relax") },
+      p.with,
+      p.hold,
+    );
   }
 
   const share = (seconds: number): number =>

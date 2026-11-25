@@ -116,6 +116,64 @@ export namespace lineWalk {
    */
   export const ON: number = 0.05;
 
+  /** A line walk's footprints. */
+  export interface IPace {
+    /** The steps, a foot's length each by default. */
+    steps: number;
+
+    /** Each step along the line, signed, metres. */
+    step: number;
+  }
+
+  /**
+   * Pace a line walk heel to toe: by default enough foot lengths to cover the
+   * way along the line, at least one.
+   *
+   * @param start Where the walk starts along the line, metres.
+   * @param stop Where it stops along the line, metres.
+   * @param foot The walker's foot length, metres.
+   * @param asked The steps asked, if any.
+   * @returns The steps and each step.
+   * @throws {HumanRefusal} When the steps are no whole number.
+   */
+  export function pace(
+    start: number,
+    stop: number,
+    foot: number,
+    asked: number | undefined,
+  ): IPace {
+    const steps: number =
+      asked ?? Math.max(1, Math.ceil(Math.abs(stop - start) / foot));
+    HumanBound.whole("steps", steps);
+    return { steps, step: (stop - start) / steps };
+  }
+
+  /**
+   * Admit a sagging line: the walker's weight at the middle needs a tension `W
+   * L / (4 sag)`, refused beyond the line's working load `LOAD`.
+   *
+   * @param mass The walker's mass, kilograms.
+   * @param half Half the line's length, metres; infinite for no ends.
+   * @param sag The line's sag, metres.
+   * @throws {HumanRefusal} When the tension exceeds the working load.
+   */
+  export function sagged(mass: number, half: number, sag: number): void {
+    if (!(sag > 0 && half < Infinity)) return;
+    const tension: number =
+      (mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * sag);
+    if (tension > LOAD) {
+      const least: number =
+        (mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * LOAD);
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "sag",
+        value: sag,
+        feasible: { kind: "range", minimum: least, maximum: null, unit: "m" },
+        reason: `a ${(2 * half).toFixed(1)} m line sagging ${sag} m needs ${(tension / 1000).toFixed(1)} kN, beyond its ${LOAD / 1000} kN working load`,
+        fix: `let it sag at least ${least.toFixed(2)} m, or shorten the span`,
+      });
+    }
+  }
   /**
    * Plan a line walk.
    *
@@ -204,33 +262,14 @@ export namespace lineWalk {
         fix: "stop on the line",
       });
     const length: number = body.measure.footLength;
-    const steps: number =
-      p.steps ?? Math.max(1, Math.ceil(Math.abs(stop - start) / length));
-    HumanBound.whole("steps", steps);
-    const step: number = (stop - start) / steps;
+    const { steps, step }: lineWalk.IPace = pace(start, stop, length, p.steps);
     const sign: number = Math.sign(step) || 1;
     const yaw: number =
       (Math.atan2(along.x * sign, along.z * sign) * 180) / Math.PI;
     // A sagging line: the walker's weight at the middle needs a tension
     // `W L / (4 sag)`, refused beyond the line's working load.
     const sag: number = p.sag ?? 0;
-    if (sag > 0 && half < Infinity) {
-      const tension: number =
-        (body.profile.mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * sag);
-      if (tension > LOAD) {
-        const least: number =
-          (body.profile.mass * AutoMovieGravity.STANDARD * 2 * half) /
-          (4 * LOAD);
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "sag",
-          value: sag,
-          feasible: { kind: "range", minimum: least, maximum: null, unit: "m" },
-          reason: `a ${(2 * half).toFixed(1)} m line sagging ${sag} m needs ${(tension / 1000).toFixed(1)} kN, beyond its ${LOAD / 1000} kN working load`,
-          fix: `let it sag at least ${least.toFixed(2)} m, or shorten the span`,
-        });
-      }
-    }
+    sagged(body.profile.mass, half, sag);
     const point: (s: number) => IAutoMovieVector3 = (
       s: number,
     ): IAutoMovieVector3 => {

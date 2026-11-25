@@ -2,9 +2,9 @@ import { solvePhysicalTargetStep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * How far a projected target step may stand from its closed form, in the
- * step's own units: the damped least-squares step is biased by its damping,
- * which this bound admits at ten parts per million.
+ * How far a projected target step may stand from its closed form, in the step's
+ * own units: the damped least-squares step is biased by its damping, which this
+ * bound admits at ten parts per million.
  */
 const STEP: number = 1e-5;
 

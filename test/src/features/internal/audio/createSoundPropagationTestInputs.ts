@@ -7,6 +7,8 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
+import { shotContractFixture } from "../shotContractFixture";
+
 /**
  * Existing propagation inputs and partial planning carriers borrowed by portable sound units.
  */
@@ -55,7 +57,7 @@ interface ISoundPropagationTestInputs {
 export const createSoundPropagationTestInputs: () => ISoundPropagationTestInputs =
   (): ISoundPropagationTestInputs => {
     const digest: string =
-      "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
+      "sha256:0000000000000000000000000000000000000000000000000000000000000000";
 
     const profile: () => IAutoMovieSoundPropagationProfile =
       (): IAutoMovieSoundPropagationProfile => ({
@@ -132,72 +134,89 @@ export const createSoundPropagationTestInputs: () => ISoundPropagationTestInputs
     });
 
     const minimalTimeline: () => IAutoMovieFilmTimeline =
-      (): IAutoMovieFilmTimeline =>
-        ({
-          inputFingerprint: digest,
-          fps: 10,
-          totalFrames: 20,
-          segments: [
-            {
-              shot: "shot",
-              sourceInFrame: 0,
-              sourceOutFrame: 10,
-              startFrame: 0,
-              endFrame: 10,
-            },
-          ],
-          tracks: { audio: [], captions: [] },
-        }) as unknown as IAutoMovieFilmTimeline;
+      (): IAutoMovieFilmTimeline => ({
+        version: 1,
+        builder: "test",
+        inputFingerprint: digest,
+        sourceDigest: digest,
+        id: "film",
+        fps: 10,
+        totalFrames: 20,
+        segments: [
+          {
+            shot: "shot",
+            sourceInFrame: 0,
+            sourceOutFrame: 10,
+            startFrame: 0,
+            endFrame: 10,
+            headHandleFrames: 0,
+            tailHandleFrames: 0,
+            transitionIn: { kind: "cut" },
+            transitionOut: { kind: "cut" },
+          },
+        ],
+        omissions: [],
+        tracks: { audio: [], captions: [], effects: [] },
+      });
 
     const minimalContract: () => IAutoMovieShotContract =
       (): IAutoMovieShotContract =>
-        ({
-          events: [
-            {
-              id: "hit",
-              kind: "contact",
-              window: { from: 0, to: 1 },
-              subjects: ["actor"],
-              predicates: [{}],
-            },
-          ],
-        }) as IAutoMovieShotContract;
+        shotContractFixture("shot", [
+          {
+            id: "hit",
+            kind: "contact",
+            window: { from: 0, to: 1 },
+            subjects: ["actor"],
+            predicates: [],
+          },
+        ]);
 
     const minimalCompiled: () => IAutoMovieCompiledShotSource =
-      (): IAutoMovieCompiledShotSource =>
-        ({
-          eventSamples: [{ id: "hit", time: 0.2 }],
-          scene: {
-            nodes: [
-              {
-                id: "actor",
-                model: "actor-model",
-                transform: transform(4),
-                motion: null,
-                pose: null,
-              },
-            ],
-            cameras: [
-              {
-                id: "camera",
-                transform: transform(0),
-                fovY: 50,
-                near: 0.1,
-                far: 100,
-              },
-            ],
-            lights: [],
-          },
-          shot: {
-            id: "shot",
-            camera: "camera",
-            cameraMotion: null,
-            objectMotions: [],
-          },
-          formations: [],
-          formationMotions: [],
-          instanceSets: [],
-        }) as unknown as IAutoMovieCompiledShotSource;
+      (): IAutoMovieCompiledShotSource => ({
+        eventSamples: [{ id: "hit", time: 0.2 }],
+        scene: {
+          id: "scene",
+          name: null,
+          nodes: [
+            {
+              id: "actor",
+              model: "actor-model",
+              transform: transform(4),
+              motion: null,
+              pose: null,
+            },
+          ],
+          cameras: [
+            {
+              id: "camera",
+              transform: transform(0),
+              fovY: 50,
+              near: 0.1,
+              far: 100,
+              depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+            },
+          ],
+          lights: [],
+        },
+        motions: [],
+        formationMotions: [],
+        formationSlotMotions: [],
+        effectCues: [],
+        shot: {
+          id: "shot",
+          name: null,
+          scene: "scene",
+          duration: 1,
+          camera: "camera",
+          cameraMotion: null,
+          performances: [],
+          objectMotions: [],
+        },
+        models: [],
+        formations: [],
+        instanceSets: [],
+        effects: [],
+      });
 
     return {
       digest,

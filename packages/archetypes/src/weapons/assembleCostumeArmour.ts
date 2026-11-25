@@ -20,6 +20,18 @@ import {
 } from "../core";
 import type { createArmour } from "./createArmour";
 
+/** Every wearer socket a costume piece can occupy, in declaration order. */
+const SLOTS: readonly assembleCostumeArmour.Slot[] = [
+  "head",
+  "chest",
+  "leftHand",
+  "rightHand",
+  "leftLowerArm",
+  "rightLowerArm",
+  "leftLowerLeg",
+  "rightLowerLeg",
+];
+
 /** The piece names each existing wearer socket can carry. */
 const PIECES: Readonly<
   Record<assembleCostumeArmour.Slot, readonly createArmour.Kind[]>
@@ -68,9 +80,7 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 export function assembleCostumeArmour(
   params: assembleCostumeArmour.IParams,
 ): readonly assembleCostumeArmour.IPiece[] {
-  const slots: assembleCostumeArmour.Slot[] = Object.keys(
-    PIECES,
-  ) as assembleCostumeArmour.Slot[];
+  const slots: readonly assembleCostumeArmour.Slot[] = SLOTS;
   if (params.subject.trim().length === 0)
     throw refuse(
       "subject",
@@ -85,12 +95,15 @@ export function assembleCostumeArmour(
 
   const ids: Set<string> = new Set();
   return entries.map(([name, model]): assembleCostumeArmour.IPiece => {
-    const bone: assembleCostumeArmour.Slot = ArchetypeDraw.choice(
+    const named: string = ArchetypeDraw.choice(
       "costumeArmour",
       "slot",
-      name as assembleCostumeArmour.Slot,
+      name,
       slots,
     );
+    const bone: assembleCostumeArmour.Slot = slots.find(
+      (slot: assembleCostumeArmour.Slot): boolean => slot === named,
+    )!;
     if (
       model.archetype !== "armour" ||
       !PIECES[bone].some(

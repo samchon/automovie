@@ -2,10 +2,9 @@ import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
 import type { IAutoMovieStepPlanner } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * Precomputed schedules own their policy and public records.
@@ -71,11 +70,14 @@ export function test_unit_engine_physics_step_planner_ownership(): void {
   };
   TestValidator.predicate(
     "no undeclared generic swing rotation",
-    Math.abs(Planner.swing(flat, flat, 0.5, 0).pitch) < PhysicalTolerance.ROUNDING,
+    Math.abs(Planner.swing(flat, flat, 0.5, 0).pitch) <
+      PhysicalTolerance.ROUNDING,
   );
   TestValidator.predicate(
     "declared peak owns swing style",
-    Math.abs(Planner.swing(flat, flat, 0.5, 0, 0.3).pitch - 0.3) < PhysicalTolerance.ROUNDING &&
-      Math.abs(planner.at(step.bone, seconds).placement.pitch - 0.3) < PhysicalTolerance.ROUNDING,
+    Math.abs(Planner.swing(flat, flat, 0.5, 0, 0.3).pitch - 0.3) <
+      PhysicalTolerance.ROUNDING &&
+      Math.abs(planner.at(step.bone, seconds).placement.pitch - 0.3) <
+        PhysicalTolerance.ROUNDING,
   );
 }

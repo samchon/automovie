@@ -3,7 +3,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { nclose } from "../../../internal/nclose";
 import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
@@ -61,7 +60,11 @@ export function test_unit_engine_physics_physical_hull_mass(): void {
     "reflected cuboid has its analytic topology and radii",
     hull.faces.length === 6 &&
       hull.vertices.length === 8 &&
-      vclose(hull.centre, { x: -2, y: 0.5, z: 4 }, PhysicalTolerance.ROUNDING) &&
+      vclose(
+        hull.centre,
+        { x: -2, y: 0.5, z: 4 },
+        PhysicalTolerance.ROUNDING,
+      ) &&
       nclose(hull.radius, Math.sqrt(7.25), PhysicalTolerance.ROUNDING) &&
       nclose(hull.depth, 1, PhysicalTolerance.ROUNDING) &&
       nclose(hull.buried, 1, PhysicalTolerance.ROUNDING),
@@ -122,7 +125,11 @@ export function test_unit_engine_physics_physical_hull_mass(): void {
     "changed issued coordinates receive their actual new hull",
     edited.faces.length === 6 &&
       edited.vertices.length === 8 &&
-      vclose(edited.centre, { x: -4, y: 0.5, z: 4 }, PhysicalTolerance.ROUNDING) &&
+      vclose(
+        edited.centre,
+        { x: -4, y: 0.5, z: 4 },
+        PhysicalTolerance.ROUNDING,
+      ) &&
       nclose(edited.depth, 1.5, PhysicalTolerance.ROUNDING),
   );
   mass(

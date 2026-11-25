@@ -1,6 +1,7 @@
 // The lexicon internals the test programme reads directly, re-exported by `../internal`.
 
 export * from "./HumanHabit";
+export * from "./humanAidWalkGrip";
 export * from "./HumanSocial";
 export * from "./HumanPartner";
 export * from "./hug";

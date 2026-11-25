@@ -122,6 +122,41 @@ export namespace swim {
   export const CLEAR: number = 0.02;
 
   /**
+   * A tread's or a crawl's stroke cues: a tread cycles every `period`; a crawl
+   * enters the right arm each `period`, the left arm `lag` of a period later,
+   * and breathes midway through the recovery after the `PULL`.
+   *
+   * @param prone Whether the stroke is the prone crawl.
+   * @param cycles The whole cycles.
+   * @param period The cycle's seconds.
+   * @param lag The left arm's lag, a share of the period.
+   * @returns The clock, relaxed at its end.
+   */
+  export function strokes(
+    prone: boolean,
+    cycles: number,
+    period: number,
+    lag: number,
+  ): IAutoMovieMotionClock {
+    const instants: IAutoMovieMotionClockInstant[] = [];
+    for (let i: number = 0; i < cycles; i++)
+      if (prone)
+        instants.push(
+          { name: `entryRight${i + 1}`, seconds: i * period },
+          { name: `entryLeft${i + 1}`, seconds: (i + lag) * period },
+          {
+            name: `breath${i + 1}`,
+            seconds: (i + PULL + (1 - PULL) / 2) * period,
+          },
+        );
+      else instants.push({ name: `cycle${i + 1}`, seconds: i * period });
+    const duration: number = cycles * period;
+    return AutoMovieMotionClock(duration, [
+      ...instants,
+      { name: "relax", seconds: duration },
+    ]);
+  }
+  /**
    * Plan a swim.
    *
    * @param context The action's context.
@@ -166,23 +201,8 @@ export namespace swim {
           COORDINATION.elite,
         )
       : 0;
-    const instants: IAutoMovieMotionClockInstant[] = [];
-    for (let i: number = 0; i < cycles; i++)
-      if (p.kind === "frontCrawl") {
-        instants.push(
-          { name: `entryRight${i + 1}`, seconds: i * period },
-          { name: `entryLeft${i + 1}`, seconds: (i + lag) * period },
-          {
-            name: `breath${i + 1}`,
-            seconds: (i + PULL + (1 - PULL) / 2) * period,
-          },
-        );
-      } else instants.push({ name: `cycle${i + 1}`, seconds: i * period });
-    const duration: number = cycles * period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
-      ...instants,
-      { name: "relax", seconds: duration },
-    ]);
+    const clock: IAutoMovieMotionClock = strokes(prone, cycles, period, lag);
+    const duration: number = clock.duration;
     const phase: (s: number, offset?: number) => number = (
       s: number,
       offset: number = 0,

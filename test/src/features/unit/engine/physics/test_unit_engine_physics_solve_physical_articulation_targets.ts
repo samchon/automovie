@@ -11,9 +11,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * A small geometric lever must continue improving until residual tolerance,

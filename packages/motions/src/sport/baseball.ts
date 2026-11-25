@@ -110,6 +110,29 @@ export namespace baseball {
   export const HANDS: number = 0.45;
 
   /**
+   * A baseball action's timetable: 0.8 s to get ready, a 0.3 s attack, the hold
+   * and a 0.8 s return, the manner's timing applied.
+   *
+   * @param hold The held seconds.
+   * @param modifiers The manner's timing.
+   * @returns The clock.
+   */
+  export function timetable(
+    hold: number,
+    modifiers: IAutoMovieMotionManner.IModifiers,
+  ): IAutoMovieMotionClock {
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+      AutoMovieMotionClock.phrase({
+        prepare: 0.8,
+        attack: 0.3,
+        hold,
+        retract: 0.8,
+      }),
+      modifiers,
+    );
+    return clock;
+  }
+  /**
    * Plan a baseball position.
    *
    * @param context The action's context.
@@ -129,15 +152,7 @@ export namespace baseball {
       context,
       p.manner,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
-        prepare: 0.8,
-        attack: 0.3,
-        hold,
-        retract: 0.8,
-      }),
-      modifiers,
-    );
+    const clock: IAutoMovieMotionClock = timetable(hold, modifiers);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);

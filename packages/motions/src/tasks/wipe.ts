@@ -137,7 +137,9 @@ export namespace wipe {
    * @param body The body.
    * @returns The share, in (0, 1].
    */
-  export function reach(body: IAutoMovieMotionHumanBody): number {
+  export function reach(body: {
+    measure: Pick<IAutoMovieMotionHumanBody["measure"], "upperArm" | "forearm">;
+  }): number {
     const u: number = body.measure.upperArm;
     const f: number = body.measure.forearm;
     const bent: number = (ELBOW * Math.PI) / 180;

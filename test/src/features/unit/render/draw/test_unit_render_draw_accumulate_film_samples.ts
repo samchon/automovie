@@ -3,7 +3,7 @@ import { accumulateAutoMovieFilmSamples } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createFilmResponseRendererDouble } from "../../../draw/createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "../../../internal/createFilmResponseRendererDouble";
 import { nclose } from "../../../internal/nclose";
 
 /**

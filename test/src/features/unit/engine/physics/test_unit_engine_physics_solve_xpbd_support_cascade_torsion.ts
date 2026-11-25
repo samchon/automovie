@@ -91,7 +91,12 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
         (total: number, r: number): number => total + solved[r]!,
         0,
       );
-      if (!(Math.abs(moment) <= mu * 0.15 * normal + PhysicalTolerance.ACCUMULATED))
+      if (
+        !(
+          Math.abs(moment) <=
+          mu * 0.15 * normal + PhysicalTolerance.ACCUMULATED
+        )
+      )
         findings.push(`sole ${i} takes ${moment / h} N m past its bound`);
     }
   }
@@ -100,7 +105,12 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
   const free: IProgram = program(four, 5, 0, 0, undefined);
   const turned: number[] | null = solve(free);
   if (turned === null) findings.push("an unasked yaw has no solution");
-  else if (!(Math.abs(spin(free, turned) - (5 * h) / free.yaw) < PhysicalTolerance.ACCUMULATED))
+  else if (
+    !(
+      Math.abs(spin(free, turned) - (5 * h) / free.yaw) <
+      PhysicalTolerance.ACCUMULATED
+    )
+  )
     findings.push(
       `asked no moment, the body spins at ${spin(free, turned)} against ${(5 * h) / free.yaw}`,
     );
@@ -116,7 +126,9 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
       0,
     );
     const moment: number = -slid[slipping.torsions[0]!]!;
-    if (!(Math.abs(moment - mu * 0.15 * normal) < PhysicalTolerance.ACCUMULATED))
+    if (
+      !(Math.abs(moment - mu * 0.15 * normal) < PhysicalTolerance.ACCUMULATED)
+    )
       findings.push(
         `a slipping sole takes ${moment / h} N m off its bound ${(mu * 0.15 * normal) / h}`,
       );
@@ -187,12 +199,21 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
     angle = next;
     lowest = Math.min(lowest, angle);
   }
-  if (!(Math.abs(angle) < 0.5) || lowest < -PhysicalTolerance.CONVERGED || rising)
+  if (
+    !(Math.abs(angle) < 0.5) ||
+    lowest < -PhysicalTolerance.CONVERGED ||
+    rising
+  )
     findings.push(
       `the heading servo ends at ${angle} degrees, lowest ${lowest}, rising ${rising}`,
     );
   const limit: number = (physicalStanceBalance.TORSO_ERROR * 180) / Math.PI;
-  if (!(Math.abs(yawMoment(30, 0) - yawMoment(limit, 0)) < PhysicalTolerance.CONVERGED))
+  if (
+    !(
+      Math.abs(yawMoment(30, 0) - yawMoment(limit, 0)) <
+      PhysicalTolerance.CONVERGED
+    )
+  )
     findings.push(
       `a 30 degree error asks ${yawMoment(30, 0)} N m against ${yawMoment(limit, 0)} at the limit`,
     );

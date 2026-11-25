@@ -24,12 +24,7 @@ export function createKeyboard(
   );
 
   // The saved model union is wider than each producer's model table.
-  const produce: (
-    params: createKeyboard.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> =
-    createKeyboard.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createKeyboard.PRODUCERS[kind](params, seed);
 }
 
 /** Compatibility types and manufacturer records for the saved recipe. */

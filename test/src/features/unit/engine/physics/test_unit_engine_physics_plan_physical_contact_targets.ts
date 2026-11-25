@@ -39,8 +39,8 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  *    legs 1 and 3 kept.
  * 2. With the folded joint locked at its angle the free coordinates still halve
  *    the overlap, the lock kept.
- * 3. With every coordinate of legs 0 and 2 locked the targets and the
- *    penetration stay as they were.
+ * 3. With every coordinate of legs 0 and 2 locked the targets and the penetration
+ *    stay as they were.
  */
 export async function test_unit_engine_physics_plan_physical_contact_targets(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
@@ -162,8 +162,18 @@ export async function test_unit_engine_physics_plan_physical_contact_targets(): 
               result,
               -(
                 geometry.contact(
-                  { body: "mechanism", bone: segment.bone, shape: a, pose: poses[segment.bone]! },
-                  { body: "mechanism", bone: other.bone, shape: b, pose: poses[other.bone]! },
+                  {
+                    body: "mechanism",
+                    bone: segment.bone,
+                    shape: a,
+                    pose: poses[segment.bone]!,
+                  },
+                  {
+                    body: "mechanism",
+                    bone: other.bone,
+                    shape: b,
+                    pose: poses[other.bone]!,
+                  },
                   0,
                 )?.separation ?? 0
               ),
@@ -173,7 +183,10 @@ export async function test_unit_engine_physics_plan_physical_contact_targets(): 
   };
 
   // 1. Recast branches.
-  const recasts: [string, (shape: IAutoMoviePhysicalShape) => IAutoMoviePhysicalShape][] = [
+  const recasts: [
+    string,
+    (shape: IAutoMoviePhysicalShape) => IAutoMoviePhysicalShape,
+  ][] = [
     ["box", (shape) => shape],
     [
       "capsule",

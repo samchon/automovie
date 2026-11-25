@@ -66,6 +66,47 @@ export namespace stiltWalk {
   /** How far an entry foot may stand off its platform, metres. */
   export const ON: number = 0.06;
 
+  /** A stilt walk's steps. */
+  export interface IPacing {
+    /** The natural step, `STEP` hip heights, metres. */
+    step: number;
+
+    /** The steps, at least two, enough to cover the way by default. */
+    steps: number;
+
+    /** Each stride, metres. */
+    stride: number;
+
+    /** The walk's seconds: a `PERIOD` a step and half of one to settle. */
+    duration: number;
+  }
+
+  /**
+   * Pace a stilt walk over a way.
+   *
+   * @param length The way's level length, metres.
+   * @param hip The walker's hip height, metres.
+   * @param asked The steps asked, if any.
+   * @returns The pacing.
+   * @throws {HumanRefusal} When the steps are no whole number.
+   */
+  export function pacing(
+    length: number,
+    hip: number,
+    asked: number | undefined,
+  ): IPacing {
+    const step: number = STEP * hip;
+    const steps: number = HumanBound.whole(
+      "steps",
+      asked ?? Math.max(2, Math.ceil(length / step) + 1),
+    );
+    return {
+      step,
+      steps,
+      stride: length / Math.max(1, steps - 1),
+      duration: steps * PERIOD + PERIOD / 2,
+    };
+  }
   /**
    * Plan a stilt walk.
    *
@@ -109,10 +150,11 @@ export namespace stiltWalk {
               z: 1,
             },
           );
-    const step: number = STEP * body.measure.hipHeight;
-    const steps: number = HumanBound.whole("steps", p.steps ?? Math.max(2, Math.ceil(length / step) + 1));
-    const stride: number = length / Math.max(1, steps - 1);
-    const duration: number = steps * PERIOD + PERIOD / 2;
+    const { step, steps, stride, duration }: stiltWalk.IPacing = pacing(
+      length,
+      body.measure.hipHeight,
+      p.steps,
+    );
     const keys: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanDanceFootKey[]

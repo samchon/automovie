@@ -11,9 +11,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /** How far an authority time may stand off the native tick grid, ticks. */
 const GRID: number = 1e-10;

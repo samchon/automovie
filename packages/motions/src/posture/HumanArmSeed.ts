@@ -11,6 +11,7 @@ import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
+import { HumanArmSeedRestarts } from "./HumanArmSeedRestarts";
 import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
 import { HumanArmSeedStarts } from "./HumanArmSeedStarts";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
@@ -79,6 +80,9 @@ export namespace HumanArmSeed {
    * @param fine The context at the frame grid's instants over the same span,
    *   where the sampling planner reads a state's validity; the waypoints' when
    *   absent.
+   * @param straight Whether the reach and the return are the straight line
+   *   between their ends, TrajOpt's own initialization, instead of the sampling
+   *   planner's path; the sampler's failure takes the straight line too.
    * @returns The seed.
    * @throws {HumanRefusal} When no start gives a feasible hold.
    */
@@ -87,6 +91,7 @@ export namespace HumanArmSeed {
     context: M.IContext,
     hold?: readonly (readonly number[])[],
     fine?: M.IContext,
+    straight: boolean = false,
   ): number[][][] {
     const n: number = context.n;
     const times: readonly number[] = context.times;
@@ -135,39 +140,36 @@ export namespace HumanArmSeed {
       };
       const start: number[] = [...from.flat(), 0];
       const goal: number[] = [...to.flat(), 1];
-      const found: number[][] | null = HumanArmConnect.connect({
-        start,
-        goal,
-        low: space.low,
-        high: space.high,
-        discs: space.discs,
-        valid: (q: readonly number[]): boolean =>
-          M.invalid(
-            scene,
-            where(q[dims]!),
-            Space.split(q.slice(0, dims)),
-            false,
-            q[dims]! >= 1,
-          ).value <= M.TOLERANCE,
-        // The time coordinate runs from 0 to 1 over the passes' seconds.
-        seconds: Math.abs(end - begin),
-        // The arms' joint velocity limits, the published human rates.
-        velocities: from.flatMap((): readonly number[] => RATES),
-      });
+      const found: number[][] | null = straight
+        ? null
+        : HumanArmConnect.connect({
+            start,
+            goal,
+            low: space.low,
+            high: space.high,
+            discs: space.discs,
+            valid: (q: readonly number[]): boolean =>
+              M.invalid(
+                scene,
+                where(q[dims]!),
+                Space.split(q.slice(0, dims)),
+                false,
+                q[dims]! >= 1,
+              ).value <= M.TOLERANCE,
+            // The time coordinate runs from 0 to 1 over the passes' seconds.
+            seconds: Math.abs(end - begin),
+            // The arms' joint velocity limits, the published human rates.
+            velocities: from.flatMap((): readonly number[] => RATES),
+          });
 
       // The sampling planner seeds the optimiser, as MoveIt's optimiser
       // adapter seeds it (`chomp_optimizer_adapter.cpp`, `adaptAndPlan`), and
       // a planner that finds no path ends the plan there.
-      if (found === null)
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "region",
-          value: context.times[passes[passes.length - 1]!]!,
-          feasible: null,
-          reason: `the sampling planner finds no path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm between its rest and the hold within its iterations`,
-          fix: "put the hand on a site its arm reaches with the body clear",
-        });
-      return found;
+      // TrajOpt's own initialization where the sampler finds no path, or
+      // where the caller asks for it: the straight line in joint space
+      // between the two ends (Schulman et al. 2014, IJRR 33:1251, section
+      // VIII-A), the optimiser's verdict then the plan's.
+      return found ?? [start, goal];
     };
     const span: (a: number, b: number) => number[] = (
       a: number,
@@ -344,18 +346,21 @@ export namespace HumanArmSeed {
         ),
       );
     let closest: M.IEvaluation | undefined;
-    for (const q of HumanArmSeedStarts(
-      given,
-      problem.arms.every(
-        (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
-      )
-        ? problem.arms.map(
-            (arm: IProblem["arms"][number], a: number): number[] =>
-              G.encode(context.setups[a]!, arm.guess!),
-          )
-        : undefined,
-      context.rest,
-    )) {
+    for (const q of [
+      ...HumanArmSeedStarts(
+        given,
+        problem.arms.every(
+          (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
+        )
+          ? problem.arms.map(
+              (arm: IProblem["arms"][number], a: number): number[] =>
+                G.encode(context.setups[a]!, arm.guess!),
+            )
+          : undefined,
+        context.rest,
+      ),
+      ...HumanArmSeedRestarts(point),
+    ]) {
       const candidate: number[][][] = frame(point, q);
       if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
         return candidate.map((arm: number[][]): number[] => arm[1]!);

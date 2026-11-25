@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * How far a surface normal may stand from its closed form, unit vector
- * components: the normal is read from the native nearest point a micrometre
- * off a surface of radius about a millimetre away, so it errs under 1e-3.
+ * components: the normal is read from the native nearest point a micrometre off
+ * a surface of radius about a millimetre away, so it errs under 1e-3.
  */
 const NORMAL: number = 1e-3;
 

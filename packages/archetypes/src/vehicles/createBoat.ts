@@ -11,15 +11,6 @@ import { createPullingBoat } from "./createPullingBoat";
 import { createRowboat } from "./createRowboat";
 
 /**
- * A saved recipe's producer as the dispatcher calls it: the selected producer
- * admits the saved parameter union at run time.
- */
-type Producer = (
-  params: Omit<createBoat.IParams, "kind">,
-  seed?: number,
-) => AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>;
-
-/**
  * An open boat: a fixed-seat rowboat with its oars, a tandem canoe, or a Navy
  * pulling boat for a landing party.
  *
@@ -54,8 +45,7 @@ export function createBoat(
     createBoat.KINDS,
   );
   // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createBoat.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createBoat.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createBoat}. */

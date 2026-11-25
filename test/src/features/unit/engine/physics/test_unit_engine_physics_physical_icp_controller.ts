@@ -205,7 +205,8 @@ export function test_unit_engine_physics_physical_icp_controller(): void {
   TestValidator.predicate(
     "the integral gathers",
     second.converged &&
-      Math.abs(second.state.integrator.integral.x - 2.0 * DT * 0.001) < INTEGRAL_ROUNDING,
+      Math.abs(second.state.integrator.integral.x - 2.0 * DT * 0.001) <
+        INTEGRAL_ROUNDING,
   );
   const third = run({
     error: { x: 0.001, y: 0 },

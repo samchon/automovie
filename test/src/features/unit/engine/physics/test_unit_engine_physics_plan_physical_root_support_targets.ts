@@ -5,10 +5,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * Actual-root feedback retains independently planted endpoints without moving

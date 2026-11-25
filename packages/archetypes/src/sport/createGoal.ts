@@ -27,12 +27,7 @@ export function createGoal(
   );
 
   // The stored input can carry any former choice. The selected draw admits only its own profile.
-  const produce: (
-    params: createGoal.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createGoal.Affordance, createGoal.Dimension> =
-    createGoal.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createGoal.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, names and bands of {@link createGoal}. */

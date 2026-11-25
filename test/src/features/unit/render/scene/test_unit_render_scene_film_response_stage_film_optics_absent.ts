@@ -2,7 +2,7 @@ import { AutoMovieFilmResponseStage } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createFilmResponseRendererDouble } from "../../../draw/createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "../../../internal/createFilmResponseRendererDouble";
 
 /**
  * A subject without optics draws exactly as before the film response stage

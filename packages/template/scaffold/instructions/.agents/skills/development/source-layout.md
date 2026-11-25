@@ -82,7 +82,7 @@ A subject never imports another subject and a scene never imports another scene:
 
 What serves every production belongs to the installed packages, never to a production folder.
 
-Each file exports one declaration named as the file and stays under 500 lines; split a larger one into fragments.
+Each source file exports one declaration named as the file and stays under 500 lines; split a larger one into fragments. A test file has no length limit.
 
 Work starts at the document it realizes: a new subject from its settings or brief record, then its entity folder and tests, and a new scene from its screenplay scene file and its [beat elements](../motion/staging.md#reading-the-scene), then its composition folder and its place in the film.
 

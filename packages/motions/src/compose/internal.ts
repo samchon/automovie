@@ -46,3 +46,4 @@ export * from "./courseArmGoalBase";
 export * from "./AutoMovieMotionWave";
 export * from "./AutoMovieMotionHumanArmJointCourse";
 export * from "./prepareHumanPostureCorrection";
+export * from "./AutoMovieMotionHumanTouchPath";

@@ -67,19 +67,7 @@ export function createProjectile(
     params.kind,
     createProjectile.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createProjectile.IParams,
-      seed?: number,
-    ): AutoMovieArchetype<
-      createProjectile.Affordance,
-      createProjectile.Dimension
-    >;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createProjectile.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createProjectile.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createProjectile}. */

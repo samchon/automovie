@@ -15,9 +15,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /** The sole's half-width along x, half-length along z and height, metres. */
 const [WIDTH, LENGTH, HEIGHT] = [0.05, 0.08, 0.02];
@@ -122,7 +121,12 @@ export function test_unit_engine_physics_physical_stance_support(): void {
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
   );
-  if (!(Math.abs(ray - (WIDTH - physicalStanceBalance.MARGIN)) < PhysicalTolerance.ACCUMULATED))
+  if (
+    !(
+      Math.abs(ray - (WIDTH - physicalStanceBalance.MARGIN)) <
+      PhysicalTolerance.ACCUMULATED
+    )
+  )
     failures.push(`the ray meets the polygon ${ray} m away`);
 
   // 4. A leg's effective swing mass at the fixture's neutral pose: its
@@ -187,14 +191,21 @@ export function test_unit_engine_physics_physical_stance_support(): void {
   const low: number = -WIDTH * Math.cos((10 * Math.PI) / 180);
   if (
     rolled.length !== 2 ||
-    !rolled.every((point) => Math.abs(point.x - low) < PhysicalTolerance.CONVERGED)
+    !rolled.every(
+      (point) => Math.abs(point.x - low) < PhysicalTolerance.CONVERGED,
+    )
   )
     failures.push(
       `a rolled sole bears on ${JSON.stringify(rolled)}, not its low edge at x ${low}`,
     );
   // 5. Shrinking, bearing and shortening.
   const near = (name: string, actual: number, expected: number): void => {
-    if (!(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))))
+    if (
+      !(
+        Math.abs(actual - expected) <=
+        PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))
+      )
+    )
       failures.push(`${name}: ${actual} against ${expected}`);
   };
   const square: IAutoMovieVector3[] = [
@@ -203,7 +214,10 @@ export function test_unit_engine_physics_physical_stance_support(): void {
     { x: 0.1, y: 0, z: 0.1 },
     { x: -0.1, y: 0, z: 0.1 },
   ];
-  const shrunk: IAutoMovieVector3[] = physicalStanceSupport.shrink(square, 0.02);
+  const shrunk: IAutoMovieVector3[] = physicalStanceSupport.shrink(
+    square,
+    0.02,
+  );
   near("shrunk vertices", shrunk.length, 4);
   for (const vertex of shrunk) {
     near("shrunk |x|", Math.abs(vertex.x), 0.08);
@@ -215,7 +229,12 @@ export function test_unit_engine_physics_physical_stance_support(): void {
     { x: 0.07, y: 0, z: 0.15 },
   ];
   const borne = physicalStanceSupport.support([
-    { limb: "left", outline: narrow, flat: 1, ankle: { x: 0.1, y: 0, z: 0.02 } },
+    {
+      limb: "left",
+      outline: narrow,
+      flat: 1,
+      ankle: { x: 0.1, y: 0, z: 0.02 },
+    },
     {
       limb: "right",
       outline: narrow.map((p) => ({ ...p, x: -p.x })),
@@ -237,15 +256,26 @@ export function test_unit_engine_physics_physical_stance_support(): void {
   if (!(borne.polygon.length >= 3))
     failures.push(`the shrunken union has ${borne.polygon.length} vertices`);
   for (const vertex of borne.polygon.filter(
-    (v) => !(Math.abs(v.x - 0.3) < PhysicalTolerance.ACCUMULATED && Math.abs(v.z) < PhysicalTolerance.ACCUMULATED),
+    (v) =>
+      !(
+        Math.abs(v.x - 0.3) < PhysicalTolerance.ACCUMULATED &&
+        Math.abs(v.z) < PhysicalTolerance.ACCUMULATED
+      ),
   ))
     union.forEach((a: IAutoMovieVector3, i: number): void => {
       const b: IAutoMovieVector3 = union[(i + 1) % union.length]!;
       const depth: number =
         ((b.x - a.x) * (vertex.z - a.z) - (b.z - a.z) * (vertex.x - a.x)) /
         Math.hypot(b.x - a.x, b.z - a.z);
-      if (!(Math.abs(depth) >= physicalStanceBalance.MARGIN - PhysicalTolerance.ACCUMULATED))
-        failures.push(`command vertex ${JSON.stringify(vertex)} inside the margin`);
+      if (
+        !(
+          Math.abs(depth) >=
+          physicalStanceBalance.MARGIN - PhysicalTolerance.ACCUMULATED
+        )
+      )
+        failures.push(
+          `command vertex ${JSON.stringify(vertex)} inside the margin`,
+        );
     });
   const edged = physicalStanceSupport.support([
     {

@@ -295,7 +295,10 @@ export function test_unit_engine_physics_physical_hull_nearest(): void {
   }
   TestValidator.predicate(
     `hull segments match the search (${count} segments, apart ${apart}, above ${above}, read ${read})`,
-    count >= 7900 && apart <= SEGMENT_END && above <= PhysicalTolerance.ROUNDING && read <= PhysicalTolerance.ROUNDING,
+    count >= 7900 &&
+      apart <= SEGMENT_END &&
+      above <= PhysicalTolerance.ROUNDING &&
+      read <= PhysicalTolerance.ROUNDING,
   );
   TestValidator.predicate(
     `hull points match brute force (${off})`,

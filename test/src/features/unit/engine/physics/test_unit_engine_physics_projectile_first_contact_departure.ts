@@ -17,6 +17,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+import { nclose } from "../../../internal/nclose";
 
 /**
  * How far a quadratic-drag return may stand from its closed form, seconds: the
@@ -24,8 +25,6 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  * over a second of strong drag stays under a millisecond.
  */
 const DRAG_RETURN: number = 1e-3;
-
-import { nclose } from "../../../internal/nclose";
 
 /**
  * Resolved plane contact departs without a clock nudge and may meet again.
@@ -179,7 +178,9 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
     );
     check(
       "the same floor is met again at 2v/g",
-      hit !== null && hit.collider === ground.id && nclose(hit.time, 1, PhysicalTolerance.CONTACT_TIME),
+      hit !== null &&
+        hit.collider === ground.id &&
+        nclose(hit.time, 1, PhysicalTolerance.CONTACT_TIME),
     );
     const sphere: IAutoMovieHit | null = projectileFirstContact(
       { ...returning, origin: { x: 0, y: 0.1, z: 0 } },
@@ -253,7 +254,8 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
     );
     check(
       "free fall starts with its analytic impact",
-      first !== null && nclose(first.time, Math.sqrt(2), PhysicalTolerance.CONTACT_TIME),
+      first !== null &&
+        nclose(first.time, Math.sqrt(2), PhysicalTolerance.CONTACT_TIME),
     );
     if (first === null) return;
     const next: IAutoMovieProjectileContinue.Segment = projectileContinue(

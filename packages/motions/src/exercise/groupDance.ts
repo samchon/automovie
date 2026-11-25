@@ -45,6 +45,37 @@ export namespace groupDance {
   /** How low the hips ride on soft knees, a share of the stature (provisional). */
   export const CROUCH: number = 0.02;
 
+  /** A group dance's repeats, timing variation and counts. */
+  export interface ICount {
+    /** The whole repeats, one by default. */
+    repeats: number;
+
+    /** The greatest per-dancer offset, seconds, 0.02 by default. */
+    vary: number;
+
+    /** The beats: four a conga repeat, eight a line or circle repeat. */
+    counts: number;
+  }
+
+  /**
+   * Count a group dance.
+   *
+   * @param p The kind, the repeats and the variation.
+   * @returns The count.
+   * @throws {HumanRefusal} When the repeats are no whole number or the
+   *   variation is negative.
+   */
+  export function count(
+    p: Pick<
+      IAutoMovieMotionHumanGroupDance.IParams,
+      "kind" | "repeats" | "vary"
+    >,
+  ): ICount {
+    const repeats: number = HumanBound.whole("repeats", p.repeats ?? 1);
+    const vary: number = p.vary ?? 0.02;
+    HumanBound.least("vary", vary, 0, "s");
+    return { repeats, vary, counts: (p.kind === "conga" ? 4 : 8) * repeats };
+  }
   /**
    * Plan a member's part in a group dance.
    *
@@ -57,10 +88,7 @@ export namespace groupDance {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGroupDance.IParams = context.params;
-    const repeats: number = HumanBound.whole("repeats", p.repeats ?? 1);
-    const vary: number = p.vary ?? 0.02;
-    HumanBound.least("vary", vary, 0, "s");
-    const counts: number = (p.kind === "conga" ? 4 : 8) * repeats;
+    const { repeats, vary, counts }: groupDance.ICount = count(p);
     const shared: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
       context,
       p.bpm ?? dance.BPM,

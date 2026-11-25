@@ -245,7 +245,12 @@ export function test_unit_engine_physics_physical_stance_hip(): void {
     // About x: each hip's flexion axis, the least of 160 and 180.
     near("forward torque", forward.torque, 320, PhysicalTolerance.ACCUMULATED);
     // The pelvis about the hips' mean: 1 + 50 (0.3)^2.
-    near("forward inertia", forward.inertia, 1 + 50 * 0.09, PhysicalTolerance.ACCUMULATED);
+    near(
+      "forward inertia",
+      forward.inertia,
+      1 + 50 * 0.09,
+      PhysicalTolerance.ACCUMULATED,
+    );
     near("forward angle", forward.angle, theta, PhysicalTolerance.ACCUMULATED);
   }
   if (capacity(limbs, { x: 1, y: 0, z: 0 }))
@@ -253,7 +258,13 @@ export function test_unit_engine_physics_physical_stance_hip(): void {
   const single = capacity([limbs[0]!], { x: 1, y: 0, z: 0 });
   if (!single) failures.push("one stance hip has no lateral strategy");
   // About -z: the abduction axis, the least of 100 and 85.
-  else near("single lateral torque", single.torque, 85, PhysicalTolerance.ACCUMULATED);
+  else
+    near(
+      "single lateral torque",
+      single.torque,
+      85,
+      PhysicalTolerance.ACCUMULATED,
+    );
   // Intended 0.1 rad behind the actual pelvis about x: leaning 0.1 rad forward.
   const leaning = capacity(
     limbs,
@@ -261,7 +272,13 @@ export function test_unit_engine_physics_physical_stance_hip(): void {
     Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, (-0.1 * 180) / Math.PI),
   );
   if (!leaning) failures.push("a leaning trunk has no forward strategy");
-  else near("leaning angle left", leaning.angle, theta - 0.1, PhysicalTolerance.ACCUMULATED);
+  else
+    near(
+      "leaning angle left",
+      leaning.angle,
+      theta - 0.1,
+      PhysicalTolerance.ACCUMULATED,
+    );
 
   TestValidator.equals("hip strategy", failures, []);
 }

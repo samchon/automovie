@@ -138,7 +138,10 @@ export function test_unit_engine_physics_record_physical_span_contacts(): void {
       for (const sample of receipt.samples ?? [])
         if (Math.round(sample.seconds * RATE) === step)
           impulse += sample.impulse;
-    if (Math.abs(impulse - weight / RATE) > PhysicalTolerance.ACCUMULATED * weight)
+    if (
+      Math.abs(impulse - weight / RATE) >
+      PhysicalTolerance.ACCUMULATED * weight
+    )
       failures.push(
         `step ${step}: floor impulse ${impulse} N s, weight ${weight / RATE} N s`,
       );
@@ -168,8 +171,10 @@ export function test_unit_engine_physics_record_physical_span_contacts(): void {
   // 3. The wrench is the reaction, the weight up, borne whole.
   for (const wrench of bound.supportWrenches)
     if (
-      Math.abs(wrench.requested.force.y - weight) > PhysicalTolerance.ACCUMULATED * weight ||
-      Math.abs(wrench.allocated.force.y - weight) > PhysicalTolerance.ACCUMULATED * weight ||
+      Math.abs(wrench.requested.force.y - weight) >
+        PhysicalTolerance.ACCUMULATED * weight ||
+      Math.abs(wrench.allocated.force.y - weight) >
+        PhysicalTolerance.ACCUMULATED * weight ||
       Math.hypot(
         wrench.residual.force.x,
         wrench.residual.force.y,

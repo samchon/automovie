@@ -13,9 +13,9 @@ import { TestValidator } from "@nestia/e2e";
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
- * How far a projected joint may stand past its maximum after one step,
- * radians: the step's 1e-5 s times rates of order a thousand radians a second
- * in rounding, under 1e-8.
+ * How far a projected joint may stand past its maximum after one step, radians:
+ * the step's 1e-5 s times rates of order a thousand radians a second in
+ * rounding, under 1e-8.
  */
 const PROJECTED: number = 1e-8;
 
@@ -100,7 +100,8 @@ export function test_unit_engine_physics_project_physical_joint_velocity(): void
   );
   TestValidator.predicate(
     "quaternion sign cannot change the velocity policy",
-    Vector3.length(Vector3.subtract(projected, opposite)) < PhysicalTolerance.ACCUMULATED,
+    Vector3.length(Vector3.subtract(projected, opposite)) <
+      PhysicalTolerance.ACCUMULATED,
   );
   const free: IAutoMovieVector3 = projectPhysicalJointVelocity(
     Quaternion.identity(),
@@ -116,7 +117,9 @@ export function test_unit_engine_physics_project_physical_joint_velocity(): void
   );
   TestValidator.predicate(
     "interior and full-turn intent stay unchanged",
-    Vector3.length(Vector3.subtract(free, requested)) < PhysicalTolerance.ACCUMULATED &&
-      Vector3.length(Vector3.subtract(interior, requested)) < PhysicalTolerance.ACCUMULATED,
+    Vector3.length(Vector3.subtract(free, requested)) <
+      PhysicalTolerance.ACCUMULATED &&
+      Vector3.length(Vector3.subtract(interior, requested)) <
+        PhysicalTolerance.ACCUMULATED,
   );
 }

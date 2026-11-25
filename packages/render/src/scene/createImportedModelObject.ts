@@ -1,6 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AUTOMOVIE_HUMANOID_BONE_SLOTS } from "./AUTOMOVIE_HUMANOID_BONE_SLOTS.js";
 import type { IAutoMovieImportedModelOptions } from "./IAutoMovieImportedModelOptions.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
@@ -35,6 +36,11 @@ const wrapObject: (object: THREE.Object3D) => THREE.Group = (
   return group;
 };
 
+const isHumanoidBone: (text: string) => text is AutoMovieHumanoidBone = (
+  text: string,
+): text is AutoMovieHumanoidBone =>
+  Object.hasOwn(AUTOMOVIE_HUMANOID_BONE_SLOTS, text);
+
 const normalizeBones: (
   input: IAutoMovieImportedModelOptions["bones"],
 ) => Map<AutoMovieHumanoidBone, THREE.Object3D> = (
@@ -46,7 +52,7 @@ const normalizeBones: (
   > = new Map<AutoMovieHumanoidBone, THREE.Object3D>();
   if (input === undefined) return bones;
   for (const [bone, node] of Object.entries(input))
-    if (node !== null && node !== undefined)
-      bones.set(bone as AutoMovieHumanoidBone, node);
+    if (isHumanoidBone(bone) && node !== null && node !== undefined)
+      bones.set(bone, node);
   return bones;
 };

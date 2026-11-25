@@ -7,8 +7,8 @@ import { throwsError } from "../../../internal/throwsError";
 
 /**
  * The `give` law's timetable (`give.timetable`): the body gives over `RISE`
- * (0.12 s) to the `stroke`, holds 0.15 s and recovers over 0.45 s; its intensity
- * lies in (0, 1].
+ * (0.12 s) to the `stroke`, holds 0.15 s and recovers over 0.45 s; its
+ * intensity lies in (0, 1].
  *
  * Scenarios:
  *

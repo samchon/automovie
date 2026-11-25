@@ -1,15 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import { EquineHarness } from "../animals/EquineHarness";
-import {
-  ArchetypeDraw,
-  type AutoMovieArchetype,
-  type AutoMovieArchetypeDrawSession,
-  type AutoMovieArchetypeFriction,
-  type AutoMovieArchetypeRide,
-  AutoMovieArchetypeUnits,
-  type IAutoMovieArchetypeBand,
-} from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype, type AutoMovieArchetypeDrawSession, type AutoMovieArchetypeFriction, type AutoMovieArchetypeRide, type IAutoMovieArchetypeBand } from "../core";
 import { CART_BANDS } from "./CART_BANDS";
 import { CartFit } from "./CartFit";
 import { cartTowing } from "./cartTowing";
@@ -21,15 +11,8 @@ import { createRickshaw } from "./createRickshaw";
 import { createShoppingTrolley } from "./createShoppingTrolley";
 import { createWagon } from "./createWagon";
 import { createWheelbarrow } from "./createWheelbarrow";
-
-/**
- * A saved recipe's producer as the dispatcher calls it: the selected producer
- * admits the saved parameter union at run time.
- */
-type Producer = (
-  params: Omit<createCart.IParams, "kind">,
-  seed?: number,
-) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>;
+import * as parts from "./createCartParts";
+import * as measures from "./createCartMeasures";
 
 /**
  * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a
@@ -74,8 +57,7 @@ export function createCart(
     createCart.KINDS,
   );
   // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createCart.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createCart.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createCart}. */
@@ -204,192 +186,33 @@ export namespace createCart {
     carriage: {},
   };
 
-  /**
-   * A wheelbarrow handgrip's length, metres: the 130 mm of the Matador M-130-L4
-   * data sheet.
-   */
-  export const GRIP: number = 0.13;
+  /** The moved constant {@link createCartMeasures.GRIP}. */
+  export const GRIP: typeof measures.GRIP = measures.GRIP;
+  /** The moved constant {@link createCartMeasures.SINGLE_TREE}. */
+  export const SINGLE_TREE: typeof measures.SINGLE_TREE = measures.SINGLE_TREE;
+  /** The moved constant {@link createCartMeasures.REST}. */
+  export const REST: typeof measures.REST = measures.REST;
+  /** The moved constant {@link createCartMeasures.LINES}. */
+  export const LINES: typeof measures.LINES = measures.LINES;
+  /** The moved constant {@link createCartMeasures.LINE}. */
+  export const LINE: typeof measures.LINE = measures.LINE;
+  /** The moved constant {@link createCartMeasures.TRACE}. */
+  export const TRACE: typeof measures.TRACE = measures.TRACE;
+  /** The moved constant {@link createCartMeasures.RICKSHAW_SEAT}. */
+  export const RICKSHAW_SEAT: typeof measures.RICKSHAW_SEAT = measures.RICKSHAW_SEAT;
+  /** The moved constant {@link createCartMeasures.RICKSHAW_SHAFTS}. */
+  export const RICKSHAW_SHAFTS: typeof measures.RICKSHAW_SHAFTS = measures.RICKSHAW_SHAFTS;
+  /** The moved constant {@link createCartMeasures.RICKSHAW_SEAT_WIDTH}. */
+  export const RICKSHAW_SEAT_WIDTH: typeof measures.RICKSHAW_SEAT_WIDTH = measures.RICKSHAW_SEAT_WIDTH;
+  /** The moved constant {@link createCartMeasures.RICKSHAW_FOOTBOARD}. */
+  export const RICKSHAW_FOOTBOARD: typeof measures.RICKSHAW_FOOTBOARD = measures.RICKSHAW_FOOTBOARD;
 
-  /**
-   * A cart's single tree ahead of its axle, metres, a provisional value: not
-   * read at a source. It sets how far the coupling stands ahead of the axle, so
-   * it is read by a towing ride. The source to read is a carriage builder's
-   * draft of a gig or a road cart (The Hub, the Carriage Journal's drafts).
-   */
-  export const SINGLE_TREE: number = 0.9;
-
-  /**
-   * The rest geometry of a cart's driving lines, metres: `elbow`, the height
-   * above the seat of the point each line's held run is laid toward, the middle
-   * of the women's and men's means of ANSUR II's elbow rest height (232.4 and
-   * 245.0 mm), computed from the 1,986 women's and 4,082 men's public records
-   * (https://www.openlab.psu.edu/ansur2/). It shapes the lines at rest only; a
-   * driver's hands choose where along the held runs they hold.
-   */
-  export const REST: Readonly<{ elbow: number }> = {
-    elbow: (0.2324 + 0.245) / 2,
-  };
-
-  /**
-   * A single horse's driving lines' length from the bit, metres: IVC Carriage's
-   * stock horse lines of 14 ft, "measure the distance from the horse's mouth to
-   * your hands, and then add at least an extra two feet"
-   * (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf).
-   */
-  export const LINES: number = 14 * AutoMovieArchetypeUnits.FOOT;
-
-  /**
-   * A single horse's driving line's width, metres: the 3/4 in leather reins IVC
-   * Carriage finds most hands, and a larger horse, prefer
-   * (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf).
-   */
-  export const LINE: number = (3 / 4) * AutoMovieArchetypeUnits.INCH;
-
-  /**
-   * A trace's radius, metres: in a single horse's harness a trace is the same
-   * leather strap as the rest of the harness, so it takes the harness's strap
-   * (`EquineHarness.ESTIMATES.strap`, a construction estimate no act reads, the
-   * strap's width unread).
-   */
-  export const TRACE: number = EquineHarness.ESTIMATES.strap;
-
-  /**
-   * A rickshaw's seat above the ground, metres, a provisional value: not read
-   * at a source. The source to read is a museum record or a period rule that
-   * gives the seat's height (the Hong Kong rules of 1882 give its width and its
-   * distance to the footboard only).
-   */
-  export const RICKSHAW_SEAT: number = 0.9;
-
-  /**
-   * A rickshaw's shafts apart at the runner's hands, centre to centre, metres,
-   * a provisional value: not read at a source. The source to read is a museum
-   * record with the shafts' spacing.
-   */
-  export const RICKSHAW_SHAFTS: number = 0.55;
-
-  /**
-   * A rickshaw seat's width, metres: 21 in, the Hong Kong public rickshaw rules
-   * of 1882 (The China Mail, quoted at
-   * https://industrialhistoryhk.org/hong-kong-rickshaw-design/).
-   */
-  export const RICKSHAW_SEAT_WIDTH: number = 21 * AutoMovieArchetypeUnits.INCH;
-
-  /**
-   * A rickshaw's footboard ahead of its seat, metres: 23 in from the seat to
-   * the front of the footboard, the same rules, taken along the rickshaw.
-   */
-  export const RICKSHAW_FOOTBOARD: number = 23 * AutoMovieArchetypeUnits.INCH;
-
-  /**
-   * A limber's frame, read and derived from The Ordnance Manual (1861), p. 74
-   * and p. 77 (https://archive.org/details/cu31924031187887/page/74).
-   */
-  export const LIMBER: Readonly<{
-    /**
-     * The frame's rear end behind the axle, metres: the 57 in wheel's 28.5 in
-     * radius less the 11.88 in the wheels add to the limber's length (173.08 in
-     * with wheels and pole, 161.2 in without wheels), since only the wheels'
-     * rims stand behind the frame.
-     */
-    rear: number;
-
-    /**
-     * The ammunition chest's inside length across the limber, width along it
-     * and depth, metres: 40, 18 and 14.75 in (p. 77).
-     */
-    chest: Readonly<{ length: number; width: number; depth: number }>;
-
-    /**
-     * The chest's boards, metres: a construction estimate, not read, which sets
-     * the chest's outside and so its lid's height, the gunners' seat.
-     */
-    board: number;
-
-    /**
-     * The pintle hook above the ground, metres, a provisional value: taken at
-     * the axle's height, not read. The source to read is the Ordnance Manual's
-     * limber plate or the Instruction for Field Artillery (1864).
-     */
-    pintle: number;
-  }> = {
-    rear: (28.5 - 11.88) * AutoMovieArchetypeUnits.INCH,
-    chest: {
-      length: 40 * AutoMovieArchetypeUnits.INCH,
-      width: 18 * AutoMovieArchetypeUnits.INCH,
-      depth: 14.75 * AutoMovieArchetypeUnits.INCH,
-    },
-    board: 0.025,
-    pintle: 28.5 * AutoMovieArchetypeUnits.INCH,
-  };
-
-  /**
-   * A wagon's places beyond its bands, from the Army's specification
-   * (https://archive.org/details/specificationsf02deptgoog/page/n13) where
-   * read.
-   */
-  export const WAGON: Readonly<{
-    /**
-     * The tongue's front end above the ground at rest, metres: it is "to hang
-     * within 2 feet of the ground" (p. 1).
-     */
-    drop: number;
-
-    /**
-     * The body's floor above the hind axle, metres, a provisional value: not
-     * read. It rests on the hind bolster, 3.5 in deep (p. 2), over the
-     * axle-tree, whose depth the specification gives elsewhere; the source to
-     * read is its axle-tree clause.
-     */
-    bed: number;
-
-    /**
-     * The front axle's lock to either side, degrees, a provisional value: not
-     * read. The four-horse wagon's specification gives iron plates for the
-     * front wheels to strike in turning (pp. 9-16) but no angle; the source to
-     * read is a drawing of the running gear.
-     */
-    lock: number;
-  }> = { drop: 24 * AutoMovieArchetypeUnits.INCH, bed: 0.15, lock: 35 };
-
-  /**
-   * A carriage's places no museum record read gives, each a provisional value:
-   * the source to read is a carriage builder's draft of a brougham (The Hub,
-   * the Carriage Journal's drafts) or a museum record with these measurements.
-   */
-  export const CARRIAGE: Readonly<{
-    /**
-     * The wheels' track short of the overall width, metres: the hubs'
-     * projection, taken from the width because no record gives the track.
-     */
-    hubs: number;
-
-    /** The body's floor above the ground, metres. */
-    floor: number;
-
-    /** The inside seat above the floor, metres. */
-    seat: number;
-
-    /** The driver's box seat above the ground, metres. */
-    box: number;
-
-    /** A door's width and height, metres, and its widest opening, degrees. */
-    door: Readonly<{ width: number; height: number; swing: number }>;
-
-    /** The pole from the front axle to its end, metres. */
-    pole: number;
-
-    /** The front axle's lock to either side, degrees. */
-    lock: number;
-  }> = {
-    hubs: 0.25,
-    floor: 0.55,
-    seat: 0.4,
-    box: 1.6,
-    door: { width: 0.6, height: 1.2, swing: 90 },
-    pole: 2.8,
-    lock: 40,
-  };
+  /** The moved constant {@link createCartParts.LIMBER}. */
+  export const LIMBER: typeof parts.LIMBER = parts.LIMBER;
+  /** The moved constant {@link createCartParts.WAGON}. */
+  export const WAGON: typeof parts.WAGON = parts.WAGON;
+  /** The moved constant {@link createCartParts.CARRIAGE}. */
+  export const CARRIAGE: typeof parts.CARRIAGE = parts.CARRIAGE;
 
   /**
    * The affordance ids; a kind lacks the ids of the parts it does not have:
@@ -417,7 +240,7 @@ export namespace createCart {
    *   over the axle, positive to the left; the front wheels and drawbar pitch
    *   pivot ride it.
    * - `drawbarPitch`: the front-axle hinge of a four-wheeler's fixed-length pole,
-   *   about +X, positive lowering the forward end; coupling rides it. Its ±180
+   *   about +X, positive lowering the forward end; coupling rides it. Its 짹180
    *   degrees are a principal-angle chart, not a measured working limit.
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: a
    *   four-wheeled kind's road wheels' roll, the front pair riding

@@ -11,12 +11,6 @@ import { createServingTray } from "./createServingTray";
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the item alone";
 
-/** A saved recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createTray.IParams,
-  seed?: number,
-) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>;
-
 /**
  * Replay a saved tray variant with the original dimensions, identifier and
  * model choices.
@@ -41,8 +35,7 @@ export function createTray(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createTray.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createTray.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createTray}. */

@@ -9,10 +9,10 @@ import type {
 import {
   AutoMovieThreeKind,
   type IAutoMovieModelObject,
+  type IMaterialShaderSource,
   buildModel,
   readAutoMovieBufferAttribute,
 } from "@automovie/render";
-import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

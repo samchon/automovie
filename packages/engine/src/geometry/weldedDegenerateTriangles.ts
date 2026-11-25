@@ -23,8 +23,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  *
  * @param mesh Mesh to inspect.
  * @returns Ascending ordinals of degenerate triangles.
- * @throws Error when the index run is malformed, or when a position is not
- *   finite, because a non-finite coordinate has no grid cell.
+ * @throws Error when the index run is malformed.
  */
 export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
   const indices: number[] = triangleIndicesOf(mesh, "mesh topology");

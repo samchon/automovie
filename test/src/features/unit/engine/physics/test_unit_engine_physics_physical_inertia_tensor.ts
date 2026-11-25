@@ -3,7 +3,6 @@ import type { IAutoMovieCombinePhysicalMassProperties } from "@automovie/interfa
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { nclose } from "../../../internal/nclose";
 
 /**

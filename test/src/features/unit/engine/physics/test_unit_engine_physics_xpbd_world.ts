@@ -11,6 +11,21 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+/** The solver's float32 rounding of a body's place, metres. */
+const NATIVE: number = 1e-7;
+
+/**
+ * The residual motion of a settled body and a limit's overshoot, m/s and
+ * radians: the compliant contacts and joints leave a creep under a thousandth.
+ */
+const AT_REST: number = 1e-3;
+
+/**
+ * How far a block on a slope steeper friction holds may creep in two seconds,
+ * metres: under a tenth of a millimetre of compliant drift.
+ */
+const STATIC: number = 1e-4;
+
 /**
  * The in-house extended position-based dynamics world (Mueller et al. 2020)
  * against closed forms.
@@ -49,7 +64,9 @@ export async function test_unit_engine_physics_xpbd_world(): Promise<void> {
     const expected: number = allowed + g / (omega * omega);
     if (!(Math.abs(depth - expected) < 0.25 * (g / (omega * omega)) + NATIVE))
       findings.push(`rest depth ${depth} m, expected ${expected} m`);
-    if (!(Math.hypot(cube.linvel().x, cube.linvel().y, cube.linvel().z) < AT_REST))
+    if (
+      !(Math.hypot(cube.linvel().x, cube.linvel().y, cube.linvel().z) < AT_REST)
+    )
       findings.push(`resting cube moves at ${JSON.stringify(cube.linvel())}`);
   }
 
@@ -191,7 +208,8 @@ export async function test_unit_engine_physics_xpbd_world(): Promise<void> {
         );
       }
     }
-    if (!(worst < AT_REST)) findings.push(`${limited} limit exceeded by ${worst}`);
+    if (!(worst < AT_REST))
+      findings.push(`${limited} limit exceeded by ${worst}`);
   }
 
   // 5. Determinism and snapshot continuation.

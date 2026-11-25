@@ -56,16 +56,7 @@ export function createArmour(
     params.kind,
     createArmour.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createArmour.IParams,
-      seed?: number,
-    ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createArmour.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createArmour.PRODUCERS[kind](params, seed);
 }
 
 /** The plate thickness read. */

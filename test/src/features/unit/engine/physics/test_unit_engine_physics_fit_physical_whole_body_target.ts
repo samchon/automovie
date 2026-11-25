@@ -16,9 +16,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * A whole body held on one support reaches a goal its free limb alone cannot,
@@ -176,7 +175,9 @@ export function test_unit_engine_physics_fit_physical_whole_body_target(): void 
         child.position,
         Quaternion.rotateVector(child.rotation, joint.childFrame.position),
       );
-      if (Vector3.length(Vector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED)
+      if (
+        Vector3.length(Vector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED
+      )
         failures.push(`${joint.id}: anchor`);
       if (
         measurePhysicalJointLimits(joint, parent, child).some(
@@ -197,7 +198,8 @@ export function test_unit_engine_physics_fit_physical_whole_body_target(): void 
         contact,
       ),
     );
-    if (moved > PhysicalTolerance.ACCUMULATED) failures.push(`contact moved ${moved} m`);
+    if (moved > PhysicalTolerance.ACCUMULATED)
+      failures.push(`contact moved ${moved} m`);
     TestValidator.equals("anchored, admitted and held", failures, []);
   }
 }

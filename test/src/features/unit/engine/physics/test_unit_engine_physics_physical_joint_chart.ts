@@ -135,7 +135,10 @@ export function test_unit_engine_physics_physical_joint_chart(): void {
     failures.push(
       `a zero request past y's end returns ${-back.y * dt} rad, the solver's excess ${excess}`,
     );
-  if (Math.abs(back.x) > PhysicalTolerance.ACCUMULATED || Math.abs(back.z) > PhysicalTolerance.ACCUMULATED)
+  if (
+    Math.abs(back.x) > PhysicalTolerance.ACCUMULATED ||
+    Math.abs(back.z) > PhysicalTolerance.ACCUMULATED
+  )
     failures.push(
       `a zero request past y's end moves the other axes: ${JSON.stringify(back)}`,
     );

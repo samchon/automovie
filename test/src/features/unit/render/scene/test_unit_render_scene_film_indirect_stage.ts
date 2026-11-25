@@ -1,9 +1,11 @@
-import { AutoMovieFilmIndirectStage } from "@automovie/render";
-import type { IMaterialShaderSource } from "@automovie/render";
+import {
+  AutoMovieFilmIndirectStage,
+  type IMaterialShaderSource,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createFilmResponseRendererDouble } from "../../../draw/createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "../../../internal/createFilmResponseRendererDouble";
 import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 
 /**

@@ -226,29 +226,20 @@ export function WorkoutLoad(
       // forearm: a straight wrist, the turn an arm holds. A turn taken
       // from the key's own hand left the bar 0.3 m out of level, the
       // wrist giving way.
-      const across: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-        { x: side === "right" ? 1 : -1, y: 0, z: 0 },
+      const level: WorkoutLoad.ILevel = WorkoutLoad.level(
+        posture.yaw,
+        side,
+        Vector3.subtract(
+          bones.get(`${side}Hand`)!.worldPosition,
+          bones.get(`${side}LowerArm`)!.worldPosition,
+        ),
       );
-      const forearm: IAutoMovieVector3 = Vector3.subtract(
-        bones.get(`${side}Hand`)!.worldPosition,
-        bones.get(`${side}LowerArm`)!.worldPosition,
-      );
-      const square: IAutoMovieVector3 = Vector3.subtract(
-        forearm,
-        Vector3.scale(across, Vector3.dot(forearm, across)),
-      );
+      const across: IAutoMovieVector3 = level.across;
       const turn: IAutoMovieQuaternion = HumanHand.align(
         // The tool's own axis is the other handle's approach, square to
         // the bar, so the bar's line is read from its two handles.
         { normal: line, forward: own.axis },
-        {
-          normal: across,
-          forward:
-            Vector3.length(square) > 1e-6
-              ? Vector3.normalize(square)
-              : { x: 0, y: -1, z: 0 },
-        },
+        { normal: across, forward: level.forward },
       );
       const keyed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
         point: HumanHand.frame(body, bones, side, "grip").point,
@@ -408,4 +399,51 @@ export function WorkoutLoad(
       };
     },
   };
+}
+
+/** The bar's level frame a held load is turned to (`WorkoutLoad`). */
+export namespace WorkoutLoad {
+  /** The bar's direction and the knuckles' along it. */
+  export interface ILevel {
+    /** The bar's unit direction, level, toward the performer's other side. */
+    across: IAutoMovieVector3;
+
+    /**
+     * The unit direction the knuckles continue: the forearm square to the bar,
+     * straight down when the forearm runs along it.
+     */
+    forward: IAutoMovieVector3;
+  }
+
+  /**
+   * The level frame of a bar held in one hand: it runs level from the hand to
+   * the performer's other side, and the hand is turned about it so the knuckles
+   * continue the forearm, a straight wrist.
+   *
+   * @param yaw The performer's heading, degrees.
+   * @param side The holding hand.
+   * @param forearm The forearm from the elbow to the wrist, world.
+   * @returns The bar's direction and the knuckles'.
+   */
+  export function level(
+    yaw: number,
+    side: AutoMovieHumanSide,
+    forearm: IAutoMovieVector3,
+  ): ILevel {
+    const across: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      { x: side === "right" ? 1 : -1, y: 0, z: 0 },
+    );
+    const square: IAutoMovieVector3 = Vector3.subtract(
+      forearm,
+      Vector3.scale(across, Vector3.dot(forearm, across)),
+    );
+    return {
+      across,
+      forward:
+        Vector3.length(square) > 1e-6
+          ? Vector3.normalize(square)
+          : { x: 0, y: -1, z: 0 },
+    };
+  }
 }

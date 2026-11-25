@@ -5,7 +5,6 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -146,7 +145,8 @@ export function test_unit_engine_physics_physical_push_recovery(): void {
     "moved into region",
     first.adjusted &&
       first.state.recovering &&
-      Polygon.signedDistance(first.region, first.position) <= PhysicalTolerance.ACCUMULATED,
+      Polygon.signedDistance(first.region, first.position) <=
+        PhysicalTolerance.ACCUMULATED,
   );
   TestValidator.equals("once", check(first.state, 0.5).adjusted, false);
   TestValidator.equals("near touchdown", check(large, 0.05).adjusted, false);

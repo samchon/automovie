@@ -73,16 +73,7 @@ export function createBow(
     params.kind,
     createBow.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createBow.IParams,
-      seed?: number,
-    ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension>;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createBow.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createBow.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants, bands and rules of {@link createBow}. */

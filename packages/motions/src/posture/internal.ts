@@ -58,3 +58,4 @@ export * from "./HumanArmTrajectoryPairs";
 export * from "./HumanArmSeedStarts";
 export * from "./HumanArmTrajectoryRangeExcess";
 export * from "./HumanArmTrajectoryRateProjection";
+export * from "./HumanArmSeedRestarts";

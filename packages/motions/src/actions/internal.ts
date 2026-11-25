@@ -17,6 +17,7 @@ export * from "./walkStride";
 export * from "./walkLegCapsules";
 export * from "./walkLegBinding";
 export * from "./jumpAirborneTurning";
+export * from "./jumpFlight";
 export * from "./rangeSteppingFoot";
 export * from "./walkReachStance";
 export * from "./jumpLandingHeading";

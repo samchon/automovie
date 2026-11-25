@@ -88,6 +88,18 @@ export namespace release {
   export const overlay: boolean = true;
 
   /**
+   * A release's timetable: the grip held a brief pause, then opened over
+   * another.
+   *
+   * @returns The clock with `hold` and `open`.
+   */
+  export function timetable(): IAutoMovieMotionClock {
+    return AutoMovieMotionClock.sequence([
+      { name: "hold", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
+      { name: "open", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
+    ]);
+  }
+  /**
    * Plan a release.
    *
    * @param context The action's context.
@@ -125,10 +137,7 @@ export namespace release {
       rotation: bones.get(`${side}Hand`)!.worldRotation,
     };
     const kept: IAutoMovieRigidTransform = HumanPropFrame.relative(chest, grip);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
-      { name: "hold", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
-      { name: "open", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
-    ]);
+    const clock: IAutoMovieMotionClock = timetable();
     const open: number = clock.at("open");
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, clock.duration);

@@ -179,10 +179,8 @@ export namespace AutoMovieArchetypeArticulation {
     state: Partial<Record<Id, number>>,
   ): Map<string, number> {
     const inputs: Map<string, number> = new Map();
-    for (const id of Object.keys(state) as Id[]) {
-      const value: number | undefined = state[id];
+    for (const [id, value] of Object.entries<number | undefined>(state))
       if (value !== undefined) inputs.set(id, value);
-    }
     return inputs;
   }
   /**

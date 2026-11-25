@@ -6,9 +6,9 @@ import { nclose } from "../../../internal/nclose";
 import { throwsError } from "../../../internal/throwsError";
 
 /**
- * The `wireArrest` law's admission (`wireArrest.arrest`): the body drops freely,
- * reaching `sqrt(2 g drop)`, then the wire stops it within the room left above
- * the stop at `speed² / (2 room)`, no harder than its bound.
+ * The `wireArrest` law's admission (`wireArrest.arrest`): the body drops
+ * freely, reaching `sqrt(2 g drop)`, then the wire stops it within the room
+ * left above the stop at `speed² / (2 room)`, no harder than its bound.
  *
  * Scenarios:
  *

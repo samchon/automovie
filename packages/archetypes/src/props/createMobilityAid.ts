@@ -30,15 +30,6 @@ const PROVITA: string =
 const POWER: string =
   "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a walker's frame, whose tube no maker read sizes";
 
-/** A saved mobility aid recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createMobilityAid.IParams,
-  seed?: number,
-) => AutoMovieArchetype<
-  createMobilityAid.Affordance,
-  createMobilityAid.Dimension
->;
-
 /**
  * Replay a saved mobilityAid variant with the original dimensions, identifier
  * and model choices.
@@ -66,8 +57,7 @@ export function createMobilityAid(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createMobilityAid.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createMobilityAid.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createMobilityAid}. */

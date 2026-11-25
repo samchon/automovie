@@ -21,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { guitarChordTimes } from "./guitarChordTimes";
 import { guitarFrettingSpan } from "./guitarFrettingSpan";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
@@ -86,53 +87,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     releaseAt,
     direction,
   }: IAutoMovieMotionHumanGuitarChord = context.params;
-  if (
-    !(
-      0 < stopAt &&
-      stopAt < sweepStartAt &&
-      sweepStartAt < sweepEndAt &&
-      sweepEndAt < releaseAt &&
-      releaseAt < duration
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "stopAt",
-      value: [stopAt, sweepStartAt, sweepEndAt, releaseAt, duration],
-      reason: "the fretting, sweep and release need ordered finite times",
-      fix: "give 0 < stopAt < sweepStartAt < sweepEndAt < releaseAt < duration",
-    });
-  const prep: number = stopAt / 2;
-  const sweepDuration: number = sweepEndAt - sweepStartAt;
-  const firstAt: number = sweepStartAt + sweepDuration / 3;
-  const secondAt: number = sweepEndAt - sweepDuration / 3;
-  if (
-    !(
-      prep > 0 &&
-      sweepStartAt < firstAt &&
-      firstAt < secondAt &&
-      secondAt < sweepEndAt &&
-      sweepStartAt / duration < firstAt / duration &&
-      firstAt / duration < secondAt / duration &&
-      secondAt / duration < sweepEndAt / duration
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "sweepStartAt",
-      value: [stopAt, sweepStartAt, sweepEndAt, duration],
-      reason:
-        "the preparation and both crossings need distinct representable times",
-      fix: "give the hand preparation and sweep wider time intervals",
-    });
-  if (direction !== "down" && direction !== "up")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "direction",
-      value: direction,
-      reason: "the chord takes one directed sweep",
-      fix: "choose down or up",
-    });
+  const { prep, firstAt, secondAt }: guitarChordTimes.ITimes =
+    guitarChordTimes(context.params);
   if (
     context.entry.holds.left !== undefined ||
     context.entry.holds.right !== undefined

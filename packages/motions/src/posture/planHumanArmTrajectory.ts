@@ -273,38 +273,46 @@ export function planHumanArmTrajectory(
   // (`OptimizerAdapter::adaptAndPlan`, moveit/moveit
   // moveit_planners/chomp/chomp_optimizer_adapter/src/chomp_optimizer_adapter.cpp
   // lines 177-209 at commit 811328b1ba700f5d2dff69afc9737ac6cab66c9b,
-  // BSD-3-Clause), whose failure ends the plan (`HumanArmSeed`).
-  const solved: Stretch.ISolved =
+  // BSD-3-Clause),
+  // whose failure hands on the straight line (`HumanArmSeed`).
+  // The hold's inverse kinematics is seeded with the law's goal arm, its fit
+  // at the hold that keeps the goal's cleared segments (another body's among
+  // them) clear; where an arm has none, with the planned course's state at
+  // that instant, as MoveIt seeds `setFromIK` with the state's own joint
+  // values (`ik_seed_state`, moveit_core/robot_state/src/robot_state.cpp,
+  // `setFromIK`, at commit fdb79acafb24efd9e138b0d309fb2463186d4ab2,
+  // BSD-3-Clause).
+  const hold: number[][] | undefined =
+    course === undefined ||
+    problem.arms.every(
+      (arm: HumanArmTrajectory.IArm): boolean => arm.guess !== undefined,
+    )
+      ? undefined
+      : HumanArmSeed.held(
+          problem,
+          initial.context,
+          Pace.coursed(initial.context, course.trajectories),
+        );
+  const seeded = (straight: boolean): Stretch.ISolved =>
+    Stretch.optimise(
+      whole,
+      initial,
+      HumanArmSeed.seed(problem, initial.context, hold, fine, straight),
+    );
+  let solved: Stretch.ISolved =
     earlier !== undefined
       ? Stretch.optimise(whole, earlier, earlier.x, earlier.penalty)
-      : Stretch.optimise(
-          whole,
-          initial,
-          HumanArmSeed.seed(
-            problem,
-            initial.context,
-            // The hold's inverse kinematics is seeded with the law's goal
-            // arm, its fit at the hold that keeps the goal's cleared segments
-            // (another body's among them) clear; where an arm has none, with
-            // the planned course's state at that instant, as MoveIt seeds
-            // `setFromIK` with the state's own joint values (`ik_seed_state`,
-            // moveit_core/robot_state/src/robot_state.cpp, `setFromIK`, at
-            // commit fdb79acafb24efd9e138b0d309fb2463186d4ab2,
-            // BSD-3-Clause).
-            course === undefined ||
-              problem.arms.every(
-                (arm: HumanArmTrajectory.IArm): boolean =>
-                  arm.guess !== undefined,
-              )
-              ? undefined
-              : HumanArmSeed.held(
-                  problem,
-                  initial.context,
-                  Pace.coursed(initial.context, course.trajectories),
-                ),
-            fine,
-          ),
-        ); // The path a refusal for time was reached at is the replan's start
+      : seeded(false);
+  // A solve the sampling planner's start leaves infeasible starts again from
+  // TrajOpt's own initialization, the straight line between the ends: a local
+  // method's remedy for a local minimum is another initialization (Schulman
+  // et al. 2014, IJRR 33:1251, section VIII-A, restarting failed problems from
+  // further initializations); the first start met is the plan.
+  if (earlier === undefined && !Stretch.met(solved)) {
+    const again: Stretch.ISolved = seeded(true);
+    if (Stretch.met(again)) solved = again;
+  }
+  // The path a refusal for time was reached at is the replan's start
   // (`Stretch.refused` tells it): over the span the refusal names, the same
   // path moves within the bound (Hollerbach 1984).
   if (!Stretch.met(solved)) throw Stretch.refused(whole, solved, told);

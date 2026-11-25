@@ -15,7 +15,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
+import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+import { vclose } from "../../../internal/vclose";
 
 /**
  * The warm start's task tolerance, metres: a correction under a millimetre
@@ -29,10 +32,6 @@ const WARM: number = 1e-3;
  * under a tenth of a millimetre.
  */
 const FIRST_ORDER: number = 1e-4;
-
-import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
-import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
-import { vclose } from "../../../internal/vclose";
 
 /**
  * A warm support seed keeps the previous fit's task-space choice while its
@@ -195,7 +194,8 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
   TestValidator.predicate(
     "a sub-tolerance task correction returns to authored",
     chain.every(
-      (bone: string): boolean => Math.abs(angle(small, bone)) <= PhysicalTolerance.ROUNDING,
+      (bone: string): boolean =>
+        Math.abs(angle(small, bone)) <= PhysicalTolerance.ROUNDING,
     ),
   );
 

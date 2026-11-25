@@ -12,12 +12,6 @@ import { createHospitalBed } from "./createHospitalBed";
 import { createMattress } from "./createMattress";
 import { createPlatformBed } from "./createPlatformBed";
 
-/** A saved bed recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createBed.IParams,
-  seed?: number,
-) => AutoMovieArchetype<createBed.Affordance, createBed.Dimension>;
-
 /**
  * Replay a saved bed variant with the original dimensions, identifier and model
  * choices.
@@ -42,8 +36,7 @@ export function createBed(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createBed.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createBed.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createBed}. */

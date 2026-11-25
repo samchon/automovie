@@ -159,10 +159,7 @@ function fascia(
     v(0, SHELF.height - ESTIMATES.shelf / 2, depth / 2 + SHELF.out / 2),
     { color: "#55595f" },
   );
-  for (const [id, item] of Object.entries(ITEMS) as [
-    keyof typeof ITEMS,
-    (typeof ITEMS)[keyof typeof ITEMS],
-  ][]) {
+  for (const [id, item] of Object.entries(ITEMS)) {
     // The elevation's straight distance is the hypotenuse over the read height difference; the clock position names only the side, 1 to 5 o'clock right (+X) as the fascia is faced and 7 to 11 left.
     const rise: number = item.height - ITEMS.key5.height;
     const side: number =

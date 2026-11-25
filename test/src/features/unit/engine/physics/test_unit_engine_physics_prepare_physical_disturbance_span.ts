@@ -8,8 +8,8 @@ const STEP: number = 1e-7;
 
 /**
  * How far the span may jump across a branch, metres: its rate of order a metre
- * per second over the two steps either side, with room for the branch's
- * corner, under 1e-4.
+ * per second over the two steps either side, with room for the branch's corner,
+ * under 1e-4.
  */
 const JOIN: number = 1e-4;
 
@@ -164,7 +164,11 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
     );
     check(
       `${name}: trigger after the reaction`,
-      close(span.branches[1]!.seconds, t0 + reaction, PhysicalTolerance.ROUNDING),
+      close(
+        span.branches[1]!.seconds,
+        t0 + reaction,
+        PhysicalTolerance.ROUNDING,
+      ),
     );
     check(`${name}: footstep viable`, span.footstep?.viable === true);
   }
@@ -195,16 +199,32 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
       const previous: Span.IBranch | undefined = branches[i - 1];
       if (branch.kind === "touchdown" && previous?.kind === "trigger") {
         const swing: number = branch.seconds - previous.seconds;
-        if (!(swing >= quickest - PhysicalTolerance.ROUNDING && swing <= 0.6 + PhysicalTolerance.ROUNDING))
+        if (
+          !(
+            swing >= quickest - PhysicalTolerance.ROUNDING &&
+            swing <= 0.6 + PhysicalTolerance.ROUNDING
+          )
+        )
           timing.push(`${name}: a ${swing} s swing at ${branch.seconds} s`);
       }
       if (branch.kind === "standing" && previous?.kind === "touchdown")
-        if (!(branch.seconds >= previous.seconds + 0.25 - PhysicalTolerance.ROUNDING))
+        if (
+          !(
+            branch.seconds >=
+            previous.seconds + 0.25 - PhysicalTolerance.ROUNDING
+          )
+        )
           timing.push(
             `${name}: standing ${branch.seconds - previous.seconds} s after touchdown`,
           );
       if (branch.kind === "end" && previous?.kind === "standing")
-        if (!close(branch.seconds, previous.seconds + 0.25, PhysicalTolerance.ROUNDING))
+        if (
+          !close(
+            branch.seconds,
+            previous.seconds + 0.25,
+            PhysicalTolerance.ROUNDING,
+          )
+        )
           timing.push(
             `${name}: end ${branch.seconds - previous.seconds} s after standing`,
           );
@@ -228,8 +248,16 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
       `divergence at ${t} s`,
       close(sample.pivot.x, held.x, PhysicalTolerance.ROUNDING) &&
         close(sample.pivot.z, held.z, PhysicalTolerance.ROUNDING) &&
-        close(sample.capture.z, held.z + (xi0 - held.z) * grow, PhysicalTolerance.ACCUMULATED) &&
-        close(sample.capture.x, held.x + (0 - held.x) * grow, PhysicalTolerance.ACCUMULATED),
+        close(
+          sample.capture.z,
+          held.z + (xi0 - held.z) * grow,
+          PhysicalTolerance.ACCUMULATED,
+        ) &&
+        close(
+          sample.capture.x,
+          held.x + (0 - held.x) * grow,
+          PhysicalTolerance.ACCUMULATED,
+        ),
     );
   }
 

@@ -18,9 +18,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * Native-coordinate target admission and geometry-derived support height.
@@ -258,7 +257,9 @@ export function test_unit_engine_physics_measure_physical_joint_limits(): void {
         child.position,
         Quaternion.rotateVector(child.rotation, joint.childFrame.position),
       );
-      if (Vector3.length(Vector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED)
+      if (
+        Vector3.length(Vector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED
+      )
         failures.push(`${joint.id}: anchor`);
       if (
         measurePhysicalJointLimits(joint, parent, child).some(

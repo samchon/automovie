@@ -21,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { pianoPedalStroke } from "./pianoPedalStroke";
 import { readPianoPedal } from "./readPianoPedal";
 
 /** The foot clock's independently authored stroke. */
@@ -76,7 +77,7 @@ function plan(
   const presses: Press[] = params.presses.map(
     (press: Press): Press => ({ ...press }),
   );
-  admitClock(presses, duration);
+  pianoPedalStroke.admit(presses, duration);
   const first: number = presses[0]!.from;
   const last: number = presses[presses.length - 1]!.to;
   const pedal: ReturnType<typeof readPianoPedal> = readPianoPedal(context);
@@ -310,7 +311,7 @@ function plan(
         from: first / duration,
         to: last / duration,
         travel: (seconds: number): number =>
-          travel(presses, seconds) * pedal.travel,
+          pianoPedalStroke.travel(presses, seconds) * pedal.travel,
       },
     ],
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -325,61 +326,13 @@ function plan(
         );
       return withFoot(
         held,
-        placed(travel(presses, seconds) * pedal.travel),
+        placed(pianoPedalStroke.travel(presses, seconds) * pedal.travel),
         true,
       );
     },
   };
 }
 
-/** Reject an empty, unbounded, reversed or overlapping clock. */
-function admitClock(presses: readonly Press[], duration: number): void {
-  if (presses.length === 0)
-    refuse(
-      "duration",
-      duration,
-      "provide a finite duration and at least one stroke",
-    );
-  let previous: number = 0;
-  for (const { from, at, release, to } of presses) {
-    if (
-      !(
-        0 < from &&
-        previous <= from &&
-        from < at &&
-        at <= release &&
-        release < to &&
-        to < duration
-      )
-    )
-      refuse(
-        "presses",
-        from,
-        "use disjoint ordered strokes, with time for approach and recovery",
-      );
-    previous = to;
-  }
-}
-
-/** Read the current pedal fraction, returning zero between strokes. */
-function travel(presses: readonly Press[], seconds: number): number {
-  let lo: number = 0;
-  let hi: number = presses.length;
-  while (lo < hi) {
-    const mid: number = Math.floor((lo + hi) / 2);
-    if (presses[mid]!.to <= seconds) lo = mid + 1;
-    else hi = mid;
-  }
-  const press: Press | undefined = presses[lo];
-  if (press === undefined || seconds <= press.from) return 0;
-  if (seconds >= press.at && seconds <= press.release) return 1;
-  // Read the release from its remaining fraction to keep travel nonnegative.
-  const share: number =
-    seconds < press.at
-      ? (seconds - press.from) / (press.at - press.from)
-      : (press.to - seconds) / (press.to - press.release);
-  return Math.min(1, minimumJerk.share(share));
-}
 /** The alternatives of `RefuseValue`'s site. */
 type RefuseValue = string | number;
 

@@ -30,12 +30,7 @@ export function createCareItem(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createCareItem.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension> =
-    createCareItem.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createCareItem.PRODUCERS[kind](params, seed);
 }
 
 /** Compatibility tables and types for saved grooming prop recipes. */

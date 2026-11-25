@@ -10,16 +10,15 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
+import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+import { nclose } from "../../../internal/nclose";
 
 /**
  * How far a native contact separation may stand from its closed form, metres:
  * the native query's own convergence, which stops at about 1e-7.
  */
 const NATIVE_DISTANCE: number = 1e-7;
-
-import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
-import { nclose } from "../../../internal/nclose";
 
 /**
  * The engine's exact convex queries find touching at zero distance without

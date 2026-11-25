@@ -1,9 +1,7 @@
 import * as THREE from "three";
 
-import type {
-  IAutoMovieFramebufferContext,
-  IAutoMovieFramebufferRenderer,
-} from "./IAutoMovieFramebufferRenderer.js";
+import type { IAutoMovieFramebufferContext } from "./IAutoMovieFramebufferContext.js";
+import type { IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**

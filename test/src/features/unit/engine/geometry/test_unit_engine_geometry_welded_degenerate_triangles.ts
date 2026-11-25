@@ -16,8 +16,7 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * 1. Triangles (0,1,2), (0,0,2), (1,3,2) and (2,1,0): [1, 2], repeating an index
  *    and a welded position respectively.
- * 2. An index past the vertices ("does not carry") and a NaN coordinate are
- *    refused.
+ * 2. An index past the vertices ("does not carry") is refused.
  */
 export function test_unit_engine_geometry_welded_degenerate_triangles(): void {
   const mesh: IAutoMovieMesh = {
@@ -35,9 +34,5 @@ export function test_unit_engine_geometry_welded_degenerate_triangles(): void {
   TestValidator.predicate(
     "index",
     throwsError((): unknown => weldedDegenerateTriangles({ ...mesh, indices: [0, 1, 4] }), "does not carry"),
-  );
-  TestValidator.predicate(
-    "NaN",
-    throwsError((): unknown => weldedDegenerateTriangles({ ...mesh, positions: [NaN, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0] })),
   );
 }

@@ -1,5 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalDisturbance } from "../../../internal/PhysicalDisturbance";
+import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
@@ -7,9 +9,6 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  * thousandth, for the pendulum's discretised readings of the subject.
  */
 const CEILING_SLACK: number = 1e-3;
-
-import { PhysicalDisturbance } from "../../../internal/PhysicalDisturbance";
-import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
 /**
  * The pushes the disturbance tests state lie where the inverted pendulum puts
@@ -99,9 +98,12 @@ export function test_unit_engine_physics_physical_disturbance_bounds(): void {
           axis,
           0.3,
         ).step;
-        if (!(pushes.step >= slow - PhysicalTolerance.ACCUMULATED &&
-          pushes.step <= fast + PhysicalTolerance.ACCUMULATED
-      ))
+        if (
+          !(
+            pushes.step >= slow - PhysicalTolerance.ACCUMULATED &&
+            pushes.step <= fast + PhysicalTolerance.ACCUMULATED
+          )
+        )
           failures.push(
             `${label}: one-step bound ${pushes.step} N s outside Koolen's Eq. 25 at 0.3-0.6 s, [${slow}, ${fast}]`,
           );

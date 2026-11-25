@@ -400,18 +400,12 @@ export class AutoMovieArchetype<
     const material: AutoMovieArchetypeFriction.Material | null =
       this.surface(part);
     if (material === null)
-      throw new AutoMovieArchetypeRefusal({
-        kind: "parameter",
-        archetype: this.#rest.archetype,
-        axis: "surface",
-        value: part,
-        feasible: {
-          kind: "alternatives",
-          values: Object.keys(this.#rest.surfaces),
-        },
-        reason: `${this.name ?? this.id} declares no surface for its part "${part}"`,
-        fix: "name a part whose surface the producer declares",
-      });
+      throw AutoMovieArchetypeFriction.undeclared(
+        this.#rest.archetype,
+        this.name ?? this.id,
+        part,
+        this.#rest.surfaces,
+      );
     return AutoMovieArchetypeFriction.pair(
       material,
       against,
@@ -448,14 +442,7 @@ export class AutoMovieArchetype<
     const properties: AutoMovieArchetypeMass.IProperties | null =
       this.#rest.properties;
     if (properties === null)
-      throw new AutoMovieArchetypeRefusal({
-        archetype: this.archetype,
-        kind: "parameter",
-        axis: "body",
-        value: null,
-        reason: "a visual-only model has no moment of inertia",
-        fix: "select a model with physical mass properties",
-      });
+      throw AutoMovieArchetypeMass.visualOnly(this.archetype);
     return AutoMovieArchetypeMass.about(properties, through, direction);
   }
 
@@ -474,10 +461,7 @@ export class AutoMovieArchetype<
   ): AutoMovieArchetypeFracture.IPieces<Id, Dimension> | null {
     if (this.#rest.properties === null) return null;
     const split: AutoMovieArchetypeFracture.IBroken<Id, Dimension> | null =
-      AutoMovieArchetypeFracture.split(
-        this.#rest as AutoMovieArchetype.IProps<Id, Dimension>,
-        hit,
-      );
+      AutoMovieArchetypeFracture.split(this.#rest, hit);
     if (split === null) return null;
     return {
       remainder:

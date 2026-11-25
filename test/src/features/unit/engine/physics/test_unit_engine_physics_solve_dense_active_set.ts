@@ -168,7 +168,12 @@ function enumerate(
         ) <=
         row.b + PhysicalTolerance.ACCUMULATED,
     );
-    if (!feasible || mu.some((value: number): boolean => value < -PhysicalTolerance.ACCUMULATED))
+    if (
+      !feasible ||
+      mu.some(
+        (value: number): boolean => value < -PhysicalTolerance.ACCUMULATED,
+      )
+    )
       continue;
     const cost: number =
       0.5 *
@@ -203,7 +208,8 @@ function gauss(matrix: number[][]): number[] | undefined {
     for (let row: number = col + 1; row < size; row++)
       if (Math.abs(matrix[row]![col]!) > Math.abs(matrix[pivot]![col]!))
         pivot = row;
-    if (Math.abs(matrix[pivot]![col]!) < PhysicalTolerance.ROUNDING) return undefined;
+    if (Math.abs(matrix[pivot]![col]!) < PhysicalTolerance.ROUNDING)
+      return undefined;
     [matrix[col], matrix[pivot]] = [matrix[pivot]!, matrix[col]!];
     for (let row: number = 0; row < size; row++) {
       if (row === col) continue;

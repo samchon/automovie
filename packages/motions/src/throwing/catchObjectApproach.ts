@@ -76,36 +76,22 @@ export function catchObjectApproach(
     const fall: number =
       launch.point.y - catchObjectApproach.TOSS * context.body.measure.stature;
     const vy: number = launch.velocity.y;
-    if (!(vy * vy + 2 * g * fall >= 0) || !(vy > 0))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "partner",
-        value: context.params.partner,
-        reason: "the toss never rises to the chest to be caught",
-        fix: "toss the object up, above the chest",
-      });
-    const flight: number = (vy + Math.sqrt(vy * vy + 2 * g * fall)) / g;
+    const flight: number = catchObjectApproach.tossFlight(
+      context.params.partner,
+      vy,
+      fall,
+    );
     return {
       contact: released + flight,
       speed: { ...launch.velocity, y: vy - g * flight },
       before: centre,
     };
   }
-  if (ahead <= 0 || !(closing > 0))
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "partner",
-      value: context.params.partner,
-      reason:
-        ahead <= 0
-          ? "the throw starts within the reach"
-          : "the throw never comes within reach",
-      fix:
-        ahead <= 0
-          ? "stand farther from the thrower, beyond the arms' reach of the release"
-          : "stand on the throw's path, or aim the throw at the catcher",
-    });
-  const flight: number = ahead / closing;
+  const flight: number = catchObjectApproach.meetFlight(
+    context.params.partner,
+    ahead,
+    closing,
+  );
   return {
     contact: released + flight,
     speed: {
@@ -133,4 +119,63 @@ export namespace catchObjectApproach {
    * the stature: the lower chest (provisional).
    */
   export const TOSS: number = 0.72;
+  /**
+   * How long a self-toss flies before it falls to the catch: the later root of
+   * `fall + vy t - g t² / 2 = 0`.
+   *
+   * @param partner The toss's anchor.
+   * @param vy The toss's rising speed, m/s.
+   * @param fall How far the release stands above the catch, metres.
+   * @returns Seconds.
+   * @throws {HumanRefusal} When the toss does not rise or never reaches the
+   *   catch's height.
+   */
+  export function tossFlight(
+    partner: string,
+    vy: number,
+    fall: number,
+  ): number {
+    const g: number = AutoMovieGravity.STANDARD;
+    if (!(vy * vy + 2 * g * fall >= 0) || !(vy > 0))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "partner",
+        value: partner,
+        reason: "the toss never rises to the chest to be caught",
+        fix: "toss the object up, above the chest",
+      });
+    return (vy + Math.sqrt(vy * vy + 2 * g * fall)) / g;
+  }
+
+  /**
+   * How long another's throw flies before it comes within reach: the distance
+   * ahead over the closing speed.
+   *
+   * @param partner The throw's anchor.
+   * @param ahead How far the release lies beyond the reach, metres.
+   * @param closing The throw's closing speed, m/s.
+   * @returns Seconds.
+   * @throws {HumanRefusal} When the throw starts within reach or never closes.
+   */
+  export function meetFlight(
+    partner: string,
+    ahead: number,
+    closing: number,
+  ): number {
+    if (ahead <= 0 || !(closing > 0))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "partner",
+        value: partner,
+        reason:
+          ahead <= 0
+            ? "the throw starts within the reach"
+            : "the throw never comes within reach",
+        fix:
+          ahead <= 0
+            ? "stand farther from the thrower, beyond the arms' reach of the release"
+            : "stand on the throw's path, or aim the throw at the catcher",
+      });
+    return ahead / closing;
+  }
 }

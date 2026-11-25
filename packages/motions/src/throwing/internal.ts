@@ -3,3 +3,5 @@
 export * from "./throwObjectCurve";
 export * from "./throwObjectLaunch";
 export * from "./stageDeflectRebound";
+export * from "./catchObjectApproach";
+export * from "./release";

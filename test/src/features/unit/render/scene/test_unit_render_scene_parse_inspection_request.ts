@@ -16,14 +16,14 @@ import { TestValidator } from "@nestia/e2e";
  *    are refused.
  */
 export function test_unit_render_scene_parse_inspection_request(): void {
-  const read = (
-    values: Record<string, string>,
-  ): IAutoMovieInspectionRequest =>
-    parseAutoMovieInspectionRequest((key: string): string | undefined =>
-      Object.hasOwn(values, key) ? values[key] : undefined,
+  const read = (entries: [string, string][]): IAutoMovieInspectionRequest => {
+    const values: Map<string, string> = new Map<string, string>(entries);
+    return parseAutoMovieInspectionRequest((key: string): string | undefined =>
+      values.get(key),
     );
+  };
 
-  const absent: IAutoMovieInspectionRequest = read({});
+  const absent: IAutoMovieInspectionRequest = read([]);
   TestValidator.equals(
     "absent",
     {
@@ -54,15 +54,15 @@ export function test_unit_render_scene_parse_inspection_request(): void {
     },
   );
 
-  const given: IAutoMovieInspectionRequest = read({
-    parts: "hero,lamp",
-    shade: "depth",
-    surface: "0",
-    xray: "",
-    stroke: "4",
-    color: "hero=ff8800",
-    reach: "2",
-  });
+  const given: IAutoMovieInspectionRequest = read([
+    ["parts", "hero,lamp"],
+    ["shade", "depth"],
+    ["surface", "0"],
+    ["xray", ""],
+    ["stroke", "4"],
+    ["color", "hero=ff8800"],
+    ["reach", "2"],
+  ]);
   TestValidator.equals(
     "given",
     {
@@ -85,8 +85,12 @@ export function test_unit_render_scene_parse_inspection_request(): void {
     },
   );
 
-  for (const bad of [{ shade: "shiny" }, { stroke: "0" }, { xray: "maybe" }])
+  for (const bad of [
+    ["shade", "shiny"],
+    ["stroke", "0"],
+    ["xray", "maybe"],
+  ] satisfies [string, string][])
     TestValidator.error(JSON.stringify(bad), (): void => {
-      read(bad);
+      read([bad]);
     });
 }

@@ -12,12 +12,6 @@ import { createLantern } from "./createLantern";
 import { createPendantLamp } from "./createPendantLamp";
 import { createStandingLamp } from "./createStandingLamp";
 
-/** A saved recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createLight.IParams,
-  seed?: number,
-) => AutoMovieArchetype<createLight.Affordance, createLight.Dimension>;
-
 /**
  * Replay a saved light variant with the original dimensions, identifier and
  * model choices.
@@ -42,8 +36,7 @@ export function createLight(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createLight.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createLight.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createLight}. */

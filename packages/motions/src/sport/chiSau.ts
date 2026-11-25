@@ -92,6 +92,24 @@ export namespace chiSau {
   export const BLEND: number = 0.5;
 
   /**
+   * Chi sau's timetable: `count` cycles of `CYCLE` (four by default) unless a
+   * duration is given, joined and parted over a blend of `BLEND` or a quarter
+   * of the whole, whichever is shorter.
+   *
+   * @param p The cycles and the duration.
+   * @returns The clock with `joined` and `parted`.
+   */
+  export function timetable(
+    p: Pick<IAutoMovieMotionHumanChiSau.IParams, "count" | "duration">,
+  ): IAutoMovieMotionClock {
+    const duration: number = p.duration ?? (p.count ?? 4) * CYCLE;
+    const blend: number = Math.min(BLEND, duration / 4);
+    return AutoMovieMotionClock(duration, [
+      { name: "joined", seconds: blend },
+      { name: "parted", seconds: duration - blend },
+    ]);
+  }
+  /**
    * Plan chi sau.
    *
    * @param context The action's context.
@@ -112,13 +130,9 @@ export namespace chiSau {
       });
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const clock: IAutoMovieMotionClock = timetable(p);
+    const duration: number = clock.duration;
     const cycles: number = p.count ?? 4;
-    const duration: number = p.duration ?? cycles * CYCLE;
-    const blend: number = Math.min(BLEND, duration / 4);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
-      { name: "joined", seconds: blend },
-      { name: "parted", seconds: duration - blend },
-    ]);
     const first: boolean = context.subject < p.partner;
 
     // The roll reads the partner's placed root, so it is solved when the plan

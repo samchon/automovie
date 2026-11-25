@@ -17,6 +17,7 @@ import type {
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
+import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
@@ -24,7 +25,6 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  * projection's micrometre residual on a lever of order 0.1 m.
  */
 const PROJECTED_ANGLE: number = 1e-5;
-import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
 
 /**
  * Directional reference support follows arbitrary collider offsets and
@@ -86,7 +86,9 @@ export async function test_unit_engine_physics_physical_point_projection(): Prom
       result.targets.source!.position.y - 1,
       result.targets.source!.position.x,
     );
-    assert.ok(Math.abs(actual - Math.asin(height + 0.01 - 1)) < PROJECTED_ANGLE);
+    assert.ok(
+      Math.abs(actual - Math.asin(height + 0.01 - 1)) < PROJECTED_ANGLE,
+    );
     assert.ok(result.residuals[base.id]! < PhysicalTolerance.CONVERGED);
   }
   const own: Bound = {
@@ -99,7 +101,8 @@ export async function test_unit_engine_physics_physical_point_projection(): Prom
     same.targets.source!.position.x,
   );
   assert.ok(
-    Math.abs(angle - Math.PI / 4 - Math.asin(0.01 / Math.SQRT2)) < PROJECTED_ANGLE,
+    Math.abs(angle - Math.PI / 4 - Math.asin(0.01 / Math.SQRT2)) <
+      PROJECTED_ANGLE,
   );
   const axis: V = Vector3.normalize({ x: 1, y: 2, z: -1 });
   const pose: IAutoMovieRigidTransform = {

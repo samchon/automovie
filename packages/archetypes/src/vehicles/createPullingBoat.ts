@@ -55,10 +55,17 @@ function outfit(
 ): void {
   const e: typeof createBoat.ESTIMATES = createBoat.ESTIMATES;
   const seat: number = gunwale - createBoat.LAUNCH.below;
+  const thwarts: readonly createBoat.Affordance[] = [
+    "thwart0",
+    "thwart1",
+    "thwart2",
+    "thwart3",
+    "thwart4",
+  ];
   for (let k: number = 0; k < createBoat.LAUNCH.thwarts; k++)
     BoatHull.thwart(
       builder,
-      `thwart${k}` as createBoat.Affordance,
+      thwarts[k]!,
       seat,
       (k - (createBoat.LAUNCH.thwarts - 1) / 2) * createBoat.LAUNCH.room -
         createBoat.THWART / 2,

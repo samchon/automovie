@@ -36,6 +36,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
+import { admitHeldWork } from "./admitHeldWork";
 import { heldDigits } from "./heldDigits";
 import { pickUp } from "./pickUp";
 import { workHeldPush } from "./workHeldPush";
@@ -104,34 +105,7 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeldWork.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanHeldWork.IParams = context.params;
-  if (
-    (p.drive === undefined || p.drive.length === 0) &&
-    p.at === undefined &&
-    p.take === undefined
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "drive",
-      value: "absent",
-      feasible: { kind: "alternatives", values: ["drive", "at", "take"] },
-      reason:
-        "a held work drives an articulation, moves the prop or takes a prop",
-      fix: "give `drive`, `at` or `take`",
-    });
-  if (!(p.duration > 0))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "duration",
-      value: p.duration,
-      feasible: {
-        kind: "range",
-        minimum: 0,
-        maximum: Number.MAX_VALUE,
-        unit: "s",
-      },
-      reason: "a held work needs a finite positive duration",
-      fix: "give the work's duration in seconds",
-    });
+  admitHeldWork(p);
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.prop ? "left" : "right");
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(

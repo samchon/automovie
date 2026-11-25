@@ -40,9 +40,9 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  *    weight, and no position error enters it.
  * 7. Bounds: the swing's acceleration bound is the hip's torque over `m_eff l`,
  *    160 / (2 x 0.8); a swing lasts at least 0.3 s, and over 0.5 m at 10 m/s^2
- *    `sqrt(MINIMUM_JERK 0.5 / 10)`; the clearance a stance can carry is
- *    `min(h, LIFT_SHARE m g T^2 / CLEARANCE)`; angular momentum k shifts the
- *    capture point by `omega / (m g) k x y`.
+ *    `sqrt(MINIMUM_JERK 0.5 / 10)`; the clearance a stance can carry is `min(h,
+ *    LIFT_SHARE m g T^2 / CLEARANCE)`; angular momentum k shifts the capture
+ *    point by `omega / (m g) k x y`.
  */
 export function test_unit_engine_physics_physical_stance_swing(): void {
   const failures: string[] = [];
@@ -176,11 +176,16 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
     ((TORSO_ERROR / 2) * 180) / Math.PI,
   );
   const kept = physicalStanceBalance.saturate(identity, small, TORSO_ERROR);
-  if (!(Math.abs(angleOf(kept) - TORSO_ERROR / 2) < PhysicalTolerance.ACCUMULATED))
+  if (
+    !(Math.abs(angleOf(kept) - TORSO_ERROR / 2) < PhysicalTolerance.ACCUMULATED)
+  )
     failures.push(`a small error became ${angleOf(kept)}`);
   const large = Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 60);
   const cut = physicalStanceBalance.saturate(identity, large, TORSO_ERROR);
-  if (!(Math.abs(angleOf(cut) - TORSO_ERROR) < PhysicalTolerance.ACCUMULATED) || !(cut.z > 0))
+  if (
+    !(Math.abs(angleOf(cut) - TORSO_ERROR) < PhysicalTolerance.ACCUMULATED) ||
+    !(cut.z > 0)
+  )
     failures.push(`a large error became ${angleOf(cut)} about ${cut.z}`);
 
   // 6. The swing's drive: 6.2 kg at rest, then accelerating.
@@ -189,7 +194,11 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
     gravity: 9.81,
     acceleration: { x: 0, y: 0, z: 0 },
   });
-  if (!(Math.abs(rest.y - 6.2 * 9.81) < PhysicalTolerance.ACCUMULATED) || rest.x !== 0 || rest.z !== 0)
+  if (
+    !(Math.abs(rest.y - 6.2 * 9.81) < PhysicalTolerance.ACCUMULATED) ||
+    rest.x !== 0 ||
+    rest.z !== 0
+  )
     failures.push(`a resting swing is driven by ${JSON.stringify(rest)}`);
   const moving = physicalStanceSwing.swingForce({
     mass: 6.2,
@@ -207,7 +216,12 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
 
   // 7. Bounds.
   const near = (name: string, actual: number, expected: number): void => {
-    if (!(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))))
+    if (
+      !(
+        Math.abs(actual - expected) <=
+        PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))
+      )
+    )
       failures.push(`${name}: ${actual} against ${expected}`);
   };
   near(
@@ -227,7 +241,11 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
     (physicalStanceSwing.LIFT_SHARE * 8 * 9.81 * 0.09) /
       AutoMoviePhysicalBalance.CLEARANCE,
   );
-  near("kept clearance", physicalStanceSwing.clearance(1, 8, 1, 9.81, 0.1), 0.1);
+  near(
+    "kept clearance",
+    physicalStanceSwing.clearance(1, 8, 1, 9.81, 0.1),
+    0.1,
+  );
   const shifted: IAutoMovieVector3 = physicalStanceSwing.spin(
     { x: 2, y: 0, z: -1 },
     3,

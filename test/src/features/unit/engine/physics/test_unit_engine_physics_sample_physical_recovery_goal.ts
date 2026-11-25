@@ -9,8 +9,8 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * How far a sampled rate may stand from its centred difference, relative: the
- * difference's own second-order error over its step, with a microsecond read
- * at either end, both under 1e-4.
+ * difference's own second-order error over its step, with a microsecond read at
+ * either end, both under 1e-4.
  */
 const DIFFERENCE: number = 1e-4;
 
@@ -74,7 +74,9 @@ export function test_unit_engine_physics_sample_physical_recovery_goal(): void {
     (AutoMoviePhysicalBalance.MINIMUM_JERK * Math.hypot(dx, dz)) / (T * T);
   const a = sample(peak).acceleration;
   const actual: number = Math.hypot(a.x, a.z);
-  if (!(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED * expected))
+  if (
+    !(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED * expected)
+  )
     failures.push(`peak ${actual} against ${expected}`);
   // The clearance leaves and meets the floor at rest, and its acceleration
   // peaks at lift-off and touchdown.
@@ -84,7 +86,9 @@ export function test_unit_engine_physics_sample_physical_recovery_goal(): void {
       failures.push(`vertical speed ${vy} at ${seconds}, not at rest`);
   }
   const middle: number = sample(T / 2).acceleration.y;
-  if (!(Math.abs(middle + (16 * 0.05) / (T * T)) < PhysicalTolerance.ACCUMULATED))
+  if (
+    !(Math.abs(middle + (16 * 0.05) / (T * T)) < PhysicalTolerance.ACCUMULATED)
+  )
     failures.push(`mid-swing vertical acceleration ${middle}, not -16 h / T^2`);
   const start: number = sample(1e-9).acceleration.y;
   const peakUp: number = (AutoMoviePhysicalBalance.CLEARANCE * 0.05) / (T * T);

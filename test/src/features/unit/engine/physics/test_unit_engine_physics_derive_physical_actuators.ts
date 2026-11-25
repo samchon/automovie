@@ -8,9 +8,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * Joint gains include an attached payload through a tiny intermediate carrier.
@@ -74,18 +73,22 @@ export function test_unit_engine_physics_derive_physical_actuators(): void {
   );
   TestValidator.predicate(
     "downstream transverse inertia",
-    Math.abs(joints[0]!.axes[1]!.stiffness - 220.1) < PhysicalTolerance.ACCUMULATED,
+    Math.abs(joints[0]!.axes[1]!.stiffness - 220.1) <
+      PhysicalTolerance.ACCUMULATED,
   );
   TestValidator.predicate(
     "active axial gain retains the transverse load bound",
-    Math.abs(joints[0]!.axes[0]!.stiffness - 220.1) < PhysicalTolerance.ACCUMULATED,
+    Math.abs(joints[0]!.axes[0]!.stiffness - 220.1) <
+      PhysicalTolerance.ACCUMULATED,
   );
   TestValidator.predicate(
     "downstream torque mass",
-    Math.abs(joints[0]!.axes[1]!.maximumTorque - 6.03) < PhysicalTolerance.ACCUMULATED,
+    Math.abs(joints[0]!.axes[1]!.maximumTorque - 6.03) <
+      PhysicalTolerance.ACCUMULATED,
   );
   TestValidator.predicate(
     "declared passive friction",
-    Math.abs(joints[0]!.axes[1]!.passiveDamping! - 11.005) < PhysicalTolerance.ACCUMULATED,
+    Math.abs(joints[0]!.axes[1]!.passiveDamping! - 11.005) <
+      PhysicalTolerance.ACCUMULATED,
   );
 }

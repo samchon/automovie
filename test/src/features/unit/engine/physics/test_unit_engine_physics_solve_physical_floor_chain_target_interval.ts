@@ -6,9 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * A real bounded articulation starting exactly on the floor can lift into
@@ -43,6 +42,7 @@ export function test_unit_engine_physics_solve_physical_floor_chain_target_inter
   TestValidator.predicate(
     "an exact floor inequality does not pin the requested departure",
     lifted.residual < PhysicalTolerance.CONVERGED &&
-      Math.abs(lifted.targets.source!.position.y - 1.1) < PhysicalTolerance.CONVERGED,
+      Math.abs(lifted.targets.source!.position.y - 1.1) <
+        PhysicalTolerance.CONVERGED,
   );
 }

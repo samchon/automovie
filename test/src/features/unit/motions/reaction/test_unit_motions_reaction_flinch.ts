@@ -9,11 +9,11 @@ import { nclose } from "../../../internal/nclose";
 
 /**
  * The `flinch` law's timetable (`flinch.timetable`): no preparation, the rise
- * to the `stroke` and the return, both stretched by the manner's tempo, the
- * stroke's start never moved.
+ * to the `stroke` kept at its reflex length, and the return stretched by the
+ * manner's tempo.
  *
- * Scenario: twice as slow, the flinch starts at once, reaches its stroke at
- * twice the neutral time and ends at twice the neutral length.
+ * Scenario: twice as slow, the flinch still strikes at its neutral time, and
+ * its return after the stroke takes twice the neutral time.
  */
 export function test_unit_motions_reaction_flinch(): void {
   const slow: IAutoMovieMotionManner.IModifiers = {
@@ -29,7 +29,11 @@ export function test_unit_motions_reaction_flinch(): void {
     neutral.at("strokeStart") === 0 &&
       neutral.at("stroke") > 0 &&
       late.at("strokeStart") === 0 &&
-      nclose(late.at("stroke"), 2 * neutral.at("stroke"), 1e-12) &&
-      nclose(late.duration, 2 * neutral.duration, 1e-12),
+      nclose(late.at("stroke"), neutral.at("stroke"), 1e-12) &&
+      nclose(
+        late.duration - late.at("stroke"),
+        2 * (neutral.duration - neutral.at("stroke")),
+        1e-12,
+      ),
   );
 }

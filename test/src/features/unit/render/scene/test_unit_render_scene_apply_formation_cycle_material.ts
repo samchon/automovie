@@ -1,5 +1,5 @@
-import type { IAutoMovieFormationCycle } from "@automovie/render";
 import {
+  type IAutoMovieFormationCycle,
   applyFormationCycleMaterial,
   readMaterialShaderPatches,
 } from "@automovie/render";

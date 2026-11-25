@@ -11,21 +11,20 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import assert from "node:assert/strict";
 
+import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+import { nclose } from "../../../internal/predicates";
 
 /** The fit's residual tolerance, metres, and the residual it is held to. */
 const SOLVE: number = 1e-8;
 
 /**
- * How far the fitted turn may miss its closed form, radians: the residual on
- * a unit link moves the turn by at most the residual, here ten times over.
+ * How far the fitted turn may miss its closed form, radians: the residual on a
+ * unit link moves the turn by at most the residual, here ten times over.
  */
 const TURN: number = 10 * SOLVE;
-import assert from "node:assert/strict";
-
-import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
-import { nclose } from "../../../internal/predicates";
 
 /** Borrowed candidate placements for direct primitive arithmetic. */
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
@@ -108,7 +107,11 @@ export function test_unit_engine_physics_linearize_physical_target_rows(): void 
     );
     TestValidator.predicate(
       "fixed joint anchor " + joint.id,
-      nclose(Vector3.length(Vector3.subtract(first, second)), 0, PhysicalTolerance.ROUNDING),
+      nclose(
+        Vector3.length(Vector3.subtract(first, second)),
+        0,
+        PhysicalTolerance.ROUNDING,
+      ),
     );
   }
 

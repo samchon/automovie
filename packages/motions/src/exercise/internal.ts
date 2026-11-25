@@ -29,3 +29,8 @@ export * from "./ropeSkipHop";
 export * from "./workoutContacts";
 export * from "./stretchHoldClock";
 export * from "./prepareDanceBeats";
+export * from "./lineWalk";
+export * from "./workoutSpans";
+export * from "./groupDance";
+export * from "./stiltWalk";
+export * from "./trampolineBounce";

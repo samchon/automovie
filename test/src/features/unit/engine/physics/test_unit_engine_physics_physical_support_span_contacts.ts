@@ -65,7 +65,8 @@ export function test_unit_engine_physics_physical_support_span_contacts(): void 
         beyond.length >= 3 &&
           beyond.every(
             (p) =>
-              Math.hypot(p.x - lift.x, p.y - lift.y) <= 0.6 + PhysicalTolerance.ACCUMULATED &&
+              Math.hypot(p.x - lift.x, p.y - lift.y) <=
+                0.6 + PhysicalTolerance.ACCUMULATED &&
               Math.hypot(p.x, p.y) <= 1.0 + PhysicalTolerance.ACCUMULATED,
           ),
       );
@@ -82,7 +83,10 @@ export function test_unit_engine_physics_physical_support_span_contacts(): void 
     );
     TestValidator.predicate(
       `${n}: even shares`,
-      even.every((share: number): boolean => Math.abs(share - 1 / n) < PhysicalTolerance.ACCUMULATED),
+      even.every(
+        (share: number): boolean =>
+          Math.abs(share - 1 / n) < PhysicalTolerance.ACCUMULATED,
+      ),
     );
     const pivot: { x: number; z: number } =
       n === 2
@@ -105,7 +109,9 @@ export function test_unit_engine_physics_physical_support_span_contacts(): void 
         PhysicalTolerance.ACCUMULATED &&
         Math.abs(at("x") - pivot.x) < PhysicalTolerance.ACCUMULATED &&
         Math.abs(at("z") - pivot.z) < PhysicalTolerance.ACCUMULATED &&
-        shares.every((share: number): boolean => share >= -PhysicalTolerance.ROUNDING),
+        shares.every(
+          (share: number): boolean => share >= -PhysicalTolerance.ROUNDING,
+        ),
     );
   }
 

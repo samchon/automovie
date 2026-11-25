@@ -70,16 +70,7 @@ export function createHolster(
     params.kind ?? "holster",
     createHolster.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createHolster.IParams,
-      seed?: number,
-    ): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension>;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createHolster.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createHolster.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types, constants and bands of {@link createHolster}. */

@@ -7,6 +7,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+import { nclose, vclose } from "../../../internal/predicates";
 
 /**
  * How far a led flight may meet its moving target off the target, metres: the
@@ -14,8 +15,6 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  * 3 m/s and a launch of 20 m/s turn into well under a millimetre.
  */
 const MEETING: number = 1e-3;
-
-import { nclose, vclose } from "../../../internal/predicates";
 
 /** Earth's gravity as the solvers default it. */
 const GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
@@ -67,7 +66,11 @@ export function test_unit_engine_physics_solve_moving_launch(): void {
         16,
         PhysicalTolerance.CONVERGED,
       ) &&
-      vclose(flown(held.velocity, held.hitTime), still, PhysicalTolerance.CONVERGED),
+      vclose(
+        flown(held.velocity, held.hitTime),
+        still,
+        PhysicalTolerance.CONVERGED,
+      ),
   );
 
   // 2. A sliding target.
@@ -81,7 +84,11 @@ export function test_unit_engine_physics_solve_moving_launch(): void {
   TestValidator.predicate(
     "a sliding target",
     lead.hitTime > 0 &&
-      vclose(flown(lead.velocity, lead.hitTime), slide(lead.hitTime), MEETING) &&
+      vclose(
+        flown(lead.velocity, lead.hitTime),
+        slide(lead.hitTime),
+        MEETING,
+      ) &&
       partial !== null &&
       partial.hitTime > 0 &&
       !nclose(partial.hitTime, lead.hitTime, PhysicalTolerance.CONVERGED),

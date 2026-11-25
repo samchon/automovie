@@ -170,7 +170,8 @@ export function test_unit_engine_physics_distribute_physical_support_wrench(): v
   });
   TestValidator.predicate(
     "one point cannot supply yaw torque",
-    Math.abs(yaw.torque.y) < PhysicalTolerance.ROUNDING && yaw.residual.torque.y === 5,
+    Math.abs(yaw.torque.y) < PhysicalTolerance.ROUNDING &&
+      yaw.residual.torque.y === 5,
   );
   const flight: ReturnType<typeof distribute> = distribute({
     origin,

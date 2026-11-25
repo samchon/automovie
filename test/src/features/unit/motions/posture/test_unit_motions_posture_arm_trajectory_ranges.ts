@@ -33,15 +33,17 @@ export function test_unit_motions_posture_arm_trajectory_ranges(): void {
   const c: Parameters<typeof HumanArmTrajectoryRangeExcess>[0] = {
     free: [[0, 1, 2]],
     bounds: [[null, null, [-10, 10]]],
-    rest: [[0, 0, 0]],
-    back: [[0, 0, 0]],
   };
   TestValidator.predicate(
     "the excess",
-    HumanArmTrajectoryRangeExcess(c, 0, [0, 0, 5]) < 0 &&
-      nclose(HumanArmTrajectoryRangeExcess(c, 0, [0, 0, 12]), 200, 1e-9) &&
+    HumanArmTrajectoryRangeExcess(c, 0, [0, 0, 5], scale) < 0 &&
       nclose(
-        HumanArmTrajectoryRangeExcess(c, 0, [1.5 * scale, 0, 0]),
+        HumanArmTrajectoryRangeExcess(c, 0, [0, 0, 12], scale),
+        200,
+        1e-9,
+      ) &&
+      nclose(
+        HumanArmTrajectoryRangeExcess(c, 0, [1.5 * scale, 0, 0], scale),
         50 * scale,
         1e-9,
       ),

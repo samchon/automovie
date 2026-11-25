@@ -15,7 +15,8 @@ import { ExerciseKey } from "./ExerciseKey";
 export function workoutSpans(
   props: workoutSpans.IProps,
 ): workoutSpans.IPlanned {
-  const kind: IAutoMovieMotionHumanWorkoutKind = props.kind;
+  const kind: Pick<IAutoMovieMotionHumanWorkoutKind, "alternate" | "enter"> =
+    props.kind;
   const route: readonly IAutoMovieMotionHumanWorkoutKind.IStep[] = props.route;
   const reps: number = props.reps;
   const first: IAutoMovieMotionHumanWorkoutKind.IStep = route[0]!;
@@ -126,8 +127,8 @@ export namespace workoutSpans {
 
   /** What the spans are built from. */
   export interface IProps {
-    /** The exercise. */
-    kind: IAutoMovieMotionHumanWorkoutKind;
+    /** The exercise: whether it alternates sides and its way up. */
+    kind: Pick<IAutoMovieMotionHumanWorkoutKind, "alternate" | "enter">;
 
     /** The kind's route for this body and support. */
     route: readonly IAutoMovieMotionHumanWorkoutKind.IStep[];

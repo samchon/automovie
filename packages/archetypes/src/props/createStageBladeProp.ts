@@ -31,19 +31,7 @@ export function createStageBladeProp(
     params.kind,
     createStageBladeProp.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createStageBladeProp.IParams,
-      seed?: number,
-    ): AutoMovieArchetype<
-      createStageBladeProp.Affordance,
-      createStageBladeProp.Dimension
-    >;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createStageBladeProp.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createStageBladeProp.PRODUCERS[kind](params, seed);
 }
 
 /** Authoring controls for the padded blade silhouette. */

@@ -10,11 +10,10 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 import { nclose } from "../../../internal/predicates";
 
 /**
@@ -84,7 +83,8 @@ export async function test_unit_engine_physics_physical_contact_support_rows(): 
   const floating: number[] = rows[1]!.measure(raised);
   TestValidator.predicate(
     "floating original endpoint and planted witness retain their errors",
-    nclose(floating[1]!, 0.1, PhysicalTolerance.ROUNDING) && nclose(floating[3]!, 0.1, PhysicalTolerance.ROUNDING),
+    nclose(floating[1]!, 0.1, PhysicalTolerance.ROUNDING) &&
+      nclose(floating[3]!, 0.1, PhysicalTolerance.ROUNDING),
   );
   TestValidator.predicate(
     "nonpenetration cannot substitute for the planted witness equality",
@@ -105,7 +105,11 @@ export async function test_unit_engine_physics_physical_contact_support_rows(): 
   assert.equal(withoutWitness[1]!.measure(raised).length, 4);
   TestValidator.predicate(
     "a witness-free patch retains complete-surface plane equality",
-    nclose(withoutWitness[1]!.measure(raised)[3]!, 0.1, PhysicalTolerance.ROUNDING),
+    nclose(
+      withoutWitness[1]!.measure(raised)[3]!,
+      0.1,
+      PhysicalTolerance.ROUNDING,
+    ),
   );
   assert.equal(JSON.stringify({ profile, support, targets }), before);
   for (const invalid of [

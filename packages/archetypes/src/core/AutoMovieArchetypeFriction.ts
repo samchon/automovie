@@ -1,4 +1,5 @@
 import { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
  * Friction by material pair: what a part's surface is made of, and the static
@@ -13,6 +14,32 @@ import { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
  * measured is refused, never guessed.
  */
 export namespace AutoMovieArchetypeFriction {
+  /**
+   * The refusal for a part whose surface its producer did not declare.
+   *
+   * @param archetype The producer's name.
+   * @param owner The archetype's name or id.
+   * @param part The part named.
+   * @param surfaces The surfaces the producer declared, by part.
+   * @returns The refusal to throw, listing the parts that do declare one.
+   */
+  export function undeclared(
+    archetype: string,
+    owner: string,
+    part: string,
+    surfaces: Readonly<Record<string, unknown>>,
+  ): AutoMovieArchetypeRefusal {
+    return new AutoMovieArchetypeRefusal({
+      kind: "parameter",
+      archetype,
+      axis: "surface",
+      value: part,
+      feasible: { kind: "alternatives", values: Object.keys(surfaces) },
+      reason: `${owner} declares no surface for its part "${part}"`,
+      fix: "name a part whose surface the producer declares",
+    });
+  }
+
   /**
    * What a surface is made of:
    *
@@ -84,8 +111,6 @@ export namespace AutoMovieArchetypeFriction {
    * @returns The value.
    */
   export function value(value: number | readonly [number, number]): number {
-    // A bare number is its own one-element range.
-    const range: readonly number[] = [value].flat();
-    return (range[0]! + range[range.length - 1]!) / 2;
+    return typeof value === "number" ? value : (value[0] + value[1]) / 2;
   }
 }

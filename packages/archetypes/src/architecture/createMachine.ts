@@ -28,12 +28,7 @@ export function createMachine(
   );
 
   // Saved recipes may state any model. The canonical draw checks it against this kind's table.
-  const produce: (
-    params: createMachine.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createMachine.Affordance, createMachine.Dimension> =
-    createMachine.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createMachine.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createMachine}. */

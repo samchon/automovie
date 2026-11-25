@@ -38,14 +38,7 @@ export function createStreetFixture(
   );
 
   // Saved recipes may state any model. The canonical draw checks it against this kind's table.
-  const produce: (
-    params: createStreetFixture.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<
-    createStreetFixture.Affordance,
-    createStreetFixture.Dimension
-  > = createStreetFixture.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createStreetFixture.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createStreetFixture}. */

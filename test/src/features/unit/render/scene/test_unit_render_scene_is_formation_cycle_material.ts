@@ -1,5 +1,5 @@
-import type { IAutoMovieFormationCycle } from "@automovie/render";
 import {
+  type IAutoMovieFormationCycle,
   applyDualQuaternionSkinning,
   applyFormationCycleMaterial,
   isAutoMovieFormationCycleMaterial,

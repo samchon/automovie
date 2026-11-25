@@ -98,7 +98,10 @@ export function test_unit_engine_physics_physical_leg_capacity(): void {
   else {
     const front: number = Math.max(...region.map((p) => p.z));
     const back: number = Math.min(...region.map((p) => p.z));
-    if (!(Math.abs(front - 0.16) < PhysicalTolerance.ROUNDING) || !(Math.abs(back + 0.4) < PhysicalTolerance.ROUNDING))
+    if (
+      !(Math.abs(front - 0.16) < PhysicalTolerance.ROUNDING) ||
+      !(Math.abs(back + 0.4) < PhysicalTolerance.ROUNDING)
+    )
       failures.push(
         `the region spans ${back} to ${front} against -0.4 to 0.16`,
       );
@@ -111,7 +114,10 @@ export function test_unit_engine_physics_physical_leg_capacity(): void {
       support: region,
     });
     const share: number = (allocated.pressure.z + 0.2) / (0.4 + 0.2);
-    if (!(Math.abs(allocated.pressure.z - 0.16) < PhysicalTolerance.ROUNDING) || share > 0.6 + PhysicalTolerance.ROUNDING)
+    if (
+      !(Math.abs(allocated.pressure.z - 0.16) < PhysicalTolerance.ROUNDING) ||
+      share > 0.6 + PhysicalTolerance.ROUNDING
+    )
       failures.push(
         `a command ahead is allocated at ${allocated.pressure.z}, the front foot's share ${share}`,
       );

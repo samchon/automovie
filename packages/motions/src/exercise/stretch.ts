@@ -107,24 +107,17 @@ export namespace stretch {
   export const KNEE: number = 130;
 
   /**
-   * Plan a stretch.
+   * The stretch's timetable: entered over `ENTER`, held `hold`, left over
+   * `ENTER`, the manner's tempo and hold factor applied, with its own cues.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * @param hold The held seconds.
+   * @param modifiers The manner's timing.
+   * @returns The clock.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const p: IAutoMovieMotionHumanStretch.IParams = context.params;
-    const hold: number = p.hold ?? HOLD;
-    HumanBound.least("hold", hold, 0, "s");
-    const level: IAutoMovieMotionHumanRange.Level =
-      INTENSITY[p.depth ?? "moderate"];
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
-      context,
-      p.manner,
-    );
+  export function timetable(
+    hold: number,
+    modifiers: IAutoMovieMotionManner.IModifiers,
+  ): IAutoMovieMotionClock {
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
@@ -151,6 +144,28 @@ export namespace stretch {
         seconds: (timed.at("relax") + timed.duration) / 2,
       },
     ]);
+    return clock;
+  }
+  /**
+   * Plan a stretch.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} When the hold is negative.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanStretch.IParams = context.params;
+    const hold: number = p.hold ?? HOLD;
+    HumanBound.least("hold", hold, 0, "s");
+    const level: IAutoMovieMotionHumanRange.Level =
+      INTENSITY[p.depth ?? "moderate"];
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
+    const clock: IAutoMovieMotionClock = timetable(hold, modifiers);
     const build = (
       local: IAutoMovieMotionClock,
       prepared: boolean = false,

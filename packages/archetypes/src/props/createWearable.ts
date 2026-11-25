@@ -28,12 +28,7 @@ export function createWearable(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createWearable.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createWearable.Affordance, createWearable.Dimension> =
-    createWearable.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createWearable.PRODUCERS[kind](params, seed);
 }
 
 /** Compatibility tables and types for saved wearable recipes. */

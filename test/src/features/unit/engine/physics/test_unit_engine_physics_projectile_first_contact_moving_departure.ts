@@ -10,6 +10,9 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+import { ProjectileMovingPartFixture as Part } from "../../../internal/ProjectileMovingPartFixture";
+import { nclose } from "../../../internal/nclose";
+import { vclose } from "../../../internal/vclose";
 
 /**
  * How far a moving collider's first contact may stand from its closed form,
@@ -17,10 +20,6 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  * stops at about 1e-7.
  */
 const NATIVE: number = 1e-7;
-
-import { ProjectileMovingPartFixture as Part } from "../../../internal/ProjectileMovingPartFixture";
-import { nclose } from "../../../internal/nclose";
-import { vclose } from "../../../internal/vclose";
 
 /**
  * Report a ball's first new contact after a certified moving-shape departure.

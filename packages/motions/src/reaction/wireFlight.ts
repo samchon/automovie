@@ -145,7 +145,7 @@ export namespace wireFlight {
   ): IAutoMovieMotionHumanActionPlan {
     const seconds: number = context.params.duration;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const { points, lengths, total, travel, heading }: wireFlight.IPath = path(
+    const { points, lengths, total, heading }: wireFlight.IPath = path(
       seconds,
       entry,
       context.params.via ?? [],

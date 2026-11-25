@@ -40,7 +40,7 @@ export function test_unit_engine_math_bracketed_crossing(): void {
     past,
     low: 0,
     high: 1,
-    known: { low: -0.3, high: 0.7 },
+    known: { low: f(0), high: f(1) },
     tolerance: 1e-9,
   });
   TestValidator.equals(

@@ -23,7 +23,6 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { CollapseFold } from "./CollapseFold";
@@ -86,7 +85,6 @@ export namespace collapse {
             : { hold: context.params.hold }),
         },
       });
-    const sag: number = context.params.sag ?? 0;
     const clock: IAutoMovieMotionClock = collapseClock(context.params);
 
     const body: IAutoMovieMotionHumanBody = context.body;

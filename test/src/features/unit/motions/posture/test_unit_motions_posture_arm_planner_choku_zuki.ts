@@ -16,10 +16,10 @@ import { armPlannerFixture } from "../../../internal/armPlanner/armPlannerFixtur
  *
  * Scenarios:
  *
- * 1. The laid course is refused for its sweep (the problem reaches the solve),
- *    and the solve admits a trajectory, raising no refusal.
- * 2. Every hold frame's hand lies within its site's disc, every instant every 5
- *    ms within the joints' ranges, the model's reading of the played grid within
+ * 1. The laid course is refused for its sweep (the problem reaches the solve), and
+ *    the solve admits a trajectory, raising no refusal.
+ * 2. Every hold frame's hand lies within its site's disc, every instant every 5 ms
+ *    within the joints' ranges, the model's reading of the played grid within
  *    its tolerance (nothing interpenetrates), and the played arm C2 across
  *    every knot.
  * 3. Solving the same problem again gives the same solution, bit for bit.

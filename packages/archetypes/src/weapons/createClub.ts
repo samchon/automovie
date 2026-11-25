@@ -25,12 +25,7 @@ export function createClub(
   );
 
   // The stored input can carry any former choice. The selected draw admits only its own profile.
-  const produce: (
-    params: createClub.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createClub.Affordance, createClub.Dimension> =
-    createClub.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createClub.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createClub}. */

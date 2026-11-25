@@ -57,7 +57,8 @@ export function test_unit_engine_physics_physical_one_step_capture_region(): voi
     fan.every(
       (p: Polygon.IPoint): boolean =>
         p.y <= -0.05 + PhysicalTolerance.ROUNDING &&
-        Math.hypot(p.x, p.y) <= Math.hypot(0.6, 0.05) + PhysicalTolerance.ROUNDING,
+        Math.hypot(p.x, p.y) <=
+          Math.hypot(0.6, 0.05) + PhysicalTolerance.ROUNDING,
     ),
   );
 

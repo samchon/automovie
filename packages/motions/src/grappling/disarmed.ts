@@ -36,6 +36,29 @@ export namespace disarmed {
   export const AFTER: number = 0.4;
 
   /**
+   * When a placed action's named cue falls on the film clock.
+   *
+   * @param placed The placed action: its start and its plan's cues and length.
+   * @param name The cue.
+   * @returns Film seconds, or `undefined` when the plan has no such cue.
+   */
+  export function instant(
+    placed: Pick<IAutoMovieMotionHumanPlacedAction, "start"> & {
+      plan: Pick<
+        IAutoMovieMotionHumanPlacedAction["plan"],
+        "events" | "duration"
+      >;
+    },
+    name: string,
+  ): number | undefined {
+    const event: IAutoMovieMotionEvent | undefined = placed.plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === name,
+    );
+    return event === undefined
+      ? undefined
+      : placed.start + event.share * placed.plan.duration;
+  }
+  /**
    * Plan the partner's yield.
    *
    * @param context The action's context.
@@ -52,14 +75,7 @@ export namespace disarmed {
     );
     const instant: (name: string) => number | undefined = (
       name: string,
-    ): number | undefined => {
-      const event: IAutoMovieMotionEvent | undefined = placed.plan.events.find(
-        (e: IAutoMovieMotionEvent): boolean => e.name === name,
-      );
-      return event === undefined
-        ? undefined
-        : placed.start + event.share * placed.plan.duration;
-    };
+    ): number | undefined => disarmed.instant(placed, name);
     const taken: number | undefined = instant("taken");
     const gripped: number | undefined = instant("gripped");
     if (

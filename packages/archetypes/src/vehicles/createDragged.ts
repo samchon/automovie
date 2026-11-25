@@ -40,9 +40,7 @@ export function createDragged(
       createDragged.UNITS,
       undefined,
     );
-  for (const key of Object.keys(
-    createDragged.UNITS,
-  ) as createDragged.Dimension[]) {
+  for (const key of createDragged.DIMENSIONS) {
     const value: number = params[key] ?? d[key];
     d[key] = value;
     if (!(value > 0))
@@ -198,6 +196,16 @@ export namespace createDragged {
     | "handleHeight"
     | "handleSpread"
     | "mass";
+
+  /** Every dimension, in declaration order. */
+  export const DIMENSIONS: readonly Dimension[] = [
+    "length",
+    "width",
+    "height",
+    "handleHeight",
+    "handleSpread",
+    "mass",
+  ];
 
   /** The parameters: the kind and any dimension fixed. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -107,6 +107,22 @@ export namespace roundOff {
   }
 
   /**
+   * The heading's turn at an angle of the wheel: a quarter turn toward the
+   * trailing side over the first `ENTRY` degrees, and a second quarter over
+   * `SNAP` past the handstand, each a minimum-jerk share.
+   *
+   * @param sign 1 leading right, -1 leading left.
+   * @param angle The wheel's turn, degrees, 0 to 360.
+   * @returns Degrees.
+   */
+  export function turned(sign: number, angle: number): number {
+    return (
+      sign *
+      (90 * minimumJerk.share(angle / ENTRY) +
+        90 * minimumJerk.share((angle - 180) / SNAP))
+    );
+  }
+  /**
    * Plan a round-off.
    *
    * @param context The action's context.
@@ -141,7 +157,7 @@ export namespace roundOff {
     // trailing side on the way to the hands, so the leading side faces the
     // heading, and a second quarter past the handstand.
     const turn: (angle: number) => number = (angle: number): number =>
-      sign * (90 * ease(angle / ENTRY) + 90 * ease((angle - 180) / SNAP));
+      turned(sign, angle);
 
     // The shape at an angle: the cartwheel's wheel in the first half, closing
     // to the landing shape past the handstand.

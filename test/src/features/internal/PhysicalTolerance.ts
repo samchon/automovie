@@ -19,9 +19,9 @@ export namespace PhysicalTolerance {
   export const ACCUMULATED: number = 1e-9;
 
   /**
-   * What a converged solve leaves on its result, metres or radians: the engine's
-   * iterative fits stop at a residual of 1e-6 or finer, so a converged value
-   * agrees with its closed form to a micrometre.
+   * What a converged solve leaves on its result, metres or radians: the
+   * engine's iterative fits stop at a residual of 1e-6 or finer, so a converged
+   * value agrees with its closed form to a micrometre.
    */
   export const CONVERGED: number = 1e-6;
 

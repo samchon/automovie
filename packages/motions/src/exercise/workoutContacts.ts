@@ -6,6 +6,31 @@ import type {
 
 import type { workoutSpans } from "./workoutSpans";
 
+/** Each contact part's mirror across the body's midline. */
+const MIRROR: Readonly<
+  Record<
+    IAutoMovieMotionHumanContactWindow["part"],
+    IAutoMovieMotionHumanContactWindow["part"]
+  >
+> = {
+  leftFoot: "rightFoot",
+  rightFoot: "leftFoot",
+  leftHand: "rightHand",
+  rightHand: "leftHand",
+  seat: "seat",
+  back: "back",
+  leftUpperArm: "rightUpperArm",
+  rightUpperArm: "leftUpperArm",
+  leftLowerArm: "rightLowerArm",
+  rightLowerArm: "leftLowerArm",
+  leftUpperLeg: "rightUpperLeg",
+  rightUpperLeg: "leftUpperLeg",
+  leftLowerLeg: "rightLowerLeg",
+  rightLowerLeg: "leftLowerLeg",
+  head: "head",
+  chest: "chest",
+};
+
 /**
  * Build the windows.
  *
@@ -20,15 +45,10 @@ export function workoutContacts(
     part: IAutoMovieMotionHumanContactWindow["part"],
   ) => IAutoMovieMotionHumanContactWindow["part"] = (
     part: IAutoMovieMotionHumanContactWindow["part"],
-  ): IAutoMovieMotionHumanContactWindow["part"] =>
-    (part.startsWith("left")
-      ? `right${part.slice(4)}`
-      : part.startsWith("right")
-        ? `left${part.slice(5)}`
-        : part) as IAutoMovieMotionHumanContactWindow["part"];
+  ): IAutoMovieMotionHumanContactWindow["part"] => MIRROR[part];
   const ends: (name: string) => number = (name: string): number => {
     const index: number = props.spans.findIndex(
-      (s: workoutSpans.ISpan): boolean => s.from === name,
+      (s: Pick<workoutSpans.ISpan, "from">): boolean => s.from === name,
     );
     return index + 1 < props.spans.length ? props.starts[index + 1]! : duration;
   };

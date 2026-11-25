@@ -146,7 +146,9 @@ export function terrainWoods(
       weights.length === 0 ||
       Object.keys(woods.species ?? {}).some(
         (kind: string): boolean =>
-          !(createTree.KINDS as readonly string[]).includes(kind),
+          !createTree.KINDS.some(
+            (known: createTree.Kind): boolean => known === kind,
+          ),
       ) ||
       weights.some(
         ([, weight]: [createTree.Kind, number]): boolean => !(weight > 0),

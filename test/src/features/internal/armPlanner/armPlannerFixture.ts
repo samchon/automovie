@@ -81,27 +81,28 @@ export namespace armPlannerFixture {
       ...c,
       shapes: stored.shapes[c.shapes]!,
     });
-    const base = (b: IStoredBase): HumanArmTrajectory.IProblem["bases"][number] => ({
-      ...b,
-      pose: stored.poses[b.pose]!,
-      others: b.others.map(collider),
-      ...(b.rests === undefined ? {} : { rests: b.rests.map(collider) }),
-      ...(b.arms === undefined
-        ? {}
-        : {
-            arms: b.arms.map(
-              (
-                own: IStoredArmBase,
-              ): HumanArmTrajectory.IProblem["bases"][number] => ({
-                ...own,
-                others: own.others.map(collider),
-                ...(own.rests === undefined
-                  ? {}
-                  : { rests: own.rests.map(collider) }),
-              }),
-            ),
-          }),
-    });
+    const own = (
+      b: IStoredArmBase,
+    ): HumanArmTrajectory.IProblem["bases"][number] => {
+      const { others, rests, ...rest }: IStoredArmBase = b;
+      return {
+        ...rest,
+        others: others.map(collider),
+        ...(rests === undefined ? {} : { rests: rests.map(collider) }),
+      };
+    };
+    const base = (
+      b: IStoredBase,
+    ): HumanArmTrajectory.IProblem["bases"][number] => {
+      const { pose, others, rests, arms, ...rest }: IStoredBase = b;
+      return {
+        ...rest,
+        pose: stored.poses[pose]!,
+        others: others.map(collider),
+        ...(rests === undefined ? {} : { rests: rests.map(collider) }),
+        ...(arms === undefined ? {} : { arms: arms.map(own) }),
+      };
+    };
     const problem = (times: readonly number[]): HumanArmTrajectory.IProblem => {
       const at: number[] = times.map(nearest);
       return {
@@ -175,9 +176,9 @@ export namespace armPlannerFixture {
   }
 
   /**
-   * What a solution breaks of the planner's contracts, read on the played
-   * arms independently of the solve's own verdict: a hold frame's hand outside
-   * its site's disc, an instant every 5 ms outside a joint's range to its
+   * What a solution breaks of the planner's contracts, read on the played arms
+   * independently of the solve's own verdict: a hold frame's hand outside its
+   * site's disc, an instant every 5 ms outside a joint's range to its
    * resolution (`ROM_TOLERANCE`), the model's reading of the played grid past
    * its tolerance (every pair, sweep, site, range and speed), and a knot where
    * a played clinical angle's one-sided velocity or acceleration (second-order
@@ -197,9 +198,14 @@ export namespace armPlannerFixture {
     const c: HumanArmTrajectoryModel.IContext =
       HumanArmTrajectoryContext.prepare(
         body,
-        stored.problem.arms.map((arm: IStoredArm): AutoMovieHumanSide => arm.side),
+        stored.problem.arms.map(
+          (arm: IStoredArm): AutoMovieHumanSide => arm.side,
+        ),
       )(whole);
-    const played = (a: number, seconds: number): IAutoMovieMotionHumanArmClearance.IArm =>
+    const played = (
+      a: number,
+      seconds: number,
+    ): IAutoMovieMotionHumanArmClearance.IArm =>
       solved.trajectories[a]!(seconds);
     const x: number[][][] = stored.problem.arms.map(
       (_: IStoredArm, a: number): number[][] =>
@@ -210,7 +216,10 @@ export namespace armPlannerFixture {
 
     // The hands on their sites.
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
-      (arm: number[][], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
+      (
+        arm: number[][],
+        a: number,
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
         arm.map(
           (q: number[], g: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
             HumanArmGeometry.placed(c.setups[a]!, c.frames[a]![g]!, q, true),
@@ -220,13 +229,15 @@ export namespace armPlannerFixture {
       arm.forEach((_: number[], g: number): void => {
         const site: HumanArmTrajectory.ISite | undefined = c.sites[a]![g];
         if (site === undefined) return;
-        const at: HumanArmTrajectoryPairs.ILocated = HumanArmTrajectoryPairs.located(
-          c,
-          (b: number): IAutoMovieMotionHumanArmGeometry.IPlaced => placed[b]![g]!,
-          a,
-          g,
-          site,
-        );
+        const at: HumanArmTrajectoryPairs.ILocated =
+          HumanArmTrajectoryPairs.located(
+            c,
+            (b: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+              placed[b]![g]!,
+            a,
+            g,
+            site,
+          );
         const miss: number =
           Vector3.distance(
             HumanArmTrajectoryPairs.pad(placed[a]![g]!, site.contact),
@@ -360,15 +371,19 @@ export namespace armPlannerFixture {
   }
 
   /** A collider, its shapes by index. */
-  export interface IStoredCollider
-    extends Omit<IAutoMovieMotionHumanColliders.IPlaced, "shapes"> {
+  export interface IStoredCollider extends Omit<
+    IAutoMovieMotionHumanColliders.IPlaced,
+    "shapes"
+  > {
     /** Its shapes' index in `IStored.shapes`. */
     shapes: number;
   }
 
   /** One arm's own reading of a base. */
-  export interface IStoredArmBase
-    extends Omit<HumanArmTrajectory.IProblem["bases"][number], "others" | "rests"> {
+  export interface IStoredArmBase extends Omit<
+    HumanArmTrajectory.IProblem["bases"][number],
+    "others" | "rests"
+  > {
     /** Its obstacles. */
     others: IStoredCollider[];
     /** Its rests. */
@@ -376,11 +391,10 @@ export namespace armPlannerFixture {
   }
 
   /** A base, its pose and colliders by index. */
-  export interface IStoredBase
-    extends Omit<
-      HumanArmTrajectory.IProblem["bases"][number],
-      "pose" | "others" | "rests" | "arms"
-    > {
+  export interface IStoredBase extends Omit<
+    HumanArmTrajectory.IProblem["bases"][number],
+    "pose" | "others" | "rests" | "arms"
+  > {
     /** Its pose's index in `IStored.poses`. */
     pose: number;
     /** The other bodies' colliders within the reach envelope. */

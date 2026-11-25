@@ -2,7 +2,6 @@ import { physicalPlanarPolygon as Polygon } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -68,7 +67,8 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   const centre: Polygon.IPoint = Polygon.centroid(trapezoid);
   TestValidator.predicate(
     "trapezoid centroid",
-    nclose(centre.x, 2, PhysicalTolerance.ROUNDING) && nclose(centre.y, 8 / 18, PhysicalTolerance.ROUNDING),
+    nclose(centre.x, 2, PhysicalTolerance.ROUNDING) &&
+      nclose(centre.y, 8 / 18, PhysicalTolerance.ROUNDING),
   );
 
   // 3. The visible vertices, end to start.
@@ -99,8 +99,16 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   );
   TestValidator.predicate(
     "signed distances",
-    nclose(Polygon.signedDistance(square, { x: 0, y: 0 }), -1, PhysicalTolerance.ROUNDING) &&
-      nclose(Polygon.signedDistance(square, { x: 3, y: 0 }), 2, PhysicalTolerance.ROUNDING),
+    nclose(
+      Polygon.signedDistance(square, { x: 0, y: 0 }),
+      -1,
+      PhysicalTolerance.ROUNDING,
+    ) &&
+      nclose(
+        Polygon.signedDistance(square, { x: 3, y: 0 }),
+        2,
+        PhysicalTolerance.ROUNDING,
+      ),
   );
   TestValidator.equals("projection", Polygon.project(square, { x: 3, y: 0 }), {
     x: 1,
@@ -140,7 +148,11 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   // 6. Shrink.
   TestValidator.predicate(
     "shrink",
-    nclose(Polygon.area(Polygon.shrink(square, 0.5)), 1, PhysicalTolerance.ROUNDING),
+    nclose(
+      Polygon.area(Polygon.shrink(square, 0.5)),
+      1,
+      PhysicalTolerance.ROUNDING,
+    ),
   );
   TestValidator.equals("collapse", Polygon.shrink(square, 1.5).length, 1);
   const segment: Polygon.IPoint[] = Polygon.shrink(
@@ -152,7 +164,8 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   );
   TestValidator.predicate(
     "segment",
-    nclose(segment[0]!.x, 0.2, PhysicalTolerance.ROUNDING) && nclose(segment[1]!.x, 0.8, PhysicalTolerance.ROUNDING),
+    nclose(segment[0]!.x, 0.2, PhysicalTolerance.ROUNDING) &&
+      nclose(segment[1]!.x, 0.8, PhysicalTolerance.ROUNDING),
   );
 
   // 7. Rows.
@@ -195,6 +208,7 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   );
   TestValidator.predicate(
     "round trip",
-    nclose(back.x, 0.3, PhysicalTolerance.ROUNDING) && nclose(back.z, -0.7, PhysicalTolerance.ROUNDING),
+    nclose(back.x, 0.3, PhysicalTolerance.ROUNDING) &&
+      nclose(back.z, -0.7, PhysicalTolerance.ROUNDING),
   );
 }

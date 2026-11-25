@@ -14,8 +14,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *
  * @param input The hip, the front foot and the optional knee point.
  * @returns The kneeling hip joint, world metres.
- * @throws {HumanRefusal} When the front foot would be out of the front leg's
- *   reach from a hip over the named point.
+ * @throws {HumanRefusal} When the hip over the named point would stand less
+ *   than the reverse lunge's distance behind the front ankle, folding the front
+ *   knee ahead of its foot, or the front foot would be out of the front leg's
+ *   reach.
  */
 export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   const {
@@ -41,6 +43,16 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
     };
   const placed: IAutoMovieVector3 = { x: at.x, y: height, z: at.z };
   const leg: number = body.measure.thigh + body.measure.shank;
+  const along: number = Vector3.dot(Vector3.subtract(front, placed), forward);
+  if (along < behind)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "at",
+      value: along,
+      feasible: { kind: "range", minimum: behind, maximum: leg, unit: "m" },
+      reason: `kneeling there leaves the hip ${along.toFixed(3)} m behind the front ankle, short of the reverse lunge's ${behind.toFixed(3)} m, so the front knee folds ahead of its foot by up to a thigh into whatever stands in front`,
+      fix: "name a knee point at least the reverse lunge's distance behind the other foot, or leave at out",
+    });
   const reach: number = Vector3.distance(Vector3.add(placed, across), front);
   if (reach > leg)
     throw new HumanRefusal({

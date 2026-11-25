@@ -50,3 +50,5 @@ export * from "./stickBallClock";
 export * from "./stickBallModel";
 export * from "./stickBallPoint";
 export * from "./throwInRelease";
+export * from "./squatVault";
+export * from "./baseball";

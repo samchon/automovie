@@ -118,7 +118,8 @@ export function test_unit_engine_physics_combine_physical_mass_properties(): voi
           );
           TestValidator.predicate(
             `${rotation.name}/${scale} tensor[${row},${column}]`,
-            Math.abs(actual / scale - rotation.tensor[row]![column]!) < PhysicalTolerance.ROUNDING,
+            Math.abs(actual / scale - rotation.tensor[row]![column]!) <
+              PhysicalTolerance.ROUNDING,
           );
         }
     }
@@ -139,7 +140,8 @@ export function test_unit_engine_physics_combine_physical_mass_properties(): voi
     huge.mass === 2e200 &&
       Math.abs(huge.centerOfMass.x / 1e200 - 1) < PhysicalTolerance.ROUNDING &&
       Math.abs(huge.centerOfMass.y / 1e200 + 1) < PhysicalTolerance.ROUNDING &&
-      Math.abs(huge.centerOfMass.z / 1e200 - 0.5) < PhysicalTolerance.ROUNDING &&
+      Math.abs(huge.centerOfMass.z / 1e200 - 0.5) <
+        PhysicalTolerance.ROUNDING &&
       Math.abs(huge.inertia.x - 2) < PhysicalTolerance.ROUNDING &&
       Math.abs(huge.inertia.y - 4) < PhysicalTolerance.ROUNDING &&
       Math.abs(huge.inertia.z - 6) < PhysicalTolerance.ROUNDING,

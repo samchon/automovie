@@ -32,19 +32,7 @@ export function createStageWeaponProp(
     params.kind,
     createStageWeaponProp.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createStageWeaponProp.IParams,
-      seed?: number,
-    ): AutoMovieArchetype<
-      createStageWeaponProp.Affordance,
-      createStageWeaponProp.Dimension
-    >;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createStageWeaponProp.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createStageWeaponProp.PRODUCERS[kind](params, seed);
 }
 
 /** Authoring controls and affordance ids for the stage silhouettes. */

@@ -12,10 +12,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieThreeKind,
+  type IMaterialShaderSource,
   applyMaterialWear,
   readAutoMovieBufferAttribute,
 } from "@automovie/render";
-import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

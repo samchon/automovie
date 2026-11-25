@@ -30,6 +30,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanTrunkLean } from "./HumanTrunkLean";
+import { throwPotteryRise } from "./throwPotteryRise";
 
 /** A palm and the wall face it lies on. */
 interface IPair {
@@ -125,21 +126,7 @@ function plan(
   const raise: IAutoMovieAffordance = site("raise");
   const travel: number = raise.travel ?? 0;
   const start: number = wheel.state?.(context.start)?.["raise"] ?? 0;
-  const rise: number = p.rise ?? travel - start;
-  if (!(rise > 0 && start + rise <= travel + 1e-9))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "rise",
-      value: rise,
-      feasible: {
-        kind: "range",
-        minimum: 0,
-        maximum: travel - start,
-        unit: "m",
-      },
-      reason: "the wall rises within the wheel's travel",
-      fix: "give a rise up to what remains of the wheel's",
-    });
+  const rise: number = throwPotteryRise(p.rise, travel, start);
   const frame: IAutoMovieRigidTransform = wheel.frame(context.start);
   const face: (id: string, lift: number) => IAutoMovieVector3 = (
     id: string,

@@ -157,7 +157,7 @@ export function createZipperPouch(
             [cleared, 0],
             [opened, openAngle],
             ...(opened < travel
-              ? [[travel, openAngle] as [number, number]]
+              ? ([[travel, openAngle]] satisfies [number, number][])
               : []),
           ],
         },

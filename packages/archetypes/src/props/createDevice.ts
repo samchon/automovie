@@ -27,12 +27,7 @@ export function createDevice(
   );
 
   // Saved model inputs are a wider union. The selected draw checks them with the selected kind's table.
-  const produce: (
-    params: createDevice.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension> =
-    createDevice.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createDevice.PRODUCERS[kind](params, seed);
 }
 
 /**

@@ -102,6 +102,25 @@ export namespace disarm {
   export const CLOSE: number = handOver.OPEN;
 
   /**
+   * A disarm's lever time: `LEVER` by default, and positive.
+   *
+   * @param asked The lever asked, seconds.
+   * @returns The lever's seconds.
+   * @throws {HumanRefusal} When the lever is not positive.
+   */
+  export function leverTime(asked: number | undefined): number {
+    const lever: number = asked ?? LEVER;
+    if (!(lever > 0))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "lever",
+        value: lever,
+        reason: "the lever takes a positive time",
+        fix: "give the lever in seconds",
+      });
+    return lever;
+  }
+  /**
    * Plan a disarm.
    *
    * @param context The action's context.
@@ -113,15 +132,7 @@ export namespace disarm {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const params: IAutoMovieMotionHumanDisarm.IParams = context.params;
-    const lever: number = params.lever ?? LEVER;
-    if (!(lever > 0))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "lever",
-        value: lever,
-        reason: "the lever takes a positive time",
-        fix: "give the lever in seconds",
-      });
+    const lever: number = leverTime(params.lever);
     const armed: AutoMovieHumanSide = holding(
       context,
       params.partner,

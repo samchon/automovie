@@ -13,6 +13,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+import { capsuleBoxSeparation } from "../../../internal/capsuleBoxSeparation";
 
 /** The probe's step across a tangency, metres: a tenth of a millimetre. */
 const PROBE: number = 1e-4;
@@ -29,8 +30,6 @@ const NATIVE: number = 1e-6;
  * shapes' radius of order 0.1 m, under 2e-5 for motions of about a millimetre.
  */
 const FIRST_ORDER: number = 2e-5;
-
-import { capsuleBoxSeparation } from "../../../internal/capsuleBoxSeparation";
 
 /**
  * `linearizePhysicalSeparation`'s witness-based self-separation rows agree with
@@ -181,7 +180,8 @@ export async function test_unit_engine_physics_physical_separation_derivative():
         (contact >= 0
           ? boundary(first, pressed) !== 0
           : !(
-              Math.abs(boundary(first, pressed) - signed(first, pressed)) < FIRST_ORDER
+              Math.abs(boundary(first, pressed) - signed(first, pressed)) <
+              FIRST_ORDER
             ))
       )
         findings.push(
@@ -199,7 +199,10 @@ export async function test_unit_engine_physics_physical_separation_derivative():
         collider("a", a, first),
         collider("b", b, deep),
       );
-      if (!(depth < -0.02) || !(Math.abs(model(first, deep) - depth) < PhysicalTolerance.ROUNDING))
+      if (
+        !(depth < -0.02) ||
+        !(Math.abs(model(first, deep) - depth) < PhysicalTolerance.ROUNDING)
+      )
         findings.push(`${label} current ${depth} ${model(first, deep)}`);
       for (const axis of [
         { x: 1, y: 0, z: 0 },
@@ -297,5 +300,4 @@ export async function test_unit_engine_physics_physical_separation_derivative():
   function unit(vector: IAutoMovieVector3): IAutoMovieVector3 {
     return Vector3.scale(vector, 1 / Vector3.length(vector));
   }
-
 }

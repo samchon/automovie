@@ -1,15 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  rotationBetween,
-} from "@automovie/engine";
-import type {
-  IAutoMovieModelPart,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { Quaternion, Vector3, minimumJerk, rotationBetween } from "@automovie/engine";
+import type { IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEquineLibertyCue";
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
@@ -17,47 +7,7 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { EquineBodyPose } from "./EquineBodyPose";
 import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-
-/** A limb end of the body. */
-type End = "Fore" | "Hind";
-
-/**
- * The humerus's slope below horizontal in a kneel or bow, as a share of its
- * length dropped: authored.
- */
-const HUMERUS_DROP: number = 0.6;
-
-/**
- * A stretched foreleg's reach, as a share of its four bars' summed length:
- * authored.
- */
-const STRETCH: number = 0.9;
-
-/**
- * The relative carpal fold of a knelt foreleg, degrees: the forearm upright
- * over the cannon lying on the floor.
- */
-const KNEEL_FOLD: number = 90;
-
-/** The kinds of the liberty rows. */
-const KINDS: ReadonlySet<string> = new Set<
-  AutoMovieArchetypeEquineLibertyCue.Row["kind"]
->(["bow", "kneel", "sit"]);
-
-/**
- * Closed-form passes settling a sitting hock's height against its tibia's
- * slope: authored.
- */
-const SETTLE: number = 6;
-
-/** The zero vector. */
-const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-/** The trunk's motion at a share of a pose. */
-type Trunk = (share: number) => AutoMovieArchetypeFrame.IMotion;
-
-/** A fore limb. */
-type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
+import { type End, HUMERUS_DROP, STRETCH, KNEEL_FOLD, KINDS, SETTLE, ZERO, type Trunk, type Fore } from "./EquineLibertyConstants";
 
 /**
  * The liberty cue poses as stance rows: the bow, the kneel and the sit.

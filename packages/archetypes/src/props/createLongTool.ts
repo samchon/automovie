@@ -34,12 +34,7 @@ export function createLongTool(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createLongTool.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createLongTool.Affordance, createLongTool.Dimension> =
-    createLongTool.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createLongTool.PRODUCERS[kind](params, seed);
 }
 
 /** Compatibility tables and types for saved long implement recipes. */

@@ -33,14 +33,7 @@ export function createStationery(
     );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createStationery.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<
-    createStationery.Affordance,
-    createStationery.Dimension
-  > = createStationery.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createStationery.PRODUCERS[kind](params, seed);
 }
 
 /** Compatibility tables and types for saved stationery recipes. */

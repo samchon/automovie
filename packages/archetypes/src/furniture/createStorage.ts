@@ -9,12 +9,6 @@ import { createBookcase } from "./createBookcase";
 import { createDrawerUnit } from "./createDrawerUnit";
 import { createHingedCabinet } from "./createHingedCabinet";
 
-/** A saved storage recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createStorage.IParams,
-  seed?: number,
-) => AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension>;
-
 /**
  * Replay a saved storage variant with the original dimensions, identifier and
  * model choices.
@@ -39,8 +33,7 @@ export function createStorage(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createStorage.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createStorage.PRODUCERS[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createStorage}. */

@@ -150,7 +150,10 @@ export function test_unit_engine_physics_physical_stance_joint_target(): void {
     Quaternion.multiply(pitched, frame),
     { x: -speed.x, y: -speed.y, z: -speed.z },
   );
-  if (!(onPelvis.x < 0) || !(Math.abs(command.error - 0.3) < PhysicalTolerance.ACCUMULATED))
+  if (
+    !(onPelvis.x < 0) ||
+    !(Math.abs(command.error - 0.3) < PhysicalTolerance.ACCUMULATED)
+  )
     findings.push(
       `the hip turns the pelvis by ${JSON.stringify(onPelvis)} for an error of ${command.error}`,
     );
@@ -222,7 +225,10 @@ export function test_unit_engine_physics_physical_stance_joint_target(): void {
     kept,
     Quaternion.inverse(rolled),
   );
-  if (!(Math.abs(error.x) < PhysicalTolerance.ACCUMULATED) || !(Math.abs(error.z) > SIGNIFICANT))
+  if (
+    !(Math.abs(error.x) < PhysicalTolerance.ACCUMULATED) ||
+    !(Math.abs(error.z) > SIGNIFICANT)
+  )
     findings.push(
       `a hip released about x moves the pelvis by ${JSON.stringify(error)}`,
     );

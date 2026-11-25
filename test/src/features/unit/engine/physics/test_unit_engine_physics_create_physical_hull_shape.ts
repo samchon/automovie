@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import assert from "node:assert/strict";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
@@ -27,7 +28,6 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  * the native query's own convergence, which stops at about 1e-7 of a unit.
  */
 const NATIVE_DISTANCE: number = 1e-7;
-import assert from "node:assert/strict";
 
 /**
  * A convex hull shape is read like the other shape kinds: its faces, mass,
@@ -152,8 +152,13 @@ export function test_unit_engine_physics_create_physical_hull_shape(): void {
   TestValidator.predicate(
     "cuboid mass properties",
     Math.abs(mass.volume - 0.08) < PhysicalTolerance.ROUNDING &&
-      close(mass.centerOfMass, { x: 1, y: 2, z: 3 }, PhysicalTolerance.ROUNDING) &&
-      Math.abs(mass.inertia.x - (0.16 + 0.04) / 12) < PhysicalTolerance.ROUNDING &&
+      close(
+        mass.centerOfMass,
+        { x: 1, y: 2, z: 3 },
+        PhysicalTolerance.ROUNDING,
+      ) &&
+      Math.abs(mass.inertia.x - (0.16 + 0.04) / 12) <
+        PhysicalTolerance.ROUNDING &&
       Math.abs(mass.inertia.y - (1 + 0.04) / 12) < PhysicalTolerance.ROUNDING &&
       Math.abs(mass.inertia.z - (1 + 0.16) / 12) < PhysicalTolerance.ROUNDING &&
       axes.every(
@@ -175,7 +180,11 @@ export function test_unit_engine_physics_create_physical_hull_shape(): void {
   TestValidator.predicate(
     "tetrahedron volume and centroid",
     Math.abs(tetrahedron.volume - 1 / 6) < PhysicalTolerance.ROUNDING &&
-      close(tetrahedron.centerOfMass, { x: 0.25, y: 0.25, z: 0.25 }, PhysicalTolerance.ROUNDING),
+      close(
+        tetrahedron.centerOfMass,
+        { x: 0.25, y: 0.25, z: 0.25 },
+        PhysicalTolerance.ROUNDING,
+      ),
   );
 
   // 3. Nearest point, normal and distance. A quarter turn about Y carries the
@@ -213,7 +222,8 @@ export function test_unit_engine_physics_create_physical_hull_shape(): void {
       Math.abs(within.distance + 0.07) < PhysicalTolerance.ACCUMULATED &&
       close(within.point, { x: 0.1, y: 0, z: 3.3 }) &&
       close(within.normal, { x: 1, y: 0, z: 0 }) &&
-      Math.abs(corner.distance - Math.sqrt(0.34)) < PhysicalTolerance.ACCUMULATED &&
+      Math.abs(corner.distance - Math.sqrt(0.34)) <
+        PhysicalTolerance.ACCUMULATED &&
       close(corner.point, half) &&
       close(
         corner.normal,
@@ -280,7 +290,10 @@ export function test_unit_engine_physics_create_physical_hull_shape(): void {
       shape,
       axis,
     );
-    return Math.abs(lo - low) < PhysicalTolerance.ROUNDING && Math.abs(hi - high) < PhysicalTolerance.ROUNDING;
+    return (
+      Math.abs(lo - low) < PhysicalTolerance.ROUNDING &&
+      Math.abs(hi - high) < PhysicalTolerance.ROUNDING
+    );
   };
   const along: number = 0.7 * Math.SQRT1_2;
   TestValidator.predicate(
@@ -343,8 +356,16 @@ export function test_unit_engine_physics_create_physical_hull_shape(): void {
     "eroded box",
     physicalHullFaces(physicalHullErode(corners(half), 0.05)).vertices
       .length === 8 &&
-      close(erodedBounds.max, { x: 0.45, y: 0.15, z: 0.05 }, PhysicalTolerance.ROUNDING) &&
-      close(erodedBounds.min, { x: -0.45, y: -0.15, z: -0.05 }, PhysicalTolerance.ROUNDING),
+      close(
+        erodedBounds.max,
+        { x: 0.45, y: 0.15, z: 0.05 },
+        PhysicalTolerance.ROUNDING,
+      ) &&
+      close(
+        erodedBounds.min,
+        { x: -0.45, y: -0.15, z: -0.05 },
+        PhysicalTolerance.ROUNDING,
+      ),
   );
   assert.throws(
     (): IAutoMovieVector3[] => physicalHullErode(corners(half), 0.1),
@@ -368,8 +389,10 @@ export function test_unit_engine_physics_create_physical_hull_shape(): void {
     b: IAutoMoviePhysicalShape,
     expected: number,
   ): boolean =>
-    Math.abs(physicalShapePairDistance(poseA, a, poseB, b) - expected) < NATIVE_DISTANCE &&
-    Math.abs(physicalShapePairDistance(poseB, b, poseA, a) - expected) < NATIVE_DISTANCE;
+    Math.abs(physicalShapePairDistance(poseA, a, poseB, b) - expected) <
+      NATIVE_DISTANCE &&
+    Math.abs(physicalShapePairDistance(poseB, b, poseA, a) - expected) <
+      NATIVE_DISTANCE;
   const ball = (radius: number): IAutoMoviePhysicalShape => ({
     id: "sphere",
     material: "solid",

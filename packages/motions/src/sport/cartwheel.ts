@@ -113,6 +113,18 @@ export namespace cartwheel {
   ];
 
   /**
+   * How far the body has taken the wheel's shape at an angle of the turn: a
+   * minimum-jerk share over the first `SHAPE` degrees, and back over the last.
+   *
+   * @param angle The wheel's turn, degrees, 0 to 360.
+   * @returns The shape's share, 0 to 1.
+   */
+  export function shapeShare(angle: number): number {
+    return minimumJerk.share(
+      angle <= 180 ? angle / SHAPE : (360 - angle) / SHAPE,
+    );
+  }
+  /**
    * Plan a cartwheel.
    *
    * @param context The action's context.
@@ -150,9 +162,7 @@ export namespace cartwheel {
       angle: number,
     ): IAutoMovieMotionHumanPosture => ({
       ...ExerciseKey.posed(
-        angle <= 180
-          ? entering(ease(angle / SHAPE))
-          : leaving(ease((360 - angle) / SHAPE)),
+        angle <= 180 ? entering(shapeShare(angle)) : leaving(shapeShare(angle)),
         standing.yaw,
       ),
       roll: sign * angle,

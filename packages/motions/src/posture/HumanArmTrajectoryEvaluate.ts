@@ -305,7 +305,7 @@ export function HumanArmTrajectoryEvaluate(
       here = k;
       // The ranges at every frame, the course between knots included.
       note(
-        R(c, a, arm[k]!),
+        R(c, a, arm[k]!, M.swing(c, a)),
         "range",
         () => `a coordinate out of its range at ${times[k]!.toFixed(3)} s`,
       );

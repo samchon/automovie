@@ -32,12 +32,7 @@ export function createTool(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createTool.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createTool.Affordance, createTool.Dimension> =
-    createTool.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createTool.PRODUCERS[kind](params, seed);
 }
 
 /** Compatibility tables and types for saved tool recipes. */

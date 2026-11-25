@@ -49,7 +49,8 @@ export function test_unit_engine_physics_physical_stance_allocation(): void {
   const failures: string[] = [];
   const near = (name: string, actual: number, expected: number): void => {
     if (
-      !(Math.abs(actual - expected) <=
+      !(
+        Math.abs(actual - expected) <=
         PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))
       )
     )

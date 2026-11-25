@@ -8,8 +8,7 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieProceduralSurface,
 } from "@automovie/interface";
-import { buildMaterial } from "@automovie/render";
-import type { IMaterialShaderSource } from "@automovie/render";
+import { type IMaterialShaderSource, buildMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -123,7 +122,7 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
       [vector("uProceduralAcross"), frame.across],
       [vector("uProceduralNormal"), frame.normal],
       [vector("uProceduralColor1"), [0.6, 0.42, 0.24]],
-    ].every(([a, b]) =>
+    ].every(([a, b]: number[][]): boolean =>
       a!.every((value: number, k: number): boolean =>
         nclose(value, b![k]!, 1e-12),
       ),

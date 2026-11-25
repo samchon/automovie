@@ -15,8 +15,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * 1. A toe 1 cm from the kerb swinging at 2 m/s, heading 90, trips at 0.56 m/s
  *    along +X; one 5 cm clear, or at rest, is refused.
- * 2. A 3-4 load (5 m/s²) needing μ 0.5 on a 0.2 surface, sliding along +Z,
- *    slips at 0.18 · 5 · 0.6 = 0.54 m/s along +Z; a surface of 0.6 carries it.
+ * 2. A 3-4 load (5 m/s²) needing μ 0.5 on a 0.2 surface, sliding along +Z, slips
+ *    at 0.18 · 5 · 0.6 = 0.54 m/s along +Z; a surface of 0.6 carries it.
  */
 export function test_unit_motions_reaction_environment_recovery(): void {
   const trip: environmentRecoveryCue.ICue = environmentRecoveryCue.trip(

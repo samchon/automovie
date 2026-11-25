@@ -75,9 +75,12 @@ export function test_unit_engine_physics_xpbd_directional_motor_caps(): void {
     link.world.step();
     const expected: number = (torque * h) / (INERTIA + MASS * ARM * ARM);
     const actual: number = link.body.angvel().z;
-    if (!(Math.abs(actual - expected) <=
+    if (
+      !(
+        Math.abs(actual - expected) <=
         PhysicalTolerance.ACCUMULATED * Math.abs(expected)
-      ))
+      )
+    )
       findings.push(
         `free motor at ${speed}: ${actual} rad/s, expected ${expected}`,
       );

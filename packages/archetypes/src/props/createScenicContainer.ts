@@ -11,15 +11,6 @@ import { createMoldedCrate } from "./createMoldedCrate";
 import { createPlankCoffer } from "./createPlankCoffer";
 import { createScenicBasket } from "./createScenicBasket";
 
-/** A saved recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createScenicContainer.IParams,
-  seed?: number,
-) => AutoMovieArchetype<
-  createScenicContainer.Affordance,
-  createScenicContainer.Dimension
->;
-
 /**
  * Replay a saved scenicContainer variant with the original dimensions,
  * identifier and model choices.
@@ -53,8 +44,7 @@ export function createScenicContainer(
     return ScenicContainerConstruction.scenicPod(params, seed);
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createScenicContainer.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  return createScenicContainer.PRODUCERS[kind](params, seed);
 }
 
 /**

@@ -9,7 +9,6 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { nclose } from "../../../internal/nclose";
 
 /** Native substep of a 120 Hz world with eight substeps, seconds. */
@@ -86,8 +85,16 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
   const component: number = 0.4 * Math.SQRT1_2;
   TestValidator.predicate(
     "geodesic compound error",
-    nclose(axis(compound, "x").speed, (k * component) / d, PhysicalTolerance.ROUNDING) &&
-      nclose(axis(compound, "y").speed, (k * component) / d, PhysicalTolerance.ROUNDING) &&
+    nclose(
+      axis(compound, "x").speed,
+      (k * component) / d,
+      PhysicalTolerance.ROUNDING,
+    ) &&
+      nclose(
+        axis(compound, "y").speed,
+        (k * component) / d,
+        PhysicalTolerance.ROUNDING,
+      ) &&
       !nclose(
         axis(compound, "x").speed,
         (k * 2 * Math.asin(Math.sin(0.2) * Math.SQRT1_2)) / d,
@@ -124,7 +131,11 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
     });
   TestValidator.predicate(
     "feed-forward and target speed",
-    nclose(axis(fed, "z").speed, (k * 0.3 + d * 1.5 + 2) / d, PhysicalTolerance.ROUNDING) &&
+    nclose(
+      axis(fed, "z").speed,
+      (k * 0.3 + d * 1.5 + 2) / d,
+      PhysicalTolerance.ROUNDING,
+    ) &&
       fed.saturated.includes("z") &&
       plain.saturated.includes("z") &&
       !physicalJointMotorCommand({
@@ -148,7 +159,8 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
     });
   TestValidator.predicate(
     "limit-bounded speed",
-    axis(limited, "z").speed <= PhysicalTolerance.ACCUMULATED && limited.error > 0.29,
+    axis(limited, "z").speed <= PhysicalTolerance.ACCUMULATED &&
+      limited.error > 0.29,
   );
 }
 

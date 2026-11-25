@@ -86,6 +86,45 @@ export namespace squatVault {
     ],
   };
 
+  /** A vault's least-speed flight. */
+  export interface IArc {
+    /** `h + sqrt(h² + d²)`, metres. */
+    lift: number;
+
+    /** The launch speed, `sqrt(g lift)`, m/s. */
+    launch: number;
+
+    /** The launch angle above the level, radians: `atan(lift / d)`. */
+    angle: number;
+
+    /** The flight's seconds, `d / (launch cos angle)`. */
+    flight: number;
+
+    /** The launch's rising speed, m/s. */
+    rise: number;
+  }
+
+  /**
+   * The least-speed ballistic arc that rises `h` over a run `d`: its speed
+   * squared is `g (h + sqrt(h² + d²))` and its angle's tangent `(h + sqrt(h² +
+   * d²)) / d`.
+   *
+   * @param h The rise, metres.
+   * @param d The level run, metres.
+   * @returns The arc.
+   */
+  export function arc(h: number, d: number): IArc {
+    const lift: number = h + Math.sqrt(h * h + d * d);
+    const launch: number = Math.sqrt(AutoMovieGravity.STANDARD * lift);
+    const angle: number = Math.atan2(lift, d);
+    return {
+      lift,
+      launch,
+      angle,
+      flight: d / (launch * Math.cos(angle)),
+      rise: launch * Math.sin(angle),
+    };
+  }
   /**
    * Plan a squat vault.
    *
@@ -215,11 +254,7 @@ export namespace squatVault {
         reason: `the landing beyond ${context.params.on} lies ${d.toFixed(3)} m ahead of the push-off, so no flight carries the body over it`,
         fix: "vault a box that lies ahead of the body",
       });
-    const lift: number = h + Math.sqrt(h * h + d * d);
-    const launch: number = Math.sqrt(g * lift);
-    const angle: number = Math.atan2(lift, d);
-    const flight: number = d / (launch * Math.cos(angle));
-    const rise: number = launch * Math.sin(angle);
+    const { angle, flight, rise }: squatVault.IArc = arc(h, d);
     const speed: IAutoMovieVector3 = Vector3.scale(run, 1 / flight);
     const hold: number = context.params.hold ?? 0.5;
     const touchdown: number = push + flight;

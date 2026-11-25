@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
@@ -18,8 +19,6 @@ import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
  * micrometre convergence on a lever of order 10 N m per metre.
  */
 const TORQUE: number = 1e-5;
-
-import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
 /**
  * Actual posed subtree mass supplies gravitational feed-forward in the motor's
@@ -101,7 +100,8 @@ export async function test_unit_engine_physics_physical_gravity_torques(): Promi
     torques.joints.get("hinge")!;
   TestValidator.predicate(
     "rotated downstream mass moment",
-    Math.abs(actual.z - 24.525) < TORQUE && Math.hypot(actual.x, actual.y) < TORQUE,
+    Math.abs(actual.z - 24.525) < TORQUE &&
+      Math.hypot(actual.x, actual.y) < TORQUE,
   );
   TestValidator.predicate(
     "root counter-moment uses its actual force application point",

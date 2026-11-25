@@ -18,11 +18,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalHumanProfiles } from "../../../internal/PhysicalHumanProfiles";
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalPerformanceFixtures } from "../../../internal/PhysicalPerformanceFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * An authored slow walk is one the engine's drives can hold: the engine

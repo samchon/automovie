@@ -53,6 +53,22 @@ export namespace kuzushi {
   export const DEPTH: number = 15;
 
   /**
+   * How far a kuzushi has tipped the body at a second: a minimum-jerk tip over
+   * `TIP`, held `hold`, and a minimum-jerk return over `TIP`.
+   *
+   * @param hold The held seconds.
+   * @param seconds The action's seconds.
+   * @returns The tip's share, 0 to 1.
+   */
+  export function tipped(hold: number, seconds: number): number {
+    const t: number = Math.min(2 * TIP + hold, Math.max(0, seconds));
+    return t < TIP
+      ? minimumJerk.share(t / TIP)
+      : t <= TIP + hold
+        ? 1
+        : 1 - minimumJerk.share((t - TIP - hold) / TIP);
+  }
+  /**
    * Plan a broken base.
    *
    * @param context The action's context.
@@ -90,12 +106,7 @@ export namespace kuzushi {
       contacts: base.contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number =
-          t < TIP
-            ? minimumJerk.share(t / TIP)
-            : t <= TIP + hold
-              ? 1
-              : 1 - minimumJerk.share((t - TIP - hold) / TIP);
+        const s: number = tipped(hold, t);
         return AutoMovieMotionHumanLean.about(base.posture(t), pivot, {
           pitch: depth * s,
           roll: 0,

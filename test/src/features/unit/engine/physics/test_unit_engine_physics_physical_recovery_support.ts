@@ -20,10 +20,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
-
 import { PhysicalBalanceReplay } from "../../../internal/PhysicalBalanceReplay";
 import { PhysicalHumanProfiles } from "../../../internal/PhysicalHumanProfiles";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 
 /**
  * A lifted swing's joint references are one path, continuous at lift-off:

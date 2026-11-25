@@ -65,8 +65,10 @@ export async function test_unit_engine_physics_physical_shape_surface(): Promise
         Vector3.add(anchor.point, Vector3.scale(anchor.normal, 0.01)),
       );
       if (
-        Vector3.length(Vector3.subtract(anchor.point, projected)) > PhysicalTolerance.CONVERGED ||
-        Math.abs(Vector3.length(anchor.normal) - 1) > PhysicalTolerance.ACCUMULATED
+        Vector3.length(Vector3.subtract(anchor.point, projected)) >
+          PhysicalTolerance.CONVERGED ||
+        Math.abs(Vector3.length(anchor.normal) - 1) >
+          PhysicalTolerance.ACCUMULATED
       )
         findings.push(`${shape.kind}: invalid world surface witness`);
     }

@@ -18,8 +18,8 @@ const KEY: number = 1e-6;
 
 /**
  * How level the nose may be at the apex, unit components: the apex falls
- * between keys a thirtieth of a second apart, where the interpolated nose
- * tilts by under a thousandth.
+ * between keys a thirtieth of a second apart, where the interpolated nose tilts
+ * by under a thousandth.
  */
 const LEVEL: number = 1e-3;
 

@@ -26,12 +26,7 @@ export function createSmoking(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createSmoking.IParams,
-    seed?: number,
-  ) => AutoMovieArchetype<createSmoking.Affordance, createSmoking.Dimension> =
-    createSmoking.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  return createSmoking.PRODUCERS[kind](params, seed);
 }
 
 /** Compatibility tables and types for saved smoking prop recipes. */

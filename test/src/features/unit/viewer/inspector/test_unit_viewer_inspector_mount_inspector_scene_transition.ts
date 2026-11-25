@@ -13,7 +13,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 
-import { createRecordedFilmSubject } from "../../../draw/createRecordedFilmSubject";
+import { createRecordedFilmSubject } from "../../../internal/createRecordedFilmSubject";
 import { filmResponseRendererFields } from "../../../internal/filmResponseRendererFields";
 import { nclose } from "../../../internal/nclose";
 
