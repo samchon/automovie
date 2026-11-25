@@ -18,11 +18,11 @@ type Trial = IAutoMovieHumanHeadTape.Member & {
 /**
  * Close the public tape on a numerically maximizing actual source course.
  * ANSUR's above-brow/ear, front-higher/no-side-tilt protocol defines the
- * admissible planes. Closure fixes the existing G datum as an explicit
- * anterior brow-seat placement convention and searches the upper-head
- * original above its Me handover, subject to actual ear inequalities.
- * Neither datum is an additional measured personal tape landmark. Search is a
- * bounded numerical observation, not an interval/global optimality proof.
+ * admissible planes. Closure fixes the existing G datum as an explicit anterior
+ * brow-seat placement convention and searches the upper-head original above its
+ * Me handover, subject to actual ear inequalities. Neither datum is an
+ * additional measured personal tape landmark. Search is a bounded numerical
+ * observation, not an interval/global optimality proof.
  *
  * @evidence contracts/common.md#principled-implementation Searches permitted planes on the actual native original and solves one retained cranial fullness family against the independent public tape, using source derivatives and the engine length owner.
  * @evidence contracts/common.md#clear-and-simple-design The caller owns the actual source family and ear attachment datums; this owner returns the selected original part and its measured witness together.
@@ -34,20 +34,18 @@ type Trial = IAutoMovieHumanHeadTape.Member & {
  */
 export namespace AutoMovieHumanHeadTape {
   /**
-   * Close the retained1.6..6 cranial diagonal-transfer family on its actual tape.
-   * The factory must preserve all four guide curves, public calipers and the
-   * original neck/face field below nasion while changing cranial fullness.
+   * Close the retained1.6..6 cranial diagonal-transfer family on its actual
+   * tape. The factory must preserve all four guide curves, public calipers and
+   * the original neck/face field below nasion while changing cranial fullness.
    * Ear attachment points must come from that unchanged material region.
-   * Existing G supplies the fixed anterior-seat convention independently
-   * of the tape target; Me bounds upper-source ownership, not a tape measure.
+   * Existing G supplies the fixed anterior-seat convention independently of the
+   * tape target; Me bounds upper-source ownership, not a tape measure.
    *
-   * Cost: every residual is a member whose course maximum needs many complete
-   * course measurements. The closure therefore tracks the maximum by
-   * continuation between members and certifies only the final member with the
-   * complete search (see `solve`), instead of scanning every member
-   * completely; the public target, the 1e-8 mm allowance and every refusal
-   * are unchanged, and a failed certification repeats the former complete
-   * procedure.
+   * A coarse posterior basin can persist while a different basin overtakes it.
+   * Search both original endpoint members completely. Continue between those
+   * endpoints and certify the selected member with the complete search. If
+   * certification differs, keep the same endpoint witnesses and use the
+   * complete search for every interior member.
    *
    * @evidence contracts/common.md#principled-implementation A sign-changing scalar bracket and safeguarded secants solve the numerically maximizing native-source length against plan.tape; the existing1.6..6 representation range is not a cohort measurement.
    * @evidence contracts/common.md#clear-and-simple-design The actual factory owns shape authoring and this function returns its selected source with the measured witness.
@@ -74,6 +72,37 @@ export namespace AutoMovieHumanHeadTape {
         "Head tape needs a positive public target and unchanged below-nasion ear attachment datums",
       );
     const allowance: number = 1e-8 * Math.max(1, plan.scale);
+    const measure = (
+      power: number,
+      mode: IAutoMovieHumanHeadTapeBrow.Mode,
+      seed?: IAutoMovieHumanHeadTape.MaximumSeed,
+    ): Trial => {
+      const member: IAutoMovieHumanHeadTape.Member = factory(power);
+      return {
+        ...member,
+        power,
+        course: AutoMovieHumanHeadTapeBrow.maximum(
+          AutoMovieHumanHeadTapeSource.of(member.part),
+          member.plan.menton,
+          member.plan.landmarks.glabella[1],
+          attachments,
+          seed,
+          mode,
+        ),
+      };
+    };
+    const low: Trial = measure(1.6, "complete");
+    const high: Trial = measure(6, "complete");
+    if (
+      !(
+        (low.course.lengthMm - plan.tape) *
+          (high.course.lengthMm - plan.tape) <=
+        0
+      )
+    )
+      throw new Error(
+        `Public head tape has no retained-family bracket: target=${plan.tape}, source lengths=${low.course.lengthMm},${high.course.lengthMm}`,
+      );
 
     // A continued closure tracks the course maximum from member to member and
     // certifies the final member by the complete search. Should the complete
@@ -82,17 +111,21 @@ export namespace AutoMovieHumanHeadTape {
     // every member, which is the former procedure.
     const continued: IAutoMovieHumanHeadTape.IResult | null = solve(
       plan,
-      factory,
+      measure,
       attachments,
       allowance,
+      low,
+      high,
       "continued",
     );
     if (continued !== null) return continued;
     const complete: IAutoMovieHumanHeadTape.IResult | null = solve(
       plan,
-      factory,
+      measure,
       attachments,
       allowance,
+      low,
+      high,
       "complete",
     );
     if (complete === null)
@@ -105,63 +138,43 @@ export namespace AutoMovieHumanHeadTape {
   /**
    * One scalar closure of the family against the public tape.
    *
-   * The family's course length increases with the cranial power over the
-   * retained 1.6..6 range, so the residual `length - tape` changes sign
-   * across it. Its root is found by the engine's Illinois regula falsi
-   * (`AutoMovieIllinois`; Dowell and Jarratt, BIT 11, 1971), which keeps the
-   * sign bracket like the former safeguarded secant but replaces its forced
+   * The caller supplies the two completely searched retained members. With
+   * opposite signs, the residual `length - tape` is solved by Illinois regula
+   * falsi (`AutoMovieIllinois`; Dowell and Jarratt, BIT 11, 1971), which keeps
+   * the sign bracket like the former safeguarded secant but replaces its forced
    * bisection on every fourth step by the Illinois halving of a stagnant end,
    * converging superlinearly at this simple root. Each residual is one member
-   * with its course maximum. The bracket starts with two complete members,
-   * and the best member's posterior coordinate seeds the next maximum. The final
-   * member is re-maximized by the complete search, and the result is
-   * published only when that certified length meets the unchanged 1e-8 mm
-   * allowance; otherwise null tells the caller to repeat with `complete`.
+   * with its course maximum. In continuation, the best member's posterior
+   * coordinate seeds the next maximum. The final member is re-maximized by the
+   * complete search, and the result is published only when that certified
+   * length meets the unchanged 1e-8 mm allowance; otherwise null tells the
+   * caller to repeat with `complete`.
    */
   function solve(
     plan: IAutoMovieHumanHeadLayout,
-    factory: (power: number) => IAutoMovieHumanHeadTape.Member,
+    measure: (
+      power: number,
+      mode: IAutoMovieHumanHeadTapeBrow.Mode,
+      seed?: IAutoMovieHumanHeadTape.MaximumSeed,
+    ) => Trial,
     attachments: readonly IAutoMovieHumanHeadTape.P2[],
     allowance: number,
+    low: Trial,
+    high: Trial,
     mode: IAutoMovieHumanHeadTapeBrow.Mode,
   ): IAutoMovieHumanHeadTape.IResult | null {
-    let best: Trial | null = null;
+    const error = (member: Trial): number =>
+      Math.abs(member.course.lengthMm - plan.tape);
+    let best: Trial = error(low) <= error(high) ? low : high;
     const trial: (power: number) => Trial = (power: number): Trial => {
-      const member: IAutoMovieHumanHeadTape.Member = factory(power);
-      const reader: IAutoMovieHumanHeadTapeSource.IReader =
-        AutoMovieHumanHeadTapeSource.of(member.part);
-      const current: Trial = {
-        ...member,
+      const current: Trial = measure(
         power,
-        course: AutoMovieHumanHeadTapeBrow.maximum(
-          reader,
-          member.plan.menton,
-          member.plan.landmarks.glabella[1],
-          attachments,
-          best?.course.coordinates,
-          best === null ? "complete" : mode,
-        ),
-      };
-      if (
-        best === null ||
-        Math.abs(current.course.lengthMm - plan.tape) <
-          Math.abs(best.course.lengthMm - plan.tape)
-      )
-        best = current;
+        mode,
+        mode === "continued" ? best.course.coordinates : undefined,
+      );
+      if (error(current) < error(best)) best = current;
       return current;
     };
-    const low: Trial = trial(1.6);
-    const high: Trial = trial(6);
-    if (
-      !(
-        (low.course.lengthMm - plan.tape) *
-          (high.course.lengthMm - plan.tape) <=
-        0
-      )
-    )
-      throw new Error(
-        `Public head tape has no retained-family bracket: target=${plan.tape}, source lengths=${low.course.lengthMm},${high.course.lengthMm}`,
-      );
     AutoMovieIllinois.select(
       trial,
       (member: Trial): number => member.course.lengthMm - plan.tape,
@@ -170,16 +183,18 @@ export namespace AutoMovieHumanHeadTape {
       allowance,
       40,
     );
-    const selected: Trial = (best as Trial | null) ?? low;
-    if (Math.abs(selected.course.lengthMm - plan.tape) > allowance)
+    const selected: Trial = best;
+    if (error(selected) > allowance) {
+      if (mode === "continued") return null;
       throw new Error(
         `Actual head tape scalar solve is unresolved: ${selected.course.lengthMm} versus ${plan.tape}`,
       );
+    }
 
     // The published course is the complete search's maximum on the selected
     // member, whatever search tracked it during the closure.
     const certified: IAutoMovieHumanHeadTape.ICourse =
-      mode === "complete"
+      mode === "complete" || selected === low || selected === high
         ? selected.course
         : AutoMovieHumanHeadTapeBrow.maximum(
             AutoMovieHumanHeadTapeSource.of(selected.part),
