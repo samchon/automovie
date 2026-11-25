@@ -98,6 +98,7 @@ export namespace AutoMovieLoftPoint {
     const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
     const lifted: number[] | null = l === null ? null : [...l, ...l];
     const n: [number, number, number] = normal(f);
+    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
 
     return (t: number): [number, number, number] => {
       const p: readonly number[] =
@@ -119,7 +120,7 @@ export namespace AutoMovieLoftPoint {
         )[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
+      AutoMovieLoftReliefCompose.point(q, reliefs, s, t);
       if (
         (source !== null || original !== undefined) &&
         !q.every(Number.isFinite)
@@ -165,6 +166,7 @@ export namespace AutoMovieLoftPoint {
     const n: [number, number, number] = normal(f);
     const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
     const lifted: number[] | null = l === null ? null : [...l, ...l];
+    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
     return (
       t: number,
     ): { p: [number, number, number]; t: [number, number, number] } => {
@@ -189,7 +191,7 @@ export namespace AutoMovieLoftPoint {
           dt[k]! += h[1] * n[k]!;
         }
       }
-      AutoMovieLoftReliefCompose.phase({ p, t: dt }, chain.reliefs ?? [], s, t);
+      AutoMovieLoftReliefCompose.phase({ p, t: dt }, reliefs, s, t);
       if (![...p, ...dt].every(Number.isFinite))
         throw new Error("The actual phase-only world reading is nonfinite.");
       return { p, t: dt };
@@ -270,6 +272,7 @@ export namespace AutoMovieLoftPoint {
           b.liftCurvatures,
         )
       : null;
+    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
     return (t: number): [number, number, number] => {
       const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
         section,
@@ -285,7 +288,7 @@ export namespace AutoMovieLoftPoint {
         const h: number = AutoMovieSplineCurve.scalarJet(lifting, N, t)[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
+      AutoMovieLoftReliefCompose.point(q, reliefs, s, t);
       return q;
     };
   }

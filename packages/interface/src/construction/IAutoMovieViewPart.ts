@@ -107,6 +107,9 @@ export interface IAutoMovieViewPart {
    * part with them. Absent means none: the chain is unchanged.
    */
   reliefs?: IAutoMovieLoftRelief[];
+
+  /** Exact bounded weight fields over the same original part. */
+  originalGraphs?: IAutoMovieLoftRelief.IGraph[];
 }
 
 /** Data and callback contracts shared by the ViewPart operations. */

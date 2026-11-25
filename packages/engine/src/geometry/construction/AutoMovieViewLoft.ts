@@ -555,6 +555,8 @@ export namespace AutoMovieViewLoft {
     // them (`{ ...chain, reliefs }`), so the surface and every reader of the
     // chain, a realized construction face included, carry them.
     if (part.reliefs !== undefined) chain = { ...chain, reliefs: part.reliefs };
+    if (part.originalGraphs !== undefined)
+      chain = { ...chain, originalGraphs: part.originalGraphs };
     // Declared ring phases ride on it the same way; a list that is not `samples` phases strictly increasing within one turn is refused.
     if (part.phases !== undefined) {
       const phases: number[] = part.phases;

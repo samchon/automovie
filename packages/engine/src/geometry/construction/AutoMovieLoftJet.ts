@@ -114,6 +114,7 @@ export namespace AutoMovieLoftJet {
     const station: IStation = stationOf(chain, s, sweep, sections, caps);
     const { f }: IStation = station;
     const n: number = chain.order;
+    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
 
     return (t: number): IAutoMovieLoftSurfaceJet => {
       // Combine only the active controls of the legacy spline, or read the native law.
@@ -125,7 +126,7 @@ export namespace AutoMovieLoftJet {
 
       // Add the station-Hermite lift along w = v x u before the reliefs.
       if (station.lift !== undefined) lift(jet, station.lift, n, t);
-      AutoMovieLoftReliefCompose.jet(jet, chain.reliefs ?? [], s, t);
+      AutoMovieLoftReliefCompose.jet(jet, reliefs, s, t);
       if (
         !Object.values(jet).every((row: AutoMovieVector3Tuple): boolean =>
           row.every(Number.isFinite),

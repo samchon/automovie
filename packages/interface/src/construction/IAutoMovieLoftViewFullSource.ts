@@ -14,7 +14,10 @@ export namespace IAutoMovieLoftViewFullSource {
    * features.
    */
   export type IInput = IAutoMovieLoftViewSource.IInput &
-    Pick<IAutoMovieViewPart, "axis" | "reliefs" | "originalSection">;
+    Pick<
+      IAutoMovieViewPart,
+      "axis" | "reliefs" | "originalSection" | "originalGraphs"
+    >;
 
   /** Two independent full-native capabilities on one inclusive original domain. */
   export interface IReader {

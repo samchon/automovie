@@ -86,6 +86,7 @@ export namespace AutoMovieLoftCapRead {
       );
     const local: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       collapsed ? null : AutoMovieLoftSectionNative.phase(inputs);
+    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
     return (phi: number): IAutoMovieLoftPhaseReading => {
       if (!Number.isFinite(phi))
         throw new AutoMovieLoftAdmissionError("A cap phase must be finite.");
@@ -103,7 +104,7 @@ export namespace AutoMovieLoftCapRead {
       }
       AutoMovieLoftReliefCompose.phase(
         { p, t },
-        chain.reliefs ?? [],
+        reliefs,
         station,
         phi,
         collapsed,

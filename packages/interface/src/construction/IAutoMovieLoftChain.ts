@@ -86,6 +86,9 @@ export interface IAutoMovieLoftChain {
    */
   reliefs?: IAutoMovieLoftRelief[];
 
+  /** The original part's exact bounded graph fields. */
+  originalGraphs?: IAutoMovieLoftRelief.IGraph[];
+
   /**
    * Pole of a cap: the point every section shrinks to at the chain's end
    * station on the cap's side (the angle 0 from the pole axis), where the

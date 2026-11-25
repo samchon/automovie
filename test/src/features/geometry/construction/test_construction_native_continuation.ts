@@ -2,6 +2,7 @@ import {
   AutoMovieConstructionContinuation,
   AutoMovieLoftChain,
   AutoMovieLoftJet,
+  AutoMovieLoftViewFullSource,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import type {
@@ -9,6 +10,7 @@ import type {
   IAutoMovieConstructionDiagnostic,
   IAutoMovieConstructionRealization,
   IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
   IAutoMovieLoftSurfaceJet,
   IAutoMovieSolidSurface,
   IAutoMovieViewPart,
@@ -22,28 +24,32 @@ import { nclose } from "../../internal/nclose";
  * Different output densities consume an already common native endpoint.
  *
  * Scenarios:
- * 1. All four end pairings, three uniform unit scales and the actual 256/64
- *    orders retain complete circle world2 and both original adjacent intervals.
- * 2. A nonzero phase-constant lift2 survives without coefficient conversion.
- *    Whole native fullness/physical2, frame2, lift2, stale bindings, poles,
+ *
+ * 1. All four end pairings, three uniform unit scales and the actual 256/64 orders
+ *    retain complete circle world2 and both original adjacent intervals.
+ * 2. A nonzero phase-constant lift2 survives without coefficient conversion. Whole
+ *    native fullness/physical2, frame2, lift2, stale bindings, poles,
  *    unavailable derivatives and unsupported phase-dependent lift refuse.
  * 3. Real source leaves with 24/40 own phase grids publish one shared 24-point
  *    cycle and a final skin. Both faces use its exact vertex IDs, every shared
- *    edge has one incident triangle from each face in opposite directions.
- *    All adjacent-strip mesh vertices replay the independent circle directly
- *    and every triangle faces outward. Ring samples and section orders differ.
+ *    edge has one incident triangle from each face in opposite directions. All
+ *    adjacent-strip mesh vertices replay the independent circle directly and
+ *    every triangle faces outward. Ring samples and section orders differ.
  * 4. A part subtree that consumes the proposed end rolls back completely,
  *    preserving the outer host and a named shared-end diagnostic.
- * 5. Legal nested continuations share both ends of the same middle leaf;
- *    an outer mismatch preserves its named refusal and rolls both walks back.
+ * 5. Legal nested continuations share both ends of the same middle leaf; an outer
+ *    mismatch preserves its named refusal and rolls both walks back.
+ * 6. A separately supported physical graph must be zero at a shared end, including
+ *    every value and two-jet reader. A touching or invalid graph does not prove
+ *    a whole native boundary.
  *
  * Expectations come from r(y)=3+y+y^2 and elementary differentiation, not
  * compatibility controls. Source2 equality covers all phases by the native
  * family; the observed phase sweep additionally checks the actual consumer.
  * Binary64 oracle allowance is an absolute 2e-8 per component, in its declared
- * mm/station/radian units, for native inverse arithmetic.
- * One synchronous CPU question owns only synthetic sources, starts no process
- * or viewer, and collects every scenario before reporting its findings.
+ * mm/station/radian units, for native inverse arithmetic. One synchronous CPU
+ * question owns only synthetic sources, starts no process or viewer, and
+ * collects every scenario before reporting its findings.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `engine`, `interface` on in-memory inputs and asserts the returned observations through 1x TestValidator.predicate; 5 numbered scenarios (first: All four end pairings, three uniform unit scales and the actual 256/64; last: Legal nested continuations share both ends of the same middle leaf;). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (1 assertion site compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -66,13 +72,91 @@ export function test_construction_native_continuation(): void {
   collect("nested pending endpoints", failures, (): void =>
     Made.nested(failures),
   );
+  collect("original graph support", failures, (): void =>
+    graphSupport(failures),
+  );
   TestValidator.predicate(
     failures.join("\n"),
     (): boolean => failures.length === 0,
   );
 }
 
-/** Every made scenario runs even when another scenario has a refusal or exception. */
+/** A source outside the contact has no physical derivatives at that edge. */
+function graphSupport(failures: string[]): void {
+  const inside = (station: number): number => {
+    if (station < 0.25 || station > 0.75)
+      throw new Error("An outside graph callback was reached");
+    return 0.5;
+  };
+  const graph: IAutoMovieLoftRelief.IGraph = {
+    name: "lower graph",
+    stations: [0.25, 0.75],
+    phases: [0, 2 * Math.PI],
+    axis: [1, 0, 0],
+    target: 9,
+    weight: inside,
+    phase: (station) => [inside(station), 0],
+    jet: (station) => [inside(station), 0, 0, 0, 0, 0],
+  };
+  const source: IAutoMovieViewPart = {
+    ...Made.source("lower", 256, 24),
+    originalGraphs: [graph],
+  };
+  const lower: IAutoMovieLoftChain = Made.chain(source);
+  const upper: IAutoMovieLoftChain = Made.chain(
+    Made.source("upper", 64, 40, 1),
+  );
+  const sourceReader = AutoMovieLoftViewFullSource.create(source);
+  const published = AutoMovieConstructionContinuation.apply(
+    lower,
+    "top",
+    upper,
+    "bottom",
+  );
+  if (published !== upper)
+    failures.push("A disjoint original graph interfered with the native end.");
+  const supported = sourceReader.point(0.5, 0);
+  if (Math.abs(supported[0] - (3.75 + 9) / 2) > 2e-8)
+    failures.push("The active original graph did not affect its own section.");
+  const phase = AutoMovieLoftChain.phaseSampler(lower, 1)(0);
+  const full = AutoMovieLoftJet.sampler(lower, 1)(0);
+  const native = sourceReader.jet(1, 0);
+  const point = sourceReader.pointAt(1)(0);
+  if (
+    [phase.p[0], point[0], native.p[0], full.p[0]].some(
+      (x) => Math.abs(x - 5) > 2e-8,
+    ) ||
+    [native.u[0], full.s[0]].some((x) => Math.abs(x - 3) > 2e-8) ||
+    [native.uu[0], full.ss[0]].some((x) => Math.abs(x - 2) > 2e-8)
+  )
+    failures.push(
+      "An outside graph changed the native Point0, phase or physical2.",
+    );
+  for (const stations of [
+    [0.25, 1],
+    [0.25, 1.5],
+    [0.25, Infinity],
+  ] as [number, number][]) {
+    const refused = AutoMovieConstructionContinuation.apply(
+      { ...lower, originalGraphs: [{ ...graph, stations }] },
+      "top",
+      upper,
+      "bottom",
+    );
+    if (
+      typeof refused !== "string" ||
+      !refused.includes("without relief fields")
+    )
+      failures.push(
+        `No native refusal for graph support ${stations.join(",")}.`,
+      );
+  }
+}
+
+/**
+ * Every made scenario runs even when another scenario has a refusal or
+ * exception.
+ */
 function collect(name: string, failures: string[], job: () => void): void {
   try {
     job();
@@ -83,7 +167,10 @@ function collect(name: string, failures: string[], job: () => void): void {
   }
 }
 
-/** Preserve whole native source data and every compatibility row at its own order. */
+/**
+ * Preserve whole native source data and every compatibility row at its own
+ * order.
+ */
 function equivalent(
   scale: number,
   hostEnd: "bottom" | "top",
@@ -164,7 +251,10 @@ function equivalent(
   }
 }
 
-/** The actual skin must consume the same ring across unequal native and tessellation densities. */
+/**
+ * The actual skin must consume the same ring across unequal native and
+ * tessellation densities.
+ */
 function skin(failures: string[]): void {
   const host: IAutoMovieViewPart = Made.source("skin.host", 256, 24);
   const part: IAutoMovieViewPart = Made.source("skin.part", 64, 40, 1);
@@ -230,7 +320,10 @@ function skin(failures: string[]): void {
   meshStrip(real.mesh, vertices, [host.name, part.name], failures);
 }
 
-/** Observe actual adjacent mesh triangles by face, never reconstructing product geometry from them. */
+/**
+ * Observe actual adjacent mesh triangles by face, never reconstructing product
+ * geometry from them.
+ */
 function meshStrip(
   mesh: IAutoMovieConstructionRealization.IMesh,
   ring: readonly number[],
@@ -335,7 +428,10 @@ function position(
     .map((value: number): number => 1000 * value);
 }
 
-/** A nested continuation consuming the same part end must leave only the outer host. */
+/**
+ * A nested continuation consuming the same part end must leave only the outer
+ * host.
+ */
 function rollback(failures: string[]): void {
   const a: IAutoMovieViewPart = Made.source("rollback.host", 256, 24);
   const b: IAutoMovieViewPart = Made.source("rollback.part", 64, 40, 1);
@@ -395,7 +491,10 @@ function tree(host: string, part: string): IAutoMovieConstructionContinuation {
   };
 }
 
-/** Solid surface chart names map directly to the physical station/phase derivative contract. */
+/**
+ * Solid surface chart names map directly to the physical station/phase
+ * derivative contract.
+ */
 function surfaceJet(
   surface: IAutoMovieSolidSurface,
   station: number,
@@ -420,7 +519,10 @@ function surfaceJet(
   );
 }
 
-/** Both chart coordinates receive sign; the mixed second derivative therefore keeps its sign. */
+/**
+ * Both chart coordinates receive sign; the mixed second derivative therefore
+ * keeps its sign.
+ */
 function jets(
   actual: IAutoMovieLoftSurfaceJet,
   expected: IAutoMovieLoftSurfaceJet,
@@ -440,7 +542,10 @@ function jets(
     );
 }
 
-/** Independent finite arithmetic budget, unrelated to mesh chord or density admission. */
+/**
+ * Independent finite arithmetic budget, unrelated to mesh chord or density
+ * admission.
+ */
 function close(
   actual: readonly number[],
   expected: readonly number[],
