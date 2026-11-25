@@ -2,7 +2,6 @@ import {
   AutoMovieSolidChain,
   inspectAutoMovieMeshTopology,
   markAutoMovieConstructionCurves,
-  measureAutoMovieMeshPieces,
   realizeAutoMovieConstruction,
   sampleAutoMovieConstructionCurves,
 } from "@automovie/engine";
@@ -90,9 +89,10 @@ function evaluate(
     uvs: null,
     skin: null,
   };
-  const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(mesh);
+  const { topology, pieces: readPieces } =
+    inspectAutoMovieMeshTopology.prepare(mesh);
   onPhase?.("topology");
-  const pieces: IAutoMovieMeshPiece[] = measureAutoMovieMeshPieces(mesh);
+  const pieces: IAutoMovieMeshPiece[] = readPieces();
   onPhase?.("pieces");
   const trianglesByOwner: { name: string; triangles: number }[] =
     emittedTriangles(surface.mesh);

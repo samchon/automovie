@@ -1,10 +1,12 @@
 import {
   countAutoMovieMeshComponents,
+  inspectAutoMovieMeshTopology,
   measureAutoMovieMeshPieces,
 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieMeshPiece } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { outwardBoxMesh } from "../internal/outwardBoxMesh";
 import { throwsError } from "../internal/predicates";
 
@@ -33,13 +35,16 @@ import { throwsError } from "../internal/predicates";
  *    orientability and genus.
  * 7. A closed cube with one triangle reversed is orientable with genus 0 but not
  *    consistently wound.
- * 8. A malformed index buffer throws.
+ * 8. A malformed index buffer or inconsistent physical correspondence throws.
+ * 9. Paired preparation agrees with individual reports on a dense torus, a split
+ *    cube and overlapping physical tetrahedra with a degenerate face. A later
+ *    buffer edit cannot change the prepared corner identities.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public piece census on made meshes and compares whole records. It catches pieces split by index identity instead of welding, a wrong edge or loop count, a genus from a non-manifold or non-orientable piece, orientability confused with stored winding, a wrong piece order and an accepted malformed buffer.
  * @evidence contracts/development/testing.md#independent-expectations Every count is read from the stated triangulation and the genus from the classification of compact surfaces, not from the implementation; the six-component count of the split cube comes from its index graph.
- * @evidence contracts/development/testing.md#distinguishing-cases Closed, holed, toroidal, split-corner, disjoint, edge-joined and mis-wound meshes, a degenerate triangle and a malformed buffer. Whole-mesh edge census and watertightness belong to the inspectAutoMovieMeshTopology tests and index components to test_mesh_components.
+ * @evidence contracts/development/testing.md#distinguishing-cases Closed, holed, toroidal, split-corner, disjoint, edge-joined and mis-wound meshes, a degenerate triangle and a malformed buffer. Paired reports also exercise coincident positions with independent physical sources. Standalone whole-mesh edge census belongs to the inspectAutoMovieMeshTopology tests and index components to test_mesh_components.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test of engine geometry with in-memory meshes; no process, browser, GPU or dynamic registration.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each naming the mesh and its expected topology.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each naming the mesh and its expected topology.
  */
 export function test_geometry_mesh_pieces(): void {
   const closed: Omit<IAutoMovieMeshPiece, "firstTriangle"> = {
@@ -195,6 +200,80 @@ export function test_geometry_mesh_pieces(): void {
     "a malformed index buffer is refused",
     throwsError(() => measureAutoMovieMeshPieces(mesh(TETRAHEDRON, [0, 1]))),
   );
+  TestValidator.predicate(
+    "paired preparation refuses the malformed index buffer",
+    throwsError(
+      () => inspectAutoMovieMeshTopology.prepare(mesh(TETRAHEDRON, [0, 1])),
+      "mesh topology needs triangle indices in threes",
+    ),
+  );
+  TestValidator.predicate(
+    "paired preparation refuses conflicting physical aliases",
+    throwsError(
+      () =>
+        inspectAutoMovieMeshTopology.prepare(
+          createPhysicalMesh([...TETRAHEDRON], [0, 2, 1], [0, 0, 2, 3]),
+        ),
+      ["Mesh physicalVertices", "aliases disagree on the coordinate grid"],
+    ),
+  );
+
+  const physical: IAutoMovieMesh = createPhysicalMesh(
+    [...TETRAHEDRON, ...TETRAHEDRON],
+    [
+      ...TETRAHEDRON_TRIANGLES,
+      ...TETRAHEDRON_TRIANGLES.map((index: number): number => index + 4),
+      0,
+      0,
+      1,
+    ],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+  );
+  const physicalInspection = inspectAutoMovieMeshTopology.prepare(physical);
+  TestValidator.equals(
+    "coincident physical sources remain two closed pieces",
+    physicalInspection.pieces(),
+    [
+      { firstTriangle: 0, ...closed },
+      { firstTriangle: 4, ...closed },
+    ],
+  );
+  TestValidator.equals(
+    "the physical weld still detects its degenerate face by ordinal",
+    physicalInspection.topology.degenerateTriangles,
+    [8],
+  );
+  for (const [name, fixture] of [
+    ["dense torus", torus(128)],
+    ["split cube", split],
+    ["physical tetrahedra", physical],
+  ] as const) {
+    const { volume: standaloneVolume, ...standalone } =
+      inspectAutoMovieMeshTopology(fixture);
+    const standalonePieces: IAutoMovieMeshPiece[] =
+      measureAutoMovieMeshPieces(fixture);
+    const paired = inspectAutoMovieMeshTopology.prepare(fixture);
+    const { volume: pairedVolume, ...topology } = paired.topology;
+    TestValidator.equals(`${name} paired topology`, topology, standalone);
+    TestValidator.predicate(
+      `${name} paired volume is identical`,
+      Object.is(pairedVolume, standaloneVolume),
+    );
+    TestValidator.equals(
+      `${name} paired pieces`,
+      paired.pieces(),
+      standalonePieces,
+    );
+  }
+  physical.indices!.length = 0;
+  TestValidator.equals(
+    "the prepared census owns the previously admitted corner identities",
+    physicalInspection.pieces(),
+    [
+      { firstTriangle: 0, ...closed },
+      { firstTriangle: 4, ...closed },
+    ],
+  );
 }
 
 /** A unit tetrahedron's corners: the origin and the three unit axis points. */
@@ -221,23 +300,24 @@ const mesh: (
 });
 
 /**
- * A torus of radii 2 m and 0.5 m sampled on a 4 by 4 grid wrapping in both
+ * A torus of radii 2 m and 0.5 m sampled on a square grid wrapping in both
  * directions, each quad split into two triangles.
  */
-const torus: () => IAutoMovieMesh = (): IAutoMovieMesh => {
+const torus = (resolution: number = 4): IAutoMovieMesh => {
   const positions: number[] = [];
-  for (let i: number = 0; i < 4; ++i)
-    for (let j: number = 0; j < 4; ++j) {
-      const u: number = (Math.PI / 2) * i;
-      const v: number = (Math.PI / 2) * j;
+  const step: number = (2 * Math.PI) / resolution;
+  for (let i: number = 0; i < resolution; ++i)
+    for (let j: number = 0; j < resolution; ++j) {
+      const u: number = step * i;
+      const v: number = step * j;
       const ring: number = 2 + 0.5 * Math.cos(v);
       positions.push(ring * Math.cos(u), ring * Math.sin(u), 0.5 * Math.sin(v));
     }
   const at: (i: number, j: number) => number = (i: number, j: number): number =>
-    (i % 4) * 4 + (j % 4);
+    (i % resolution) * resolution + (j % resolution);
   const indices: number[] = [];
-  for (let i: number = 0; i < 4; ++i)
-    for (let j: number = 0; j < 4; ++j)
+  for (let i: number = 0; i < resolution; ++i)
+    for (let j: number = 0; j < resolution; ++j)
       indices.push(
         at(i, j),
         at(i + 1, j),

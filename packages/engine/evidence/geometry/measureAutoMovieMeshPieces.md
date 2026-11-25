@@ -22,7 +22,7 @@ Near-linear in triangles: one hashed edge record per triangle edge, union-find w
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-Each call measures the mesh it is given and keeps nothing, so a caller that needs the census twice keeps the first.
+Each standalone call measures the mesh it is given and keeps nothing. The paired preparation supplies the weld directly to the shared census.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

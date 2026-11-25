@@ -85,18 +85,18 @@ export namespace weldAutoMovieMeshCorners {
      * The mesh's triangle index run, borrowed as `triangleIndicesOf` returns
      * it.
      */
-    indices: number[];
+    readonly indices: readonly number[];
 
     /**
      * Each index entry's identity, an integer in `[0, identities)`, or -1 for
      * every corner of a degenerate triangle.
      */
-    corners: number[];
+    readonly corners: readonly number[];
 
-    /** Ascending ordinals of the degenerate triangles. */
-    degenerate: number[];
+    /** Ascending degenerate ordinals, transferred to the topology report. */
+    readonly degenerate: number[];
 
     /** How many identities the corners range over. */
-    identities: number;
+    readonly identities: number;
   }
 }
