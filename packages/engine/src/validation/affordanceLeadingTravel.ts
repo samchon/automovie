@@ -3,8 +3,8 @@ import type {
   IAutoMovieAffordanceTravelRange,
 } from "@automovie/interface";
 
-import { lerp } from "../lerp";
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
+import { interpolateAffordanceTravel } from "./interpolateAffordanceTravel";
 
 /**
  * The unique leader travel that gives a requested follower travel.
@@ -91,25 +91,8 @@ export function affordanceLeadingTravel(
   const [x1, y1]: [number, number] = table[high]!;
   if (follower === y0) return x0;
   if (follower === y1) return x1;
-  const span: number = y1 - y0;
-  const distance: number = follower - y0;
-  const inputSpan: number = x1 - x0;
-  const numerator: number = inputSpan * distance;
-  if (Math.abs(numerator) < Infinity && Math.abs(span) < Infinity) {
-    const leader: number = x0 + numerator / span;
-    return Math.abs(leader) < Infinity ? leader : null;
-  }
-
-  // Recover the fraction on a half-scale output segment when its width
-  // overflows. The resulting convex combination can span the full input range.
-  const fraction: number =
-    Math.abs(span) < Infinity
-      ? distance / span
-      : (follower * 0.5 - y0 * 0.5) / usableSpan(y0, y1);
-  if (!(fraction >= 0 && fraction <= 1)) return null;
-  return Math.abs(inputSpan) < Infinity
-    ? x0 + inputSpan * fraction
-    : lerp(x0, x1, fraction);
+  const leader: number = interpolateAffordanceTravel(y0, y1, x0, x1, follower);
+  return Math.abs(leader) < Infinity ? leader : null;
 }
 
 /** A segment's signed width, measured at half scale when subtraction overflows. */

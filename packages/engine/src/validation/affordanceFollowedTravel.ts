@@ -1,6 +1,6 @@
 import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 
-import { lerp } from "../lerp";
+import { interpolateAffordanceTravel } from "./interpolateAffordanceTravel";
 
 /**
  * A follower's travel at its leader's travel, by the rule its `follows`
@@ -9,8 +9,8 @@ import { lerp } from "../lerp";
  *
  * A leader's travel outside the table's first and last inputs takes the nearer
  * end's output; engine admission requires a table to cover the leader's whole
- * range, so an admitted model never reaches that case. Interior reads rescale
- * a segment when an intermediate width or product overflows.
+ * range, so an admitted model never reaches that case. Interior reads reorder
+ * the arithmetic when an intermediate width or product loses range.
  *
  * @param follows The follower's rule.
  * @param leader The leader's travel, in its kind's unit.
@@ -36,20 +36,5 @@ export function affordanceFollowedTravel(
   const [x0, y0]: [number, number] = table[low]!;
   const [x1, y1]: [number, number] = table[high]!;
   if (leader === x0) return y0;
-  const outputSpan: number = y1 - y0;
-  const distance: number = leader - x0;
-  const inputSpan: number = x1 - x0;
-  const numerator: number = outputSpan * distance;
-  if (Math.abs(numerator) < Infinity && Math.abs(inputSpan) < Infinity)
-    return y0 + numerator / inputSpan;
-
-  // The requested point stays between the two knots. An overflowing input
-  // width is finite at half scale and gives the same fraction.
-  const fraction: number =
-    Math.abs(inputSpan) < Infinity
-      ? distance / inputSpan
-      : (leader * 0.5 - x0 * 0.5) / (x1 * 0.5 - x0 * 0.5);
-  return Math.abs(outputSpan) < Infinity
-    ? y0 + outputSpan * fraction
-    : lerp(y0, y1, fraction);
+  return interpolateAffordanceTravel(x0, x1, y0, y1, leader);
 }

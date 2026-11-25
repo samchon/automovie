@@ -5,6 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../../internal/nclose";
+
 /**
  * A coupled travel is reversible only when the forward map has one leader for
  * the requested follower, including both legal domain endpoints.
@@ -16,8 +18,8 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Increasing and decreasing cams invert in the correct segment and return exact
  *    table and domain endpoints.
  * 3. Finite endpoints and dyadic interior values survive an overflowing
- *    segment width or interpolation product. An interior legal domain uses
- *    the same finite forward images to select its exact bounds.
+ *    segment width or an out-of-range intermediate product or fraction. An
+ *    interior legal domain uses the same forward images to select its bounds.
  * 4. Too few rows, repeated knots or a reversal of follower direction refuse.
  *
  * All admitted examples yield dyadic or integer travel by exact arithmetic.
@@ -116,6 +118,49 @@ export function test_engine_validation_affordance_leading_travel(): void {
       power / 2,
     ),
     power / 2,
+  );
+
+  const small: number = 2 ** -600;
+  const subnormalProductSpan: number = 2 ** -530;
+  const subnormalProductQuery: number = 3 * 2 ** -545;
+  const smallLeader: number | null = affordanceLeadingTravel(
+    {
+      id: "small-product",
+      table: [
+        [0, 0],
+        [small, small],
+      ],
+    },
+    small / 2,
+  );
+  const roundedLeader: number | null = affordanceLeadingTravel(
+    {
+      id: "subnormal-product",
+      table: [
+        [0, 0],
+        [subnormalProductSpan, subnormalProductSpan],
+      ],
+    },
+    subnormalProductQuery,
+  );
+  const steepLeader: number | null = affordanceLeadingTravel(
+    {
+      id: "small-fraction",
+      table: [
+        [0, 0],
+        [2 ** 30, -(2 ** 10)],
+      ],
+    },
+    -Number.MIN_VALUE,
+  );
+  TestValidator.predicate(
+    "the inverse keeps its exact dyadic value across three underflow cases",
+    smallLeader !== null &&
+      roundedLeader !== null &&
+      steepLeader !== null &&
+      nclose(smallLeader, small / 2, 0) &&
+      nclose(roundedLeader, subnormalProductQuery, 0) &&
+      nclose(steepLeader, 2 ** -1054, 0),
   );
 
   const halfWidth: number = 2 ** 1023;

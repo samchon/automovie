@@ -14,6 +14,9 @@ import { nclose, throwsError } from "../../internal/predicates";
  *
  * 1. A Z-directed ramp has the four expected corners and the requested rise.
  * 2. Coincident endpoints or zero width independently refuse.
+ * 3. Power-of-two centerlines retain their width and unit rise when squared
+ *    separation would overflow or underflow.
+ * 4. A footprint lost to rounding or an overflowing end height refuses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the fixture's footprint and plane and separates the two malformed inputs.
  * @evidence contracts/development/testing.md#behavioral-verification Observes the emitted polygon and plane. Swapped footprint corners or slope axes, a wrong datum, and missing endpoint or width refusals fail.
@@ -52,6 +55,29 @@ export function test_engine_space_world_ramp(): void {
       nclose(ramp.height.slopeZ, 0.25, 0) &&
       nclose(ramp.height.originHeight, 1, 0),
   );
+  for (const span of [2 ** -800, 2 ** 800]) {
+    const extreme: IAutoMovieWorldSurface = worldRamp({
+      ...input,
+      from: { x: 0, z: 0 },
+      to: { x: span, z: 0 },
+      width: 2,
+      rise: 1,
+    });
+    TestValidator.predicate(
+      `centerline ${span} retains its exact width and reciprocal slope`,
+      extreme.height.kind === "plane" &&
+        nclose(extreme.height.originHeight, 0, 0) &&
+        nclose(extreme.height.slopeX, 1 / span, 0) &&
+        nclose(extreme.height.slopeZ, 0, 0) &&
+        extreme.polygon.length === 4 &&
+        nclose(extreme.polygon[0]!.z, 1, 0) &&
+        nclose(extreme.polygon[1]!.x, span, 0) &&
+        nclose(extreme.polygon[1]!.z, 1, 0) &&
+        nclose(extreme.polygon[2]!.z, -1, 0) &&
+        nclose(extreme.polygon[3]!.z, -1, 0),
+    );
+  }
+
   for (const [label, overrides] of [
     ["coincident endpoints", { to: input.from }],
     ["zero width", { width: 0 }],
@@ -61,6 +87,20 @@ export function test_engine_space_world_ramp(): void {
       throwsError(
         () => worldRamp({ ...input, ...overrides }),
         "requires finite distinct endpoints",
+      ),
+    );
+  for (const [label, overrides] of [
+    [
+      "the width rounds away at both endpoints",
+      { from: { x: 2 ** 55, z: -4 }, to: { x: 2 ** 55, z: 4 } },
+    ],
+    ["the top height overflows", { baseHeight: 2 ** 1023, rise: 2 ** 1023 }],
+  ] satisfies readonly [string, Partial<IAutoMovieWorldRamp.IInput>][])
+    TestValidator.predicate(
+      label,
+      throwsError(
+        () => worldRamp({ ...input, ...overrides }),
+        "requires representable footprint",
       ),
     );
 }

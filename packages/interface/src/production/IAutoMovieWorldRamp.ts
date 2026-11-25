@@ -8,8 +8,7 @@ export namespace IAutoMovieWorldRamp {
      */
     id: string;
     /**
-     * World XZ centerline start, where the plane has baseHeight. Endpoints must
-     * produce finite positive squared separation.
+     * World XZ centerline start, where the plane has baseHeight.
      */
     from: {
       /** Centerline start world X in metres. */
@@ -19,8 +18,8 @@ export namespace IAutoMovieWorldRamp {
     };
     /**
      * World XZ centerline end, where the plane has baseHeight + rise.
-     * Distinctness is checked through squared separation, including its
-     * underflow/overflow limits.
+     * Its distance from the start must be finite and positive. The sides of
+     * the rectangle must stay distinct at both endpoints.
      */
     to: {
       /** Centerline end world X in metres. */

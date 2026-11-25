@@ -51,6 +51,8 @@ const CAMERA: IAutoMovieCamera = {
  * 5. A missing camera, or no raster, fails with no subject resolved.
  * 6. The box also fails when its far side clips or the depth grid is too coarse,
  *    though some of the box remains within the frustum in either case.
+ * 7. A boxing failure between two readable subjects leaves their combined
+ *    depth range intact and counts its resolved placement.
  */
 export function test_engine_film_realize_shot_camera_outcome(): void {
   const box = (lift: number): IAutoMovieSubjectBox => ({
@@ -65,8 +67,21 @@ export function test_engine_film_realize_shot_camera_outcome(): void {
       if (subject === "ghost") throw new Error("ghost is not staged");
       return CAMERA.transform;
     },
-    subjectBox: (subject: string): IAutoMovieSubjectBox =>
-      box(subject === "canopy" ? 10 : 0),
+    subjectBox: (subject: string): IAutoMovieSubjectBox => {
+      if (subject === "unboxed") throw new Error("the subject has no box");
+      const bounds: IAutoMovieSubjectBox = box(subject === "canopy" ? 10 : 0);
+      if (subject === "near")
+        return {
+          min: { ...bounds.min, z: 3 },
+          max: { ...bounds.max, z: 4 },
+        };
+      if (subject === "far")
+        return {
+          min: { ...bounds.min, z: -3 },
+          max: { ...bounds.max, z: -2 },
+        };
+      return bounds;
+    },
   };
   const move: IAutoMovieClip = {
     id: "move",
@@ -161,5 +176,19 @@ export function test_engine_film_realize_shot_camera_outcome(): void {
       outcome.passed,
     ]),
     [[1, "outside-clipping-range", false], [1, "insufficient-precision", false]],
+  );
+  const mixture: realizeShotCameraOutcome.IOutcome = grade([
+    "near",
+    "unboxed",
+    "far",
+  ]);
+  TestValidator.predicate(
+    "both boxed subjects contribute depth and the unboxed placement still counts",
+    mixture.requiredSubjects === 3 &&
+      mixture.resolvedSubjects === 3 &&
+      mixture.readableSubjects === 2 &&
+      mixture.passed === false &&
+      nclose(mixture.depthPrecision.requiredNear ?? Number.NaN, 6, 0) &&
+      nclose(mixture.depthPrecision.requiredFar ?? Number.NaN, 13, 0),
   );
 }
