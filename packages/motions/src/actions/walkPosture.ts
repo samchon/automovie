@@ -16,9 +16,11 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { prepareWalkSwingSeams } from "./prepareWalkSwingSeams";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import type { walkFoot } from "./walkFoot";
+import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 
 /**
@@ -32,6 +34,7 @@ import { walkReach } from "./walkReach";
  * @param steps The take's fixed step clock and phase readers.
  * @param solve The take's same-second pelvis/foot solve, sharing the phase and
  *   amount this reader already evaluated at that exact second.
+ * @param swings The scheduled transitions between stance and flight.
  * @returns A clamped action-second reader; omitted leg/channel demand writes
  *   the complete posture.
  */
@@ -48,6 +51,7 @@ export function walkPosture(
     amount: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ) => walkPosture.ISettled,
+  swings: readonly walkLocomoteSwings.ISwing[],
 ): (
   seconds: number,
   legs?: readonly AutoMovieHumanSide[],
@@ -58,7 +62,10 @@ export function walkPosture(
     standUpright(body);
   const relaxed: IAutoMovieMotionHumanPosture["joints"] = stand.relaxed(body);
   const abduction: number = stand.abduction(body);
-  const shapes: Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]> = {
+  const shapes: Record<
+    AutoMovieHumanSide,
+    IAutoMovieMotionHumanPosture["joints"]
+  > = {
     left: HumanHand.shape("left", "relaxed"),
     right: HumanHand.shape("right", "relaxed"),
   };
@@ -66,11 +73,12 @@ export function walkPosture(
     left: body.rest.get("leftLowerLeg")!,
     right: body.rest.get("rightLowerLeg")!,
   };
-  return (
+  const read = (
     seconds: number,
     legs: readonly AutoMovieHumanSide[] = walkReach.SIDES,
     channels?: readonly AutoMovieMotionHumanChannel[],
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    adjust?: ReturnType<typeof prepareWalkSwingSeams>,
   ): IAutoMovieMotionHumanPosture => {
     const t: number = Math.min(steps.duration, Math.max(0, seconds));
     const phase: number = steps.phase(t);
@@ -122,14 +130,12 @@ export function walkPosture(
     } else {
       for (const side of walkReach.SIDES)
         if (channels?.includes(`${side}Hand`))
-          Object.assign(
-            joints,
-            shapes[side],
-          );
+          Object.assign(joints, shapes[side]);
     }
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of legs) {
-      const planted: boolean = feet[side].swing === undefined;
+      const flight: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
+        feet[side].swing;
 
       // The foot has no axial joint: its own heading carries the knee's
       // bend hint even when a folded shank pitches it past vertical.
@@ -144,8 +150,12 @@ export function walkPosture(
         point: reached[side].ankle,
         bend: knee,
         rotation: reached[side].rotation,
-        ...(planted ? { planted: true, contact: settled.contacts[side] } : {}),
+        ...(flight === undefined
+          ? { planted: true, contact: settled.contacts[side] }
+          : {}),
       };
+      if (flight !== undefined && adjust !== undefined)
+        adjust(side, flight, limbs[`${side}Leg`]!, joints);
     }
     return AutoMovieMotionHumanLean.pivot(
       body,
@@ -153,6 +163,13 @@ export function walkPosture(
       { pitch: inclined.pitch, roll: 0 },
     );
   };
+  if (swings.length === 0) return read;
+  const adjust: ReturnType<typeof prepareWalkSwingSeams> =
+    prepareWalkSwingSeams(body, swings, (side, seconds) =>
+      read(seconds, [side], [`${side}Leg`]),
+    );
+  return (seconds, legs, channels, resolution) =>
+    read(seconds, legs, channels, resolution, adjust);
 }
 
 /**

@@ -204,6 +204,7 @@ export function walkLocomote(
       },
       swings,
     ),
+    swings,
   );
 
   // The swinging arms are carried clear of the body, the hands passing the

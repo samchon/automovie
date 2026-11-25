@@ -26,6 +26,7 @@ export * from "./walkRoot";
 export * from "./walkLegRise";
 export * from "./prepareSupportLiftCourse";
 export * from "./walkLocomoteSwings";
+export * from "./prepareWalkSwingSeams";
 export * from "./WalkTurn";
 export * from "./walkTempo";
 export * from "./walkStation";
