@@ -17,11 +17,9 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * itself places a part it moves (`IAutoMovieMotionHumanProp.point`, a pedal on
  * its crank, a stirrup on a trotting horse), its rotation the part's own or
  * else the prop's; otherwise the prop's displayed frame composed with the
- * point's own frame on the posed prop, where an act or a track has moved its
- * parts (a pedal on a turning crank, a step plate on a moving tread), its rest
- * frame otherwise. A contact planted on a moving part is held in this frame, so
- * it rides the part, not the whole prop. A point the prop names without a frame
- * keeps the prop's own rotation.
+ * point's own frame on the externally posed material, the driven articulation,
+ * or the rest model. A contact planted on a moving part is held in that part's
+ * frame. A point the prop names without a frame keeps the prop's own rotation.
  *
  * @param self The performance.
  * @param subject The prop.
@@ -58,16 +56,20 @@ export function HumanPerformanceSite(
       position: placed.point,
       rotation: Quaternion.normalize(placed.rotation ?? world.rotation),
     };
+  const external: IAutoMovieMotionHumanProp.IPosed | undefined =
+    prop.poseAt?.(seconds);
   const posed: readonly IAutoMovieAffordance[] | undefined =
-    prop.articulate !== undefined &&
+    external?.affordances ??
+    (prop.articulate !== undefined &&
     HumanPerformanceObject.writers(self, prop).length > 0
       ? HumanPerformanceObject.pose(self, prop, seconds).affordances
-      : prop.affordances;
+      : prop.affordances);
   const site: IAutoMovieAffordance | undefined = posed?.find(
     (a: IAutoMovieAffordance): boolean => a.id === id,
   );
   const translation: IAutoMovieVector3 | undefined =
-    site?.frame.translation ?? prop.points[id]?.point;
+    site?.frame.translation ??
+    (external === undefined ? prop.points[id]?.point : undefined);
   if (translation === undefined)
     throw new HumanRefusal({
       kind: "affordance",

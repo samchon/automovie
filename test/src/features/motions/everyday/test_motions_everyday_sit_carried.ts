@@ -202,4 +202,17 @@ export function test_motions_everyday_sit_carried(): void {
         ROUNDING,
       ),
   );
+  const offset: IAutoMovieMotionHumanPosture = {
+    ...source,
+    limbs: {
+      rightLeg: { ...source.limbs.rightLeg!, bend: { x: 5, y: 2, z: 4 } },
+    },
+  };
+  const carried = sample(offset, 4).limbs.rightLeg;
+  // The quarter turn takes the ankle-to-knee offset (1, 1, 0) to (0, 1, -1).
+  TestValidator.predicate(
+    "the actual tread carries the held knee direction with the ankle",
+    carried !== undefined &&
+      vclose(carried.bend, { x: 13, y: 4, z: 2 }, ROUNDING),
+  );
 }

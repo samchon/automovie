@@ -115,11 +115,23 @@ export namespace sitCarried {
     const read: IAutoMovieMotionHumanPropReader = context.prop(seat.carrier);
     const origin: IAutoMovieRigidTransform = read.frame(context.start);
     const turned: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
+    const named = (
+      id: string,
+      film: number,
+      fallback: IAutoMovieQuaternion,
+    ): IAutoMovieRigidTransform | undefined => {
+      if (read.site !== undefined) return read.site(id, film);
+      const point: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+        read.prop.point?.(id, film);
+      return point === undefined
+        ? undefined
+        : { position: point.point, rotation: point.rotation ?? fallback };
+    };
     const seatId: string | undefined = seat.point;
     const began: IAutoMovieVector3 | undefined =
       seatId === undefined
         ? undefined
-        : read.prop.point?.(seatId, context.start)?.point;
+        : named(seatId, context.start, origin.rotation)?.position;
     const feet: readonly IFootSupport[] =
       contacts === undefined
         ? []
@@ -137,10 +149,10 @@ export namespace sitCarried {
             );
             const id: string | undefined =
               window?.support.kind === "prop" ? window.support.point : undefined;
-            const frame: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+            const frame: IAutoMovieRigidTransform | undefined =
               id === undefined
                 ? undefined
-                : read.prop.point?.(id, context.start);
+                : named(id, context.start, origin.rotation);
             const floor: IAutoMovieMotionHumanContactWindow | undefined =
               ground.find((item) => item.from === 0);
             return {
@@ -151,10 +163,8 @@ export namespace sitCarried {
                 : {
                     part: {
                       id,
-                      position: frame.point,
-                      inverse: Quaternion.inverse(
-                        frame.rotation ?? origin.rotation,
-                      ),
+                      position: frame.position,
+                      inverse: Quaternion.inverse(frame.rotation),
                       fromFloor: floor !== undefined,
                       release: (floor?.to ?? 0) * duration,
                       bearing: window.from * duration,
@@ -184,8 +194,11 @@ export namespace sitCarried {
           continue;
         }
         if (part === undefined || t < part.release) continue;
-        const target: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
-          read.prop.point?.(part.id, film);
+        const target: IAutoMovieRigidTransform | undefined = named(
+          part.id,
+          film,
+          now.rotation,
+        );
         if (target === undefined) continue;
         const bearing: boolean = t >= part.bearing;
         const fromWorld: boolean = part.fromFloor && !bearing;
@@ -197,16 +210,15 @@ export namespace sitCarried {
                 (t - part.release) / (part.bearing - part.release),
               );
         const delta: IAutoMovieQuaternion = Quaternion.multiply(
-          target.rotation ?? now.rotation,
+          target.rotation,
           part.inverse,
         );
-        const point: IAutoMovieVector3 = Vector3.add(
-          target.point,
-          Quaternion.rotateVector(
-            delta,
-            Vector3.subtract(raw.point, part.position),
-          ),
-        );
+        const place = (value: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(
+            target.position,
+            Quaternion.rotateVector(delta, Vector3.subtract(value, part.position)),
+          );
+        const point: IAutoMovieVector3 = place(raw.point);
         const rotation: IAutoMovieQuaternion | undefined =
           raw.rotation === undefined
             ? undefined
@@ -214,9 +226,11 @@ export namespace sitCarried {
         posture.limbs[limb] = {
           ...rigid,
           point: bearing ? point : Vector3.lerp(approach.point, point, share),
-          ...(fromWorld
-            ? { bend: Vector3.lerp(raw.bend, rigid.bend, share) }
-            : {}),
+          bend: bearing
+            ? place(raw.bend)
+            : fromWorld
+              ? Vector3.lerp(raw.bend, rigid.bend, share)
+              : rigid.bend,
           ...(rotation === undefined || approach.rotation === undefined
             ? {}
             : {
@@ -229,7 +243,7 @@ export namespace sitCarried {
       const moved: IAutoMovieVector3 | undefined =
         began === undefined || seatId === undefined
           ? undefined
-          : read.prop.point?.(seatId, film)?.point;
+          : named(seatId, film, now.rotation)?.position;
       if (began === undefined || moved === undefined) return posture;
       const carried: IAutoMovieVector3 = Vector3.add(
         now.position,
