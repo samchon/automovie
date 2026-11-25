@@ -108,6 +108,16 @@ pnpm exec automovie capture --module src/takeSubjects.ts --props rehearsal.take.
 
 Version 1 reconstructs authored Human performance, including its supported prop, articulation, contact and event evaluation. It refuses opaque owner callbacks or missing inputs. Native solver snapshot restore and partial raster export resume use separate workflows.
 
+## Recover an open surface
+
+Author open continuation and local reconstruction in a TypeScript script. Import `publishAutoMovieRecoveryInput`, `recoveryOpen` and `recoveryLocal` from `src/executable/recovery/node/index.ts`. Run the script with `pnpm exec ttsx -P tsconfig.json path/to/recovery.ts`.
+
+Publish the typed source specification and mesh inputs with `publishAutoMovieRecoveryInput`. Use `observeAutoMovieRecovery` to obtain section coefficients, add the registration and `provenance: { inputHash: source.sha256, sourceEpoch }` to the result value, and publish the resulting curves with the same helper. The digest identifies the published value while it and its nested arrays remain unchanged.
+
+Call `recoveryOpen` with `operation: "observe"` to publish the continuation graph. Pass the returned graph and the same curves to `recoveryOpen` with `operation: "reconstruct"` or to `recoveryLocal`. For local reconstruction, choose `ruled` or `quadratic`. An optional analytic publication must bind the original curve and graph digests. Omit the publication mode to emit checkpoints, use `final-only` for the final model, or use `final-only-gzip` for a verified archive.
+
+Previous `recoveryOpen` and `recoveryLocal` command lines used paths to arbitrary JSON inputs. Use the typed script entry for these workflows. To resume in a separate execution, supply a statically imported module with the original typed values and their publication digests. The published JSON records remain available for inspection and provenance.
+
 ## Verify a correction
 
 Declare useful checks beside the model, motion case or film they serve and export their targets from [`src/executable/verify.ts`](src/executable/verify.ts). Give each check a short title and a source comment explaining the criterion, its scope and how its evidence is read. Share a definition when several targets use the same known inputs. Use explicit `.ts` suffixes on relative imports in the verification modules so the script can load them in Node without compiling unrelated source.
