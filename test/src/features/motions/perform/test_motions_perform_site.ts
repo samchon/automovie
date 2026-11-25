@@ -47,6 +47,8 @@ const ROLL: IAutoMovieQuaternion = {
  * 3. A door whose hinge an action drives to 10 degrees by 2 s has its handle at
  *    (10, 1, 0): the posed point, not the rest one.
  * 4. An unknown prop is refused on `support`, an unknown point on `point`.
+ * 5. A staged prop frame places the ordinary named point on that frame. A point
+ *    the prop explicitly positions in world space keeps its own frame.
  */
 export async function test_motions_perform_site(): Promise<void> {
   const crate: IAutoMovieMotionHumanProp = HumanObject.prop(
@@ -120,6 +122,28 @@ export async function test_motions_perform_site(): Promise<void> {
     "unknown props and points",
     refused(() => HumanPerformanceSite(state, "ghost", "tag", 0), "support") &&
       refused(() => HumanPerformanceSite(state, "crate", "lid", 0), "point"),
+  );
+
+  // 5. A named point shares the displayed prop frame of its caller.
+  const onBase = (seconds: number): IAutoMovieRigidTransform => ({
+    position: P(4, 2, seconds),
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  });
+  const carried: IAutoMovieRigidTransform = HumanPerformanceSite(
+    state,
+    "crate",
+    "tag",
+    0.5,
+    onBase,
+  );
+  TestValidator.predicate(
+    "the caller's frame carries a resting point and a world point stays placed",
+    near(carried.position, P(5, 2, 0.5)) &&
+      near(turn(carried.rotation, P(0, 1, 0)), P(-1, 0, 0)) &&
+      near(
+        HumanPerformanceSite(state, "cart", "pedal", 1, onBase).position,
+        pedal.position,
+      ),
   );
 }
 

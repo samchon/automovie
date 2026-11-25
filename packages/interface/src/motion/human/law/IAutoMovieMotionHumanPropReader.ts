@@ -21,6 +21,16 @@ export interface IAutoMovieMotionHumanPropReader {
   frame(seconds: number): IAutoMovieRigidTransform;
 
   /**
+   * A named contact's displayed world frame, including its placed articulation.
+   * Uses the same prop placement as {@link frame}.
+   *
+   * @param id The prop's point or affordance name.
+   * @param seconds Film seconds.
+   * @returns The named frame.
+   */
+  site?(id: string, seconds: number): IAutoMovieRigidTransform;
+
+  /**
    * The original launch publication displaying the prop at a film second, if
    * the reader tracks flights and one still owns the prop.
    */

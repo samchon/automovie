@@ -27,6 +27,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @param subject The prop.
  * @param id The point's name.
  * @param seconds Film seconds.
+ * @param frame The action's displayed prop reader when it has a carrier view.
  * @returns The point's world frame, metres.
  * @throws {HumanRefusal} When the prop or its point is unknown.
  */
@@ -35,6 +36,7 @@ export function HumanPerformanceSite(
   subject: string,
   id: string,
   seconds: number,
+  frame?: (seconds: number) => IAutoMovieRigidTransform,
 ): IAutoMovieRigidTransform {
   const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
   if (prop === undefined)
@@ -45,11 +47,8 @@ export function HumanPerformanceSite(
       reason: `no prop ${subject} is in the performance`,
       fix: "name a prop of the performance",
     });
-  const world: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
-    self,
-    subject,
-    seconds,
-  );
+  const world: IAutoMovieRigidTransform =
+    frame?.(seconds) ?? HumanPerformanceRead.prop(self, subject, seconds);
   // A part the prop itself moves (a pedal on its crank, a stirrup on a
   // trotting horse) is where the prop places it, in the world.
   const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
