@@ -161,13 +161,12 @@ const hdr: (props: {
  * 1. Each accepted container reports its exact media type and its two edges: PNG's
  *    IHDR, a JPEG frame header found by walking the segment chain, WebP's
  *    lossy, lossless and extended bodies, and a Radiance HDR resolution line.
- * 2. A JPEG whose dimensions sit behind fill bytes, a declared restart marker,
- *    or a standalone TEM is still located. A restart without positive DRI and
- *    a Huffman table that resembles a frame marker are refused.
+ * 2. A JPEG whose dimensions sit behind fill bytes, a declared restart marker, or
+ *    a standalone TEM is still located. A restart without positive DRI and a
+ *    Huffman table that resembles a frame marker are refused.
  * 3. Every truncation, wrong signature, wrong chunk, wrong start code, missing
  *    blank line and non-standard scanline orientation reports "not an image"
  *    rather than a guessed size.
- *
  */
 export function test_unit_engine_validation_image_facts(): void {
   TestValidator.equals(

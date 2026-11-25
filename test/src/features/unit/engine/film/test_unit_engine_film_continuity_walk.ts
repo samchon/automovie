@@ -107,7 +107,6 @@ const beatProps: (
  *    warns at that cut's opening translation path, keyed by beat index.
  * 4. A nonsensical tolerance is a range error that short-circuits before any
  *    snapshot is compared.
- *
  */
 export function test_unit_engine_film_continuity_walk(): void {
   TestValidator.equals(

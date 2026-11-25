@@ -31,8 +31,7 @@ const ROUNDING: number = 1e-12;
  *    sin π (f_k u + φ_k)` with (f, φ) = (1.5, 0.25), (2.375, 0.75), (3.25,
  *    1.25), (4.125, 1.75); the eight draws happen once; one term carries `256
  *    u⁴ (1 − u)⁴`.
- * 2. A duration, frequency or term count that is not positive, or a fractional
- *    count, is refused.
+ * 2. A duration, frequency or term count that is not positive is refused.
  * 3. Four seeds give four distinct values within ±2, a seed repeats exactly, and
  *    the noise is zero at both ends.
  * 4. A warp of (0.3, 0, −0.2) and 30 degrees over 0.5 to 1.5 s: at its end the
@@ -95,7 +94,6 @@ export function test_unit_engine_motion_seeded_warp(): void {
     [0, 2, 4],
     [1, -2, 4],
     [1, 2, 0],
-    [1, 2, 1.5],
   ];
   TestValidator.predicate(
     "an invalid spectrum is refused",

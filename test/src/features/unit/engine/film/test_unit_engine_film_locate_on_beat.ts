@@ -26,13 +26,15 @@ const sample: () => IAutoMovieConstraintViolation[] =
   ];
 
 /**
- * Beat location preserves feedback fields and leaves original violations unstamped.
+ * Beat location preserves feedback fields and leaves original violations
+ * unstamped.
  *
  * Scenarios:
- * 1. A claiming tree stamps b1 on both input violations while preserving severity and path.
+ *
+ * 1. A claiming tree stamps b1 on both input violations while preserving severity
+ *    and path.
  * 2. Original records still have no node.
  * 3. A missing tree and an unclaimed beat leave both outputs unstamped.
- *
  */
 export function test_unit_engine_film_locate_on_beat(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

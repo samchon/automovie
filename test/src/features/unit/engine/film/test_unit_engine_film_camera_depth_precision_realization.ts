@@ -163,7 +163,6 @@ function realize(
  * 5. Missing camera, raster, or required subject produce addressed invalid reports
  *    and three diagnostics rather than fabricated readable geometry.
  * 6. A NaN review time remains a failing sample rather than being skipped.
- *
  */
 export function test_unit_engine_film_camera_depth_precision_realization(): void {
   const expected: ReturnType<typeof evaluateAutoMovieCameraDepthPrecision> =

@@ -10,9 +10,10 @@ import { nclose } from "../../../internal/predicates";
  * and leaves its adjacent unreached final tick exactly silent.
  *
  * Scenarios:
- * 1. A decoded generation ending one sample before its declared span preserves the last reached sample within 1e-6.
- * 2. Only the single unreached native tick becomes silent.
  *
+ * 1. A decoded generation ending one sample before its declared span preserves the
+ *    last reached sample within 1e-6.
+ * 2. Only the single unreached native tick becomes silent.
  */
 export function test_unit_engine_film_production_sound_generation_extent(): void {
   const {

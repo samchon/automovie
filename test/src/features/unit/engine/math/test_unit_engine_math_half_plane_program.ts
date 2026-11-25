@@ -8,28 +8,28 @@ import { TestValidator } from "@nestia/e2e";
  * least worst violation when there is none.
  *
  * Scenarios:
- * 1. A preferred point inside every half-plane and the disc is returned as it
- *    is, and the result is feasible.
+ *
+ * 1. A preferred point inside every half-plane and the disc is returned as it is,
+ *    and the result is feasible.
  * 2. One violated half-plane: the result is the preferred point's orthogonal
  *    projection onto its line, within 1e-12.
  * 3. A preferred point outside the disc and no half-plane: the result is the
  *    disc's boundary point toward it, within 1e-12.
- * 4. Two half-planes facing apart across a strip 0.4 wide that the disc
- *    contains nowhere both: `y >= 0.2` and `y <= -0.2`; the result is
- *    infeasible and lies on `y = 0`, where the two violations are equal.
- * 5. 200 random sets of one to six half-planes through the disc: every
- *    feasible result satisfies each half-plane within 1e-9 and lies in the
- *    disc, and no point of a 201 by 201 grid over the disc that satisfies
- *    them all is nearer the preferred point by more than the grid's half
- *    diagonal; an infeasible result has no feasible grid point.
- * 6. Order: the same set listed in reverse gives the same feasible point
- *    within 1e-9.
- * 7. Scenario 4's strip with its first half-plane hard: the result keeps
- *    `y >= 0.2` and lies at `y = 0.2`, where the other's violation is least.
- *    With both hard they clash, so both are relaxed alike and the result lies
- *    at `y = 0`. A hard count that is negative, fractional or beyond the
- *    half-planes is refused.
- *
+ * 4. Two half-planes facing apart across a strip 0.4 wide that the disc contains
+ *    nowhere both: `y >= 0.2` and `y <= -0.2`; the result is infeasible and
+ *    lies on `y = 0`, where the two violations are equal.
+ * 5. 200 random sets of one to six half-planes through the disc: every feasible
+ *    result satisfies each half-plane within 1e-9 and lies in the disc, and no
+ *    point of a 201 by 201 grid over the disc that satisfies them all is nearer
+ *    the preferred point by more than the grid's half diagonal; an infeasible
+ *    result has no feasible grid point.
+ * 6. Order: the same set listed in reverse gives the same feasible point within
+ *    1e-9.
+ * 7. Scenario 4's strip with its first half-plane hard: the result keeps `y >=
+ *    0.2` and lies at `y = 0.2`, where the other's violation is least. With
+ *    both hard they clash, so both are relaxed alike and the result lies at `y
+ *    = 0`. A hard count that is negative, fractional or beyond the half-planes
+ *    is refused.
  */
 export function test_unit_engine_math_half_plane_program(): void {
   const findings: string[] = [];

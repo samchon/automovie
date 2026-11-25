@@ -5,7 +5,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { makeScriptWrite, makeStagingWrite } from "../../../internal/filmFixtures";
+import {
+  makeScriptWrite,
+  makeStagingWrite,
+} from "../../../internal/filmFixtures";
 import { hasViolation, nclose } from "../../../internal/predicates";
 
 /**
@@ -19,7 +22,6 @@ import { hasViolation, nclose } from "../../../internal/predicates";
  * 3. Nonpositive depths, zero or excess transmission, color disagreement and
  *    overflow are refused.
  * 4. Density and a transmission reference cannot both set the scene fog.
- *
  */
 export function test_unit_engine_film_stage_scene_fog_visibility(): void {
   const reference: NonNullable<IAutoMovieStage["fogVisibility"]> = {
@@ -66,7 +68,11 @@ export function test_unit_engine_film_stage_scene_fog_visibility(): void {
       sceneFogTransmittance(clear.scene.fog, 240) === 1,
   );
 
-  const invalid: readonly [unknown, "range" | "type", string][] = [
+  const invalid: readonly [
+    NonNullable<IAutoMovieStage["fogVisibility"]>,
+    "range" | "type",
+    string,
+  ][] = [
     [
       { ...reference, cameraDepthM: 0 },
       "range",
@@ -96,7 +102,7 @@ export function test_unit_engine_film_stage_scene_fog_visibility(): void {
   for (const [value, kind, path] of invalid) {
     const rejected: IAutoMovieStagedSet = stageScene(script, {
       ...stage,
-      fogVisibility: value as IAutoMovieStage["fogVisibility"],
+      fogVisibility: value,
     });
     TestValidator.predicate(
       `malformed fog reference reports ${kind} at ${path}`,

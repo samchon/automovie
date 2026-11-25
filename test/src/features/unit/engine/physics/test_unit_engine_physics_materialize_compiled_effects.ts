@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Retention cannot resurrect a particle after its declared lifetime.
  *
@@ -79,7 +81,7 @@ export function test_unit_engine_physics_materialize_compiled_effects(): void {
     if (landedLive)
       TestValidator.predicate(
         "retained stain stays at its declared floor",
-        Math.abs(late.particles[0]!.position.y) < 1e-12,
+        Math.abs(late.particles[0]!.position.y) < PhysicalTolerance.ROUNDING,
       );
     TestValidator.equals(
       "live airborne sample is present before expiry",

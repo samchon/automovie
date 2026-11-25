@@ -19,7 +19,6 @@ import { createDoorPropSpec } from "../../../internal/createDoorPropSpec";
  *    staging join.
  * 2. A rigid prop (articulation null) passes on the model contract alone: the
  *    articulation gates never fire for it.
- *
  */
 export function test_unit_engine_film_forge_prop(): void {
   const spec: IAutoMoviePropSpec = createDoorPropSpec();

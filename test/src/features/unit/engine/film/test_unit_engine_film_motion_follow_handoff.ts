@@ -17,10 +17,11 @@ import { IDENTITY_TRANSFORM, createSkeleton } from "../../../internal/fixtures";
 import { performMarkerMotion } from "../../../internal/performMarkerMotion";
 
 /**
- * 1. Hand off a marker from a stationary rig to a moving one; determine its final position and velocity from the later interval.
- * 2. Compare persistent binding and the active history of a rider just before, exactly at and just after its own start.
+ * 1. Hand off a marker from a stationary rig to a moving one; determine its final
+ *    position and velocity from the later interval.
+ * 2. Compare persistent binding and the active history of a rider just before,
+ *    exactly at and just after its own start.
  * 3. Submit malformed attachment calls to the public action admission path.
- *
  */
 export function test_unit_engine_film_motion_follow_handoff(): void {
   const rig: IAutoMovieSkeleton = createSkeleton();

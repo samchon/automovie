@@ -11,22 +11,26 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
-import { nclose } from "../../../internal/nclose";
 import { filmEffectIdentity } from "../../../internal/filmEffectIdentity";
 import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
 import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
+import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { materializedFilmEffects } from "../../../internal/materializedFilmEffects";
+import { nclose } from "../../../internal/nclose";
 import { resealFilmEffect } from "../../../internal/resealFilmEffect";
 
 /**
- * Film sampling preserves half-open cue ownership and rejects stale or malformed runtime data.
+ * Film sampling preserves half-open cue ownership and rejects stale or
+ * malformed runtime data.
  *
  * Scenarios:
- * 1. Sample inside/outside cue frames, reordered seeks, copied runtime and an empty population.
- * 2. Refuse malformed identity/frame/distance and distinguish stale owner identities.
- * 3. Refuse invalid versions, clocks, intervals, digests and canonical data while accepting an unchanged reseal.
  *
+ * 1. Sample inside/outside cue frames, reordered seeks, copied runtime and an
+ *    empty population.
+ * 2. Refuse malformed identity/frame/distance and distinguish stale owner
+ *    identities.
+ * 3. Refuse invalid versions, clocks, intervals, digests and canonical data while
+ *    accepting an unchanged reseal.
  */
 export function test_unit_engine_film_effect_runtime_sampling(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

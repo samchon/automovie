@@ -96,14 +96,18 @@ const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (
 });
 
 /**
- * Exercise overlay image closure, UV-coordinate scale meaning and overlay factor ranges through the owning validators.
+ * Exercise overlay image closure, UV-coordinate scale meaning and overlay
+ * factor ranges through the owning validators.
  *
  * Scenarios:
- * 1. A registered overlay image closes and an unregistered one reports its exact color slot.
- * 2. A normalized nine-by-four UV span is refused while source-uv coordinates remain exempt.
- * 3. A negative colorFactor channel is refused at its path.
- * 4. A finite nonnegative RGB factor, including zero and a value above one, remains admitted by the factor contract.
  *
+ * 1. A registered overlay image closes and an unregistered one reports its exact
+ *    color slot.
+ * 2. A normalized nine-by-four UV span is refused while source-uv coordinates
+ *    remain exempt.
+ * 3. A negative colorFactor channel is refused at its path.
+ * 4. A finite nonnegative RGB factor, including zero and a value above one,
+ *    remains admitted by the factor contract.
  */
 export function test_unit_engine_validation_material_overlay_textures(): void {
   const closure: (

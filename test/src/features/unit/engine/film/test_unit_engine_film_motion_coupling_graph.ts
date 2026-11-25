@@ -73,10 +73,12 @@ function point(actual: readonly number[], expected: readonly number[]): void {
   );
 }
 /**
- * 1. Carry a marker three levels deep and exercise a parent that first follows its staged position and then a moving rig.
- * 2. Contrast persistent, overridden and absent mounts. Validate cycles, missing rigs and missing mount bones.
- * 3. Supply clinical rest frames to both an explicit and a persistent hand attachment.
- *
+ * 1. Carry a marker three levels deep and exercise a parent that first follows its
+ *    staged position and then a moving rig.
+ * 2. Contrast persistent, overridden and absent mounts. Validate cycles, missing
+ *    rigs and missing mount bones.
+ * 3. Supply clinical rest frames to both an explicit and a persistent hand
+ *    attachment.
  */
 export function test_unit_engine_film_motion_coupling_graph(): void {
   const rig: IAutoMovieSkeleton = createSkeleton();

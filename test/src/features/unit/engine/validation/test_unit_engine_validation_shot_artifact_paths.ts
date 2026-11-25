@@ -38,30 +38,30 @@ const camera: (id: string, fovY: number) => IAutoMovieCamera = (
 
 /** A scene the shot validator cross-references without complaint. */
 const scene: () => IAutoMovieScene = (): IAutoMovieScene => ({
-    id: "sc",
-    name: null,
-    nodes: [
-      {
-        id: "hero",
-        model: "m",
-        transform: transform(),
-        motion: null,
-        pose: null,
-      },
-    ],
-    cameras: [camera("cam", 50), camera("wide", 70)],
-    lights: [
-      {
-        id: "key",
-        transform: transform(),
-        color: { r: 1, g: 1, b: 1, a: null, hex: null },
-        intensity: 1,
-        type: "spot",
-        range: 10,
-        coneAngle: 30,
-      },
-    ],
-  });
+  id: "sc",
+  name: null,
+  nodes: [
+    {
+      id: "hero",
+      model: "m",
+      transform: transform(),
+      motion: null,
+      pose: null,
+    },
+  ],
+  cameras: [camera("cam", 50), camera("wide", 70)],
+  lights: [
+    {
+      id: "key",
+      transform: transform(),
+      color: { r: 1, g: 1, b: 1, a: null, hex: null },
+      intensity: 1,
+      type: "spot",
+      range: 10,
+      coneAngle: 30,
+    },
+  ],
+});
 
 /** A shot the validator accepts, so each case reports only what it broke. */
 const shot: (overrides?: Partial<IAutoMovieShot>) => IAutoMovieShot = (
@@ -130,7 +130,8 @@ const take: (
 /**
  * A light-time clip the validator accepts.
  *
- * The scene stages `key` as a spot light, so `/lights/key/intensity` addresses a property that light actually carries.
+ * The scene stages `key` as a spot light, so `/lights/key/intensity` addresses
+ * a property that light actually carries.
  */
 const lightClip: (overrides?: Partial<IAutoMovieTrack>) => IAutoMovieClip = (
   overrides: Partial<IAutoMovieTrack> = {},
@@ -186,14 +187,10 @@ interface IShotCase {
  *    and a motion outside the registry the caller resolved.
  * 4. Metadata: events, camera intent and coverage outside the shot clock, with
  *    non-positive focal length, or naming unstaged, live or repeated cameras.
- * 5. Light clips: a channel that does not address a staged light property with
- *    its own value type, and repeated clip ids.
+ * 5. Light clips: a channel that does not address a staged light property with its
+ *    own value type, and repeated clip ids.
  * 6. Dense empty motions, event/intent/coverage rows and a complete three-instant
  *    clearance plan remain accepted.
- *
- *
- *
- *
  */
 export function test_unit_engine_validation_shot_artifact_paths(): void {
   TestValidator.predicate(
@@ -306,7 +303,6 @@ export function test_unit_engine_validation_shot_artifact_paths(): void {
       path: "$input.events[0].time",
     },
 
-
     {
       title: "a camera intent starting after the shot ends",
       shot: shot({ cameraIntent: [intent({ start: 9 })] }),
@@ -408,23 +404,20 @@ export function test_unit_engine_validation_shot_artifact_paths(): void {
   TestValidator.equals(
     "the shot validator reports the located violation for each field",
     namedFacts(
-      cases.map(
-        (entry: IShotCase): readonly [string, () => boolean] =>
-          [
-            entry.title,
-            (): boolean => {
-              const reported: string[] = pathsOf(
-                validateShotArtifact(entry.shot, scene(), new Set(["walk"])),
-              );
-              // A prefix, because a uniqueness violation locates the entry it
-              // found second (`$input.objectMotions[1].id`) while the field
-              // this case names is the list itself.
-              return reported.some((reportedPath: string): boolean =>
-                reportedPath.startsWith(entry.path),
-              );
-            },
-          ],
-      ),
+      cases.map((entry: IShotCase): readonly [string, () => boolean] => [
+        entry.title,
+        (): boolean => {
+          const reported: string[] = pathsOf(
+            validateShotArtifact(entry.shot, scene(), new Set(["walk"])),
+          );
+          // A prefix, because a uniqueness violation locates the entry it
+          // found second (`$input.objectMotions[1].id`) while the field
+          // this case names is the list itself.
+          return reported.some((reportedPath: string): boolean =>
+            reportedPath.startsWith(entry.path),
+          );
+        },
+      ]),
     ),
     Object.fromEntries(
       cases.map((entry: IShotCase): [string, true] => [entry.title, true]),

@@ -70,7 +70,6 @@ function basisX(m: number[]): [number, number, number] {
  * 2. An over-limit 150° swing clamps to the 110° endpoint within `1e-6`, the
  *    hinge's world X basis lands at `(cos110°, 0, −sin110°)`, with the
  *    violations tagged by the forged profile's id.
- *
  */
 export function test_unit_engine_film_forge_prop_door(): void {
   const forged: IAutoMovieForgedProp = forgeProp(createDoorPropSpec());

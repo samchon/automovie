@@ -14,6 +14,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
 /**
@@ -224,7 +226,7 @@ export async function test_unit_engine_physics_collect_physical_supports(): Prom
     const combined: number = (BOX_FRICTION + FLOOR_FRICTION) / 2;
     for (const support of actual)
       for (const sample of support.samples)
-        if (Math.abs(sample.friction - combined) > 1e-12)
+        if (Math.abs(sample.friction - combined) > PhysicalTolerance.ROUNDING)
           findings.push(
             `${label}: combined friction ${combined} replaced by ${sample.friction}`,
           );

@@ -13,14 +13,14 @@ import { namedFacts } from "../../../internal/predicates";
  * Camera geometry and authored style intent jointly determine film findings.
  *
  * Scenarios:
+ *
  * 1. Screen reversals and shallow same-size cuts report independently; jump-cut
  *    intent suppresses only its mapped warning, and moving-camera reads agree.
- * 2. Reverse, continuing, vertical and off-lens eyelines distinguish broken
- *    screen relations from neutral or continuous views.
+ * 2. Reverse, continuing, vertical and off-lens eyelines distinguish broken screen
+ *    relations from neutral or continuous views.
  * 3. Measured size, displacement and entering subjects require their own
  *    framing/re-establishing feedback without duplicate findings.
  * 4. Pacing intent and review-note conversion preserve the analyzer's guidance.
- *
  */
 export function test_unit_engine_film_grammar(): void {
   const {

@@ -8,6 +8,7 @@ import type {
   IAutoMovieCut,
   IAutoMovieEditPlan,
   IAutoMovieInteractionEvent,
+  IAutoMoviePlaybackEntry,
   IAutoMoviePlaybackEvent,
   IAutoMoviePlaybackSample,
   IAutoMovieSequenceEntry,
@@ -30,7 +31,6 @@ import { nclose, throwsError } from "../../../internal/predicates";
  * 3. A repeated event follows each play.
  * 4. Default playback retains the legacy record. Invalid rates, nonrepresentable
  *    output spans and overlaps longer than the retimed entry are refused.
- *
  */
 export function test_unit_engine_film_playback_rate(): void {
   const handoff: IAutoMovieInteractionEvent = {
@@ -158,10 +158,19 @@ export function test_unit_engine_film_playback_rate(): void {
     legacy.sequence.shots,
     [entry, entry],
   );
+  // The whole placement is compared, so a `playbackRate` field on it is a
+  // difference: the two-second trim plays for two seconds from its 0.5 s start.
+  const placement: IAutoMoviePlaybackEntry = {
+    entry: 0,
+    shot: shot.id,
+    start: 0,
+    played: 2,
+    offset: 0.5,
+  };
   TestValidator.equals(
     "legacy playback placement has no rate field",
-    Object.keys(sequenceTimeline(legacy.sequence, [shot]).entries[0]!),
-    ["entry", "shot", "start", "played", "offset"],
+    sequenceTimeline(legacy.sequence, [shot]).entries[0]!,
+    placement,
   );
 
   for (const playbackRate of [0, -1, Number.MIN_VALUE]) {

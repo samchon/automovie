@@ -26,14 +26,16 @@ import { createSkeleton } from "../../../internal/fixtures";
 import { qclose, vclose } from "../../../internal/predicates";
 
 /**
- * Bone-local offsets make a prop's authored handoff continuous across a parent change.
+ * Bone-local offsets make a prop's authored handoff continuous across a parent
+ * change.
  *
  * Scenarios:
+ *
  * 1. An omitted offset places the child at the first parent's posed bone.
- * 2. Oppositely facing parents with matching local offsets agree in world position and rotation at the handoff.
+ * 2. Oppositely facing parents with matching local offsets agree in world position
+ *    and rotation at the handoff.
  * 3. A different receiving offset takes effect at the switch.
  * 4. A nonunit quaternion returns an offset finding.
- *
  */
 export function test_unit_engine_film_perform_shot_attach_offset(): void {
   const stage: IAutoMovieStage = createFilmAttachStage();

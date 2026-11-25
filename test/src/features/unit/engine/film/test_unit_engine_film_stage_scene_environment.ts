@@ -10,7 +10,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { makeScriptWrite, makeStagingWrite } from "../../../internal/filmFixtures";
+import {
+  makeScriptWrite,
+  makeStagingWrite,
+} from "../../../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../../../internal/predicates";
 
 const ENVIRONMENT: IAutoMovieSceneEnvironment = {
@@ -27,14 +30,17 @@ const ENVIRONMENT: IAutoMovieSceneEnvironment = {
  * Submit one environment and require a located kind/path refusal.
  *
  * The owning test supplies schema-based kind/path expectations and asserts the
- * returned boolean. hasViolation checks path inclusion rather than the full report.
+ * returned boolean. hasViolation checks path inclusion rather than the full
+ * report.
  */
 function refusedAt(
   environment: IAutoMovieSceneEnvironment,
   kind: AutoMovieViolationKind,
   path: string,
 ): boolean {
-  const result: IAutoMovieValidation = validateSceneEnvironment({ environment });
+  const result: IAutoMovieValidation = validateSceneEnvironment({
+    environment,
+  });
   return result.success === false && hasViolation(result, kind, path);
 }
 
@@ -44,7 +50,9 @@ function refusedAt(
  * The owning test requires success and preservation of its authored ENVIRONMENT
  * record; this adapter supplies no assertion or independent oracle itself.
  */
-function stagedWith(environment: IAutoMovieSceneEnvironment): IAutoMovieStagedSet {
+function stagedWith(
+  environment: IAutoMovieSceneEnvironment,
+): IAutoMovieStagedSet {
   return stageScene(makeScriptWrite(), makeStagingWrite({ environment }));
 }
 
@@ -54,16 +62,16 @@ function stagedWith(environment: IAutoMovieSceneEnvironment): IAutoMovieStagedSe
  * Scenarios:
  *
  * 1. A complete image environment is retained by identity, and a shadowed light
- *    keeps its casting flag and map size, while omitted environment data preserves the
- *    omitted-key scene shape; no serialized bytes or digest are computed here.
- * 2. Every out-of-range environment scalar and color, a background beside an
- *    image and a malformed hex label fail at their authored paths, with valid
- *    zero and extreme values retained.
+ *    keeps its casting flag and map size, while omitted environment data
+ *    preserves the omitted-key scene shape; no serialized bytes or digest are
+ *    computed here.
+ * 2. Every out-of-range environment scalar and color, a background beside an image
+ *    and a malformed hex label fail at their authored paths, with valid zero
+ *    and extreme values retained.
  * 3. Shadow casting and deterministic shadow settings are declared together;
  *    out-of-range, missing, or inactive settings are refused before lowering.
- * 4. Backgrounds and staged lights reject an RGB/hex contradiction through
- *    the same color gate, while a matching white light swatch stages.
- *
+ * 4. Backgrounds and staged lights reject an RGB/hex contradiction through the
+ *    same color gate, while a matching white light swatch stages.
  */
 export function test_unit_engine_film_stage_scene_environment(): void {
   const staged: IAutoMovieStagedSet = stagedWith(ENVIRONMENT);
@@ -86,7 +94,7 @@ export function test_unit_engine_film_stage_scene_environment(): void {
         (): boolean =>
           // The `success` comparison is restated only to narrow the union
           // inside this closure.
-          bare.success === true && !("environment" in bare.scene),
+          bare.success === true && bare.scene.environment === undefined,
       ],
     ]),
     { staged: true, noKey: true },

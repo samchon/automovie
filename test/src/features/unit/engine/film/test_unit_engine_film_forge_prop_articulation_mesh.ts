@@ -65,7 +65,6 @@ function drives(index: number, part: string): IAutoMoviePropSpec {
  *    part rides one frame.
  * 4. Every joint leaving `mesh` null still forges, which is the contract every
  *    prop authored before the reference existed was written against.
- *
  */
 export function test_unit_engine_film_forge_prop_articulation_mesh(): void {
   const driven: IAutoMoviePropSpec = drives(1, "panel");

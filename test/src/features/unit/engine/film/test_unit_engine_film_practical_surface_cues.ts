@@ -28,12 +28,11 @@ import {
  * Scenarios:
  *
  * 1. Two staged nodes share a phone model. The selected part changes at the cue.
- * 2. Seeking in either direction gives the same material at each time. The
- *    second phone and any other part have no override.
- * 3. The shot rejects duplicate targets, an unknown model material and an
- *    event at the exclusive end.
+ * 2. Seeking in either direction gives the same material at each time. The second
+ *    phone and any other part have no override.
+ * 3. The shot rejects duplicate targets, an unknown model material and an event at
+ *    the exclusive end.
  * 4. A later shot can explicitly carry the selected material into its opening.
- *
  */
 export function test_unit_engine_film_practical_surface_cues(): void {
   const phone: ReturnType<typeof createDevice> = createDevice({

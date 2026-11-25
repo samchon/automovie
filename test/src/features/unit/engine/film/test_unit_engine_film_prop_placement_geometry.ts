@@ -26,7 +26,6 @@ import { namedFacts } from "../../../internal/predicates";
  *    opening and connector.
  * 5. Distinguish floating, sinking and off-patch support, a second support, and
  *    the corresponding table-top faults.
- *
  */
 export function test_unit_engine_film_prop_placement_geometry(): void {
   const scenario: {

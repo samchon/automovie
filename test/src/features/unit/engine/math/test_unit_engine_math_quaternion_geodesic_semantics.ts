@@ -24,7 +24,6 @@ import { nclose } from "../../../internal/nclose";
  *    cardinal arc under nonunit signed scales,2^±500/2^±600 and1e300 finite
  *    components. A zero first quaternion uses the documented identity before
  *    reading the60-degree target; a nonfinite component remains nonfinite.
- *
  */
 export function test_unit_engine_math_quaternion_geodesic_semantics(): void {
   const a: IAutoMovieQuaternion = zturn((170 * Math.PI) / 180);

@@ -14,13 +14,17 @@ import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
 import { nclose, throwsError } from "../../../internal/predicates";
 
 /**
- * A localized effect can widen by individual particle age and stop growing at landing.
+ * A localized effect can widen by individual particle age and stop growing at
+ * landing.
  *
  * Scenarios:
- * 1. Grow staggered particles from their initial extent, independent of seek order.
- * 2. Keep an omitted endpoint at its seeded extent and stop a retained stain's growth at landing.
- * 3. Admit the lower and upper endpoints and refuse illegal sizes at materialization.
  *
+ * 1. Grow staggered particles from their initial extent, independent of seek
+ *    order.
+ * 2. Keep an omitted endpoint at its seeded extent and stop a retained stain's
+ *    growth at landing.
+ * 3. Admit the lower and upper endpoints and refuse illegal sizes at
+ *    materialization.
  */
 export function test_unit_engine_film_effect_particle_expansion(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0.5, z: 0 };

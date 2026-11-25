@@ -55,7 +55,6 @@ const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
  *    under proximal/distal association. Literal triple quarter-turns include
  *    cancellation and four nonzero components; fresh, mutable-frame and scalar
  *    readers all preserve the same physical values and raw zeros.
- *
  */
 export function test_unit_engine_math_prepared_cardinal_products(): void {
   for (const swapped of [false, true]) {
@@ -418,8 +417,7 @@ function raw(
   actual: IAutoMovieQuaternion,
   expected: IAutoMovieQuaternion,
 ): boolean {
-  return COMPONENTS.every(
-    (axis: keyof IAutoMovieQuaternion): boolean =>
-      Object.is(actual[axis], expected[axis]),
+  return COMPONENTS.every((axis: keyof IAutoMovieQuaternion): boolean =>
+    Object.is(actual[axis], expected[axis]),
   );
 }

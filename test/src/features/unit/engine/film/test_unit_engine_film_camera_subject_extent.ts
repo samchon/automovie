@@ -25,7 +25,8 @@ const transform: (y: number) => IAutoMovieTransform = (
 });
 
 /**
- * Existing conventional fixture rig with its highest joint at 0.92 of the declared height and lowest at 0.24, without foot or head-top joints.
+ * Existing conventional fixture rig with its highest joint at 0.92 of the
+ * declared height and lowest at 0.24, without foot or head-top joints.
  */
 const skeleton: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => ({
   id: "probe-rig",
@@ -120,20 +121,25 @@ const model: () => IAutoMovieModel = (): IAutoMovieModel => ({
 });
 
 /**
- * Portable part bounds include geometry beyond the skeleton's extreme joints, which a subject-height consumer needs for full-body framing.
+ * Portable part bounds include geometry beyond the skeleton's extreme joints,
+ * which a subject-height consumer needs for full-body framing.
  *
- * The authored model places its floor at zero and crown at 1.72 metres, while the joints span 0.24 to 0.92 of that height. A local band calculation illustrates the consequence using the public framing fractions; it does not call the camera compiler or independently verify those fraction tables.
+ * The authored model places its floor at zero and crown at 1.72 metres, while
+ * the joints span 0.24 to 0.92 of that height. A local band calculation
+ * illustrates the consequence using the public framing fractions; it does not
+ * call the camera compiler or independently verify those fraction tables.
  *
  * Scenarios:
  *
  * 1. The rig measurement returns the joint span, 0.680 of the figure, and is
  *    documented as such rather than quietly corrected.
  * 2. The drawn extent returns the real figure: floor at 0, crown at 1.72.
- * 3. The local full-framing band derived from joint span excludes more than one quarter of the model's height, while the band derived from its part extent covers floor and crown.
+ * 3. The local full-framing band derived from joint span excludes more than one
+ *    quarter of the model's height, while the band derived from its part extent
+ *    covers floor and crown.
  * 4. A model with no skeleton still measures, since a prop is framed too.
  * 5. A model with no parts measures nothing and returns null, leaving the caller's
  *    own fallback in charge instead of inventing a height.
- *
  */
 export function test_unit_engine_film_camera_subject_extent(): void {
   const jointSpan: number = computeRestHeight(skeleton());

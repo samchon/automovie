@@ -53,7 +53,6 @@ import { vclose } from "../../../internal/vclose";
  * 6. Without an interval, a still point source uses the staged intensity and lens
  *    location. Malformed timing, missing emitter references, omitted
  *    moving-prop samples and competing light channels are refused.
- *
  */
 export function test_unit_engine_film_practical_light_motion(): void {
   const torch: ReturnType<typeof createTorch> = createTorch({}, 1025);

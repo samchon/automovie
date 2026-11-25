@@ -19,7 +19,6 @@ import { namedFacts, throwsError } from "../../../internal/predicates";
  * 2. The three-sample finite source includes its near-Float32-limit value in the
  *    actual mix; gain 4 overflows at independently derived sample index 0 and
  *    refuses before limiting.
- *
  */
 export function test_unit_engine_film_production_sound_pcm_ingress(): void {
   const {

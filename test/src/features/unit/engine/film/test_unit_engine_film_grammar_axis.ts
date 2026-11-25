@@ -13,11 +13,13 @@ import { createFilmGrammarCase } from "../../../internal/createFilmGrammarCase";
  * Action-axis continuity uses the actual outgoing/incoming camera boundaries.
  *
  * Scenarios:
+ *
  * 1. A hidden opposite-half-plane cut reports; a neutral intermediary does not.
  * 2. An on-screen crossing or a rotating subject axis preserves visible geography.
- * 3. Reversed collection spelling and different axis subjects do not fabricate findings.
- * 4. Recovery names the axis-cross intent, which suppresses that finding and is exercised.
- *
+ * 3. Reversed collection spelling and different axis subjects do not fabricate
+ *    findings.
+ * 4. Recovery names the axis-cross intent, which suppresses that finding and is
+ *    exercised.
  */
 export function test_unit_engine_film_grammar_axis(): void {
   const {

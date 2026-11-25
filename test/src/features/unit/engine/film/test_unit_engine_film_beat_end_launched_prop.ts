@@ -66,7 +66,10 @@ const drives: (
 /** Authored attachment-shaped tracks holding the hand point until release. */
 const HELD: IAutoMovieClip = drives("attach:stone", [0, RELEASE], [HAND, HAND]);
 
-/** Authored release and landing endpoints; this linear fixture does not model the flight's interior ballistic arc. */
+/**
+ * Authored release and landing endpoints; this linear fixture does not model
+ * the flight's interior ballistic arc.
+ */
 const FLIGHT: IAutoMovieClip = drives(
   "trajectory:stone",
   [RELEASE, CONTACT],
@@ -149,24 +152,40 @@ const stoneAt: (
 /**
  * A beat end reports a driven prop where the shot's own clips leave it.
  *
- * A producer-id prefix cannot choose the final transform: flight or slide channels may acquire authority after an attachment releases. The snapshot follows the shot's started channel tracks, so a later beat receives the prop's final placement rather than its old hand position.
+ * A producer-id prefix cannot choose the final transform: flight or slide
+ * channels may acquire authority after an attachment releases. The snapshot
+ * follows the shot's started channel tracks, so a later beat receives the
+ * prop's final placement rather than its old hand position.
  *
- * The geometry is the reproduction's: grab at 0, release at 2.2 from `(-0.71, 1.35, 0)`, contact at 2.836250052458314 at `(0, 0, 5)`.
+ * The geometry is the reproduction's: grab at 0, release at 2.2 from `(-0.71,
+ * 1.35, 0)`, contact at 2.836250052458314 at `(0, 0, 5)`.
  *
  * Scenarios:
  *
- * 1. Past the landing, the beat end reports the stone where the flight left it, `(0, 0, 5)`, not the hand it was released from. The clip's last keyframe is the oracle, reached by clamping, exactly as the committed shot reads.
- * 2. Before the release the same pair of clips resolves to the hand, so the flight does not win by merely existing.
- * 3. The flight alone (no attach bake, a prop thrown from rest) is honoured too, which is the case the id prefix could never reach.
- * 4. Selection is id-agnostic: a clip called `slide:stone`, matching neither convention, drives the end state because it drives the node.
- * 5. Negative twin: a shot carrying no clip for the node retains its authored staged placement within the vector tolerance.
- * 6. A landed prop's end velocity is zero: the flight clip is clamped past contact, so nothing reports the stone as still travelling.
- * 7. A later translation-only clip supplies position while an earlier rotation track keeps a complete baked transform available; the identical rotation keys do not distinguish which rotation producer won.
- * 8. Reversing these two clips leaves the flight authoritative because its track starts later; equal-start producer-order ties are outside this case.
- * 9. A transform authority that starts exactly at beat end has no preceding sample window, so its derived velocity is honestly zero.
- * 10. A clip that also writes the node's scale reports that scale at beat end, the value playback draws, instead of a unit scale.
- * 11. A nonzero performer startOffset changes the pose clock, while object transforms and their derived velocities still read the shot clock.
- *
+ * 1. Past the landing, the beat end reports the stone where the flight left it,
+ *    `(0, 0, 5)`, not the hand it was released from. The clip's last keyframe
+ *    is the oracle, reached by clamping, exactly as the committed shot reads.
+ * 2. Before the release the same pair of clips resolves to the hand, so the flight
+ *    does not win by merely existing.
+ * 3. The flight alone (no attach bake, a prop thrown from rest) is honoured too,
+ *    which is the case the id prefix could never reach.
+ * 4. Selection is id-agnostic: a clip called `slide:stone`, matching neither
+ *    convention, drives the end state because it drives the node.
+ * 5. Negative twin: a shot carrying no clip for the node retains its authored
+ *    staged placement within the vector tolerance.
+ * 6. A landed prop's end velocity is zero: the flight clip is clamped past
+ *    contact, so nothing reports the stone as still travelling.
+ * 7. A later translation-only clip supplies position while an earlier rotation
+ *    track keeps a complete baked transform available; the identical rotation
+ *    keys do not distinguish which rotation producer won.
+ * 8. Reversing these two clips leaves the flight authoritative because its track
+ *    starts later; equal-start producer-order ties are outside this case.
+ * 9. A transform authority that starts exactly at beat end has no preceding sample
+ *    window, so its derived velocity is honestly zero.
+ * 10. A clip that also writes the node's scale reports that scale at beat end, the
+ *     value playback draws, instead of a unit scale.
+ * 11. A nonzero performer startOffset changes the pose clock, while object
+ *     transforms and their derived velocities still read the shot clock.
  */
 export function test_unit_engine_film_beat_end_launched_prop(): void {
   const offsetShot: IAutoMovieShot = {

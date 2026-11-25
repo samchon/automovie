@@ -2,7 +2,10 @@ import { spaceGround, stageScene } from "@automovie/engine";
 import type { IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { makeScriptWrite, makeStagingWrite } from "../../../internal/filmFixtures";
+import {
+  makeScriptWrite,
+  makeStagingWrite,
+} from "../../../internal/filmFixtures";
 import {
   hasViolation,
   namedFacts,
@@ -46,11 +49,12 @@ const makeSpace: (partial?: Partial<IAutoMovieSpace>) => IAutoMovieSpace = (
 });
 
 /**
- * Staging may author the scene's `space` (#1173): ground meaning beside
- * the `set`'s geometry. `stageScene` gates it with the shared `validateSpace`
+ * Staging may author the scene's `space` (#1173): ground meaning beside the
+ * `set`'s geometry. `stageScene` gates it with the shared `validateSpace`
  * (re-rooted under `$input.space`, so one surface rule can never mean two
  * things) and carries it onto the composed scene. This entry observes staging
- * and ground queries, without proving rendered geometry or historical behavior.
+ * and ground queries, without proving rendered geometry or historical
+ * behavior.
  *
  * Scenarios:
  *
@@ -68,10 +72,9 @@ const makeSpace: (partial?: Partial<IAutoMovieSpace>) => IAutoMovieSpace = (
  *    the validator has to forbid on the query's behalf. A ring that crosses
  *    itself is what the footprint gate still refuses, because two lobes meeting
  *    at a crossing do not form one supported simple footprint ring.
- * 4. A separately authored simple concave quadrilateral stages clean. It is
- *    a valid contrast to the self-crossing quadrilateral, not a one-coordinate
+ * 4. A separately authored simple concave quadrilateral stages clean. It is a
+ *    valid contrast to the self-crossing quadrilateral, not a one-coordinate
  *    mutation of the same corners. Nonconvexity alone does not cause refusal.
- *
  */
 export function test_unit_engine_film_stage_scene_space(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

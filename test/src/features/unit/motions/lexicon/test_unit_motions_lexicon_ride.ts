@@ -1,5 +1,8 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { humanRidePosting, humanRideWindows } from "@automovie/motions/internal";
+import {
+  humanRidePosting,
+  humanRideWindows,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -15,9 +18,9 @@ import { throwsError } from "../../../internal/throwsError";
  * Scenarios:
  *
  * 1. Posting 0.1 m at a 0.8 s stride, the seat is down at the stride's start and
- *    up the whole 0.1 m at its middle, 0.4 s; on strides at 1, 1.5 and 2.5 s of a
- *    ride starting at 1 s, 0.75 s in lies halfway through the second stride and
- *    past the last there is no stride.
+ *    up the whole 0.1 m at its middle, 0.4 s; on strides at 1, 1.5 and 2.5 s of
+ *    a ride starting at 1 s, 0.75 s in lies halfway through the second stride
+ *    and past the last there is no stride.
  * 2. A cue track of one instant is refused.
  * 3. A seated ride on a horse plants the left foot on its stirrup point and the
  *    right on the horse, the seat bearing throughout; rising, the seat is left
@@ -48,7 +51,11 @@ export function test_unit_motions_lexicon_ride(): void {
   TestValidator.predicate(
     "one stride's instant",
     throwsError(() =>
-      humanRidePosting({ kind: "strides", cue: "hooves", strides: [1] }, 0, 0.1),
+      humanRidePosting(
+        { kind: "strides", cue: "hooves", strides: [1] },
+        0,
+        0.1,
+      ),
     ),
   );
 

@@ -48,7 +48,13 @@ const transform: (
 /**
  * Two units share a footprint and differ only in member count.
  *
- * A `line` places slot `s` at `x = (s - (files - 1)/2) * lateral`, `z = 0`, so a one-rank line is centered on its anchor and reaches `((files - 1)/2) * lateral` to either side. Picking `4 x 2.65625` and `256 x 0.03125` makes both reaches exactly `3.984375` m, and every value here is a dyadic rational, so the two boxes are bit-identical rather than nearly so. That is the whole point of the fixture: centroid, distance, spread and attenuation are held fixed, and `memberCount` is the only thing left that can move the level.
+ * A `line` places slot `s` at `x = (s - (files - 1)/2) * lateral`, `z = 0`, so
+ * a one-rank line is centered on its anchor and reaches `((files - 1)/2) *
+ * lateral` to either side. Picking `4 x 2.65625` and `256 x 0.03125` makes both
+ * reaches exactly `3.984375` m, and every value here is a dyadic rational, so
+ * the two boxes are bit-identical rather than nearly so. That is the whole
+ * point of the fixture: centroid, distance, spread and attenuation are held
+ * fixed, and `memberCount` is the only thing left that can move the level.
  */
 const unit: (
   id: string,
@@ -85,7 +91,10 @@ const CROWD_COUNT: number = 100;
 /** Half the shared footprint: `(4 - 1)/2 * 2.65625 = (256 - 1)/2 * 0.03125`. */
 const HALF_WIDTH: number = 3.984375;
 
-/** Declare the three original event subjects; unrelated shot fields remain unused by this planner test. */
+/**
+ * Declare the three original event subjects; unrelated shot fields remain
+ * unused by this planner test.
+ */
 const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
   shotContractFixture(
     "density-shot",
@@ -111,7 +120,10 @@ const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
     ),
   );
 
-/** Build the original equal-footprint formations and one hero/crowd group consumed by the sound planner. */
+/**
+ * Build the original equal-footprint formations and one hero/crowd group
+ * consumed by the sound planner.
+ */
 const compiled: () => IAutoMovieCompiledShotSource =
   (): IAutoMovieCompiledShotSource =>
     ({
@@ -201,31 +213,34 @@ const compiled: () => IAutoMovieCompiledShotSource =
 
 /** Declare the original density shot duration and empty auxiliary tracks. */
 const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline => ({
-    version: 1,
-    builder: "test",
-    inputFingerprint: digest,
-    sourceDigest: digest,
-    id: "film",
-    fps: 20,
-    totalFrames: 60,
-    segments: [
-      {
-        shot: "density-shot",
-        sourceInFrame: 0,
-        sourceOutFrame: 60,
-        startFrame: 0,
-        endFrame: 60,
-        headHandleFrames: 0,
-        tailHandleFrames: 0,
-        transitionIn: { kind: "cut" },
-        transitionOut: { kind: "cut" },
-      },
-    ],
-    omissions: [],
-    tracks: { audio: [], captions: [], effects: [] },
-  });
+  version: 1,
+  builder: "test",
+  inputFingerprint: digest,
+  sourceDigest: digest,
+  id: "film",
+  fps: 20,
+  totalFrames: 60,
+  segments: [
+    {
+      shot: "density-shot",
+      sourceInFrame: 0,
+      sourceOutFrame: 60,
+      startFrame: 0,
+      endFrame: 60,
+      headHandleFrames: 0,
+      tailHandleFrames: 0,
+      transitionIn: { kind: "cut" },
+      transitionOut: { kind: "cut" },
+    },
+  ],
+  omissions: [],
+  tracks: { audio: [], captions: [], effects: [] },
+});
 
-/** Read the required planned event by its authored id; a missing event fails the owning assertions. */
+/**
+ * Read the required planned event by its authored id; a missing event fails the
+ * owning assertions.
+ */
 const eventOf: (
   plan: IAutoMovieProductionSoundPlan,
   id: string,
@@ -244,23 +259,36 @@ const amplitudeAt: (pcm: Float32Array, frame: number) => number = (
 ): number => Math.hypot(pcm[frame * 2]!, pcm[frame * 2 + 1]!);
 
 /**
- * Count scaling and the adopted uniform-box spread model affect planned and mixed sound.
+ * Count scaling and the adopted uniform-box spread model affect planned and
+ * mixed sound.
  *
- * Before this, a subject that was a unit contributed exactly one emitter no matter its member count, level was a fixed constant times distance attenuation, and several subjects were averaged into one arithmetic centroid. Three people and a hundred thousand were therefore acoustically identical, and an event naming one hero plus the army behind him emitted from the empty midpoint between them.
+ * Before this, a subject that was a unit contributed exactly one emitter no
+ * matter its member count, level was a fixed constant times distance
+ * attenuation, and several subjects were averaged into one arithmetic centroid.
+ * Three people and a hundred thousand were therefore acoustically identical,
+ * and an event naming one hero plus the army behind him emitted from the empty
+ * midpoint between them.
  *
- * The planner adopts square-root member scaling and a uniform-box variance for each compiled bound. The parallel-axis formula gives the listener-distance term for that approximation; it does not measure discrete member variance or empirical acoustics.
+ * The planner adopts square-root member scaling and a uniform-box variance for
+ * each compiled bound. The parallel-axis formula gives the listener-distance
+ * term for that approximation; it does not measure discrete member variance or
+ * empirical acoustics.
  *
  * Scenarios (listener at (0, 1, 0), both units centered on (0, 0, -30)):
  *
  * 1. `memberCount` is the unit's real count, and `densityGain` is exactly its
- * square root, for a node (one, no size), a formation, and an instance set.
+ *    square root, for a node (one, no size), a formation, and an instance set.
  * 2. A unit has a size: `spreadRadiusMeters` is the RMS radius of the uniform box
- * the compiled bounds describe, and `attenuation` is taken at `hypot(distance, spread)`, not at the centroid alone, which is strictly less than the centroid-only gain the mixer used to apply.
+ *    the compiled bounds describe, and `attenuation` is taken at
+ *    `hypot(distance, spread)`, not at the centroid alone, which is strictly
+ *    less than the centroid-only gain the mixer used to apply.
  * 3. The controlled pair: two units in the same footprint at the same distance,
- * 64x apart in count, have an 8x planned gain within 1e-12 and PCM amplitude ratio within 1e-4, the square-root count model with Float32 mix rounding.
+ *    64x apart in count, have an 8x planned gain within 1e-12 and PCM amplitude
+ *    ratio within 1e-4, the square-root count model with Float32 mix rounding.
  * 4. Several subjects combine by member count, not by subject count: one figure
- * standing 20 m across and 20 m in front of a hundred-strong crowd emits from `(20/101, -3010/101)`. The subject-count mean `(10, -20)` would place it roughly ten metres from that weighted centre on either axis.
- *
+ *    standing 20 m across and 20 m in front of a hundred-strong crowd emits
+ *    from `(20/101, -3010/101)`. The subject-count mean `(10, -20)` would place
+ *    it roughly ten metres from that weighted centre on either axis.
  */
 export function test_unit_engine_film_production_sound_density(): void {
   const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
@@ -308,7 +336,10 @@ export function test_unit_engine_film_production_sound_density(): void {
   const rendered: IAutoMovieRenderedProductionSound = renderProductionSound({
     plan,
   });
-  /** Read stereo amplitude at the independently chosen offset after the planned event frame. */
+  /**
+   * Read stereo amplitude at the independently chosen offset after the planned
+   * event frame.
+   */
   const sampleOf: (frame: number) => number = (frame: number): number =>
     amplitudeAt(
       rendered.pcm,

@@ -23,8 +23,9 @@ import {
 /**
  * Build the original launch action with caller overrides applied last.
  *
- * Speed 20, release .5 and participant names are authored defaults, with explicit
- * per-case overrides. The owning test performs every solve and assertion.
+ * Speed 20, release .5 and participant names are authored defaults, with
+ * explicit per-case overrides. The owning test performs every solve and
+ * assertion.
  */
 function launch(
   over: Partial<IAutoMovieLaunchAction> = {},
@@ -72,7 +73,6 @@ function launch(
  *    at `0.5 + hitTime`, not where it stood `hitTime` after the shot began.
  * 9. A nodeless aim without onHit keeps its flight/contact; requesting a recoil
  *    with a null targetNode is refused rather than silently omitted.
- *
  */
 export function test_unit_engine_film_launch(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
@@ -410,7 +410,8 @@ export function test_unit_engine_film_launch(): void {
    *
    * The authored affine path X=10+4t is independent of the ballistic solver.
    * The owner's landing check uses returned flight time, so it witnesses
-   * interception consistency rather than independently measuring the root time.
+   * interception consistency rather than independently measuring the root
+   * time.
    */
   function slide(t: number): IAutoMovieVector3 {
     return {

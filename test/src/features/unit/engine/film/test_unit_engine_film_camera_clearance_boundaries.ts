@@ -31,7 +31,6 @@ import { createModel } from "../../../internal/fixtures";
  *    violation at that take's camera, not a thrown `TypeError`.
  * 3. Two contacted obstacles whose ids differ in letter case are reported in
  *    UTF-16 code-unit order, which a locale collation reverses.
- *
  */
 export function test_unit_engine_film_camera_clearance_boundaries(): void {
   const staged = stageScene(

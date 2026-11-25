@@ -9,12 +9,22 @@ import { productionSoundTransform } from "./productionSoundTransform";
 /**
  * The compiled shot those events resolve against.
  *
- * The actor moves from `x = 4` to `x = 6`. The formation cue adds zero through ten metres to its `x = -4` anchor, placing the sampled arrival and reveal on opposite sides of the lens.
+ * The actor moves from `x = 4` to `x = 6`. The formation cue adds zero through
+ * ten metres to its `x = -4` anchor, placing the sampled arrival and reveal on
+ * opposite sides of the lens.
  *
- * Behavior: Constructs the original moving actor, formation and instance source consumed by real spatial sound planning; the entries assert pan signs and event-time formation positions.
- * Expectation basis: Literal anchors, track keys and event times supply input geometry independently of the planner; materialization is the actual Engine operation and is not an independent materializer oracle.
- * Cases: Preserves the singleton node/formation/instance records, actor translation and live formation cue, including the event beyond trim; controlled population/spread geometry is owned by its dedicated entries.
- * Execution: The existing owning entries call productionSoundCompiled during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
+ * Behavior: Constructs the original moving actor, formation and instance source
+ * consumed by real spatial sound planning; the entries assert pan signs and
+ * event-time formation positions. Expectation basis: Literal anchors, track
+ * keys and event times supply input geometry independently of the planner;
+ * materialization is the actual Engine operation and is not an independent
+ * materializer oracle. Cases: Preserves the singleton node/formation/instance
+ * records, actor translation and live formation cue, including the event beyond
+ * trim; controlled population/spread geometry is owned by its dedicated
+ * entries. Execution: The existing owning entries call productionSoundCompiled
+ * during their portable in-memory cases and retain responsibility for assertion
+ * expectations and dynamically invoked predicates; this helper acquires no
+ * asset, process, renderer or GPU and keeps no completed-result cache.
  */
 export function productionSoundCompiled(): IAutoMovieCompiledShotSource {
   return {

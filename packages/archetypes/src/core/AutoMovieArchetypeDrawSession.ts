@@ -273,10 +273,8 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
       if (value !== undefined)
         ArchetypeDraw.choice(this.archetype, axis, value, names);
       // No figures: an empty record, which a generic Dimension cannot type-check as empty without being told.
-      return {
-        name: undefined,
-        figures: {},
-      };
+      const none: Partial<Record<Dimension, number>> = {};
+      return { name: undefined, figures: none };
     }
     const name: Name =
       value !== undefined

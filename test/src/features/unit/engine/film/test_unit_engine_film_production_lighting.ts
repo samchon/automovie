@@ -13,9 +13,7 @@ import { TestValidator } from "@nestia/e2e";
 import { IDENTITY_TRANSFORM } from "../../../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../../../internal/predicates";
 
-/**
- * Half an hour of story time, in seconds: the span the film runs across.
- */
+/** Half an hour of story time, in seconds: the span the film runs across. */
 const SPAN: number = 1800;
 
 const pointer: (
@@ -26,9 +24,7 @@ const pointer: (
   valueType: AutoMovieChannelValueType,
 ): IAutoMovieChannel => ({ kind: "pointer", pointer: target, valueType });
 
-/**
- * A one-track clip on the STORY clock, which is as long as the span it covers.
- */
+/** A one-track clip on the STORY clock, which is as long as the span it covers. */
 const storyClip: (
   id: string,
   channel: IAutoMovieChannel,
@@ -60,9 +56,7 @@ const directionOf: (light: IAutoMovieLight) => IAutoMovieVector3 = (
 ): IAutoMovieVector3 =>
   Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
-/**
- * The authored directional source turns a quarter turn and fades over the span.
- */
+/** The authored directional source turns a quarter turn and fades over the span. */
 const daylight: IAutoMovieLight = {
   id: "daylight",
   type: "directional",
@@ -104,9 +98,7 @@ const lighting: (
   ...overrides,
 });
 
-/**
- * A scene light of the shot's own, which the production never addresses.
- */
+/** A scene light of the shot's own, which the production never addresses. */
 const practical: IAutoMovieLight = {
   id: "practical",
   type: "point",
@@ -140,14 +132,18 @@ const lightOf: (lights: IAutoMovieLight[], id: string) => IAutoMovieLight = (
   lights.find((light: IAutoMovieLight): boolean => light.id === id)!;
 
 /**
- * Resolves inherited story-clock lights and checks endpoint/midpoint direction and intensity, rate mapping, missing lighting/pin pass-through identity and ordered replacement/append.
+ * Resolves inherited story-clock lights and checks endpoint/midpoint direction
+ * and intensity, rate mapping, missing lighting/pin pass-through identity and
+ * ordered replacement/append.
  *
  * Scenarios:
+ *
  * 1. Resolve start, midpoint and end against deliberately different staged state.
  * 2. Compress the authored story span into two shot seconds.
- * 3. Preserve staged element identity/order/count when production or pin is absent.
- * 4. Replace production ids in place, retain practical identity and append the untouched moon.
- *
+ * 3. Preserve staged element identity/order/count when production or pin is
+ *    absent.
+ * 4. Replace production ids in place, retain practical identity and append the
+ *    untouched moon.
  */
 export function test_unit_engine_film_production_lighting(): void {
   const staged: IAutoMovieLight[] = [practical, stagedDaylight];

@@ -21,7 +21,6 @@ import { vclose } from "../../../internal/predicates";
  * 5. Raw q=(0,1,0,1) is not normalized: v=(2,3,5) becomes(8,3,-9). Owned getters
  *    retain the original cross-first then XYZ read order, results stay fresh,
  *    zero q leaves v unchanged and NaN stays nonfinite.
- *
  */
 export function test_unit_engine_math_quaternion_rotate_vector(): void {
   const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

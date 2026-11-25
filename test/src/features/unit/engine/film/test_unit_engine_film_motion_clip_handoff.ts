@@ -11,9 +11,10 @@ import { performMarkerMotion } from "../../../internal/performMarkerMotion";
 import { swingClip } from "../../../internal/swingClip";
 
 /**
- * 1. A tracking marker attached to a keeper contributes its baked clip without any authored clip.
- * 2. Two registered transforms reach the shot beside that same baked marker, including the door's lowered hinge.
- *
+ * 1. A tracking marker attached to a keeper contributes its baked clip without any
+ *    authored clip.
+ * 2. Two registered transforms reach the shot beside that same baked marker,
+ *    including the door's lowered hinge.
  */
 export function test_unit_engine_film_motion_clip_handoff(): void {
   const nodes: IAutoMovieSceneNode[] = ["doorway", "panel"].map(

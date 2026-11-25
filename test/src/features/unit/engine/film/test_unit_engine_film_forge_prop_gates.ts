@@ -16,7 +16,8 @@ import { hasViolation } from "../../../internal/predicates";
  * Forge a fresh door after the caller applies its authored mutation.
  *
  * The owning test supplies authored bad identities, graph edges, mappings and
- * extents and asserts located refusals; this adapter derives no expected findings.
+ * extents and asserts located refusals; this adapter derives no expected
+ * findings.
  */
 function broken(
   mutate: (spec: IAutoMoviePropSpec) => IAutoMoviePropSpec,
@@ -25,14 +26,17 @@ function broken(
 }
 
 /**
- * ForgeProp's gates report every contract breach with a field-located path for the correction round, and, unlike bindProfile's first-throw, the missing boneMap mappings are reported all at once.
+ * ForgeProp's gates report every contract breach with a field-located path for
+ * the correction round, and, unlike bindProfile's first-throw, the missing
+ * boneMap mappings are reported all at once.
  *
  * Scenarios:
  *
  * 1. A model id differing from the node breaks the staging join.
  * 2. An imported origin violates the generated-prop contract.
  * 3. A model with a skeleton is an actor, not a prop: rejected toward forgeCast.
- * 4. An invalid model (zero-extent part) surfaces validateModel's violation remapped under `$input.model`.
+ * 4. An invalid model (zero-extent part) surfaces validateModel's violation
+ *    remapped under `$input.model`.
  * 5. Empty articulation nodes violate.
  * 6. A duplicated joint node id violates at the duplicate's path.
  * 7. A parent naming an undeclared node violates.
@@ -40,8 +44,8 @@ function broken(
  * 9. A binding targeting a different profile id violates.
  * 10. A boneMap value naming an undeclared node violates.
  * 11. Both unmapped profile keys are listed in one round (pivot and mirror).
- * 12. Inherited constructor/toString/__proto__ properties do not supply a semantic mapping; an explicit own mapping of the same spelling passes.
- *
+ * 12. Inherited constructor/toString/**proto** properties do not supply a semantic
+ *     mapping; an explicit own mapping of the same spelling passes.
  */
 export function test_unit_engine_film_forge_prop_gates(): void {
   for (const key of ["constructor", "toString", "__proto__"]) {

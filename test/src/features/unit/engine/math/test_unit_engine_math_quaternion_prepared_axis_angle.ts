@@ -43,7 +43,6 @@ const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
  * Axes stay unchanged while each reader lives. No caller changes a shared axis,
  * production method or global, and no target-answer cache is assumed. This is a
  * deferred pure-math unit, not another representative execution.
- *
  */
 export function test_unit_engine_math_quaternion_prepared_axis_angle(): void {
   const findings: string[] = [];
@@ -78,9 +77,8 @@ export function test_unit_engine_math_quaternion_prepared_axis_angle(): void {
     direct: IAutoMovieQuaternion,
   ): void {
     if (
-      !COMPONENTS.every(
-        (component: keyof IAutoMovieQuaternion): boolean =>
-          Object.is(actual[component], direct[component]),
+      !COMPONENTS.every((component: keyof IAutoMovieQuaternion): boolean =>
+        Object.is(actual[component], direct[component]),
       )
     )
       findings.push(`${label}: direct raw semantics changed`);

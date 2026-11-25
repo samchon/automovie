@@ -13,7 +13,6 @@ import { throwsError } from "../../../internal/predicates";
  *    refuse.
  * 3. A following valid call remains usable, and unused coordinates do not enter
  *    the fit.
- *
  */
 export function test_unit_engine_math_rigid_mesh_transform_admission(): void {
   const valid: Parameters<typeof fitRigidMeshTransform>[0] = {

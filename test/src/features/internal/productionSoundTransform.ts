@@ -1,10 +1,17 @@
 /**
  * One node placement with an identity rotation and unit scale.
  *
- * Behavior: Constructs the original translation with identity rotation and unit scale consumed by the sound fixture's nodes and camera; spatial planner tests observe their positions and pan signs.
- * Expectation basis: Authored coordinates define input geometry rather than expected planner output; this fixture does not validate finite parameters or prove physical acoustic behavior.
- * Cases: The shared compiled fixture owns actor/camera placement, while the density/spread entries construct their own controlled geometry.
- * Execution: The existing owning entries call productionSoundTransform during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
+ * Behavior: Constructs the original translation with identity rotation and unit
+ * scale consumed by the sound fixture's nodes and camera; spatial planner tests
+ * observe their positions and pan signs. Expectation basis: Authored
+ * coordinates define input geometry rather than expected planner output; this
+ * fixture does not validate finite parameters or prove physical acoustic
+ * behavior. Cases: The shared compiled fixture owns actor/camera placement,
+ * while the density/spread entries construct their own controlled geometry.
+ * Execution: The existing owning entries call productionSoundTransform during
+ * their portable in-memory cases and retain responsibility for assertion
+ * expectations and dynamically invoked predicates; this helper acquires no
+ * asset, process, renderer or GPU and keeps no completed-result cache.
  */
 export function productionSoundTransform(
   x: number,

@@ -18,15 +18,16 @@ const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
  * parallel and clamped-endpoint minima under the current constrained solver.
  *
  * Scenarios:
+ *
  * 1. Both segments collapse exactly to points one unit apart.
  * 2. The first segment is a point nearest the second segment's first endpoint.
  * 3. The second segment is a point nearest the first segment's first endpoint.
  * 4. An interior X-crossing has zero gap and both witnesses at the origin.
  * 5. Parallel offset segments choose their earliest witnesses at a unit gap.
  * 6. Separated collinear segments choose facing endpoints a unit apart.
- * 7. A skew segment's bounded far endpoint gives the independently known sqrt(2) gap.
+ * 7. A skew segment's bounded far endpoint gives the independently known sqrt(2)
+ *    gap.
  * 8. Reversing the separated pair keeps the facing-endpoint gap.
- *
  */
 export function test_unit_engine_math_segment_segment_exact(): void {
   // 1. both points: the only pair is the two points themselves.

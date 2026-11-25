@@ -24,7 +24,6 @@ import { nclose, throwsError } from "../../../internal/predicates";
  *    including virtual anchors beyond the safe sample range.
  * 4. Both the planner and the public mixer reject a gain above unity and a
  *    negative ramp.
- *
  */
 export function test_unit_engine_film_production_sound_score_ducking(): void {
   const audioCue: IAutoMovieFilmTimeline["tracks"]["audio"][number] = {

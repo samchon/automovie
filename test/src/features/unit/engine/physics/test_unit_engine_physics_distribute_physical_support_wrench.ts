@@ -5,6 +5,8 @@ import {
 import type { IAutoMovieVector3 as V } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Actual-point support allocation retains force/moment feasibility and reports
  * impossible demand.
@@ -94,28 +96,28 @@ export function test_unit_engine_physics_distribute_physical_support_wrench(): v
                 (point: (typeof patch)[number]): number => point.point.x,
               ),
             ) -
-              1e-9 &&
+              PhysicalTolerance.ACCUMULATED &&
           cop.x <=
             Math.max(
               ...patch.map(
                 (point: (typeof patch)[number]): number => point.point.x,
               ),
             ) +
-              1e-9 &&
+              PhysicalTolerance.ACCUMULATED &&
           cop.z >=
             Math.min(
               ...patch.map(
                 (point: (typeof patch)[number]): number => point.point.z,
               ),
             ) -
-              1e-9 &&
+              PhysicalTolerance.ACCUMULATED &&
           cop.z <=
             Math.max(
               ...patch.map(
                 (point: (typeof patch)[number]): number => point.point.z,
               ),
             ) +
-              1e-9,
+              PhysicalTolerance.ACCUMULATED,
       );
     }
   }
@@ -168,7 +170,7 @@ export function test_unit_engine_physics_distribute_physical_support_wrench(): v
   });
   TestValidator.predicate(
     "one point cannot supply yaw torque",
-    Math.abs(yaw.torque.y) < 1e-12 && yaw.residual.torque.y === 5,
+    Math.abs(yaw.torque.y) < PhysicalTolerance.ROUNDING && yaw.residual.torque.y === 5,
   );
   const flight: ReturnType<typeof distribute> = distribute({
     origin,
@@ -195,7 +197,7 @@ export function test_unit_engine_physics_distribute_physical_support_wrench(): v
         "unilateral circular Coulomb cone",
         point.force.y >= 0 &&
           Math.hypot(point.force.x, point.force.z) <=
-            point.friction * point.force.y + 1e-9,
+            point.friction * point.force.y + PhysicalTolerance.ACCUMULATED,
       );
   }
 }

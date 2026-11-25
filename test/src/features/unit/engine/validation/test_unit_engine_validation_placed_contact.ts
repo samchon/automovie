@@ -30,9 +30,8 @@ const CARRIER: IAutoMovieRigidTransform = {
 };
 
 /**
- * Measure contact in the current moving frame, including independently
- * declared targets for an active rolling point and intentional in-hand motion.
- *
+ * Measure contact in the current moving frame, including independently declared
+ * targets for an active rolling point and intentional in-hand motion.
  */
 export const test_unit_engine_validation_placed_contact = (): void => {
   const support: ISupportCheck = {

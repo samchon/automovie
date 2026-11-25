@@ -32,7 +32,11 @@ const box: (
 /**
  * Three corridors whose usable section is stated three different ways.
  *
- * `taper` narrows station by station across two route segments, `bulge` widens in the middle of a single segment, and `unstated` declares no section at all. The spaces carry no cells because nothing here asks about containment: what is under test is the volume a connector sweeps, and that comes from the route and the section alone.
+ * `taper` narrows station by station across two route segments, `bulge` widens
+ * in the middle of a single segment, and `unstated` declares no section at all.
+ * The spaces carry no cells because nothing here asks about containment: what
+ * is under test is the volume a connector sweeps, and that comes from the route
+ * and the section alone.
  */
 const corridors: () => IAutoMovieBuiltEnvironment =
   (): IAutoMovieBuiltEnvironment => ({
@@ -125,20 +129,29 @@ const blocked: (bounds: IAutoMoviePropBox) => string[] = (
   );
 
 /**
- * A prop blocks the corridor that is actually there, at the width the corridor actually has where the prop stands. A varying section made "the usable width" a function of position rather than one number, and this pins that the swept volume follows it: the same probe blocks the wide end of a tapering corridor and clears its narrow end. It also pins the refusal to guess: a connector whose section nobody declared sweeps nothing, because an unstated width is not a width of zero and the missing declaration is reported by validation, where it can be fixed.
+ * A prop blocks the corridor that is actually there, at the width the corridor
+ * actually has where the prop stands. A varying section made "the usable width"
+ * a function of position rather than one number, and this pins that the swept
+ * volume follows it: the same probe blocks the wide end of a tapering corridor
+ * and clears its narrow end. It also pins the refusal to guess: a connector
+ * whose section nobody declared sweeps nothing, because an unstated width is
+ * not a width of zero and the missing declaration is reported by validation,
+ * where it can be fixed.
  *
  * Scenarios:
  *
  * 1. A probe 1.5 m off the centre line blocks the 4 m-wide first segment of a
- * tapering corridor.
+ *    tapering corridor.
  * 2. The same offset clears that corridor's 2 m-wide second segment, so the
- * section is read where the segment is rather than once for the whole route.
+ *    section is read where the segment is rather than once for the whole
+ *    route.
  * 3. A station interior to a single segment still widens it: a corridor that
- * bulges only in the middle blocks a probe its end sections would clear, and still clears a probe beyond its widest station.
+ *    bulges only in the middle blocks a probe its end sections would clear, and
+ *    still clears a probe beyond its widest station.
  * 4. A connector declaring no section at all reports nothing, while the same probe
- * against the same route blocks it the moment a section is stated, and validation refuses the undeclared record at the field that is missing.
+ *    against the same route blocks it the moment a section is stated, and
+ *    validation refuses the undeclared record at the field that is missing.
  * 5. A probe clear of every corridor blocks nothing.
- *
  */
 export function test_unit_engine_film_prop_passage_section(): void {
   TestValidator.equals(

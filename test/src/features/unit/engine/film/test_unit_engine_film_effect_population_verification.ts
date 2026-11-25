@@ -14,10 +14,12 @@ import { resealFilmEffect } from "../../../internal/resealFilmEffect";
  * The persisted effect population must match the complete current cue set.
  *
  * Scenarios:
- * 1. Accept current, unchanged resealed and empty-track populations and ignore source provenance alone.
- * 2. Refuse missing, extra, empty or reordered entries.
- * 3. Refuse digest-valid field retargeting, malformed runtime version and inconsistent timeline clock.
  *
+ * 1. Accept current, unchanged resealed and empty-track populations and ignore
+ *    source provenance alone.
+ * 2. Refuse missing, extra, empty or reordered entries.
+ * 3. Refuse digest-valid field retargeting, malformed runtime version and
+ *    inconsistent timeline clock.
  */
 export function test_unit_engine_film_effect_population_verification(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

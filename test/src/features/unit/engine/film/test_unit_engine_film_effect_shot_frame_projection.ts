@@ -13,9 +13,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../../../internal/nclose";
 import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
 import { filmEffectWorld } from "../../../internal/filmEffectWorld";
+import { nclose } from "../../../internal/nclose";
 import { shotContractFixture } from "../../../internal/shotContractFixture";
 
 const segment: (
@@ -44,11 +44,13 @@ const segment: (
  * Shot intervals and review seconds map through rational film frame boundaries.
  *
  * Scenarios:
+ *
  * 1. Trim repeated shot occurrences and drop absent/empty intersections.
  * 2. Resolve four floating boundary witnesses and frame zero.
- * 3. Refuse malformed intervals/clocks and return null for invalid, absent or multiply realized seconds.
- * 4. Compare ownership and runtime samples when cue bounds fall between simulation steps.
- *
+ * 3. Refuse malformed intervals/clocks and return null for invalid, absent or
+ *    multiply realized seconds.
+ * 4. Compare ownership and runtime samples when cue bounds fall between simulation
+ *    steps.
  */
 export function test_unit_engine_film_effect_shot_frame_projection(): void {
   const clock: IAutoMovieFilmEffectClock = {

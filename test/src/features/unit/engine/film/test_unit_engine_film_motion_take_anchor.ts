@@ -17,16 +17,21 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/predicates";
 
 /**
- * A versioned take binds one editable occurrence to exact output and source seconds.
+ * A versioned take binds one editable occurrence to exact output and source
+ * seconds.
  *
  * Scenarios:
  *
- * 1. A numeric trim whose sum rounds outward shares exactly 0.3 source seconds with its retimed successor.
- * 2. A dissolve needs an explicit occurrence and maps both selected shots on their own clock.
- * 3. At sequence end only the outgoing side exists. At sequence start only the incoming side exists.
- * 4. Admission rejects bad versions, incidental payloads, and native restore. Verification rejects stale bytes and anchor coordinates.
- * 5. A source span too small to advance the global end does not own the left side of that endpoint.
- *
+ * 1. A numeric trim whose sum rounds outward shares exactly 0.3 source seconds
+ *    with its retimed successor.
+ * 2. A dissolve needs an explicit occurrence and maps both selected shots on their
+ *    own clock.
+ * 3. At sequence end only the outgoing side exists. At sequence start only the
+ *    incoming side exists.
+ * 4. Admission rejects bad versions, incidental payloads, and native restore.
+ *    Verification rejects stale bytes and anchor coordinates.
+ * 5. A source span too small to advance the global end does not own the left side
+ *    of that endpoint.
  */
 export function test_unit_engine_film_motion_take_anchor(): void {
   const shot: IAutoMovieShot = {

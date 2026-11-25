@@ -44,7 +44,6 @@ const evaluate: (
  *    code/step measurements, and serialize with null fields.
  * 6. A required point on the near plane has codes 0/0 and zero step.
  * 7. Repeated input preserves the report; camera and time remain addressed.
- *
  */
 export function test_unit_engine_film_camera_depth_precision(): void {
   const valid: ReturnType<typeof evaluate> = evaluate();

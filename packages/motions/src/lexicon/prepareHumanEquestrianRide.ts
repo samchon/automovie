@@ -18,13 +18,14 @@ import { readHumanBone } from "../body/readHumanBone";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { humanEquestrianRhythm } from "./humanEquestrianRhythm";
 
 /** The ride law's context after the seated entry has been admitted. */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>;
 
 /** A jumping rider's four ordered landmarks on the ride's local clock. */
-type Jump = readonly [number, number, number, number];
+type Jump = humanEquestrianRhythm.Jump;
 
 /** Kept in parent-to-child order to describe the same four joints in each pose. */
 const BONES = ["spine", "chest", "neck", "head"] as const;
@@ -211,45 +212,37 @@ export function prepareHumanEquestrianRide(
       up: IAutoMovieVector3,
     ): void => {
       const stride: IStrideWindow | undefined = strideAt(strides, at);
-      const gait: number = stride === undefined ? 0 : phase(stride.times, at);
+      const gait: number =
+        stride === undefined
+          ? 0
+          : humanEquestrianRhythm.phase(stride.times, at);
       const active: number =
         gait === 0 || fade === 0
           ? 0
           : minimumJerk.share(Math.min(1, at / fade)) *
             minimumJerk.share(Math.min(1, (seconds - at) / fade));
-      const rise: number = jumping(jump, at);
-      const airborne: number =
-        jump !== undefined && at > jump[1] && at < jump[2]
-          ? Math.sin(Math.PI * ((at - jump[1]) / (jump[2] - jump[1]))) ** 2
-          : 0;
-      const turn: number =
-        look === undefined
-          ? 0
-          : minimumJerk.share(
-              1 - Math.min(1, Math.abs(at - look.peak) / look.half),
-            );
+      const {
+        pitch,
+        roll,
+        rise,
+        airborne,
+        turn,
+      }: humanEquestrianRhythm.IResponse = humanEquestrianRhythm({
+        at,
+        active,
+        ...(stride === undefined
+          ? {}
+          : {
+              stride: {
+                gait: stride.gait,
+                ...(stride.lead === undefined ? {} : { lead: stride.lead }),
+                phase: gait,
+              },
+            }),
+        ...(jump === undefined ? {} : { jump }),
+        ...(look === undefined ? {} : { look }),
+      });
       if (gait === 0 && rise === 0 && turn === 0) return;
-
-      // Each used touchdown closes a cycle at rest, including the first and last cues. Two diagonals or hind limbs contribute within a trot or walk stride.
-      const cycle: number = gait * 2 * Math.PI;
-      const pitch: number =
-        stride === undefined
-          ? 0
-          : active *
-            Math.sin(
-              stride.gait === "canter" || stride.gait === "gallop"
-                ? cycle
-                : 2 * cycle,
-            ) *
-            (1 - Math.cos(cycle)) *
-            (stride.gait === "walk" ? 1.5 : 2.5);
-      const roll: number =
-        stride?.gait === "canter" || stride?.gait === "gallop"
-          ? (stride!.lead === "right" ? -1 : 1) *
-            active *
-            Math.sin(cycle) *
-            (1 - Math.cos(cycle))
-          : 0;
       if (pitch !== 0 || roll !== 0 || rise !== 0) {
         const original: IAutoMovieQuaternion = humanPostureHeading(posture);
         posture.pitch = (posture.pitch ?? 0) + pitch + 6 * rise;
@@ -410,36 +403,6 @@ function strideAt(
   return strides[low - 1];
 }
 
-/**
- * Phases are fractions between adjacent touchdowns, with rest outside the
- * track.
- */
-function phase(strides: readonly number[], at: number): number {
-  let low: number = 0;
-  let high: number = strides.length - 1;
-  if (high < 1 || at <= strides[low]! || at >= strides[high]!) return 0;
-  while (high - low > 1) {
-    const middle: number = low + Math.floor((high - low) / 2);
-    if (strides[middle]! <= at) low = middle;
-    else high = middle;
-  }
-  return (at - strides[low]!) / (strides[high]! - strides[low]!);
-}
-
-/**
- * The supported two-point posture approaches smoothly and settles after
- * landing.
- */
-function jumping(jump: Jump | undefined, at: number): number {
-  if (jump === undefined) return 0;
-  const [approach, takeoff, landing, recovery]: Jump = jump;
-  if (at <= approach || at >= recovery) return 0;
-  if (at < takeoff)
-    return minimumJerk.share((at - approach) / (takeoff - approach));
-  if (at > landing)
-    return minimumJerk.share((recovery - at) / (recovery - landing));
-  return 1;
-}
 /** The record of `IBoundedLimits`'s site. */
 type IBoundedLimits = { min: number; max: number };
 

@@ -17,10 +17,11 @@ import { validationHasWarningCount } from "../../../internal/predicates";
  * A support warning can be addressed through the authored screenplay ancestry.
  *
  * Scenarios:
- * 1. A center outside a square support produces one physics warning.
- * 2. Locating it on beat-1 stamps b1, whose nearest-first ancestors are grp, scene1, act1 and root.
- * 3. The same warning remains unstamped when the tree is absent.
  *
+ * 1. A center outside a square support produces one physics warning.
+ * 2. Locating it on beat-1 stamps b1, whose nearest-first ancestors are grp,
+ *    scene1, act1 and root.
+ * 3. The same warning remains unstamped when the tree is absent.
  */
 export function test_unit_engine_film_feedback_cascade(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

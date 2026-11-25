@@ -229,29 +229,29 @@ const compiled: () => IAutoMovieCompiledShotSource =
 
 /** Declare the original spread shot duration and empty auxiliary tracks. */
 const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline => ({
-    version: 1,
-    builder: "test",
-    inputFingerprint: digest,
-    sourceDigest: digest,
-    id: "film",
-    fps: 20,
-    totalFrames: 80,
-    segments: [
-      {
-        shot: "spread-shot",
-        sourceInFrame: 0,
-        sourceOutFrame: 80,
-        startFrame: 0,
-        endFrame: 80,
-        headHandleFrames: 0,
-        tailHandleFrames: 0,
-        transitionIn: { kind: "cut" },
-        transitionOut: { kind: "cut" },
-      },
-    ],
-    omissions: [],
-    tracks: { audio: [], captions: [], effects: [] },
-  });
+  version: 1,
+  builder: "test",
+  inputFingerprint: digest,
+  sourceDigest: digest,
+  id: "film",
+  fps: 20,
+  totalFrames: 80,
+  segments: [
+    {
+      shot: "spread-shot",
+      sourceInFrame: 0,
+      sourceOutFrame: 80,
+      startFrame: 0,
+      endFrame: 80,
+      headHandleFrames: 0,
+      tailHandleFrames: 0,
+      transitionIn: { kind: "cut" },
+      transitionOut: { kind: "cut" },
+    },
+  ],
+  omissions: [],
+  tracks: { audio: [], captions: [], effects: [] },
+});
 
 /**
  * Read the required planned event by its authored id; a missing event fails the
@@ -322,7 +322,6 @@ const squaredDistance: (
  *    counts as clipped samples, and its master holds the true peak at or under
  *    the limiter ceiling with nothing clipped, while the same plan without it
  *    mixes below full scale.
- *
  */
 export function test_unit_engine_film_production_sound_spread(): void {
   const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({

@@ -13,17 +13,17 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A part aligned to an anchor by an occurrence index counts that occurrence
- * of an event, so an index with no event is refused rather than read as the
+ * A part aligned to an anchor by an occurrence index counts that occurrence of
+ * an event, so an index with no event is refused rather than read as the
  * anchor's contact.
  *
  * Scenarios:
- * 1. A part aligned to a 2 s kick anchored "k" with `index` 1 and no event
- *    throws an `AutoMovieScheduleError` of code `index` whose value is 1 and
- *    whose `of` is "k".
- * 2. The same part aligned with the event `impact` and `index` 0 starts at
- *    the kick's impact, 1.0 s.
  *
+ * 1. A part aligned to a 2 s kick anchored "k" with `index` 1 and no event throws
+ *    an `AutoMovieScheduleError` of code `index` whose value is 1 and whose
+ *    `of` is "k".
+ * 2. The same part aligned with the event `impact` and `index` 0 starts at the
+ *    kick's impact, 1.0 s.
  */
 export function test_unit_engine_composition_resolve_schedule_index_event(): void {
   const laws: IAutoMovieScheduleLaws = {

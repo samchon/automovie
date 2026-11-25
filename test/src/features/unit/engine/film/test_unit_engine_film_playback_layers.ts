@@ -97,7 +97,6 @@ function layered(
  *    exactly 1.
  * 7. Every layer's shot and time equal `playbackCursor`'s sample in a 50 Hz sweep,
  *    the live layer the sample's shot and the outgoing layer its blend.
- *
  */
 export function test_unit_engine_film_playback_layers(): void {
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

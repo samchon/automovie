@@ -37,3 +37,5 @@ export * from "./HumanPerformanceFlightRotation";
 export * from "./HumanPerformanceStagedFlightRotation";
 export * from "./HumanSegmentEntry";
 export * from "./HumanSegmentCut";
+export * from "./HumanPerformancePlaceCarrier";
+export * from "./unplantedHumanObservation";

@@ -34,7 +34,11 @@ const REALIZED: Readonly<Record<string, number>> = {
   "cover-c mark-c": 4,
 };
 
-/** Evaluate the supplied events with the authored pin/realization tables or explicit refusal overrides; the owning entry derives expected story seconds and messages from these inputs. */
+/**
+ * Evaluate the supplied events with the authored pin/realization tables or
+ * explicit refusal overrides; the owning entry derives expected story seconds
+ * and messages from these inputs.
+ */
 const sync: (
   events: ReadonlyArray<{ shot: string; event: string }>,
   toleranceSeconds: number,
@@ -69,17 +73,16 @@ const sync: (
  * Scenarios:
  *
  * 1. A pin maps shot-local seconds onto the clock, honouring an explicit rate, and
- *    maps a shot-local window, the whole shot or an event window inside it, onto
- *    the story interval it occupies.
+ *    maps a shot-local window, the whole shot or an event window inside it,
+ *    onto the story interval it occupies.
  * 2. Two shots pinned to the same story moment are judged simultaneous from
  *    different local times, and the verdict names both events.
  * 3. Two shots that are not are judged apart, and the failure names the gap it
  *    measured and the tolerance it exceeded.
  * 4. The tolerance is inclusive, so a claim exactly as wide as it holds.
- * 5. An unmeasurable operand — no pin, no realization, an overflowed
- *    story time — refuses the claim and names which operand it was,
- *    and an empty claim is refused because it addresses no event.
- *
+ * 5. An unmeasurable operand — no pin, no realization, an overflowed story time —
+ *    refuses the claim and names which operand it was, and an empty claim is
+ *    refused because it addresses no event.
  */
 export function test_unit_engine_film_story_clock(): void {
   const defaultTime: number = autoMovieStoryTime({ originSeconds: 10 }, 4);

@@ -50,12 +50,13 @@ const shot: IAutoMovieShot = {
 };
 
 /**
- * Beat-end resolution refuses duplicate performance nodes instead of choosing between performed and held state by input order.
+ * Beat-end resolution refuses duplicate performance nodes instead of choosing
+ * between performed and held state by input order.
  *
  * Scenarios:
  *
- * 1. A walk performance and a held performance both target hero; resolution throws an Error naming the duplicate node and both performance source positions.
- *
+ * 1. A walk performance and a held performance both target hero; resolution throws
+ *    an Error naming the duplicate node and both performance source positions.
  */
 export function test_unit_engine_film_beat_end_duplicate_performance_nodes(): void {
   let thrown: unknown = null;

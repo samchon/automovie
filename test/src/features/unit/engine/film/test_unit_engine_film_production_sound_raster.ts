@@ -30,7 +30,6 @@ import { productionSoundTimeline } from "../../../internal/productionSoundTimeli
  * 3. Positive heights 1..3 preserve a visible centre row; very large finite peaks
  *    saturate the viewport without unbounded row traversal.
  * 4. Empty stereo input remains an opaque silent raster.
- *
  */
 export function test_unit_engine_film_production_sound_raster(): void {
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();

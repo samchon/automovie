@@ -147,17 +147,17 @@ const closure: (
  *    registered one with no typed use, a use whose production or consumer id
  *    does not match, and a ledger entry for a consumer that no longer binds
  *    it.
- * 3. Supplied image facts decide media and size: unavailable facts, HDR base color, a
- *    zero, fractional or over-budget edge are all refused, while the exact
- *    portable limit and a PNG environment are accepted.
+ * 3. Supplied image facts decide media and size: unavailable facts, HDR base
+ *    color, a zero, fractional or over-budget edge are all refused, while the
+ *    exact portable limit and a PNG environment are accepted.
  * 4. One image bound as both a colour and a measurement is refused at every
  *    contradicting slot, including through legacy bare-id bindings whose intent
  *    comes from the slot itself.
- * 5. A scene environment joins that rule with intent from its supplied media facts: a
- *    PNG sky and a linear material map over the same asset are refused at
- *    both consumers, the same sky beside a base-color binding of that asset is
- *    clean, and a Radiance sky beside a separate normal-map asset is accepted.
- *
+ * 5. A scene environment joins that rule with intent from its supplied media
+ *    facts: a PNG sky and a linear material map over the same asset are refused
+ *    at both consumers, the same sky beside a base-color binding of that asset
+ *    is clean, and a Radiance sky beside a separate normal-map asset is
+ *    accepted.
  */
 export function test_unit_engine_validation_texture_assets(): void {
   TestValidator.equals(

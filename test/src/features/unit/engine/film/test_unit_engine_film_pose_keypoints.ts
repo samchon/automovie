@@ -25,9 +25,7 @@ const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (
   scale: { x: 1, y: 1, z: 1 },
 });
 
-/**
- * Hips at the rig origin, head at `headRest` above it.
- */
+/** Hips at the rig origin, head at `headRest` above it. */
 const skeleton: (headRest: IAutoMovieTransform) => IAutoMovieSkeleton = (
   headRest: IAutoMovieTransform,
 ): IAutoMovieSkeleton => ({
@@ -38,9 +36,7 @@ const skeleton: (headRest: IAutoMovieTransform) => IAutoMovieSkeleton = (
   ],
 });
 
-/**
- * An articulation-free pose whose rig root sits at (x, y, z).
- */
+/** An articulation-free pose whose rig root sits at (x, y, z). */
 const poseAt: (x: number, y: number, z: number) => IAutoMoviePose = (
   x: number,
   y: number,
@@ -109,14 +105,17 @@ const of: (
   ks.find((k: IAutoMoviePoseKeypoint): boolean => k.bone === bone)!;
 
 /**
- * Projects authored hip/head rig positions and checks normalized coordinates, crop-boundary admission, unclamped outside points, missing joints, node placement, aspect and sampled static camera.
+ * Projects authored hip/head rig positions and checks normalized coordinates,
+ * crop-boundary admission, unclamped outside points, missing joints, node
+ * placement, aspect and sampled static camera.
  *
  * Scenarios:
+ *
  * 1. Project centered hips and a one-metre head, including a crop boundary.
  * 2. Preserve unclamped high/side coordinates and mark behind/far joints outside.
- * 3. Omit a missing joint and intersect the default set with the actual two-bone rig.
+ * 3. Omit a missing joint and intersect the default set with the actual two-bone
+ *    rig.
  * 4. Apply raised node placement, square aspect and a sampled static camera clip.
- *
  */
 export function test_unit_engine_film_pose_keypoints(): void {
   // 1. basic projection.

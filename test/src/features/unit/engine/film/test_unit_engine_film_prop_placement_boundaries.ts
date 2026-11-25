@@ -22,12 +22,15 @@ import {
 } from "../../../internal/propPlacementFixtures";
 
 /**
- * Every original refusal keeps the exact adjacent accepted or unmeasurable boundary.
+ * Every original refusal keeps the exact adjacent accepted or unmeasurable
+ * boundary.
  *
  * Scenarios:
- * 1. Keep all seventeen original contact, clearance, passage, support, ambiguous, cyclic and degenerate outcomes without changing tolerances.
- * 2. A declared contact between `(a, b\u0000c)` remains valid, while its colliding legacy key must not exempt the separate overlapping pair `(a\u0000b, c)`.
  *
+ * 1. Keep all seventeen original contact, clearance, passage, support, ambiguous,
+ *    cyclic and degenerate outcomes without changing tolerances.
+ * 2. A declared contact between `(a, b\u0000c)` remains valid, while its colliding
+ *    legacy key must not exempt the separate overlapping pair `(a\u0000b, c)`.
  */
 export function test_unit_engine_film_prop_placement_boundaries(): void {
   const scenario: {

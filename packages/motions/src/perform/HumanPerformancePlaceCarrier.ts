@@ -25,7 +25,7 @@ type IPlaceDraftedResult = {
  * @returns The overlay's carrier.
  */
 export function HumanPerformancePlaceCarrier(
-  previous: IAutoMovieMotionHumanSegment,
+  previous: HumanPerformancePlaceCarrier.IPrevious,
   start: number,
 ): NonNullable<IAutoMovieMotionHumanActionContext<never>["carrier"]> {
   return {
@@ -54,5 +54,20 @@ export function HumanPerformancePlaceCarrier(
         );
       return plant === undefined ? {} : { support: plant.support };
     })(),
+  };
+}
+
+/** Companion types of {@link HumanPerformancePlaceCarrier}. */
+export namespace HumanPerformancePlaceCarrier {
+  /**
+   * What the carrier reads of the carrying action: its name, its start, and its
+   * plan's duration, posture and contacts.
+   */
+  export type IPrevious = Pick<IAutoMovieMotionHumanSegment, "name" | "start"> & {
+    /** The plan's duration, posture and contacts. */
+    plan: Pick<
+      IAutoMovieMotionHumanActionPlan,
+      "duration" | "posture" | "contacts"
+    >;
   };
 }

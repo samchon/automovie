@@ -38,7 +38,6 @@ const visible: (
  * 3. Near/far tangent spheres intersect and separated spheres do not.
  * 4. Camera translation/rotation resolves the same local-space result.
  * 5. Negative and non-finite radii fail closed.
- *
  */
 export function test_unit_engine_film_camera_projection_sphere(): void {
   const horizontalTangent: number = 5 + Math.SQRT2;

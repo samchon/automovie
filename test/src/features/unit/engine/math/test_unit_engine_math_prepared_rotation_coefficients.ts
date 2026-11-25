@@ -43,7 +43,6 @@ const PLACEMENTS: readonly AutoMovieJointTwistPlacement[] = [
  * Clinical degrees, actual normalized bases and matching public clamps are used
  * throughout. Raw paired/direct identity is a secondary API check; independent
  * factor geometry supplies the primary physical expectation.
- *
  */
 export function test_unit_engine_math_prepared_rotation_coefficients(): void {
   const findings: string[] = [];

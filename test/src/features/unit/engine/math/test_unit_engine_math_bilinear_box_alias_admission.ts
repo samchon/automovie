@@ -13,7 +13,6 @@ interface ICase {
 /**
  * The bounded wrist projector preserves physical whole-turn aliases at the
  * compact box boundary and in the ordinary half-turn case.
- *
  */
 export function test_unit_engine_math_bilinear_box_alias_admission(): void {
   const cases: readonly ICase[] = [

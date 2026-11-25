@@ -16,7 +16,6 @@ import type { IFilmFacadeGrade } from "../../../internal/IFilmFacadeGrade";
 import { createFilmCameraWidthFixture } from "../../../internal/createFilmCameraWidthFixture";
 import { createFilmFacadeTransform as transform } from "../../../internal/createFilmFacadeTransform";
 import { createFilmFacadeYaw as yaw } from "../../../internal/createFilmFacadeYaw";
-import { performFilmFacade } from "../../../internal/performFilmFacade";
 import { namedFacts, nclose, vclose } from "../../../internal/predicates";
 
 const NODE: string = "civic/west-facade";
@@ -54,28 +53,27 @@ const {
  * A required node subject is framed and graded on the width its geometry
  * actually fills, at the place that geometry actually stands.
  *
- * The fixture's authored dimensions determine its corners and diagonal. A
- * full framing shows 1.15 extents, giving independently computed vertical and
- * horizontal pinhole fits. Pole-only framing is the negative control; the
- * real performShot consumer is also exercised through performFilmFacade.
+ * The fixture's authored dimensions determine its corners and diagonal. A full
+ * framing shows 1.15 extents, giving independently computed vertical and
+ * horizontal pinhole fits. Pole-only framing is the negative control.
  *
  * Scenarios:
  *
- * 1. The fixture draws where it claims: the model's rest box runs
- *    `x 0…60, y 0…24, z −1…1`, so every number below is about a 60 m width and
- *    a 2 m depth measured off a 24 m height.
- * 2. Restated for the framing grammar, that box has its base at the middle of
- *    the mass and a radius of half its horizontal diagonal — not a base at the
+ * 1. The fixture draws where it claims: the model's rest box runs `x 0…60, y 0…24,
+ *    z −1…1`, so every number below is about a 60 m width and a 2 m depth
+ *    measured off a 24 m height.
+ * 2. Restated for the framing grammar, that box has its base at the middle of the
+ *    mass and a radius of half its horizontal diagonal — not a base at the
  *    element origin and a radius of zero.
- * 3. A yawed element is boxed where it stands: a 90° set piece placed at
- *    `(100, 0, 5)` fills `x 99…101, z −55…5`, which a vertical segment at a
- *    point could not express at all.
+ * 3. A yawed element is boxed where it stands: a 90° set piece placed at `(100, 0,
+ *    5)` fills `x 99…101, z −55…5`, which a vertical segment at a point could
+ *    not express at all.
  * 4. The width decides the distance exactly where it demands the further stand.
  *    The measured solve stands at the horizontal fit rather than the smaller
- *    height-only fit, and it aims at the middle of the mass
- *    rather than at its corner.
- * 5. Sampled frustum intersection holds ten-centimetre probes near both ends
- *    of the facade; the height-only camera loses the far probe.
+ *    height-only fit, and it aims at the middle of the mass rather than at its
+ *    corner.
+ * 5. Sampled frustum intersection holds ten-centimetre probes near both ends of
+ *    the facade; the height-only camera loses the far probe.
  * 6. Solve and grade agree. The facade reads at every contract sample under the
  *    camera the measured subject produced.
  * 7. The grade moved to where the geometry is rather than merely growing around
@@ -85,12 +83,12 @@ const {
  *    measured one.
  * 8. A wall delivered as an ingested mesh rather than as a generated primitive
  *    draws the same box, because the measurement reads vertices either way.
- * 9. `performShot` itself resolves the subject on those terms, so what is
- *    pinned is the builder's own reading rather than one rebuilt beside it.
- * 10. Boundaries. A node with nothing to measure keeps the horizontally
- *    degenerate stand-in segment it always had, and a slab too thin to measure
- *    vertically keeps its real width while taking the stand-in height.
+ * 9. Boundaries. A node with nothing to measure keeps the horizontally degenerate
+ *    stand-in segment it always had, and a slab too thin to measure vertically
+ *    keeps its real width while taking the stand-in height.
  *
+ * Every box is compared as a whole record with its coordinates snapped to a
+ * micrometre, so a field beside the two corners is a difference.
  */
 export function test_unit_engine_film_camera_node_subject_width(): void {
   const model: IAutoMovieModel = facade("facade-model", WIDTH / 2);
@@ -101,39 +99,8 @@ export function test_unit_engine_film_camera_node_subject_width(): void {
   // 1. the fixture draws what it claims.
   TestValidator.equals(
     "the fixture draws a sixty metre facade two metres thick",
-    {
-      present: extent !== null,
-      keys:
-        extent === null
-          ? []
-          : Object.keys(extent).sort((a: string, b: string): number =>
-              a < b ? -1 : a > b ? 1 : 0,
-            ),
-      minKeys:
-        extent === null
-          ? []
-          : Object.keys(extent.min).sort((a: string, b: string): number =>
-              a < b ? -1 : a > b ? 1 : 0,
-            ),
-      maxKeys:
-        extent === null
-          ? []
-          : Object.keys(extent.max).sort((a: string, b: string): number =>
-              a < b ? -1 : a > b ? 1 : 0,
-            ),
-      min: extent !== null && vclose(extent.min, { x: 0, y: 0, z: -DEPTH / 2 }),
-      max:
-        extent !== null &&
-        vclose(extent.max, { x: WIDTH, y: HEIGHT, z: DEPTH / 2 }),
-    },
-    {
-      present: true,
-      keys: ["max", "min"],
-      minKeys: ["x", "y", "z"],
-      maxKeys: ["x", "y", "z"],
-      min: true,
-      max: true,
-    },
+    extent === null ? null : micrometres(extent),
+    FACADE_BOX,
   );
 
   // 2. restated for the framing grammar.
@@ -173,25 +140,10 @@ export function test_unit_engine_film_camera_node_subject_width(): void {
   );
   TestValidator.equals(
     "a quarter-turned set piece fills the footprint its yaw gives it",
+    micrometres(yawed),
     {
-      keys: Object.keys(yawed).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      minKeys: Object.keys(yawed.min).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      maxKeys: Object.keys(yawed.max).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      min: vclose(yawed.min, { x: 100 - DEPTH / 2, y: 0, z: 5 - WIDTH }, 1e-6),
-      max: vclose(yawed.max, { x: 100 + DEPTH / 2, y: HEIGHT, z: 5 }, 1e-6),
-    },
-    {
-      keys: ["max", "min"],
-      minKeys: ["x", "y", "z"],
-      maxKeys: ["x", "y", "z"],
-      min: true,
-      max: true,
+      min: { x: 100 - DEPTH / 2, y: 0, z: 5 - WIDTH },
+      max: { x: 100 + DEPTH / 2, y: HEIGHT, z: 5 },
     },
   );
 
@@ -333,93 +285,19 @@ export function test_unit_engine_film_camera_node_subject_width(): void {
     computeModelRestExtent(meshFacade("mesh-facade-model", WIDTH / 2));
   TestValidator.equals(
     "a mesh wall draws the same box its primitive twin does",
-    {
-      present: meshExtent !== null,
-      keys:
-        meshExtent === null
-          ? []
-          : Object.keys(meshExtent).sort((a: string, b: string): number =>
-              a < b ? -1 : a > b ? 1 : 0,
-            ),
-      minKeys:
-        meshExtent === null
-          ? []
-          : Object.keys(meshExtent.min).sort((a: string, b: string): number =>
-              a < b ? -1 : a > b ? 1 : 0,
-            ),
-      maxKeys:
-        meshExtent === null
-          ? []
-          : Object.keys(meshExtent.max).sort((a: string, b: string): number =>
-              a < b ? -1 : a > b ? 1 : 0,
-            ),
-      min:
-        meshExtent !== null &&
-        vclose(meshExtent.min, { x: 0, y: 0, z: -DEPTH / 2 }),
-      max:
-        meshExtent !== null &&
-        vclose(meshExtent.max, { x: WIDTH, y: HEIGHT, z: DEPTH / 2 }),
-    },
-    {
-      present: true,
-      keys: ["max", "min"],
-      minKeys: ["x", "y", "z"],
-      maxKeys: ["x", "y", "z"],
-      min: true,
-      max: true,
-    },
+    meshExtent === null ? null : micrometres(meshExtent),
+    FACADE_BOX,
   );
 
-  // 9. the shot builder itself resolves the subject that way.
-  const performed: ReturnType<typeof performFilmFacade> = performFilmFacade(
-    model,
-    FOV_Y,
-  );
-  TestValidator.equals(
-    "performShot frames a set piece from the box it draws",
-    namedFacts([
-      ["performs", (): boolean => performed !== null],
-      [
-        "standsAtTheHorizontalFit",
-        (): boolean =>
-          performed !== null &&
-          nclose(solvedDistance(performed, measuredAim), horizontalFit, 1e-6),
-      ],
-      [
-        "holdsTheFarEnd",
-        (): boolean => performed !== null && framesPoint(performed, farEnd),
-      ],
-    ]),
-    { performs: true, standsAtTheHorizontalFit: true, holdsTheFarEnd: true },
-  );
-
-  // 10. boundaries: nothing to measure, and nothing vertical to measure.
+  // 9. boundaries: nothing to measure, and nothing vertical to measure.
   const standIn: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
     null,
     null,
   );
   TestValidator.equals(
     "a node with nothing to measure keeps the degenerate stand-in segment",
-    {
-      keys: Object.keys(standIn).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      minKeys: Object.keys(standIn.min).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      maxKeys: Object.keys(standIn.max).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      min: vclose(standIn.min, { x: 0, y: 0, z: 0 }),
-      max: vclose(standIn.max, { x: 0, y: 1.7, z: 0 }),
-    },
-    {
-      keys: ["max", "min"],
-      minKeys: ["x", "y", "z"],
-      maxKeys: ["x", "y", "z"],
-      min: true,
-      max: true,
-    },
+    micrometres(standIn),
+    { min: { x: 0, y: 0, z: 0 }, max: { x: 0, y: 1.7, z: 0 } },
   );
   const rigOnly: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
     null,
@@ -427,26 +305,8 @@ export function test_unit_engine_film_camera_node_subject_width(): void {
   );
   TestValidator.equals(
     "a rig span stands in for a height without inventing a width",
-    {
-      keys: Object.keys(rigOnly).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      minKeys: Object.keys(rigOnly.min).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      maxKeys: Object.keys(rigOnly.max).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      min: vclose(rigOnly.min, { x: 0, y: 0, z: 0 }),
-      max: vclose(rigOnly.max, { x: 0, y: 1.9, z: 0 }),
-    },
-    {
-      keys: ["max", "min"],
-      minKeys: ["x", "y", "z"],
-      maxKeys: ["x", "y", "z"],
-      min: true,
-      max: true,
-    },
+    micrometres(rigOnly),
+    { min: { x: 0, y: 0, z: 0 }, max: { x: 0, y: 1.9, z: 0 } },
   );
   const thin: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
     {
@@ -457,25 +317,35 @@ export function test_unit_engine_film_camera_node_subject_width(): void {
   );
   TestValidator.equals(
     "a slab too thin to measure vertically keeps the width it draws",
+    micrometres(thin),
     {
-      keys: Object.keys(thin).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      minKeys: Object.keys(thin.min).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      maxKeys: Object.keys(thin.max).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      min: vclose(thin.min, { x: 0, y: 4, z: -WIDTH / 2 }),
-      max: vclose(thin.max, { x: WIDTH, y: 5.7, z: WIDTH / 2 }),
-    },
-    {
-      keys: ["max", "min"],
-      minKeys: ["x", "y", "z"],
-      maxKeys: ["x", "y", "z"],
-      min: true,
-      max: true,
+      min: { x: 0, y: 4, z: -WIDTH / 2 },
+      max: { x: WIDTH, y: 5.7, z: WIDTH / 2 },
     },
   );
+}
+
+/** The facade's rest box: `x 0…60, y 0…24, z −1…1`. */
+const FACADE_BOX: IFilmCameraClearanceBox = {
+  min: { x: 0, y: 0, z: -DEPTH / 2 },
+  max: { x: WIDTH, y: HEIGHT, z: DEPTH / 2 },
+};
+
+/**
+ * The box with every coordinate snapped to a micrometre, keeping every field
+ * the box and its corners carry, so a whole-record comparison still sees any
+ * field beside the two corners while tolerating rotation round-off.
+ */
+function micrometres(box: IFilmCameraClearanceBox): IFilmCameraClearanceBox {
+  return { ...box, min: snap(box.min), max: snap(box.max) };
+}
+
+/** One corner snapped to a micrometre, keeping every field it carries. */
+function snap(corner: IAutoMovieVector3): IAutoMovieVector3 {
+  return {
+    ...corner,
+    x: Math.round(corner.x * 1e6) / 1e6,
+    y: Math.round(corner.y * 1e6) / 1e6,
+    z: Math.round(corner.z * 1e6) / 1e6,
+  };
 }

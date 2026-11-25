@@ -21,20 +21,19 @@ import { nclose } from "../../../internal/predicates";
  * 1. Two contiguous retimed plays share an event anchor, which appears once on the
  *    second play.
  * 2. Absent and duplicated ids in the same trim report both bound paths.
- * 4. Reversing the bounds or selecting the same time refuses the span.
- * 5. Two trim forms are refused.
- * 6. A full-shot end that rounds outward retains its exact event after inward
+ * 3. Reversing the bounds or selecting the same time refuses the span.
+ * 4. Two trim forms are refused.
+ * 5. A full-shot end that rounds outward retains its exact event after inward
  *    lowering, even for a rate that makes the source tolerance smaller than one
  *    ULP.
- * 7. Distinct events just outside the selected anchors at 1 and 2 seconds are
+ * 6. Distinct events just outside the selected anchors at 1 and 2 seconds are
  *    absent from the exact one-second output and cannot satisfy requirements.
- * 8. At 2×, the same numeric span retains those events in half the output time.
- * 9. Precise hard cuts assign nearby events once when the two entries use
+ * 7. At 2×, the same numeric span retains those events in half the output time.
+ * 8. Precise hard cuts assign nearby events once when the two entries use
  *    different rates or only one side uses event bounds. A deliberately
  *    authored source gap keeps both its adjacent events in their own plays.
- * 10. A numeric sum that rounds past the next trim's 0.3-second source start
- *     partitions at 0.3 when the incoming play is retimed.
- *
+ * 9. A numeric sum that rounds past the next trim's 0.3-second source start
+ *    partitions at 0.3 when the incoming play is retimed.
  */
 export function test_unit_engine_film_cut_sequence_event_trim(): void {
   const start: IAutoMovieInteractionEvent = {

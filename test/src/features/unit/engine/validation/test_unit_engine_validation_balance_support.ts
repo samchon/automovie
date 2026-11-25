@@ -101,25 +101,26 @@ const motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
 /**
  * `validateBalanceSupport` pins the balance heuristic: callers declare a
  * support window, the validator projects the center of mass and support
- * contacts to XZ, then warns when COM falls outside the support hull
- * margin. With an explicit `centerBone` the COM is that single bone; omitted,
- * it is the segment-mass-weighted whole-body COM (#1184).
+ * contacts to XZ, then warns when COM falls outside the support hull margin.
+ * With an explicit `centerBone` the COM is that single bone; omitted, it is the
+ * segment-mass-weighted whole-body COM (#1184).
  *
  * Scenarios:
  *
  * 1. A single-bone (`spine`) COM beyond a two-foot support segment reports a
  *    physics violation on
  *    `$input.supports[i].samples[j].centerOfMass.supportDistance`.
- * 2. Widening the margin leaves the same segment case successful; the marker suppresses warnings.
+ * 2. Widening the margin leaves the same segment case successful; the marker
+ *    suppresses warnings.
  * 3. One-foot support and the whole-body COM pass when the COM is on the support
  *    point or segment.
- * 4. A convex four-point foot/toe hull leaves interior and edge cases successful and warns for an outside COM.
+ * 4. A convex four-point foot/toe hull leaves interior and edge cases successful
+ *    and warns for an outside COM.
  * 5. The mass-weighted whole-body COM (#1184) warns on a forward-leaning trunk
  *    that a single-hips proxy misses: the pelvis stays over the feet while the
  *    weighted joint-position estimate has pitched past them.
  * 6. Invalid support annotations and invalid sample rates report deterministic
  *    non-physics failures before sampling.
- *
  */
 export function test_unit_engine_validation_balance_support(): void {
   const outsideLine: IAutoMovieSkeleton = skeleton(0.5, 0);

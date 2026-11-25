@@ -9,7 +9,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose, qclose, vclose } from "../../../internal/predicates";
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  vclose,
+} from "../../../internal/predicates";
 
 const camera: (
   translation?: IAutoMovieVector3,
@@ -70,7 +75,6 @@ const SUBJECT: IAutoMovieFramedSubject = {
  * 3. `whip` from a 90°-yawed staged orientation → two keys 0.2 s apart, both at
  *    the STAGED position (a whip pans in place), rotating from the staged
  *    quaternion to the aim.
- *
  */
 export function test_unit_engine_film_camera_move_grammar(): void {
   const still: ReturnType<typeof compileCameraMove> = compileCameraMove({

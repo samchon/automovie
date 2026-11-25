@@ -14,14 +14,15 @@ import {
 } from "../../../internal/propPlacementFixtures";
 
 /**
- * Semantic placement keeps the original furnished-room and legacy compatibility inputs.
+ * Semantic placement keeps the original furnished-room and legacy compatibility
+ * inputs.
  *
  * Scenarios:
+ *
  * 1. Accept the full furnished room with its support and building relations.
  * 2. Reversing props and set pieces preserves forward-reference admission.
  * 3. A placementless legacy sculpture needs no building environment.
  * 4. Empty prop, set and environment registries remain valid.
- *
  */
 export function test_unit_engine_film_prop_placement(): void {
   const scenario: {

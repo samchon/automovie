@@ -22,7 +22,6 @@ import { nclose } from "../../../internal/nclose";
  *    camera dollied 1 m toward the mark, with a forward of length 3, resolves 2
  *    m; a mark 0.5 m to the side does not change the depth.
  * 4. A mark behind the camera resolves null.
- *
  */
 export function test_unit_engine_film_camera_lens_resolve(): void {
   const intent: (

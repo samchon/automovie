@@ -9,12 +9,15 @@ import { createProductionSoundAssetTestInputs } from "../../../internal/audio/cr
 import { namedFacts, throwsError } from "../../../internal/predicates";
 
 /**
- * Cue admission refuses empty, negative, source-overflow and film-overflow spans by authored identity.
+ * Cue admission refuses empty, negative, source-overflow and film-overflow
+ * spans by authored identity.
  *
  * Scenarios:
- * 1. A source offset of one frame makes the trim leave the two-frame complete source and refuses by cue identity.
- * 2. Empty spans or sources, negative starts or offsets and a cue past the film end retain their refusals.
  *
+ * 1. A source offset of one frame makes the trim leave the two-frame complete
+ *    source and refuses by cue identity.
+ * 2. Empty spans or sources, negative starts or offsets and a cue past the film
+ *    end retain their refusals.
  */
 export function test_unit_engine_film_production_sound_cue_admission(): void {
   const {
@@ -51,7 +54,10 @@ export function test_unit_engine_film_production_sound_cue_admission(): void {
 
   const source: Float32Array<ArrayBufferLike> = ramp(length);
 
-  /** Mix the isolated cue patch and require the authored cue identity and whole-frame-span refusal. */
+  /**
+   * Mix the isolated cue patch and require the authored cue identity and
+   * whole-frame-span refusal.
+   */
   const refused: (
     cue: Parameters<
       (props: {

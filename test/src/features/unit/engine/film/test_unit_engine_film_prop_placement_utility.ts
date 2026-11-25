@@ -41,7 +41,10 @@ import {
   table,
 } from "../../../internal/propPlacementFixtures";
 
-/** Construct a literal axis-aligned box for independently authored geometric expectations. */
+/**
+ * Construct a literal axis-aligned box for independently authored geometric
+ * expectations.
+ */
 const box: (
   minX: number,
   minY: number,
@@ -133,9 +136,13 @@ const tipped: (deg: number) => IAutoMovieStageSetPiece["rotation"] = (
 });
 
 /**
- * A ring of chairs authored the way a production would: one loop, one anchor, a declared seed, and no hand-typed world coordinate.
+ * A ring of chairs authored the way a production would: one loop, one anchor, a
+ * declared seed, and no hand-typed world coordinate.
  *
- * The angular offset is drawn from a small integer hash of the seed and the slot index rather than from a global generator, so the layout depends on the inputs alone: the same seed and the same count reproduce byte for byte regardless of the order the slots are evaluated in.
+ * The angular offset is drawn from a small integer hash of the seed and the
+ * slot index rather than from a global generator, so the layout depends on the
+ * inputs alone: the same seed and the same count reproduce byte for byte
+ * regardless of the order the slots are evaluated in.
  */
 const chairRing: (props: IFilmChairRingInput) => IFilmChairRing = (
   props: IFilmChairRingInput,
@@ -182,26 +189,36 @@ const chairRing: (props: IFilmChairRingInput) => IFilmChairRing = (
 };
 
 /**
- * The pure placement predicates answer the questions the validator asks, so a source-side loop or search reaches the same verdict the builder will.
+ * The pure placement predicates answer the questions the validator asks, so a
+ * source-side loop or search reaches the same verdict the builder will.
  *
  * Scenarios:
  *
  * 1. Occupancy comes from a declared footprint when there is one and from the
- * visible parts otherwise, through the full staged TRS; a prop with no vertices collapses to its staged origin instead of an empty bound.
+ *    visible parts otherwise, through the full staged TRS; a prop with no
+ *    vertices collapses to its staged origin instead of an empty bound.
  * 2. Clearance volumes transform with the same TRS, and a prop that declares no
- * placement declares no clearance.
+ *    placement declares no clearance.
  * 3. Overlap is strict on all six comparisons: a shared face is contact, one axis
- * of separation on either side is enough to say no.
+ *    of separation on either side is enough to say no.
  * 4. Containment tests every corner, is vacuously true inside a cell-less semantic
- * partition, and refuses an undeclared space by throwing.
+ *    partition, and refuses an undeclared space by throwing.
  * 5. Blocked passages name the filled opening and the swept connector, and stay
- * silent for an open cut, an unmodelled fill, and a degenerate route.
+ *    silent for an open cut, an unmodelled fill, and a degenerate route.
  * 6. Every relation target that carries a frame answers with it and every one that
- * cannot answers `null`, including each way a citation can dangle.
+ *    cannot answers `null`, including each way a citation can dangle.
  * 7. A support states one face however it was written: a patch answers from its
- * own polygon and height rule, a host's top from the extent it carries through the host's staged scale and tilt, and a citation that dangles, a contact with no face, an empty polygon, and a top staged edge-on state none. The bearing on that face is zero where the prop rests, signed where it floats or sinks, taken at the highest probe over a ramp, `null` where the prop does not stand over it on either side, and found from whichever side can answer when the face is smaller than the footprint, centred under it or not.
- * 8. Twelve chairs authored as one seeded loop validate and reproduce serialized records across repeated calls; changing the seed changes the placements and leaves them valid.
- *
+ *    own polygon and height rule, a host's top from the extent it carries
+ *    through the host's staged scale and tilt, and a citation that dangles, a
+ *    contact with no face, an empty polygon, and a top staged edge-on state
+ *    none. The bearing on that face is zero where the prop rests, signed where
+ *    it floats or sinks, taken at the highest probe over a ramp, `null` where
+ *    the prop does not stand over it on either side, and found from whichever
+ *    side can answer when the face is smaller than the footprint, centred under
+ *    it or not.
+ * 8. Twelve chairs authored as one seeded loop validate and reproduce serialized
+ *    records across repeated calls; changing the seed changes the placements
+ *    and leaves them valid.
  */
 export function test_unit_engine_film_prop_placement_utility(): void {
   const environment: IAutoMovieBuiltEnvironment = propEnvironment();
@@ -324,16 +341,14 @@ export function test_unit_engine_film_prop_placement_utility(): void {
         [
           "eachAxisSeparatesOnEitherSide",
           (): boolean =>
-            (
-              [
-                box(1, 0, 0, 2, 1, 1),
-                box(-2, 0, 0, -1, 1, 1),
-                box(0, 1, 0, 1, 2, 1),
-                box(0, -2, 0, 1, -1, 1),
-                box(0, 0, 1, 1, 1, 2),
-                box(0, 0, -2, 1, 1, -1),
-              ] as const
-            ).every(
+            [
+              box(1, 0, 0, 2, 1, 1),
+              box(-2, 0, 0, -1, 1, 1),
+              box(0, 1, 0, 1, 2, 1),
+              box(0, -2, 0, 1, -1, 1),
+              box(0, 0, 1, 1, 1, 2),
+              box(0, 0, -2, 1, 1, -1),
+            ].every(
               (other: IAutoMoviePropBox): boolean =>
                 propBoundsOverlap(box(0, 0, 0, 1, 1, 1), other) === false,
             ),

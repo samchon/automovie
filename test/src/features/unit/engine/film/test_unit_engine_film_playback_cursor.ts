@@ -16,7 +16,9 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/predicates";
 
 /**
- * Builds an authored empty-motion shot with a supplied id and span; its playback entry owns assertions derived from the stated trims, overlap clocks and boundaries.
+ * Builds an authored empty-motion shot with a supplied id and span; its
+ * playback entry owns assertions derived from the stated trims, overlap clocks
+ * and boundaries.
  */
 function shot(id: string, duration: number): IAutoMovieShot {
   return {
@@ -32,7 +34,9 @@ function shot(id: string, duration: number): IAutoMovieShot {
 }
 
 /**
- * Compares exact categorical playback ids and tolerant clocks/blend weights; cursor-versus-resolver agreement cannot catch a shared playbackSampleAt formula defect.
+ * Compares exact categorical playback ids and tolerant clocks/blend weights;
+ * cursor-versus-resolver agreement cannot catch a shared playbackSampleAt
+ * formula defect.
  */
 function sameSample(
   a: IAutoMoviePlaybackSample,
@@ -49,14 +53,19 @@ function sameSample(
 }
 
 /**
- * Runs the forward cursor across real layouts and compares shot, local clock and blend fields with the stateless resolver, catching skipped starts, incorrect equal-start precedence and stale cursor position across long edits.
+ * Runs the forward cursor across real layouts and compares shot, local clock
+ * and blend fields with the stateless resolver, catching skipped starts,
+ * incorrect equal-start precedence and stale cursor position across long
+ * edits.
  *
  * Scenarios:
- * 1. Sweep the trimmed/dissolved edit at 240 Hz and observe both shots and a blend.
- * 2. Compare fresh cursors with random access at every exact entry start.
- * 3. Admit a full-overlap dissolve and preserve incoming authority at equal starts.
- * 4. Sweep 200 one-second shots at 4 Hz with runtime and visitation checks.
  *
+ * 1. Sweep the trimmed/dissolved edit at 240 Hz and observe both shots and a
+ *    blend.
+ * 2. Compare fresh cursors with random access at every exact entry start.
+ * 3. Admit a full-overlap dissolve and preserve incoming authority at equal
+ *    starts.
+ * 4. Sweep 200 one-second shots at 4 Hz with runtime and visitation checks.
  */
 export function test_unit_engine_film_playback_cursor(): void {
   // Hand-laid sequence with a trim and a dissolve: entry starts 0 / 3 / 4.5,

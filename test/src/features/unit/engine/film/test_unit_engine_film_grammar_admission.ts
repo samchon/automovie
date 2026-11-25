@@ -12,13 +12,13 @@ import { namedFacts, throwsError } from "../../../internal/predicates";
  * Grammar observations reject malformed geometry before projection.
  *
  * Scenarios:
+ *
  * 1. Empty edits and explicit positive thresholds are accepted.
  * 2. Every framing-height class and the smallest/largest positive finite
- *    occupancies are reachable; matching size and behind-camera
- *    subjects avoid fabricated size findings.
+ *    occupancies are reachable; matching size and behind-camera subjects avoid
+ *    fabricated size findings.
  * 3. Duplicate shot/subject ids, invalid thresholds and malformed observation
  *    scalar/vector/reference/style fields receive the field's own refusal.
- *
  */
 export function test_unit_engine_film_grammar_admission(): void {
   const {
@@ -222,7 +222,10 @@ export function test_unit_engine_film_grammar_admission(): void {
   );
 }
 
-/** Field and domain fragments independently identifying each malformed contract case. */
+/**
+ * Field and domain fragments independently identifying each malformed contract
+ * case.
+ */
 function expectation(name: string): readonly string[] {
   const fields: Record<string, readonly string[]> = {
     "non-finite duration": [".duration", "finite and positive"],

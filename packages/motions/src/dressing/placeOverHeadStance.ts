@@ -30,6 +30,14 @@ import type { placeOverHeadPath } from "./placeOverHeadPath";
  * (`AutoMovieMotionHumanTouchStance.choose`). Read from the plan's context,
  * arms, entry, reach and path.
  *
+ * A refusal here is the geometry's, not the step's: the small woman (`f-small`,
+ * reach 0.462 m) setting a ribbon from in front over the seated average man's
+ * head, her feet 0.3 m before his seat's front edge, has the hand's place at
+ * the apex 0.85 m ahead of and 0.32 m above her shoulder, 0.67 m ahead after
+ * the step; standing at his knees and hinged at the hip at any angle (a 0.45 m
+ * trunk), her shoulder comes no nearer it than 0.56 m, past her reach, so no
+ * step limit could admit the layout and the refusal names the reach.
+ *
  * @param scope What the plan chooses the stance from.
  * @returns The chosen stance and the context as a stance.
  * @throws {HumanRefusal} When no stance clears the crown.

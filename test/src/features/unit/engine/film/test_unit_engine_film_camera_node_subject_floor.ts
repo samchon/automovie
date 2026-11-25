@@ -36,10 +36,10 @@ const transform: (x: number, y: number, z: number) => IAutoMovieTransform = (
 
 /**
  * A canopy authored the way a building element is: the element origin sits on
- * the ground where the building was placed, and the geometry it draws stands
- * 8 m up in the air. Nothing about the model is unusual — this is what a
- * lowered `<environment>/<element>` set piece looks like whenever the part is
- * not authored around its own origin.
+ * the ground where the building was placed, and the geometry it draws stands 8
+ * m up in the air. Nothing about the model is unusual — this is what a lowered
+ * `<environment>/<element>` set piece looks like whenever the part is not
+ * authored around its own origin.
  */
 const canopy: () => IAutoMovieModel = (): IAutoMovieModel => ({
   id: "canopy-model",
@@ -225,34 +225,33 @@ const allRead: (graded: ReturnType<typeof grade>) => boolean = (
   graded.refused === false;
 
 /**
- * A required node subject is graded on the box its geometry actually fills,
- * not on one hanging off its node origin.
+ * A required node subject is graded on the box its geometry actually fills, not
+ * on one hanging off its node origin.
  *
  * The authored box has a floor 8 metres above the node origin. Compilation
  * receives that floor explicitly, while realizeShotContract independently
- * measures the compiled model. Agreement must persist at each sampled time;
- * a close camera aimed at the origin is the negative twin. This composition
- * does not exercise performShot's selection of the framed base or prove any
- * rendered view, complete enclosure, or occlusion result.
+ * measures the compiled model. Agreement must persist at each sampled time; a
+ * close camera aimed at the origin is the negative twin. This composition does
+ * not exercise performShot's selection of the framed base or prove any rendered
+ * view, complete enclosure, or occlusion result.
  *
  * Scenarios:
  *
- * 1. The fixture draws where it claims to: the model's rest extent runs 8 … 12,
- *    so every number below is about a floor of exactly 8 m.
- * 2. Every shot size grades the canopy readable at all three contract samples
- *    and raises no diagnostic. `full`, `medium` and `close` are the three that
+ * 1. The fixture draws where it claims to: the model's rest extent runs 8 … 12, so
+ *    every number below is about a floor of exactly 8 m.
+ * 2. Every shot size grades the canopy readable at all three contract samples and
+ *    raises no diagnostic. `full`, `medium` and `close` are the three that
  *    failed before the floor was carried; `wide` is the control that passed
  *    either way, so a green run at `wide` alone would be no evidence.
- * 3. The negative twin: the same subject under a camera solved as though the
- *    deck stood on the placement reads at no sample and is refused. Carrying
- *    the floor made the two sides agree; it did not make readability
+ * 3. The negative twin: the same subject under a camera solved as though the deck
+ *    stood on the placement reads at no sample and is refused. Carrying the
+ *    floor made the two sides agree; it did not make readability
  *    unconditional.
  * 4. A model drawn from its own origin upward has a zero floor, so its grade is
  *    readable under a camera aimed at that origin.
  * 5. A node with no model keeps the stand-in span measured from the placement
  *    itself: neither a rig span nor `DEFAULT_SUBJECT_HEIGHT` states a floor, so
  *    there is none to carry and a camera framed on the placement still reads.
- *
  */
 export function test_unit_engine_film_camera_node_subject_floor(): void {
   const framings: readonly ["wide", "full", "medium", "close"] = [
@@ -265,20 +264,12 @@ export function test_unit_engine_film_camera_node_subject_floor(): void {
   const extent: ReturnType<typeof computeModelRestExtentY> =
     computeModelRestExtentY(model);
 
+  // The whole extent is compared, so a missing extent or any field beside the
+  // two bounds is a difference.
   TestValidator.equals(
     "the fixture draws its deck eight metres above the node origin",
-    {
-      present: extent !== null,
-      keys:
-        extent === null
-          ? []
-          : Object.keys(extent).sort((a: string, b: string): number =>
-              a < b ? -1 : a > b ? 1 : 0,
-            ),
-      min: extent !== null && nclose(extent.min, FLOOR),
-      max: extent !== null && nclose(extent.max, FLOOR + HEIGHT),
-    },
-    { present: true, keys: ["max", "min"], min: true, max: true },
+    extent,
+    { min: FLOOR, max: FLOOR + HEIGHT },
   );
 
   TestValidator.equals(

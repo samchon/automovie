@@ -10,6 +10,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalModelFixtures as Fixtures } from "../../../internal/PhysicalModelFixtures";
 import { makeProp } from "../../../internal/makeProp";
 import { vclose } from "../../../internal/predicates";
@@ -30,7 +32,7 @@ export function test_unit_engine_physics_derive_physical_profile(): void {
     Fixtures.stickman();
   TestValidator.predicate(
     "existing model and physical profile share neutral centre",
-    vclose(profile.centerOfMass, deriveCenterOfMass(model)!, 1e-10) &&
+    vclose(profile.centerOfMass, deriveCenterOfMass(model)!, PhysicalTolerance.ACCUMULATED) &&
       profile.joints.length === model.skeleton!.bones.length - 1,
   );
   const replacement: IAutoMoviePhysicalSegment = structuredClone(
@@ -48,7 +50,7 @@ export function test_unit_engine_physics_derive_physical_profile(): void {
   });
   TestValidator.predicate(
     "whole-segment override replaces derived mass",
-    Math.abs(overridden.mass - profile.mass - 1) < 1e-10 &&
+    Math.abs(overridden.mass - profile.mass - 1) < PhysicalTolerance.ACCUMULATED &&
       overridden.segments[0]!.mass === replacement.mass,
   );
   // The fixture's legs bend their knees by pi / 4, each 0.45 m link leaning
@@ -61,8 +63,8 @@ export function test_unit_engine_physics_derive_physical_profile(): void {
   TestValidator.predicate(
     "independent primitive assembly totals",
     validatePhysicalProfile(four).length === 0 &&
-      Math.abs(four.mass - 8) < 1e-12 &&
-      vclose(four.centerOfMass, { x: 0, y: 0.75 - 0.7 * d, z: 0 }, 1e-12),
+      Math.abs(four.mass - 8) < PhysicalTolerance.ROUNDING &&
+      vclose(four.centerOfMass, { x: 0, y: 0.75 - 0.7 * d, z: 0 }, PhysicalTolerance.ROUNDING),
   );
   const analytic: IAutoMovieModel = makeProp([
     primitivePart("base", { type: "box", width: 1, height: 1, depth: 1 }),
@@ -120,7 +122,7 @@ export function test_unit_engine_physics_derive_physical_profile(): void {
   };
   TestValidator.predicate(
     "independent rotated bone and unbound-part centre",
-    vclose(derived.centerOfMass, expected, 1e-12) &&
-      vclose(deriveCenterOfMass(analytic)!, expected, 1e-12),
+    vclose(derived.centerOfMass, expected, PhysicalTolerance.ROUNDING) &&
+      vclose(deriveCenterOfMass(analytic)!, expected, PhysicalTolerance.ROUNDING),
   );
 }

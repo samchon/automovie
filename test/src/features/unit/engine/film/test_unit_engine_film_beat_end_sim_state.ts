@@ -98,7 +98,9 @@ const plant: (
 });
 
 /**
- * A one-shot snapshot carries velocity until the clip end and selects supplied active plants and rider mounts. Actors without motion-derived state keep nullable phase and velocity.
+ * A one-shot snapshot carries velocity until the clip end and selects supplied
+ * active plants and rider mounts. Actors without motion-derived state keep
+ * nullable phase and velocity.
  *
  * Scenarios:
  *
@@ -120,7 +122,6 @@ const plant: (
  *    zero velocity) instead of dividing by its empty period.
  * 10. A performance that starts exactly at shot end (local time 0) has an empty
  *     velocity window: zero, not NaN.
- *
  */
 export function test_unit_engine_film_beat_end_sim_state(): void {
   const flight: IAutoMovieBeatEndActorState = resolveBeatEnd({

@@ -68,7 +68,6 @@ const verticalSegment: (
  * 4. A bottom-half crop respects top-origin vertical edges and their negatives.
  * 5. Boxes and zero-radius spheres share the off-axis crop boundary.
  * 6. Five nonfinite, out-of-range, empty, or reversed crops throw.
- *
  */
 export function test_unit_engine_film_camera_delivery_crop(): void {
   const whole: ReturnType<typeof resolveAutoMovieDeliveryCrop> =

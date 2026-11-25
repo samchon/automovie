@@ -59,3 +59,5 @@ export * from "./humanFloatBesideAdmit";
 export * from "./HumanRide";
 export * from "./humanRidePosting";
 export * from "./humanRideWindows";
+export * from "./humanBikeTransferLine";
+export * from "./humanEquestrianRhythm";

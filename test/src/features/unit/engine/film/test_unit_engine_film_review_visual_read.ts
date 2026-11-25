@@ -39,7 +39,10 @@ const scene: (cam: IAutoMovieCamera) => IAutoMovieScene = (
   lights: [],
 });
 
-/** Construct the original one-second performance and apply the caller's isolated shot override. */
+/**
+ * Construct the original one-second performance and apply the caller's isolated
+ * shot override.
+ */
 const shot: (over?: Partial<IAutoMovieShot>) => IAutoMovieShot = (
   over: Partial<IAutoMovieShot> = {},
 ): IAutoMovieShot => ({
@@ -72,7 +75,10 @@ const framing: (
     sampleRate: 1,
   });
 
-/** Construct the original hit record, preserving caller overrides for each contact case. */
+/**
+ * Construct the original hit record, preserving caller overrides for each
+ * contact case.
+ */
 const hitEvent: (
   over?: Partial<IAutoMovieInteractionEvent>,
 ) => IAutoMovieInteractionEvent = (
@@ -141,33 +147,35 @@ const silhouette: (
   });
 
 /**
- * `reviewVisualRead` (#1177) computes deterministic visual-read advisory notes (`tier: "visual"`, D015: notes, not gates).
+ * `reviewVisualRead` (#1177) computes deterministic visual-read advisory notes
+ * (`tier: "visual"`, D015: notes, not gates).
  *
  * Subject-in-frame scenarios:
  *
  * 1. A subject 5 m down the camera's −Z stays centered: no note; the default
- * sample rate and an explicit aspect frame it too.
+ *    sample rate and an explicit aspect frame it too.
  * 2. A subject above/behind/past-far/beside the frustum each earns exactly one
- * note; the above-frame case also checks the subject name and visual tier.
+ *    note; the above-frame case also checks the subject name and visual tier.
  * 3. No live camera, a non-finite/zero/too-wide FOV, and far≤near read nothing.
  * 4. A craning camera is sampled, not read as static; a move missing its rotation
- * or translation track falls back to the static component.
+ *    or translation track falls back to the static component.
  * 5. A held (null-motion) performance, a missing motion, and a missing node are
- * skipped, not errored.
+ *    skipped, not errored.
  *
  * Contact-connection scenarios (isolated with an invalid camera):
  *
  * 6. A hit landing on the target connects (no note); landing past the body radius
- * reads as a miss; a `contact`-kind event checks the same way.
+ *    reads as a miss; a `contact`-kind event checks the same way.
  * 7. A non-impact event (grab), a null point, a null target, a target that does
- * not perform, and a held target are skipped; a generous contactRadius tolerates the offset.
+ *    not perform, and a held target are skipped; a generous contactRadius
+ *    tolerates the offset.
  *
  * Silhouette-separation scenarios (two performing actors):
  *
  * 8. Actors stacked on the camera line merge into one blob; actors spread across
- * the frame do not; a large silhouette radius merges the spread pair; an actor inside the near plane is a framing note, not a silhouette merge.
+ *    the frame do not; a large silhouette radius merges the spread pair; an
+ *    actor inside the near plane is a framing note, not a silhouette merge.
  * 9. Precomputed film-grammar diagnostics enter this same visual-note backlog.
- *
  */
 export function test_unit_engine_film_review_visual_read(): void {
   TestValidator.equals(

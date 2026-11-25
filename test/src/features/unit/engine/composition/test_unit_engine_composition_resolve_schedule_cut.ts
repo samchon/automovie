@@ -38,7 +38,6 @@ import { TestValidator } from "@nestia/e2e";
  *    0.5 s before a's kick contact (1.0 s), plays 0.5 to 1.5 s and the stand
  *    after it starts at 1.5 s, not at the guard's uncut 2 s; a part of another
  *    subject synced the same way leaves the cursor at 2 s.
- *
  */
 export function test_unit_engine_composition_resolve_schedule_cut(): void {
   const laws: IAutoMovieScheduleLaws = {

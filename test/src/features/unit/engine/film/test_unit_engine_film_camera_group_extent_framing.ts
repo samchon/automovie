@@ -105,7 +105,8 @@ const horizontal: (radius: number, aspect?: number) => number = (
  *
  * 1. One figure is the vertical fit exactly, with or without a raster, and a
  *    subject that states a zero radius is that same figure: the shot that
- *    existed before a subject could be wide retains the same measured distance.
+ *    existed before a subject could be wide retains the same measured
+ *    distance.
  * 2. A crowd at that same place frames further back than the figure, at the
  *    distance its width demands.
  * 3. A crowd twice as wide frames twice as far back again, so the solve tracks the
@@ -113,7 +114,6 @@ const horizontal: (radius: number, aspect?: number) => number = (
  * 4. A wider delivery raster brings the same crowd closer, because the frame
  *    itself got wider; a raster that describes nothing (absent, zero) falls
  *    back to the square-frame assumption.
- *
  */
 export function test_unit_engine_film_camera_group_extent_framing(): void {
   TestValidator.equals(

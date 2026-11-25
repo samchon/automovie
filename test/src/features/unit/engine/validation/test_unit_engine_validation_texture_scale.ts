@@ -115,22 +115,23 @@ const run: (
 /**
  * A surface and the material bound to it are measured against each other.
  *
- * `transform.scale` states turns per coordinate unit, while `coordinateSource` and the bound surface define that unit's physical meaning.
+ * `transform.scale` states turns per coordinate unit, while `coordinateSource`
+ * and the bound surface define that unit's physical meaning.
  *
  * Scenarios:
  *
  * 1. A `"normalized"` binding on a set that spans more than once is refused on
- *    each offending axis; a span of exactly one, and a span under one, are not.
- * 2. A `"surface-metres"` binding whose implied tile is larger than the
- *    surface's own span warns without failing: the bed-post case from the
- *    `#1902` production, where a 1 m image was bound to a 0.1 m post. A tile
- *    exactly equal to the span passes, and a smaller one passes.
+ *    each offending axis; a span of exactly one, and a span under one, are
+ *    not.
+ * 2. A `"surface-metres"` binding whose implied tile is larger than the surface's
+ *    own span warns without failing: the bed-post case from the `#1902`
+ *    production, where a 1 m image was bound to a 0.1 m post. A tile exactly
+ *    equal to the span passes, and a smaller one passes.
  * 3. Everything that makes no measurable claim is left silent: a legacy bare-id
  *    binding, an omitted `coordinateSource`, a `"source-uv"` set, a clamped
  *    axis, a missing or unusable transform scale, a primitive part, a mesh with
  *    no or degenerate texture coordinates, an unbound part, and a part naming a
  *    material the model does not define.
- *
  */
 export function test_unit_engine_validation_texture_scale(): void {
   //----

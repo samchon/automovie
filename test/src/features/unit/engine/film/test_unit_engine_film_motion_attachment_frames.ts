@@ -38,10 +38,11 @@ function observe(
   );
 }
 /**
- * 1. Place the parent a quarter turn from neutral and observe a resting marker in shot time.
- * 2. Flex the elbow and compare its marker to a rotating forearm, then compare a raw and clinical shoulder frame.
+ * 1. Place the parent a quarter turn from neutral and observe a resting marker in
+ *    shot time.
+ * 2. Flex the elbow and compare its marker to a rotating forearm, then compare a
+ *    raw and clinical shoulder frame.
  * 3. Reject sampling clocks that cannot produce ordered finite keys.
- *
  */
 export function test_unit_engine_film_motion_attachment_frames(): void {
   const args: IAutoMovieCompileAttach.IProps = {

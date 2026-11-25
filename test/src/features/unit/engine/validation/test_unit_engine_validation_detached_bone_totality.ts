@@ -87,10 +87,12 @@ const MOTION: IAutoMovieMotion = {
  *
  * Scenarios:
  *
- * 1. Detached foot contact, balance center and balance support each report a located reachability error.
- * 2. Detached self-intersection endpoints and both collision actors report their endpoint paths; collision emits no events or response.
- * 3. An absent foot reports must-exist rather than not-reachable, and a connected rig succeeds for footskate and balance.
- *
+ * 1. Detached foot contact, balance center and balance support each report a
+ *    located reachability error.
+ * 2. Detached self-intersection endpoints and both collision actors report their
+ *    endpoint paths; collision emits no events or response.
+ * 3. An absent foot reports must-exist rather than not-reachable, and a connected
+ *    rig succeeds for footskate and balance.
  */
 export function test_unit_engine_validation_detached_bone_totality(): void {
   // footskate: a contact on the detached bone reports, does not crash.

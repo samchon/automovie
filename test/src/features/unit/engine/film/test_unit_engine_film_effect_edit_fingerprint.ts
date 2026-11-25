@@ -10,13 +10,16 @@ import { filmEffectCue } from "../../../internal/filmEffectCue";
 import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
 
 /**
- * The effect edit digest follows normalized edit fields and excludes builder provenance.
+ * The effect edit digest follows normalized edit fields and excludes builder
+ * provenance.
  *
  * Scenarios:
- * 1. Compare a literal canonical edit record with the engine digest using Node SHA-256.
- * 2. Changing builder provenance preserves the digest.
- * 3. Changing edit length, segment source, effect intensity or rational rate changes it.
  *
+ * 1. Compare a literal canonical edit record with the engine digest using Node
+ *    SHA-256.
+ * 2. Changing builder provenance preserves the digest.
+ * 3. Changing edit length, segment source, effect intensity or rational rate
+ *    changes it.
  */
 export function test_unit_engine_film_effect_edit_fingerprint(): void {
   const nodeProtocolDigest: (timeline: IAutoMovieFilmTimeline) => string = (

@@ -61,7 +61,6 @@ const frame: (
  * 7. Truck movement ends screen-left at fixed depth, keeps an animated subject's
  *    endpoint shift, and has a defined lateral fallback for a vertical staged
  *    bearing.
- *
  */
 export function test_unit_engine_film_camera_move_paths(): void {
   const subject: IAutoMovieFramedSubject = {

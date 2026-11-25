@@ -12,9 +12,10 @@ import { throwsError } from "../../../internal/throwsError";
  * The artifact gate and sampler share the track layout contract.
  *
  * Scenarios:
- * 1. Dense scalar, vector, cubic, quaternion and morph tracks sample; incomplete track payloads fail at their field.
- * 2. Clip duration admission is stricter than sampling a zero-span key.
  *
+ * 1. Dense scalar, vector, cubic, quaternion and morph tracks sample; incomplete
+ *    track payloads fail at their field.
+ * 2. Clip duration admission is stricter than sampling a zero-span key.
  */
 export function test_unit_engine_validation_motion_track_shape(): void {
   const channel: IAutoMovieTrack["channel"] = {

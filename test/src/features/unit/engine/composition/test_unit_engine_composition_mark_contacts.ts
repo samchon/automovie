@@ -9,17 +9,33 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * Solved contacts acting at one second become one arrow per collider at their contact points, along the force each collider receives, as long as the mean force times the stated scale; other contacts draw nothing.
+ * Solved contacts acting at one second become one arrow per collider at their
+ * contact points, along the force each collider receives, as long as the mean
+ * force times the stated scale; other contacts draw nothing.
  *
  * Scenarios:
  *
- * 1. A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s, a mean force of 50 N, at (1, 0, 0) with its normal +Y from the hand toward the wall, drawn at 1.005 s with 0.002 m per newton, gives two `contact` arrows from (1, 0, 0) of length 0.1 m: the hand's, at the hand's path, along -Y, and the wall's, at the wall's path, along +Y.
- * 2. The same receipt drawn at 0.99 s, before its step, at 1.02 s, after the step's duration, and a geometric receipt draw nothing; a step with a positive separation draws nothing.
+ * 1. A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s, a mean
+ *    force of 50 N, at (1, 0, 0) with its normal +Y from the hand toward the
+ *    wall, drawn at 1.005 s with 0.002 m per newton, gives two `contact` arrows
+ *    from (1, 0, 0) of length 0.1 m: the hand's, at the hand's path, along -Y,
+ *    and the wall's, at the wall's path, along +Y.
+ * 2. The same receipt drawn at 0.99 s, before its step, at 1.02 s, after the
+ *    step's duration, and a geometric receipt draw nothing; a step with a
+ *    positive separation draws nothing.
  * 3. Of two steps, the later one at or before the drawn second is read.
- * 4. A scale that is zero or not finite, and an acting step with no duration, are refused.
- * 5. With the hand dynamic and the wall without ownership history, a stated zero flags only the hand, a transfer the hand received flags nothing, the wall's stated zero never flags, and an unstated transfer flags nothing; with the wall dynamic too both zeros flag; a hand made authored or returning before the step, a hand whose only event comes after it, and a call without ownership flag nothing.
- * 6. Under a 0.05 m maximum the 0.1 m arrows keep their directions at 0.05 m as unflagged `contact/clamped` marks labelled with the clamp and the 25 N they stand for at least; under a 0.1 m or 0.2 m maximum they stay `contact` at 0.1 m; a maximum that is zero or not finite is refused.
- *
+ * 4. A scale that is zero or not finite, and an acting step with no duration, are
+ *    refused.
+ * 5. With the hand dynamic and the wall without ownership history, a stated zero
+ *    flags only the hand, a transfer the hand received flags nothing, the
+ *    wall's stated zero never flags, and an unstated transfer flags nothing;
+ *    with the wall dynamic too both zeros flag; a hand made authored or
+ *    returning before the step, a hand whose only event comes after it, and a
+ *    call without ownership flag nothing.
+ * 6. Under a 0.05 m maximum the 0.1 m arrows keep their directions at 0.05 m as
+ *    unflagged `contact/clamped` marks labelled with the clamp and the 25 N
+ *    they stand for at least; under a 0.1 m or 0.2 m maximum they stay
+ *    `contact` at 0.1 m; a maximum that is zero or not finite is refused.
  */
 export function test_unit_engine_composition_mark_contacts(): void {
   const step = (
@@ -66,11 +82,7 @@ export function test_unit_engine_composition_mark_contacts(): void {
   );
   TestValidator.equals(
     "one contact mark per collider",
-    acting.map((m: IAutoMovieMark) => [
-      m.kind,
-      m.path,
-      arrows(m).origins,
-    ]),
+    acting.map((m: IAutoMovieMark) => [m.kind, m.path, arrows(m).origins]),
     [
       ["contact", "hero/leftHand/contact/c1", [1, 0, 0]],
       ["contact", "wall/root/contact/c1", [1, 0, 0]],
@@ -230,10 +242,7 @@ export function test_unit_engine_composition_mark_contacts(): void {
   TestValidator.equals(
     "an arrow at or under its maximum keeps its kind and length",
     [clamp(0.1), clamp(0.2)].map((marks: IAutoMovieMark[]) =>
-      marks.map((m: IAutoMovieMark) => [
-        m.kind,
-        arrows(m).vectors[1],
-      ]),
+      marks.map((m: IAutoMovieMark) => [m.kind, arrows(m).vectors[1]]),
     ),
     [
       [

@@ -26,72 +26,72 @@ const transform: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
 
 /** One scene light of each kind, so the placement split has all three cases. */
 const scene: () => IAutoMovieScene = (): IAutoMovieScene => ({
-    id: "sc",
-    name: null,
-    nodes: [],
-    cameras: [
-      {
-        id: "cam",
-        transform: transform(),
-        fovY: 50,
-        near: 0.1,
-        far: 100,
-        depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-      },
-    ],
-    lights: [
-      {
-        id: "key",
-        transform: transform(),
-        color: WHITE,
-        intensity: 1,
-        type: "spot",
-        range: 10,
-        coneAngle: 30,
-      },
-      {
-        id: "sun",
-        transform: transform(),
-        color: WHITE,
-        intensity: 3,
-        type: "directional",
-      },
-      {
-        id: "bulb",
-        transform: transform(),
-        color: WHITE,
-        intensity: 1,
-        type: "point",
-        range: 5,
-      },
-    ],
-  });
+  id: "sc",
+  name: null,
+  nodes: [],
+  cameras: [
+    {
+      id: "cam",
+      transform: transform(),
+      fovY: 50,
+      near: 0.1,
+      far: 100,
+      depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+    },
+  ],
+  lights: [
+    {
+      id: "key",
+      transform: transform(),
+      color: WHITE,
+      intensity: 1,
+      type: "spot",
+      range: 10,
+      coneAngle: 30,
+    },
+    {
+      id: "sun",
+      transform: transform(),
+      color: WHITE,
+      intensity: 3,
+      type: "directional",
+    },
+    {
+      id: "bulb",
+      transform: transform(),
+      color: WHITE,
+      intensity: 1,
+      type: "point",
+      range: 5,
+    },
+  ],
+});
 
 /** A shot carrying exactly one light-motion track, so a case reports only it. */
 const shot: (track: IAutoMovieTrack) => IAutoMovieShot = (
   track: IAutoMovieTrack,
 ): IAutoMovieShot => ({
-    id: "opening",
-    name: null,
-    scene: "sc",
-    camera: "cam",
-    duration: 4,
-    // Every field the validator dereferences is present and well formed, so a
-    // case that expects a CLEAN verdict is reporting on its track and nothing
-    // else: an omitted `cameraMotion` or `objectMotions` is itself a violation.
-    cameraMotion: null,
-    objectMotions: [],
-    performances: [],
-    lightMotions: [
-      {
-        id: "placement",
-        name: null,
-        duration: 4,
-        loop: false,
-        tracks: [track],
-      },
-    ],
-  });
+  id: "opening",
+  name: null,
+  scene: "sc",
+  camera: "cam",
+  duration: 4,
+  // Every field the validator dereferences is present and well formed, so a
+  // case that expects a CLEAN verdict is reporting on its track and nothing
+  // else: an omitted `cameraMotion` or `objectMotions` is itself a violation.
+  cameraMotion: null,
+  objectMotions: [],
+  performances: [],
+  lightMotions: [
+    {
+      id: "placement",
+      name: null,
+      duration: 4,
+      loop: false,
+      tracks: [track],
+    },
+  ],
+});
 
 /** One pointer track on a light property. */
 const track: (
@@ -175,9 +175,9 @@ const IDENTITY: number[] = [0, 0, 0, 1];
  * is RENORMALIZED at playback — the sampler puts an interpolated quaternion
  * back on the unit sphere before anything reads it — so a finite evaluated
  * interior is unit despite component overshoot. This witness uses finite
- * tangents; overflow before normalization remains a separate numeric limit.
- * The keys themselves get no such reprieve: the sampler returns a
- * boundary key verbatim, so a non-unit key really does reach the light.
+ * tangents; overflow before normalization remains a separate numeric limit. The
+ * keys themselves get no such reprieve: the sampler returns a boundary key
+ * verbatim, so a non-unit key really does reach the light.
  *
  * Scenarios:
  *
@@ -196,15 +196,14 @@ const IDENTITY: number[] = [0, 0, 0, 1];
  *    analysis still refuses a scalar axis (an intensity dipping below zero
  *    between two in-range keys), which is the case that would be lost if the
  *    exemption were written one condition too wide.
- * 5. A rotation key with a non-finite component
- *    and an uneven payload are each reported by the shared track-shape contract
- *    and NOT re-reported as a unit-length fault, and an empty payload is
- *    refused by that same contract: the joint rule judges keyframes, and a
- *    payload that states no keyframe states nothing for it to judge. These
- *    assertions distinguish shape and unit faults without counting every finding.
- * 6. Tiny nonzero dyadic scalar tangents still cross zero between valid zero
- *    keys; reversing their signs is an adjacent admitted curve.
- *
+ * 5. A rotation key with a non-finite component and an uneven payload are each
+ *    reported by the shared track-shape contract and NOT re-reported as a
+ *    unit-length fault, and an empty payload is refused by that same contract:
+ *    the joint rule judges keyframes, and a payload that states no keyframe
+ *    states nothing for it to judge. These assertions distinguish shape and
+ *    unit faults without counting every finding.
+ * 6. Tiny nonzero dyadic scalar tangents still cross zero between valid zero keys;
+ *    reversing their signs is an adjacent admitted curve.
  */
 export function test_unit_engine_validation_light_transform_bounds(): void {
   // 1. the kind split.

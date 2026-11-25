@@ -30,9 +30,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. `next` and `with` return new chains of the caller's class, so a
- *    subclass's own method still answers after them, and leave the original
- *    unchanged; a trailing sequence flattens.
+ * 1. `next` and `with` return new chains of the caller's class, so a subclass's
+ *    own method still answers after them, and leave the original unchanged; a
+ *    trailing sequence flattens.
  * 2. A sequence places parts end to start, a parallel group ends with its longest
  *    part, and `at` starts an answer at its anchor's contact plus the offset.
  * 3. Outcome and state laws read the entries placed before them; a missing anchor
@@ -44,7 +44,6 @@ import { TestValidator } from "@nestia/e2e";
  *    measured one.
  * 7. Legality reports every rule violation by entry; measurement counts actions
  *    per minute, combinations, lateral share and idle time.
- *
  */
 export function test_unit_engine_composition_resolve_schedule(): void {
   const act = (

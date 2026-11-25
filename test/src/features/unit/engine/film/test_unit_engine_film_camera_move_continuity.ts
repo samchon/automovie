@@ -176,7 +176,6 @@ function compile(
  * 10. A chain of `"auto"` entries, static wide, push-in medium, orbit close and
  *     static full, reaches every entry's own framing: wide during the first,
  *     0.8 times medium, close and full at the ends of the others.
- *
  */
 export function test_unit_engine_film_camera_move_continuity(): void {
   const frames: number[] = Array.from(

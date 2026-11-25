@@ -16,7 +16,9 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError } from "../../../internal/predicates";
 
 /**
- * Builds an authored empty-motion shot with a supplied id and span; its playback entry owns assertions derived from the stated trims, overlap clocks and boundaries.
+ * Builds an authored empty-motion shot with a supplied id and span; its
+ * playback entry owns assertions derived from the stated trims, overlap clocks
+ * and boundaries.
  */
 function shot(id: string, duration: number): IAutoMovieShot {
   return {
@@ -36,7 +38,9 @@ const SHOTS: IAutoMovieShot[] = [
 ];
 type Event = NonNullable<IAutoMovieShot["events"]>[number];
 /**
- * Builds the authored event identity, kind, source and shot clock with absent optional subjects; the owning resolver entry independently determines trim-seam and replay placement.
+ * Builds the authored event identity, kind, source and shot clock with absent
+ * optional subjects; the owning resolver entry independently determines
+ * trim-seam and replay placement.
  */
 function event(
   id: string,
@@ -78,19 +82,24 @@ const SEQUENCE: IAutoMovieSequence = {
 };
 
 /**
- * Calls source timeline, random-access playback and event placement, asserting independent entry clocks, trim offsets, blend weights, structural refusals and emitted event identities/times; a missing seam event or suppressed replay fails the owning scenario.
+ * Calls source timeline, random-access playback and event placement, asserting
+ * independent entry clocks, trim offsets, blend weights, structural refusals
+ * and emitted event identities/times; a missing seam event or suppressed replay
+ * fails the owning scenario.
  *
  * Scenarios:
+ *
  * 1. Derive timeline starts and runtime from authored trims and overlap.
  * 2. Resolve a hard-cut shot and a trimmed local clock.
- * 3. Resolve live/outgoing clocks and blend alpha inside the dissolve, then end the blend.
+ * 3. Resolve live/outgoing clocks and blend alpha inside the dissolve, then end
+ *    the blend.
  * 4. Distinguish the opening from negative, exclusive-end and NaN queries.
- * 5. Refuse duplicate/missing shots, an empty sequence and a first-entry transition.
+ * 5. Refuse duplicate/missing shots, an empty sequence and a first-entry
+ *    transition.
  * 6. Place trimmed events, order tied ids and return no events without metadata.
  * 7. Emit a contiguous seam once and retain the shot-final event.
  * 8. Retain a hit exactly at a mid-shot cut-away.
  * 9. Emit a replayed hit at each noncontiguous flashback play.
- *
  */
 export function test_unit_engine_film_playback_resolver(): void {
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

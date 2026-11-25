@@ -14,7 +14,8 @@ import { filmPositionalTargetSilentAt as silentAt } from "../../../internal/film
 import { namedFacts, nclose } from "../../../internal/predicates";
 
 /**
- * Shared staged actor and one-second span; each case changes its target or verb.
+ * Shared staged actor and one-second span; each case changes its target or
+ * verb.
  */
 const TIMING: { actor: string; start: number; duration: number } = {
   actor: "knightA",
@@ -22,9 +23,7 @@ const TIMING: { actor: string; start: number; duration: number } = {
   duration: 1,
 };
 
-/**
- * One unresolved-target probe per verb that routes through the helper.
- */
+/** One unresolved-target probe per verb that routes through the helper. */
 const UNRESOLVED_BY_VERB: ReadonlyArray<
   readonly [string, IAutoMovieActionCall, string]
 > = [
@@ -117,9 +116,7 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
   ],
 ];
 
-/**
- * The same probes, aimed at a staged camera instead of an unknown id.
- */
+/** The same probes, aimed at a staged camera instead of an unknown id. */
 const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
   [
     "locomote",
@@ -203,9 +200,13 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
 ];
 
 /**
- * Calls performShot through the shared positional-target performer for each applicable verb and asserts accepted placements, located target faults, actor-camera separation and locomote displacement checks; the delegated kind cases also detect a silently omitted group member.
+ * Calls performShot through the shared positional-target performer for each
+ * applicable verb and asserts accepted placements, located target faults,
+ * actor-camera separation and locomote displacement checks; the delegated kind
+ * cases also detect a silently omitted group member.
  *
  * Scenarios:
+ *
  * 1. Admit staged camera targets for the eight listed verb/field roles.
  * 2. Locate unknown node targets and name the missing id rather than the kind.
  * 3. Delegate actor/set target neighbours.
@@ -214,9 +215,10 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
  * 6. Delegate the absent point-gesture aim refusal.
  * 7. Delegate camera-as-actor refusal without inventing an aim error.
  * 8. Distinguish locomote vertical-only, epsilon-band and in-place destinations.
- * 9. Diagnose from explicitly restaged carried-origin coordinates and admit legal target kinds.
- * 10. Observe live-bone action-start timing and keep malformed targets away from the callback.
- *
+ * 9. Diagnose from explicitly restaged carried-origin coordinates and admit legal
+ *    target kinds.
+ * 10. Observe live-bone action-start timing and keep malformed targets away from
+ *     the callback.
  */
 export function test_unit_engine_film_perform_shot_positional_target(): void {
   const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot =

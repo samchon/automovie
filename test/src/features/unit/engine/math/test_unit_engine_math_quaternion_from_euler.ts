@@ -8,19 +8,19 @@ import { TestValidator } from "@nestia/e2e";
 import { qclose, vclose } from "../../../internal/predicates";
 
 /**
- * Intrinsic Euler degrees preserve the declared axis order and right-handed cardinal rotations.
+ * Intrinsic Euler degrees preserve the declared axis order and right-handed
+ * cardinal rotations.
  *
  * Scenarios:
  *
- * 1. The single Y-axis Euler rotation matches `fromAxisAngle`; X90 sends +Y
- *    to +Z and Z90 sends +X to +Y by the right-hand rule.
+ * 1. The single Y-axis Euler rotation matches `fromAxisAngle`; X90 sends +Y to +Z
+ *    and Z90 sends +X to +Y by the right-hand rule.
  * 2. Zero angles are the identity.
  * 3. The `order` composes intrinsically: `XYZ` equals `qx·qy·qz` and `ZYX` equals
  *    qz·qy·qx, so the same angles in different orders differ.
  * 4. All six90/90/90 intrinsic orders have independently derived quaternion
  *    components. Quarter/zero/quarter reads keep current angles and fresh
  *    outputs; owned angle getters are observed in the authored order.
- *
  */
 export function test_unit_engine_math_quaternion_from_euler(): void {
   const qX: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -94,36 +94,82 @@ export function test_unit_engine_math_quaternion_from_euler(): void {
     ),
   );
   const s: number = Math.SQRT1_2;
-  const orders: ReadonlyArray<[IAutoMovieEuler["order"], IAutoMovieQuaternion]> = [
-    ["XYZ", { x: s, y: 0, z: s, w: 0 }], ["YZX", { x: s, y: s, z: 0, w: 0 }],
-    ["ZXY", { x: 0, y: s, z: s, w: 0 }], ["XZY", { x: 0, y: 0, z: s, w: s }],
-    ["YXZ", { x: s, y: 0, z: 0, w: s }], ["ZYX", { x: 0, y: s, z: 0, w: s }],
+  const orders: ReadonlyArray<
+    [IAutoMovieEuler["order"], IAutoMovieQuaternion]
+  > = [
+    ["XYZ", { x: s, y: 0, z: s, w: 0 }],
+    ["YZX", { x: s, y: s, z: 0, w: 0 }],
+    ["ZXY", { x: 0, y: s, z: s, w: 0 }],
+    ["XZY", { x: 0, y: 0, z: s, w: s }],
+    ["YXZ", { x: s, y: 0, z: 0, w: s }],
+    ["ZYX", { x: 0, y: s, z: 0, w: s }],
   ];
   for (const [order, expected] of orders) {
-    const angles: Parameters<typeof Quaternion.fromEuler>[0] = { x: 90, y: 90, z: 90, order };
+    const angles: Parameters<typeof Quaternion.fromEuler>[0] = {
+      x: 90,
+      y: 90,
+      z: 90,
+      order,
+    };
     const first: IAutoMovieQuaternion = Quaternion.fromEuler(angles);
-    TestValidator.predicate(`literal three-quarter-turn quaternion at intrinsic${order}`, qclose(first, expected, 1e-12));
+    TestValidator.predicate(
+      `literal three-quarter-turn quaternion at intrinsic${order}`,
+      qclose(first, expected, 1e-12),
+    );
     angles.x = 0;
     angles.y = 0;
     angles.z = 0;
-    TestValidator.predicate("shared fixed axes never retain an earlier angle", qclose(Quaternion.fromEuler(angles), { x: 0, y: 0, z: 0, w: 1 }, 1e-12));
+    TestValidator.predicate(
+      "shared fixed axes never retain an earlier angle",
+      qclose(Quaternion.fromEuler(angles), { x: 0, y: 0, z: 0, w: 1 }, 1e-12),
+    );
     angles.x = 90;
     angles.y = 90;
     angles.z = 90;
     first.w = 999;
     const replay: IAutoMovieQuaternion = Quaternion.fromEuler(angles);
-    TestValidator.predicate("each current Euler evaluation owns its issued quaternion",
-      replay !== first && qclose(replay, expected, 1e-12) && Object.is(first.w, 999));
+    TestValidator.predicate(
+      "each current Euler evaluation owns its issued quaternion",
+      replay !== first &&
+        qclose(replay, expected, 1e-12) &&
+        Object.is(first.w, 999),
+    );
   }
   const trace: string[] = [];
   const observed: Parameters<typeof Quaternion.fromEuler>[0] = {
-    get order(): "ZXY" { trace.push("order"); return "ZXY"; },
-    get x(): number { trace.push("x"); return 30; },
-    get y(): number { trace.push("y"); return 0; },
-    get z(): number { trace.push("z"); return 0; },
+    get order(): "ZXY" {
+      trace.push("order");
+      return "ZXY";
+    },
+    get x(): number {
+      trace.push("x");
+      return 30;
+    },
+    get y(): number {
+      trace.push("y");
+      return 0;
+    },
+    get z(): number {
+      trace.push("z");
+      return 0;
+    },
   };
-  TestValidator.predicate("ordered Euler getters still produce the literal current X30 rotation",
-    qclose(Quaternion.fromEuler(observed), { x: (Math.sqrt(6) - Math.sqrt(2)) / 4, y: 0, z: 0,
-      w: (Math.sqrt(6) + Math.sqrt(2)) / 4 }, 1e-12));
-  TestValidator.equals("angle reads retain the authored intrinsic order", trace, ["order", "z", "x", "y"]);
+  TestValidator.predicate(
+    "ordered Euler getters still produce the literal current X30 rotation",
+    qclose(
+      Quaternion.fromEuler(observed),
+      {
+        x: (Math.sqrt(6) - Math.sqrt(2)) / 4,
+        y: 0,
+        z: 0,
+        w: (Math.sqrt(6) + Math.sqrt(2)) / 4,
+      },
+      1e-12,
+    ),
+  );
+  TestValidator.equals(
+    "angle reads retain the authored intrinsic order",
+    trace,
+    ["order", "z", "x", "y"],
+  );
 }

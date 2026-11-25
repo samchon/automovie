@@ -30,7 +30,6 @@ const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
  *    converge.
  * 4. Identity, tiny rotation/time and near-pi increments retain finite answers.
  * 5. Invalid time/components, ambiguous pi and overflowing arithmetic refuse.
- *
  */
 export function test_unit_engine_math_rigid_transform_velocity(): void {
   const previous: Pick<IAutoMovieTransform, "translation" | "rotation"> =

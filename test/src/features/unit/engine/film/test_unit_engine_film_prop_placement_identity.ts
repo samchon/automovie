@@ -16,15 +16,21 @@ import { namedFacts } from "../../../internal/predicates";
 import { sconce } from "../../../internal/propPlacementFixtures/sconce";
 
 /**
- * Every original identity refusal retains its full addressed field and adjacent physical contract.
+ * Every original identity refusal retains its full addressed field and adjacent
+ * physical contract.
  *
  * Scenarios:
- * 1. Locate duplicate and ambiguous prop, staging and environment identities, failed forging and missing or mismatched staged joins.
- * 2. Refuse unsupported relation/target combinations and dangling environment, space, element, boundary, opening and surface references.
- * 3. Distinguish self-support, missing hosts or affordances, and wrong stack-top, socket or hook kinds.
- * 4. Refuse a building relation or supporting prop in a different environment from the occupied space.
- * 5. Distinguish NUL-containing target field tuples for both building and prop-affordance references while still refusing an exact repeated tuple.
  *
+ * 1. Locate duplicate and ambiguous prop, staging and environment identities,
+ *    failed forging and missing or mismatched staged joins.
+ * 2. Refuse unsupported relation/target combinations and dangling environment,
+ *    space, element, boundary, opening and surface references.
+ * 3. Distinguish self-support, missing hosts or affordances, and wrong stack-top,
+ *    socket or hook kinds.
+ * 4. Refuse a building relation or supporting prop in a different environment from
+ *    the occupied space.
+ * 5. Distinguish NUL-containing target field tuples for both building and
+ *    prop-affordance references while still refusing an exact repeated tuple.
  */
 export function test_unit_engine_film_prop_placement_identity(): void {
   const scenario: {
@@ -91,7 +97,7 @@ export function test_unit_engine_film_prop_placement_identity(): void {
       supportingPropInAnotherEnvironment: true,
     },
   );
-  for (const targets of [
+  const separatorPairs: ReadonlyArray<IAutoMoviePropRelationTarget[]> = [
     [
       { kind: "element", environment: "a\0b", element: "c" },
       { kind: "element", environment: "a", element: "b\0c" },
@@ -100,7 +106,8 @@ export function test_unit_engine_film_prop_placement_identity(): void {
       { kind: "prop-affordance", prop: "a\0b", affordance: "c" },
       { kind: "prop-affordance", prop: "a", affordance: "b\0c" },
     ],
-  ] as const) {
+  ];
+  for (const targets of separatorPairs) {
     const prop: IAutoMoviePropSpec = sconce();
     const relations: IAutoMoviePropRelation[] = targets.map(
       (target: IAutoMoviePropRelationTarget): IAutoMoviePropRelation => ({

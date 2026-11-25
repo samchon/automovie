@@ -12,10 +12,15 @@ import { nclose } from "../../../internal/nclose";
  * Verify conservative interval decisions on independently known capsule paths.
  *
  * Scenarios:
- * 1. A thin moving cord crosses a stationary sphere between clear endpoints. A confirmed sample is inside the analytic time window, without claiming first impact.
- * 2. A parallel offset misses at every second, while a proxy reads the same crossing without claiming displayed geometry.
- * 3. Missing motion, unresolved diagonal bounds and exhausted work remain deferred. A depth allowance larger than the summed radii proves no violation.
  *
+ * 1. A thin moving cord crosses a stationary sphere between clear endpoints. A
+ *    confirmed sample is inside the analytic time window, without claiming
+ *    first impact.
+ * 2. A parallel offset misses at every second, while a proxy reads the same
+ *    crossing without claiming displayed geometry.
+ * 3. Missing motion, unresolved diagonal bounds and exhausted work remain
+ *    deferred. A depth allowance larger than the summed radii proves no
+ *    violation.
  */
 export function test_unit_engine_validation_swept_capsule_collision(): void {
   const cord: Sweep.ISpan = {

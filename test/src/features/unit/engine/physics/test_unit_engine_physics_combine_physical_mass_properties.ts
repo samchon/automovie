@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Analytic tensor expectations independent of the diagonalizer.
  *
@@ -38,10 +40,10 @@ export function test_unit_engine_physics_combine_physical_mass_properties(): voi
         pair.centerOfMass.x,
         pair.centerOfMass.y,
         pair.centerOfMass.z,
-      ) < 1e-12 &&
-      Math.abs(pair.inertia.x - 0.4) < 1e-12 &&
-      Math.abs(pair.inertia.y - 4.4) < 1e-12 &&
-      Math.abs(pair.inertia.z - 4.4) < 1e-12,
+      ) < PhysicalTolerance.ROUNDING &&
+      Math.abs(pair.inertia.x - 0.4) < PhysicalTolerance.ROUNDING &&
+      Math.abs(pair.inertia.y - 4.4) < PhysicalTolerance.ROUNDING &&
+      Math.abs(pair.inertia.z - 4.4) < PhysicalTolerance.ROUNDING,
   );
   const base: IAutoMovieCombinePhysicalMassProperties.IPart = {
     mass: 1,
@@ -116,7 +118,7 @@ export function test_unit_engine_physics_combine_physical_mass_properties(): voi
           );
           TestValidator.predicate(
             `${rotation.name}/${scale} tensor[${row},${column}]`,
-            Math.abs(actual / scale - rotation.tensor[row]![column]!) < 1e-12,
+            Math.abs(actual / scale - rotation.tensor[row]![column]!) < PhysicalTolerance.ROUNDING,
           );
         }
     }
@@ -135,11 +137,11 @@ export function test_unit_engine_physics_combine_physical_mass_properties(): voi
   TestValidator.predicate(
     "finite weighted centre survives overflowing unnormalized products",
     huge.mass === 2e200 &&
-      Math.abs(huge.centerOfMass.x / 1e200 - 1) < 1e-12 &&
-      Math.abs(huge.centerOfMass.y / 1e200 + 1) < 1e-12 &&
-      Math.abs(huge.centerOfMass.z / 1e200 - 0.5) < 1e-12 &&
-      Math.abs(huge.inertia.x - 2) < 1e-12 &&
-      Math.abs(huge.inertia.y - 4) < 1e-12 &&
-      Math.abs(huge.inertia.z - 6) < 1e-12,
+      Math.abs(huge.centerOfMass.x / 1e200 - 1) < PhysicalTolerance.ROUNDING &&
+      Math.abs(huge.centerOfMass.y / 1e200 + 1) < PhysicalTolerance.ROUNDING &&
+      Math.abs(huge.centerOfMass.z / 1e200 - 0.5) < PhysicalTolerance.ROUNDING &&
+      Math.abs(huge.inertia.x - 2) < PhysicalTolerance.ROUNDING &&
+      Math.abs(huge.inertia.y - 4) < PhysicalTolerance.ROUNDING &&
+      Math.abs(huge.inertia.z - 6) < PhysicalTolerance.ROUNDING,
   );
 }

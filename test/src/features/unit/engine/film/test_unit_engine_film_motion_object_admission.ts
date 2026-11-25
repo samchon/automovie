@@ -67,10 +67,12 @@ function rejects(
 }
 
 /**
- * 1. Check stage and lowered joint addresses, duplicates, performed and baked authority against independent registrations.
- * 2. Check clock and artifact validity. Legal neighbouring channels remain admissible.
- * 3. Compare symmetric turns to their analytic quaternion midpoint, a held step, an inclusive boundary and a later authority.
- *
+ * 1. Check stage and lowered joint addresses, duplicates, performed and baked
+ *    authority against independent registrations.
+ * 2. Check clock and artifact validity. Legal neighbouring channels remain
+ *    admissible.
+ * 3. Compare symmetric turns to their analytic quaternion midpoint, a held step,
+ *    an inclusive boundary and a later authority.
  */
 export function test_unit_engine_film_motion_object_admission(): void {
   const joint: string = "doorway/hinge";

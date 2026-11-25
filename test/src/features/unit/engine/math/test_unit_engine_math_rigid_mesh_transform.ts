@@ -8,12 +8,14 @@ import { nclose } from "../../../internal/predicates";
 /**
  * Rigid registration must recover rotation direction, including a half turn.
  * Scenarios:
- * 1. An asymmetric tetrahedron follows analytic coordinate permutations and translation.
+ *
+ * 1. An asymmetric tetrahedron follows analytic coordinate permutations and
+ *    translation.
  * 2. Uniform contraction cannot change the recovered body's scale.
- * 3. Planar, collinear and collapsed correspondence retain a proper rigid solution.
+ * 3. Planar, collinear and collapsed correspondence retain a proper rigid
+ *    solution.
  * 4. Reflection retains nonzero residual, and caller buffers are unchanged.
  * 5. Tiny and large coordinate units retain the same analytic rotation.
- *
  */
 export function test_unit_engine_math_rigid_mesh_transform(): void {
   const source: number[] = [0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3];

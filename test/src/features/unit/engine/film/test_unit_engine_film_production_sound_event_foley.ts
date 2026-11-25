@@ -20,13 +20,14 @@ import { productionSoundTimeline } from "../../../internal/productionSoundTimeli
  *
  * Scenarios:
  *
- * 1. The same contact lies on an excluded exclusive out, on an included in,
- *    and inside another occurrence. A negative cue offset preserves its attack alignment.
+ * 1. The same contact lies on an excluded exclusive out, on an included in, and
+ *    inside another occurrence. A negative cue offset preserves its attack
+ *    alignment.
  * 2. Cues for fully trimmed events contribute no placement. Fixed cues and
  *    semantic events retain their legacy values when event cues are supplied.
- * 3. Missing shot, event, or asset references, duplicate ids, and invalid source or film spans refuse.
+ * 3. Missing shot, event, or asset references, duplicate ids, and invalid source
+ *    or film spans refuse.
  * 4. Gain and fades follow the audio cue bounds even when the event is trimmed.
- *
  */
 export function test_unit_engine_film_production_sound_event_foley(): void {
   const timeline: IAutoMovieFilmTimeline = productionSoundTimeline();

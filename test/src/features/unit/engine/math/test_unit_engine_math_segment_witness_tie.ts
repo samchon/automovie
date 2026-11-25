@@ -11,13 +11,13 @@ import { nclose, vclose } from "../../../internal/predicates";
  * the physical separating plane remains unchanged.
  *
  * Scenarios:
+ *
  * 1. Offset overlapping bone-length segments preserve their known lower overlap.
  * 2. Reversal follows the first segment's orientation; pair swap and second-only
  *    reversal still select the earliest available first point.
  * 3. A rigid frame and actual Float32 endpoints preserve the same rule.
  * 4. A binary64 distance plateau exercises the second-parameter tie, without
  *    broadening equality by a tolerance or claiming an exact real minimum.
- *
  */
 export function test_unit_engine_math_segment_witness_tie(): void {
   const v: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (

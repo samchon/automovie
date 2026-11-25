@@ -113,24 +113,23 @@ const runtimeModels: () => IAutoMovieModel[] = (): IAutoMovieModel[] => [
  *    authored camera key that does not land on the base fixed clock.
  * 3. A parent rig can collide while the camera body remains clear.
  * 4. A moving subject crossing a fixed camera is compared at the same samples.
- * 5. Rotation of an offset envelope carries the conservative arc, not merely
- *    its endpoint chord.
+ * 5. Rotation of an offset envelope carries the conservative arc, not merely its
+ *    endpoint chord.
  * 6. A current clear result is publishable while a stale revision is not.
- * 7. Malformed clocks, boxes, duplicate obstacles, and changing identity sets
- *    are refused at the evaluator boundary.
- * 8. Stage validation rejects malformed nested envelopes and copies the
- *    valid body's centre against later mutation of the author object.
- * 9. Performance preserves a clear report, while builder-visible body contact
- *    and a stale geometry snapshot return addressed refusal.
+ * 7. Malformed clocks, boxes, duplicate obstacles, and changing identity sets are
+ *    refused at the evaluator boundary.
+ * 8. Stage validation rejects malformed nested envelopes and copies the valid
+ *    body's centre against later mutation of the author object.
+ * 9. Performance preserves a clear report, while builder-visible body contact and
+ *    a stale geometry snapshot return addressed refusal.
  * 10. A zero-duration public evaluation still detects contact at its single
  *     fixed-clock instant.
- * 11. Artifact validation requires exactly one clear report per declared take,
- *     an exact carried sample plan, and retention of every base-clock instant.
+ * 11. Artifact validation requires exactly one clear report per declared take, an
+ *     exact carried sample plan, and retention of every base-clock instant.
  * 12. An evaluator throw remains addressed even when the thrown value refuses
  *     diagnostic string coercion.
  * 13. Overshooting interpolation and open loop seams are refused rather than
  *     trusted as endpoint-bounded motion.
- *
  */
 export function test_unit_engine_film_camera_clearance(): void {
   assertFilmCameraClearanceEvaluation({

@@ -52,9 +52,8 @@ import { nclose } from "../../../internal/nclose";
  * 5. A blackbody colour at 1900 K is warm: red is the largest channel and blue the
  *    smallest.
  * 6. At the compiled shot's artifact boundary, the admitted flames pass, and a
- *    bound flame naming no light clip and a 0.03 m open fire are each refused at
- *    their own path.
- *
+ *    bound flame naming no light clip and a 0.03 m open fire are each refused
+ *    at their own path.
  */
 export function test_unit_engine_film_flame_cues(): void {
   // 1. Published correlations.

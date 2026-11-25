@@ -122,16 +122,22 @@ const shot: IAutoMovieShot = {
 };
 
 /**
- * Beat-end snapshots sample performed actors at shot end, fold pose root motion into world-space transforms, preserve held actors, and refuse a referenced clip that was not supplied.
+ * Beat-end snapshots sample performed actors at shot end, fold pose root motion
+ * into world-space transforms, preserve held actors, and refuse a referenced
+ * clip that was not supplied.
  *
  * Scenarios:
  *
- * 1. A performed hero samples one second after its offset, folds two metres of root travel and ninety degrees of yaw into staged state, and clears the pose root while retaining its bone.
+ * 1. A performed hero samples one second after its offset, folds two metres of
+ *    root travel and ninety degrees of yaw into staged state, and clears the
+ *    pose root while retaining its bone.
  * 2. A held guard retains its staged position and one-joint pose.
- * 3. An unperformed crowd node samples its scene motion at shot time and clamps to its last joint pose.
- * 4. A resting unperformed extra retains null motion and pose; all actors remain in scene order under the supplied beat and shot ids.
- * 5. A referenced walk missing from the supplied motions throws its named missing-motion Error.
- *
+ * 3. An unperformed crowd node samples its scene motion at shot time and clamps to
+ *    its last joint pose.
+ * 4. A resting unperformed extra retains null motion and pose; all actors remain
+ *    in scene order under the supplied beat and shot ids.
+ * 5. A referenced walk missing from the supplied motions throws its named
+ *    missing-motion Error.
  */
 export function test_unit_engine_film_beat_end(): void {
   const end: IAutoMovieBeatEndState = resolveBeatEnd({

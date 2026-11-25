@@ -31,7 +31,6 @@ import { productionSoundTimeline } from "../../../internal/productionSoundTimeli
  * 2. An empty plan produces three seconds of measurable silence.
  * 3. Planning refuses missing compiled contracts, camera, event declarations and
  *    spatial subjects.
- *
  */
 export function test_unit_engine_film_production_sound_viseme(): void {
   const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({

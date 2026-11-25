@@ -6,12 +6,15 @@ import { createProductionSoundAssetTestInputs } from "../../../internal/audio/cr
 import { nclose } from "../../../internal/predicates";
 
 /**
- * Decoded cue playback keeps asset identity, authored gain, unit-rate trims and exact film-end support on the native 48,000 Hz clock.
+ * Decoded cue playback keeps asset identity, authored gain, unit-rate trims and
+ * exact film-end support on the native 48,000 Hz clock.
  *
  * Scenarios:
- * 1. A two-frame decoded cue at 24 fps reads the identity-bearing native ramp at offset 1000 with authored gain 0.5.
- * 2. Absent PCM uses an audible distinct stand-in; longer-source trims stay at unit rate, and a cue ending at film frame 6 remains supported.
  *
+ * 1. A two-frame decoded cue at 24 fps reads the identity-bearing native ramp at
+ *    offset 1000 with authored gain 0.5.
+ * 2. Absent PCM uses an audible distinct stand-in; longer-source trims stay at
+ *    unit rate, and a cue ending at film frame 6 remains supported.
  */
 export function test_unit_engine_film_production_sound_asset(): void {
   const {

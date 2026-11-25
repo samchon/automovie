@@ -6,12 +6,15 @@ import { createProductionSoundAssetTestInputs } from "../../../internal/audio/cr
 import { nclose } from "../../../internal/predicates";
 
 /**
- * The 30000/1001 clock keeps independently expected 1602, 3203 and 4805 sample ticks and preserves one-sample presentation/source phase differences.
+ * The 30000/1001 clock keeps independently expected 1602, 3203 and 4805 sample
+ * ticks and preserves one-sample presentation/source phase differences.
  *
  * Scenarios:
- * 1. Independent nearest ticks 1602, 3203 and 4805 on the 30000/1001 clock retain native unit-rate sample reads.
- * 2. Both one-sample phase directions preserve the final reachable sample and silence beyond either the source trim or presentation span.
  *
+ * 1. Independent nearest ticks 1602, 3203 and 4805 on the 30000/1001 clock retain
+ *    native unit-rate sample reads.
+ * 2. Both one-sample phase directions preserve the final reachable sample and
+ *    silence beyond either the source trim or presentation span.
  */
 export function test_unit_engine_film_production_sound_ntsc_phase(): void {
   const {

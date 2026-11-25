@@ -93,7 +93,6 @@ function tolerated(mutate: (spec: IAutoMoviePropSpec) => void): boolean {
  *    `validateModel` still judges the deterministic proxy it left behind, and
  *    the door's own hinge articulation both rides on it and is still gated on
  *    it, so the reference buys the pixels and not an exemption.
- *
  */
 export function test_unit_engine_film_prop_imported_appearance(): void {
   const forged: IAutoMovieForgedProp = forgeProp(createImportedPropSpec());

@@ -53,15 +53,19 @@ const timeline: (
 });
 
 /**
- * Samples a film timeline and checks fade/dissolve layers, hard-cut source frames, rational-rate timestamp, reverse-order consistency and located schedule failures.
+ * Samples a film timeline and checks fade/dissolve layers, hard-cut source
+ * frames, rational-rate timestamp, reverse-order consistency and located
+ * schedule failures.
  *
  * Scenarios:
+ *
  * 1. Sample fade-in and dissolve start/interior/end layers.
- * 2. Sample fade-out, whose final retained frame has quarter weight, and simultaneous fades.
+ * 2. Sample fade-out, whose final retained frame has quarter weight, and
+ *    simultaneous fades.
  * 3. Hand a hard-cut boundary frame to the next segment.
  * 4. Stamp frame three at 30000/1001 fps and preserve reverse-order sampling.
- * 5. Refuse invalid frame indexes, an uncovered frame and an orphan dissolve while admitting its post-window neighbour.
- *
+ * 5. Refuse invalid frame indexes, an uncovered frame and an orphan dissolve while
+ *    admitting its post-window neighbour.
  */
 export function test_unit_engine_film_production_frame_sampling(): void {
   const edit: IAutoMovieFilmTimeline = timeline(

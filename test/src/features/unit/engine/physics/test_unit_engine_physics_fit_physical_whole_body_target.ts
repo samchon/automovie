@@ -16,6 +16,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
 /**
@@ -156,7 +158,7 @@ export function test_unit_engine_physics_fit_physical_whole_body_target(): void 
       Math.abs(
         approached.residual -
           Math.hypot(approached.position, approached.approach),
-      ) < 1e-12,
+      ) < PhysicalTolerance.ROUNDING,
   );
   inspect(approached.targets);
 
@@ -174,13 +176,13 @@ export function test_unit_engine_physics_fit_physical_whole_body_target(): void 
         child.position,
         Quaternion.rotateVector(child.rotation, joint.childFrame.position),
       );
-      if (Vector3.length(Vector3.subtract(a, b)) > 1e-9)
+      if (Vector3.length(Vector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED)
         failures.push(`${joint.id}: anchor`);
       if (
         measurePhysicalJointLimits(joint, parent, child).some(
           (
             coordinate: ReturnType<typeof measurePhysicalJointLimits>[number],
-          ): boolean => coordinate.violation > 1e-9,
+          ): boolean => coordinate.violation > PhysicalTolerance.ACCUMULATED,
         )
       )
         failures.push(`${joint.id}: ROM`);
@@ -195,7 +197,7 @@ export function test_unit_engine_physics_fit_physical_whole_body_target(): void 
         contact,
       ),
     );
-    if (moved > 1e-9) failures.push(`contact moved ${moved} m`);
+    if (moved > PhysicalTolerance.ACCUMULATED) failures.push(`contact moved ${moved} m`);
     TestValidator.equals("anchored, admitted and held", failures, []);
   }
 }

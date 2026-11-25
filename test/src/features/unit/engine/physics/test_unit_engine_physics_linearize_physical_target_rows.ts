@@ -11,6 +11,17 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/** The fit's residual tolerance, metres, and the residual it is held to. */
+const SOLVE: number = 1e-8;
+
+/**
+ * How far the fitted turn may miss its closed form, radians: the residual on
+ * a unit link moves the turn by at most the residual, here ten times over.
+ */
+const TURN: number = 10 * SOLVE;
 import assert from "node:assert/strict";
 
 import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
@@ -52,7 +63,7 @@ export function test_unit_engine_physics_linearize_physical_target_rows(): void 
       targets,
       bones: ["carrier"],
       iterations: 24,
-      tolerance: 1e-8,
+      tolerance: SOLVE,
       measure: (poses: Poses): number[] => {
         published.push({ poses, before: JSON.stringify(poses) });
         return [poses.source!.position.y - 1.5];
@@ -60,7 +71,7 @@ export function test_unit_engine_physics_linearize_physical_target_rows(): void 
     });
   TestValidator.predicate(
     "endpoint reaches its original goal",
-    nclose(result.residual, 0, 1e-8),
+    nclose(result.residual, 0, SOLVE),
   );
   TestValidator.predicate(
     "independent unit link requires exactly a thirty-degree turn",
@@ -70,7 +81,7 @@ export function test_unit_engine_physics_linearize_physical_target_rows(): void 
         result.targets.source!.position.x,
       ),
       Math.PI / 6,
-      1e-7,
+      TURN,
     ),
   );
   assert.equal(JSON.stringify(targets), original);
@@ -97,7 +108,7 @@ export function test_unit_engine_physics_linearize_physical_target_rows(): void 
     );
     TestValidator.predicate(
       "fixed joint anchor " + joint.id,
-      nclose(Vector3.length(Vector3.subtract(first, second)), 0, 1e-12),
+      nclose(Vector3.length(Vector3.subtract(first, second)), 0, PhysicalTolerance.ROUNDING),
     );
   }
 
@@ -184,7 +195,7 @@ export function test_unit_engine_physics_linearize_physical_target_rows(): void 
       label,
       actual.length === expected.length &&
         actual.every((value: number, index: number): boolean =>
-          nclose(value, expected[index]!, 1e-12),
+          nclose(value, expected[index]!, PhysicalTolerance.ROUNDING),
         ),
     );
   }

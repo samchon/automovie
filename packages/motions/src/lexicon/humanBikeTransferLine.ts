@@ -31,7 +31,8 @@ export function humanBikeTransferLine(
     sole.every(
       (point: IAutoMovieVector3): boolean =>
         Math.abs(point.y) <= humanBikeTransferLine.FLOOR &&
-        (mount ? 1 : -1) * Vector3.dot(Vector3.subtract(point, origin), onward) >
+        (mount ? 1 : -1) *
+          Vector3.dot(Vector3.subtract(point, origin), onward) >
           0,
     );
 }
@@ -81,13 +82,15 @@ export namespace humanBikeTransferLine {
             ),
           ) <= STILL,
       ) &&
-      (["left", "right"] as const).every((side: AutoMovieHumanSide): boolean => {
-        const pedal: IAutoMovieVector3 | undefined = now[side];
-        return (
-          pedal !== undefined &&
-          Vector3.length(Vector3.subtract(pedal, from[side])) <= STILL
-        );
-      })
+      (["left", "right"] as const).every(
+        (side: AutoMovieHumanSide): boolean => {
+          const pedal: IAutoMovieVector3 | undefined = now[side];
+          return (
+            pedal !== undefined &&
+            Vector3.length(Vector3.subtract(pedal, from[side])) <= STILL
+          );
+        },
+      )
     );
   }
 }

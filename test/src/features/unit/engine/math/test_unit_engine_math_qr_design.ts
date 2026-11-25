@@ -18,7 +18,6 @@ import { nclose } from "../../../internal/nclose";
  *    rank, and no caller array is modified.
  * 3. Empty, wide, ragged, nonfinite, overflowing and over-budget inputs refuse
  *    before returning a misleading factor.
- *
  */
 export function test_unit_engine_math_qr_design(): void {
   const rows: number[][] = Array.from(

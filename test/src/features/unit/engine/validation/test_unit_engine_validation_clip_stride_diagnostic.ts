@@ -106,11 +106,14 @@ const S05_VALUES: number[] = Array.from({ length: 195 }, (): number => 0);
  * 5. The non-triplet `cubicspline` stride states the division it failed.
  * 6. The width fault, reachable only on a WHOLE stride, states the total the
  *    payload must hold beside the width it got.
- *
  */
 export function test_unit_engine_validation_clip_stride_diagnostic(): void {
   // 1. the reproduction, with every number the author needed.
-  const uneven: IAutoMovieClip = clip(NODE("translation"), S05_TIMES, S05_VALUES);
+  const uneven: IAutoMovieClip = clip(
+    NODE("translation"),
+    S05_TIMES,
+    S05_VALUES,
+  );
   TestValidator.predicate(
     "the stride fault names the counts, the width, and the target length",
     says(uneven, [
@@ -130,8 +133,7 @@ export function test_unit_engine_validation_clip_stride_diagnostic(): void {
   TestValidator.predicate(
     "the sampler's throw carries the same numbers",
     throwsError(
-      (): ReturnType<typeof sampleClip> =>
-        sampleClip(uneven, 0),
+      (): ReturnType<typeof sampleClip> => sampleClip(uneven, 0),
       ["keyframe count 67", "195 does not", "values must hold 201"],
     ),
   );

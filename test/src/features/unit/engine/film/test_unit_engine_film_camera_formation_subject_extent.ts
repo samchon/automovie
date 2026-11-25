@@ -178,7 +178,6 @@ const seesCentroid: (
  *    under the cue playing at that instant.
  * 7. A group's box is the union of what its members occupy, so a node standing
  *    behind the line widens the same subject.
- *
  */
 export function test_unit_engine_film_camera_formation_subject_extent(): void {
   const rest: ReturnType<typeof formationSubjectBox> = boxAt(0);
@@ -216,16 +215,12 @@ export function test_unit_engine_film_camera_formation_subject_extent(): void {
 
   const fallback: ReturnType<typeof formationMemberExtent> =
     formationMemberExtent(UNIT, []);
+  // The whole extent is compared, so any field beside the two bounds is a
+  // difference: the stand-in stands from the ground to its documented height.
   TestValidator.equals(
     "an unsupplied member model takes the documented stand-in height",
-    {
-      keys: Object.keys(fallback).sort((a: string, b: string): number =>
-        a < b ? -1 : a > b ? 1 : 0,
-      ),
-      min: nclose(fallback.min, 0),
-      max: nclose(fallback.max, DEFAULT_SUBJECT_HEIGHT),
-    },
-    { keys: ["max", "min"], min: true, max: true },
+    fallback,
+    { min: 0, max: DEFAULT_SUBJECT_HEIGHT },
   );
 
   TestValidator.equals(

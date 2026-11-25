@@ -71,7 +71,6 @@ const SEQUENCE: IAutoMovieSequence = {
  *    instants shows: frame 9 (2.25 s) A, frame 11 (2.75 s) B, frame 21 (5.25 s)
  *    B and frame 22 (5.5 s) A.
  * 7. No layers is refused.
- *
  */
 export function test_unit_engine_film_playback_shown_layer(): void {
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

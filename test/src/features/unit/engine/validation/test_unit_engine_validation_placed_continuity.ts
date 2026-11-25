@@ -23,7 +23,6 @@ type ICustodyCheck = Extract<
 /**
  * Check malformed placed facts and authored transform and custody boundaries
  * independently of seeking or review order.
- *
  */
 export const test_unit_engine_validation_placed_continuity = (): void => {
   const transform: ITransformCheck = {

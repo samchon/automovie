@@ -13,24 +13,23 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
-import { throwsError } from "../../../internal/predicates";
 import { filmEffectCue } from "../../../internal/filmEffectCue";
 import { filmEffectIdentity } from "../../../internal/filmEffectIdentity";
 import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
 import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
 import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
+import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { filmEffectWorld } from "../../../internal/filmEffectWorld";
 import { filmEffectZone } from "../../../internal/filmEffectZone";
 import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
+import { throwsError } from "../../../internal/predicates";
 
 /** Each film cue's id, zone, start and end frame and constant intensity. */
-const EXPECTED_CUES: ReadonlyArray<[string, string, number, number, number]> =
-  [
-    ["haze", "gate", 0, 6, 1],
-    ["mist", "yard", 12, 24, 0.5],
-    ["dew", "yard", 24, 30, 0.5],
-  ];
+const EXPECTED_CUES: ReadonlyArray<[string, string, number, number, number]> = [
+  ["haze", "gate", 0, 6, 1],
+  ["mist", "yard", 12, 24, 0.5],
+  ["dew", "yard", 24, 30, 0.5],
+];
 
 /**
  * Film cue materialization enforces current identity, rational clock and
@@ -44,7 +43,6 @@ const EXPECTED_CUES: ReadonlyArray<[string, string, number, number, number]> =
  *    intervals/cues and missing zone/recipe.
  * 3. Distinguish same-zone overlap from touching intervals or different zones, and
  *    preserve only declared runtime fields.
- *
  */
 export function test_unit_engine_film_effect_materialization(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline([

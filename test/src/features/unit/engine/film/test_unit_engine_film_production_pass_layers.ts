@@ -21,14 +21,16 @@ const frame: (
 });
 
 /**
- * Selects render layers for beauty and all five structural passes, checking copy isolation, heavier-layer selection, incoming tie precedence and fade preservation/full structural weight.
+ * Selects render layers for beauty and all five structural passes, checking
+ * copy isolation, heavier-layer selection, incoming tie precedence and fade
+ * preservation/full structural weight.
  *
  * Scenarios:
+ *
  * 1. Preserve beauty blend weights after mutating the earlier returned copy.
  * 2. Select outgoing/incoming heavier neighbours for all five structural passes.
  * 3. Select the incoming layer at an exact mask-pass tie.
  * 4. Keep singleton fade weight for beauty and full weight for depth.
- *
  */
 export function test_unit_engine_film_production_pass_layers(): void {
   const outgoingHeavy: IAutoMovieProductionRenderFrame = frame([

@@ -29,7 +29,9 @@ import { createSkeleton } from "../../../internal/fixtures";
 import { namedFacts, qclose, vclose } from "../../../internal/predicates";
 
 /**
- * The duel program with the camera framed exactly as `framed` asks. Dropping the `frame` action leaves the beat locked off on the staged camera, which is the shape every artifact carried before a placement existed to record.
+ * The duel program with the camera framed exactly as `framed` asks. Dropping
+ * the `frame` action leaves the beat locked off on the staged camera, which is
+ * the shape every artifact carried before a placement existed to record.
  */
 const program: (framed: boolean) => IAutoMovieShotProgram = (
   framed: boolean,
@@ -58,7 +60,10 @@ const program: (framed: boolean) => IAutoMovieShotProgram = (
   };
 };
 
-/** Compile the original framed or locked duel through real shot definition and the existing deterministic synthesizer. */
+/**
+ * Compile the original framed or locked duel through real shot definition and
+ * the existing deterministic synthesizer.
+ */
 const compile: (framed: boolean) => IAutoMovieCompiledDefinedShot = (
   framed: boolean,
 ): IAutoMovieCompiledDefinedShot =>
@@ -94,18 +99,26 @@ const compile: (framed: boolean) => IAutoMovieCompiledDefinedShot = (
   });
 
 /**
- * A compiled realization states the camera it measured whenever a `frame` action moved the shot off its staged camera.
+ * A compiled realization states the camera it measured whenever a `frame`
+ * action moved the shot off its staged camera.
  *
- * The staged transform and the action are not rivals: `compileCameraMove` keeps the staged bearing and replaces the distance with the one the framing demands, so a camera staged for a wide can be solved to a fraction of that stand-off while `scene.cameras[i].transform` in the same artifact still reads exactly as authored. Every static camera fact the artifact carried therefore described the solve's input rather than the frame, and an author reading it concluded the camera was fine. The placement is that missing fact, recorded at each sample the realization already measured.
+ * The staged transform and the action are not rivals: `compileCameraMove` keeps
+ * the staged bearing and replaces the distance with the one the framing
+ * demands, so a camera staged for a wide can be solved to a fraction of that
+ * stand-off while `scene.cameras[i].transform` in the same artifact still reads
+ * exactly as authored. Every static camera fact the artifact carried therefore
+ * described the solve's input rather than the frame, and an author reading it
+ * concluded the camera was fine. The placement is that missing fact, recorded
+ * at each sample the realization already measured.
  *
  * Scenarios:
  *
  * 1. A framed beat carries a placement at every camera sample, and it is exactly
- * the camera `resolveCameraAt` gives the renderer at that instant.
- * 2. That placement is a different point from the staged transform, which is
- * what makes the record worth writing.
- * 3. A beat with no `frame` action compiles no move and records no placement; independent depth precision belongs to the dedicated depth tests.
- *
+ *    the camera `resolveCameraAt` gives the renderer at that instant.
+ * 2. That placement is a different point from the staged transform, which is what
+ *    makes the record worth writing.
+ * 3. A beat with no `frame` action compiles no move and records no placement;
+ *    independent depth precision belongs to the dedicated depth tests.
  */
 export function test_unit_engine_film_realization_camera_placement(): void {
   const framed: IAutoMovieCompiledDefinedShot = compile(true);
@@ -233,7 +246,7 @@ export function test_unit_engine_film_realization_camera_placement(): void {
                 resolvedSubjects: number;
                 readableSubjects: number;
                 passed: boolean;
-              }): boolean => "placement" in outcome === false,
+              }): boolean => outcome.placement === undefined,
             ),
         ],
       ]),

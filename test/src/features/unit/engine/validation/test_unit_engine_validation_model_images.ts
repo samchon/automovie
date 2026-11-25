@@ -54,14 +54,22 @@ const refusedAt: (images: IAutoMovieImage[], path: string) => boolean = (
   hasViolation(validateModel({ model: carrying(images) }), "range", path);
 
 /**
- * Model admission of carried images and their place in the texture closure: the PNG header subset the viewer decodes is required, and a binding that names a carried image needs no ledger record.
+ * Model admission of carried images and their place in the texture closure: the
+ * PNG header subset the viewer decodes is required, and a binding that names a
+ * carried image needs no ledger record.
  *
  * Scenarios:
  *
- * 1. A model carrying one RGBA PNG bound by its base colour validates, and the texture closure with an empty ledger reports nothing for it, while a second model binding the same id without carrying it is reported unregistered.
- * 2. One carried image bound as sRGB colour and as a linear normal map is reported as contradictory under that model's image, not as a project asset.
- * 3. A repeated id, a data-URI prefix, non-PNG bytes, a 16-bit depth, a palette, interlacing, a zero edge and an edge one past 8192 are each refused at the image's path, while greyscale, greyscale-alpha and RGB images and an 8192-pixel edge are admitted.
- *
+ * 1. A model carrying one RGBA PNG bound by its base colour validates, and the
+ *    texture closure with an empty ledger reports nothing for it, while a
+ *    second model binding the same id without carrying it is reported
+ *    unregistered.
+ * 2. One carried image bound as sRGB colour and as a linear normal map is reported
+ *    as contradictory under that model's image, not as a project asset.
+ * 3. A repeated id, a data-URI prefix, non-PNG bytes, a 16-bit depth, a palette,
+ *    interlacing, a zero edge and an edge one past 8192 are each refused at the
+ *    image's path, while greyscale, greyscale-alpha and RGB images and an
+ *    8192-pixel edge are admitted.
  */
 export function test_unit_engine_validation_model_images(): void {
   /** Greyscale, RGB and greyscale-alpha: the PNG colour types besides RGBA. */

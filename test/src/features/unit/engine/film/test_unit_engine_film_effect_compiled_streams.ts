@@ -8,21 +8,24 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
+import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { filmEffectWorld } from "../../../internal/filmEffectWorld";
 import { filmEffectZone } from "../../../internal/filmEffectZone";
 import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
 import { shotContractFixture } from "../../../internal/shotContractFixture";
 
 /**
- * Effect streams preserve their owner protocol, ordered cue identity and independent input data.
+ * Effect streams preserve their owner protocol, ordered cue identity and
+ * independent input data.
  *
  * Scenarios:
- * 1. Materialize sorted cues, skip unresolved zones/recipes and preserve optional events.
- * 2. Check shot/film domain-separated seeds, canonical digests and requested clocks.
- * 3. Mutate emitted bounds, recipe and intensity without changing authored inputs.
  *
+ * 1. Materialize sorted cues, skip unresolved zones/recipes and preserve optional
+ *    events.
+ * 2. Check shot/film domain-separated seeds, canonical digests and requested
+ *    clocks.
+ * 3. Mutate emitted bounds, recipe and intensity without changing authored inputs.
  */
 export function test_unit_engine_film_effect_compiled_streams(): void {
   const contract: IAutoMovieShotContract = shotContractFixture("shot-1");

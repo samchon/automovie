@@ -11,16 +11,23 @@ import { TestValidator } from "@nestia/e2e";
 import { createImportedPropSpec } from "../../../internal/createImportedPropSpec";
 import { createModel } from "../../../internal/fixtures";
 import { namedFacts } from "../../../internal/predicates";
-import { inSpace, propEnvironment } from "../../../internal/propPlacementFixtures";
+import {
+  inSpace,
+  propEnvironment,
+} from "../../../internal/propPlacementFixtures";
 
 const CHAIR: number = 0;
 const LAMP: number = 1;
 const STOOL: number = 2;
 
 /**
- * The imported chair, standing in the room on the floor and keeping the room it needs to be pulled out.
+ * The imported chair, standing in the room on the floor and keeping the room it
+ * needs to be pulled out.
  *
- * Its proxy is the registered 0.5 x 0.9 x 0.5 collision box, so its world occupancy at the staged height below runs from `y = 0` to `y = 0.9`, resting exactly on the floor patch, and its seat face stands at `y = 0.9` over the plan square `[0.8, 1.2]` on both axes.
+ * Its proxy is the registered 0.5 x 0.9 x 0.5 collision box, so its world
+ * occupancy at the staged height below runs from `y = 0` to `y = 0.9`, resting
+ * exactly on the floor patch, and its seat face stands at `y = 0.9` over the
+ * plan square `[0.8, 1.2]` on both axes.
  */
 const chair: () => IAutoMoviePropSpec = (): IAutoMoviePropSpec => ({
   ...createImportedPropSpec(),
@@ -79,7 +86,10 @@ const stool: () => IAutoMoviePropSpec = (): IAutoMoviePropSpec => ({
   },
 });
 
-/** Construct the original fresh imported/generated placement registry in slot order. */
+/**
+ * Construct the original fresh imported/generated placement registry in slot
+ * order.
+ */
 const registry: () => IAutoMoviePropSpec[] = (): IAutoMoviePropSpec[] => [
   chair(),
   lamp(),
@@ -100,7 +110,10 @@ const set: () => IAutoMovieStageSetPiece[] = (): IAutoMovieStageSetPiece[] => [
   { node: "stool", model: "stool", position: { x: -2, y: 0.3, z: -2 } },
 ];
 
-/** Run the actual placement validator on caller inputs or the original fresh defaults. */
+/**
+ * Run the actual placement validator on caller inputs or the original fresh
+ * defaults.
+ */
 const validate: (
   props?: IAutoMoviePropSpec[],
   pieces?: IAutoMovieStageSetPiece[],
@@ -149,23 +162,30 @@ const violated: (
 };
 
 /**
- * A prop drawing a registered external appearance is judged by every placement rule a generated one is, as the subject of a claim and as the host of one.
+ * A prop drawing a registered external appearance is judged by every placement
+ * rule a generated one is, as the subject of a claim and as the host of one.
  *
- * The whole point of admitting the reference is that nothing the prop means travels out with the pixels, so this pins the measurable half of that claim: the chair is contained, borne, cleared, and held out of passages through its deterministic proxy, and other props rest on the seat face its own spec declares.
+ * The whole point of admitting the reference is that nothing the prop means
+ * travels out with the pixels, so this pins the measurable half of that claim:
+ * the chair is contained, borne, cleared, and held out of passages through its
+ * deterministic proxy, and other props rest on the seat face its own spec
+ * declares.
  *
  * Scenarios:
  *
  * 1. The imported chair, the lamp standing on its seat, and the stool beside them
- * resolve: an external appearance forges and stages like any other prop.
+ *    resolve: an external appearance forges and stages like any other prop.
  * 2. As a subject it is refused where a generated prop would be: floating off the
- * floor it names, sinking into it, leaving the logical space it occupies, and standing in the doorway.
+ *    floor it names, sinking into it, leaving the logical space it occupies,
+ *    and standing in the doorway.
  * 3. Its keep-out volume is its own: the stool pushed into the chair's pull-out
- * clearance is refused, and the stool pushed into the chair itself is refused as occupancy with no declared contact.
+ *    clearance is refused, and the stool pushed into the chair itself is
+ *    refused as occupancy with no declared contact.
  * 4. As a host it bears: the lamp floats above and sinks into the seat face the
- * imported chair declares, and stands off it when moved away.
+ *    imported chair declares, and stands off it when moved away.
  * 5. A chair whose sealed closure is broken does not forge, and is therefore not
- * also measured: the forge violation is reported at the prop's own path and the geometric refusal it would otherwise have earned is not.
- *
+ *    also measured: the forge violation is reported at the prop's own path and
+ *    the geometric refusal it would otherwise have earned is not.
  */
 export function test_unit_engine_film_prop_placement_imported(): void {
   TestValidator.equals(

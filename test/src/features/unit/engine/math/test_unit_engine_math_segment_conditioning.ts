@@ -24,7 +24,6 @@ import { nclose, throwsError, vclose } from "../../../internal/predicates";
  * 6. Eberly's independent near-parallel examples retain the published zero gap and
  *    endpoint minimum rather than cancelling a determinant division.
  * 7. A rigid axis permutation and translation preserve a known skew minimum.
- *
  */
 export function test_unit_engine_math_segment_conditioning(): void {
   for (const scale of [1e-200, 1e-100, 1e-6, 1e-3, 1, 1e100, 1e200]) {

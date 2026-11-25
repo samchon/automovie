@@ -29,7 +29,6 @@ import { throwsError } from "../../../internal/throwsError";
  *    binary64, are refused with the overflow error; the table `[[4, 1], [2,
  *    3]]` still assigns row 0 to column 1 and row 1 to 0.
  * 6. Polishing with a zero budget still returns the native primal unaccepted.
- *
  */
 export function test_unit_engine_math_degenerate_termination(): void {
   // 1. Adjacent ends.

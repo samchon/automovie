@@ -32,7 +32,6 @@ import { nclose } from "../../../internal/nclose";
  * 5. Enclosing cord segments in one deformable body skip their own pairs, prove
  *    clearance when separated, and stay below confirmation when they overlap a
  *    post.
- *
  */
 export async function test_unit_engine_validation_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =

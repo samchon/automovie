@@ -29,7 +29,6 @@ import { productionSoundTimeline } from "../../../internal/productionSoundTimeli
  * 3. The largest fitting source offset survives planning, and the mixed master has
  *    the authored stereo extent, audible bounded peaks and admitted event
  *    alignment.
- *
  */
 export function test_unit_engine_film_production_sound(): void {
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();

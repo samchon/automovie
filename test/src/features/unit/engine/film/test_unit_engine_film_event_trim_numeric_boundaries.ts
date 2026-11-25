@@ -12,12 +12,12 @@ import { TestValidator } from "@nestia/e2e";
  * Retimed numeric boundaries follow the admitted binary64 source span.
  *
  * Scenarios:
- * 1. The exact sum represented by 0.7 + 0.1 rounds below 0.8. Keep the
- *    event at the reconstructed end, excluding the distinct 0.8 event.
- * 2. A source duration of 1e-17 follows source second 1 and plays for one
- *    output second at rate 1e-17. The source start event belongs to output
- *    second zero even though the numeric end rounds to that same source time.
  *
+ * 1. The exact sum represented by 0.7 + 0.1 rounds below 0.8. Keep the event at
+ *    the reconstructed end, excluding the distinct 0.8 event.
+ * 2. A source duration of 1e-17 follows source second 1 and plays for one output
+ *    second at rate 1e-17. The source start event belongs to output second zero
+ *    even though the numeric end rounds to that same source time.
  */
 export function test_unit_engine_film_event_trim_numeric_boundaries(): void {
   const anchor: IAutoMovieInteractionEvent = {
@@ -80,7 +80,10 @@ export function test_unit_engine_film_event_trim_numeric_boundaries(): void {
   TestValidator.predicate("retimed output duration", collapsed.runtime === 1);
   expectEvent("opening event in the collapsed source span", collapsed, tiny, 0);
 
-  /** A single retained event must map exactly to its endpoint on the output clock. */
+  /**
+   * A single retained event must map exactly to its endpoint on the output
+   * clock.
+   */
   function expectEvent(
     label: string,
     result: IAutoMovieCut.ISuccess,

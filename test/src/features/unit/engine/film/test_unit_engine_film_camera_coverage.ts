@@ -76,8 +76,8 @@ const entry: (
  * camera against its own staged bearing, so the side camera frames its own
  * angle; the intent rides as guide metadata, never back into the solve.
  *
- * The 90° FOV has a unit half-angle tangent; a height-2 medium frame shows
- * 1.24 m, hence d = 0.62 and aim = 0.72 times height = y 1.44.
+ * The 90° FOV has a unit half-angle tangent; a height-2 medium frame shows 1.24
+ * m, hence d = 0.62 and aim = 0.72 times height = y 1.44.
  *
  * Scenarios:
  *
@@ -85,12 +85,11 @@ const entry: (
  *    0)` (bearing +X from the aim), yawed +90° to look −X: the covering
  *    camera's own bearing drives its own angle, not the hero's.
  * 2. Two spans (static 0–1, then push-in to shot end) compile with the same
- *    structure and exact numeric components as
- *    `compileCameraMove` on the same camera and entries, the tracks target
- *    `cam-alt`, and the two intent records ride in span order.
+ *    structure and exact numeric components as `compileCameraMove` on the same
+ *    camera and entries, the tracks target `cam-alt`, and the two intent
+ *    records ride in span order.
  * 3. The empty entries boundary is a locked-off covering camera: `cameraMotion:
  *    null`, `cameraIntent: []`, the camera id still carried.
- *
  */
 export function test_unit_engine_film_camera_coverage(): void {
   // 1. the covering camera's own staged bearing frames its own angle.

@@ -8,15 +8,23 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * Support wrenches governing one cache step become an allocated-force arrow from the centre of mass and, past the allocator's admitted error, a flagged shortfall arrow from its tip.
+ * Support wrenches governing one cache step become an allocated-force arrow
+ * from the centre of mass and, past the allocator's admitted error, a flagged
+ * shortfall arrow from its tip.
  *
  * Scenarios:
  *
- * 1. A record at 1.0 s requesting 100 N up and allocating 60 N, drawn at 1.004 s with a 1/120 s step and 0.002 m per newton from (0, 1, 0), gives a 0.12 m allocated arrow from (0, 1, 0) and a flagged 0.08 m shortfall from (0, 1.12, 0); the two add up to the 0.2 m request.
- * 2. The same record drawn at 0.99 s, before it, and at 1.01 s, after its 1/120 s step, draws nothing; of two records of one body the later one at or before the second is read, and two bodies each draw their own.
- * 3. A residual of 5e-5 N on a 100 N request, inside the 1e-4 N the allocator admits, draws no shortfall; a zero allocation draws only the whole request as shortfall.
+ * 1. A record at 1.0 s requesting 100 N up and allocating 60 N, drawn at 1.004 s
+ *    with a 1/120 s step and 0.002 m per newton from (0, 1, 0), gives a 0.12 m
+ *    allocated arrow from (0, 1, 0) and a flagged 0.08 m shortfall from (0,
+ *    1.12, 0); the two add up to the 0.2 m request.
+ * 2. The same record drawn at 0.99 s, before it, and at 1.01 s, after its 1/120 s
+ *    step, draws nothing; of two records of one body the later one at or before
+ *    the second is read, and two bodies each draw their own.
+ * 3. A residual of 5e-5 N on a 100 N request, inside the 1e-4 N the allocator
+ *    admits, draws no shortfall; a zero allocation draws only the whole request
+ *    as shortfall.
  * 4. A step or a scale that is zero or not finite is refused.
- *
  */
 export function test_unit_engine_composition_mark_support_wrenches(): void {
   const interval: number = 1 / 120;
@@ -119,7 +127,10 @@ export function test_unit_engine_composition_mark_support_wrenches(): void {
   }
 }
 
-/** A vertical request of `requested` newtons allocated `allocated` newtons at a centre of mass 1 m up, with its exact residual and no moment. */
+/**
+ * A vertical request of `requested` newtons allocated `allocated` newtons at a
+ * centre of mass 1 m up, with its exact residual and no moment.
+ */
 function wrench(
   body: string,
   seconds: number,

@@ -75,13 +75,14 @@ const phaseOf: (
   )!.gaitPhase;
 
 /**
- * A carried cycle determines beat-end phase and invalid cycle scalars return null.
+ * A carried cycle determines beat-end phase and invalid cycle scalars return
+ * null.
  *
  * Scenarios:
+ *
  * 1. Preserve an in-range phase at zero and one whole period.
  * 2. Wrap the authored .7+.5 time over period .8 to .4.
  * 3. Return null for a zero or negative period.
- *
  */
 export function test_unit_engine_film_gait_phase_degenerate(): void {
   TestValidator.predicate(

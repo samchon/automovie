@@ -107,12 +107,12 @@ const readable: (
  *    not make readability unconditional.
  * 3. The ground point alone still fails `medium` and `close` and still passes
  *    `wide` and `full`, which is exactly the asymmetry that made the point test
- *    wrong. This case tests point projection, not a separate zero-height solve.
+ *    wrong. This case tests point projection, not a separate zero-height
+ *    solve.
  * 4. A subject behind the camera fails on the near plane, and one past `far` fails
  *    on the far plane, at a framing that otherwise reads.
  * 5. Horizontal segments at body height and far above the frame distinguish
  *    intersection from unconditional acceptance.
- *
  */
 export function test_unit_engine_film_camera_subject_readability(): void {
   const framings: readonly ["wide", "full", "medium", "close"] = [

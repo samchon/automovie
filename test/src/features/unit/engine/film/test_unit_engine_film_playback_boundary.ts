@@ -12,9 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/predicates";
 
-/**
- * Builds an empty-motion shot with a supplied id and span.
- */
+/** Builds an empty-motion shot with a supplied id and span. */
 function shot(id: string, duration: number): IAutoMovieShot {
   return {
     id,
@@ -28,9 +26,7 @@ function shot(id: string, duration: number): IAutoMovieShot {
   };
 }
 
-/**
- * Whether a result has the expected relation and live shot clocks.
- */
+/** Whether a result has the expected relation and live shot clocks. */
 function relates(
   result: IAutoMovieClassifyPlaybackBoundary.IResult,
   boundary: IAutoMovieClassifyPlaybackBoundary.IResult["boundary"],
@@ -51,15 +47,19 @@ function relates(
 }
 
 /**
- * Classify output-frame pairs of a hand-laid cut and pin each edit relation and both retimed shot clocks.
+ * Classify output-frame pairs of a hand-laid cut and pin each edit relation and
+ * both retimed shot clocks.
  *
  * Scenarios:
- * 1. Inside one entry, and across a hard cut that resumes the same shot at its stopped source second, the relation is continuous and the incoming entry owns its first second.
- * 2. A seam whose incoming trim skips source time, a change of shot and a dissolve overlap are cuts.
+ *
+ * 1. Inside one entry, and across a hard cut that resumes the same shot at its
+ *    stopped source second, the relation is continuous and the incoming entry
+ *    owns its first second.
+ * 2. A seam whose incoming trim skips source time, a change of shot and a dissolve
+ *    overlap are cuts.
  * 3. A doubled playback rate maps each output step to two shot-local steps.
  * 4. A declared break owns the half-open interval ending at its second.
  * 5. Reversed and post-runtime instants are unavailable.
- *
  */
 export function test_unit_engine_film_playback_boundary(): void {
   const shots: IAutoMovieShot[] = [shot("walk", 4), shot("close", 2)];

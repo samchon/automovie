@@ -6,14 +6,26 @@ import type {
 import { productionSoundDigest } from "./productionSoundDigest";
 
 /**
- * The film that cues five tracks across four buses and one caption over that shot.
+ * The film that cues five tracks across four buses and one caption over that
+ * shot.
  *
- * Cues start at or after the shot's forty-frame boundary, with source offsets at zero. The muted track carries zero gain on the music bus, retaining a silent contributor alongside the ordinary music, ambience, effects and dialogue tracks.
+ * Cues start at or after the shot's forty-frame boundary, with source offsets
+ * at zero. The muted track carries zero gain on the music bus, retaining a
+ * silent contributor alongside the ordinary music, ambience, effects and
+ * dialogue tracks.
  *
- * Behavior: Constructs the original 60-frame film, 40-frame shot trim, five authored cue tracks across four buses and caption used by real planning/mixing assertions.
- * Expectation basis: The authored 20fps/60-frame extent independently implies three seconds and 144000 native sample frames; the fixed fixture digest is a marker rather than a computed provenance hash.
- * Cases: Retains music/ambience/effects/dialogue/muted cues, out-of-phase starts and caption timing; cue ingress and rational phase tests own shorter isolated plans.
- * Execution: The existing owning entries call productionSoundTimeline during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
+ * Behavior: Constructs the original 60-frame film, 40-frame shot trim, five
+ * authored cue tracks across four buses and caption used by real
+ * planning/mixing assertions. Expectation basis: The authored 20fps/60-frame
+ * extent independently implies three seconds and 144000 native sample frames;
+ * the fixed fixture digest is a marker rather than a computed provenance hash.
+ * Cases: Retains music/ambience/effects/dialogue/muted cues, out-of-phase
+ * starts and caption timing; cue ingress and rational phase tests own shorter
+ * isolated plans. Execution: The existing owning entries call
+ * productionSoundTimeline during their portable in-memory cases and retain
+ * responsibility for assertion expectations and dynamically invoked predicates;
+ * this helper acquires no asset, process, renderer or GPU and keeps no
+ * completed-result cache.
  */
 export function productionSoundTimeline(): IAutoMovieFilmTimeline {
   return {

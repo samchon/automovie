@@ -6,8 +6,8 @@ import {
 import type {
   IAutoMovieAuditOutcome,
   IAutoMovieMeasureContact,
-  IAutoMoviePreparePhysicalGeometry,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePreparePhysicalGeometry,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,8 +25,8 @@ const ROUNDING: number = 1e-6;
  *
  * 1. 0.19 m apart they compress by 0.01 m (separation -0.01) and yield a contact
  *    record that satisfies a required hand-on-head contact over 0.9 to 1.1 s.
- * 2. 0.25 m apart they separate by 0.05 m, yield no record, and the audit
- *    reports the missing contact.
+ * 2. 0.25 m apart they separate by 0.05 m, yield no record, and the audit reports
+ *    the missing contact.
  * 3. A side whose bones declare no colliders is refused.
  */
 export async function test_unit_engine_composition_measure_contact(): Promise<void> {

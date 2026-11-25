@@ -50,15 +50,20 @@ const failsAt: (
   );
 
 /**
- * Typed capability data is one engine contract for direct and production consumers.
+ * Typed capability data is one engine contract for direct and production
+ * consumers.
  *
  * Scenarios:
  *
- * 1. A complete mountable/destructible profile passes both the focused validator and validateModel.
- * 2. Profile names are non-blank, identities are unique, and trait kinds are unique.
- * 3. Each mountable and destructible scalar family is independently rejected at its exact path.
- * 4. Impact hardness and penetrability above one are rejected. Profile admission uses (0,1], a stricter lower bound than resolveImpact's [0,1] physical coefficient domain.
- *
+ * 1. A complete mountable/destructible profile passes both the focused validator
+ *    and validateModel.
+ * 2. Profile names are non-blank, identities are unique, and trait kinds are
+ *    unique.
+ * 3. Each mountable and destructible scalar family is independently rejected at
+ *    its exact path.
+ * 4. Impact hardness and penetrability above one are rejected. Profile admission
+ *    uses (0,1], a stricter lower bound than resolveImpact's [0,1] physical
+ *    coefficient domain.
  */
 export function test_unit_engine_validation_profile_capabilities(): void {
   const valid: IAutoMovieProfile = profile();

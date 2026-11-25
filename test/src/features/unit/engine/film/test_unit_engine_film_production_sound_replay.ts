@@ -7,10 +7,10 @@ import { nclose } from "../../../internal/nclose";
 /**
  * PCM replay and cue source phase need only a short isolated sound plan.
  * Scenarios:
+ *
  * 1. A 120ms plan with one 80ms cue repeats byte-for-byte without changing input.
  * 2. Advancing the cue's source offset by 20ms changes its waveform while
- * preserving film extent and exact silence before the cue starts at 20ms.
- *
+ *    preserving film extent and exact silence before the cue starts at 20ms.
  */
 export function test_unit_engine_film_production_sound_replay(): void {
   const plan: IAutoMovieProductionSoundPlan = {

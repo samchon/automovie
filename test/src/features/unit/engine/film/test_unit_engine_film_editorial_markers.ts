@@ -26,10 +26,12 @@ import { nclose } from "../../../internal/predicates";
  * Authored editorial markers retain their identity and map onto each kept play.
  *
  * Scenarios:
- * 1. Preserve source endpoints and labels after compiling the performance.
- * 2. Clip a range across two-sided trims, place a seam point once per retained play and sort across a dissolve and replay.
- * 3. Refuse duplicate ids, blank labels and invalid endpoints at both the authoring and artifact boundaries.
  *
+ * 1. Preserve source endpoints and labels after compiling the performance.
+ * 2. Clip a range across two-sided trims, place a seam point once per retained
+ *    play and sort across a dissolve and replay.
+ * 3. Refuse duplicate ids, blank labels and invalid endpoints at both the
+ *    authoring and artifact boundaries.
  */
 export function test_unit_engine_film_editorial_markers(): void {
   const script: ReturnType<typeof makeScriptWrite> = makeScriptWrite();

@@ -81,8 +81,8 @@ const shot: IAutoMovieShot = {
  * 1. A hero performing the x = 2t walk from the staged origin opens at x = 0 (the
  *    clip's first frame) with gait phase 0, the walk clip named, and local time
  *    0.
- * 2. The same beat's end (duration 0.5) sits at x = 1.0, distinguishing the opening instant from the closing state.
- *
+ * 2. The same beat's end (duration 0.5) sits at x = 1.0, distinguishing the
+ *    opening instant from the closing state.
  */
 export function test_unit_engine_film_beat_opening(): void {
   const opening: IAutoMovieBeatEndActorState = resolveBeatOpening({

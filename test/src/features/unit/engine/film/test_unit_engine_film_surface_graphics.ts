@@ -44,7 +44,6 @@ import {
  *    refused with the articulated-surface diagnostic.
  * 4. A text layer without a font passes shot admission and artifact validation
  *    without adding a font source or rewriting the text.
- *
  */
 export function test_unit_engine_film_surface_graphics(): void {
   const phone: IAutoMovieModel = createDevice({

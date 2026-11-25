@@ -11,14 +11,15 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/predicates";
 
 /**
- * An edit requirement addresses one play of a shot and requires an unambiguous event retained there.
+ * An edit requirement addresses one play of a shot and requires an unambiguous
+ * event retained there.
  *
  * Scenarios:
  *
- * 1. The first of two contiguous trims loses a handoff at 1.5 seconds and cannot borrow it from the second.
+ * 1. The first of two contiguous trims loses a handoff at 1.5 seconds and cannot
+ *    borrow it from the second.
  * 2. The second trim retains the handoff at 1.5 output seconds and passes.
  * 3. Two retained events with the required id in one play are ambiguous and fail.
- *
  */
 export function test_unit_engine_film_cut_sequence_required_events(): void {
   const handoff: IAutoMovieInteractionEvent = {
@@ -96,7 +97,6 @@ export function test_unit_engine_film_cut_sequence_required_events(): void {
       { ...shot, events: [handoff, { ...handoff, time: 1.75 }] },
       ["$input.requiredEvents[0].event"],
     ],
-
   ];
   for (const [label, candidate, source, paths] of refusals) {
     const result: IAutoMovieCut = cutSequence(candidate, [source]);
