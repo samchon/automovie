@@ -2,6 +2,7 @@ import { createHorse, createPony } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
+  physicalShapeBounds,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
@@ -24,7 +25,7 @@ import { nclose } from "../../internal/nclose";
  * 1. Every tack keeps the untacked horse's bone parts unchanged, by id, transform and geometry.
  * 2. Mass: the bareback bridle and the surcingle add nothing (no maker's weight read); the side saddle adds its press weight of 10 kg (Horse & Hound: "around 22lb (10kg)").
  * 3. Bareback: a seat sat astride and mounted from the near side, the two reins and the lead, and no stirrup, pommel, cantle or saddle part; the seat lies on the trunk's top, within 10 mm of the trunk capsule's surface over its axis.
- * 4. Side saddle: one stirrup on the near side (`+X`) with an open boot passage and an exterior leather run anchored to the saddle; both heads on the near side of or at the spine, the leaping head lower than the fixed head and further out; the seat faces the near side and is not sat astride.
+ * 4. Side saddle: one stirrup on the near side (`+X`) with an open boot passage, a side rim one tread half-thickness wide and an exterior leather run anchored to the saddle; both heads on the near side of or at the spine, the leaping head lower than the fixed head and further out; the seat faces the near side and is not sat astride.
  * 5. Surcingle: exactly two handles, one each side of the spine, at most 240 mm apart (the harmonised FEI rule); a pad no thicker than 3 cm and reaching no more than 80 cm behind the surcingle (USEF); a seat astride on the pad.
  * 6. A pony takes the new tacks through the shared equid producer, under its own name.
  *
@@ -271,12 +272,13 @@ function stirrupMaterial(
   const y: number = (top.y + rail.transform.position.y - rail.radius) / 2;
   const front: IAutoMovieVector3 = { ...top, y, z: top.z + tread.depth / 2 };
   const back: IAutoMovieVector3 = { ...top, y, z: top.z - tread.depth / 2 };
+  const outer: number = top.x + plate.halfExtents.x + plate.halfExtents.y;
   for (const shape of shapes) {
     const leather: boolean = shape.id.startsWith("leather-left");
-    if (
-      (leather || shape.id.startsWith("stirrup-left")) &&
-      physicalShapeSegmentDistance(zero, shape, front, back) <= 0
-    )
+    if (!(leather || shape.id.startsWith("stirrup-left"))) continue;
+    if (physicalShapeBounds(zero, shape).max.x > outer + roundoff)
+      findings.push(`side saddle: ${shape.id} exceeds the tread's side rim`);
+    if (physicalShapeSegmentDistance(zero, shape, front, back) <= 0)
       findings.push(`side saddle: ${shape.id} closes the centre of the opening`);
     if (!leather) continue;
     if (shape.kind !== "capsule") {

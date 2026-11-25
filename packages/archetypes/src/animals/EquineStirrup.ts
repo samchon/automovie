@@ -35,9 +35,10 @@ interface ISection {
  * WO2007052127A1, figures 1 and 2, shows the tread at the bases of the arch
  * and opening 301 for the leather above the foot. AJ Tack's Fillis iron gives
  * the overall height and eye width (ajtack.com/products/aj-tack-stainless-steel-fillis-stirrup-irons).
- * An elliptical crown and constant round stock approximate the outline and
- * thickness. The leather's two runs pass outside the barrel and close around
- * the eye's lower rail. The authored drop places the tread, including the iron.
+ * An elliptical arch and round stock approximate the outline and thickness.
+ * The arch's side stock fits inside the base's rim outside the full clear
+ * tread. The leather's two runs pass outside the barrel and close around the
+ * eye's lower rail. The authored drop places the tread, including the iron.
  *
  * @param builder The equid being built, with the saddle tree already laid.
  * @param props The placed tread, the saddle edge and the torso section.
@@ -58,6 +59,7 @@ export function EquineStirrup(
   const above: number = FILLIS.height - TREAD.thickness - radius;
   const lower: number = above - 2 * (radius + LEATHER_RADIUS);
   const half: number = width / 2 + radius;
+  const branchRadius: number = radius / 2;
   const point = (x: number, y: number, z: number = 0): IAutoMovieVector3 =>
     Vector3.create(tread.x + x, tread.y + y, tread.z + z);
   const metal: AutoMovieArchetypeBuilder.IOptions = {
@@ -77,12 +79,13 @@ export function EquineStirrup(
   );
   builder.box(
     `${prefix}-base`,
-    Vector3.create(2 * (half + radius), TREAD.thickness / 2, TREAD.depth),
+    Vector3.create(2 * half, TREAD.thickness / 2, TREAD.depth),
     point(0, (-3 * TREAD.thickness) / 4),
     metal,
   );
 
-  // The curve and its stock stay above the tread's unobstructed top rectangle.
+  // Fit each branch's half-stock in the single-radius rim. Moving its axis
+  // inward by the radius reduction preserves the opening at the tread.
   const from: number = radius;
   const run: number = half - eye;
   const rise: number = lower - from;
@@ -90,23 +93,25 @@ export function EquineStirrup(
     (Math.PI / 2) / (2 * Math.acos(1 - radius / Math.max(run, rise))),
   );
   for (const end of [-1, 1]) {
-    let previous: IAutoMovieVector3 = point(end * half, from);
+    const branch = (x: number, y: number): IAutoMovieVector3 =>
+      point(end * (x - branchRadius), y);
+    let previous: IAutoMovieVector3 = branch(half, from);
     builder.rod(
       `${prefix}-foot-${end}`,
-      radius,
-      point(end * half, -radius),
+      branchRadius,
+      branch(half, -radius),
       previous,
       round,
     );
     for (let index: number = 1; index <= segments; ++index) {
       const angle: number = (index * Math.PI) / (2 * segments);
-      const next: IAutoMovieVector3 = point(
-        end * (eye + run * Math.cos(angle)),
+      const next: IAutoMovieVector3 = branch(
+        eye + run * Math.cos(angle),
         from + rise * Math.sin(angle),
       );
       builder.rod(
         `${prefix}-arch-${end}-${index}`,
-        radius,
+        branchRadius,
         previous,
         next,
         round,
