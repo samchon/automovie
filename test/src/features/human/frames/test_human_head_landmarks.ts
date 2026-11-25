@@ -31,8 +31,8 @@ import { nclose } from "../../internal/nclose";
  *    eye dimensions, with the supplied distance between nasal canthi.
  * 2. The generated nose and lip landmarks retain their five Euclidean chords. The
  *    lateral guides on the native nose span the supplied alare distance.
- * 3. The two nostril cutters are differences whose contact lies on the correct
- *    side of the original nose. The selected result requests no raw loft.
+ * 3. The original nose owns both apertures. Each lining attaches on its named
+ *    side. The selected result requests no raw loft.
  *
  * The facial measurement definitions follow Weinberg et al., 3D Facial Norms,
  * and the fissure endpoints follow Shin et al.,
@@ -224,6 +224,8 @@ export function test_human_head_landmarks(): void {
       inlet.attachment.parameter === null ||
       !(inlet.attachment.point[2] * (side === "left" ? 1 : -1) > 0) ||
       cutter?.join !== "diff" ||
+      cutter.port === undefined ||
+      cutter.port.loop.shape?.length !== cutter.port.rails.length ||
       cutter.material !== nose
     )
       failures.push(

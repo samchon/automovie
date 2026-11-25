@@ -1,3 +1,4 @@
+import type { IAutoMovieConstructionPortLoop } from "../../../construction/IAutoMovieConstructionPortLoop";
 import type { IAutoMovieConstructionView } from "../../../construction/IAutoMovieConstructionView";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanHeadDomeHost } from "./IAutoMovieHumanHeadDomeHost";
@@ -53,6 +54,9 @@ export namespace IAutoMovieHumanHeadFeatures {
      * parent.
      */
     material?: IAutoMovieViewPart;
+
+    /** Original parent aperture and derived lining rail distances, metres. */
+    port?: { loop: IAutoMovieConstructionPortLoop; rails: number[] };
 
     /**
      * Same complete native contact used by a cap's embedding; its placement

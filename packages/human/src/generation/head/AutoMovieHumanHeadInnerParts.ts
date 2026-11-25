@@ -11,13 +11,14 @@ import type {
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
+import { AutoMovieHumanHeadNasalPort } from "./AutoMovieHumanHeadNasalPort";
 
 /**
  * The parts inside the face's parts, each joined to its own parent part:
  *
  * | Part               | Parent    | Join | Size from                                                                            |
  * | ------------------ | --------- | ---- | ------------------------------------------------------------------------------------ |
- * | nostril, each side | nose      | diff | an ellipse entering the underside of the original nose from its own alar quadrant    |
+ * | nostril, each side | nose      | port | a physical aperture on the native alar quadrant and its derived vestibule lining     |
  * | philtral groove    | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
  * | mentolabial sulcus | head mass | diff | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale               |
  *
@@ -121,6 +122,7 @@ export namespace AutoMovieHumanHeadInnerParts {
     const start: number = nose.stations[0]! - INSET;
     const height: number = alare.station - start;
     const reach: number = Math.cos(divergence);
+    const prepare = AutoMovieHumanHeadNasalPort.prepare(nose, plan.noseWidth);
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
       // ESTIMATE: the centre lies halfway across the native hemi-base from
@@ -138,7 +140,7 @@ export namespace AutoMovieHumanHeadInnerParts {
           [x, alare.station, z],
           nose,
           attempts,
-          { inset: INSET, reach: wallRadius },
+          { inset: INSET, reach: wallRadius, prepare },
         ),
       );
     }
@@ -234,7 +236,11 @@ export namespace AutoMovieHumanHeadInnerParts {
     seed: [number, number, number],
     host: IAutoMovieViewPart,
     attempts?: IAutoMovieHumanHeadDome.IAttempt[],
-    base?: { inset: number; reach: number },
+    base?: {
+      inset: number;
+      reach: number;
+      prepare: ReturnType<typeof AutoMovieHumanHeadNasalPort.prepare>;
+    },
   ): IAutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map(
@@ -255,8 +261,33 @@ export namespace AutoMovieHumanHeadInnerParts {
       ...(base === undefined ? {} : { stem: h - base.inset }),
     };
 
+    const inletAttempts: IAutoMovieHumanHeadDome.IAttempt[] | undefined =
+      base === undefined ? undefined : [];
     const source: ReturnType<typeof AutoMovieHumanHeadDome.attempt> =
-      AutoMovieHumanHeadDome.attempt(dome, host, seed, attempts, base?.inset);
+      AutoMovieHumanHeadDome.attempt(
+        dome,
+        host,
+        seed,
+        inletAttempts ?? attempts,
+        base?.inset,
+      );
+    const attempt = inletAttempts?.[0];
+    let lining: ReturnType<NonNullable<typeof base>["prepare"]> | undefined;
+    if (base !== undefined && attempt !== undefined) {
+      if (source === null && attempts === undefined)
+        throw new Error(attempt.error ?? `${name} has no material contact`);
+      try {
+        if (source !== null) lining = base.prepare(attempt, source);
+        attempts?.push(attempt);
+      } catch (error: unknown) {
+        if (attempts === undefined) throw error;
+        attempts.push({
+          ...attempt,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        return [];
+      }
+    }
     return source === null
       ? []
       : [
@@ -281,6 +312,7 @@ export namespace AutoMovieHumanHeadInnerParts {
               ? {}
               : { attachment: source.attachment }),
             elongated: Math.max(...e) > 2 * Math.min(...e),
+            ...lining,
           },
         ];
   }

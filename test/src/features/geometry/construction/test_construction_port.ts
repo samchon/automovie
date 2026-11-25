@@ -1,4 +1,8 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+import {
+  createAutoMovieMeshWindingQuery,
+  measureAutoMovieMeshCrossings,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionPort,
@@ -34,12 +38,14 @@ type V3 = [number, number, number];
  * 15. Ribbons admission: ribbons of `band` are refused.
  * 16. A world guide changes the inner cross meridian, preserving both boundary 2-jets and the opposite half turn.
  * 17. A guide outside the cross meridian rolls back the complete port, and dependent axes fail admission.
+ * 18. A pole-closed recess shares the original parent aperture and winds into the cavity. A probe past the lining rail is exterior and a probe off the recess stays inside.
+ * 19. The open-ended lining and an overlapping nested aperture each fail transactionally.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes port trees with `realizeAutoMovieConstruction` and reads the band's, host's and part's surfaces, the published body's cycles and the skin. It catches a band off the port curve or the rail, a band whose cross jets are not the host's, a hole not shared with the band, an open skin and a refusal that leaves a partial cut.
  * @evidence contracts/development/testing.md#independent-expectations Port points from the cylinder's closed form on the declared chart ellipse; cross jets read on the host's realized surface along the ellipse's inward chart direction (the node contract); rail points on the part's knot circle, exact for ConstructionShapes; watertightness from the manifold edge rule.
  * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case, a shifted curve as the red reading, a shaped loop read against both its own curve and the plain ellipse, one ring matched by angle (refused) and by length (realized), and one off-centre part with one common ribbon scale (red) and a scale per column; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_port`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 17 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
+ * @evidence contracts/development/common.md#meaningful-documentation The numbered scenarios identify both ordinary ports and the closed recess controls.
  */
 export function test_construction_port(): void {
   const failures: string[] = [];
@@ -790,6 +796,68 @@ export function test_construction_port(): void {
     dependentAxesRefused = String(error).includes("independent world coordinates");
   }
   if (!dependentAxesRefused) failures.push("meridian: dependent world axes were admitted");
+  const cavityFrame = {
+    origin: { x: 0.021, y: 0, z: -0.05 },
+    u: { x: 0, y: 0, z: 1 },
+    v: { x: 0, y: -1, z: 0 },
+  };
+  const lining = ConstructionShapes.part(
+    "lining",
+    cavityFrame,
+    [0, 0.005, 0.01, 0.014, 0.018],
+    (s): [number, number, number, number] => {
+      const radius = 0.005 * Math.sqrt(1 - (s / 0.018) ** 2);
+      return [radius, radius, radius, radius];
+    },
+    "top",
+  );
+  const recess: IAutoMovieConstructionPort = {
+    ...port(0.005),
+    name: "port.recess",
+    part: lining,
+    partFace: lining.name,
+    recess: true,
+  };
+  const gouged = realize(recess);
+  const shell = { ...gouged.mesh, normals: null, skin: null, uvs: null };
+  const winding = createAutoMovieMeshWindingQuery(shell);
+  const pocketProbe = winding([0.011, 0, -0.05]);
+  const bodyProbe = winding([0.011, 0, -0.07]);
+  const parent = gouged.body.faces.find(({ chain }) => chain === "trunk");
+  const receiver = gouged.body.faces.find(({ chain }) => chain === "lining");
+  const strip = gouged.body.faces.find(({ chain }) => chain === recess.band);
+  const hole = parent?.cycles.find(({ kind }) => kind === "hole");
+  const start = strip?.cycles.find(({ kind }) => kind === "start");
+  if (
+    gouged.diagnostics.length !== 0 || receiver?.inverted !== true || strip?.inverted ||
+    hole?.points.length !== n || !hole.points.every((p, i) => p === start?.points[i]) ||
+    pocketProbe.surface || pocketProbe.inside || bodyProbe.surface || !bodyProbe.inside ||
+    measureAutoMovieMeshCrossings(shell, shell).length !== 0
+  ) failures.push(`recess: ${ConstructionRead.diagnostics(gouged)} ${JSON.stringify([pocketProbe, bodyProbe])}`);
+
+  const openCavity = realize({
+    ...recess,
+    part: ConstructionShapes.cylinder(lining.name, cavityFrame, 0.005, 0.018),
+  });
+  if (
+    !ConstructionRead.diagnostics(openCavity).includes("must close at its retained end") ||
+    openCavity.body.faces.length !== 1 || openCavity.body.faces[0]!.cycles.length !== 0
+  ) failures.push("recess: the open lining changed the host");
+
+  const coincident = realize({
+    ...recess,
+    host: recess,
+    name: "port.overlap",
+    band: "band.overlap",
+    part: { ...lining, name: "other.lining" },
+    partFace: "other.lining",
+  });
+  if (
+    !ConstructionRead.diagnostics(coincident).includes("meets an existing host boundary") ||
+    coincident.body.faces.length !== 3 ||
+    coincident.body.faces[0]!.cycles.length !== 1 ||
+    coincident.body.faces[0]!.cycles[0]!.points.some((p, i) => p !== hole?.points[i])
+  ) failures.push("recess: the overlapping aperture changed the first port");
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} port failures:\n${failures.join("\n")}`,

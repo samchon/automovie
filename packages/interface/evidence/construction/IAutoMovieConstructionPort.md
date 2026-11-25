@@ -6,7 +6,7 @@ A known port lies on a published landmark loop of the parent, which owns that lo
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-One host face, one closed chart ellipse, one part with its rail and band, and the strip's sampling inputs. Port realization uses these records to place its loop and shape the interior band while preserving its rails.
+One host face, one closed chart ellipse, one part with its rail and band, and the strip's sampling inputs. A recess uses the same port with one pole-closed lining whose winding faces the cavity. Port realization uses these records to place its loop and shape the interior band while preserving its rails.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

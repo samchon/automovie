@@ -37,6 +37,14 @@ export interface IAutoMovieConstructionPort {
   /** The part face's end that faces the host: the band replaces the part's surface between that end and the rail. */
   partEnd: "bottom" | "top";
 
+  /**
+   * The attached single-face lining faces into a recess in the host. Its
+   * retained end is a pole and the parent aperture lies inside the current
+   * kept host region, clear of its existing seams. The band uses the same
+   * original parent and lining jets as an ordinary port.
+   */
+  recess?: true;
+
   /** The rail's distance from that end into the part along its station, metres, positive: the part keeps the stations beyond it. Not read when `rails` is given. */
   rail: number;
 

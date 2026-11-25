@@ -25,6 +25,7 @@ import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
+import { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -38,6 +39,9 @@ type Vec3 = AutoMovieVector3Tuple;
  * Steps: walk the host and admit its face; take the checkpoint; walk the part and admit its face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut; a curved rail, `rails`, is the periodic cubic through its distances, every column's ring point, chart and ribbon taken at that column's own station on it); build the band, whose start ribbons are the host surface's 2-jet across the port curve (the ellipse, each column scaled from the centre by the loop's share when it declares a shape) toward the curve's centre; then add, in one step, the port curve's vertices on the host (its hole cycle), the rail's vertices on the part (its rail cycle) and the band face with its two station-end cycles, every segment naming the face across it. The band's chain and surface join the realization's chains and surfaces.
  *
  * A broken premise restores the checkpoint and records one diagnostic under the port's name; a foreign error restores it and propagates unchanged.
+ * A recess owns one retained, pole-closed lining face with inward winding.
+ * Its centre and sampled aperture must lie in the kept host region. The
+ * band starts with the original host's outward orientation.
  *
  * One owner per seam, read between the columns as well as at them: the port curve (`AutoMovieConstructionPortCurve.curve`, the loop's ellipse with its shares joined by the periodic cubic) is the host's seam, and the rail field (one station, or the periodic cubic through `rails`) the part's. The host's hole keeps the outside of that curve and maps a point inside it to the band at its radial foot's clock; the band's face is the exact band (`AutoMovieConstructionPortBand`), whose start edge is the host on that curve and whose end edge is the part on its rail, each with the side's own cross 2-jet; the band's start and end cycles and the part's rail cycle map across by the same curve and correspondence (`IAutoMovieSolidCycle.IExact`). No second interpolation of either seam exists. The column strip still admits the columns, finds their ribbon factors and publishes its chain as the band's column record. A profiled band is the exact band carried in by its profiles' displacement (`AutoMovieConstructionSplitBand.profiled`, `AutoMovieConstructionPortBand.carried`), laid along the exact band's own normal, so it keeps the same seams and readers; its published chain is the profiled column strip.
  */
@@ -73,6 +77,13 @@ export function AutoMovieConstructionPortRealize(
     if (index === undefined || index < snapshot.faces || chain === undefined)
       return fail(`the part face ${node.partFace} was not realized`);
     const kind: "start" | "end" = node.partEnd === "bottom" ? "start" : "end";
+    if (node.recess === true) {
+      if (body.faces.length !== snapshot.faces + 1)
+        return fail("a recess needs one lining face");
+      const far = node.partEnd === "bottom" ? "top" : "bottom";
+      if (chain.pole?.end !== far && chain.opposite?.end !== far)
+        return fail("a recess lining must close at its retained end");
+    }
     if (
       body.faces[index]!.cycles.some(
         (c: IAutoMovieSolidCycle.ICycle): boolean => c.kind === kind,
@@ -131,6 +142,19 @@ export function AutoMovieConstructionPortRealize(
       AutoMovieConstructionPortCurve.curve(node.loop, n, host.period);
     if (typeof portCurve === "string") return fail(portCurve);
     const { addresses: chart, inward }: IAutoMovieConstructionPortCurve.ICurve = portCurve;
+    if (node.recess === true) {
+      const parent = body.faces[hostIndex]!;
+      const [low, high] = host.domain ?? [-Infinity, Infinity];
+      const retained = ([u, v]: [number, number]): boolean =>
+        u >= low && u <= high && AutoMovieSolidBody.kept(parent, u, v);
+      const centre: [number, number] = [node.loop.centre[0] * S, node.loop.centre[1]];
+      if (
+        !retained(centre) ||
+        chart.some((c, k) => !retained(c) || !retained(portCurve.at(clock(k + 0.5)).point)) ||
+        parent.cycles.some((cycle) => cycle.chart.some(([u, v]) => portCurve.inside(u, v)))
+      )
+        return fail("the recess aperture meets an existing host boundary");
+    }
     const jets: IAutoMovieSolidSurface.IJet[] = chart.map(
       (c: [number, number]): IAutoMovieSolidSurface.IJet =>
         host.jet(c[0], c[1]),
@@ -245,6 +269,7 @@ export function AutoMovieConstructionPortRealize(
         : AutoMovieConstructionPortMeridian(unguided, node.meridian, S, 0.001);
     if (typeof surface === "string")
       return fail(`band ${node.band}: ${surface}`);
+    if (node.recess === true) body.faces[index]!.inverted = true;
     const published: IAutoMovieLoftChain =
       shaped === null ? band.chain : shaped.chain;
 

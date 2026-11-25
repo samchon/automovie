@@ -102,7 +102,8 @@ export function inspectHumanNeutralTopology(
       );
     if (
       part.startsWith("nose.nostril.") &&
-      (node.type !== "join" || node.kind !== "diff")
+      !(node.type === "port" && node.recess === true) &&
+      !(node.type === "join" && node.kind === "diff")
     )
       diagnostics.push(`${part} does not cut its cavity`);
     if (

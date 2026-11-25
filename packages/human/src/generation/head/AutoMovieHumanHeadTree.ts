@@ -8,7 +8,6 @@ import type {
   IAutoMovieConstructionAxis,
   IAutoMovieConstructionCurvatureWidth,
   IAutoMovieConstructionFullness,
-  IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionSharedLoop,
@@ -193,8 +192,7 @@ export namespace AutoMovieHumanHeadTree {
 
     // The head: the mass, every part straight on it joined in turn.
     let root: IAutoMovieConstructionNode = composed.massView;
-    // The nostril cut can cross the nasal root junction into the facial chart.
-    // First build that atlas as the host of each fresh native cutter.
+    // Attach the original nose before opening either of its own apertures.
     const nasalCuts: IAutoMovieHumanHeadComposer.IPlaced[] =
       composed.parts.filter(
         (placed): boolean =>
@@ -306,8 +304,27 @@ export namespace AutoMovieHumanHeadTree {
     placed: IAutoMovieHumanHeadComposer.IPlaced,
     host: IAutoMovieConstructionNode,
     part: IAutoMovieConstructionNode,
-  ): IAutoMovieConstructionJoin {
+  ): IAutoMovieConstructionNode {
     const feature: IAutoMovieHumanHeadFeatures.IFeature = placed.feature;
+    const name: string = `blend.${feature.part.name}`;
+    if (feature.port !== undefined)
+      return {
+        type: "port",
+        name: `port.${feature.part.name}`,
+        host,
+        hostFace: feature.parent,
+        part,
+        partFace: feature.part.name,
+        partEnd: "bottom",
+        recess: true,
+        band: name,
+        correspondence: "angle",
+        ribbons: "column",
+        count: feature.port.rails.length,
+        rows: ROWS,
+        rail: feature.port.rails[0]!,
+        ...feature.port,
+      };
     // A dome crosses its parent between its base and its apex; a long one
     // is searched across its middle, where its wall stands steepest.
     const search: NonNullable<IAutoMovieHumanHeadFeatures.IFeature["search"]> =
@@ -324,7 +341,6 @@ export namespace AutoMovieHumanHeadTree {
         METRES,
       end: END,
     };
-    const name: string = `blend.${feature.part.name}`;
     return {
       type: "join",
       kind: feature.join,
