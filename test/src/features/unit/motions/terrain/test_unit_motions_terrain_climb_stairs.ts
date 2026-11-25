@@ -1,0 +1,420 @@
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  HumanFoot,
+  climbStairsPelvis,
+  climbStairsPlants,
+  climbStairsRailLine,
+  climbStairsToes,
+  climbStairsWeight,
+  humanFootOffset,
+} from "@automovie/motions/internal";
+import { TestValidator } from "@nestia/e2e";
+
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
+import { nclose } from "../../../internal/nclose";
+import { linearMotionClock } from "../../../internal/synthetic/linearMotionClock";
+import { vclose } from "../../../internal/vclose";
+
+namespace part_climb_stairs_pelvis {
+  /** Rounding of a few minimum-jerk products, metres. */
+  const ROUNDING: number = 1e-9;
+
+  /**
+   * `climbStairsPelvis` is a stair climb's root: its height rises by each step's
+   * riser from the step's toe-off to its tread contact on the clock's own
+   * progress, and its ground point travels from one stance root to the next by a
+   * minimum-jerk share between the middles of neighbouring tread contacts, the
+   * first from the start and the last to the end.
+   *
+   * Scenarios, two steps over 3 s from (0, 0.9, 0) through (0, 1.07, 0.3) to (0,
+   * 1.24, 0.6), toe-offs at 0.2 and 1.2 s and tread contacts at 1 and 2 s:
+   *
+   * 1. At 0 s the root stands on the first stance, and from 2 s on at the last one's
+   *    height, at 3 s on the last stance.
+   * 2. Between the first tread contact and the second toe-off, at 1.1 s, the root
+   *    has risen the first riser to 1.07 m.
+   * 3. Its ground point is half way between the first two stances at 1 s, the middle
+   *    of its span from 0.5 s, half way to the first tread contact, to 1.5 s,
+   *    half way between the two.
+   */
+  export function run(): void {
+    const stance: IAutoMovieVector3[] = [
+      { x: 0, y: 0.9, z: 0 },
+      { x: 0, y: 1.07, z: 0.3 },
+      { x: 0, y: 1.24, z: 0.6 },
+    ];
+    const root: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis(
+      stance,
+      AutoMovieMotionClock(3, [
+        { name: "toeOff1", seconds: 0.2 },
+        { name: "treadContact1", seconds: 1 },
+        { name: "toeOff2", seconds: 1.2 },
+        { name: "treadContact2", seconds: 2 },
+      ]),
+      2,
+      3,
+    );
+    TestValidator.predicate(
+      "the ends",
+      vclose(root(0), stance[0]!, ROUNDING) &&
+        vclose(root(3), stance[2]!, ROUNDING) &&
+        Math.abs(root(2.2).y - 1.24) < ROUNDING,
+    );
+    TestValidator.predicate(
+      "the first riser",
+      Math.abs(root(1.1).y - 1.07) < ROUNDING,
+    );
+    const half: IAutoMovieVector3 = root(1);
+    TestValidator.predicate(
+      "half way along",
+      Math.abs(half.x) < ROUNDING && Math.abs(half.z - 0.15) < ROUNDING,
+    );
+  }
+}
+
+namespace part_climb_stairs_plants {
+  /**
+   * `climbStairsPlants` plants each foot of a stair climb between its swings:
+   * from the tread contact that brings it to a print to the next toe-off that
+   * leaves it, on the floor at level 0 and on the flight above it, a flight on a
+   * named prop bearing on that prop.
+   *
+   * Scenarios, a 2 s climb (toe-off 0.2 s, tread contact 1 s) whose right foot
+   * steps from the floor to level 1 of a flight of 0.17 m risers rising from 0.05
+   * m, the left foot staying on the floor:
+   *
+   * 1. The left foot bears on the floor over the whole climb.
+   * 2. The right foot bears on the floor until 0.1 of the climb, then from 0.5 on
+   *    the flight at 0.05 + 0.17 = 0.22 m.
+   * 3. On a prop named `deck` the right foot's second plant bears on it.
+   */
+  export function run(): void {
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
+      { name: "toeOff1", seconds: 0.2 },
+      { name: "treadContact1", seconds: 1 },
+    ]);
+    const prints: Parameters<typeof climbStairsPlants>[0] = {
+      left: [{ print: { level: 0 }, step: 0 }],
+      right: [
+        { print: { level: 0 }, step: 0 },
+        { print: { level: 1 }, step: 1 },
+      ],
+    };
+    const fixed: IAutoMovieMotionHumanContactWindow[] = climbStairsPlants(
+      prints,
+      clock,
+      2,
+      { floor: 0.05, riser: 0.17, sign: 1 },
+    );
+    TestValidator.equals(
+      "the plants",
+      fixed.map((w: IAutoMovieMotionHumanContactWindow): unknown[] => [
+        w.part,
+        w.from,
+        w.to,
+        w.support,
+      ]),
+      [
+        ["leftFoot", 0, 1, { kind: "ground" }],
+        ["rightFoot", 0, 0.1, { kind: "ground" }],
+        ["rightFoot", 0.5, 1, { kind: "ground", height: 0.05 + 0.17 }],
+      ],
+    );
+    const carried: IAutoMovieMotionHumanContactWindow[] = climbStairsPlants(
+      prints,
+      clock,
+      2,
+      { floor: 0.05, riser: 0.17, sign: 1, on: "deck" },
+    );
+    TestValidator.equals("on a prop", carried[2]!.support, {
+      kind: "prop",
+      subject: "deck",
+    });
+  }
+}
+
+namespace part_climb_stairs_rail_line {
+  /** Rounding of a rotation and a projection, metres. */
+  const ROUNDING: number = 1e-12;
+
+  /**
+   * `climbStairsRailLine` places a stair rail in the world for a sliding grip:
+   * the bar's centre through the prop's frame, its axis and up, the hold kept
+   * within half its length less half its aperture, and a root read along the axis
+   * to where the hand holds.
+   *
+   * Scenarios, a 2 m bar of 0.1 m aperture 0.9 m up, on a prop at (1, 0, 0):
+   *
+   * 1. Unturned: centre (1, 0.9, 0), axis +X, up +Y, holding 0.95 m either way.
+   * 2. A root at (1.4, 0, 3) holds at (1.4, 0.9, 0); one at (5, 0, 0) at the end,
+   *    (1.95, 0.9, 0).
+   * 3. Turned a quarter about +Y by the prop, the axis runs along -Z.
+   * 4. A bar standing up a post (its axis +Y) is no rail line.
+   */
+  export function run(): void {
+    const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+    const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+      x,
+      y,
+      z,
+    });
+    const model: IAutoMovieRigidTransform = {
+      position: p(1, 0, 0),
+      rotation: identity,
+    };
+    const bar = (
+      rotation: IAutoMovieQuaternion,
+    ): Parameters<typeof climbStairsRailLine>[1] => ({
+      frame: { translation: p(0, 0.9, 0), rotation, scale: p(1, 1, 1) },
+      aperture: 0.1,
+      length: 2,
+    });
+
+    // 1. Unturned.
+    const line: climbStairsRailLine.ILine = climbStairsRailLine(
+      model,
+      bar(identity),
+    )!;
+    TestValidator.predicate(
+      "the line",
+      vclose(line.center, p(1, 0.9, 0), ROUNDING) &&
+        vclose(line.along, p(1, 0, 0), ROUNDING) &&
+        vclose(line.normal, p(0, 1, 0), ROUNDING) &&
+        Math.abs(line.end - 0.95) <= ROUNDING,
+    );
+
+    // 2. The hold.
+    TestValidator.predicate(
+      "the hold",
+      vclose(line.point(p(1.4, 0, 3)), p(1.4, 0.9, 0), ROUNDING) &&
+        vclose(line.point(p(5, 0, 0)), p(1.95, 0.9, 0), ROUNDING),
+    );
+
+    // 3. Turned by the prop.
+    const turned: climbStairsRailLine.ILine = climbStairsRailLine(
+      {
+        position: p(1, 0, 0),
+        rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
+      },
+      bar(identity),
+    )!;
+    TestValidator.predicate(
+      "turned",
+      vclose(turned.along, p(0, 0, -1), ROUNDING),
+    );
+
+    // 4. A post.
+    TestValidator.equals(
+      "a post",
+      climbStairsRailLine(
+        model,
+        bar({ x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 }),
+      ),
+      null,
+    );
+  }
+}
+
+namespace part_climb_stairs_toes {
+  /** Rounding of a pivot and its read-back, metres and degrees. */
+  const ROUNDING: number = 1e-9;
+
+  /**
+   * `climbStairsToes` courses a stair climb's toe extension: the rocker's
+   * heel-rise search runs at knots AutoKnots places, each foot's course split at
+   * its own toe-offs and tread contacts; `place` pivots a scheduled foot about
+   * its ball by the extension.
+   *
+   * Scenarios:
+   *
+   * 1. `place` with no extension keeps the scheduled foot; with 25 degrees it
+   *    pitches the foot 25 degrees heel-up about its ball, which keeps its
+   *    place.
+   * 2. A one-step climb of 2 s (toe-off 0.2 s, tread contact 1 s), the right foot
+   *    stepping, with a rocker whose extension is the hip's height in degrees and
+   *    a frame whose hips stand at `10 t` for the right foot and `5 t` for the
+   *    left: each course passes the exact extension at every second the rocker
+   *    read, the climb's two ends among them, and the right foot's course also at
+   *    its toe-off and tread contact, 0.2 and 1 s, where it is split.
+   */
+  export async function run(): Promise<void> {
+    const body: humanFootOffset.IBody = {
+      rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
+        ["leftFoot", { x: 0.09, y: 0.08, z: 0 }],
+        ["leftToes", { x: 0.09, y: 0.02, z: 0.13 }],
+      ]),
+      surfaces: (await humanFixture("m-average")).surfaces,
+    };
+
+    // 1. The placement.
+    const scheduled: IAutoMovieMotionHumanFoot.IPlacement = {
+      ankle: { x: 0.1, y: 0.25, z: 0.4 },
+      rotation: HumanFoot.rotation(0, 0),
+    };
+    const raised: IAutoMovieMotionHumanFoot.IPlacement = climbStairsToes.place(
+      body,
+      "left",
+      scheduled,
+      25,
+    );
+    TestValidator.predicate(
+      "no extension",
+      climbStairsToes.place(body, "left", scheduled, 0) === scheduled,
+    );
+    TestValidator.predicate(
+      "about the ball",
+      nclose(HumanFoot.headingPitch(raised.rotation).pitch, -25, ROUNDING) &&
+        vclose(
+          HumanFoot.point(body, "left", "mtp", raised),
+          HumanFoot.point(body, "left", "mtp", scheduled),
+          ROUNDING,
+        ),
+    );
+
+    // 2. The course.
+    const standing: IAutoMovieMotionHumanPosture = {
+      root: { x: 0, y: 0.9, z: 0 },
+      yaw: 0,
+      pitch: 0,
+      roll: 0,
+      joints: {},
+      limbs: {},
+    };
+    const at: (y: number) => IAutoMovieVector3 = (
+      y: number,
+    ): IAutoMovieVector3 => ({ x: 0, y, z: 0 });
+    const reads: number[] = [];
+    const toes: ReturnType<typeof climbStairsToes> = climbStairsToes({
+      duration: 2,
+      clock: AutoMovieMotionClock(2, [
+        { name: "toeOff1", seconds: 0.2 },
+        { name: "treadContact1", seconds: 1 },
+      ]),
+      steps: [{ side: "right" }],
+      frameAt: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): climbStairsToes.IFrame => {
+        reads.push(seconds);
+        return {
+          placed: posture,
+          feet: {
+            left: { placement: scheduled, planted: true },
+            right: { placement: scheduled, planted: true },
+          },
+          root: posture.root,
+          hips: { left: at(5 * seconds), right: at(10 * seconds) },
+        };
+      },
+      rightLoad: (): number => 0.5,
+      rock: (
+        _side: "left" | "right",
+        placement: IAutoMovieMotionHumanFoot.IPlacement,
+        hip: IAutoMovieVector3,
+      ): ReturnType<climbStairsToes.IScope["rock"]> => ({
+        placement,
+        flexion: hip.y,
+      }),
+      standing,
+    });
+    TestValidator.predicate(
+      "exact at the knots",
+      [0, 0.2, 1, 2].every((t: number): boolean =>
+        reads.some((r: number): boolean => nclose(r, t, ROUNDING)),
+      ) &&
+        [0, 0.2, 1, 2].every((t: number): boolean =>
+          nclose(toes.right(t)[0]!, 10 * t, ROUNDING),
+        ) &&
+        [0, 2].every((t: number): boolean =>
+          nclose(toes.left(t)[0]!, 5 * t, ROUNDING),
+        ),
+    );
+  }
+}
+
+namespace part_climb_stairs_weight {
+  /** Rounding of one quotient of seconds and one quintic, unitless. */
+  const ROUNDING: number = 1e-12;
+
+  /**
+   * `climbStairsWeight` is the right foot's share of the body's weight on the
+   * stairs: all of it while the left foot swings, none while the right does,
+   * moved between the feet on the minimum-jerk share over each double support,
+   * from and to a balanced half at the climb's two ends.
+   *
+   * Two steps: the left swings from 1 to 1.4 s, the right from 2 to 2.4 s, on a
+   * 3-second clock.
+   *
+   * Scenarios:
+   *
+   * 1. At the start the feet share the weight.
+   * 2. Half way to the first toe-off the right bears `0.5 + 0.5 s(1/2) = 0.75`.
+   * 3. Through the left swing the right bears all.
+   * 4. Half way through the double support after it, half.
+   * 5. Through the right swing the right bears none, and at the end a half.
+   */
+  export function run(): void {
+    const right: (seconds: number) => number = climbStairsWeight(
+      ["left", "right"],
+      linearMotionClock(3, [
+        { name: "toeOff1", seconds: 1 },
+        { name: "treadContact1", seconds: 1.4 },
+        { name: "toeOff2", seconds: 2 },
+        { name: "treadContact2", seconds: 2.4 },
+      ]),
+    );
+    TestValidator.predicate(
+      "balanced at the start",
+      nclose(right(0), 0.5, ROUNDING),
+    );
+    TestValidator.predicate(
+      "half way to the first toe-off",
+      nclose(right(0.5), 0.75, ROUNDING),
+    );
+    TestValidator.predicate(
+      "the left swing",
+      nclose(right(1), 1, ROUNDING) && nclose(right(1.2), 1, ROUNDING),
+    );
+    TestValidator.predicate(
+      "half way through the double support",
+      nclose(right(1.7), 0.5, ROUNDING),
+    );
+    TestValidator.predicate(
+      "the right swing and the end",
+      nclose(right(2.2), 0, ROUNDING) && nclose(right(3), 0.5, ROUNDING),
+    );
+  }
+}
+
+/**
+ * `climbStairs`'s unit contract: its plants, pelvis, toes, weight and rail
+ * line.
+ *
+ * Its parts, each documented with its own scenarios:
+ *
+ * - `climb_stairs_pelvis`: `climbStairsPelvis` is a stair climb's root:
+ * - `climb_stairs_plants`: `climbStairsPlants` plants each foot of a stair climb
+ *   between its swings:
+ * - `climb_stairs_rail_line`: `climbStairsRailLine` places a stair rail in the
+ *   world for a sliding grip:
+ * - `climb_stairs_toes`: `climbStairsToes` courses a stair climb's toe extension:
+ * - `climb_stairs_weight`: `climbStairsWeight` is the right foot's share of the
+ *   body's weight on the stairs:
+ */
+export async function test_unit_motions_terrain_climb_stairs(): Promise<void> {
+  part_climb_stairs_pelvis.run();
+  part_climb_stairs_plants.run();
+  part_climb_stairs_rail_line.run();
+  await part_climb_stairs_toes.run();
+  part_climb_stairs_weight.run();
+}

@@ -1,6 +1,7 @@
 // The handling internals the test programme reads directly, re-exported by `../internal`.
 
 export * from "./pickUp";
+export * from "./pianoScoreEvents";
 export * from "./pickUpStepReach";
 export * from "./pickUpAlong";
 export * from "./pushPullLean";

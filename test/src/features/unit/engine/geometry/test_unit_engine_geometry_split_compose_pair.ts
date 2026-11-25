@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { ConstructionSplitCompose as C } from "../../../internal/construction/ConstructionSplitCompose";
 
 /**
- * A composed split in two, and one nested in a composed split's child.
+ * A composed split in two.
  *
  * Fixture: `f.0` and `f.2` about x = +-7.5 mm on a host of half extents 17 and
  * sqrt(81 - (7.5 cos b)^2) mm; `ConstructionSplitCompose` for the rest.

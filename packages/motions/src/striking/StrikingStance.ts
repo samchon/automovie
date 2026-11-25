@@ -173,7 +173,9 @@ export namespace StrikingStance {
    * @returns The root's height offset, metres (negative: sunk).
    */
   export function sink(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "rest"> & {
+      measure: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank">;
+    },
     root: IAutoMovieVector3,
     yaw: number,
     ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,

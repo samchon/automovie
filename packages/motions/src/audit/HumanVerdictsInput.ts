@@ -22,7 +22,6 @@ export namespace HumanVerdictsInput {
   > {
     /** The performers, by subject, with their bodies. */
     readonly performers: readonly Pick<
-      IAutoMovieMotionHumanActionLaw,
       IAutoMovieMotionHumanPerformer,
       "subject" | "body"
     >[];

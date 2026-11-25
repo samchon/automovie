@@ -318,9 +318,10 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Read one point through the original bounded lazy sampler cache.
+   * One world point at station s and phase t, prepared and read at once: a
+   * reader of many phases at one station takes {@link sampler} instead.
    *
-   * @param chain Immutable chain/cache identity.
+   * @param chain Chain to evaluate.
    * @param s Regular station, mm.
    * @param t Phase in radians.
    */

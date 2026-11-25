@@ -1,9 +1,11 @@
 import type {
   IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplit,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { ConstructionRead } from "../../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../../internal/construction/ConstructionShapes";
 import { ConstructionSplitCompose as C } from "../../../internal/construction/ConstructionSplitCompose";
 
@@ -14,7 +16,9 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  * Fixture: `f.0` and `f.2` about x = +-7.5 mm on a host of half extents 17 and
  * sqrt(81 - (7.5 cos b)^2) mm, `f.0` carrying a second composed split at its
  * far end (60 mm along its axis) into `g.0` and `g.1`, cylinders of radius 7 mm
- * 3.5 mm either side of its axis leaning 0.3 rad apart from it.
+ * 3.5 mm either side of its axis leaning 0.3 rad apart from it. Both splits
+ * have the fewest columns a split admits, 8: the forks stand at the columns
+ * of clocks 0 and pi, so a finer ring decides nothing more.
  *
  * Scenarios:
  *
@@ -27,13 +31,6 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  */
 export function test_unit_engine_geometry_split_compose_nested(): void {
   const b: number = C.LEAN;
-  const n: number = C.COLUMNS;
-  const palm = (): IAutoMovieConstructionSplit =>
-    C.split({
-      lean: b,
-      two: true,
-      host: C.trunk(17, Math.sqrt(81 - (7.5 * Math.cos(b)) ** 2)),
-    });
   const tip: C.V3 = [
     0.0075 + 0.06 * Math.sin(b),
     0,
@@ -55,7 +52,14 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
       (): [number, number, number, number] => [0.007, 0.007, 0.007, 0.007],
       "open",
     );
-  const outer: IAutoMovieConstructionSplit = palm();
+  const outer: IAutoMovieConstructionSplit = {
+    ...C.split({
+      lean: b,
+      two: true,
+      host: C.trunk(17, Math.sqrt(81 - (7.5 * Math.cos(b)) ** 2)),
+    }),
+    count: COLUMNS_NESTED,
+  };
   const inner: IAutoMovieConstructionSplit = {
     type: "split",
     name: "split.inner",
@@ -63,7 +67,7 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
     hostFace: "f.0",
     hostEnd: "top",
     seam: [-1, 1],
-    count: n,
+    count: COLUMNS_NESTED,
     rows: 4,
     children: [
       {
@@ -89,7 +93,7 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
       round: 0.001,
     },
   };
-  const nested = C.realize({
+  const nested: IAutoMovieConstructionRealization.IRealization = C.realize({
     ...outer,
     children: [{ ...outer.children[0], part: inner }, outer.children[1]],
   });
@@ -109,17 +113,16 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
     "trunk",
   ])
     TestValidator.predicate(`nested face ${name}`, faces.includes(name));
-  let nestedPlane: number = 0;
-  for (const k of [0, n / 2])
-    nestedPlane = Math.max(
-      nestedPlane,
-      Math.abs(C.loop(nested, "band.f.0", k).p[0]!),
-    );
-  TestValidator.predicate("nested outer forks", nestedPlane <= 1e-6);
-  for (const k of [0, n / 2]) {
-    const p: readonly number[] = C.loop(nested, "band.g.0", k).p;
+  const fork = (band: string, clock: number): readonly number[] =>
+    ConstructionRead.surface(nested, band).jet(0, clock).p;
+  for (const clock of [0, Math.PI]) {
     TestValidator.predicate(
-      `inner fork ${k}`,
+      `outer fork ${clock}`,
+      Math.abs(fork("band.f.0", clock)[0]!) <= 1e-6,
+    );
+    const p: readonly number[] = fork("band.g.0", clock);
+    TestValidator.predicate(
+      `inner fork ${clock}`,
       Math.hypot(
         p[0]! - 1000 * tip[0],
         Math.abs(p[1]!) - 9,
@@ -128,3 +131,6 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
     );
   }
 }
+
+/** The columns of both splits: the fewest a split admits, a multiple of 4 of at least 8. */
+const COLUMNS_NESTED: number = 8;

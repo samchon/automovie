@@ -5,13 +5,17 @@ import {
   AutoMovieViewSectionField,
 } from "@automovie/engine";
 import type {
+  IAutoMovieConicArcField,
   IAutoMovieConicFieldJet,
   IAutoMovieViewConic,
   IAutoMovieViewSectionField,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import type { Profiler } from "node:inspector";
+import { Session } from "node:inspector/promises";
 
 import { ConstructionConicFieldOracle } from "../../../internal/construction/ConstructionConicFieldOracle";
+import { moduleFunctionCoverage } from "../../../internal/moduleFunctionCoverage";
 import { nclose } from "../../../internal/predicates";
 
 type Scalar = IAutoMovieViewSectionField.IStationJet;
@@ -29,12 +33,11 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
  * Scenarios:
  *
  * 1. The prepared source and geometry equal those of the generic composition
- *    (`prepareGeometry` over `curvatures`, then `primal`) in every number
- *    within 1e-12 of its size, and the asymmetric case has at least one active
- *    G2 end.
- * 2. The ellipse's radial reading at 0, 0.13, pi / 4, pi / 2, -0.17 and 2 pi +
- *    0.13 equals the independent implicit ellipse's within 1e-7 times the scale
- *    plus 256 epsilon of its size.
+ *    (`prepareGeometry` over `curvatures`, then `primal`) in every number, and
+ *    the asymmetric case has at least one active G2 end.
+ * 2. Every preparation reads at 0, 0.13, pi / 4, pi / 2, -0.17 and 2 pi + 0.13;
+ *    the ellipse's radial reading there equals the independent implicit
+ *    ellipse's within 1e-7 times the scale plus 256 epsilon of its size.
  * 3. Two preparations share no output record; a copy whose quarter extents are
  *    overwritten is refused by `read` (a failure record).
  * 4. A callback's original thrown value (an Error, or undefined) passes through
@@ -45,8 +48,12 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
  *    reported.
  * 5. Empty and malformed stations, shoulders 0 and 1, and unrepresentable
  *    curvature arithmetic (extents 1e308 and 1e-308) are refused.
+ * 6. One preparation of the unit ellipse and of the asymmetric case calls the
+ *    endpoint curvature formula (`AutoMovieConicArcField.curvature`) at least
+ *    once and at most eight times, the four quarters' own ends, read by V8's
+ *    precise coverage in this process.
  */
-export function test_unit_engine_geometry_conic_preparation(): void {
+export async function test_unit_engine_geometry_conic_preparation(): Promise<void> {
   const inputs = (
     scale: number,
     ellipse: boolean,
@@ -78,7 +85,7 @@ export function test_unit_engine_geometry_conic_preparation(): void {
     return result;
   };
   // Plain data records: the same structure serializes to the same text.
-  const near = (a: object, b: object): boolean =>
+  const same = (a: object, b: object): boolean =>
     JSON.stringify(a) === JSON.stringify(b);
 
   for (const scale of [0.001, 1, 1000])
@@ -99,10 +106,10 @@ export function test_unit_engine_geometry_conic_preparation(): void {
           rr,
           AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.AD, ee, rr),
         );
-      TestValidator.predicate(`${label} source`, near(at.source, expected));
+      TestValidator.predicate(`${label} source`, same(at.source, expected));
       TestValidator.predicate(
         `${label} geometry`,
-        near(
+        same(
           at.geometry,
           AutoMovieViewConic.primal(AutoMovieConicFieldJet.AD, expected),
         ),
@@ -116,31 +123,39 @@ export function test_unit_engine_geometry_conic_preparation(): void {
             ): boolean => quarter.start !== null || quarter.end !== null,
           ),
         );
-      if (ellipse)
-        for (const phi of [
-          0,
-          0.13,
-          Math.PI / 4,
-          Math.PI / 2,
-          -0.17,
-          2 * Math.PI + 0.13,
-        ]) {
-          const value: number[] = JSON.parse(
-            JSON.stringify(AutoMovieViewSectionField.read(at, phi)),
+      for (const phi of [
+        0,
+        0.13,
+        Math.PI / 4,
+        Math.PI / 2,
+        -0.17,
+        2 * Math.PI + 0.13,
+      ]) {
+        const value:
+          | IAutoMovieViewSectionField.IRadialJet
+          | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(
+          at,
+          phi,
+        );
+        if ("kind" in value)
+          throw new Error(`${label} read ${phi}: ${value.detail}`);
+        if (!ellipse) continue;
+        const target: readonly number[] = ConstructionConicFieldOracle.ellipse(
+          e[0]!,
+          e[1]!,
+          phi,
+        );
+        value.forEach((entry: number, i: number): void => {
+          TestValidator.predicate(
+            `${label} ellipse ${phi} component ${i}`,
+            nclose(
+              entry,
+              target[i]!,
+              1e-7 * scale + 256 * Number.EPSILON * Math.abs(target[i]!),
+            ),
           );
-          const target: readonly number[] =
-            ConstructionConicFieldOracle.ellipse(e[0]!, e[1]!, phi);
-          value.forEach((entry: number, i: number): void => {
-            TestValidator.predicate(
-              `${label} ellipse ${phi} component ${i}`,
-              nclose(
-                entry,
-                target[i]!,
-                1e-7 * scale + 256 * Number.EPSILON * Math.abs(target[i]!),
-              ),
-            );
-          });
-        }
+        });
+      }
       const again: IAutoMovieViewSectionField.IPrepared = made(e, r);
       TestValidator.predicate(
         `${label} fresh source`,
@@ -154,13 +169,11 @@ export function test_unit_engine_geometry_conic_preparation(): void {
       copy.geometry.quarters[0]!.extents = [99, 99];
       TestValidator.predicate(
         `${label} changed copy refused`,
-        JSON.stringify(AutoMovieViewSectionField.read(copy, 0)).startsWith(
-          `{"kind":"failure"`,
-        ),
+        "kind" in AutoMovieViewSectionField.read(copy, 0),
       );
       TestValidator.predicate(
         `${label} another preparation unchanged`,
-        near(at, again),
+        same(at, again),
       );
     }
 
@@ -254,4 +267,39 @@ export function test_unit_engine_geometry_conic_preparation(): void {
     AutoMovieViewSectionField.prepare(huge, r).kind,
     "failure",
   );
+
+  const session: Session = new Session();
+  session.connect();
+  try {
+    await session.post("Debugger.enable");
+    await session.post("Profiler.enable");
+    await session.post("Profiler.startPreciseCoverage", {
+      callCount: true,
+      detailed: false,
+    });
+    for (const ellipse of [true, false]) {
+      // Taking the coverage resets its counts, so each read is one call's.
+      await session.post("Profiler.takePreciseCoverage");
+      const { e, r } = inputs(1, ellipse);
+      made(e, r);
+      const functions: Profiler.FunctionCoverage[] =
+        await moduleFunctionCoverage(
+          session,
+          await session.post("Profiler.takePreciseCoverage"),
+          /[/\\]AutoMovieConicArcField\.ts$/u,
+          "curvature",
+        );
+      TestValidator.equals(`endpoint formula ${ellipse}`, functions.length, 1);
+      const count: number = functions[0]?.ranges[0]?.count ?? 0;
+      TestValidator.predicate(
+        `endpoint work ${ellipse}: ${count}`,
+        count >= 1 && count <= 8,
+      );
+    }
+  } finally {
+    await session.post("Profiler.stopPreciseCoverage");
+    await session.post("Profiler.disable");
+    await session.post("Debugger.disable");
+    session.disconnect();
+  }
 }

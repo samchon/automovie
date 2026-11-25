@@ -15,6 +15,7 @@ export * from "./ballCourtClock";
 export * from "./ballCourtHand";
 export * from "./ballCourtSphere";
 export * from "./bowlingPinfall";
+export * from "./bowlingSlideSchedule";
 export * from "./cartwheel";
 export * from "./fieldThrowKeys";
 export * from "./GymnasticsFlight";

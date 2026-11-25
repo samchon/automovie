@@ -6,3 +6,4 @@ export * from "./StrikingAim";
 export * from "./StrikingSkill";
 export * from "./StrikingTwist";
 export * from "./StrikingStopRide";
+export * from "./StrikingStance";

@@ -11,7 +11,6 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -32,6 +31,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { fitPianoScoreContact } from "./fitPianoScoreContact";
+import { pianoScoreEvents } from "./pianoScoreEvents";
 import { pianoScoreHand } from "./pianoScoreHand";
 import { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
@@ -76,9 +76,7 @@ type IBoundariesItemEntry = { voicing: IVoicing; end?: EndItemEntry };
 /** The alternatives of `EndItemEntry`'s site. */
 type EndItemEntry = 0 | 1;
 
-/**
- * Resolve the score over the seated entry's existing supports.
- */
+/** Resolve the score over the seated entry's existing supports. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoScore>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -319,20 +317,15 @@ function plan(
   return {
     duration,
     contacts: base.contacts,
-    events: notes
-      .flatMap(
-        (
-          { score }: resolvePianoScoreVoicing.Key,
-          i: number,
-        ): IAutoMovieMotionEvent[] => [
-          { name: `keyDown${i + 1}`, share: score.at / duration },
-          { name: `keyUp${i + 1}`, share: score.to / duration },
-        ],
-      )
-      .sort(
-        (a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number =>
-          a.share - b.share,
+    events: pianoScoreEvents(
+      notes.map(
+        ({
+          score,
+        }: resolvePianoScoreVoicing.Key): IAutoMovieMotionHumanPianoScore.INote =>
+          score,
       ),
+      duration,
+    ),
     drives: notes.map(
       ({
         score,

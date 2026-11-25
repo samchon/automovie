@@ -43,8 +43,11 @@ import { ConstructionConicOracle } from "../../../internal/construction/Construc
  *    size; at most four primal reads are spent; two queries share no result
  *    array.
  * 4. Raw rays (`AutoMovieConicArc.locate`) at aspects and scales 0.001, 1 and
- *    1000, shoulders 1e-12 to 1 - epsilon and seven phases are finite, and two
- *    queries share no result array.
+ *    1000, shoulders 1e-12 to 1 - epsilon and six phases are found with a
+ *    native parameter; at shoulder sqrt 2 - 1 (the exact ellipse) the point,
+ *    the unit tangent and the radial jet equal the implicit ellipse's within
+ *    2e-9 of the larger of the scale and the value; two queries share no result
+ *    array.
  */
 export function test_unit_engine_geometry_conic_projective(): void {
   const w: number = Math.SQRT1_2;
