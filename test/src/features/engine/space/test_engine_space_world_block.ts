@@ -12,11 +12,11 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  * 1. Width, height and depth determine the model, center and all six bounds.
  * 2. Zero size, a NaN base, collapsed float geometry or invalid color refuses.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the box geometry, placement, bounds and refused inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the world block owner directly and observes the actual primitive, linked node, translated center, all bounds and separate refusals.
- * @evidence contracts/development/testing.md#independent-expectations A 3 by 4 by 5 box above (8,1,8) has center (8,3,8) and corners (6.5,1,5.5) and (9.5,5,10.5). IEEE double spacing at 2^54 eliminates the authored one-metre width.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers valid unequal dimensions, absent width, NaN translation, positive width whose two corners round together and malformed color.
- * @evidence contracts/development/testing.md#execution-ownership Uses the actual builder without a world layout, renderer or model registry.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the grounded box, linked material, model and node placement, exact bounds and each refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the builder directly and observes the primitive dimensions, linked material and node, translated center, all six bounds and separate refusals. Wrong size, center, binding or acceptance of an unrepresentable span fails.
+ * @evidence contracts/development/testing.md#independent-expectations A 3 by 4 by 5 box above (8,1,8) has center (8,3,8) and corners (6.5,1,5.5) and (9.5,5,10.5). Those integer and half-metre values are exact binary numbers. IEEE double spacing at 2^54 eliminates the authored one-metre width.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers valid unequal dimensions, zero width, NaN translation, positive width whose two corners round together and malformed color.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous test owns resident inputs and reads the builder's returned model, node and bounds records.
  */
 export function test_engine_space_world_block(): void {
   const input: IAutoMovieWorldBlock.IInput = {

@@ -83,10 +83,10 @@ function surface(
  *    landmark each produce their own refusal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names support, reachability and the five independent contradictions.
- * @evidence contracts/development/testing.md#behavioral-verification Uses authored bounds, planes and landmarks to call assertWorldPlacements once per case and checks each diagnostic.
- * @evidence contracts/development/testing.md#independent-expectations Exact box corners place the base at 0 or 1 m. The 0.5 m half-width cannot support the 2 m box and the route at z=1.25 clears z=2 before its 1 m widening.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls assertWorldPlacements on authored bounds, support and routes, admitting valid combinations and checking each invalid case's diagnostic. A lost widening, support or reachability check fails.
+ * @evidence contracts/development/testing.md#independent-expectations Exact box corners place the base at 0 or 1 m. The 0.5 m half-width cannot support the 2 m box and the route at z=1.25 clears z=2 before its 1 m widening. Exact coordinates separate the acceptance and refusal regions.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers flat, raised, edge-only and route-only support and independently distinguishes overlapping, overhanging, hovering, blocked and unreachable records.
- * @evidence contracts/development/testing.md#execution-ownership No model constructor, stage assembler, renderer or simulator is called.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous test owns resident box bounds, support records, route polylines and landmarks and calls the direct world placement admission function.
  */
 export function test_engine_space_assert_world_placements(): void {
   const a: IAutoMovieWorldBlock = box(

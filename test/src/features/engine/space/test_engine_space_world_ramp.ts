@@ -16,10 +16,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 2. Coincident endpoints or zero width independently refuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the fixture's footprint and plane and separates the two malformed inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Observes the actual emitted polygon/plane and independently exercises both constructor refusals.
- * @evidence contracts/development/testing.md#independent-expectations A 4-m width straddles X -4 by 2 m, and a 2-m rise over 8 m from Z -4 makes slope Z 0.25 and origin height 1.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes the emitted polygon and plane. Swapped footprint corners or slope axes, a wrong datum, and missing endpoint or width refusals fail.
+ * @evidence contracts/development/testing.md#independent-expectations A 4-m width straddles X -4 by 2 m, and a 2-m rise over 8 m from Z -4 makes slope Z 0.25 and origin height 1. The axis-aligned inputs, length and outputs are exact binary values.
  * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes slope axes, plane origin, degenerate endpoint span and degenerate width.
- * @evidence contracts/development/testing.md#execution-ownership Uses one typed constructor without a world or downstream height sampler.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous test owns typed centerline inputs and consumes the constructor's surface record.
  */
 export function test_engine_space_world_ramp(): void {
   const input: IAutoMovieWorldRamp.IInput = {

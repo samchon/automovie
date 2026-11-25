@@ -13,13 +13,13 @@ import { nclose } from "../../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Asymmetric samples interpolate on both axes and clamp at the edges.
+ * 1. An offset lattice interpolates on both axes and clamps at the edges.
  * 2. Constant, plane, and incomplete heightfield records return known heights.
  * 3. Ground selection retains declaration order, edges, corners and absence.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sampling, incomplete-corner and ground-selection contracts for resident surfaces.
  * @evidence contracts/development/testing.md#behavioral-verification Reads authored constant, plane and lattice rules through the world API, then checks ordered support, edge admission and null absence.
- * @evidence contracts/development/testing.md#independent-expectations Literal heights 0/1/4/10 give center 3.75, edge means 0.5 and 2, and distinct corners. Plane, sparse corner and first-match expectations are explicit.
+ * @evidence contracts/development/testing.md#independent-expectations The authored (-4,-6) origin, 10 m grid pitch and literal samples 0/1/4/10 give center 3.75 at (1,-1), edge means 0.5 and 2, and distinct corners. Only stored knots, half-cell fractions and clamped ends are read, so the expected heights are exactly representable.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers all four stored corners, both blend axes, each off-lattice direction, missing samples and overlapping, edge-only or absent ground.
  * @evidence contracts/development/testing.md#execution-ownership Uses typed surface records without calling any producer, materializer or external host.
  */
@@ -45,8 +45,8 @@ export function test_engine_space_world_surface_height(): void {
     id: "lattice",
     height: {
       kind: "heightfield",
-      originX: 0,
-      originZ: 0,
+      originX: -4,
+      originZ: -6,
       spacingX: 10,
       spacingZ: 10,
       columns: 2,
@@ -68,6 +68,21 @@ export function test_engine_space_world_surface_height(): void {
       samples: [3],
     },
   };
+  const limit: number = Number.MAX_VALUE;
+  const opposing: IAutoMovieWorldSurface = {
+    ...asymmetric,
+    id: "opposing",
+    height: {
+      kind: "heightfield",
+      originX: 0,
+      originZ: 0,
+      spacingX: 1,
+      spacingZ: 1,
+      columns: 2,
+      rows: 2,
+      samples: [-limit, limit, -limit, limit],
+    },
+  };
   const cases: readonly [
     IAutoMovieWorldSurface,
     readonly (readonly [number, number, number])[],
@@ -75,20 +90,20 @@ export function test_engine_space_world_surface_height(): void {
     [
       asymmetric,
       [
-        [0, 0, 0],
-        [10, 0, 1],
-        [0, 10, 4],
-        [10, 10, 10],
-        [5, 5, 3.75],
-        [0, 5, 2],
-        [5, 0, 0.5],
-        [-15, -15, 0],
-        [25, 25, 10],
-        [-15, 5, 2],
-        [5, -15, 0.5],
-        [25, 0, 1],
-        [0, -15, 0],
-        [-15, 25, 4],
+        [-4, -6, 0],
+        [6, -6, 1],
+        [-4, 4, 4],
+        [6, 4, 10],
+        [1, -1, 3.75],
+        [-4, -1, 2],
+        [1, -6, 0.5],
+        [-19, -21, 0],
+        [21, 19, 10],
+        [-19, -1, 2],
+        [1, -21, 0.5],
+        [21, -6, 1],
+        [-4, -21, 0],
+        [-19, 19, 4],
       ],
     ],
     [
@@ -112,6 +127,14 @@ export function test_engine_space_world_surface_height(): void {
         [0, 0, 3],
         [10, 10, 0],
         [5, 0, 1.5],
+      ],
+    ],
+    [
+      opposing,
+      [
+        [0, 0, -limit],
+        [1, 0, limit],
+        [0.5, 0.5, 0],
       ],
     ],
   ];

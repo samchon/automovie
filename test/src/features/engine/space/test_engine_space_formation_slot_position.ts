@@ -29,7 +29,7 @@ const rank: IAutoMovieFormationPlacement = {
  * Scenarios:
  *
  * 1. Omitted or zero dressing preserves the lattice. A declared bound produces a
- *    reproducible offset on its own axis, and a different seed changes it.
+ *    reproducible offset across separate records. Changing the seed varies it.
  * 2. Constant ground keeps the anchor. On sloping ground, the relative height
  *    comes from the turned member's world position and retains clearance.
  * 3. A nonplanar ridge, an uncovered member and a missing anchor datum distinguish
@@ -37,8 +37,8 @@ const rank: IAutoMovieFormationPlacement = {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three independent effects on a slot and its relief datum.
  * @evidence contracts/development/testing.md#behavioral-verification Calls direct placement with typed authored surface records, exercising seed, dressing axes, heading, staged height, missing datum and nonplanar relief.
- * @evidence contracts/development/testing.md#independent-expectations The file lattice, a half-metre slope, the 90-degree turn and literal ridge rows determine expected world coordinates and heights without the formation or surface builders.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers absent, zero, biaxial and lateral-only dressing, two seeds, constant and planar terrain, a ridge sampled between columns, and all foot/anchor footprint combinations.
+ * @evidence contracts/development/testing.md#independent-expectations The file lattice, half-metre slope, 90-degree turn and literal ridge rows determine the coordinates and heights. The unturned coordinates and ridge values are dyadic. The cardinal rotation allows 1e-12 m for trigonometric roundoff.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers absent, zero, biaxial and lateral-only dressing, two seeds, constant and planar terrain, a ridge sampled between columns, and all foot/anchor footprint combinations. Replay uses an independently cloned design. Random magnitudes are bounded by the authored tolerance.
  * @evidence contracts/development/testing.md#execution-ownership Uses the formation placement kernel and resident typed inputs without constructing a formation model, scene, filesystem asset or simulation.
  */
 export function test_engine_space_formation_slot_position(): void {
@@ -68,6 +68,7 @@ export function test_engine_space_formation_slot_position(): void {
     ...formation,
     layout: { ...layout, dressing: { lateral: 0.25, depth: 0 } },
   };
+  const replayed: IAutoMovieFormationPlacement = structuredClone(dressed);
   const slots: number[] = Array.from(
     { length: formation.count },
     (_, slot): number => slot,
@@ -87,7 +88,7 @@ export function test_engine_space_formation_slot_position(): void {
         !vclose(point, lattice, 1e-12) &&
         Math.abs(point.x - lattice.x) <= 0.25 &&
         Math.abs(point.z - lattice.z) <= 0.4 &&
-        vclose(point, formationSlotPosition(dressed, slot), 0) &&
+        vclose(point, formationSlotPosition(replayed, slot), 0) &&
         nclose(laterally.z, lattice.z, 0) &&
         nclose(laterally.x, point.x, 0),
     );

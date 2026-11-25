@@ -9,41 +9,66 @@ import { nclose, throwsError } from "../../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Nine heights are written row-major from the authored origin.
- * 2. A bad pitch, origin, lattice size, or callback result prevents the write.
+ * 1. An offset rectangular lattice visits each coordinate once in row-major
+ *    order, then stores matching samples and authored lattice metadata.
+ * 2. An unfillable lattice refuses before any callback runs.
+ * 3. A non-finite sample refuses at its authored cell and stops traversal.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names lattice order and the five distinct refusal inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the owning builder and checks its nine actual stored samples and each refusal independently.
- * @evidence contracts/development/testing.md#independent-expectations The authored slope and ridge give the literal expected row-major samples without a second builder or height lookup.
- * @evidence contracts/development/testing.md#distinguishing-cases Varies zero pitch, infinite origin, one column, fractional rows and an unsampleable callback separately.
- * @evidence contracts/development/testing.md#execution-ownership Uses only resident input records and one pure terrain builder.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the world coordinates, visit and storage order, metadata and refusal effects.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads exact metadata and samples from the owning builder and records its callback visits independently. Swapped indices, repeated sampling, invalid lattice metadata, or sampling past a refusal fails.
+ * @evidence contracts/development/testing.md#independent-expectations The literal 3-by-2 grid from (-4,-6) has unequal pitches 4 and 2 m. Its ordered pairs and heights follow 2z+x/4+|x|/8, with exactly representable integer or dyadic values throughout. At 2^54 a one-metre pitch cannot advance the first rounded X coordinate.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers valid unequal pitches, zero pitch, infinite origin, a rounded-together interval, one column, fractional rows and a second-cell non-finite result. Sampling stored heights belongs to the direct world surface test.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit calls one terrain constructor with resident inputs and owns the callback visit log. It uses no host or downstream height reader.
  */
 export function test_engine_space_world_heightfield(): void {
+  const visited: IAutoMovieWorldHeightfield.IInput["origin"][] = [];
   const input: IAutoMovieWorldHeightfield.IInput = {
     id: "ridge",
     polygon: [
-      { x: -4, z: -4 },
+      { x: -4, z: -6 },
+      { x: 4, z: -6 },
       { x: 4, z: -4 },
-      { x: 4, z: 4 },
-      { x: -4, z: 4 },
+      { x: -4, z: -4 },
     ],
-    origin: { x: -4, z: -4 },
-    spacing: { x: 4, z: 4 },
+    origin: { x: -4, z: -6 },
+    spacing: { x: 4, z: 2 },
     columns: 3,
-    rows: 3,
-    height: ({ x, z }): number => z / 2 - Math.abs(x) / 4,
+    rows: 2,
+    height: ({ x, z }): number => {
+      visited.push({ x, z });
+      return 2 * z + x / 4 + Math.abs(x) / 8;
+    },
     walkable: true,
   };
   const field: ReturnType<typeof worldHeightfield> = worldHeightfield(input);
-  const heights: readonly number[] = [-3, -2, -3, -1, 0, -1, 1, 2, 1];
+  const cells: readonly (readonly [number, number, number])[] = [
+    [-4, -6, -12.5],
+    [0, -6, -12],
+    [4, -6, -10.5],
+    [-4, -4, -8.5],
+    [0, -4, -8],
+    [4, -4, -6.5],
+  ];
   TestValidator.predicate(
-    "samples are written row-major from the authored origin",
+    "the callback is visited exactly once per cell in row-major world order",
+    visited.length === cells.length &&
+      cells.every(
+        ([x, z], at): boolean =>
+          nclose(visited[at]!.x, x, 0) && nclose(visited[at]!.z, z, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "the output lattice records the authored header and ordered heights",
     field.height.kind === "heightfield" &&
       field.height.columns === 3 &&
-      field.height.rows === 3 &&
-      field.height.samples.length === heights.length &&
+      field.height.rows === 2 &&
+      nclose(field.height.originX, -4, 0) &&
+      nclose(field.height.originZ, -6, 0) &&
+      nclose(field.height.spacingX, 4, 0) &&
+      nclose(field.height.spacingZ, 2, 0) &&
+      field.height.samples.length === cells.length &&
       field.height.samples.every((value, at): boolean =>
-        nclose(value, heights[at]!, 0),
+        nclose(value, cells[at]![2], 0),
       ),
   );
 
@@ -54,17 +79,51 @@ export function test_engine_space_world_heightfield(): void {
   ][] = [
     ["zero pitch", { spacing: { x: 0, z: 1 } }, "positive"],
     ["infinite origin", { origin: { x: Infinity, z: 0 } }, "finite origin"],
+    [
+      "rounded-together X positions",
+      { origin: { x: 2 ** 54, z: -6 }, spacing: { x: 1, z: 2 } },
+      "positive representable spacing",
+    ],
     ["one column", { columns: 1 }, "at least two sample"],
     ["fractional rows", { rows: 2.5 }, "at least two sample"],
-    [
-      "non-finite callback height",
-      { height: (): number => NaN },
-      "non-finite height",
-    ],
   ];
-  for (const [label, fields, reason] of malformed)
-    TestValidator.predicate(
-      label,
-      throwsError(() => worldHeightfield({ ...input, ...fields }), reason),
+  const invalidHeaders: string[] = [];
+  for (const [label, fields, reason] of malformed) {
+    let calls: number = 0;
+    const refused: boolean = throwsError(
+      () =>
+        worldHeightfield({
+          ...input,
+          ...fields,
+          height: (): number => {
+            ++calls;
+            return 0;
+          },
+        }),
+      reason,
     );
+    if (!refused || calls !== 0) invalidHeaders.push(label);
+  }
+  TestValidator.equals(
+    "all malformed headers refuse before sampling",
+    invalidHeaders,
+    [],
+  );
+
+  let sampled: number = 0;
+  const refused: boolean = throwsError(
+    () =>
+      worldHeightfield({
+        ...input,
+        height: ({ x, z }): number => {
+          ++sampled;
+          return x === 0 && z === -6 ? NaN : 0;
+        },
+      }),
+    "non-finite height at column 1, row 0",
+  );
+  TestValidator.predicate(
+    "the first non-finite result refuses at its cell and stops traversal",
+    refused && sampled === 2,
+  );
 }
