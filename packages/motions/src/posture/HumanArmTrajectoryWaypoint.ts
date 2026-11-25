@@ -60,6 +60,7 @@ export function HumanArmTrajectoryWaypoint(
       S.colliders(frame, placed[a]!),
   );
   const touched: number[] = sites.map((): number => -1);
+  const heights: (number | undefined)[] = sites.map((): undefined => undefined);
   const normals: (IAutoMovieVector3 | undefined)[] = sites.map(
     (site: M.ISite | undefined, a: number): IAutoMovieVector3 | undefined => {
       // A grip on a held object touches no surface of the body: it is held to
@@ -102,6 +103,7 @@ export function HumanArmTrajectoryWaypoint(
       if (best < 0 || least > AutoMovieMotionHumanAuditSkin.BUILT)
         return undefined;
       touched[a] = best;
+      if (on === undefined) heights[a] = least;
       const s: IAutoMovieMotionHumanArmGeometry.IShape = candidates[best]!;
       return physicalShapeNormal(
         s.pose,
@@ -117,6 +119,7 @@ export function HumanArmTrajectoryWaypoint(
     placed,
     colliders,
     touched,
+    heights,
     normals,
     reachable: frames.map(
       (frame: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): number[] =>
@@ -154,6 +157,8 @@ export namespace HumanArmTrajectoryWaypoint {
     colliders: IAutoMovieMotionHumanArmGeometry.IShape[][];
     /** Each arm's site's touched collider; -1 where none. */
     touched: number[];
+    /** Signed height of a fixed site over that collider, metres. */
+    heights: (number | undefined)[];
     /** Each arm's site's outward normal. */
     normals: (IAutoMovieVector3 | undefined)[];
     /**

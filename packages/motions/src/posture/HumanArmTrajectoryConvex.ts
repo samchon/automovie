@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import type { HumanArmSurfaceLift } from "./HumanArmSurfaceLift";
 import { HumanArmSweepGradient } from "./HumanArmSweepGradient";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
@@ -236,7 +237,6 @@ export namespace HumanArmTrajectoryConvex {
             site,
           );
           const contact0: IAutoMovieVector3 = P.pad(placedK, site.contact);
-          const n: IAutoMovieVector3 | undefined = at.normal;
           // The contact's motion, less the riding segment's motion at it: the
           // relative contact; a site that rides nothing has none.
           const relative = (dir: IAutoMovieVector3): ILinear => {
@@ -287,11 +287,10 @@ export namespace HumanArmTrajectoryConvex {
               weight: mu,
             });
           }
-          if (n !== undefined) {
-            // The contact's height above the touched collider no lower than
-            // the site's own, and the least above it that clears.
-            const v: ILinear = relative(at.normalAt(contact0));
-            const lift: number = 1000 * (at.gap(contact0) - at.gap(at.point));
+          const surface: HumanArmSurfaceLift.IReading | undefined = at0.lifts[a]![k];
+          if (surface !== undefined) {
+            const v: ILinear = relative(surface.normal);
+            const lift: number = 1000 * surface.metres;
             rows.push({
               key: `l|${a}|${k}`,
               index: v.idx,

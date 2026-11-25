@@ -250,6 +250,10 @@ function built(
       (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): number[] =>
         points.map((p: W.IWaypoint): number => p.touched[a]!),
     ),
+    siteHeights: setups.map(
+      (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): (number | undefined)[] =>
+        points.map((p: W.IWaypoint): number | undefined => p.heights[a]),
+    ),
     reachable: setups.map(
       (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): number[][] =>
         points.map((p: W.IWaypoint): number[] => p.reachable[a]!),

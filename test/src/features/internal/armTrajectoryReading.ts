@@ -143,6 +143,7 @@ export namespace armTrajectoryReading {
       normals: frames.map((arm) => arm.map(() => undefined)),
       rested: () => false,
       touched: frames.map((arm) => arm.map(() => -1)),
+      siteHeights: frames.map((arm) => arm.map(() => undefined)),
       reachable: frames.map((arm) =>
         arm.map((frame) => frame.shapes.map((_, i) => i)),
       ),

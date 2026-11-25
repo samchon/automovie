@@ -8,7 +8,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
-import { HumanArmSeedRelease } from "./HumanArmSeedRelease";
 import { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
@@ -286,16 +285,12 @@ export function planHumanArmTrajectory(
     from.context,
     earlier?.x ?? laid,
   );
-  const seed: ReturnType<typeof HumanArmSeedRelease> =
-    earlier ??
-    HumanArmSeedRelease(from.context, fine, {
-      knots: from.knots,
-      x: HumanArmSeed.seed(from.context, pinned, fine),
-    });
+  const seed: number[][][] =
+    earlier?.x ?? HumanArmSeed.seed(from.context, pinned, fine);
   const solved: Stretch.ISolved = Stretch.optimise(
     whole,
-    seed.knots === from.knots ? from : Stretch.on(whole, seed.knots),
-    seed.x,
+    from,
+    seed,
     earlier?.penalty,
     pinned,
   );

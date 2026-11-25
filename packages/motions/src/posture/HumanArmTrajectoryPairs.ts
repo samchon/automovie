@@ -98,6 +98,9 @@ export namespace HumanArmTrajectoryPairs {
     /** The touched collider. */
     shape?: IAutoMovieMotionHumanArmGeometry.IShape;
 
+    /** The fixed site's prepared signed height in metres, when available. */
+    height?: number;
+
     /**
      * A world point's signed distance to the touched collider, metres; zero
      * without a surface.
@@ -294,6 +297,7 @@ export namespace HumanArmTrajectoryPairs {
       const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
       const shape: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
         where < 0 ? undefined : frame.shapes[where];
+      const height: number | undefined = c.siteHeights[a]![k];
       return {
         point: site.point,
         ...(c.normals[a]![k] === undefined
@@ -301,6 +305,7 @@ export namespace HumanArmTrajectoryPairs {
           : { normal: c.normals[a]![k]! }),
         ...(site.rotation === undefined ? {} : { rotation: site.rotation }),
         ...(shape === undefined ? {} : { shape }),
+        ...(height === undefined ? {} : { height }),
         gap: (p: IAutoMovieVector3): number =>
           shape === undefined
             ? 0

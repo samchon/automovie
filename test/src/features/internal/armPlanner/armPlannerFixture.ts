@@ -370,48 +370,29 @@ export namespace armPlannerFixture {
     if (reading.worst.value > HumanArmTrajectoryModel.TOLERANCE)
       out.push(`the grid reading: ${reading.worst.what}`);
 
-    // C2 across the knots.
-    const h: number = 1e-5;
+    // The first two derivatives must agree across each actual quintic join.
+    // The shoulder's clinical angles are a nonlinear view of the polynomial;
+    // recover the native chart from the displayed rotation for the check.
     const clock: readonly number[] = solved.state.times;
     clock.slice(1, -1).forEach((t: number, i: number): void =>
       stored.problem.arms.forEach((_: IStoredArm, a: number): void => {
-        const f: number[][] = [-3, -2, -1, 0, 1, 2, 3].map(
-          (i: number): number[] => {
-            const shown: IAutoMovieMotionHumanArmClearance.IArm = played(
-              a,
-              t + i * h,
-            );
-            return [...shown.upper, ...shown.lower, ...shown.hand];
-          },
-        );
-        f[3]!.slice(0, 3).forEach((_v: number, d: number): void => {
-          const v = (i: number): number => f[i + 3]![d]!;
-          const left: number = (3 * v(0) - 4 * v(-1) + v(-2)) / (2 * h);
-          const right: number = (-3 * v(0) + 4 * v(1) - v(2)) / (2 * h);
-          const leftA: number =
-            (2 * v(0) - 5 * v(-1) + 4 * v(-2) - v(-3)) / (h * h);
-          const rightA: number =
-            (2 * v(0) - 5 * v(1) + 4 * v(2) - v(3)) / (h * h);
-          if (
-            Math.abs(right - left) >
-              1e-3 * (1 + Math.abs(left) + Math.abs(right)) ||
-            Math.abs(rightA - leftA) >
-              1 + 1e-2 * (Math.abs(leftA) + Math.abs(rightA))
-          )
-            out.push(`a kink at ${t.toFixed(3)} s in angle ${d}`);
-        });
+        const setup: IAutoMovieMotionHumanArmGeometry.ISetup = c.setups[a]!;
         const shortest: number = Math.min(t - clock[i]!, clock[i + 2]! - t);
         const spacing: number = shortest / 8;
-        for (const d of distalKinks(
-          (at) => {
+        for (const d of quinticKinks(
+          (at: number): number[] => {
             const shown: IAutoMovieMotionHumanArmClearance.IArm = played(a, at);
-            return [...shown.lower, ...shown.hand];
+            return [
+              ...HumanArmGeometry.encode(setup, shown).slice(0, 3),
+              ...shown.lower,
+              ...shown.hand,
+            ];
           },
           t,
           spacing,
-          c.bounds[a]!.slice(3),
+          c.bounds[a]!,
         ))
-          out.push(`a kink at ${t.toFixed(3)} s in angle ${d + 3}`);
+          out.push(`a kink at ${t.toFixed(3)} s in angle ${d}`);
       }),
     );
     return out;
@@ -517,13 +498,13 @@ type RestoredObstacles = Pick<
  * basis on 0, 1, 2, 3, 4, 5. The constant term is accounted for by subtracting
  * the value at zero before multiplication.
  */
-const DISTAL_STENCIL: readonly (readonly number[])[] = [
+const QUINTIC_STENCIL: readonly (readonly number[])[] = [
   [300, -300, 200, -75, 12],
   [-154, 214, -156, 61, -10],
 ];
 
-/** A distal angle's two actual quintics must agree in both derivatives. */
-function distalKinks(
+/** The two actual quintics must agree in both derivatives. */
+function quinticKinks(
   read: (t: number) => readonly number[],
   t: number,
   h: number,
@@ -531,7 +512,7 @@ function distalKinks(
 ): number[] {
   const zero: readonly number[] = read(t);
   const side = (sign: number): (readonly number[])[] =>
-    DISTAL_STENCIL[0]!.map((_, i: number): readonly number[] =>
+    QUINTIC_STENCIL[0]!.map((_, i: number): readonly number[] =>
       read(t + sign * (i + 1) * h),
     );
   const left: (readonly number[])[] = side(-1);
@@ -553,7 +534,7 @@ function distalKinks(
     const clockError: number = 4 * Number.EPSILON * Math.max(1, Math.abs(t));
     const sample: number =
       scale * (20 * 3 ** 5 * Number.EPSILON + (10 * clockError) / (8 * h));
-    return DISTAL_STENCIL.some((weights, order: number): boolean => {
+    return QUINTIC_STENCIL.some((weights, order: number): boolean => {
       const weighted = (points: (readonly number[])[]): number =>
         weights.reduce(
           (sum: number, weight: number, i: number): number =>

@@ -91,3 +91,4 @@ export * from "./HumanArmTrajectoryClusters";
 export * from "./HumanArmTrajectoryPace";
 export * from "./HumanArmTrajectorySweepBound";
 export * from "./HumanArmSweepGradient";
+export * from "./HumanArmSurfaceLift";

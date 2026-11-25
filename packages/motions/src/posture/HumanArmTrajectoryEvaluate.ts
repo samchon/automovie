@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmSurfaceLift } from "./HumanArmSurfaceLift";
 import type { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
@@ -175,6 +176,9 @@ export function HumanArmTrajectoryEvaluate(
   const swept: M.IEvaluation["swept"] = x.map(
     (): M.IEvaluation["swept"][number] => [],
   );
+  const lifts: M.IEvaluation["lifts"] = x.map(
+    (): M.IEvaluation["lifts"][number] => [],
+  );
   const crossing: M.IEvaluation["crossing"] = [];
   const failing: boolean[] = new Array<boolean>(c.n).fill(false);
   // The last waypoint of the interval `here` starts that the violation noted
@@ -340,13 +344,11 @@ export function HumanArmTrajectoryEvaluate(
             ? off
             : Vector3.subtract(off, Vector3.scale(normal, across)),
         );
-        // The contact's height above the touched collider, less the site's
-        // own: the site's standing off the surface is kept where the region
-        // curves away from its plane.
-        const lift: number =
-          normal === undefined || at.shape === undefined
-            ? 0
-            : 1000 * (at.gap(contact) - at.gap(at.point));
+        // Keep the site's height on its authored side of the touched solid.
+        const surface: HumanArmSurfaceLift.IReading | undefined =
+          HumanArmSurfaceLift(at, contact);
+        lifts[a]![k] = surface;
+        const lift: number = 1000 * (surface?.metres ?? 0);
         note(
           slide - 1000 * site.disc,
           "site",
@@ -479,6 +481,7 @@ export function HumanArmTrajectoryEvaluate(
     worst: held(worst),
     placement: held(placement),
     pairs,
+    lifts,
     swept,
     crossing,
     failing,

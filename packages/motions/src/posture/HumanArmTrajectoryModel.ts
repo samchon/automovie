@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanArmGeometryTypes } from "./HumanArmGeometryTypes";
+import type { HumanArmSurfaceLift } from "./HumanArmSurfaceLift";
 import { HumanArmTrajectoryEvaluate } from "./HumanArmTrajectoryEvaluate";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
@@ -309,6 +310,8 @@ export namespace HumanArmTrajectoryModel {
     rested: (a: number, k: number, probe: number, bone: string) => boolean;
     /** Each site's touched collider, the shape nearest its point; -1 where none. */
     touched: number[][];
+    /** The prepared signed height above the touched shape of each fixed site. */
+    siteHeights: (number | undefined)[][];
     /**
      * Each arm's frame's shapes any placement of the arm can come within the
      * pairs' reach of, at each waypoint, ascending
@@ -366,6 +369,8 @@ export namespace HumanArmTrajectoryModel {
      * iterate.
      */
     pairs: IPairsItemItem[][];
+    /** The one-sided clearance of each hand on a touched surface. */
+    lifts: (HumanArmSurfaceLift.IReading | undefined)[][];
     /**
      * Each arm's probes' sweeps over each interval, by its first waypoint: the
      * axis spheres' (`HumanArmTrajectorySweep.of`) and the collider probes'
