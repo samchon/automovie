@@ -13,10 +13,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  AIRBORNE_CORE,
-  AIRBORNE_CORE_END_MASS,
-} from "../../../internal/AIRBORNE_CORE";
+import { AIRBORNE_CORE } from "../../../internal/AIRBORNE_CORE";
+import { AIRBORNE_CORE_END_MASS } from "../../../internal/AIRBORNE_CORE_END_MASS";
 import { airborneBodyRate } from "../../../internal/airborneBodyRate";
 import { airbornePlaced } from "../../../internal/airbornePlaced";
 import { airbornePrimitive } from "../../../internal/airbornePrimitive";

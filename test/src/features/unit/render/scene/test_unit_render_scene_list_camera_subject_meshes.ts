@@ -44,8 +44,9 @@ export function test_unit_render_scene_list_camera_subject_meshes(): void {
   };
   TestValidator.equals("line", unsupported(new THREE.Line()), true);
   TestValidator.equals("shader", unsupported(mesh(new THREE.ShaderMaterial())), true);
-  const displaced: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
-  displaced.displacementMap = new THREE.Texture();
+  const displaced: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+    displacementMap: new THREE.Texture(),
+  });
   TestValidator.equals("displacement", unsupported(mesh(displaced)), true);
   const morphed: THREE.Mesh = mesh();
   morphed.geometry.morphAttributes.position = [

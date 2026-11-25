@@ -130,7 +130,11 @@ export function test_unit_engine_geometry_solid_clip(): void {
       ([face, chart]: [number, [number, number]]): number[] =>
         across.body.faces[face]!.surface.jet(chart[0], chart[1]).p,
     );
-    TestValidator.equals("both faces", [...fork.chart.keys()].sort(), [0, 1]);
+    TestValidator.equals(
+      "both faces",
+      [...fork.chart.keys()].sort((left: number, right: number): number => left - right),
+      [0, 1],
+    );
     TestValidator.predicate(
       "same point from both faces",
       where[0]!.every((x: number, k: number): boolean =>

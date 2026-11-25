@@ -3,6 +3,12 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
+/** Eight ulps at the larger expected mean allow both square-root rounding and the two reference decimals. */
+const AGM_TOLERANCE: number = 16 * Number.EPSILON;
+
+/** Scaling the larger pair by four scales its error bound by four as well. */
+const SCALED_AGM_TOLERANCE: number = 4 * AGM_TOLERANCE;
+
 /**
  * `AutoMovieArchetypeTrack.agm` is the arithmetic-geometric mean of two finite
  * positive numbers.
@@ -18,19 +24,19 @@ import { nclose } from "../../../internal/nclose";
  */
 export function test_unit_archetypes_core_track_agm(): void {
   const agm = AutoMovieArchetypeTrack.agm;
-  TestValidator.predicate("equal numbers", nclose(agm(1, 1), 1, 1e-15));
+  TestValidator.predicate("equal numbers", nclose(agm(1, 1), 1, AGM_TOLERANCE));
   TestValidator.predicate(
     "Gauss's constant",
-    nclose(agm(1, Math.SQRT2), 1.1981402347355922, 1e-14),
+    nclose(agm(1, Math.SQRT2), 1.1981402347355922, AGM_TOLERANCE),
   );
   TestValidator.predicate(
     "one and two",
-    nclose(agm(1, 2), 1.4567910310469068, 1e-14),
+    nclose(agm(1, 2), 1.4567910310469069, AGM_TOLERANCE),
   );
-  TestValidator.predicate("symmetric", nclose(agm(2, 1), agm(1, 2), 1e-15));
+  TestValidator.predicate("symmetric", nclose(agm(2, 1), agm(1, 2), AGM_TOLERANCE));
   TestValidator.predicate(
     "homogeneous",
-    nclose(agm(4, 8), 4 * agm(1, 2), 1e-13),
+    nclose(agm(4, 8), 4 * agm(1, 2), SCALED_AGM_TOLERANCE),
   );
   TestValidator.error("a zero argument", (): unknown => agm(0, 1));
   TestValidator.error("a negative argument", (): unknown => agm(-1, 1));

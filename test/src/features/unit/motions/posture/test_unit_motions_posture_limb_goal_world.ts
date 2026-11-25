@@ -40,7 +40,11 @@ const ROUNDING: number = 1e-12;
  */
 export async function test_unit_motions_posture_limb_goal_world(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const pose: IAutoMoviePose = { joints: [] };
+  const pose: IAutoMoviePose = {
+    skeleton: body.skeleton.id,
+    root: null,
+    joints: [],
+  };
   const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,

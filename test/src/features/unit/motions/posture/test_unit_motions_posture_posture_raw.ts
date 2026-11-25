@@ -10,6 +10,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../../internal/vclose";
 
+/** World coordinates stay below 3 m across one subtraction and one addition. */
+const TRANSLATION_ROUNDING: number = 6 * Number.EPSILON;
+
 /** A free leg goal. */
 function leg(x: number): IAutoMovieHumanLimbGoal {
   return { point: { x, y: 0.1, z: 0 }, bend: { x, y: 0.5, z: 0.4 } };
@@ -44,7 +47,8 @@ const POSTURE: IAutoMovieMotionHumanPosture = {
  *    by (1, 0, 2), the joints stay, and the source is unchanged.
  * 3. A leg goal or a digit goal riding a bone is not moved; a world digit goal
  *    is.
- * 4. A constant curve returns equal, distinct copies, unaffected by the input's or
+ * 4. Two limb keys sharing one goal retain that one goal and translate it once.
+ * 5. A constant curve returns equal, distinct copies, unaffected by the input's or
  *    a read's later change.
  */
 export function test_unit_motions_posture_posture_raw(): void {
@@ -94,9 +98,9 @@ export function test_unit_motions_posture_posture_raw(): void {
   TestValidator.predicate(
     "every world goal and the turn moved with the root",
     vclose(moved.root, { x: 1, y: 0.9, z: 2 }, 0) &&
-      vclose(moved.limbs.leftLeg!.point, { x: 1.1, y: 0.1, z: 2 }, 1e-12) &&
-      vclose(moved.limbs.rightLeg!.bend, { x: 0.9, y: 0.5, z: 2.4 }, 1e-12) &&
-      vclose(moved.rotation!.about, { x: 1, y: 1, z: 2 }, 1e-12) &&
+      vclose(moved.limbs.leftLeg!.point, { x: 1.1, y: 0.1, z: 2 }, TRANSLATION_ROUNDING) &&
+      vclose(moved.limbs.rightLeg!.bend, { x: 0.9, y: 0.5, z: 2.4 }, TRANSLATION_ROUNDING) &&
+      vclose(moved.rotation!.about, { x: 1, y: 1, z: 2 }, TRANSLATION_ROUNDING) &&
       moved.joints.spine![0] === 5 &&
       POSTURE.limbs.leftLeg!.point.x === 0.1 &&
       POSTURE.root.x === 0,
@@ -117,11 +121,23 @@ export function test_unit_motions_posture_posture_raw(): void {
   TestValidator.predicate(
     "a goal on a bone stays, a world digit goal moves",
     vclose(riding.limbs.leftLeg!.point, { x: 0.1, y: 0.1, z: 0 }, 0) &&
-      vclose(riding.digits!.leftIndex!.point, { x: 1.3, y: 1, z: 2.2 }, 1e-12) &&
+      vclose(riding.digits!.leftIndex!.point, { x: 1.3, y: 1, z: 2.2 }, TRANSLATION_ROUNDING) &&
       vclose(riding.digits!.leftThumb!.point, { x: 0.3, y: 1, z: 0.2 }, 0),
   );
 
-  // 4. A constant curve.
+  // 4. An aliased goal.
+  const shared: IAutoMovieHumanLimbGoal = leg(0.25);
+  const aliased: IAutoMovieMotionHumanPosture = HumanPostureRaw.translated(
+    { ...POSTURE, limbs: { leftLeg: shared, rightLeg: shared } },
+    { x: 1, y: 0.9, z: 2 },
+  );
+  TestValidator.predicate(
+    "a shared world goal moves exactly once",
+    aliased.limbs.leftLeg === aliased.limbs.rightLeg &&
+      vclose(aliased.limbs.leftLeg!.point, { x: 1.25, y: 0.1, z: 2 }, TRANSLATION_ROUNDING),
+  );
+
+  // 5. A constant curve.
   const source: IAutoMovieMotionHumanPosture = structuredClone(POSTURE);
   const curve: (seconds: number) => IAutoMovieMotionHumanPosture =
     createHumanPostureCurve(source);

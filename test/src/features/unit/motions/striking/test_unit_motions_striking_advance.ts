@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   StrikingAdvance,
@@ -5,6 +6,9 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
+
+/** A product of two binary64 literals incurs less than four ulps below 1 m. */
+const TRAVEL_ROUNDING_METRES: number = 4 * Number.EPSILON;
 
 /**
  * An advancing stroke (`StrikingAdvance.travel`, `plants`): a step carries the
@@ -23,8 +27,8 @@ export function test_unit_motions_striking_advance(): void {
   const tall = { body: { measure: { stature: 1.8 } } };
   TestValidator.predicate(
     "the travel",
-    nclose(StrikingAdvance.travel(tall, "step"), 0.36, 1e-12) &&
-      nclose(StrikingAdvance.travel(tall, "lunge"), 0.81, 1e-12) &&
+      nclose(StrikingAdvance.travel(tall, "step"), 0.36, TRAVEL_ROUNDING_METRES) &&
+      nclose(StrikingAdvance.travel(tall, "lunge"), 0.81, TRAVEL_ROUNDING_METRES) &&
       StrikingAdvance.travel(tall, "none") === 0,
   );
   const clock = AutoMovieMotionClock.phrase({

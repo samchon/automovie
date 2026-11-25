@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
@@ -19,7 +20,7 @@ const BASE: Pick<IAutoMoviePhysicalShape, "id" | "material" | "transform"> = {
 function set(points: readonly IAutoMovieVector3[]): string[] {
   return points
     .map((p: IAutoMovieVector3): string => `${p.x},${p.y},${p.z}`)
-    .sort();
+    .sort(compareCodeUnits);
 }
 
 /**
@@ -32,8 +33,10 @@ function set(points: readonly IAutoMovieVector3[]): string[] {
  *
  * 1. A box of half extents (1, 2, 3): its eight corners.
  * 2. A sphere of radius 0.5: the poles ±0.5 on Y and the four equator points.
- * 3. A capsule of radius 0.1 and half length 0.2: the poles ±0.3 and twelve circle
- *    points at heights −0.2, 0 and 0.2.
+ * 3. A capsule of radius 1/8 and half length 1/4: poles at ±3/8 m and twelve
+ *    cardinal points at heights −1/4, 0 and 1/4 m. At zero half length its
+ *    probes coincide with its radius-matched sphere's six probes. These
+ *    dyadic coordinates and sums are exact in binary64.
  * 4. A tetrahedron hull: its four vertices.
  */
 export function test_unit_motions_posture_collider_corners(): void {
@@ -51,7 +54,7 @@ export function test_unit_motions_posture_collider_corners(): void {
         halfExtents: { x: 1, y: 2, z: 3 },
       }),
     ),
-    corners.sort(),
+    corners.sort(compareCodeUnits),
   );
 
   // 2. A sphere.
@@ -65,7 +68,41 @@ export function test_unit_motions_posture_collider_corners(): void {
       "-0.5,0,0",
       "0,0,0.5",
       "0,0,-0.5",
-    ].sort(),
+    ].sort(compareCodeUnits),
+  );
+
+  // 3. A capsule.
+  const capsule: IAutoMoviePhysicalShape = {
+    ...BASE,
+    kind: "capsule",
+    radius: 0.125,
+    halfLength: 0.25,
+  };
+  TestValidator.equals(
+    "a capsule's two poles and twelve cardinal points",
+    set(HumanColliderCorners(capsule)),
+    [
+      "0,0.375,0",
+      "0,-0.375,0",
+      ...[-0.25, 0, 0.25].flatMap((height: number): string[] => [
+        `-0.125,${height},0`,
+        `0.125,${height},0`,
+        `0,${height},-0.125`,
+        `0,${height},0.125`,
+      ]),
+    ].sort(compareCodeUnits),
+  );
+  TestValidator.equals(
+    "a collapsed capsule has exactly six distinct sphere probes",
+    set(HumanColliderCorners({ ...capsule, halfLength: 0 })),
+    [
+      "0,0.125,0",
+      "0,-0.125,0",
+      "0.125,0,0",
+      "-0.125,0,0",
+      "0,0,0.125",
+      "0,0,-0.125",
+    ].sort(compareCodeUnits),
   );
 
   // 4. A hull.
@@ -81,28 +118,4 @@ export function test_unit_motions_posture_collider_corners(): void {
     set(tetrahedron),
   );
 
-  // 3. A capsule.
-  const capsule: readonly IAutoMovieVector3[] = HumanColliderCorners({
-    ...BASE,
-    kind: "capsule",
-    radius: 0.1,
-    halfLength: 0.2,
-  });
-  TestValidator.predicate(
-    "a capsule's poles and three circles",
-    capsule.length === 14 &&
-      capsule.some(
-        (p: IAutoMovieVector3): boolean => Math.abs(p.y - 0.3) < 1e-12,
-      ) &&
-      capsule.some(
-        (p: IAutoMovieVector3): boolean => Math.abs(p.y + 0.3) < 1e-12,
-      ) &&
-      [-0.2, 0, 0.2].every(
-        (h: number): boolean =>
-          capsule.filter(
-            (p: IAutoMovieVector3): boolean =>
-              p.y === h && Math.abs(Math.hypot(p.x, p.z) - 0.1) < 1e-12,
-          ).length === 4,
-      ),
-  );
 }

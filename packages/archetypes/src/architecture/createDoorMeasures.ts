@@ -1,5 +1,7 @@
 import { AutoMovieArchetypeUnits } from "../core";
 
+/** The door's supported kinds, hardware and measurements. */
+export namespace createDoorMeasures {
 /**
  * A hinged leaf's breaking energy, joules: 80 J, the lowest impact level of
  * ASTM F476-14's ram test, at which "a typical softwood door frame without
@@ -54,3 +56,4 @@ export const PULL: Readonly<{ length: number; clearance: number }> = {
   length: 0.2,
   clearance: 0.038,
 };
+}

@@ -1,53 +1,154 @@
 import type {
-  IAutoMovieMotionHumanPerformance,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
-import { HumanPerformanceState } from "@automovie/motions/internal";
+import { HumanPerformanceTether } from "@automovie/motions/internal";
 
+import { motionActionContext } from "../motionActionContext";
+import { syntheticHumanPlan } from "../synthetic/syntheticHumanPlan";
 import { humanFixtureBody } from "./humanFixtureBody";
 
 /**
- * A resolved performance state for unit tests of a function that reads the
- * state's people, segments or intents: the stored average man standing at the
- * origin facing `+Z` for two placed one-second stands, among the given props.
+ * A synthetic performance record for readers of people, segments or intents.
+ * It contains the stored average man's rest posture at the origin facing `+Z`
+ * with two already placed one-second actions and the given props.
  *
- * The state is resolved afresh on every call and shared with no one, so a test
- * may replace any of its records.
- *
- * @param props The props, none by default.
- * @returns The state and the input it was resolved from.
+ * @param props The props, empty by default.
+ * @returns A fresh state consisting of the supplied and synthetic records.
  */
 export async function standingPerformanceState(
   props: IAutoMovieMotionHumanProp[] = [],
 ): Promise<standingPerformanceState.IResult> {
-  const input: IAutoMovieMotionHumanPerformance.IInput = {
-    seed: "standing",
-    performers: [
-      {
-        subject: "actor",
-        body: await humanFixtureBody("m-average"),
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
-    props,
-    composition: HumanChain.subject("actor")
-      .stand({ hold: 1 })
-      .stand({ hold: 1 }).node,
+  const performer: IAutoMovieMotionHumanPerformer = {
+    subject: "actor",
+    body: await humanFixtureBody("m-average"),
+    at: { x: 0, y: 0, z: 0 },
+    yaw: 0,
+    proficiency: { level: "trained" },
   };
-  return { input, state: new HumanPerformanceState(input, "staged") };
+  const read: IAutoMovieMotionHumanActionContext = motionActionContext(
+    performer.body,
+    {},
+    { subject: performer.subject, props },
+  );
+  const context: IAutoMovieMotionHumanActionContext<never> = {
+    ...read,
+    get params(): never {
+      throw new Error("The synthetic segment has no authored parameters");
+    },
+  };
+  const plan: IAutoMovieMotionHumanActionPlan = syntheticHumanPlan({
+    duration: 1,
+    posture: read.entry.posture,
+  });
+  const law: IAutoMovieMotionHumanActionLaw<never> = {
+    name: "stand",
+    interrupts: {},
+    plan: (): IAutoMovieMotionHumanActionPlan => {
+      throw new Error("The synthetic segment is already placed");
+    },
+  };
+  const intent: IAutoMovieIntent = { subject: performer.subject, capability: "stand" };
+  const indices: readonly number[] = [0, 1];
+  const entries: IAutoMovieScheduleEntry[] = indices.map(
+    (index: number): IAutoMovieScheduleEntry => ({
+      index,
+      subject: performer.subject,
+      intent,
+      start: index,
+      end: index + 1,
+    }),
+  );
+  const segments: IAutoMovieMotionHumanSegment[] = entries.map(
+    (entry: IAutoMovieScheduleEntry): IAutoMovieMotionHumanSegment => ({
+      index: entry.index,
+      entry: entry.index,
+      id: "stand",
+      name: "stand",
+      params: {},
+      law,
+      context,
+      plan,
+      start: entry.start,
+      entryTime: entry.start,
+      end: entry.end,
+    }),
+  );
+  const person: IAutoMovieMotionHumanSegment.IPerson = {
+    performer,
+    skill: read.skill,
+    segments,
+    overlays: [],
+    initial: read.entry.posture,
+    layers: [],
+    layer: {
+      subject: performer.subject,
+      body: performer.body,
+      skill: read.skill,
+      aim: read.aim,
+      action: () => undefined,
+    },
+    holds: [],
+    stops: new Map(),
+  };
+  const propMap: Map<string, IAutoMovieMotionHumanProp> = new Map(
+    props.map((prop: IAutoMovieMotionHumanProp): [string, IAutoMovieMotionHumanProp] => [prop.subject, prop]),
+  );
+  return {
+    state: {
+      schedule: { entries, duration: 2 },
+      duration: 2,
+      performers: [performer],
+      people: new Map([[performer.subject, person]]),
+      props: propMap,
+      tethered: HumanPerformanceTether.index(propMap),
+      anchors: new Map(),
+      grips: new Map(),
+      meetings: new Map(),
+      laws: new Map([["stand", law]]),
+      riding: new Set(),
+      obstacles: [],
+      forces: [],
+      cues: {},
+      clipped: new Map(),
+      layered: new Map(),
+      intended: new Map([[performer.subject, [intent, intent]]]),
+      blasts: [],
+      strikes: [],
+      resolving: false,
+      demand: undefined,
+      horizon: undefined,
+      meeting: undefined,
+      demandAnchor: undefined,
+      flight: "staged",
+      placements: entries.length,
+      trial: undefined,
+      handovers: new Map(),
+      soft: new Map(),
+      writers: new Map(),
+      flights: new Map(),
+      flying: new Map(),
+      hits: undefined,
+    },
+    context: read,
+  };
 }
 
 /** Companion types of {@link standingPerformanceState}. */
 export namespace standingPerformanceState {
-  /** The resolved state and its input. */
+  /** The synthetic state and the context from which its first entry is read. */
   export interface IResult {
-    /** The input. */
-    input: IAutoMovieMotionHumanPerformance.IInput;
+    /** Context with an empty parameter record. */
+    context: IAutoMovieMotionHumanActionContext;
 
-    /** The resolved state. */
-    state: HumanPerformanceState;
+    /** The synthetic state. */
+    state: IAutoMovieMotionHumanPerformanceState;
   }
 }

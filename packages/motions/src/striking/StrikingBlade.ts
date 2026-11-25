@@ -394,7 +394,6 @@ export namespace StrikingBlade {
       hands: stroke.support === null ? [tool.side] : [tool.side, other],
       prepare: (): void => {
         base.prepare?.();
-        prepared = undefined;
         prepared = anchor();
       },
       posture: (

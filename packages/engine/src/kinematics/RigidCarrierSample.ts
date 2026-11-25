@@ -47,17 +47,31 @@ export namespace RigidCarrierSample {
 
   /** Borrowed dispatch pair, keyed by the root reader's actual identity. */
   export interface ISample {
+    /** Source model whose object identity admits the adapter. */
     readonly model: object;
+
+    /** Source socket reader whose identity must match the adapter input. */
     readonly point: Point;
+
+    /** Copied stationary interval records on the source's film clock. */
     readonly holds: readonly IHold[];
+
+    /** Optional paired root and socket playback on the source's film clock. */
     readonly playback?: IAutoMovieMotionPlayback<IRead>;
   }
 
   /** An adapter's actual readers, rather than the wrappers' declared types. */
   export interface IAdapted {
+    /** Root reader installed on the prop when the adapter admitted it. */
     readonly motion: IAutoMovieMotionHumanProp["motion"];
+
+    /** Socket reader installed on the prop at the same admission. */
     readonly point: IAutoMovieMotionHumanProp["point"];
+
+    /** Borrowed stationary intervals belonging to the admitted reader pair. */
     readonly holds: readonly IHold[];
+
+    /** Optional same-time playback valid while both prop readers still match. */
     readonly playback?: IAutoMovieMotionPlayback<IRead>;
   }
 

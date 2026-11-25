@@ -33,7 +33,6 @@ const HELD: IAutoMovieMotionHumanHeld.IHeld = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   },
-  effector: { surface: "grip", shape: "fist" },
   affordances: [
     at(
       "point",

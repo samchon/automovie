@@ -89,7 +89,9 @@ export function test_unit_motions_climbing_tree_climb_route_expand(): void {
         s.event,
         s.contacts.length,
       ]),
-      [...route.staged.keys()].sort(),
+      [...route.staged.keys()].sort((a: string, b: string): number =>
+        a.localeCompare(b),
+      ),
     ],
     [
       [

@@ -5,7 +5,7 @@ export { ArchetypeFractureEnergy } from "./core/ArchetypeFractureEnergy";
 export { ArchetypePendulumFrequency } from "./core/ArchetypePendulumFrequency";
 export { ArchetypeTrackEase } from "./core/ArchetypeTrackEase";
 export { ArchetypeTrackRange } from "./core/ArchetypeTrackRange";
-export * as AutoMovieArchetypePassageSearch from "./core/AutoMovieArchetypePassageSearch";
+export { AutoMovieArchetypePassageSearch } from "./core/AutoMovieArchetypePassageSearch";
 export { deriveArchetypeSeed } from "./core/deriveArchetypeSeed";
 export { limitMonotoneTangents } from "./core/limitMonotoneTangents";
 export { admitQuadrupedPhase } from "./animals/admitQuadrupedPhase";

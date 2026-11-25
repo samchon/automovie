@@ -1,5 +1,7 @@
 import { AutoMovieArchetypeUnits } from "../core";
 
+/** The model dimensions of the cart family's three frame assemblies. */
+export namespace createCartParts {
 /**
  * A limber's frame, read and derived from The Ordnance Manual (1861), p. 74
  * and p. 77 (https://archive.org/details/cu31924031187887/page/74).
@@ -109,3 +111,4 @@ export const CARRIAGE: Readonly<{
   pole: 2.8,
   lock: 40,
 };
+}

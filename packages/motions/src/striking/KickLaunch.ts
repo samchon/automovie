@@ -100,7 +100,7 @@ export function KickLaunch(
     Vector3.cross(up, line),
     side === "left" ? 1 : -1,
   );
-  const level: OfLevel = band(body, first);
+  const level: OfLevel = KickLaunch.band(m, first);
   const amplitude: number = StrikingSkill.amplitude(context.skill);
 
   // The round kick's pelvis turns until the target lies the band's azimuth
@@ -161,12 +161,13 @@ export function KickLaunch(
     rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
   };
   const origin: IAutoMovieVector3 = feet[side].ankle;
+  const kneeBone: AutoMovieHumanoidBone = `${side}LowerLeg`;
   const knee: IAutoMovieVector3 = poseBones(
     body,
     context.entry.pose,
     undefined,
-    new Set<AutoMovieHumanoidBone>([`${side}LowerLeg`]),
-  ).get(`${side}LowerLeg` as AutoMovieHumanoidBone)!.worldPosition;
+    new Set<AutoMovieHumanoidBone>([kneeBone]),
+  ).get(kneeBone)!.worldPosition;
 
   // One goal's plan: its contact, the chamber folded from it, and the leg's
   // path. A feint ends on the chamber, and a kick that lands opens the knee

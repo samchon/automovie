@@ -62,6 +62,7 @@ export function HumanArmSeedRestarts(context: M.IContext): number[][][] {
     },
   );
 }
+/** Coverage parameters for the deterministic inverse-kinematics starts. */
 export namespace HumanArmSeedRestarts {
   /** The measured basin radius, a share of each coordinate's range. */
   export const BASIN: number = 0.5;

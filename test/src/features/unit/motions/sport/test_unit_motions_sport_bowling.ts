@@ -133,6 +133,16 @@ function slide(): void {
   );
 }
 
+/**
+ * Bowling's slide timing and final pin orientations determine the scored result.
+ *
+ * Scenarios:
+ *
+ * 1. The slide schedules its three events and trailing foot drag. A slide past
+ *    its reach or outside the action's time is refused.
+ * 2. Of pins at 0, 10 and 30 degrees, only the last passes its tipping angle.
+ * 3. A missing pin or one without a positive base radius is refused.
+ */
 export function test_unit_motions_sport_bowling(): void {
   slide();
   const end = (

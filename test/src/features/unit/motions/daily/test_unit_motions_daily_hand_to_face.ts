@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-import { coverFace, wipeTears } from "@automovie/motions/internal";
-import { HumanTrunk, handToFaceRegion, handToFaceRows, handToFaceSheet, poseBones } from "@automovie/motions/internal";
+import { HumanTrunk, coverFace, handToFaceRegion, handToFaceRows, handToFaceSheet, poseBones, wipeTears } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";

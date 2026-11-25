@@ -8,7 +8,7 @@ import { vclose } from "../../../internal/vclose";
 
 /** A hip 1 m up, the strike line along +Z, a 0.8 m reach. */
 const BASE: footStrikeChamber.IPrepared = {
-  technique: "front",
+  technique: "side",
   hip: { x: 0, y: 1, z: 0 },
   ankle: { x: 0, y: 0.1, z: 0.1 },
   line: { x: 0, y: 0, z: 1 },
@@ -24,7 +24,7 @@ const BASE: footStrikeChamber.IPrepared = {
  *
  * Scenarios:
  *
- * 1. A front kick chambers at (0, 0.64, 0.2); an axe at (0, 1.48, 0.24).
+ * 1. A side kick chambers at (0, 0.64, 0.2). An axe chambers at (0, 1.48, 0.24).
  * 2. A hook chambers 0.8 sqrt(0.265) m from the hip along (0, -0.9, -0.3).
  */
 export function test_unit_motions_striking_foot_strike_chamber(): void {

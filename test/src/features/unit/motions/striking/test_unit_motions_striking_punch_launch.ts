@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanSkill } from "@automovie/interface";
-import { punchContact, punchLaunch } from "@automovie/motions/internal";
+import { punchLaunch } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -7,6 +7,7 @@ import { nclose } from "../../../internal/nclose";
 /** A skill at one proficiency on every axis. */
 const at = (x: number): IAutoMovieMotionHumanSkill => ({
   p: x,
+  seed: "punch-launch",
   axes: {
     timing: x,
     path: x,
@@ -32,9 +33,7 @@ const at = (x: number): IAutoMovieMotionHumanSkill => ({
 export function test_unit_motions_striking_punch_launch(): void {
   TestValidator.predicate(
     "the turn",
-    punchContact.TURN.straight.rear === 60 &&
-      punchContact.TURN.hook.lead === -40 &&
-      nclose(punchLaunch.turn("left", "straight", "rear", at(1)), 60, 1e-12) &&
+    nclose(punchLaunch.turn("left", "straight", "rear", at(1)), 60, 1e-12) &&
       nclose(punchLaunch.turn("right", "hook", "lead", at(0)), 24, 1e-12),
   );
 }

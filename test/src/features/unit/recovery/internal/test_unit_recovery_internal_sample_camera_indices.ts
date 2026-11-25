@@ -29,7 +29,9 @@ export function test_unit_recovery_internal_sample_camera_indices(): void {
   );
   TestValidator.equals(
     "the whole population",
-    [...sampleRecoveryCameraIndices(5, 5, 7, 1, 3)].sort(),
+    sampleRecoveryCameraIndices(5, 5, 7, 1, 3).sort(
+      (left: number, right: number): number => left - right,
+    ),
     [0, 1, 2, 3, 4],
   );
   TestValidator.error("an oversized sample", (): number[] =>

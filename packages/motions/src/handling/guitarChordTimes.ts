@@ -73,6 +73,7 @@ export function guitarChordTimes(
   return { prep, firstAt, secondAt };
 }
 
+/** Timing shared by the guitar law's fretting and strumming hands. */
 export namespace guitarChordTimes {
   /** The chord's derived instants, seconds from its start. */
   export interface ITimes {

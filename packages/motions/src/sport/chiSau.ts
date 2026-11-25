@@ -140,10 +140,10 @@ export namespace chiSau {
     // Each partner reads the other's root, whose posture reads this one's:
     // while this roll is being built, a read of it gives the arms as they
     // are, which leaves the root it was asked for unchanged.
-    let roll: IRoll | undefined;
+    const preparation: { roll?: IRoll } = {};
     let building: boolean = false;
     const build = (): IRoll | null => {
-      if (roll !== undefined) return roll;
+      if (preparation.roll !== undefined) return preparation.roll;
       if (building) return null;
       building = true;
       try {
@@ -326,8 +326,9 @@ export namespace chiSau {
     return {
       ...composed,
       prepare: (): void => {
-        roll = undefined;
-        roll = build() ?? undefined;
+        delete preparation.roll;
+        const next: IRoll | null = build();
+        if (next !== null) preparation.roll = next;
         composed.prepare?.();
       },
     };

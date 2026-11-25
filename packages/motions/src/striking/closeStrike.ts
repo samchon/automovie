@@ -408,7 +408,7 @@ export namespace closeStrike {
             const w: number =
               seconds <= shown
                 ? reached * minimumJerk.share(seconds / shown)
-                : share(seconds);
+                : drive(seconds);
             const back: IAutoMovieVector3 = Vector3.scale(
               travel,
               -APPROACH * (1 - Math.min(1, seconds / shown)),
@@ -483,7 +483,7 @@ export namespace closeStrike {
                   minimumJerk.share(
                     Math.max(0, seconds - delay) / (shown - delay),
                   )
-                : share(seconds),
+                : drive(seconds),
             target: (
               _posture: IAutoMovieMotionHumanPosture,
               seconds: number,

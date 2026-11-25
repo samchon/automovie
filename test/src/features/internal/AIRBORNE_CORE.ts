@@ -1,9 +1,7 @@
 import type { IAutoMovieResolveCenterOfMass } from "@automovie/interface";
 
+import { AIRBORNE_CORE_END_MASS } from "./AIRBORNE_CORE_END_MASS";
 import { airbornePrimitive } from "./airbornePrimitive";
-
-/** Mass of each end part of the three-mass core, kilograms. */
-export const AIRBORNE_CORE_END_MASS: number = 5;
 
 /**
  * A three-mass body: a 30 kg core of moments (1.2, 0.4, 1.1) kg m^2 and two 5

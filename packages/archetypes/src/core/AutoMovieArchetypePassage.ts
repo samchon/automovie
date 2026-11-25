@@ -3,7 +3,12 @@ import type { IAutoMovieComputeModelRestExtent, IAutoMovieCrowdAgent, IAutoMovie
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
-import { type IObstaclePlacement, type IHull, type IPair, admitWindow, admitBody, place, separation, scan, mitre } from "./AutoMovieArchetypePassageSearch";
+import { AutoMovieArchetypePassageSearch } from "./AutoMovieArchetypePassageSearch";
+
+const { admitWindow, admitBody, place, separation, scan, mitre } = AutoMovieArchetypePassageSearch;
+type IObstaclePlacement = AutoMovieArchetypePassageSearch.IObstaclePlacement;
+type IHull = AutoMovieArchetypePassageSearch.IHull;
+type IPair = AutoMovieArchetypePassageSearch.IPair;
 
 /**
  * Clearance between bodies that pass one another on planned courses: ridden or

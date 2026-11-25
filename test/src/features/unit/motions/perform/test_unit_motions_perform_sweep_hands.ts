@@ -130,10 +130,11 @@ export async function test_unit_motions_perform_sweep_hands(): Promise<void> {
     },
     { subject: "actor", at: 1, from: 0.5, hands: ["right"] },
   );
-  TestValidator.equals("the handback's hands", [...sides].sort(), [
-    "left",
-    "right",
-  ]);
+  TestValidator.equals(
+    "the handback's hands",
+    [...sides].sort((a, b): number => a.localeCompare(b)),
+    ["left", "right"],
+  );
   TestValidator.equals(
     "an ended grip and a worn span own no hand",
     HumanPropSweepHands.handbackSides(

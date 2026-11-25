@@ -35,7 +35,9 @@ export namespace PlaygroundAddress {
    * Read the composition of a fragment.
    *
    * @param hash The address's fragment, with or without its leading `#`.
-   * @returns The composition, or null when the fragment carries none.
+   * @returns The composition with numeric object seeds, or null when the
+   *   fragment carries none. A saved text seed is read as the same number that
+   *   the former model producer received.
    * @throws {Error} When the fragment's composition cannot be read, or is of
    *   another version, naming the version it needs.
    */
@@ -194,7 +196,8 @@ export namespace PlaygroundAddress {
     typeof value.subject === "string" &&
     typeof value.producer === "string" &&
     (value.kind === undefined || typeof value.kind === "string") &&
-    (value.seed === undefined || typeof value.seed === "number") &&
+    (value.seed === undefined || typeof value.seed === "number" ||
+      token(value.seed) || value.seed === "") &&
     (value.params === undefined ||
       (record(value.params) &&
         Object.values(value.params).every(
@@ -243,7 +246,14 @@ export namespace PlaygroundAddress {
             typeof (value.sheath as Record<string, unknown>)[k] === "string",
         ) &&
         typeof value.sheath.clearance === "number")) &&
-    typeof value.yaw === "number";
+    typeof value.yaw === "number" &&
+    normalizeSeed(value);
+
+  /** Convert an already admitted seed on the fresh record owned by decode. */
+  function normalizeSeed(value: Record<string, unknown>): true {
+    if (value.seed !== undefined) value.seed = Number(value.seed);
+    return true;
+  }
 
   /** Whether a value has the members the editor reads of a performer. */
   const performer: (value: unknown) => boolean = (value: unknown): boolean =>

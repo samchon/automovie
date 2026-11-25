@@ -9,7 +9,6 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
-import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { filmEffectWorld } from "../../../internal/filmEffectWorld";
 import { filmEffectZone } from "../../../internal/filmEffectZone";
 import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
@@ -69,10 +68,9 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
     fixedStepSeconds: 1 / 30,
     cues,
   });
-  TestValidator.predicate(
+  TestValidator.equals(
     "shot streams are ordered, filtered, and carry their event",
-    filmEffectValuesClose(
-      shot.map(
+    shot.map(
         (
           stream: IAutoMovieCompiledEffect,
         ): {
@@ -109,7 +107,6 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
           step: 1 / 30,
         },
       ],
-    ),
   );
   const zoneSeed: (id: string) => number = (id: string): number =>
     world.effectZones.find(
@@ -138,16 +135,14 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
   shot[0]!.bounds.min.x = 99;
   shot[0]!.recipe.seed = 99;
   shot[0]!.intensity.from = 99;
-  TestValidator.predicate(
+  TestValidator.equals(
     "emitted data does not alias the authored world or cue",
-    filmEffectValuesClose(
-      [
+    [
         world.effectZones[0]!.bounds.min.x,
         world.effectRecipes[0]!.seed,
         cues[1]!.intensity.from,
       ],
-      [-1, 7, 1],
-    ),
+    [-1, 7, 1],
   );
 
   const owner: { production: string; film: string } = {
@@ -160,10 +155,9 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
     fixedStepSeconds: 0.125,
     cues: [cues[1]!],
   })[0]!;
-  TestValidator.predicate(
+  TestValidator.equals(
     "film streams follow the film seed protocol and the supplied step",
-    filmEffectValuesClose(
-      [film.seed, film.fixedStepSeconds, film.digest],
+    [film.seed, film.fixedStepSeconds, film.digest],
       [
         Number.parseInt(
           nodeCanonicalDigest({
@@ -178,7 +172,6 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
         0.125,
         nodeCanonicalDigest({ ...film, digest: undefined }),
       ],
-    ),
   );
   TestValidator.equals(
     "owners separate seeds",

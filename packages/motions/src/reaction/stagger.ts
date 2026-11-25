@@ -288,12 +288,13 @@ export namespace stagger {
     // Both arms abduct from the entry's angles as balance reactions and come
     // down as the body settles, each let out further where it would pass
     // into the body by its plan-time carriage (`carried`, `staggerArms`).
+    const laid: { carriage?: (seconds: number) => readonly number[] } = {};
     const arms: IAutoMovieMotionHumanPrimitive = staggerArms(
       body,
       context.entry,
       recovery,
       duration,
-      (): ((seconds: number) => readonly number[]) | undefined => carried,
+      (): ((seconds: number) => readonly number[]) | undefined => laid.carriage,
     );
     // Each arm's let-out from the body (`HumanArmSwing.carriage`, the gait's
     // own clearance), read at plan time against the plan's own posture (its
@@ -301,7 +302,6 @@ export namespace stagger {
     // al. 2024, arXiv:2412.13423; `prepareHumanAdaptiveKnots`) to the
     // solver's own angular resolution (`ROM_TOLERANCE`); no pose query fits an
     // arm.
-    let carried: ((seconds: number) => readonly number[]) | undefined;
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base: {
@@ -334,7 +334,7 @@ export namespace stagger {
       tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
       maxKnots: frames,
     }).course;
-    carried = (seconds: number): readonly number[] =>
+    laid.carriage = (seconds: number): readonly number[] =>
       carriage.position(Math.min(duration, Math.max(0, seconds)));
 
     // The displayed centre of mass kept on the pendulum's course: the

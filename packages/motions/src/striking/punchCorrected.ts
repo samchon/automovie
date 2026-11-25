@@ -5,8 +5,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { punchContact } from "./punchContact";
+import type { punchContact } from "./punchContact";
 import type { punchReach } from "./punchReach";
+
+/** The correction's displacement and its minimum-jerk time window. */
+type Correction = Pick<punchReach.ICorrection, "end" | "start" | "duration">;
 
 /**
  * The delivery's tracker: the planned contact point, with each correction a
@@ -26,7 +29,7 @@ export function punchCorrected(
     planned: tracker.planned,
     units: (seconds: number): IAutoMovieSuperposeMinimumJerk.IUnit[] =>
       contact.corrected(seconds).map(
-        (c: punchReach.ICorrection): IAutoMovieSuperposeMinimumJerk.IUnit => ({
+        (c: Correction): IAutoMovieSuperposeMinimumJerk.IUnit => ({
           displacement: c.end,
           start: c.start,
           duration: c.duration,
@@ -38,7 +41,7 @@ export function punchCorrected(
         .reduce(
           (
             g: IAutoMovieVector3,
-            c: punchReach.ICorrection,
+            c: Correction,
           ): IAutoMovieVector3 => Vector3.add(g, c.end),
           tracker.planned,
         ),
@@ -52,7 +55,10 @@ export namespace punchCorrected {
     /** The `tracker` `punchGeometry.build` prepared. */
     tracker: Pick<punchContact.IContact["tracker"], "planned">;
 
-    /** The `contact` `punchGeometry.build` prepared. */
-    contact: Pick<punchContact.IContact, "corrected">;
+    /** Contact corrections available at a film second. */
+    contact: {
+      /** Read the displacement and timing of every correction for this goal. */
+      corrected: (seconds: number) => readonly Correction[];
+    };
   }
 }

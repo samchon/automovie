@@ -16,18 +16,23 @@ import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import { chooseQuadrupedBodyRoot } from "./chooseQuadrupedBodyRoot";
 import type { createQuadruped } from "./createQuadruped";
-import { HINDS, type Target, type ICarried, type ISettled } from "./QuadrupedRidePoseTypes";
-import * as parts from "./QuadrupedRidePoseGoals";
+import { QuadrupedRidePoseTypes } from "./QuadrupedRidePoseTypes";
+import type { QuadrupedRidePoseGoals } from "./QuadrupedRidePoseGoals";
+
+const { HINDS } = QuadrupedRidePoseTypes;
+type Target = QuadrupedRidePoseTypes.Target;
+type ICarried = QuadrupedRidePoseTypes.ICarried;
+type ISettled = QuadrupedRidePoseTypes.ISettled;
 
 /** Fixed-attachment locomotion lowered through the animal's shared rig. */
 export namespace QuadrupedRidePose {
   /** The moved type {@link QuadrupedRidePoseGoals.IGoal}. */
-  export type IGoal = parts.IGoal;
+  export type IGoal = QuadrupedRidePoseGoals.IGoal;
   /** The moved type {@link QuadrupedRidePoseGoals.IPrepared}. */
   export type IPrepared<
     Id extends string,
     Dimension extends string,
-  > = parts.IPrepared<Id, Dimension>;
+  > = QuadrupedRidePoseGoals.IPrepared<Id, Dimension>;
 
   /**
    * Prepare lengths, terminal solids, carrier policy and shared FK once.

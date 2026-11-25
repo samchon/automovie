@@ -30,6 +30,7 @@ import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
  *   and is not the projectile itself; `onHit` needs a node or bone aim naming a
  *   staged scene node, because a point or group identifies no struck actor and
  *   a camera cannot perform the injected recoil.
+ * - `enact`: a nonblank authored clip id for the host to resolve.
  * - `react`: a force in `[0, 1]` and a blow source that resolves, because the
  *   reference synthesizer otherwise snaps the body back as if struck from the
  *   front.
@@ -196,6 +197,9 @@ export function gatePerformShotStageAction(
         });
       return;
     }
+    case "enact":
+      out.nonEmpty(`${path}.clip`, action.clip, "enact clip id");
+      return;
     case "react":
       if (!(action.force >= 0 && action.force <= 1))
         out.push(

@@ -1,6 +1,8 @@
 import { EquineHarness } from "../animals/EquineHarness";
 import { AutoMovieArchetypeUnits } from "../core";
 
+/** The measurements of cart grips, couplings and rider supports. */
+export namespace createCartMeasures {
 /**
  * A wheelbarrow handgrip's length, metres: the 130 mm of the Matador M-130-L4
  * data sheet.
@@ -77,3 +79,4 @@ export const RICKSHAW_SEAT_WIDTH: number = 21 * AutoMovieArchetypeUnits.INCH;
  * the front of the footboard, the same rules, taken along the rickshaw.
  */
 export const RICKSHAW_FOOTBOARD: number = 23 * AutoMovieArchetypeUnits.INCH;
+}

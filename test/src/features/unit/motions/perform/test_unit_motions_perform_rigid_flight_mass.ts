@@ -6,8 +6,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
-import { prepareRigidFlightMass } from "@automovie/motions/internal";
+import { poseBones, prepareRigidFlightMass } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../../internal/fixtures/standingPerformanceState";
@@ -23,7 +22,7 @@ const SUM: number = 1e-9;
  * move into its nearest moving ancestor, in that ancestor's frame, and admits a
  * later pose only while every fixed joint keeps its coordinates.
  *
- * Scenarios, on the standing man's displayed pose at 0.5 s:
+ * Scenarios, on a stored person's standing pose:
  *
  * 1. With every bone moving nothing folds, and nothing is prepared.
  * 2. With the hips alone moving, every segment folds into the hips: one segment
@@ -37,12 +36,11 @@ const SUM: number = 1e-9;
  *    two joints swapped do not; a moving joint's change does.
  */
 export async function test_unit_motions_perform_rigid_flight_mass(): Promise<void> {
-  const { input } = await standingPerformanceState();
-  const performance: HumanPerformance = new HumanPerformance(input);
-  const body: IAutoMovieMotionHumanBody = input.performers[0]!.body;
-  const pose: IAutoMoviePose = performance.pose("actor", 0.5);
+  const { context } = await standingPerformanceState();
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const pose: IAutoMoviePose = context.entry.pose;
   const frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    performance.bones("actor", 0.5);
+    poseBones(body, pose);
   const bones: AutoMovieHumanoidBone[] = body.skeleton.bones.map(
     (bone) => bone.bone,
   );

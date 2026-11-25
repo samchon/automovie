@@ -11,8 +11,8 @@ import { createRickshaw } from "./createRickshaw";
 import { createShoppingTrolley } from "./createShoppingTrolley";
 import { createWagon } from "./createWagon";
 import { createWheelbarrow } from "./createWheelbarrow";
-import * as parts from "./createCartParts";
-import * as measures from "./createCartMeasures";
+import { createCartParts as parts } from "./createCartParts";
+import { createCartMeasures as measures } from "./createCartMeasures";
 
 /**
  * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a

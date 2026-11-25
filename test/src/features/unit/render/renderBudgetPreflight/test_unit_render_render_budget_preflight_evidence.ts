@@ -35,7 +35,7 @@ export function test_unit_render_render_budget_preflight_evidence(): void {
     target: null,
   });
   const evidence = (...assessments: IAutoMovieRenderBudgetAssessment[]) =>
-    autoMovieRenderBudgetEvidence({ tier: "final", assessments });
+    autoMovieRenderBudgetEvidence({ tier: "final", budgets: undefined, assessments });
   const mixed = evidence(assessment("b", "within"), assessment("a", "incomplete"));
   TestValidator.equals(
     "sorted and worst",

@@ -1,5 +1,4 @@
-import type { IMotionCaptureCase } from "@automovie/motions/internal";
-import { floorCaseSpan } from "@automovie/motions/internal";
+import { type IMotionCaptureCase, floorCaseSpan } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**

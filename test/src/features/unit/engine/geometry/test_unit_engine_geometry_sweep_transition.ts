@@ -1,4 +1,5 @@
 import {
+  compareCodeUnits,
   layoutAutoMovieSurfaceTransition,
   mapAutoMovieSurfaceTier,
   sampleAutoMovieSurfaceNetwork,
@@ -71,7 +72,7 @@ export function test_unit_engine_geometry_sweep_transition(): void {
   const key = (q: Corner[]): string =>
     q
       .map((c: Corner): string => `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`)
-      .sort()
+      .sort(compareCodeUnits)
       .join(";");
   for (const [start, end] of [
     [8, 16],

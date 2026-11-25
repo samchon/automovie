@@ -14,7 +14,6 @@ import { TestValidator } from "@nestia/e2e";
 import { filmEffectIdentity } from "../../../internal/filmEffectIdentity";
 import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
 import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
-import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { materializedFilmEffects } from "../../../internal/materializedFilmEffects";
 import { nclose } from "../../../internal/nclose";
 import { resealFilmEffect } from "../../../internal/resealFilmEffect";
@@ -77,10 +76,9 @@ export function test_unit_engine_film_effect_runtime_sampling(): void {
       [false, false],
     ],
   );
-  TestValidator.predicate(
+  TestValidator.equals(
     "each sample is the engine sample at the exact frame second",
-    filmEffectValuesClose(
-      sample(12, 3).map(
+    sample(12, 3).map(
         (item: IAutoMovieProductionFilmEffectSample): IAutoMovieEffectSample =>
           item.sample,
       ),
@@ -88,7 +86,6 @@ export function test_unit_engine_film_effect_runtime_sampling(): void {
         sampleCompiledEffect(haze.effect, 12 / 24, 3),
         sampleCompiledEffect(mist.effect, 12 / 24, 3),
       ],
-    ),
   );
   const boundary: IAutoMovieProductionFilmEffectSample[] = sample(12, 3);
   TestValidator.predicate(
@@ -102,9 +99,10 @@ export function test_unit_engine_film_effect_runtime_sampling(): void {
   );
   const late: IAutoMovieProductionFilmEffectSample[] = sample(23);
   const early: IAutoMovieProductionFilmEffectSample[] = sample(12);
-  TestValidator.predicate(
+  TestValidator.equals(
     "reordered seeks reconstruct the same state",
-    filmEffectValuesClose([sample(23), sample(12)], [late, early]),
+    [sample(23), sample(12)],
+    [late, early],
   );
   const copied: IAutoMovieProductionFilmEffectSample[] = sample(12);
   copied[1]!.runtime.effect.id = "mutated";

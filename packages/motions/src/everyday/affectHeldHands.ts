@@ -182,6 +182,7 @@ export function affectHeldHands(
   return { ...after, joints, limbs };
 }
 
+/** The layer inputs read while securing a held prop's contacts. */
 export namespace affectHeldHands {
   /**
    * What the hold reads of a layer's context: the performer, its body, the

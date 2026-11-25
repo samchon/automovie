@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingTarget,
   IAutoMovieMotionTarget,
   IAutoMovieVector3,

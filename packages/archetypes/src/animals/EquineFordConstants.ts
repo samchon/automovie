@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+/** The support frame and sampling parameters of the equine ford clearance check. */
+export namespace EquineFordConstants {
 /** One-sided difference, seconds, for the offset rates at a cut. */
 export const STEP: number = 1e-5;
 
@@ -18,3 +20,4 @@ export interface IBar {
 
 /** Stroke phases sampled per cycle when the stroke's lowest sole is read. */
 export const SWEEP: number = 96;
+}

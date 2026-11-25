@@ -72,11 +72,10 @@ export function prepareHumanSampledCourse(
       });
       return { to: end, course: prepareHumanSampledCourse.through(knots) };
     });
+  const last: IPiece = pieces[pieces.length - 1]!;
   return (seconds: number): number[] => {
     const t: number = Math.min(to, Math.max(from, seconds));
-    return (
-      pieces.find((piece: IPiece): boolean => t <= piece.to) ?? pieces.at(-1)!
-    ).course(t);
+    return (pieces.find((piece: IPiece): boolean => t <= piece.to) ?? last).course(t);
   };
 }
 

@@ -3,6 +3,8 @@ import { AutoMovieArchetypeFrame } from "../core";
 import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEquineLibertyCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
+/** The authored posture parameters and limb types shared by the liberty rows. */
+export namespace EquineLibertyConstants {
 /** A limb end of the body. */
 export type End = "Fore" | "Hind";
 
@@ -43,3 +45,4 @@ export type Trunk = (share: number) => AutoMovieArchetypeFrame.IMotion;
 
 /** A fore limb. */
 export type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
+}

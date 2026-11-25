@@ -1,3 +1,9 @@
+import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
@@ -12,12 +18,22 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
 /**
  * The arms' configuration at one waypoint of the hold with every hand on its
- * site and every arm clear, solved once from the caller's seed.
- */ export function HumanArmSeedHold(
+ * site and every arm clear.
+ *
+ * @param problem The hold's problem.
+ * @param context The context prepared on the full knot set.
+ * @param k The hold's knot index.
+ * @param given The previous hold's coordinates or the caller's preferred seed.
+ * @param proposed The course's proposed coordinates at this knot.
+ * @returns Each arm's admitted coordinates.
+ * @throws {HumanRefusal} When the reach bound or the inverse kinematics refuses.
+ */
+export function HumanArmSeedHold(
   problem: HumanArmSeed.IProblem,
   context: M.IContext,
   k: number,
-  given?: number[][],
+  given?: readonly (readonly number[])[],
+  proposed?: readonly (readonly number[])[],
 ): number[][] {
   // The waypoint between its neighbours; the last one, where a hold lasts
   // to the end, with itself after it: a still configuration reads neither
@@ -62,51 +78,62 @@ type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
     (sites: readonly (M.ISite | undefined)[], a: number): void => {
       const site: M.ISite | undefined = sites[1];
       if (site === undefined || site.on !== undefined) return;
-      const shoulder: ReturnType<typeof G.placed>["shoulder"] = G.placed(
+      const shoulder: IAutoMovieVector3 = G.placed(
         point.setups[a]!,
         point.frames[a]![1]!,
         point.rest[a]!,
       ).shoulder;
+      const rest: IAutoMovieMotionHumanArmGeometry.ISetup["rest"] =
+        point.setups[a]!.rest;
       const reach: number =
-        problem.body.measure.upperArm +
-        problem.body.measure.forearm +
-        Math.hypot(site.contact.x, site.contact.y, site.contact.z);
-      const beyond: number =
-        Math.hypot(
-          site.point.x - shoulder.x,
-          site.point.y - shoulder.y,
-          site.point.z - shoulder.z,
-        ) -
-        reach -
-        site.disc;
-      if (beyond > 0)
+        Vector3.length(rest.lower.translation) +
+        Vector3.length(rest.hand.translation) +
+        Vector3.length(site.contact);
+      const offset: IAutoMovieVector3 = Vector3.subtract(site.point, shoulder);
+      const normal: IAutoMovieVector3 | undefined = point.normals[a]![1];
+      // The sum of link lengths bounds contact displacement on every
+      // projection. A surface site only bounds the two tangent components.
+      const required: number = Vector3.length(
+        normal === undefined
+          ? offset
+          : Vector3.subtract(
+              offset,
+              Vector3.scale(normal, Vector3.dot(offset, normal)),
+            ),
+      );
+      const beyond: number = 1000 * (required - reach - site.disc);
+      if (beyond > M.TOLERANCE)
         throw new HumanRefusal({
           kind: "reach",
           axis: "region",
-          value: 1000 * beyond,
+          value: beyond,
           feasible: null,
-          reason: `the ${problem.arms[a]!.side} hand's site lies ${(1000 * beyond).toFixed(0)} mm beyond its arm's reach at ${context.times[k]!.toFixed(3)} s`,
+          reason: `the ${problem.arms[a]!.side} hand's site lies ${beyond.toFixed(0)} mm beyond its arm's reach at ${context.times[k]!.toFixed(3)} s`,
           fix: "put the hand on a site its arm reaches",
         });
     },
   );
   let closest: M.IEvaluation | undefined;
-  for (const q of [
-    ...HumanArmSeedStarts(
-      given,
-      problem.arms.every(
-        (arm: HumanArmSeed.IProblem["arms"][number]): boolean =>
-          arm.guess !== undefined,
-      )
-        ? problem.arms.map(
-            (arm: HumanArmSeed.IProblem["arms"][number], a: number): number[] =>
-              G.encode(context.setups[a]!, arm.guess!),
-          )
-        : undefined,
-      context.rest,
-    ),
-    ...HumanArmSeedRestarts(point),
-  ]) {
+  const starts: number[][][] = HumanArmSeedStarts(
+    given,
+    problem.arms.every(
+      (arm: HumanArmSeed.IProblem["arms"][number]): boolean =>
+        arm.guess !== undefined,
+    )
+      ? problem.arms.map(
+          (arm: HumanArmSeed.IProblem["arms"][number], a: number): number[] =>
+            G.encode(context.setups[a]!, arm.guess!),
+        )
+      : undefined,
+    context.rest,
+  );
+  if (proposed !== undefined)
+    starts.splice(
+      given === undefined ? 0 : 1,
+      0,
+      proposed.map((arm: readonly number[]): number[] => [...arm]),
+    );
+  const attempt = (q: readonly (readonly number[])[]): number[][] | undefined => {
     const candidate: number[][][] = frame(point, q);
     if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
       return candidate.map((arm: number[][]): number[] => arm[1]!);
@@ -118,6 +145,15 @@ type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
       at.evaluation.worst.value < closest.worst.value
     )
       closest = at.evaluation;
+    return undefined;
+  };
+  for (const q of starts) {
+    const admitted: number[][] | undefined = attempt(q);
+    if (admitted !== undefined) return admitted;
+  }
+  for (const q of HumanArmSeedRestarts(point)) {
+    const admitted: number[][] | undefined = attempt(q);
+    if (admitted !== undefined) return admitted;
   }
   // A solution no restart reaches: the site walked in from the rest.
   const continued: number[][] | undefined = HumanArmSeedContinuation(

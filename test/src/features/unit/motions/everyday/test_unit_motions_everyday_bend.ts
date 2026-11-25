@@ -1,6 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanSport as HumanSportRows } from "@automovie/motions/internal";
-import { bend, bendLower } from "@automovie/motions/internal";
+import { HumanSport as HumanSportRows, bend, bendLower } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

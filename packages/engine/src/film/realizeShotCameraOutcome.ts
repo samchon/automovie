@@ -139,6 +139,7 @@ export function realizeShotCameraOutcome(
   };
 }
 
+/** Input and result contracts for one camera grade on the shot clock. */
 export namespace realizeShotCameraOutcome {
   /** What the camera grade reads from the realization's props. */
   export interface IInput {

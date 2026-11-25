@@ -4,6 +4,8 @@ import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypePassage } from "./AutoMovieArchetypePassage";
 
+/** Admission, footprint distances and interval search for passage conflicts. */
+export namespace AutoMovieArchetypePassageSearch {
 /**
  * Where a steering obstacle stands at a second: its world position and its yaw
  * in degrees.
@@ -417,4 +419,5 @@ export function mitre(
       z: vertex.z + (a.z + b.z) * scale,
     };
   });
+}
 }

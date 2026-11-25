@@ -7,7 +7,12 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { EquineBodyPose } from "./EquineBodyPose";
 import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import { type End, HUMERUS_DROP, STRETCH, KNEEL_FOLD, KINDS, SETTLE, ZERO, type Trunk, type Fore } from "./EquineLibertyConstants";
+import { EquineLibertyConstants } from "./EquineLibertyConstants";
+
+const { HUMERUS_DROP, STRETCH, KNEEL_FOLD, KINDS, SETTLE, ZERO } = EquineLibertyConstants;
+type End = EquineLibertyConstants.End;
+type Trunk = EquineLibertyConstants.Trunk;
+type Fore = EquineLibertyConstants.Fore;
 
 /**
  * The liberty cue poses as stance rows: the bow, the kneel and the sit.

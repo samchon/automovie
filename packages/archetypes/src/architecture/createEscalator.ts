@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type IAutoMovieArchetypeBand } from "../core";
-import { KONE, ESTIMATE, PITCH, RAIL_OFFSET, PLATE, LANDING } from "./createEscalatorConstants";
+import { createEscalatorConstants } from "./createEscalatorConstants";
+
+const { KONE, ESTIMATE, PITCH, RAIL_OFFSET, PLATE, LANDING } = createEscalatorConstants;
 
 /**
  * An escalator between two floors: a lower landing at `y = 0` before the lower

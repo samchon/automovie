@@ -126,8 +126,8 @@ export async function test_unit_motions_perform_prop_hold(): Promise<void> {
   );
 
   // 7. Frames on bones.
-  const { input } = await standingPerformanceState();
-  const body: IAutoMovieMotionHumanBody = input.performers[0]!.body;
+  const { context } = await standingPerformanceState();
+  const body: IAutoMovieMotionHumanBody = context.body;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     new HumanPerformance(input).bones("actor", 0.5);
   const head: IAutoMovieResolvedBone = bones.get("head")!;

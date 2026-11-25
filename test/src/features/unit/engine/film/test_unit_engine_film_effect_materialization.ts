@@ -18,9 +18,9 @@ import { filmEffectIdentity } from "../../../internal/filmEffectIdentity";
 import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
 import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
 import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
-import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { filmEffectWorld } from "../../../internal/filmEffectWorld";
 import { filmEffectZone } from "../../../internal/filmEffectZone";
+import { nclose } from "../../../internal/nclose";
 import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
 import { throwsError } from "../../../internal/predicates";
 
@@ -30,6 +30,9 @@ const EXPECTED_CUES: ReadonlyArray<[string, string, number, number, number]> = [
   ["mist", "yard", 12, 24, 0.5],
   ["dew", "yard", 24, 30, 0.5],
 ];
+
+/** Exact in binary64: integer frame products fit and both sides round the same quotient once. */
+const FRAME_SECONDS_TOLERANCE: number = 0;
 
 /**
  * Film cue materialization enforces current identity, rational clock and
@@ -78,10 +81,9 @@ export function test_unit_engine_film_effect_materialization(): void {
       (zone: IAutoMovieWorldEffectZone): boolean => zone.id === id,
     )!;
 
-  TestValidator.predicate(
-    "cues become ordered runtimes on their exact frame clock",
-    filmEffectValuesClose(
-      output.map(
+  TestValidator.equals(
+    "cues become ordered runtimes on their integer frame clock",
+    output.map(
         (
           runtime: IAutoMovieCompiledFilmEffect,
         ): {
@@ -91,8 +93,6 @@ export function test_unit_engine_film_effect_materialization(): void {
           identity: string[];
           rate: IAutoMovieProductionFrameRate;
           frames: number[];
-          seconds: number[];
-          step: number;
           intensity: { from: number; to: number };
         } => ({
           id: runtime.effect.id,
@@ -106,8 +106,6 @@ export function test_unit_engine_film_effect_materialization(): void {
           ],
           rate: runtime.frameRate,
           frames: [runtime.startFrame, runtime.endFrame],
-          seconds: [runtime.effect.start, runtime.effect.end],
-          step: runtime.effect.fixedStepSeconds,
           intensity: runtime.effect.intensity,
         }),
       ),
@@ -125,8 +123,6 @@ export function test_unit_engine_film_effect_materialization(): void {
           identity: string[];
           rate: { numerator: number; denominator: number };
           frames: number[];
-          seconds: number[];
-          step: number;
           intensity: { from: number; to: number };
         } => ({
           id,
@@ -140,12 +136,18 @@ export function test_unit_engine_film_effect_materialization(): void {
           ],
           rate: { numerator: 24, denominator: 1 },
           frames: [start, end],
-          seconds: [start / 24, end / 24],
-          step: 1 / 24,
           intensity: { from: intensity, to: intensity },
         }),
       ),
-    ),
+  );
+  TestValidator.predicate(
+    "every projected second is on the same frame clock",
+    output.every((runtime: IAutoMovieCompiledFilmEffect, index: number): boolean => {
+      const [, , start, end]: (typeof EXPECTED_CUES)[number] = EXPECTED_CUES[index]!;
+      return nclose(runtime.effect.start, start / 24, FRAME_SECONDS_TOLERANCE) &&
+        nclose(runtime.effect.end, end / 24, FRAME_SECONDS_TOLERANCE) &&
+        nclose(runtime.effect.fixedStepSeconds, 1 / 24, FRAME_SECONDS_TOLERANCE);
+    }),
   );
   TestValidator.equals(
     "seeds and digests are the documented protocol through node:crypto",
@@ -203,17 +205,12 @@ export function test_unit_engine_film_effect_materialization(): void {
     frameRate: rational,
     effects: [filmEffectCue({ startFrame: 3, durationFrames: 2 })],
   })[0]!;
+  TestValidator.equals("the reduced rational frame rate", rationalRuntime.frameRate, rational);
   TestValidator.predicate(
-    "a rational clock yields the authored rational bounds within 1e-12",
-    filmEffectValuesClose(
-      [
-        rationalRuntime.frameRate,
-        rationalRuntime.effect.start,
-        rationalRuntime.effect.end,
-        rationalRuntime.effect.fixedStepSeconds,
-      ],
-      [rational, 3003 / 30000, 5005 / 30000, 1001 / 30000],
-    ),
+    "a rational clock yields the authored rational bounds",
+    nclose(rationalRuntime.effect.start, 3003 / 30000, FRAME_SECONDS_TOLERANCE) &&
+      nclose(rationalRuntime.effect.end, 5005 / 30000, FRAME_SECONDS_TOLERANCE) &&
+      nclose(rationalRuntime.effect.fixedStepSeconds, 1001 / 30000, FRAME_SECONDS_TOLERANCE),
   );
 
   const refuse: (

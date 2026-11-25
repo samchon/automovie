@@ -77,6 +77,7 @@ export function HumanArmSeedContinuation(
   }
   return q;
 }
+/** Step-size parameter for the inverse-kinematics continuation. */
 export namespace HumanArmSeedContinuation {
   /**
    * The share of a coordinate's range a needle solution's basin stays within:

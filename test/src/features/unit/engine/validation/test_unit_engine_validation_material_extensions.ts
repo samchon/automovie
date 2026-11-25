@@ -1,5 +1,6 @@
 import {
   AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS,
+  compareCodeUnits,
   isAutoMovieMaterialExtension,
   unsupportedAutoMovieMaterialExtensions,
 } from "@automovie/engine";
@@ -25,7 +26,7 @@ export function test_unit_engine_validation_material_extensions(): void {
   // 1.
   TestValidator.equals(
     "supported",
-    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort(),
+    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort(compareCodeUnits),
     [
       "KHR_materials_clearcoat",
       "KHR_materials_ior",

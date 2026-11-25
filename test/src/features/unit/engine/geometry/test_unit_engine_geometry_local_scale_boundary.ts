@@ -79,7 +79,9 @@ export function test_unit_engine_geometry_local_scale_boundary(): void {
       actual.result.kind === "accepted"
         ? {
             ...actual.result,
-            limitingIndices: [...actual.result.limitingIndices].sort(),
+            limitingIndices: [...actual.result.limitingIndices].sort(
+              (left: number, right: number): number => left - right,
+            ),
           }
         : actual.result;
     const expected: Result = {

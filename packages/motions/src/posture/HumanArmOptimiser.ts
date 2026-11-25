@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
+import type { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -65,9 +66,7 @@ export namespace HumanArmOptimiser {
    *   absent, or for a still configuration, the waypoints are read themselves.
    * @param rates The knots' velocities and accelerations to start from; the
    *   minimum-jerk spline's through `start` when absent (`Knots.rates`).
-   * @param pinned The seconds of the knots whose positions are held as given: a
-   *   hold's poses solved first, each its site met and the arm clear, so the
-   *   solve optimises only between them; none when absent.
+   * @param pinned The hold poses whose positions stay fixed.
    * @returns The last iterate at the waypoints, its evaluation and the merit
    *   coefficient it was reached at.
    */
@@ -77,7 +76,7 @@ export namespace HumanArmOptimiser {
     from?: number,
     fine?: M.IContext,
     rates?: Knots.IRates,
-    pinned?: ReadonlySet<number>,
+    pinned?: HumanArmSeed.IHolds,
   ): IOptimised {
     // With a frame grid finer than the waypoints, the waypoints are knots:
     // the model is read and linearised at every grid instant on their
@@ -128,7 +127,7 @@ export namespace HumanArmOptimiser {
       IReading
     > = {
       closest: (it: IIterate): IIterate => ({
-        x: closest(context, it.x),
+        x: it.x,
         ...(it.rates === undefined
           ? {}
           : { rates: limited(context, it.rates) }),
@@ -228,7 +227,7 @@ export namespace HumanArmOptimiser {
           // constraints at the solution. The model omits the costs' value at
           // the iterate, its constant, which the iterate's exact objective is.
           return {
-            trial: stepped(context, x, solved, grid !== undefined),
+            trial: stepped(context, x, solved, grid !== undefined, pinned),
             merit: evaluation.objective + QP.value(model, solved),
             failed: false,
           };
@@ -236,10 +235,7 @@ export namespace HumanArmOptimiser {
       };
     };
 
-    const first: number[][][] = start.map(
-      (arm: readonly (readonly number[])[]): number[][] =>
-        arm.map((v: readonly number[]): number[] => [...v]),
-    );
+    const first: number[][][] = closest(context, start, pinned);
     const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
       IIterate,
       IReading
@@ -293,11 +289,17 @@ export namespace HumanArmOptimiser {
    * (`OptProb::getClosestFeasiblePoint`): each inner waypoint projected by
    * `HumanArmTrajectoryModel.ranged`, the others kept.
    */
-  function closest(c: M.IContext, x: number[][][]): number[][][] {
-    return x.map((arm: number[][], a: number): number[][] =>
-      arm.map((v: number[], k: number): number[] =>
-        M.inner(c, k) ? M.ranged(c, a, v) : [...v],
-      ),
+  function closest(
+    c: M.IContext,
+    x: readonly (readonly (readonly number[])[])[],
+    pinned?: HumanArmSeed.IHolds,
+  ): number[][][] {
+    return x.map((arm: readonly (readonly number[])[], a: number): number[][] =>
+      arm.map((v: readonly number[], k: number): number[] => {
+        const held: number[] | undefined = pinned?.get(c.times[k]!)?.[a];
+        if (held !== undefined) return [...held];
+        return M.inner(c, k) ? M.ranged(c, a, v) : [...v];
+      }),
     );
   }
 
@@ -312,7 +314,7 @@ export namespace HumanArmOptimiser {
     it: IIterate,
     n: number,
     knotted: boolean,
-    pinned?: ReadonlySet<number>,
+    pinned?: HumanArmSeed.IHolds,
   ): IRange[] {
     const out: IRange[] = Array.from(
       { length: n },
@@ -321,6 +323,7 @@ export namespace HumanArmOptimiser {
     const stride: number = knotted ? 3 * c.width : c.width;
     for (let k: number = 1; k < c.n; ++k) {
       if (!M.inner(c, k)) continue;
+      const fixed: boolean = pinned?.has(c.times[k]!) === true;
       // A knot's velocity and acceleration are the subproblem's variables in
       // its own time scale (`Knots.span`), in the positions' units.
       const span: number = Knots.span(c.times, k);
@@ -333,7 +336,7 @@ export namespace HumanArmOptimiser {
             out[base] = { low: b[0] - value, high: b[1] - value, scale: 1 };
           }
           // A pinned knot's position is held: the hold's own pose.
-          if (pinned?.has(c.times[k]!) === true)
+          if (fixed)
             out[base] = { low: 0, high: 0, scale: 1 };
           if (!knotted || it.rates === undefined) return;
           // The velocity within the coordinate's own rate, the limit the
@@ -371,9 +374,10 @@ export namespace HumanArmOptimiser {
     it: IIterate,
     solved: Float64Array,
     knotted: boolean,
+    pinned?: HumanArmSeed.IHolds,
   ): IIterate {
     if (!knotted || it.rates === undefined)
-      return { x: M.stepped(c, it.x, solved) };
+      return { x: M.stepped(c, it.x, solved, pinned) };
     const width: number = c.width;
     const inner: number = solved.length / (3 * width);
     const positions: Float64Array = new Float64Array(inner * width);
@@ -403,7 +407,7 @@ export namespace HumanArmOptimiser {
         }),
       );
     }
-    const x: number[][][] = M.stepped(c, it.x, positions);
+    const x: number[][][] = M.stepped(c, it.x, positions, pinned);
     return {
       x,
       rates: Projection(c, x, { velocities, accelerations }),

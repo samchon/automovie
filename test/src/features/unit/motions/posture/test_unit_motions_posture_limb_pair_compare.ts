@@ -4,6 +4,7 @@ import type {
   IAutoMovieHumanPostureRotation,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -11,6 +12,10 @@ import {
   createHumanPostureRotation,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+
+import { IDENTITY_TRANSFORM } from "../../../internal/IDENTITY_TRANSFORM";
+import { joint } from "../../../internal/joint";
+import { makePose } from "../../../internal/makePose";
 
 /** A pair of arm goals with the left hand at a height. */
 function goals(
@@ -41,20 +46,15 @@ function goals(
  * 4. A rotation's records are fresh and equal.
  */
 export function test_unit_motions_posture_limb_pair_compare(): void {
-  const pose: IAutoMoviePose = {
-    root: { x: 0, y: 0.9, z: 0 },
-    joints: [
-      { bone: "spine", flexion: 5 },
-      { bone: "chest", twist: 3 },
-    ],
+  const root: IAutoMovieTransform = {
+    ...IDENTITY_TRANSFORM,
+    translation: { x: 0, y: 0.9, z: 0 },
   };
-  const reordered: IAutoMoviePose = {
-    root: { x: 0, y: 0.9, z: 0 },
-    joints: [
-      { bone: "chest", twist: 3 },
-      { bone: "spine", flexion: 5 },
-    ],
-  };
+  const pose: IAutoMoviePose = makePose(
+    [joint("spine", { flexion: 5 }), joint("chest", { twist: 3 })],
+    root,
+  );
+  const reordered: IAutoMoviePose = makePose([...pose.joints].reverse(), root);
 
   // 1. Equal keys.
   TestValidator.equals(
@@ -77,7 +77,7 @@ export function test_unit_motions_posture_limb_pair_compare(): void {
   TestValidator.equals(
     "the root before the goals",
     compareHumanLimbPair(
-      { ...pose, root: { x: 1, y: 0.9, z: 0 } },
+      { ...pose, root: { ...root, translation: { x: 1, y: 0.9, z: 0 } } },
       goals(1),
       pose,
       goals(2),

@@ -3,6 +3,8 @@ import { type AutoMovieArchetype } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 
+/** The foot goals and prepared sampler exchanged by the ride pose solver. */
+export namespace QuadrupedRidePoseGoals {
 /** A terminal footprint and positive surface clearance above its local floor. */
 export interface IGoal {
   /**
@@ -55,4 +57,5 @@ export interface IPrepared<Id extends string, Dimension extends string> {
     preferredRoot: number,
     id: string,
   ) => IAutoMovieTransform | undefined;
+}
 }

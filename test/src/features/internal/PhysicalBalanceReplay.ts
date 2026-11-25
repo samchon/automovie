@@ -147,6 +147,7 @@ export namespace PhysicalBalanceReplay {
    * actuation after.
    */
   export type IRootReplay = {
+    /** Root wrench task after the call, with participating bodies named by bone. */
     task: {
       origin: IAutoMovieVector3;
       force: IAutoMovieVector3;
@@ -165,8 +166,14 @@ export namespace PhysicalBalanceReplay {
         };
       };
     } | null;
+
+    /** The root controller's integral state after the call. */
     integral: IRootInput["integral"];
+
+    /** The support wrenches written by the call, in recording order. */
     supportWrenches: trackPhysicalRoot.IInput["bound"]["supportWrenches"];
+
+    /** The accumulated actuation by bone, when recording was enabled. */
     actuation: [string, IAutoMovieVector3][] | undefined;
   };
 

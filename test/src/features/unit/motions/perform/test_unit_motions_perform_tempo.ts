@@ -41,9 +41,7 @@ const SCALE: number = 1e-12;
  *    asking more time.
  */
 export async function test_unit_motions_perform_tempo(): Promise<void> {
-  const { state } = await standingPerformanceState();
-  const context: IAutoMovieMotionHumanActionContext<never> =
-    state.people.get("actor")!.segments[0]!.context;
+  const { context } = await standingPerformanceState();
   const run = (
     had: (tempo: number) => number,
     needs: number,
@@ -54,7 +52,7 @@ export async function test_unit_motions_perform_tempo(): Promise<void> {
       HumanPerformanceTempo.plan(
         {
           plan: (
-            at: IAutoMovieMotionHumanActionContext<never>,
+            at: IAutoMovieMotionHumanActionContext,
           ): IAutoMovieMotionHumanActionPlan => {
             const tempo: number = at.tempo ?? 1;
             tempos.push(tempo);

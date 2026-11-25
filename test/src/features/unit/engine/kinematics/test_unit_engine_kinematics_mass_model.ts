@@ -1,4 +1,5 @@
 import {
+  compareCodeUnits,
   prepareAutoMovieMassModel,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
@@ -105,8 +106,8 @@ export async function test_unit_engine_kinematics_mass_model(): Promise<void> {
   try {
     TestValidator.equals(
       "bones",
-      [...prepareAutoMovieMassModel.bones(prepared)].sort(),
-      [...new Set(model.segments.map((s) => s.bone))].sort(),
+      [...prepareAutoMovieMassModel.bones(prepared)].sort(compareCodeUnits),
+      [...new Set(model.segments.map((s) => s.bone))].sort(compareCodeUnits),
     );
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
       model,

@@ -1,5 +1,4 @@
-import type { IMotionCaptureCase } from "@automovie/motions/internal";
-import { TouchVerdicts } from "@automovie/motions/internal";
+import { type IMotionCaptureCase, TouchVerdicts } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**

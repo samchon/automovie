@@ -44,7 +44,9 @@ export function test_unit_motions_perform_couple_grips(): void {
   TestValidator.equals(
     "the groups",
     [1, 2, 3, 4].map((step: number): [string, string][] =>
-      [...(groups.get(step) ?? new Map<string, string>()).entries()].sort(),
+      [...(groups.get(step) ?? new Map<string, string>()).entries()].sort(
+        ([a], [b]): number => a.localeCompare(b),
+      ),
     ),
     [
       [

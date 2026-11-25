@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 /** An in-memory capture folder that records what a run claims and writes. */
-export interface ICaptureFolderDouble extends IAutoMovieCaptureFolder {
+interface ICaptureFolderDouble extends IAutoMovieCaptureFolder {
   /** Every name claimed, in order. */
   readonly claimed: string[];
 

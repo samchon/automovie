@@ -10,7 +10,12 @@ import { EquineHeadClearance } from "./EquineHeadClearance";
 import { EquineHeadCourse } from "./EquineHeadCourse";
 import { EquineHeadReach } from "./EquineHeadReach";
 import { createQuadruped } from "./createQuadruped";
-import { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS, type Held, type Heading, type Instant } from "./EquineExpressionConstants";
+import { EquineExpressionConstants } from "./EquineExpressionConstants";
+
+const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
+type Held = EquineExpressionConstants.Held;
+type Heading = EquineExpressionConstants.Heading;
+type Instant = EquineExpressionConstants.Instant;
 
 /**
  * An equid's expression layer over any of its rides: attention, muzzle reaches

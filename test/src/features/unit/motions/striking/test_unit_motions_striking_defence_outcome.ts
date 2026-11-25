@@ -11,6 +11,7 @@ import { throwsError } from "../../../internal/throwsError";
 /** A skill at one proficiency on every axis. */
 const at = (x: number): IAutoMovieMotionHumanSkill => ({
   p: x,
+  seed: "defence-outcome",
   axes: {
     timing: x,
     path: x,
@@ -28,6 +29,7 @@ const at = (x: number): IAutoMovieMotionHumanSkill => ({
 /** A draw at a fixed share. */
 const draw = (share: number): IAutoMovieRandom => {
   const random: IAutoMovieRandom = {
+    seed: "0000000000000000",
     block: () => [0, 0, 0, 0],
     uint32: () => 0,
     float: () => share,
@@ -98,7 +100,12 @@ export function test_unit_motions_striking_defence_outcome(): void {
   );
   const [rLow, rHigh] = StrikingSkill.reactionBand(INPUT.skill);
   const [aLow, aHigh] = StrikingSkill.anticipation(INPUT.skill);
-  for (const outcome of ["inTime", "late", "fail"] as const) {
+  const outcomes: IAutoMovieMotionHumanDefenceOutcome.Outcome[] = [
+    "inTime",
+    "late",
+    "fail",
+  ];
+  for (const outcome of outcomes) {
     const forced = DefenceOutcome.decide(INPUT, draw(0.5), outcome);
     TestValidator.predicate(
       `forced ${outcome}`,

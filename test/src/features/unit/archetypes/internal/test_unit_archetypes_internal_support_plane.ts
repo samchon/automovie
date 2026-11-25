@@ -2,7 +2,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { solveQuadrupedSupportPlane } from "@automovie/archetypes/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../../../internal/nclose";
+import { vclose } from "../../../internal/vclose";
+
+/** Eight rounding steps at magnitude at most two determine each mapped coordinate. */
+const PLANE_TOLERANCE: number = 16 * Number.EPSILON;
 
 /**
  * `solveQuadrupedSupportPlane` solves a limb in the plane through the root and
@@ -21,12 +24,12 @@ export function test_unit_archetypes_internal_support_plane(): void {
   const root: IAutoMovieVector3 = { x: 0, y: 2, z: 0 };
   const ankle: IAutoMovieVector3 = { x: 1, y: 0, z: 0.5 };
   const span: number = Math.sqrt(5);
-  let target: IAutoMovieVector3 | null = null;
-  const solved = solveQuadrupedSupportPlane(
+  const targets: IAutoMovieVector3[] = [];
+  const solved: IAutoMovieVector3[] = solveQuadrupedSupportPlane(
     root,
     ankle,
     (planar: IAutoMovieVector3): IAutoMovieVector3[] => {
-      target = planar;
+      targets.push(planar);
       return [
         { x: 0, y: 2, z: 7 },
         { x: 0, y: 2 - span / 2, z: 8 },
@@ -36,18 +39,14 @@ export function test_unit_archetypes_internal_support_plane(): void {
   );
   TestValidator.predicate(
     "the planar target",
-    target !== null &&
-      nclose((target as IAutoMovieVector3).y, 2 - span, 1e-12) &&
-      (target as IAutoMovieVector3).z === 0.5,
+    targets.length === 1 &&
+      vclose(targets[0]!, { x: 0, y: 2 - span, z: 0.5 }, PLANE_TOLERANCE),
   );
   TestValidator.predicate(
     "the mapped points",
-    nclose(solved[0]!.x, 0, 1e-12) &&
-      nclose(solved[0]!.y, 2, 1e-12) &&
-      solved[0]!.z === 7 &&
-      nclose(solved[1]!.x, 0.5, 1e-12) &&
-      nclose(solved[1]!.y, 1, 1e-12) &&
-      solved[1]!.z === 8,
+    solved.length === 3 &&
+      vclose(solved[0]!, { x: 0, y: 2, z: 7 }, PLANE_TOLERANCE) &&
+      vclose(solved[1]!, { x: 0.5, y: 1, z: 8 }, PLANE_TOLERANCE),
   );
   TestValidator.equals("the ankle", solved[2], ankle);
   TestValidator.error("a degenerate plane", (): unknown =>

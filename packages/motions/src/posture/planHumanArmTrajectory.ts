@@ -27,10 +27,9 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * The work of `HumanArmTrajectory.solve`: one solve per span. A refused
  * course's hold whose hand pose its law prescribes is first tracked frame by
  * frame on the swivel, the arm's one freedom there (Tolani, Goswami and Badler
- * 2000, section 3.2); an earlier solution of the action admitted as it stands
- * is the plan; otherwise the whole span is optimised once, from that earlier
- * solution or else the sampling planner's path (`HumanArmSeed`), and the
- * solve's own verdict admits or refuses. It records in `told` whether it reads
+ * 2000, section 3.2). An earlier solution admitted as it stands is the plan.
+ * Otherwise solve the hold poses before optimising the trajectory between
+ * them. It records in `told` whether it reads
  * the mirror image, so `solve` can tell a refusal in the author's names.
  *
  * @param read The problem on given waypoints' seconds.
@@ -235,7 +234,7 @@ export function planHumanArmTrajectory(
 
   // An earlier plan's solution of this action, read on its own knots as it
   // stands, is the plan where the model admits it there and on the frame
-  // grid: the plan memoised.
+  // grid.
   let earlier: Stretch.ISolved | undefined;
   if (warm !== undefined && warm.x.length === problem.arms.length) {
     const knotted: Stretch.IKnots = Stretch.on(
@@ -268,63 +267,34 @@ export function planHumanArmTrajectory(
     if (Stretch.met(earlier)) return Stretch.played(earlier);
   }
 
-  // The one solve: the whole span from one start, the earlier solution where
-  // there is one, else the sampling planner's path, as MoveIt's optimiser
-  // adapter seeds every optimisation from the sampling planner's path
-  // (`OptimizerAdapter::adaptAndPlan`, moveit/moveit
-  // moveit_planners/chomp/chomp_optimizer_adapter/src/chomp_optimizer_adapter.cpp
-  // lines 177-209 at commit 811328b1ba700f5d2dff69afc9737ac6cab66c9b,
-  // BSD-3-Clause),
-  // whose failure hands on the straight line (`HumanArmSeed`).
-  // The hold's inverse kinematics is seeded with the law's goal arm, its fit
-  // at the hold that keeps the goal's cleared segments (another body's among
-  // them) clear; where an arm has none, with the planned course's state at
-  // that instant, as MoveIt seeds `setFromIK` with the state's own joint
-  // values (`ik_seed_state`, moveit_core/robot_state/src/robot_state.cpp,
-  // `setFromIK`, at commit fdb79acafb24efd9e138b0d309fb2463186d4ab2,
-  // BSD-3-Clause).
-  const hold: number[][] | undefined =
-    course === undefined ||
-    problem.arms.every(
-      (arm: HumanArmTrajectory.IArm): boolean => arm.guess !== undefined,
-    )
-      ? undefined
-      : HumanArmSeed.held(
-          problem,
-          initial.context,
-          Pace.coursed(initial.context, course.trajectories),
-        );
-  const seeds: (straight: boolean) => number[][][] = (
-    straight: boolean,
-  ): number[][][] =>
-    HumanArmSeed.seed(problem, initial.context, hold, fine, straight);
-  const seeded: (straight: boolean) => Stretch.ISolved = (
-    straight: boolean,
-  ): Stretch.ISolved => Stretch.optimise(whole, initial, seeds(straight));
-  let solved: Stretch.ISolved =
-    earlier !== undefined
-      ? Stretch.optimise(whole, earlier, earlier.x, earlier.penalty)
-      : seeded(false);
-  // A solve the sampling planner's start leaves infeasible starts again from
-  // TrajOpt's own initialization, the straight line between the ends: a local
-  // method's remedy for a local minimum is another initialization (Schulman
-  // et al. 2014, IJRR 33:1251, section VIII-A, restarting failed problems from
-  // further initializations); the first start met is the plan.
-  if (earlier === undefined && !Stretch.met(solved)) {
-    const again: Stretch.ISolved = seeded(true);
-    if (Stretch.met(again)) solved = again;
-    // Where the law's own pace is what holds the path off, the law re-times
-    // the action (`HumanArmTrajectoryPaced`).
-    const paced: HumanRefusal | undefined =
-      Stretch.met(solved) || !stretches
+  // Establish feasible hold positions before planning a route. The earlier
+  // iterate or the laid course supplies seeds for the hold's IK; RRT-Connect
+  // supplies the initial route when there is no earlier iterate.
+  const from: Stretch.IKnots = earlier ?? initial;
+  const pinned: HumanArmSeed.IHolds = HumanArmSeed.holds(
+    from.problem,
+    from.context,
+    earlier?.x ??
+      (course === undefined
         ? undefined
-        : HumanArmTrajectoryPaced(whole, initial, seeds(false), told);
+        : Pace.coursed(from.context, course.trajectories)),
+  );
+  const seed: number[][][] =
+    earlier?.x ?? HumanArmSeed.seed(from.context, pinned, fine);
+  const solved: Stretch.ISolved = Stretch.optimise(
+    whole,
+    from,
+    seed,
+    earlier?.penalty,
+    pinned,
+  );
+  if (!Stretch.met(solved)) {
+    const paced: HumanRefusal | undefined = stretches
+      ? HumanArmTrajectoryPaced(whole, solved, told)
+      : undefined;
     if (paced !== undefined) throw paced;
+    throw Stretch.refused(whole, solved, told);
   }
-  // The path a refusal for time was reached at is the replan's start
-  // (`Stretch.refused` tells it): over the span the refusal names, the same
-  // path moves within the bound (Hollerbach 1984).
-  if (!Stretch.met(solved)) throw Stretch.refused(whole, solved, told);
   return Stretch.played(solved);
 }
 /**

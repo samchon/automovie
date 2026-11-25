@@ -28,7 +28,8 @@ import { poseBones } from "./poseBones";
  * body's colliders near it, its phalanges' points and a goal carried from a
  * bone's posed frame into the world.
  */
-export namespace HumanDigitReach {  /** A hand's digits as the rig names them, thumb first. */
+export namespace HumanDigitReach {
+  /** A hand's digits as the rig names them, thumb first. */
   export const DIGIT_NAMES: readonly IAutoMovieMotionHumanGrip.Digit[] = [
     "Thumb",
     "Index",
@@ -163,7 +164,10 @@ export namespace HumanDigitReach {  /** A hand's digits as the rig names them, t
 
   /** The record of `ICarried`'s site. */
   export type ICarried = {
+    /** The digit contact point placed in world metres. */
     point: IAutoMovieVector3;
+
+    /** The rotated world normal when the goal specifies one. */
     normal?: IAutoMovieVector3;
   };
 

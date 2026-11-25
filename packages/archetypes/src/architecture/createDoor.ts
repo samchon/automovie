@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../core";
 import { DOOR_BANDS } from "./DOOR_BANDS";
 import { DOOR_SIZES } from "./DOOR_SIZES";
-import * as parts from "./createDoorMeasures";
+import { createDoorMeasures as parts } from "./createDoorMeasures";
 
 /**
  * Radius of a lever arm or a pull bar, metres: a 20 to 25 mm bar, the pull's

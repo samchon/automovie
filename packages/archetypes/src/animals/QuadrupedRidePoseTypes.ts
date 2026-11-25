@@ -5,6 +5,8 @@ import { AutoMovieArchetypeQuadrupedRootRange } from "./AutoMovieArchetypeQuadru
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
+/** The foot targets and body state used to settle a quadruped ride pose. */
+export namespace QuadrupedRidePoseTypes {
 /** The hind limbs, whose hips ride the pelvis. */
 export const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
   "leftHind",
@@ -64,4 +66,5 @@ export interface ISettled {
 
   /** The pelvis's turn at a root height. */
   pelvis: (height: number) => number;
+}
 }

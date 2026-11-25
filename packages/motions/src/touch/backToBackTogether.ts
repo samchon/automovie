@@ -37,6 +37,7 @@ export function backToBackTogether(
     });
 }
 
+/** The contact windows and frame alignment bound of a shared back support. */
 export namespace backToBackTogether {
   /** When one back bears on the other, shot seconds. */
   export interface IWindow {

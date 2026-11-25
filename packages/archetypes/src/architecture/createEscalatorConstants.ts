@@ -1,4 +1,6 @@
 
+/** The reference dimensions and source attributions for the escalator model. */
+export namespace createEscalatorConstants {
 /** The planning guide read for every escalator figure below. */
 export const KONE: string =
   "KONE Planning Guide for Escalators & Autowalks, sections 5.3 to 5.12 with their EN 115-1 notes (https://www.kone.co.uk/Images/Escalator%20planning%20guide%20GBIR_tcm45-86614.pdf)";
@@ -30,3 +32,4 @@ export const PLATE: number = 0.05;
  * construction estimate).
  */
 export const LANDING: number = 1;
+}

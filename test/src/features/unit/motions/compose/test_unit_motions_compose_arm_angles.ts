@@ -5,6 +5,9 @@ import type {
 import { AutoMovieMotionHumanArmAngles } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { joint } from "../../../internal/joint";
+import { makePose } from "../../../internal/makePose";
+
 /**
  * `AutoMovieMotionHumanArmAngles.angles` reads one arm's joint angles off a
  * solved pose: the upper arm, forearm and hand by their first records, an
@@ -17,17 +20,15 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The right arm with no hand record reads the hand as zeros.
  */
 export function test_unit_motions_compose_arm_angles(): void {
-  const pose: IAutoMoviePose = {
-    joints: [
-      { bone: "leftUpperArm", flexion: 30, abduction: 10, twist: 5 },
-      { bone: "leftLowerArm", flexion: 90 },
-      { bone: "leftLowerArm", flexion: 10 },
-      { bone: "leftHand", flexion: 20, abduction: -5 },
-      { bone: "leftIndexProximal", flexion: 15 },
-      { bone: "rightIndexProximal", flexion: 40 },
-      { bone: "rightUpperArm", abduction: 60 },
-    ],
-  };
+  const pose: IAutoMoviePose = makePose([
+    joint("leftUpperArm", { flexion: 30, abduction: 10, twist: 5 }),
+    joint("leftLowerArm", { flexion: 90 }),
+    joint("leftLowerArm", { flexion: 10 }),
+    joint("leftHand", { flexion: 20, abduction: -5 }),
+    joint("leftIndexProximal", { flexion: 15 }),
+    joint("rightIndexProximal", { flexion: 40 }),
+    joint("rightUpperArm", { abduction: 60 }),
+  ]);
 
   // 1. The left arm.
   TestValidator.equals(

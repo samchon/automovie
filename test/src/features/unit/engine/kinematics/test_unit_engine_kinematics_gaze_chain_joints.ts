@@ -29,9 +29,12 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 export async function test_unit_engine_kinematics_gaze_chain_joints(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const rig: IAutoMovieSkeleton = body.skeleton;
-  const range = (name: "head" | "neck"): IAutoMovieJointConstraint =>
-    rig.bones.find((b: IAutoMovieBone): boolean => b.bone === name)!
-      .constraint ?? DEFAULT_HUMANOID_ROM[name]!;
+  const range = (name: "head" | "neck"): IAutoMovieJointConstraint => {
+    const override: IAutoMovieJointConstraint | null = rig.bones.find(
+      (bone: IAutoMovieBone): boolean => bone.bone === name,
+    )!.constraint;
+    return override === null ? DEFAULT_HUMANOID_ROM[name]! : override;
+  };
   const H: number = range("head").flexion!.max;
   const N: number = range("neck").flexion!.max;
   const flexion = (joints: IAutoMovieJointPose[]): [string, number | null][] =>

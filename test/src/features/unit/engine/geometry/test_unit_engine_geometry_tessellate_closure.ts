@@ -1,4 +1,4 @@
-import { tessellate } from "@automovie/engine";
+import { compareCodeUnits, tessellate } from "@automovie/engine";
 import type {
   IAutoMoviePrimitiveShape,
   IAutoMovieTessellation,
@@ -65,7 +65,7 @@ export function test_unit_engine_geometry_tessellate_closure(): void {
       const keys: string[] = [0, 1, 2].map((c: number): string => key(t.positions, t.indices[i + c]!));
       if (new Set(keys).size < 3) continue;
       for (let e: number = 0; e < 3; ++e) {
-        const edge: string = [keys[e]!, keys[(e + 1) % 3]!].sort().join("|");
+        const edge: string = [keys[e]!, keys[(e + 1) % 3]!].sort(compareCodeUnits).join("|");
         counts.set(edge, (counts.get(edge) ?? 0) + 1);
       }
     }

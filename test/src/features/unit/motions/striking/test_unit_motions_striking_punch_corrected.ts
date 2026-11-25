@@ -19,16 +19,12 @@ export function test_unit_motions_striking_punch_corrected(): void {
         {
           start: 0,
           duration: 1,
-          advance: 0,
           end: { x: 1, y: 0, z: 0 },
-          hint: { x: 0, y: 0, z: 0 },
         },
         {
           start: 0.5,
           duration: 0.8,
-          advance: 0,
           end: { x: 0, y: 2, z: 0 },
-          hint: { x: 0, y: 0, z: 0 },
         },
       ],
     },

@@ -3,6 +3,8 @@ import { type AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 import { EquineExpressionAdmission } from "./EquineExpressionAdmission";
 
+/** The configuration and channel types the equine expression layer reads. */
+export namespace EquineExpressionConstants {
 /**
  * Grazing chew rate, Hz: 47.1 chews per minute by sound recorder (Taylor,
  * Lancaster and Ellis 2025, Animals 15:2273, Table 1).
@@ -89,3 +91,4 @@ export type Heading = EquineExpressionAdmission.Heading;
 
 /** A named instant of a ride. */
 export type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+}

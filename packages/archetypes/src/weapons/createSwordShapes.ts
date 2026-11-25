@@ -143,3 +143,6 @@ export const SHAPES: Readonly<Record<Kind, IShape>> = {
     hilt: [0.25, 0.55, 0.2],
   },
 };
+/** The labels and geometry records used by the sword prop catalogue. */
+export namespace createSwordShapes {
+}

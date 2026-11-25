@@ -16,15 +16,13 @@ import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretc
  * another term without the bound too: the refusal is then the region's.
  *
  * @param grid The span's frame grid and readers.
- * @param initial The span's first knots.
- * @param seed The start the refused solve took.
+ * @param refused The refused solution on its refined knots.
  * @param told Where the path is handed on.
  * @returns The refusal for time; none where the pace is not what binds.
  */
 export function HumanArmTrajectoryPaced(
   grid: Stretch.IGrid,
-  initial: Stretch.IKnots,
-  seed: number[][][],
+  refused: Stretch.ISolved,
   told: HumanArmTrajectory.IMirrorTold,
 ): HumanRefusal | undefined {
   const free: (c: M.IContext) => M.IContext = (c: M.IContext): M.IContext => ({
@@ -38,8 +36,10 @@ export function HumanArmTrajectoryPaced(
         free(grid.contextOf(...args)),
       fine: free(grid.fine),
     },
-    { ...initial, context: free(initial.context) },
-    seed,
+    { ...refused, context: free(refused.context) },
+    refused.x,
+    undefined,
+    refused.pinned,
   );
   if (!Stretch.met(loose)) return undefined;
   const at: readonly number[] = loose.context.times;

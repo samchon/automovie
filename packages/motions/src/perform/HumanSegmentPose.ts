@@ -310,13 +310,15 @@ export namespace HumanSegmentPose {
     ) {
       // The offset the performance prepared, or, while the schedule is
       // resolved, the one the displayed state at the cut gives now.
-      const decay: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose =
-        segment.prepared?.offset ?? offset(person, segment, prepared)!;
+      const decay: ReturnType<typeof offset> =
+        segment.prepared?.offset ?? offset(person, segment, prepared);
 
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).
-      pose = clamp(decay(Math.max(0, seconds - transition.cut), pose));
-      plain = false;
+      if (decay !== undefined) {
+        pose = clamp(decay(Math.max(0, seconds - transition.cut), pose));
+        plain = false;
+      }
     }
 
     // Contacts are the final operation, including an overlay's entire

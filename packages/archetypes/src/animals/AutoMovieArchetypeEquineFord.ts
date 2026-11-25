@@ -11,8 +11,11 @@ import { QuadrupedFootingClearance } from "./QuadrupedFootingClearance";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 import { createQuadruped } from "./createQuadruped";
-import { STEP, SWEEP } from "./EquineFordConstants";
-import { part, top, shape } from "./EquineFordBarReads";
+import { EquineFordConstants } from "./EquineFordConstants";
+import { EquineFordBarReads } from "./EquineFordBarReads";
+
+const { STEP, SWEEP } = EquineFordConstants;
+const { part, top, shape } = EquineFordBarReads;
 
 /**
  * An equid crossing water on one film clock: it wades down a ford on its own

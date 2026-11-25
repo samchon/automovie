@@ -3,6 +3,7 @@ import type { AutoMovieHumanSide } from "@automovie/interface";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmRefine } from "./HumanArmRefine";
+import { HumanArmSeed } from "./HumanArmSeed";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import type { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
@@ -74,6 +75,9 @@ export namespace HumanArmTrajectoryStretch {
 
     /** Each arm's velocity and acceleration at each knot, the optimiser's. */
     rates?: Knots.IRates;
+
+    /** Exact hold positions carried through refinement and pacing. */
+    pinned?: HumanArmSeed.IHolds;
 
     /** The optimiser's last evaluation. */
     evaluation: M.IEvaluation;
@@ -151,8 +155,8 @@ export namespace HumanArmTrajectoryStretch {
    * @param from The knots the seed stands on.
    * @param seed Each arm's coordinates at each knot.
    * @param penalty The penalty to start at; the optimiser's own when absent.
-   * @param pinned The seconds of the knots whose positions are held
-   *   (`HumanArmOptimiser.optimise`); none when absent.
+   * @param pinned The solved hold poses. If present, each new hold knot is
+   *   also solved before its position is fixed.
    * @returns The solve's end, on the knots it ended on.
    */
   export function optimise(
@@ -160,7 +164,7 @@ export namespace HumanArmTrajectoryStretch {
     from: IKnots,
     seed: number[][][],
     penalty?: number,
-    pinned?: ReadonlySet<number>,
+    pinned?: HumanArmSeed.IHolds,
   ): ISolved {
     let at: IKnots = from;
     let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
@@ -218,6 +222,8 @@ export namespace HumanArmTrajectoryStretch {
           arm.map((v: number[][]): number[] => v[0]!),
       );
       at = next;
+      if (pinned !== undefined)
+        pinned = HumanArmSeed.holds(at.problem, at.context, carried, pinned);
       solved = HumanArmOptimiser.optimise(
         at.context,
         carried,
@@ -248,7 +254,12 @@ export namespace HumanArmTrajectoryStretch {
           : solved.x,
       evaluation: solved.evaluation,
     };
-    return { ...at, ...solved, played };
+    return {
+      ...at,
+      ...solved,
+      played,
+      ...(pinned === undefined ? {} : { pinned }),
+    };
   }
   /**
    * Whether a solve's played trajectory is admitted on the frame grid.
