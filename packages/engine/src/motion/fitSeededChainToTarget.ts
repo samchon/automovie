@@ -426,10 +426,14 @@ function preparedWorkspace(
               workspace.props.chain.lower,
             ),
           };
+
+        // Refine a refused placement but keep its prior distal twist as the
+        // orientation reference (Tolani, Goswami and Badler 2000, section 3.2.4).
         const continued: IAutoMovieSwivelNear = {
           swivel: prescribed.swivel,
           branch: prescribed.branch,
           tolerance: prescribed.tolerance,
+          ...(prescribed.twist === undefined ? {} : { twist: prescribed.twist }),
         };
         const props: IAutoMovieFitChainToTargetProps = {
           ...workspace.props,
