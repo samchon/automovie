@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@automovie/config",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "devDependencies": {
     "@ttsc/unplugin": "catalog:samchon",
     "tinyglobby": "catalog:utils",
