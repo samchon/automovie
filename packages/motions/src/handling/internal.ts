@@ -6,6 +6,7 @@ export * from "./pickUpStepReach";
 export * from "./pickUpAlong";
 export * from "./pushPullLean";
 export * from "./HumanGraspRoll";
+export { HumanGraspTarget } from "./HumanGraspTarget";
 export * from "./manipulateFacing";
 export * from "./HumanSheath";
 export * from "./HumanPrehension";
