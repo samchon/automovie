@@ -182,6 +182,11 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     centre: IAutoMovieVector3;
     /** Its bounding sphere's radius, metres. */
     radius: number;
+    /**
+     * Prepared bounds of a static hull in its own frame, metres. The six
+     * values run from the least x, y and z to the greatest x, y and z.
+     */
+    readonly hullBox?: Readonly<Float64Array>;
   }
 
   /** The arm placed: its probes and its segments' world frames. */

@@ -52,6 +52,9 @@ export namespace HumanArmTrajectoryLaid {
 
   /** The prepared inputs and verdict shared by admission and fallback. */
   interface IRead {
+    /** The input in the frame the context was prepared in. */
+    readonly problem: HumanArmTrajectory.IProblem;
+
     /** The context builder. */
     of: ReturnType<typeof HumanArmTrajectoryContext.prepare>;
 
@@ -68,6 +71,15 @@ export namespace HumanArmTrajectoryLaid {
      */
     evaluation?: M.IEvaluation;
   }
+
+  /** The inputs shared by every admission of a different hold in one problem. */
+  type IPrepared = Pick<IRead, "problem" | "of" | "context">;
+
+  /** Each arm's coordinates at authored hold waypoints, in problem order. */
+  type IHeld = readonly (readonly (
+    | IAutoMovieMotionHumanArmClearance.IArm
+    | undefined
+  )[])[];
 
   /**
    * A course laid without optimisation, admitted when it meets what a solved
@@ -107,10 +119,7 @@ export namespace HumanArmTrajectoryLaid {
    */
   export function admitted(
     problem: HumanArmTrajectory.IProblem,
-    held: readonly (readonly (
-      | IAutoMovieMotionHumanArmClearance.IArm
-      | undefined
-    )[])[],
+    held: IHeld,
     tempo: number = 1,
     inheritedPace?: M.IContext["speed"],
   ): IAdmitted {
@@ -127,7 +136,42 @@ export namespace HumanArmTrajectoryLaid {
           (arm: HumanArmTrajectory.IArm): AutoMovieHumanSide => arm.side,
         ),
       );
-    const context: M.IContext = of(read);
+    return layCourse(
+      { problem: read, of, context: of(read) },
+      held,
+      tempo,
+      inheritedPace,
+    );
+  }
+
+  /**
+   * Admit a changed hold on its original frames, sites, and pace. Lay the
+   * transports again and read the entire new path in those prepared frames.
+   *
+   * @param course The original laid course of the same canonical problem.
+   * @param held The replacement hold in the course's arm order.
+   * @param tempo The explicit replan's duration multiplier.
+   * @returns A fresh admission of the replacement hold.
+   */
+  export function readmit(
+    course: IAdmitted,
+    held: IHeld,
+    tempo: number = 1,
+  ): IAdmitted {
+    return layCourse(course.read, held, tempo, course.read.context.speed);
+  }
+
+  /** Lay, time and certify the path on the prepared problem's frames. */
+  function layCourse(
+    prepared: IPrepared,
+    held: IHeld,
+    tempo: number,
+    inheritedPace: M.IContext["speed"] | undefined,
+  ): IAdmitted {
+    const { problem: read, of } = prepared;
+    // A course owns only its pace and candidate coordinates. Its geometry,
+    // sites and pair readers are fixed by the canonical problem.
+    const context: M.IContext = { ...prepared.context };
     const n: number = context.n;
     const times: readonly number[] = context.times;
     const hold: number[] = [];
@@ -352,7 +396,7 @@ export namespace HumanArmTrajectoryLaid {
     const worst: M.IEvaluation["worst"] = reading.worst;
     const rates: Knots.IRates = Knots.bounded(context, x);
     return {
-      trajectories: problem.arms.map(
+      trajectories: read.arms.map(
         (
           _: HumanArmTrajectory.IArm,
           a: number,
@@ -367,7 +411,7 @@ export namespace HumanArmTrajectoryLaid {
       ),
       admitted: worst.value <= M.TOLERANCE,
       refused: worst.value <= M.TOLERANCE ? "" : worst.term,
-      read: { of, context, x, evaluation: reading },
+      read: { problem: read, of, context, x, evaluation: reading },
     };
   }
 }

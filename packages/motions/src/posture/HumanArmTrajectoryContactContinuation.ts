@@ -12,7 +12,6 @@ import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
-import { HumanArmTrajectoryMirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
@@ -22,9 +21,13 @@ import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
  * Trace each feasible endpoint swivel component towards an admitted hold in
  * both time directions. Uses the original course's physical limits, including
  * its time-dependent pace, for the final whole-course admission.
+ *
+ * @param held The waypoint indices of the original hold.
+ * @param course The original course and its prepared canonical problem.
+ * @param tempo The explicit replan's duration multiplier.
+ * @returns The new admitted course when continuation finds one.
  */
 export function HumanArmTrajectoryContactContinuation(
-  problem: HumanArmTrajectory.IProblem,
   held: readonly number[],
   course: HumanArmTrajectoryLaid.IAdmitted,
   tempo?: number,
@@ -51,10 +54,8 @@ export function HumanArmTrajectoryContactContinuation(
   const x: number[][][] = course.read.x.map((arm: number[][]): number[][] => [
     ...arm,
   ]);
-  const canonical: HumanArmTrajectory.IProblem =
-    HumanArmTrajectoryMirror.leftFirst(problem)
-      ? HumanArmTrajectoryMirror.mirrored(problem)
-      : problem;
+  const canonical: HumanArmTrajectory.IProblem = course.read.problem;
+
   // Retain the original geometry and allowances at each physical instant.
   const subcontext = (frames: readonly number[], still: boolean): M.IContext =>
     course.read.of(
@@ -281,8 +282,8 @@ export function HumanArmTrajectoryContactContinuation(
   )
     return course;
   const candidate: HumanArmTrajectoryLaid.IAdmitted =
-    HumanArmTrajectoryLaid.admitted(
-      problem,
+    HumanArmTrajectoryLaid.readmit(
+      course,
       x.map((arm: number[][], a: number) =>
         arm.map(
           (
@@ -295,7 +296,6 @@ export function HumanArmTrajectoryContactContinuation(
         ),
       ),
       tempo,
-      c.speed,
     );
   return candidate.admitted ? candidate : course;
 }

@@ -208,6 +208,7 @@ export namespace HumanArmShapes {
    * @param part The audit's part, -1 for another body's.
    * @param pose The segment's world pose.
    * @param shape The shape.
+   * @param hullBox The static hull's extrema, when prepared by its frame.
    * @returns The shape.
    */
   export function bounded(
@@ -215,6 +216,7 @@ export namespace HumanArmShapes {
     part: number,
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+    hullBox?: IAutoMovieMotionHumanArmGeometry.IShape["hullBox"],
   ): IAutoMovieMotionHumanArmGeometry.IShape {
     // Its bounding sphere is the clearance reading's own (`HumanShapeFraming.sphere`).
     return {
@@ -222,6 +224,7 @@ export namespace HumanArmShapes {
       part,
       pose,
       shape,
+      ...(hullBox === undefined ? {} : { hullBox }),
       ...HumanShapeFraming.sphere(pose, shape),
     };
   }

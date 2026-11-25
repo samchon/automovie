@@ -164,7 +164,6 @@ export namespace armPlannerFixture {
           ),
         );
       return HumanArmTrajectoryContactContinuation(
-        whole,
         held,
         HumanArmTrajectory.admitted(
           whole,

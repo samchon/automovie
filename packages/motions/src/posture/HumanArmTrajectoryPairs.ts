@@ -179,7 +179,10 @@ export namespace HumanArmTrajectoryPairs {
    *   millimetres (`CUT` where the reading's users need no more; negative, how
    *   little past it, for a reader that refuses only past a slack); every pair
    *   in reach is read when absent.
-   * @returns The pairs by part and shape.
+   * @param stop A predicate on an established depth that can only stay true as
+   *   the pair grows deeper, for a reader that needs one rejecting witness.
+   * @returns The pairs by part and shape, through the first such witness if any.
+   * @see https://doi.org/10.1177/0278364914528132
    */
   export function deepest(
     c: M.IContext,
@@ -187,6 +190,7 @@ export namespace HumanArmTrajectoryPairs {
     k: number,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     cut: number = Infinity,
+    stop?: (short: number) => boolean,
   ): Map<number, IPair> {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
@@ -218,12 +222,14 @@ export namespace HumanArmTrajectoryPairs {
             floor,
           );
           if (least > floor) {
+            const short: number = -1000 * least;
             out.set(key, {
               probe: link.probes[0]!,
               shape,
-              short: -1000 * least,
+              short,
               rested: false,
             });
+            if (stop?.(short)) return out;
             continue;
           }
         }
@@ -252,13 +258,17 @@ export namespace HumanArmTrajectoryPairs {
                 r));
           if (known !== undefined && bound <= known.short) continue;
           if (bound < -cut && !rested) {
-            if (known === undefined)
+            if (known === undefined) {
               out.set(key, { probe, shape, short: bound, rested: false });
+              if (stop?.(bound)) return out;
+            }
             continue;
           }
           const short: number = 1000 * (allowance - (query(p, p) - r));
-          if (known === undefined || short > known.short)
+          if (known === undefined || short > known.short) {
             out.set(key, { probe, shape, short, rested });
+            if (stop?.(short)) return out;
+          }
         }
       }
     }

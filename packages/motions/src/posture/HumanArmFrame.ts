@@ -14,6 +14,7 @@ import type {
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import { HumanColliderCorners } from "./HumanColliderCorners";
@@ -204,7 +205,15 @@ export function HumanArmFrame(
   for (const segment of [...read, ...others]) {
     const part: number = parts.get(segment) ?? own.get(segment.bone) ?? -1;
     for (const shape of segment.shapes)
-      shapes.push(S.bounded(segment.bone, part, segment.pose, shape));
+      shapes.push(
+        S.bounded(
+          segment.bone,
+          part,
+          segment.pose,
+          shape,
+          HumanArmShapeBox.prepare(shape),
+        ),
+      );
   }
   // Segments no human body carries (a prop, an animal) follow the other
   // bodies' parts, each named by its subject and part (`subject:part`).
@@ -219,6 +228,7 @@ export function HumanArmFrame(
             model.parts.length + others.length + i,
             segment.pose,
             shape,
+            HumanArmShapeBox.prepare(shape),
           ),
         );
     },

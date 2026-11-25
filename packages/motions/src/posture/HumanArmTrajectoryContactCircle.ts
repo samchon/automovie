@@ -272,10 +272,17 @@ export function HumanArmTrajectoryContactCircle(
 
     // A pair refuses only past the skin and the tolerance, so a pair whose
     // bounding sphere shows it short of that is left unread (`refuses`).
-    for (const pair of P.deepest(c, a, k, placed, refuses).values())
-      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
+    for (const pair of P.deepest(
+      c,
+      a,
+      k,
+      placed,
+      refuses,
+      rejectsPair,
+    ).values())
+      if (rejectsPair(pair.short)) return undefined;
     for (const pair of P.embedded(c, a, k, placed, refuses).values())
-      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
+      if (rejectsPair(pair.short)) return undefined;
     // One frame step, read as its chord, as the frame grid reads it.
     if (start !== undefined && end !== undefined)
       for (const sweep of HumanArmTrajectorySweep(c, a, interval, start, {
@@ -357,6 +364,11 @@ interface ICircle {
   radius: number;
   /** The elbow's step at the branch's centre from the frame before, metres. */
   step: number;
+}
+
+/** Whether an established pair's depth exceeds the same admission slack. */
+function rejectsPair(short: number): boolean {
+  return short - T.SKIN > M.TOLERANCE;
 }
 
 /** Inner product of quaternion coefficients in the native swivel harmonic. */

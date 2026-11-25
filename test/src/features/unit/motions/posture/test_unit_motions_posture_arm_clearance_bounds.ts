@@ -1,6 +1,7 @@
 import type { AutoMovieMotionBound } from "@automovie/engine";
 import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
+  HumanArmShapeBox,
   HumanArmSweepGradient,
   HumanArmTrajectoryClusters,
   HumanArmTrajectoryLinks,
@@ -16,6 +17,9 @@ const TIME_ROUNDING: number = 4 * 3 * Number.EPSILON;
 
 /** Sixteen rounded operations on unit-scale face normals and their weights. */
 const FACE_ROUNDING: number = 16 * Number.EPSILON;
+
+/** A picometre of conservative clearance and one rounded distance. */
+const BOX_ROUNDING: number = 1e-12 + 3 * Number.EPSILON;
 
 /**
  * An arm's clearance screens use every step's travel and a sphere covering
@@ -46,6 +50,10 @@ const FACE_ROUNDING: number = 16 * Number.EPSILON;
  *    minimizes the two active planes' maximum at (3/8, 3/8, 0). Their
  *    slopes along the chord are −1/4 and 1/2. The stationarity condition for
  *    this epigraph problem gives weights 2/3 and 1/3 on +X and +Y.
+ * 8. A fixed hull's local box contains the origin one metre from its nearest
+ *    face. The point (3, 6, 4) lies one and two metres past its x and y faces.
+ *    Two half-turns and translations put both points in the world while
+ *    preserving their signed clearances and the prepared local extrema.
  *
  * @see https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf Boyd and Vandenberghe, §5.5.3, Eq. (5.49).
  */
@@ -212,5 +220,51 @@ export function test_unit_motions_posture_arm_clearance_bounds(): void {
     nclose(covector.x, 2 / 3, FACE_ROUNDING) &&
       nclose(covector.y, 1 / 3, FACE_ROUNDING) &&
       covector.z === 0,
+  );
+
+  const hull: Parameters<typeof HumanArmShapeBox>[0] = {
+    bone: "chest",
+    part: 0,
+    pose: {
+      position: { x: 5, y: 6, z: 7 },
+      rotation: { x: 0, y: 0, z: 1, w: 0 },
+    },
+    shape: {
+      id: "asymmetric hull",
+      material: "skin",
+      kind: "hull",
+      transform: {
+        position: { x: 1, y: 2, z: 3 },
+        rotation: { x: 1, y: 0, z: 0, w: 0 },
+      },
+      points: [
+        { x: -1, y: -2, z: -3 },
+        { x: 2, y: -2, z: -3 },
+        { x: -1, y: 4, z: -3 },
+        { x: -1, y: -2, z: 6 },
+      ],
+    },
+    centre: { x: 4, y: 4, z: 10 },
+    radius: 9,
+  };
+  const hullBox: NonNullable<typeof hull.hullBox> =
+    HumanArmShapeBox.prepare(hull.shape)!;
+  TestValidator.equals(
+    "the prepared local hull extrema",
+    [...hullBox],
+    [-1, -2, -3, 2, 4, 6],
+  );
+  const prepared: typeof hull = { ...hull, hullBox };
+  const outside: IAutoMovieVector3 = { x: 1, y: 10, z: 6 };
+  const interior: number = HumanArmShapeBox(prepared, hull.centre);
+  const exterior: number = HumanArmShapeBox(prepared, outside);
+  TestValidator.predicate(
+    "a prepared box keeps the same conservative signed distances in both frames",
+    interior === HumanArmShapeBox(hull, hull.centre) &&
+      exterior === HumanArmShapeBox(hull, outside) &&
+      interior <= -1 &&
+      exterior <= Math.sqrt(5) &&
+      nclose(interior, -1, BOX_ROUNDING) &&
+      nclose(exterior, Math.sqrt(5), BOX_ROUNDING),
   );
 }

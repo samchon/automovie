@@ -204,12 +204,7 @@ export namespace AutoMovieMotionHumanArmCourse {
         props.tempo,
         inheritedPace,
       );
-    return HumanArmTrajectoryContactContinuation(
-      problem,
-      held,
-      read,
-      props.tempo,
-    );
+    return HumanArmTrajectoryContactContinuation(held, read, props.tempo);
   }
 
   /**

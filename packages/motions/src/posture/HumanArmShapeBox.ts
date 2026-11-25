@@ -24,23 +24,8 @@ export function HumanArmShapeBox(
 ): number {
   const solid: IAutoMovieMotionHumanArmGeometry.IShape["shape"] = shape.shape;
   if (solid.kind !== "hull") return -Infinity;
-  // The box: least x, y, z, then greatest.
-  const box: Float64Array = new Float64Array([
-    Infinity,
-    Infinity,
-    Infinity,
-    -Infinity,
-    -Infinity,
-    -Infinity,
-  ]);
-  for (const v of solid.points) {
-    box[0] = Math.min(box[0]!, v.x);
-    box[1] = Math.min(box[1]!, v.y);
-    box[2] = Math.min(box[2]!, v.z);
-    box[3] = Math.max(box[3]!, v.x);
-    box[4] = Math.max(box[4]!, v.y);
-    box[5] = Math.max(box[5]!, v.z);
-  }
+  const box: Readonly<Float64Array> = shape.hullBox ?? extrema(solid.points);
+
   // The point in the segment's frame, then in the shape's.
   const segment: IAutoMovieVector3 = unturn(
     shape.pose.rotation,
@@ -66,6 +51,43 @@ export function HumanArmShapeBox(
   const z: number = Math.max(0, dz);
   return Math.sqrt(x * x + y * y + z * z) - ROUNDING;
 }
+
+/** The local box used to bound signed distance to a hull. */
+export namespace HumanArmShapeBox {
+  /**
+   * Take a fixed obstacle's axis extrema once when its frame is prepared.
+   *
+   * @param shape The obstacle's borrowed shape.
+   * @returns The hull's local least x, y, z and greatest x, y, z, in metres.
+   */
+  export function prepare(
+    shape: IAutoMovieMotionHumanArmGeometry.IShape["shape"],
+  ): IAutoMovieMotionHumanArmGeometry.IShape["hullBox"] {
+    return shape.kind === "hull" ? extrema(shape.points) : undefined;
+  }
+}
+
+/** Pack the vertex extrema without changing their order or arithmetic. */
+function extrema(points: readonly IAutoMovieVector3[]): Float64Array {
+  const box: Float64Array = new Float64Array([
+    Infinity,
+    Infinity,
+    Infinity,
+    -Infinity,
+    -Infinity,
+    -Infinity,
+  ]);
+  for (const v of points) {
+    box[0] = Math.min(box[0]!, v.x);
+    box[1] = Math.min(box[1]!, v.y);
+    box[2] = Math.min(box[2]!, v.z);
+    box[3] = Math.max(box[3]!, v.x);
+    box[4] = Math.max(box[4]!, v.y);
+    box[5] = Math.max(box[5]!, v.z);
+  }
+  return box;
+}
+
 /** The record of `IUnturnQ`'s site. */
 type IUnturnQ = { x: number; y: number; z: number; w: number };
 

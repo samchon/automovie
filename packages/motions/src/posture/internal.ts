@@ -3,6 +3,7 @@
 export * from "./hipJoints";
 export * from "./prepareHumanPostureProjection";
 export * from "./HumanArmClearance";
+export * from "./HumanArmShapeBox";
 export * from "./HumanArmSwing";
 export * from "./HumanBodyFit";
 export * from "./HumanFrame";
