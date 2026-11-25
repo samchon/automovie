@@ -235,8 +235,11 @@ export namespace HumanObject {
       Quaternion.multiply(world.rotation, found.frame.rotation),
       { x: 0, y: 0, z: 1 },
     );
-    const rests: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> =
-      footrests(model.affordances ?? [], found, world);
+    const rests: ReturnType<typeof footrests> = footrests(
+      model.affordances ?? [],
+      found,
+      world,
+    );
     return {
       at: Vector3.add(
         world.position,
@@ -251,7 +254,12 @@ export namespace HumanObject {
         : { workingSeat: found.workingSeat }),
       ...(found.astride === undefined ? {} : { astride: found.astride }),
       ...(found.mount === undefined ? {} : { mount: found.mount }),
-      ...(Object.keys(rests).length === 0 ? {} : { footrests: rests }),
+      ...(Object.keys(rests.at).length === 0
+        ? {}
+        : {
+            footrests: rests.at,
+            ...(carrier === undefined ? {} : { footrestPoints: rests.ids }),
+          }),
       ...(carrier === undefined ? {} : { carrier, point: found.id }),
     };
   }
@@ -270,7 +278,7 @@ export namespace HumanObject {
     affordances: readonly IAutoMovieAffordance[],
     seat: IAutoMovieAffordance,
     world: IAutoMovieRigidTransform,
-  ): Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> {
+  ): ISeatFootrests {
     const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
       seat.frame.rotation,
     );
@@ -296,15 +304,17 @@ export namespace HumanObject {
             Vector3.length(seated(a.frame.translation)) -
             Vector3.length(seated(b.frame.translation)),
         );
-    const out: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+    const out: ISeatFootrests = { at: {}, ids: {} };
 
     // The nearest tread on each side comes first in the sorted list.
     for (const tread of below(["pedal", "stirrup"])) {
       const side: AutoMovieHumanSide =
         seated(tread.frame.translation).x > 0 ? "left" : "right";
-      out[side] ??= placed(tread.frame.translation);
+      if (out.ids[side] !== undefined) continue;
+      out.at[side] = placed(tread.frame.translation);
+      out.ids[side] = tread.id;
     }
-    if (Object.keys(out).length !== 0) return out;
+    if (Object.keys(out.at).length !== 0) return out;
     const bar: IAutoMovieAffordance | undefined = below(["bar"])[0];
     if (bar === undefined || bar.length === undefined) return out;
     const reach: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -318,9 +328,22 @@ export namespace HumanObject {
       (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
         seated(b).x - seated(a).x,
     );
-    return { left: placed(ends[0]!), right: placed(ends[1]!) };
+    return {
+      at: { left: placed(ends[0]!), right: placed(ends[1]!) },
+      ids: { left: bar.id, right: bar.id },
+    };
   }
 }
+
+/** Where each footrest is placed and which affordance carries it. */
+interface ISeatFootrests {
+  /** The footrest points from the seat reader's world frame. */
+  at: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
+
+  /** The model affordance serving each footrest. */
+  ids: Partial<Record<AutoMovieHumanSide, string>>;
+}
+
 /** The alternatives of `TiltedResult`'s site. */
 type TiltedResult = "pitch" | "roll";
 

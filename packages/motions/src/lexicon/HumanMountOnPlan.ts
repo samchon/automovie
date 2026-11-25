@@ -8,7 +8,8 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
-  IAutoMovieMotionManner,
+  IAutoMovieMotionHumanSit,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -17,11 +18,13 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { courseHumanLegs } from "../compose/courseHumanLegs";
 import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
 import { seated } from "../everyday/seated";
+import { sitCarried } from "../everyday/sitCarried";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 import { HumanMountFlight } from "./HumanMountFlight";
 import { HumanMountOnCourses } from "./HumanMountOnCourses";
@@ -40,11 +43,8 @@ type PlanLowerLimb = "leftLeg" | "rightLeg";
 /** The alternatives of `PlanPart`'s site. */
 type PlanPart = "leftFoot" | "rightFoot";
 
-/** The record of `IPlanContext`'s site. */
-type IPlanContext = {
-  seconds?: number;
-  manner?: IAutoMovieMotionManner;
-};
+/** The sit parameters the climb uses. */
+type IPlanContext = Pick<IAutoMovieMotionHumanSit.IParams, "hold" | "manner">;
 
 /**
  * Plan getting onto a seat.
@@ -85,8 +85,8 @@ export function HumanMountOnPlan(
       fix: "walk up to the seat first",
     });
 
-  const hold: number = context.params.seconds ?? 1;
-  HumanBound.least("seconds", hold, 0, "s");
+  const hold: number = context.params.hold ?? 1;
+  HumanBound.least("hold", hold, 0, "s");
 
   // The seat's height above the floor the feet leave (`seated.floor`).
   const under: number = seated.floor(body, context.entry);
@@ -270,17 +270,23 @@ export function HumanMountOnPlan(
     onFloor.right ? flight.right[0] : 0,
   );
   // The seat and its rests bear on the seat's carrier when it has one, and so move with it; the floor the feet leave stays the floor.
-  const carried: IAutoMovieMotionHumanContactWindow.Support | undefined =
+  const carried = (
+    point?: string,
+  ): IAutoMovieMotionHumanContactWindow.Support | undefined =>
     seat.carrier === undefined
       ? undefined
-      : { kind: "prop", subject: seat.carrier };
+      : {
+          kind: "prop",
+          subject: seat.carrier,
+          ...(point === undefined ? {} : { point }),
+        };
   const contacts: IAutoMovieMotionHumanContactWindow[] = [
     {
       part: "seat",
       kind: "seat",
       from: touch / duration,
       to: 1,
-      support: carried ?? { kind: "ground" },
+      support: carried(seat.point) ?? { kind: "ground" },
     },
   ];
   for (const side of ["left", "right"] as const) {
@@ -300,7 +306,10 @@ export function HumanMountOnPlan(
         from: bearing[side] / duration,
         to: 1,
         // A foot rest bears at its own height, a stirrup's above the floor, under the ball the foot is placed on it by, on the carrier it hangs from when there is one.
-        support: carried ?? { kind: "ground", height: places[side].height },
+        support:
+          (places[side].tread
+            ? carried(seat.footrestPoints?.[side])
+            : undefined) ?? { kind: "ground", height: places[side].height },
         socket: "ball",
       });
   }
@@ -414,15 +423,41 @@ export function HumanMountOnPlan(
     const lands: number = landsAt(side);
     return !stays[side] && lands > leaves ? [leaves, lands] : null;
   };
-  // An astride mount's far leg crosses the saddle unloaded after the floor
-  // push. Its hip can lose the connected swivel interval of a world ankle
-  // path during this crossing. Key the swing from its floor and stirrup poses.
+  // The far foot leaves the ground on its world path. The hip can lose its
+  // connected swivel interval during the later crossing over the saddle.
+  const flying: HumanSwungLeg.Swing | null =
+    astride && onFloor[push] && places[push].tread ? swingOf(push) : null;
   const crossingSwing: HumanSwungLeg.Swing | null =
-    astride && onFloor[push] && places[push].rests ? swingOf(push) : null;
+    flying === null ? null : [Math.max(flying[0], crossing[0]), flying[1]];
   const freeCrossing = (t: number): boolean =>
     crossingSwing !== null && t > crossingSwing[0] && t < crossingSwing[1];
-  const support = (t: number): IAutoMovieMotionHumanPosture =>
-    lower(t, freeCrossing(t) ? push : undefined);
+  const carry: sitCarried.Pose = sitCarried.prepare(
+    context,
+    seat,
+    duration,
+    contacts,
+  );
+  const placed = (
+    t: number,
+    without?: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanPosture => carry(lower(t, without), t);
+  // Establish the far foot's first supported branch on its own tread.
+  const landing: number | undefined = crossingSwing?.[1];
+  const far: PlanLowerLimb = `${push}Leg`;
+  const seed: IAutoMovieSwivelSeed | null | undefined =
+    landing === undefined
+      ? undefined
+      : resolveHumanPosture.seeded(body, placed(landing, lead)).seeds[far];
+  const support = (t: number): IAutoMovieMotionHumanPosture => {
+    const posture: IAutoMovieMotionHumanPosture = placed(
+      t,
+      freeCrossing(t) ? push : undefined,
+    );
+    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[far];
+    if (t === landing && seed !== undefined && seed !== null && goal !== undefined)
+      posture.limbs[far] = { ...goal, seed };
+    return posture;
+  };
 
   // Prepare the leg course and the palm geometry before laying the arms on
   // the displayed thighs.
@@ -447,7 +482,7 @@ export function HumanMountOnPlan(
           push,
           crossingSwing,
           supported,
-          lower((crossingSwing[0] + crossingSwing[1]) / 2, lead),
+          placed((crossingSwing[0] + crossingSwing[1]) / 2, lead),
         );
   const mounted: IAutoMovieMotionHumanActionPlan = {
     duration,

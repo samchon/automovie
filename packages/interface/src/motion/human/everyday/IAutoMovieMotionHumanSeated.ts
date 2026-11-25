@@ -114,5 +114,11 @@ export namespace IAutoMovieMotionHumanSeated {
      * rest, or whose rest the leg cannot reach, hangs.
      */
     footrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
+
+    /**
+     * Each footrest's affordance on the carrier. A point on a bar may be
+     * offset from the affordance's origin.
+     */
+    footrestPoints?: Partial<Record<"left" | "right", string>>;
   }
 }

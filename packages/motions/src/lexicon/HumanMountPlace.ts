@@ -136,6 +136,7 @@ export function HumanMountPlace(
       return {
         foot: { ankle, bend, yaw: heading },
         rests: true,
+        tread: true,
         height: tread.y,
       };
     }
@@ -160,6 +161,7 @@ export function HumanMountPlace(
       yaw: heading,
     },
     rests: knee.y - m.shank <= under + m.ankleHeight,
+    tread: false,
     height: under,
   };
 }
@@ -177,6 +179,9 @@ export namespace HumanMountPlace {
 
     /** Whether it bears on a rest or the floor there. */
     rests: boolean;
+
+    /** Whether the leg reaches the seat's declared footrest. */
+    tread: boolean;
 
     /** The height of what bears it, world metres. */
     height: number;

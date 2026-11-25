@@ -1,9 +1,12 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSeated,
   IAutoMovieQuaternion,
@@ -13,92 +16,220 @@ import type {
 
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 
-/** The alternatives of `SitCarriedContext`'s site. */
-type SitCarriedContext = "prop" | "start";
+/** The context of the seat's carrier and film clock. */
+type SitCarriedContext = Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">;
 
 /**
- * A sit onto the seat of a prop that may move, carried by that prop: the seat
- * is read where its carrier stands when the sit begins, so the plan is made in
- * the carrier's frame at that instant, and every posture of it is carried
- * rigidly by the carrier's motion since (`carryHumanPosture`). A seat that
- * names its own contact on the carrier (`ISeat.point`) is also followed as that
- * contact moves within the carrier, a saddle rising and falling on a walking
- * horse's back: the root moves by the contact's stray from where the carrier
- * alone would have taken it, as a ride's does, so a ride that begins while the
- * horse walks takes over a rider on the seat. The seat and every foot the sit
- * plants bear on the carrier, so the audits read them in its frame, unless the
- * plan already declares which of its windows bear on the carrier, as getting
- * onto a saddle from the floor does: its floor plants stay on the floor. A ride
- * that follows takes its origin where the carrier then stands, on the seat the
- * sit tracked. A seat in the world, or a carrier that does not move during the
- * sit, leaves the plan as it was.
+ * Carry a low sit in the frame of its moving seat. A high mount has already
+ * placed its feet in their material supports before preparing its limb courses.
  *
- * @param context The sit's context: its start and the props.
+ * @param context The sit's start and props.
  * @param seat The seat, read where its carrier stands at the sit's start.
- * @param plan The sit's plan against that seat.
- * @param declared Whether the plan's windows already name the carrier where
- *   they bear on it; when absent or false, the seat and every foot window are
- *   put on it.
- * @returns The plan carried by the seat's carrier.
+ * @param plan The sit's prepared plan.
+ * @param declared Whether the mount already applied its carrier.
+ * @returns The plan in its displayed frames.
  */
 export function sitCarried(
-  context: Pick<IAutoMovieMotionHumanActionContext, SitCarriedContext>,
+  context: SitCarriedContext,
   seat: IAutoMovieMotionHumanSeated.ISeat,
   plan: IAutoMovieMotionHumanActionPlan,
   declared: boolean = false,
 ): IAutoMovieMotionHumanActionPlan {
-  if (seat.carrier === undefined) return plan;
+  if (declared || seat.carrier === undefined) return plan;
   const subject: string = seat.carrier;
-  const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
-  const origin: IAutoMovieRigidTransform = read.frame(context.start);
-  const carried = (
-    contact: IAutoMovieMotionHumanContactWindow,
-  ): IAutoMovieMotionHumanContactWindow =>
-    contact.part === "seat" ||
-    contact.part === "leftFoot" ||
-    contact.part === "rightFoot"
-      ? { ...contact, support: { kind: "prop", subject } }
-      : contact;
-  // The seat's own contact where the sit begins, when the seat names it: the sit follows it as it moves within the carrier.
-  const began: IAutoMovieVector3 | undefined =
-    seat.point === undefined
-      ? undefined
-      : read.prop.point?.(seat.point, context.start)?.point;
-  const turned: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
+  const carry: sitCarried.Pose = sitCarried.prepare(context, seat, plan.duration);
   return {
     ...plan,
-    contacts: declared ? plan.contacts : plan.contacts.map(carried),
-    posture: (
-      seconds: number,
-      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): IAutoMovieMotionHumanPosture => {
-      const film: number =
-        context.start + Math.min(plan.duration, Math.max(0, seconds));
+    contacts: plan.contacts.map(
+      (
+        window: IAutoMovieMotionHumanContactWindow,
+      ): IAutoMovieMotionHumanContactWindow =>
+        window.part === "seat" ||
+        window.part === "leftFoot" ||
+        window.part === "rightFoot"
+          ? { ...window, support: { kind: "prop", subject } }
+          : window,
+    ),
+    posture: (seconds, channels, resolution, projection) =>
+      carry(plan.posture(seconds, channels, resolution, projection), seconds),
+  };
+}
+
+/** A foot's ground windows and its optional part-relative approach and rest. */
+interface IFootSupport {
+  /** The leg the support holds. */
+  limb: AutoMovieHumanLimb;
+
+  /** Windows in which the leg keeps its original world goal on the floor. */
+  ground: readonly IAutoMovieMotionHumanContactWindow[];
+
+  /** The moving footrest, when the seat names one that supplies a frame. */
+  part?: {
+    /** The prop's affordance id. */
+    id: string;
+
+    /** The foothold where the mount starts, world metres. */
+    position: IAutoMovieVector3;
+
+    /** The inverse rotation of the starting foothold. */
+    inverse: IAutoMovieQuaternion;
+
+    /** The second the foot leaves the floor. */
+    release: number;
+
+    /** The second the foot lands on the foothold. */
+    bearing: number;
+  };
+}
+
+/** Place the seat and the mount's material supports on a common clock. */
+export namespace sitCarried {
+  /** Place one authored posture at a local second. */
+  export type Pose = (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanPosture;
+
+  /**
+   * Prepare the frame changes from the seat's initial placement. A floor goal
+   * stays in the world. A named footrest carries its foot after landing, with
+   * the minimum-jerk approach of Flash and Hogan (1985) taking it from the
+   * carrier's motion to the part's own frame over the free interval.
+   *
+   * @param context The sit's start and props.
+   * @param seat The seat, read where its carrier stands at the sit's start.
+   * @param duration The plan's length, seconds.
+   * @param contacts The mount's explicit ground and carrier contact windows.
+   * @returns The frame change shared by preparation and the displayed posture.
+   */
+  export function prepare(
+    context: SitCarriedContext,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+    duration: number,
+    contacts?: readonly IAutoMovieMotionHumanContactWindow[],
+  ): Pose {
+    if (seat.carrier === undefined) return (posture) => posture;
+    const read: IAutoMovieMotionHumanPropReader = context.prop(seat.carrier);
+    const origin: IAutoMovieRigidTransform = read.frame(context.start);
+    const turned: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
+    const seatId: string | undefined = seat.point;
+    const began: IAutoMovieVector3 | undefined =
+      seatId === undefined
+        ? undefined
+        : read.prop.point?.(seatId, context.start)?.point;
+    const feet: readonly IFootSupport[] =
+      contacts === undefined
+        ? []
+        : (["left", "right"] as const).map((side): IFootSupport => {
+            const windows = contacts.filter(
+              (window) =>
+                window.kind === "plant" && window.part === `${side}Foot`,
+            );
+            const ground = windows.filter(
+              (window) => window.support.kind === "ground",
+            );
+            const window = windows.find(
+              (item) =>
+                item.support.kind === "prop" && item.support.point !== undefined,
+            );
+            const id: string | undefined =
+              window?.support.kind === "prop" ? window.support.point : undefined;
+            const frame: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+              id === undefined
+                ? undefined
+                : read.prop.point?.(id, context.start);
+            return {
+              limb: `${side}Leg`,
+              ground,
+              ...(window === undefined || id === undefined || frame === undefined
+                ? {}
+                : {
+                    part: {
+                      id,
+                      position: frame.point,
+                      inverse: Quaternion.inverse(
+                        frame.rotation ?? origin.rotation,
+                      ),
+                      release:
+                        (ground.find((item) => item.from === 0)?.to ?? 0) *
+                        duration,
+                      bearing: window.from * duration,
+                    },
+                  }),
+            };
+          });
+    return (source, seconds) => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const film: number = context.start + t;
       const now: IAutoMovieRigidTransform = read.frame(film);
       const posture: IAutoMovieMotionHumanPosture = carryHumanPosture(
-        plan.posture(seconds, channels, resolution, projection),
+        source,
         origin,
         now,
       );
-      const moved: IAutoMovieVector3 | undefined =
-        began === undefined
-          ? undefined
-          : read.prop.point?.(seat.point!, film)?.point;
-      if (began === undefined || moved === undefined) return posture;
-      // How far the seat has left the place the carrier alone would have carried it to, the stray a ride adds to its root (`HumanRide`).
-      const stray: IAutoMovieVector3 = Vector3.subtract(
-        moved,
-        Vector3.add(
-          now.position,
+      for (const { limb, ground, part } of feet) {
+        const raw: IAutoMovieHumanLimbGoal | undefined = source.limbs[limb];
+        const rigid: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
+        if (raw === undefined || rigid === undefined) continue;
+        if (
+          ground.some(
+            (window) => t >= window.from * duration && t <= window.to * duration,
+          )
+        ) {
+          posture.limbs[limb] = raw;
+          continue;
+        }
+        if (part === undefined || t < part.release) continue;
+        const target: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+          read.prop.point?.(part.id, film);
+        if (target === undefined) continue;
+        const share: number =
+          t >= part.bearing
+            ? 1
+            : minimumJerk.share(
+                (t - part.release) / (part.bearing - part.release),
+              );
+        const delta: IAutoMovieQuaternion = Quaternion.multiply(
+          target.rotation ?? now.rotation,
+          part.inverse,
+        );
+        const point: IAutoMovieVector3 = Vector3.add(
+          target.point,
           Quaternion.rotateVector(
-            Quaternion.multiply(now.rotation, turned),
-            Vector3.subtract(began, origin.position),
+            delta,
+            Vector3.subtract(raw.point, part.position),
           ),
+        );
+        posture.limbs[limb] = {
+          ...rigid,
+          point: Vector3.lerp(rigid.point, point, share),
+          ...(raw.rotation === undefined || rigid.rotation === undefined
+            ? {}
+            : {
+                rotation: Quaternion.slerp(
+                  rigid.rotation,
+                  Quaternion.multiply(delta, raw.rotation),
+                  share,
+                ),
+              }),
+        };
+      }
+      const moved: IAutoMovieVector3 | undefined =
+        began === undefined || seatId === undefined
+          ? undefined
+          : read.prop.point?.(seatId, film)?.point;
+      if (began === undefined || moved === undefined) return posture;
+      const carried: IAutoMovieVector3 = Vector3.add(
+        now.position,
+        Quaternion.rotateVector(
+          Quaternion.multiply(now.rotation, turned),
+          Vector3.subtract(began, origin.position),
         ),
       );
-      return { ...posture, root: Vector3.add(posture.root, stray) };
-    },
-  };
+      return {
+        ...posture,
+        root: Vector3.add(posture.root, Vector3.subtract(moved, carried)),
+      };
+    };
+  }
 }
