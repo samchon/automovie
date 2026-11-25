@@ -202,15 +202,22 @@ export namespace AutoMovieHumanPelvicSplit {
       )?.station;
       if (knee === undefined)
         return `${part.name}: the original thigh has no distal bound`;
-      // Use the first original section whose enclosed loop lies on its own
-      // side of the median and whose lateral line tapers into its native ray.
-      // The true widest point has no lateral departure slope. The radial
-      // quintic then sets its derivative budget from the actual chord.
+      // Use the first original section with resolvable separation and a
+      // lateral line that tapers into its native ray. Half one native phase
+      // interval on either side of the stationary support measures the
+      // original contour's signed resolution at this exact dividing plane.
+      const halfPhase = Math.PI / part.samples;
       for (const s of [
         rail,
         ...part.stations.filter((value) => rail < value && value < knee),
       ]) {
         const candidate = section(s);
+        const { phase, p } = candidate.medial;
+        const resolution = Math.max(
+          0,
+          Vec.dot(Vec.sub(candidate.at.point(phase - halfPhase), p), side),
+          Vec.dot(Vec.sub(candidate.at.point(phase + halfPhase), p), side),
+        );
         const inward: number = -Vec.dot(
           AutoMovieHumanPelvicCut.transverse(candidate.lateral),
           side,
@@ -220,7 +227,7 @@ export namespace AutoMovieHumanPelvicSplit {
           side,
         );
         if (
-          candidate.clearance > 0 &&
+          candidate.clearance > resolution &&
           candidate.reach > estimatedReach &&
           inward > 0 &&
           width > 0
