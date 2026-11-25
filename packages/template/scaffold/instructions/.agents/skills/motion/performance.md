@@ -4,7 +4,7 @@ Start a scene by [reading the scene](staging.md#reading-the-scene), or a standal
 
 1. Prepare the coarse [entities](../development/entities.md#coarse-first).
 2. [Compose the actions](compose/composition.md). Follow [refusals](compose/refusals.md) if the vocabulary cannot realize them.
-3. Accept the module in its [catalog case](catalog-cases.md).
+3. Verify the module in its scene interval or in a [separate case](catalog-cases.md) when needed.
 
 A standalone case ends here. For a film, [stage](staging.md) the [central passage](judgment.md#before-widening), then [review the segments](segment-review.md) in order. Follow the commissioned [production workflow](../production/workflow.md#commissioned-outputs) for handoff.
 

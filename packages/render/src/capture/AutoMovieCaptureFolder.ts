@@ -98,9 +98,14 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
     const directory: string =
       props.round === null ? root : `${root}/${ROUNDS}/${props.round}`;
 
-    // 1. The compared round, before anything changes.
     const reference: string | null =
       props.compare === null ? null : `${root}/${ROUNDS}/${props.compare}`;
+    if (directory === reference)
+      throw new Error(
+        `Capture round "${props.round}" cannot be compared against itself`,
+      );
+
+    // 1. The compared round, before anything changes.
     let earlier: Extract<
       IAutoMovieCaptureRecord,
       { state: "complete" }
@@ -119,6 +124,21 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
 
     // 2. The folder holds only what its previous record owns.
     await storage.mkdir(directory, { recursive: true });
+    if (
+      storage.realpath !== undefined &&
+      (props.round !== null || reference !== null)
+    ) {
+      const actual: string = await storage.realpath(directory);
+      if (reference !== null && actual === (await storage.realpath(reference)))
+        throw new Error(
+          `Capture output and compared round "${props.compare}" share the same folder: ${actual}`,
+        );
+      const name: string = actual.split(/[\\/]/u).at(-1)!;
+      if (props.round !== null && name !== props.round)
+        throw new Error(
+          `Capture round "${props.round}" refers to existing round "${name}" at ${actual}`,
+        );
+    }
     const entries: string[] = await storage.readdir(directory);
     const previous: IAutoMovieCaptureRecord | null = entries.includes(RECORD)
       ? await readRecord(storage, `${directory}/${RECORD}`)

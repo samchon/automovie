@@ -523,6 +523,9 @@ importers:
 
   packages/evidence:
     dependencies:
+      '@babel/parser':
+        specifier: 7.29.7
+        version: 7.29.7
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))

@@ -6,26 +6,30 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { parse } from "yaml";
 
+import { repositoryRoot } from "../internal/repositoryRoot";
+
 /**
  * A production added to an older workspace resolves all its catalog references
- * and keeps the workspace's own dependencies, comments and installation policy.
+ * and keeps the workspace's own dependencies, comments and installation
+ * policy.
  *
  * Scenarios:
- * 1. Registry pins, catalog links and overrides supply the appropriate resolutions.
- * 2. Aliases in either direction keep unrelated catalogs, overrides and a snapshot of all catalogs unchanged.
- * 3. A repeated add preserves the file's bytes. Absent catalogs are filled and malformed settings fail.
+ *
+ * 1. Registry pins, catalog links and overrides supply the appropriate
+ *    resolutions.
+ * 2. Aliases in either direction keep unrelated catalogs, overrides and a snapshot
+ *    of all catalogs unchanged.
+ * 3. A repeated add preserves the file's bytes. Absent catalogs are filled and
+ *    malformed settings fail.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the template API used by add and checks its returned YAML against the generated production manifest and the pre-existing workspace choices.
  * @evidence contracts/development/testing.md#independent-expectations The manifest supplies the required names. The fixture supplies the expected pins and links to real SDK package directories.
  * @evidence contracts/development/testing.md#distinguishing-cases Both SDK packages start missing. The same input with and without a linked SDK must produce different resolutions. Invalid input fails and a complete file survives byte-for-byte.
- * @evidence contracts/development/testing.md#execution-ownership The repository test runner invokes this in-process against the installed template. All workspace configurations stay in memory.
+ * @evidence contracts/development/testing.md#execution-ownership The source and bundled runners invoke the template in-process with workspace YAML in memory and resolve the same repository SDK manifests.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the migration behavior and the cases that distinguish it.
  */
 export function test_template_workspace_catalogs(): void {
-  const directory: string = path.resolve(
-    __dirname,
-    "../../../../sample-workspace",
-  );
+  const directory: string = path.join(repositoryRoot(), "sample-workspace");
   const files: Record<string, string> = createAutoMovieScaffold({
     name: "member",
     kind: "workspace-production",

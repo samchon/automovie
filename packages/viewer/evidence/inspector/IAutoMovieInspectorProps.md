@@ -6,7 +6,7 @@ The inspector's state is one request, so the page hands in its first text and li
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Three members the scaffold page uses: the subject module's record as subjects, `location.search` as the first text and `createAutoMovieInspectorAddressWriter` as the listener. The subject type is render's `IAutoMovieDrawSubject`, not a parallel one.
+The scaffold supplies the existing draw subject record, the first address query, the address listener and the fixed prefix of its existing capture script. A host without a capture entry point can omit the prefix.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

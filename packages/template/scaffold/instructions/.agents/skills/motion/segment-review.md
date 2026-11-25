@@ -8,4 +8,4 @@ Does the exchange work on screen even when every scripted action is present? Com
 
 ## Review rounds
 
-Group findings by cause and follow [film repairs](../review/delivery-review.md#repairs). Return a failed module to its [catalog case](catalog-cases.md). Replay and recapture affected intervals and joins, including the central passage if its lead-in or consequence changed. Review the assembled film under [delivery review](../review/delivery-review.md#video).
+Group findings by cause and follow [film repairs](../review/delivery-review.md#repairs). Recheck a failed module in its affected interval or in its [separate case](catalog-cases.md). Replay and recapture affected intervals and joins, including the central passage if its lead-in or consequence changed. Review the assembled film under [delivery review](../review/delivery-review.md#video).

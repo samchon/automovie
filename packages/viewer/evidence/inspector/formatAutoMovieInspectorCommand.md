@@ -2,23 +2,23 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the option form and why it is used for every option, the round trip through the command's reader, the text's prefix and the quoting rule.
+States the option form and why it is used for every option, the round trip through the command's reader, the host's prefix responsibility, the selected shell and the request-only default.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The grammar's writer decides keys and values and the command's own argument reader is the inverse of the `--key=value` form; a single-quoted POSIX word is literal except for `'`, which is closed, escaped and reopened.
+The request writer decides keys and values and the command reader is the inverse of the `--key=value` form. POSIX quotes an apostrophe by closing, escaping and reopening the word. PowerShell doubles single quote characters inside a quoted word and quotes commas so scripts receive the list as one argument.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One map to options and one join with quoting.
+One map to request options and one command join with the selected shell quoting the host and request tokens.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No option is written by hand, so the command offers exactly what the address carries.
+Request options come from the writer used for the address. The caller supplies host options when its capture entry requires them.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the length of the written request.
+Linear in the total text length of the written request and the host prefix.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

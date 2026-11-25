@@ -6,6 +6,7 @@ import { subjects } from "./subjects";
 mountAutoMovieInspectorPage({
   root: document.getElementById("root")!,
   subjects: subjects(null),
+  captureCommand: ["pnpm", "run", "capture"],
   location: window.location,
   history: window.history,
 });

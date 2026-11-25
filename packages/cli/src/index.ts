@@ -1,4 +1,6 @@
 export * from "./AutoMovieCommand";
+export * from "./IAutoMovieVerification";
+export * from "./runAutoMovieVerification";
 export * from "./readAutoMovieCommandArguments";
 export * from "./deriveAutoMovieProjectName";
 export * from "./AUTOMOVIE_DEFAULT_PROJECT_NAME";
@@ -42,3 +44,7 @@ export * from "./recordAutoMoviePlayback";
 export * from "./renderAutoMovie";
 export * from "./renderAutoMovieVideo";
 export * from "./reviewAutoMovie";
+export * from "./IAutoMovieReviewObservation";
+export * from "./hashAutoMovieFile";
+export * from "./readAutoMovieReviewObservation";
+export * from "./reviewAutoMovieFile";

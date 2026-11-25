@@ -5,9 +5,16 @@ import * as fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import * as path from "node:path";
 
+import { installedFrameParity } from "./installedFrameParity.mjs";
+
 const root = path.resolve(process.argv[2]);
+const parity = process.argv[3] !== "--sdk-only";
 const require = createRequire(path.join(root, "package.json"));
 const { chromium } = require("playwright-core");
+const {
+  decodeAutoMovieRasterPng,
+  guidePassFrameName,
+} = require("@automovie/render");
 process.env.VITE_CJS_IGNORE_WARNING = "true";
 const vite = require("vite");
 const browser = await chromium.launch({
@@ -19,6 +26,7 @@ const browser = await chromium.launch({
   ],
 });
 const failures = [];
+let command;
 try {
   for (const mode of ["development", "built"]) {
     let server;
@@ -40,7 +48,10 @@ try {
       page.on("pageerror", (error) =>
         errors.push(error.stack ?? error.message),
       );
-      await page.goto(server.resolvedUrls.local[0], {
+      const url = server.resolvedUrls.local[0];
+      const start = new URL(url);
+      start.searchParams.set("subject", "starter");
+      await page.goto(start.href, {
         waitUntil: "load",
         timeout: 30_000,
       });
@@ -68,6 +79,12 @@ try {
         { timeout: 5_000 },
       );
       await page.getByRole("button", { name: "Pause", exact: true }).click();
+      if (parity)
+        command = await installedFrameParity.inspector({
+          page,
+          url,
+          decodePng: decodeAutoMovieRasterPng,
+        });
       assert.deepEqual(errors, [], "no browser errors");
       console.log(
         `${mode}: installed SDK initialized; inspector Play and Pause work`,
@@ -157,3 +174,12 @@ try {
   await failedHost?.close();
   await fs.unlink(scratch);
 }
+
+if (parity)
+  await installedFrameParity.deliver({
+    root,
+    command,
+    decodePng: decodeAutoMovieRasterPng,
+    guideFrameName: guidePassFrameName,
+    ffmpeg: process.env.FFMPEG_PATH?.trim() || require("ffmpeg-static"),
+  });

@@ -17,14 +17,16 @@ import { throwsError } from "../internal/predicates";
  *    `--force` and `--name <name>` in any order.
  * 3. `add` splits `shorts/<name>` or `series/<name>` into its family and one
  *    directory segment, with optional single `--force` and `--name`.
- * 4. `capture`, `render` and `review` keep every token after them, in order, for the production's option reader, including none.
- * 5. Unknown and removed commands (`start` and `sync` among them), unknown or repeated
- *    options, a missing `--name` value, missing, extra or blank directories,
- *    an unknown family, an unportable or padded segment, and a standalone flag
- *    beside other tokens all refuse with a message naming the correction.
+ * 4. `capture`, `render`, `review` and `verify` keep their option tokens in order.
+ *    `capture` and `verify` also accept an empty token list.
+ * 5. Unknown and removed commands (`start` and `sync` among them), unknown or
+ *    repeated options, a missing `--name` value, missing, extra or blank
+ *    directories, an unknown family, an unportable or padded segment, and a
+ *    standalone flag beside other tokens all refuse with a message naming the
+ *    correction.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported `readAutoMovieCommandArguments` and asserts the returned request or the thrown message, catching a lost directory, family, `--workspace`, `--force` or `--name`, a path segment that could leave `movies/<family>`, a standalone flag admitted beside other tokens, a removed command accepted, and a refusal that does not say how to correct it.
- * @evidence contracts/development/testing.md#independent-expectations Expected requests and correction fragments come from the CLI grammar in the README and usage text (`create` with `--workspace`, `--name`, `--force`; `add` with `shorts|series/<name>`, `--name`, `--force`; `capture` whose options the production's request grammar reads; standalone `-h`/`--help` and `-v`/`--version`; `./-name` for a dash-leading directory), not from the parser's output; fragment matching cannot judge the rest of each message's wording.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported parser with literal requests and asserts the returned command and option tokens or the refusal's correction.
+ * @evidence contracts/development/testing.md#independent-expectations Expected requests, option order and the supported command list come from the CLI grammar in the README and usage text. Fragment matching checks only the part of each refusal covered by the assertion.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers empty input, each standalone spelling alone and beside an extra token, every create option together in a shuffled order, both families, zero, blank and two targets, an unknown option per command, a dash-leading directory, repeated flags, `--name` missing, blank or followed by an option, a target without family, with an unknown family or an extra segment, empty, `..`, separator-bearing and padded segments, and the removed `start`, `sync` and `inspect-external` commands; execution of an admitted request belongs to `run` and the project name to `test_cli_project_name`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that calls the pure parser in-process with literal argument arrays, starting no process and registering no dynamic cases.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
@@ -117,24 +119,46 @@ export function test_cli_command_arguments(): void {
       },
     ],
   );
+  TestValidator.equals(
+    "verify keeps the selected subjects and stage in order",
+    read(
+      "verify",
+      "--subject",
+      "walk",
+      "--subject",
+      "delivery",
+      "--require",
+      "handoff",
+      "--json",
+    ),
+    {
+      command: "verify",
+      args: [
+        "--subject",
+        "walk",
+        "--subject",
+        "delivery",
+        "--require",
+        "handoff",
+        "--json",
+      ],
+    },
+  );
+  TestValidator.equals("verify without tokens", read("verify"), {
+    command: "verify",
+    args: [],
+  });
   // Each refusal names its correction: the one command, the one option, the
   // directory count, a non-blank directory, or a standalone flag.
+  const commandCorrection: string =
+    "the commands are create, add, capture, inspect, render, review and verify";
   const invalid: readonly (readonly [readonly string[], string])[] = [
-    [
-      ["unknown"],
-      "the commands are create, add, capture, inspect, render and review",
-    ],
-    [
-      ["start", "project"],
-      "the commands are create, add, capture, inspect, render and review",
-    ],
-    [
-      ["sync", "movie"],
-      "the commands are create, add, capture, inspect, render and review",
-    ],
+    [["unknown"], commandCorrection],
+    [["start", "project"], commandCorrection],
+    [["sync", "movie"], commandCorrection],
     [
       ["inspect-external", "model.glb", "--profile", "gltf-static-v1"],
-      "the commands are create, add, capture, inspect, render and review",
+      commandCorrection,
     ],
     [["create"], "exactly one target directory; received 0"],
     [["create", " "], "non-blank target directory"],

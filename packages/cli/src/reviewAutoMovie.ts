@@ -5,11 +5,20 @@ import * as path from "node:path";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
 import { recordAutoMoviePlayback } from "./recordAutoMoviePlayback";
+import { reviewAutoMovieFile } from "./reviewAutoMovieFile";
 
 /**
- * Run `automovie review` in a production: record real-time playback of its running inspector page for a person to watch, and resolve to the exit status.
+ * Run `automovie review` in a production, recording Inspector playback or
+ * marking and reopening a file-bound observation.
  *
- * Options are read by `readAutoMovieCaptureArguments` and admitted by `readAutoMovieReviewOptions`. The recording is `recordAutoMoviePlayback` with the production's `playwright-core`; it and `playback.json`, holding the time readings and the page's script errors, go into `--out` or `media/automovie/review`. It prints the video and the number of errors, and resolves to 1 when the page reported a script error, since a playback that errors is not one to watch, and 0 otherwise.
+ * Options are read by `readAutoMovieCaptureArguments` and admitted by
+ * `readAutoMovieReviewOptions`. The recording is `recordAutoMoviePlayback` with
+ * the production's `playwright-core`; it and `playback.json`, holding the time
+ * readings and the page's script errors, go into `--out` or
+ * `media/automovie/review`. It prints the video and the number of errors and
+ * resolves to 1 when the page reported a script error. File mode delegates to
+ * the published-file review host and resolves to 0 after the mark or replay
+ * succeeds.
  */
 export async function reviewAutoMovie(props: {
   /** The tokens after `review`. */
@@ -30,6 +39,10 @@ export async function reviewAutoMovie(props: {
     readAutoMovieReviewOptions(
       render.readAutoMovieCaptureArguments(props.args),
     );
+  if (!("url" in options)) {
+    await reviewAutoMovieFile({ options, root, env: props.env });
+    return 0;
+  }
   const out: string = path.resolve(
     root,
     options.out ?? path.join("media", "automovie", "review"),

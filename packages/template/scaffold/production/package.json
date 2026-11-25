@@ -17,6 +17,7 @@
     "build": "vite build",
     "render": "automovie render --module src/subjects.ts",
     "capture": "automovie capture --module src/subjects.ts",
+    "verify": "automovie verify",
     "review": "automovie review",
     "review:setup": "playwright-core install ffmpeg chromium-headless-shell",
     "physics": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/physics.ts",

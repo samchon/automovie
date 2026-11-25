@@ -2,28 +2,28 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States how options are read, what records, what is written where, what is printed and the status with its reason.
+Identifies the two review routes, outputs, and how the recorded Inspector's page errors affect exit status.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The recording's rules are `recordAutoMoviePlayback`'s; the command supplies the production's Playwright and writes the result.
+The review options select the production's Inspector recorder or its published-file review host. Both keep their source observation boundaries.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Read, record, write, report.
+Parses once and passes the selected mode's inputs to its owner. Only Inspector recording needs the Playwright load.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-An unknown option is refused; a page error is reported in the status, not hidden.
+File review uses the report and digest checks. The Inspector exit still reflects page errors.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One recording.
+One typed command selection and one selected operation per invocation.
 
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-One review per command.
+File receipt and inspector recording work remain with their owners. This routing call retains no result for a later command.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The browser is the recording's and closed by it.
+The recorder owns and closes its browser. File review owns its opened record and captured outputs.

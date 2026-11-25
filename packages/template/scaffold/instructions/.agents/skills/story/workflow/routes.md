@@ -31,7 +31,7 @@ Settle [undelegated creative choices](../planning/requirements.md#asking-the-use
 
 ## One chain
 
-Trace commissioned video from settings or brief through screenplay, entities, needed motion laws, tests, accepted [catalog cases](../../motion/catalog-cases.md), scene compositions and film. With no narrative pass, use instructions in place of settings or brief.
+Trace commissioned video from settings or brief through screenplay, entities, needed motion laws, [verified capabilities](../../motion/catalog-cases.md), scene compositions and film. With no narrative pass, use instructions in place of settings or brief.
 
 Cite the preceding decisions each stage realizes.
 

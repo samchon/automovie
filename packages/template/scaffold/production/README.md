@@ -106,6 +106,16 @@ pnpm exec automovie capture --module src/takeSubjects.ts --props rehearsal.take.
 
 Version 1 reconstructs authored Human performance, including its supported prop, articulation, contact and event evaluation. It refuses opaque owner callbacks or missing inputs. Native solver snapshot restore and partial raster export resume use separate workflows.
 
+## Verify a correction
+
+Declare useful checks beside the model, motion case or film they serve and export their targets from [`src/executable/verify.ts`](src/executable/verify.ts). Give each check a short title and a source comment explaining the criterion, its scope and how its evidence is read. Share a definition when several targets use the same known inputs. Use explicit `.ts` suffixes on relative imports in the verification modules so the script can load them in Node without compiling unrelated source.
+
+Run `pnpm run verify --subject <id>` to read current observations. Repeat `--subject` for an intentional multi-target read. Use `--run --only <check>` to repeat one bounded measurement or declared capture. A measurement names the input files, unit and accepted range. A capture names its record, view, pass, diagnostic and sample or frame range. Delivery checks compare the actual movie bytes with the render report and required controls. Review checks read a named observation of the actual movie and required frame range.
+
+In a nested Git production, declare the files each measurement or capture depends on. Use paths relative to the production for shared inputs inside its Git checkout, such as `../../shared/model.ts`. Refresh a declared capture with `--run` to bind its record to the exact input bytes.
+
+Status distinguishes passed, failed, not run, disabled, stale, unobserved and awaiting review. It names what to reopen or rerun. `--json` writes the same result as data. Use `--require <stage>` at an adopted handoff to exit nonzero when its required checks remain open, even when `--only` selects one check to run. `enabled: false` keeps an optional check visible during investigation. Remove the temporary definition when its investigation ends. Keep any capture, review and acceptance records that support completed work. Local measurement and refresh receipts live under `.cache/automovie/verify/`. A `.first-failure.json` beside the latest receipt preserves the first failure through retries.
+
 ## Commands
 
 | Command | Purpose |
@@ -121,6 +131,7 @@ Version 1 reconstructs authored Human performance, including its supported prop,
 | `pnpm run motion:take save`, `open` or `branch` | Persist, verify or branch a registered Human take |
 | `pnpm run render --subject <film>` | Export one film as a video, with its soundtrack when it has one |
 | `pnpm run review --url <address> --seconds <s>` | Record real-time playback of the running inspector page |
+| `pnpm run verify --subject <id>` | Read current checks for a model, motion case or film |
 | `pnpm run capture --subject <film> [request]` | Stills, sheets and a record of a film, with views, passes, marks and round comparison |
 | `pnpm exec automovie capture --file <video> [request]` | Stills of an encoded file's own frames, around its cuts |
 
