@@ -16,6 +16,8 @@ Follow [3D modeling](../3d-modeling/SKILL.md) for representation, construction, 
 
 Use the issue for the current task and its acceptance checks. Finish the anatomical neutral and bind before evaluating dependent poses.
 
+Apply the [research requirements](supervision.md#evidence-before-implementation) to every Human feature and correction.
+
 ## Polygon man
 
 The polygon man is the plain rigid figure used by motion verification and diffusion hints. Correct measured radii, lengths and frames while keeping its primitives, segment count and style. Refer any change to that representation to the user. Verify it separately from the continuous skin. [Polygon man](../../../packages/human/README.md#polygon-man).

@@ -2,7 +2,7 @@
 
 ## Anatomical inputs
 
-Construct and measure each public input at its published landmark, site and posture. Use ISO 8559-1 and ANSUR II for body measures and Farkas for head measures. State units and population ranges. Apply published relations in their own covariates. Mark estimates with their reasons and check them against held-out evidence. [Anatomical consistency](../../../packages/human/docs/testing/consistency.md).
+Construct and measure each public input at its published landmark, site and posture. Use ISO 8559-1 and ANSUR II for body measures and Farkas for head measures. State units and population ranges. Apply published relations in their own covariates. Apply the [research requirements](supervision.md#evidence-before-implementation) to estimates and check them against held-out evidence. [Anatomical consistency](../../../packages/human/docs/testing/consistency.md).
 
 Place joint centres from the person's inputs in the parent's anatomical frame. Derive the loft course and section scaling centres independently when their definitions differ. Read each girth on the original surface at its own site and solve only the controls that own it. [Centres and courses](../../../packages/human/docs/techniques/centres-and-courses.md).
 
@@ -12,7 +12,7 @@ Use one parameterized body definition for the supported population. Human author
 
 Use conic families for the body's lofted regions. Choose the representation for folds, openings and other features under [3D modeling](../3d-modeling/crafting/lofting.md#composition-before-lofting). Build bilateral regions from the same law and reflect their frames with consistent orientation. Keep the same realized atlas for binding, appearance and export. Keep the modelled skin free of genitals and nipples.
 
-Derive production curves from the person's inputs and published or documented estimated laws. Use the fewest curves and simplest rules that satisfy the anatomical form and connections. Use reference observations to investigate laws and check generalization. [Mesh recovery](../3d-modeling/crafting/recovery.md).
+Derive production curves from the person's inputs with a method that meets the [research requirements](supervision.md#evidence-before-implementation). Use the fewest curves and simplest rules that satisfy the anatomical form and connections. Use reference observations to investigate laws and check generalization. [Mesh recovery](../3d-modeling/crafting/recovery.md).
 
 ## Connections
 

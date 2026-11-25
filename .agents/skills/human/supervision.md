@@ -8,7 +8,17 @@ Apply this policy whenever supervising Human work. Read it at the start of the a
 2. Start the audit clock immediately. Set the next deadline ten minutes after the start and maintain that schedule during code edits, fits, verification, worker waits and CI waits. Bound waits by the next deadline. Use actual local time with its offset. When an audit runs late, record the scheduled and actual time and the reason. Continue on the established cadence.
 3. Assign one writer per coupled source. Give each worker the actual owners, scope, governing user rules, expected evidence and output locations. Use fewer workers when their work overlaps or shares a mutable input. Use PowerShell only and include that rule in every worker brief. Keep inspection logic in tracked tools. For Campaign #3151, stay in the designated checkout and run those tools directly in place of temporary Python or JavaScript scripts. Keep private references and captures in Human's local ignored evidence directory.
 
-Workers choose and execute routine research, edits and verification within scope. The supervisor checks after action and intervenes when the approach violates a user instruction, repeats a failed design, conflicts with another owner or exceeds the compute limit. Apply user input and delivery approval rules through the normal project workflow. [Shared checkout](../development/SKILL.md#several-agents-in-one-checkout).
+Workers choose their sources, make implementation decisions, edit and verify within scope without waiting for the supervisor's approval. The supervisor audits the work after action. When a violation is found, identify the exact rule and affected code, direct the owner to remove the unsupported change from the candidate, and require renewed research at the cause. Preserve verified independent work. Apply existing authorization rules for operations the user has reserved. [Shared checkout](../development/SKILL.md#several-agents-in-one-checkout).
+
+## Evidence before implementation
+
+Before implementing a feature, correction or shape trial, establish the behavior, its owner and the method from evidence. For a correction, first reproduce the problem and record the input, first failed invariant, contributing factors and affected neighbors. For a feature, identify the measured or specified behavior and the existing operator capable of carrying it.
+
+Read primary research for anatomical or numerical claims. Read maintained open-source implementations and official documentation for applicable methods. Inspect the original equations, source code or data and record the exact section, table, version or revision. Check whether the source's population, posture, units, frame and numerical assumptions fit the case. Use licensed public geometry to observe and verify form. Exemplar measurements supply observations and never determine acceptance.
+
+In the rule record, connect each changed behavior and each new curve, coefficient, limit, fallback or exception to the relevant source and the person's measured field. Show the calculation or transfer into the implementation and name an independent verification that can reject it. Use the smallest established method supported by the evidence. Mark a value `ESTIMATE` only when a cited observation or measured field supports a specific transfer. State the calculation, applicability and limitation. A label or a better-looking screenshot alone provides no basis for a change.
+
+Remove unsupported changes from the candidate and return to research on the original cause. Keep the existing supported rule when evidence for replacement is missing. A diagnostic comparison can isolate an existing rule on preserved inputs. Any replacement trial requires its own source basis. Fixes for one case, widened admission limits and additional shaping bands require the same cause and source evidence as any other change.
 
 ## Every ten minutes
 
@@ -17,7 +27,7 @@ Read the actual diff and live process state. Open new matched images, read measu
 | Check | Evidence and decision |
 | --- | --- |
 | Scope and sequence | Record the current work, its exact revision and the first pending issue gate. Check worker boundaries, dependency order and user corrections. |
-| Source and basis | Trace the changed rule and each coefficient to a primary source, the person's own field, or an explicit `ESTIMATE` with its reason. Read original research, suitable open implementations and licensed references before choosing an uncertain law. Flatten unsupported rules to the simplest smooth construction. |
+| Source and basis | Apply [Evidence before implementation](#evidence-before-implementation) to the actual diff. Check the relevant source, its applicability, the measured or derived values and the independent verification. If any change lacks that basis, record the violation and direct the owner to remove it and investigate the cause. |
 | Geometry owner | Identify the original parent loop, its position and transverse derivative, the child's first curve and the common parameter map. Trace a crack, fold or turn to the source curve or correspondence. Correct the source line where the surface exposes the problem. |
 | Code structure | Check that each decision has one owner, each module has a clear responsibility, and equivalent cases reuse the same rule. Require a measured cause for any additional curve, special case or correction. Remove superseded trial paths from the delivery scope. |
 | Whole failure set | Inspect all pertinent rejection branches, inlet and outlet conditions, opposite and same-region intersections, nearby parts, topology and visible defects. Record every phenomenon, its root cause, its contributing factors and any remaining uncertainty. |
@@ -30,7 +40,7 @@ When a fit takes minutes, measure it and redesign the recurring cost. At fifteen
 
 ## Correct one batch by cause
 
-1. Preserve the failing input, revision, camera settings, witness positions and logs. Trace every relevant refusal route and inspect the measured failure set before any production correction. Mark unmeasured hypotheses and exercise them on the fixed evidence.
+1. Preserve the failing input, revision, camera settings, witness positions and logs. Trace every relevant refusal route and inspect the measured failure set before any production correction. Test diagnostic hypotheses against fixed evidence and apply [Evidence before implementation](#evidence-before-implementation) to every replacement proposal.
 2. Group all symptoms by source owner and cause. Pair each group with a single causal change and explicit evidence that can disprove it. Include failures at dependent boundaries and in unaffected neighboring domains so the next verification detects regressions.
 3. If a fix makes another refusal appear, or if symptoms migrate between regions, stop tuning the affected design. Reopen the original anatomy, parameterization, ownership and prior research. Check the full refusal set on the same input. Replace the incompatible rule or representation at its source.
 4. Apply the causal changes together. Keep the smallest set of source curves and shape controls that expresses the measured anatomy and shared boundary jets. Keep branch registration and continuity in those curves.
