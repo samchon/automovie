@@ -4,7 +4,11 @@ A contact can be a touch event or a constraint held over a window.
 
 ## Windows and support frames
 
-Declare which surfaces may touch and when, including approach, first touch and release where they matter. Anchor a retained contact to the body or carrier that owns the surface so it follows that surface in motion. Measure slip and penetration in its frame from the displayed transforms.
+Declare which surfaces may touch and when, including approach, first touch and release where they matter. Keep a retained contact in the material frame of the part that owns its surface. Measure slip and penetration from the displayed effector and that material frame at the same second.
+
+Derive the fit from the contact points, the rig's segment lengths and joint limits, and the outer surfaces that must clear.
+
+Match contact tolerances to the resolution of the posed rig and its material.
 
 Transfer weight to the next support before releasing the current one.
 

@@ -10,7 +10,7 @@ Test geometry operators on made inputs under [construction](../3d-modeling/craft
 
 A production law takes the bounded checks [motion verification](../motion/laws/verification.md) lists: evaluate the resolved plan at its event times and assert each bound on the result, across the bodies the [relational goals](../contracts/development/behaviors.md#relational-goals) item requires.
 
-A test that needs a person takes a body the installed human package prepares at fixed parameters, without drawing it. Preparing a body can be slow, so prepare each one once per run and share it between tests.
+Use a stored or synthetic prepared body as the input to motion unit tests.
 
 The installed motion vocabulary tests each action's internal mechanics. Test the choices and coordination the production authors and inspect their performance in the [catalog case](../motion/catalog-cases.md#capture-and-review).
 

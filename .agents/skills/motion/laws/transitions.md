@@ -10,7 +10,7 @@ Compute only the knots and branch points the motion needs. Make every contact ch
 
 Each knot carries its position and velocity, and may carry its own acceleration and dwell. Join neighboring knots with a minimum-jerk segment that matches both knots' position, velocity and acceleration (Flash and Hogan 1985). Time the segments with TOPP-RA against the velocity and acceleration limits (Pham and Pham 2018).
 
-Run physics only at a branch point, for the short response there, and resolve it during preparation. Use closed-form paths and fits where they satisfy the constraints. Limit coupled search to the interval and degrees of freedom that need it. Retain event states, curves or solver trajectories that preserve the checked result between events. Carry resolved entry state through cuts and layers.
+Run physics only at a branch point, for the short response there, and resolve it during preparation. Use closed-form paths and fits where they satisfy the constraints. Limit coupled search to the interval and degrees of freedom that need it. Retain event states, curves or solver trajectories that preserve the checked result between events. Carry the resolved boundary state through dependent phases, cuts and layers.
 
 ### Sampling
 
