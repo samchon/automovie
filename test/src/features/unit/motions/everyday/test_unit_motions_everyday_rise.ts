@@ -30,7 +30,7 @@ namespace part_prepare_rise_feet {
    *    unplanted; the right stands.
    * 3. From 0.7 s the left stands on its drawn ankle.
    */
-  export function run(): void {
+  export function verify(): void {
     const entry: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: { x: 0.1, y: 0.08, z: 0.4 },
       right: { x: -0.1, y: 0.08, z: 0.4 },
@@ -82,7 +82,7 @@ namespace part_rise_seat_off {
    *
    * 1. A 2 s rise leaves the seat at 0.72 s, a 2.5 s rise at 0.9 s.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.predicate(
       "the release",
       nclose(riseSeatOff(2), 0.72, ROUNDING) &&
@@ -103,6 +103,6 @@ namespace part_rise_seat_off {
  *   2025).
  */
 export async function test_unit_motions_everyday_rise(): Promise<void> {
-  part_prepare_rise_feet.run();
-  part_rise_seat_off.run();
+  part_prepare_rise_feet.verify();
+  part_rise_seat_off.verify();
 }

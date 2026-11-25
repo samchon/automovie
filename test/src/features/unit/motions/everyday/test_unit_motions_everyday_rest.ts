@@ -42,7 +42,7 @@ namespace part_rest_forearm {
    *    the wrist, its length the forearm's.
    * 3. A wrist beyond the arm's reach straightens the arm along the line.
    */
-  export function run(): void {
+  export function verify(): void {
     const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (
       x: number,
       y: number,
@@ -104,7 +104,7 @@ namespace part_rest_goals {
    * 4. Crossed arms equal `restCrossedArms`; a right hand under the left elbow of a
    *    left chin rest equals `restElbowSupport` on the left fist.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const posture: IAutoMovieMotionHumanPosture = stand.posture(
@@ -203,6 +203,6 @@ namespace part_rest_goals {
  * - `rest_goals`: `restGoals` sets both hands' rest goals on a standing posture.
  */
 export async function test_unit_motions_everyday_rest(): Promise<void> {
-  part_rest_forearm.run();
-  await part_rest_goals.run();
+  part_rest_forearm.verify();
+  await part_rest_goals.verify();
 }

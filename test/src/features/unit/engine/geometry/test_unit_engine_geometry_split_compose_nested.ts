@@ -17,8 +17,8 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  * sqrt(81 - (7.5 cos b)^2) mm, `f.0` carrying a second composed split at its
  * far end (60 mm along its axis) into `g.0` and `g.1`, cylinders of radius 7 mm
  * 3.5 mm either side of its axis leaning 0.3 rad apart from it. Both splits
- * have the fewest columns a split admits, 8: the forks stand at the columns
- * of clocks 0 and pi, so a finer ring decides nothing more.
+ * have the fewest columns a split admits, 8: the forks stand at the columns of
+ * clocks 0 and pi, so a finer ring decides nothing more.
  *
  * Scenarios:
  *
@@ -132,5 +132,8 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
   }
 }
 
-/** The columns of both splits: the fewest a split admits, a multiple of 4 of at least 8. */
+/**
+ * The columns of both splits: the fewest a split admits, a multiple of 4 of at
+ * least 8.
+ */
 const COLUMNS_NESTED: number = 8;

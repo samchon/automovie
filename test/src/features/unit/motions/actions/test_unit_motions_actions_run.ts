@@ -21,7 +21,7 @@ namespace part_run_speed {
    *    is given.
    * 2. The jog (Fr 0.6) and the sprint (Fr 5) go by their own numbers.
    */
-  export function run(): void {
+  export function verify(): void {
     const body: run.IBody = { measure: { hipHeight: HIP } };
     const g: number = AutoMovieGravity.STANDARD;
     TestValidator.predicate(
@@ -46,5 +46,5 @@ namespace part_run_speed {
  *   sqrt(Fr g l)` with `l` the hip height.
  */
 export async function test_unit_motions_actions_run(): Promise<void> {
-  part_run_speed.run();
+  part_run_speed.verify();
 }

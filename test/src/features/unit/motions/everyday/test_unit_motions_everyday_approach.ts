@@ -18,7 +18,7 @@ namespace part_approach_abeam {
    * 3. Obstacles at (0, 0, -1), (0, 0, 5), (0.6, 0, 2) and a path of no length give
    *    none.
    */
-  export function run(): void {
+  export function verify(): void {
     const from: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const to: IAutoMovieVector3 = { x: 0, y: 0, z: 4 };
     TestValidator.equals(
@@ -54,5 +54,5 @@ namespace part_approach_abeam {
  *   an obstacle through:
  */
 export async function test_unit_motions_everyday_approach(): Promise<void> {
-  part_approach_abeam.run();
+  part_approach_abeam.verify();
 }

@@ -24,7 +24,7 @@ namespace part_curtsy_cross {
    * 3. Facing -Z (yaw 180) the crossed ankle turns with the frame, to (-0.125, 0.08,
    *    0.2875); the rotation is kept.
    */
-  export function run(): void {
+  export function verify(): void {
     const rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
     const feet: Parameters<typeof curtsyCross>[1] = {
       front: { x: 0.1, y: 0.08, z: 0 },
@@ -84,5 +84,5 @@ namespace part_curtsy_cross {
  *   of the way from heel to toe, approached from 0.2 of a foot behind.
  */
 export async function test_unit_motions_everyday_curtsy(): Promise<void> {
-  part_curtsy_cross.run();
+  part_curtsy_cross.verify();
 }

@@ -31,7 +31,7 @@ namespace part_swipe_touchscreen_screen {
    *    distance`, and a glass on a prop that is not fixed, a scaled glass and an
    *    unknown screen on `screen`.
    */
-  export function run(): void {
+  export function verify(): void {
     const glass: IAutoMovieAffordance = {
       id: "glass",
       kind: "surface",
@@ -131,5 +131,5 @@ namespace part_swipe_touchscreen_screen {
  *   in the world:
  */
 export async function test_unit_motions_everyday_swipe_touchscreen(): Promise<void> {
-  part_swipe_touchscreen_screen.run();
+  part_swipe_touchscreen_screen.verify();
 }

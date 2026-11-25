@@ -41,7 +41,7 @@ namespace part_carry_place {
    *    forearm, a forearm's radius out, its palm up.
    * 3. A hip carry places only the loaded hand; one-handed carrying places none.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const posture: IAutoMovieMotionHumanPosture = {
@@ -143,7 +143,7 @@ namespace part_carry_tilt {
    * 3. The walk keeps its pace up to a fifth of the mass, is half way down at three
    *    tenths, and holds 4.6 / 4.75 from two fifths on.
    */
-  export function run(): void {
+  export function verify(): void {
     const measure: Pick<
       IAutoMovieMotionHumanBody["measure"],
       | "shoulderHalfWidth"
@@ -211,7 +211,7 @@ namespace part_loaded_walk_pace {
    * 2. Two fifths and more keep 4.6 / 4.75.
    * 3. Three tenths, half way, keep the mean of the two.
    */
-  export function run(): void {
+  export function verify(): void {
     const loaded: number = 4.6 / 4.75;
     TestValidator.predicate(
       "light loads",
@@ -242,7 +242,7 @@ namespace part_loaded_walk_pace {
  *   speed kept under a load of a share of the body's mass (Middleton et al.
  */
 export async function test_unit_motions_carrying_carry(): Promise<void> {
-  await part_carry_place.run();
-  part_carry_tilt.run();
-  part_loaded_walk_pace.run();
+  await part_carry_place.verify();
+  part_carry_tilt.verify();
+  part_loaded_walk_pace.verify();
 }

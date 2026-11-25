@@ -46,31 +46,15 @@ export function advancePhysicalOwnership(input: {
   const seconds: number = input.tick / input.nativeRate;
   const previousSeconds: number = (input.tick - 1) / input.nativeRate;
   const dt: number = 1 / input.nativeRate;
-  let selection: ReturnType<typeof input.bound.selection.get> =
-    input.bound.selection.get(input.body.id);
   const kinematic: boolean = input.body.mode.kind === "kinematic";
-  if (
-    !selection ||
-    selection.source !== input.target.dynamicSegments ||
-    selection.kinematic !== kinematic ||
-    (input.target.dynamicSegments !== undefined &&
-      !Object.isFrozen(input.target.dynamicSegments))
-  ) {
-    selection = {
-      source: input.target.dynamicSegments,
-      kinematic,
-      bones: new Set(
-        kinematic
-          ? []
-          : (input.target.dynamicSegments ??
-              input.body.profile.segments.map(
-                (segment: IAutoMoviePhysicalSegment): string => segment.bone,
-              )),
-      ),
-    };
-    input.bound.selection.set(input.body.id, selection);
-  }
-  const selected: Set<string> = selection.bones;
+  const selected: Set<string> = new Set(
+    kinematic
+      ? []
+      : (input.target.dynamicSegments ??
+          input.body.profile.segments.map(
+            (segment: IAutoMoviePhysicalSegment): string => segment.bone,
+          )),
+  );
   let owned: Set<string> | undefined;
   const segments: Map<string, AutoMovieXpbdBody> = input.bound.segments.get(
     input.body.id,

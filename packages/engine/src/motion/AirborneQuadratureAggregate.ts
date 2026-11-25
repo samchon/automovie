@@ -41,7 +41,8 @@ export function AirborneQuadratureAggregate<
   }
   /** The discriminant makes a panel and child pair mutually exclusive. */
   type INode = ILeaf | IBranch;
-  const index: WeakMap<Panel, ILeaf> = new WeakMap();
+  /** The live leaves by panel; a replaced panel leaves it, and it dies with the tree. */
+  const index: Map<Panel, ILeaf> = new Map<Panel, ILeaf>();
   let width: number | undefined;
   const leaf: (panel: Panel) => ILeaf = (panel: Panel): ILeaf => {
     const error: number[] = [...components(panel.error)];

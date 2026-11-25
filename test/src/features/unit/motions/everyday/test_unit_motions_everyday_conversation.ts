@@ -45,7 +45,7 @@ namespace part_conversation_gaze {
    * 4. The same stream gives the same requests; a turn that ends before it starts is
    *    refused.
    */
-  export function run(): void {
+  export function verify(): void {
     const turns: IAutoMovieMotionHumanConversation.ITurn[] = [
       { speaker: "a", from: 0, to: 30 },
       { speaker: "b", from: 30, to: 60 },
@@ -165,7 +165,7 @@ namespace part_conversation_group_gaze {
    *    overlapping span and an unending span are refused, the dyad refusing the
    *    unending span too.
    */
-  export function run(): void {
+  export function verify(): void {
     const participants: readonly string[] = ["a", "b", "c"];
     const turns: readonly IAutoMovieMotionHumanConversation.IGroupTurn[] = [
       { speaker: "a", addressee: "b", from: 1, to: 2 },
@@ -323,7 +323,7 @@ namespace part_conversation_share {
    *    and the face from 6 s ends where the next request begins.
    * 2. Clipped to 2 to 7 s: the first face's 1 s and the third's 1 s, 2 of 5 s.
    */
-  export function run(): void {
+  export function verify(): void {
     const face: IAutoMovieMotionTarget = {
       kind: "person",
       subject: "b",
@@ -364,7 +364,7 @@ namespace part_conversation_share {
  *   gaze requests spend on a person's face:
  */
 export async function test_unit_motions_everyday_conversation(): Promise<void> {
-  part_conversation_gaze.run();
-  part_conversation_group_gaze.run();
-  part_conversation_share.run();
+  part_conversation_gaze.verify();
+  part_conversation_group_gaze.verify();
+  part_conversation_share.verify();
 }

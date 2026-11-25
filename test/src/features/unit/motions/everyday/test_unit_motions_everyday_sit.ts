@@ -20,7 +20,7 @@ namespace part_sit_place {
    *    `lowerHumanPosture.KNEE`.
    * 2. 190 turns to -170, -190 to 170, 180 stays 180 and -180 becomes 180.
    */
-  export function run(): void {
+  export function verify(): void {
     const t: number = 0.45;
     const s: number = 0.42;
     const chord: (k: number) => number = (k: number): number =>
@@ -61,5 +61,5 @@ namespace part_sit_place {
  *   (`lowerHumanPosture.KNEE`);
  */
 export async function test_unit_motions_everyday_sit(): Promise<void> {
-  part_sit_place.run();
+  part_sit_place.verify();
 }

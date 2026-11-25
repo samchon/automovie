@@ -1,3 +1,4 @@
+import { HumanSport as HumanSportRows } from "@automovie/motions/internal";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { bend, bendLower } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -15,7 +16,7 @@ namespace part_bend_choose {
    * 1. `auto` at 0.3 m stoops, at 0.28 m semi-squats.
    * 2. A named squat is kept for a target at 1 m.
    */
-  export function run(): void {
+  export function verify(): void {
     const body: Parameters<typeof bend.choose>[0] = {
       measure: { ankleHeight: 0.08, shank: 0.42 },
     };
@@ -48,7 +49,7 @@ namespace part_bend_lower_hip_share {
    * 3. A squat (knee 135, heel 30) tilts the shank by 58 and the thigh by 77.
    * 4. The deeper the strategy, the lower the hips.
    */
-  export function run(): void {
+  export function verify(): void {
     const body: Parameters<typeof bendLower.hipShare>[0] = {
       measure: { ankleHeight: 0.08, shank: 0.42, thigh: 0.45 },
     };
@@ -71,16 +72,42 @@ namespace part_bend_lower_hip_share {
   }
 }
 
+namespace part_toe_touch {
+  /**
+   * `HumanSport.toeTouch` is a row of `bend`: the stretch reaches the top of the
+   * right foot and holds 20 s, whatever else is given.
+   *
+   * Scenarios:
+   *
+   * 1. Its family is `bend`, and it resolves any given target to the right foot
+   *    top with a 20 s hold.
+   */
+  export function verify(): void {
+    TestValidator.equals(
+      "the toe touch",
+      [
+        HumanSportRows.toeTouch.family,
+        HumanSportRows.toeTouch.resolve!({
+          target: { kind: "self", region: "chin" },
+        }),
+      ],
+      ["bend", { target: { kind: "self", region: "footTopRight" }, hold: 20 }],
+    );
+  }
+}
+
 /**
  * `bend`'s unit contract: its strategy and hip share.
  *
  * Its parts, each documented with its own scenarios:
  *
+ * - `toe_touch`: the toe touch row bends to the right foot top and holds 20 s.
  * - `bend_choose`: `bend.choose` takes the strategy a target asks for:
  * - `bend_lower_hip_share`: `bendLower.hipShare` is the share of the standing hip
  *   height a strategy keeps:
  */
 export async function test_unit_motions_everyday_bend(): Promise<void> {
-  part_bend_choose.run();
-  part_bend_lower_hip_share.run();
+  part_bend_choose.verify();
+  part_bend_lower_hip_share.verify();
+  part_toe_touch.verify();
 }

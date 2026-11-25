@@ -173,7 +173,7 @@ export function fitHingedChainCandidate(
   // One candidate's rotation error is read by its exact score and again by
   // the acceptance of the chosen one: the same pure reading of the same
   // candidate record, so it is measured once for this solve.
-  const errors: WeakMap<IAutoMovieQuaternion, number> = new WeakMap();
+  const errors: Map<IAutoMovieQuaternion, number> = new Map();
   const measure = (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
@@ -571,10 +571,10 @@ export function fitHingedChainCandidate(
   // the box (`distalEndSwivelArcs`): read once a branch by the closed-form
   // candidate, the continued fit's start and the shown test alike. Null
   // where the mid segment has no direction.
-  const arced: WeakMap<
+  const arced: Map<
     object,
     { arcs: ReturnType<typeof distalEndSwivelArcs> }
-  > = new WeakMap();
+  > = new Map();
   const arcsOf = (
     posed: ReturnType<typeof hingedArmSwivel.pose>,
   ): ReturnType<typeof distalEndSwivelArcs> => {
@@ -592,10 +592,10 @@ export function fitHingedChainCandidate(
 
   // A branch's twist-range reading (`distalTwistRange`), read once a branch
   // by the closed-form candidate and by the sweep's bound alike.
-  const twists: WeakMap<
+  const twists: Map<
     object,
     { range: distalTwistSwivelRange.IRange | null }
-  > = new WeakMap();
+  > = new Map();
   const twisting = (
     posed: ReturnType<typeof hingedArmSwivel.pose>,
   ): distalTwistSwivelRange.IRange | null => {
@@ -648,10 +648,10 @@ export function fitHingedChainCandidate(
   // segment's twist range cannot take of the twist left to it
   // (`distalTwistSwivelRange`'s miss): a rotation no swivel meets fails one
   // or the other at every swivel, and the greater of two lower bounds is one.
-  const misses: WeakMap<
+  const misses: Map<
     object,
     { miss: ((low: number, high: number) => number) | null }
-  > = new WeakMap();
+  > = new Map();
   const missOf = (
     posed: ReturnType<typeof hingedArmSwivel.pose>,
   ): ((low: number, high: number) => number) | null => {
@@ -684,8 +684,8 @@ export function fitHingedChainCandidate(
   // demand at it lies inside its box, which its projection returns as it is:
   // the measured error is rounding, in the first bucket of any tolerance.
   // Null where either analysis does not apply; read once a branch.
-  const shows: WeakMap<object, { test: ((swivel: number) => boolean) | null }> =
-    new WeakMap();
+  const shows: Map<object, { test: ((swivel: number) => boolean) | null }> =
+    new Map();
   const shown = (
     posed: ReturnType<typeof hingedArmSwivel.pose>,
     swivel: number,

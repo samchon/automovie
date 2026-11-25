@@ -24,7 +24,7 @@ namespace part_pour_clock {
    * 3. A stage under 0.2 s, a scaled sum over 10 s, a tilt under 35 degrees and a
    *    gap over 0.18 m are each refused.
    */
-  export function run(): void {
+  export function verify(): void {
     const params: IAutoMovieMotionHumanPour.IParams = {
       source: "jug",
       target: "glass",
@@ -81,5 +81,5 @@ namespace part_pour_clock {
  *   0.04 to 0.18 m.
  */
 export async function test_unit_motions_affordance_pour(): Promise<void> {
-  part_pour_clock.run();
+  part_pour_clock.verify();
 }

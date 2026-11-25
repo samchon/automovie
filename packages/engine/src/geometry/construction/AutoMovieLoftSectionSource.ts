@@ -157,30 +157,24 @@ function fits(
 ): boolean {
   if (binding === null || binding === undefined || binding.station !== layer.y)
     return false;
-  const value: unknown = layer.coefficients;
+  const value: number[] = layer.coefficients;
   const valueSnapshot: unknown = binding.value;
   if (
-    !Array.isArray(value) ||
     value.length === 0 ||
     value.length % 2 !== 0 ||
     (expectedWidth !== undefined && value.length !== expectedWidth) ||
     !same(value, valueSnapshot, true)
   )
     return false;
-  const slope: unknown = layer.slopes;
+  const slope: number[] = layer.slopes;
   const slopeSnapshot: unknown = binding.slope;
-  if (
-    !Array.isArray(slope) ||
-    slope.length !== value.length ||
-    !same(slope, slopeSnapshot, true)
-  )
+  if (slope.length !== value.length || !same(slope, slopeSnapshot, true))
     return false;
-  const curvature: unknown = layer.curvatures ?? null;
+  const curvature: number[] | null = layer.curvatures ?? null;
   const curvatureSnapshot: unknown = binding.curvature;
   return curvature === null
     ? curvatureSnapshot === null
-    : Array.isArray(curvature) &&
-        curvature.length === value.length &&
+    : curvature.length === value.length &&
         same(curvature, curvatureSnapshot, true);
 }
 
@@ -212,7 +206,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
       [0, 1, 2].every(
         (q: number): boolean =>
           Object.hasOwn(value.rows, q) &&
-          finiteRow(value.rows[q], 2 * value.order),
+          finiteRow(value.rows[q]!, 2 * value.order),
       )
     );
   return (
@@ -236,8 +230,8 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
  * Native/basis family vectors require own finite numeric entries; sparse arrays
  * never become complete jets.
  */
-function finiteRow(value: unknown, width: number): boolean {
-  if (!Array.isArray(value) || value.length !== width) return false;
+function finiteRow(value: readonly number[], width: number): boolean {
+  if (value.length !== width) return false;
   for (let q: number = 0; q < width; q++)
     if (!Object.hasOwn(value, q)) return false;
   return true;

@@ -21,7 +21,7 @@ namespace part_shift_standing_weight_steps {
    * 3. A held shift of 0.8 s is `shifted` at 0.8 s; one that holds 0.5 s and returns
    *    over 0.6 s releases at 1.3 s and returns at 1.9 s.
    */
-  export function run(): void {
+  export function verify(): void {
     const ankle: IAutoMovieVector3 = { x: 0.1, y: 0.08, z: 0 };
     const facing: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
     const entry: Parameters<typeof shiftStandingWeightSteps.plants>[1] = {
@@ -79,5 +79,5 @@ namespace part_shift_standing_weight_steps {
  *   standing weight shift:
  */
 export async function test_unit_motions_everyday_shift_standing_weight(): Promise<void> {
-  part_shift_standing_weight_steps.run();
+  part_shift_standing_weight_steps.verify();
 }

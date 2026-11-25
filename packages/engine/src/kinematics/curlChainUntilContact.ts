@@ -81,7 +81,8 @@ export function curlChainUntilContact(
       ): ReturnType<typeof physicalShapeSegmentDistance.prepare> =>
         physicalShapeSegmentDistance.prepare(collider.frame, collider.shape),
     );
-  let operation: ReturnType<typeof preparePoseResolution> | undefined;
+  const operation: ReturnType<typeof preparePoseResolution> =
+    preparePoseResolution();
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
     input.pose.joints.map(
       (
@@ -119,7 +120,6 @@ export function curlChainUntilContact(
         abduction: previous?.abduction ?? 0,
         twist: previous?.twist ?? 0,
       });
-      operation ??= preparePoseResolution();
       let resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
       if (input.resolution === undefined) {
         const frames: IAutoMovieResolvedBone[] = resolvePose(

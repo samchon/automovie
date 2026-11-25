@@ -35,7 +35,7 @@ namespace part_human_formation_path {
    * 5. One corner, no speed, and a last mark too fast to stop on the rest of the
    *    path are refused.
    */
-  export function run(): void {
+  export function verify(): void {
     const frame: IAutoMovieMotionHumanFormation.IPath = {
       kind: "path",
       via: [
@@ -134,7 +134,7 @@ namespace part_human_formation_slot {
    * 3. Moved to (7, 0, -2) and turned 53 degrees, every pair of slots keeps its
    *    distance.
    */
-  export function run(): void {
+  export function verify(): void {
     const line: (
       dress: number,
       frame?: IAutoMovieMotionHumanFormation["frame"],
@@ -222,6 +222,6 @@ namespace part_human_formation_slot {
  *   members on its lattice:
  */
 export async function test_unit_motions_ensemble_human_formation(): Promise<void> {
-  part_human_formation_path.run();
-  part_human_formation_slot.run();
+  part_human_formation_path.verify();
+  part_human_formation_slot.verify();
 }

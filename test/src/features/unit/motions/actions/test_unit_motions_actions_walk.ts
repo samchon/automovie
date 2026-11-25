@@ -37,7 +37,7 @@ namespace part_walk_turn {
    *    at one second step the heading there: the earlier at the second, the later
    *    after it.
    */
-  export function run(): void {
+  export function verify(): void {
     const held: WalkTurn = new WalkTurn([
       { seconds: 0, yaw: 0 },
       { seconds: 1, yaw: 90 },
@@ -100,7 +100,7 @@ namespace part_walk_tempo {
    *    3.1 s to plan 3 s; a step longer than twice its planned time is refused,
    *    and a plan with one strike is returned as it is.
    */
-  export function run(): void {
+  export function verify(): void {
     const event: (name: string, share: number) => IAutoMovieMotionEvent = (
       name: string,
       share: number,
@@ -212,7 +212,7 @@ namespace part_walk_path {
    * 3. The heading 1 m along is 0 (+Z), 6 m along is 90 (+X), and at the corner over
    *    0.5 m either side it is the 45-degree chord.
    */
-  export function run(): void {
+  export function verify(): void {
     const path: WalkPath = new WalkPath([
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 3 },
@@ -275,7 +275,7 @@ namespace part_walk_heading_footfalls {
    * 6. A hip 0.5 m to the side with 0.1 m of leeway turns a heading of 0 to 90 -
    *    asin(0.2); a hip within the leeway leaves it.
    */
-  export function run(): void {
+  export function verify(): void {
     const still: Record<"left" | "right", number> = { left: 0, right: 0 };
     TestValidator.equals(
       "the opening",
@@ -409,7 +409,7 @@ namespace part_walk_locomote_lowering_prepare {
    *    left foot's events, and on a 0.26 m foot the pitch tolerance is the turn
    *    that moves its far end a millimetre, 0.001 / 0.26 radians.
    */
-  export function run(): void {
+  export function verify(): void {
     const swings: { side: "left"; off: number; on: number }[] = [
       { side: "left", off: 0.2, on: 0.6 },
     ];
@@ -482,9 +482,9 @@ namespace part_walk_locomote_lowering_prepare {
  *   holds the end values outside the take;
  */
 export async function test_unit_motions_actions_walk(): Promise<void> {
-  part_walk_turn.run();
-  part_walk_tempo.run();
-  part_walk_path.run();
-  part_walk_heading_footfalls.run();
-  part_walk_locomote_lowering_prepare.run();
+  part_walk_turn.verify();
+  part_walk_tempo.verify();
+  part_walk_path.verify();
+  part_walk_heading_footfalls.verify();
+  part_walk_locomote_lowering_prepare.verify();
 }

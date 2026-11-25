@@ -36,7 +36,7 @@ namespace part_stand_feet {
    *    are unflexed.
    * 4. Carried 1 m along +X by a support, the written legs' goals move 1 m along +X.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const context: IAutoMovieMotionHumanActionContext<object> =
       motionActionContext(body, {});
@@ -99,5 +99,5 @@ namespace part_stand_feet {
  *   each about the socket it bears on:
  */
 export async function test_unit_motions_actions_stand(): Promise<void> {
-  await part_stand_feet.run();
+  await part_stand_feet.verify();
 }

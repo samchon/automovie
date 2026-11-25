@@ -21,7 +21,7 @@ namespace part_blend_gaze_joint {
    *    (4, 3, -1).
    * 3. Weight 0 leaves the angles and 1 takes the asked ones.
    */
-  export function run(): void {
+  export function verify(): void {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       neck: [10, -4, 20],
     };
@@ -73,7 +73,7 @@ namespace part_human_gaze_split {
    * 4. 50 up: the head stops at 30 up, the eyes take 20.
    * 5. A 10-degree saccade takes 43 ms, a 50-degree head turn 0.35 s.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "the splits",
       [
@@ -120,6 +120,6 @@ namespace part_human_gaze_split {
  *   the head and the trunk:
  */
 export async function test_unit_motions_everyday_human_gaze(): Promise<void> {
-  part_blend_gaze_joint.run();
-  part_human_gaze_split.run();
+  part_blend_gaze_joint.verify();
+  part_human_gaze_split.verify();
 }

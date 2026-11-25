@@ -12,10 +12,9 @@ import type { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
  * cannot answer differently.
  *
  * A member rises by the terrain under it minus the terrain under the anchor, so
- * `anchor.y` keeps its staged meaning. `formationGroundRelief` remembers the
- * anchor's ground height per record object in a `WeakMap`, so a record must not
- * have its `anchor` or `ground` changed after members have been placed from
- * it.
+ * `anchor.y` keeps its staged meaning. `formationGroundRelief` looks up the
+ * anchor's ground height directly at each call and keeps nothing between calls,
+ * so a record may change its `anchor` or `ground` between placements.
  */
 export interface IAutoMovieFormationGrounding {
   /**

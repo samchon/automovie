@@ -37,7 +37,7 @@ namespace part_lie_down_blend {
    *    the second.
    * 3. The second blend at its ends is the second and the third key.
    */
-  export function run(): void {
+  export function verify(): void {
     const key = (hips: number): IAutoMovieMotionHumanLieDown.IPose => ({
       pitch: 0,
       roll: 0,
@@ -73,7 +73,7 @@ namespace part_lie_down_phases {
    *    each, the last arrival at 0 and `settled` at 2.
    * 2. A one-key route has `getDown`, its arrival at 0 and the hold.
    */
-  export function run(): void {
+  export function verify(): void {
     const phase: number = lieDown.PHASE;
     TestValidator.equals(
       "a three-key route",
@@ -115,7 +115,7 @@ namespace part_lie_down_roll_side {
    * 1. `lateralLeft` rolls left and `lateralRight` right.
    * 2. Supine and prone roll onto no side.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "the lateral positions",
       [
@@ -159,7 +159,7 @@ namespace part_floor_seat {
    *    along +X.
    * 4. Side sitting plants the left hand at the end, not half way.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const posture: (yaw: number) => IAutoMovieMotionHumanPosture = (
       yaw: number,
@@ -239,7 +239,7 @@ namespace part_floor_arm_room_count {
    * 3. The count does not depend on the blend's direction.
    * 4. A larger turn needs no fewer intervals.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const stored: IHumanFixture = await humanFixture("m-average");
     const body: Parameters<typeof floorArmRoom.count>[0] = {
       profile: stored.profile,
@@ -289,9 +289,9 @@ namespace part_floor_arm_room_count {
  *   between two readings of a blend:
  */
 export async function test_unit_motions_floor_lie_down(): Promise<void> {
-  part_lie_down_blend.run();
-  part_lie_down_phases.run();
-  part_lie_down_roll_side.run();
-  await part_floor_seat.run();
-  await part_floor_arm_room_count.run();
+  part_lie_down_blend.verify();
+  part_lie_down_phases.verify();
+  part_lie_down_roll_side.verify();
+  await part_floor_seat.verify();
+  await part_floor_arm_room_count.verify();
 }

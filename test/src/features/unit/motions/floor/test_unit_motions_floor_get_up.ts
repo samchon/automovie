@@ -17,22 +17,27 @@ namespace part_get_up_half_kneeling {
    * 2. Leading with the left, each left joint holds the key's right one and each
    *    right joint the key's left one, the tilt kept.
    */
-  export function run(): void {
+  export function verify(): void {
     const right: IAutoMovieMotionHumanLieDown.IPose =
       getUp.halfKneeling("right");
     const left: IAutoMovieMotionHumanLieDown.IPose = getUp.halfKneeling("left");
     TestValidator.predicate("the key", right === getUp.POSES.halfKneel);
-    const swapped = (bone: string): AutoMovieHumanoidBone =>
-      (bone.startsWith("left")
-        ? bone.replace(/^left/, "right")
-        : bone.replace(/^right/, "left")) as AutoMovieHumanoidBone;
+    // The key's mirrored joints, left with right.
+    const pairs: readonly (readonly [AutoMovieHumanoidBone, AutoMovieHumanoidBone])[] = [
+      ["leftUpperLeg", "rightUpperLeg"],
+      ["leftLowerLeg", "rightLowerLeg"],
+      ["leftFoot", "rightFoot"],
+      ["leftUpperArm", "rightUpperArm"],
+      ["leftIndexProximal", "rightIndexProximal"],
+    ];
     TestValidator.predicate(
       "mirrored",
       left.pitch === right.pitch &&
         left.roll === right.roll &&
-        (Object.keys(right.joints) as AutoMovieHumanoidBone[]).every(
-          (bone: AutoMovieHumanoidBone): boolean =>
-            left.joints[swapped(bone)] === right.joints[bone],
+        pairs.every(
+          ([l, r]: readonly [AutoMovieHumanoidBone, AutoMovieHumanoidBone]): boolean =>
+            left.joints[l] === right.joints[r] &&
+            left.joints[r] === right.joints[l],
         ),
     );
   }
@@ -47,5 +52,5 @@ namespace part_get_up_half_kneeling {
  *   leading foot:
  */
 export async function test_unit_motions_floor_get_up(): Promise<void> {
-  part_get_up_half_kneeling.run();
+  part_get_up_half_kneeling.verify();
 }

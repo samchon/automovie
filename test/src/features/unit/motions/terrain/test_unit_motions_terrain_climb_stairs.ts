@@ -47,7 +47,7 @@ namespace part_climb_stairs_pelvis {
    *    of its span from 0.5 s, half way to the first tread contact, to 1.5 s,
    *    half way between the two.
    */
-  export function run(): void {
+  export function verify(): void {
     const stance: IAutoMovieVector3[] = [
       { x: 0, y: 0.9, z: 0 },
       { x: 0, y: 1.07, z: 0.3 },
@@ -98,7 +98,7 @@ namespace part_climb_stairs_plants {
    *    the flight at 0.05 + 0.17 = 0.22 m.
    * 3. On a prop named `deck` the right foot's second plant bears on it.
    */
-  export function run(): void {
+  export function verify(): void {
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
       { name: "toeOff1", seconds: 0.2 },
       { name: "treadContact1", seconds: 1 },
@@ -161,7 +161,7 @@ namespace part_climb_stairs_rail_line {
    * 3. Turned a quarter about +Y by the prop, the axis runs along -Z.
    * 4. A bar standing up a post (its axis +Y) is no rail line.
    */
-  export function run(): void {
+  export function verify(): void {
     const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
     const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
       x,
@@ -247,7 +247,7 @@ namespace part_climb_stairs_toes {
    *    read, the climb's two ends among them, and the right foot's course also at
    *    its toe-off and tread contact, 0.2 and 1 s, where it is split.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: humanFootOffset.IBody = {
       rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
         ["leftFoot", { x: 0.09, y: 0.08, z: 0 }],
@@ -363,7 +363,7 @@ namespace part_climb_stairs_weight {
    * 4. Half way through the double support after it, half.
    * 5. Through the right swing the right bears none, and at the end a half.
    */
-  export function run(): void {
+  export function verify(): void {
     const right: (seconds: number) => number = climbStairsWeight(
       ["left", "right"],
       linearMotionClock(3, [
@@ -412,9 +412,9 @@ namespace part_climb_stairs_weight {
  *   body's weight on the stairs:
  */
 export async function test_unit_motions_terrain_climb_stairs(): Promise<void> {
-  part_climb_stairs_pelvis.run();
-  part_climb_stairs_plants.run();
-  part_climb_stairs_rail_line.run();
-  await part_climb_stairs_toes.run();
-  part_climb_stairs_weight.run();
+  part_climb_stairs_pelvis.verify();
+  part_climb_stairs_plants.verify();
+  part_climb_stairs_rail_line.verify();
+  await part_climb_stairs_toes.verify();
+  part_climb_stairs_weight.verify();
 }

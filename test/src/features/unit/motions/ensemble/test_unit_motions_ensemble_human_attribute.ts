@@ -23,7 +23,7 @@ namespace part_human_attribute_draw {
    *    within [0, 1].
    * 4. A mean of 1.5 and a spread of -0.1 are refused.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.predicate(
       "no spread",
       nclose(
@@ -92,7 +92,7 @@ namespace part_human_attribute_effect {
    * 1. An effect from 0.8 to 1.2 at 0, 1 and 0.25 is 0.8, 1.2 and 0.9.
    * 2. An absent attribute with a neutral of 0.5 reads 1.
    */
-  export function run(): void {
+  export function verify(): void {
     const effect: IAutoMovieMotionHumanAttributeEffects.IEffect = {
       low: 0.8,
       high: 1.2,
@@ -122,6 +122,6 @@ namespace part_human_attribute_effect {
  *   - low) x`, an absent attribute read at the neutral value.
  */
 export async function test_unit_motions_ensemble_human_attribute(): Promise<void> {
-  part_human_attribute_draw.run();
-  part_human_attribute_effect.run();
+  part_human_attribute_draw.verify();
+  part_human_attribute_effect.verify();
 }

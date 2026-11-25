@@ -27,10 +27,14 @@ namespace part_human_breath_add {
    * 2. Over a posture holding none, a whole breath gives the table itself.
    * 3. The root and the limbs are left as they are.
    */
-  export function run(): void {
-    const bones: AutoMovieHumanoidBone[] = Object.keys(
-      HumanBreath.TIDAL,
-    ) as AutoMovieHumanoidBone[];
+  export function verify(): void {
+    const bones: readonly AutoMovieHumanoidBone[] = [
+      "chest",
+      "upperChest",
+      "spine",
+      "leftShoulder",
+      "rightShoulder",
+    ];
     const held: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of bones) held[bone] = [1, 2, 3];
     const posture = (
@@ -108,7 +112,7 @@ namespace part_human_breath_state {
    *    its end.
    * 5. The same inputs read the same volume.
    */
-  export function run(): void {
+  export function verify(): void {
     const stream: (k: string) => IAutoMovieRandom = (
       k: string,
     ): IAutoMovieRandom =>
@@ -209,6 +213,6 @@ namespace part_human_breath_state {
  *   reads the breathing state at a second:
  */
 export async function test_unit_motions_everyday_human_breath(): Promise<void> {
-  part_human_breath_add.run();
-  part_human_breath_state.run();
+  part_human_breath_add.verify();
+  part_human_breath_state.verify();
 }

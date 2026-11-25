@@ -36,7 +36,7 @@ namespace part_crouch_angles {
    * 3. A full crouch with flat heels tilts the thigh 122, past the hip's range, and
    *    is refused on `depth`, its knee kept under the range plus 28.
    */
-  export function run(): void {
+  export function verify(): void {
     const hip: number = DEFAULT_HUMANOID_ROM.leftUpperLeg!.flexion!.max;
     const ankle: number = Math.min(
       crouch.ANKLE,
@@ -108,7 +108,7 @@ namespace part_crouch_legs {
    * 3. With a 20 degree heel and 10 degrees of dorsiflexion, at share 1 the toes
    *    extend 20 degrees and both ankles rise above where they stand.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const standing: IAutoMovieMotionHumanPosture = stand.posture(
@@ -189,6 +189,6 @@ namespace part_crouch_legs {
  * - `crouch_legs`: `crouchLegs` places a crouch's legs at a share of its descent:
  */
 export async function test_unit_motions_everyday_crouch(): Promise<void> {
-  part_crouch_angles.run();
-  await part_crouch_legs.run();
+  part_crouch_angles.verify();
+  await part_crouch_legs.verify();
 }

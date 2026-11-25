@@ -30,7 +30,7 @@ namespace part_seated_course {
    * 2. A seat at 0.6 of it takes 2.48 s and flexes 55; one at 1.2 takes 1.76 s and
    *    flexes 25.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.predicate(
       "the course",
       nclose(seatedCourse.descent(1), 2, ROUNDING) &&
@@ -61,7 +61,7 @@ namespace part_seated_flat_hand {
    * 2. The left hand of that body, whose left thumb needs no turn, matches the
    *    shape.
    */
-  export function run(): void {
+  export function verify(): void {
     const posture: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0.5, z: 0 },
       yaw: 0,
@@ -131,7 +131,7 @@ namespace part_seated_popliteal {
    *    degrees; at half of it over 2.6 s with 60.
    * 4. Rising for 1 s leaves the seat at 0.36 s.
    */
-  export function run(): void {
+  export function verify(): void {
     const body: seated.IPopliteal = {
       measure: { ankleHeight: 0.08, shank: 0.42, thighRadius: 0.07 },
     };
@@ -194,7 +194,7 @@ namespace part_seated_socket {
    *    hip joint's 0.05 m lead, less the socket's rest depth.
    * 3. On a seat 0.2 m deep it sits 0.2 - 0.02 behind the edge.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: Parameters<typeof seated.point>[0] = {
       rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
         ["hips", { x: 0, y: 0.95, z: 0 }],
@@ -259,8 +259,8 @@ namespace part_seated_socket {
  * - `seated_socket`: `seated`'s seat socket:
  */
 export async function test_unit_motions_everyday_seated(): Promise<void> {
-  part_seated_course.run();
-  part_seated_flat_hand.run();
-  part_seated_popliteal.run();
-  await part_seated_socket.run();
+  part_seated_course.verify();
+  part_seated_flat_hand.verify();
+  part_seated_popliteal.verify();
+  await part_seated_socket.verify();
 }

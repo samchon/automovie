@@ -1,6 +1,5 @@
 import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -37,7 +36,7 @@ namespace part_human_balance_along {
    * 3. From (0.5, 0.1), outside, along -X it is the -0.5 m to the far edge's
    *    crossing, negative.
    */
-  export function run(): void {
+  export function verify(): void {
     const base: IAutoMovieVector3[] = [
       { x: 0, y: 0, z: 0 },
       { x: 0.3, y: 0, z: 0 },
@@ -111,7 +110,7 @@ namespace part_human_balance_centre {
    * 3. Turned 90 degrees, the centre's offset from the root turns from (x, z) to (z,
    *    -x).
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const posture: (
       root: IAutoMovieVector3,
@@ -211,7 +210,7 @@ namespace part_human_balance_extrapolated {
    *    differs from the still margin.
    * 3. `prepare` reads the same margin as the one-shot reader.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const at: (z: number) => IAutoMovieMotionHumanPosture = (
       z: number,
@@ -265,9 +264,10 @@ namespace part_prepare_bearing_trunk_balance {
    * 1. With no window, the write returns its posture.
    * 2. With a hips window over 0.2 to 0.8 s, a write at 0.1 s, outside it, returns
    *    its posture.
-   * 3. On a body whose surfaces lack the left sole, preparing the balance throws.
+   * 3. On a rig without the left foot the bearing sole names, preparing the
+ *    balance throws.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
@@ -300,16 +300,14 @@ namespace part_prepare_bearing_trunk_balance {
         prepareBearingTrunkBalance(body, window, 1, contacts)(posture, 0.1) ===
           posture,
     );
-    const regions: Partial<
-      Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
-    > = { ...body.surfaces.regions };
-    delete regions.soleLeft;
+    // A rig without the left foot, whose sole the bearing contact names.
     const soleless: IAutoMovieMotionHumanBody = {
       ...body,
-      surfaces: {
-        ...body.surfaces,
-        regions: regions as IAutoMovieHumanoidSurfaces.ISurfaces["regions"],
-      },
+      bones: new Map(
+        [...body.bones].filter(
+          ([bone]: [AutoMovieHumanoidBone, unknown]): boolean => bone !== "leftFoot",
+        ),
+      ),
     };
     TestValidator.error("an undeclared surface", (): void => {
       prepareBearingTrunkBalance(soleless, window, 1, contacts);
@@ -332,8 +330,8 @@ namespace part_prepare_bearing_trunk_balance {
  *   lumbar balance over the contacts that bear inside its window:
  */
 export async function test_unit_motions_everyday_human_balance(): Promise<void> {
-  part_human_balance_along.run();
-  await part_human_balance_centre.run();
-  await part_human_balance_extrapolated.run();
-  await part_prepare_bearing_trunk_balance.run();
+  part_human_balance_along.verify();
+  await part_human_balance_centre.verify();
+  await part_human_balance_extrapolated.verify();
+  await part_prepare_bearing_trunk_balance.verify();
 }

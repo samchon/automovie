@@ -66,7 +66,7 @@ namespace part_kneel_keys {
    *    and the sat-back hip stand as above, and the pivot is the knee less the
    *    hip's rest offset.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const foot = (x: number): kneelKeys.IFoot => ({
       at: { x, y: 0, z: 0 },
@@ -213,7 +213,7 @@ namespace part_kneel_phase_table {
    * 2. At four times the reference hip every timed phase takes twice as long.
    * 3. Without the rise the table ends with the hold.
    */
-  export function run(): void {
+  export function verify(): void {
     const hip: number = walkRoot.REFERENCE_HIP;
     const table: kneelPhaseTable.IPhase[] = kneelPhaseTable(
       { hipHeight: hip },
@@ -280,7 +280,7 @@ namespace part_kneel_place {
    * 3. At (0.3, 0, -1.5), the ankle 1.81 m from the front foot, it is refused on
    *    `at`.
    */
-  export function run(): void {
+  export function verify(): void {
     const input: kneelPlace.IInput = {
       body: { measure: { thigh: 0.45, shank: 0.42 } },
       hip: { x: 0.1, y: 0.9, z: 0 },
@@ -337,7 +337,7 @@ namespace part_prepare_kneel_clock {
    * 4. A quarter through the second its progress is `s(1/4)`.
    * 5. The last phase runs to the clock's end.
    */
-  export function run(): void {
+  export function verify(): void {
     const at: ReturnType<typeof prepareKneelClock<{ name: string }>> =
       prepareKneelClock(
         linearMotionClock(4, [
@@ -405,8 +405,8 @@ namespace part_prepare_kneel_clock {
  *   minimum-jerk progress.
  */
 export async function test_unit_motions_everyday_kneel(): Promise<void> {
-  await part_kneel_keys.run();
-  part_kneel_phase_table.run();
-  part_kneel_place.run();
-  part_prepare_kneel_clock.run();
+  await part_kneel_keys.verify();
+  part_kneel_phase_table.verify();
+  part_kneel_place.verify();
+  part_prepare_kneel_clock.verify();
 }

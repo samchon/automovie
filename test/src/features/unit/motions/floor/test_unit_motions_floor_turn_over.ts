@@ -12,7 +12,7 @@ namespace part_turn_over_toward {
    * 2. From 0 toward 180, a half turn, it goes over the left to 180 and over the
    *    right to -180.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "the nearest",
       [turnOverToward(10, 90, "left"), turnOverToward(350, 0, "left")],
@@ -36,5 +36,5 @@ namespace part_turn_over_toward {
  *   over the named side.
  */
 export async function test_unit_motions_floor_turn_over(): Promise<void> {
-  part_turn_over_toward.run();
+  part_turn_over_toward.verify();
 }

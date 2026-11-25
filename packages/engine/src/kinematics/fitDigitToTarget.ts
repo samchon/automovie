@@ -271,17 +271,18 @@ export function fitDigitToTarget(
       at.point.z - target.z,
     ];
   };
-  let targetNormal: IAutoMovieVector3 | undefined;
+  const targetNormal: IAutoMovieVector3 | undefined =
+    input.normal === undefined ? undefined : Vector3.normalize(input.normal);
   const secondary: (x: readonly number[]) => number[] = (
     x: readonly number[],
   ): number[] => {
     const candidate: IReading = reading(x);
     const list: IAutoMovieJointPose[] = candidate.joints;
     const r: number[] = [];
-    if (input.normal !== undefined) {
+    if (targetNormal !== undefined) {
       const miss: IAutoMovieVector3 = Vector3.cross(
         candidate.frame.normal,
-        (targetNormal ??= Vector3.normalize(input.normal)),
+        targetNormal,
       );
       r.push(miss.x * length, miss.y * length, miss.z * length);
     }

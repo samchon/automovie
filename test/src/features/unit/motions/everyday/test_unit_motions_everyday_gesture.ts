@@ -39,7 +39,7 @@ namespace part_gesture_admit {
    *    with no target and an aim with no shape are refused on `count`, `hold`,
    *    `depth`, `target` and `aim`.
    */
-  export function run(): void {
+  export function verify(): void {
     const admit: (
       p: IAutoMovieMotionHumanGesture.IParams,
     ) => gestureAdmit.IAdmitted = (
@@ -98,6 +98,25 @@ namespace part_gesture_admit {
 }
 
 namespace part_gesture_hands {
+  /** The right hand's digit joints. */
+  const RIGHT_DIGITS: readonly AutoMovieHumanoidBone[] = [
+    "rightThumbMetacarpal",
+    "rightThumbProximal",
+    "rightThumbDistal",
+    "rightIndexProximal",
+    "rightIndexIntermediate",
+    "rightIndexDistal",
+    "rightMiddleProximal",
+    "rightMiddleIntermediate",
+    "rightMiddleDistal",
+    "rightRingProximal",
+    "rightRingIntermediate",
+    "rightRingDistal",
+    "rightLittleProximal",
+    "rightLittleIntermediate",
+    "rightLittleDistal",
+  ];
+
   /**
    * `gestureHands.prepare` readies one gesture hand on its stroke's surface and
    * shape. Its fingers go from the posture's own angles (the relaxed cascade's
@@ -119,7 +138,7 @@ namespace part_gesture_hands {
    *    half its twist.
    * 4. A fist goal on the flat-palm hand reads as on a hand prepared on the fist.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const p: Pick<
       IAutoMovieMotionHumanGesture.IParams,
@@ -141,9 +160,9 @@ namespace part_gesture_hands {
       "right",
       "relaxed",
     );
-    const bones: AutoMovieHumanoidBone[] = Object.keys(
-      shape,
-    ) as AutoMovieHumanoidBone[];
+    const bones: AutoMovieHumanoidBone[] = RIGHT_DIGITS.filter(
+      (bone: AutoMovieHumanoidBone): boolean => shape[bone] !== undefined,
+    );
     const start: IAutoMovieMotionHumanPosture["joints"] = flat.fingers(
       { shape: "flat", curl: 10 },
       0,
@@ -226,7 +245,7 @@ namespace part_gesture_joints {
    *    flexed 5 degrees, flexes it to 5 + 2 `ANGLES.slumpChest`.
    * 4. A wave sets no joint.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.predicate(
       "a nod",
       nclose(
@@ -285,7 +304,7 @@ namespace part_gesture_signal_bump {
    * 2. One at the middle.
    * 3. A half at a quarter: `sin^2(pi / 4) = 1/2`.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "zero at and outside the ends",
       [gestureSignal.bump(0), gestureSignal.bump(1), gestureSignal.bump(2)],
@@ -319,7 +338,7 @@ namespace part_gesture_signal_oscillation {
    * 3. Inside the easing it is the sine scaled by the share: at `u = 0.075`, half
    *    the easing, the share `s(1/2) = 1/2`.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "zero at and outside the ends",
       [
@@ -359,7 +378,7 @@ namespace part_gesture_signal_rise {
    * 2. A half at 30 % of the stroke: `s(1/2) = 1/2`.
    * 3. One from 60 % on.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals("zero at the start", gestureSignal.rise(0), 0);
     TestValidator.predicate(
       "a half at 30 %",
@@ -392,10 +411,10 @@ namespace part_gesture_signal_rise {
  * - `gesture_signal_rise`: `gestureSignal.rise` is a push's rise held to the end:
  */
 export async function test_unit_motions_everyday_gesture(): Promise<void> {
-  part_gesture_admit.run();
-  await part_gesture_hands.run();
-  part_gesture_joints.run();
-  part_gesture_signal_bump.run();
-  part_gesture_signal_oscillation.run();
-  part_gesture_signal_rise.run();
+  part_gesture_admit.verify();
+  await part_gesture_hands.verify();
+  part_gesture_joints.verify();
+  part_gesture_signal_bump.verify();
+  part_gesture_signal_oscillation.verify();
+  part_gesture_signal_rise.verify();
 }

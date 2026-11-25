@@ -401,7 +401,7 @@ function reached(
     Math.asin(
       swingTwistBasis.clamp(Vector3.dot(direction, basis.a) / across, -1, 1),
     ) * swingTwistBasis.DEG;
-  let projected: IAutoMovieVector3 | undefined;
+  const projected: IAutoMovieVector3 = flat(direction, basis.a);
   for (const f of [first, 180 - first]) {
     // A branch outside the flexion interval is unreachable for every abduction.
     const clinical: number = nearestAngleAlias(
@@ -414,7 +414,7 @@ function reached(
       basis.u,
     );
     const from: IAutoMovieVector3 = flat(swung, basis.a);
-    const to: IAutoMovieVector3 = (projected ??= flat(direction, basis.a));
+    const to: IAutoMovieVector3 = projected;
     if (Vector3.length(from) < 1e-9 || Vector3.length(to) < 1e-9) {
       // On the abduction axis any abduction keeps the direction.
       for (const a of [

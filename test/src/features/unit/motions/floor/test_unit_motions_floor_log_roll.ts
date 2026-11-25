@@ -23,7 +23,7 @@ namespace part_log_roll_turns {
    *    nearer, 2.
    * 4. A place 0.1 m along, under half a half turn, is refused on `to`.
    */
-  export function run(): void {
+  export function verify(): void {
     const a: number = 0.16;
     const b: number = 0.11;
     TestValidator.predicate(
@@ -90,5 +90,5 @@ namespace part_log_roll_turns {
  * - `log_roll_turns`: `logRollTurns` advances a log roll:
  */
 export async function test_unit_motions_floor_log_roll(): Promise<void> {
-  part_log_roll_turns.run();
+  part_log_roll_turns.verify();
 }

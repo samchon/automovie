@@ -31,7 +31,7 @@ namespace part_human_support_frame_board {
    *    m/s.
    * 3. The same fast prop is not refused for a body already standing on it.
    */
-  export function run(): void {
+  export function verify(): void {
     const context: (
       supports: HumanSupportFrame.IBoardContext["entry"]["supports"],
     ) => HumanSupportFrame.IBoardContext = (
@@ -107,7 +107,7 @@ namespace part_human_support_frame_floor {
    *    the floor is 0.
    * 3. The ground support at 1 s is still, at the origin.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const low: IAutoMovieMotionHumanActionContext<object> = motionActionContext(
       body,
@@ -184,6 +184,6 @@ namespace part_human_support_frame_floor {
  * - `human_support_frame_floor`: `HumanSupportFrame`'s entry readings:
  */
 export async function test_unit_motions_carrier_human_support_frame(): Promise<void> {
-  part_human_support_frame_board.run();
-  await part_human_support_frame_floor.run();
+  part_human_support_frame_board.verify();
+  await part_human_support_frame_floor.verify();
 }

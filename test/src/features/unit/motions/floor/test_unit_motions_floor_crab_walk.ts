@@ -34,7 +34,7 @@ namespace part_crab_walk_bounds {
    * 4. A trunk with no constraint has no room: any arch is refused, and none arches
    *    nothing.
    */
-  export function run(): void {
+  export function verify(): void {
     const measure: Pick<IAutoMovieBodyMeasure, "stature" | "hipHeight"> = {
       stature: 1.75,
       hipHeight: 0.9,
@@ -125,7 +125,7 @@ namespace part_crab_walk_clock {
    *    bear while it swings at `at(0.25)` and the left does, the other way round
    *    at `at(0.75)`, and each bears from its last landing to the end.
    */
-  export function run(): void {
+  export function verify(): void {
     const clock: crabWalkClock.IClock = crabWalkClock(1.2, 1.75);
 
     // 1. The cycles.
@@ -201,6 +201,6 @@ namespace part_crab_walk_clock {
  * - `crab_walk_clock`: `crabWalkClock` times the crab walk:
  */
 export async function test_unit_motions_floor_crab_walk(): Promise<void> {
-  part_crab_walk_bounds.run();
-  part_crab_walk_clock.run();
+  part_crab_walk_bounds.verify();
+  part_crab_walk_clock.verify();
 }

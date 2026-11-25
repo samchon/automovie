@@ -1,3 +1,4 @@
+import { coverFace, wipeTears } from "@automovie/motions/internal";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -33,7 +34,7 @@ namespace part_hand_to_face_drinkable {
    *    chin drinks at the chin; no use, a use with no place and a use ahead drink
    *    nowhere.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "drinkable",
       [
@@ -72,7 +73,7 @@ namespace part_hand_to_face_mirrored {
    * 2. The left hand mirrors a sided region both ways.
    * 3. A midline region is the same for either hand.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "the right hand",
       handToFaceMirrored("templeRight", "right"),
@@ -118,7 +119,7 @@ namespace part_hand_to_face_region {
    *    reading's, of unit length, at the same point.
    * 2. With no region the place is the held sheet's.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const context: IAutoMovieMotionHumanActionContext<object> =
       motionActionContext(body, {});
@@ -185,7 +186,7 @@ namespace part_hand_to_face_sheet {
    *    shoulder's plane along the heading, facing the eyes.
    * 2. The head flexes at least `HEAD`.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const context: IAutoMovieMotionHumanActionContext<object> =
       motionActionContext(body, {});
@@ -244,11 +245,30 @@ namespace part_hand_to_face_sheet {
   }
 }
 
+namespace part_rows {
+  /**
+   * `coverFace` and `wipeTears` are rows of `handToFace`, each fixing its own
+   * preset.
+   *
+   * Scenarios:
+   *
+   * 1. Both are named for themselves and belong to the `handToFace` family.
+   */
+  export function verify(): void {
+    TestValidator.equals(
+      "the rows",
+      [coverFace.name, coverFace.family, wipeTears.name, wipeTears.family],
+      ["coverFace", "handToFace", "wipeTears", "handToFace"],
+    );
+  }
+}
+
 /**
  * `handToFace`'s unit contract: its regions, sheet, mirroring and drinkables.
  *
  * Its parts, each documented with its own scenarios:
  *
+ * - `rows`: the cover face and wipe tears rows ride hand to face.
  * - `hand_to_face_drinkable`: `handToFaceDrinkable` holds where the held thing's
  *   use is to be drunk at the region touched:
  * - `hand_to_face_mirrored`: `handToFaceMirrored` gives the region a row names
@@ -260,8 +280,9 @@ namespace part_hand_to_face_sheet {
  *   the reading distance from the eyes (`READING`, 0.362 m, Bababekova et al.
  */
 export async function test_unit_motions_daily_hand_to_face(): Promise<void> {
-  part_hand_to_face_drinkable.run();
-  part_hand_to_face_mirrored.run();
-  await part_hand_to_face_region.run();
-  await part_hand_to_face_sheet.run();
+  part_hand_to_face_drinkable.verify();
+  part_hand_to_face_mirrored.verify();
+  await part_hand_to_face_region.verify();
+  await part_hand_to_face_sheet.verify();
+  part_rows.verify();
 }

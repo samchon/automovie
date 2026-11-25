@@ -28,7 +28,7 @@ namespace part_add_human_trunk_inclination {
    * 2. A chest the record leaves out takes its share from zero: 0.6 of 10 is (6, 0,
    *    0).
    */
-  export function run(): void {
+  export function verify(): void {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       spine: [2, 3, -1],
     };
@@ -66,7 +66,7 @@ namespace part_human_trunk_incline {
    *    6.67.
    * 3. 10 degrees back is the pelvis's -10, the joints as they were.
    */
-  export function run(): void {
+  export function verify(): void {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     const free: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       joints,
@@ -127,7 +127,7 @@ namespace part_human_trunk_pelvis_limit {
    * 3. Turned 90 degrees, with the ankles on the turned hips, the limit is the
    *    standing one.
    */
-  export function run(): void {
+  export function verify(): void {
     const body: Parameters<typeof HumanTrunk.pelvisLimit>[0] = {
       rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
         ["leftUpperLeg", { x: 0.09, y: -0.05, z: 0 }],
@@ -190,7 +190,7 @@ namespace part_human_trunk_region {
    * 4. A ray from 1 m ahead of the sternum toward it lands on the trunk between the
    *    two, its normal facing back toward the ray's start.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const posture: (
       root: IAutoMovieVector3,
@@ -294,8 +294,8 @@ namespace part_human_trunk_region {
  *   posture:
  */
 export async function test_unit_motions_everyday_human_trunk(): Promise<void> {
-  part_add_human_trunk_inclination.run();
-  part_human_trunk_incline.run();
-  part_human_trunk_pelvis_limit.run();
-  await part_human_trunk_region.run();
+  part_add_human_trunk_inclination.verify();
+  part_human_trunk_incline.verify();
+  part_human_trunk_pelvis_limit.verify();
+  await part_human_trunk_region.verify();
 }

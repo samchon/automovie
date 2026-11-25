@@ -27,7 +27,7 @@ namespace part_lie_together_neck {
    * 2. At weight 0.5 the neck and head together add 10 degrees of flexion and 5 of
    *    tilt.
    */
-  export function run(): void {
+  export function verify(): void {
     const posture: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0.2, z: 0 },
       yaw: 0,
@@ -75,7 +75,7 @@ namespace part_lie_together_shifted {
    * 1. The root and the free left leg's point and bend move by it.
    * 2. The right arm's goal held on the chest stays as it was.
    */
-  export function run(): void {
+  export function verify(): void {
     const by: IAutoMovieVector3 = { x: 0.1, y: -0.05, z: 0.2 };
     const posture: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0.2, z: 0 },
@@ -131,6 +131,6 @@ namespace part_lie_together_shifted {
  *   a displacement:
  */
 export async function test_unit_motions_floor_lie_together(): Promise<void> {
-  part_lie_together_neck.run();
-  part_lie_together_shifted.run();
+  part_lie_together_neck.verify();
+  part_lie_together_shifted.verify();
 }

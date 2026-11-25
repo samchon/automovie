@@ -50,7 +50,7 @@ namespace part_crawl_course {
    * 4. At a touchdown and after the last swing it is on the print it reached.
    * 5. A knee lifts by the knee's height.
    */
-  export function run(): void {
+  export function verify(): void {
     const place: (
       limb: IAutoMovieMotionHumanCrawl.Limb,
       seconds: number,
@@ -128,7 +128,7 @@ namespace part_crawl_down_timing {
    *
    * 1. With `sit` 0.8 s the keys fall at 0, 0.8 and 0.8 x 3 = 2.4 s.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const at: (x: number) => IAutoMovieMotionHumanPosture = (
       x: number,
@@ -174,7 +174,7 @@ namespace part_crawl_feet_rolled {
    * 3. At the end it faces 20 degrees, pitched 60 heel-up, its toes extended to the
    *    lesser of 60 and their range.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: humanFootOffset.IBody = {
       rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
         ["leftFoot", { x: 0.09, y: 0.08, z: 0 }],
@@ -260,7 +260,7 @@ namespace part_crawl_frame {
    *    the pelvis asin(0.1 / 0.2) = 30 degrees, lifting the left hip, the middle
    *    0.05 m higher.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.predicate(
       "the pitch",
       Math.abs(crawlFrame.pitched((d: number): boolean => d < 37.5) - 37.5) <=
@@ -314,7 +314,7 @@ namespace part_crawl_nominal {
    *
    * Every value is copied, not computed, so each agrees exactly.
    */
-  export function run(): void {
+  export function verify(): void {
     const hips: Partial<Record<AutoMovieHumanoidBone, IAutoMovieVector3>> = {
       leftUpperLeg: { x: 0.09, y: 0.9, z: -0.02 },
       rightUpperLeg: { x: -0.09, y: 0.9, z: -0.02 },
@@ -336,9 +336,13 @@ namespace part_crawl_nominal {
         leftKnee: { x: 0.09, y: 0.04, z: -0.02 },
         rightKnee: { x: -0.09, y: 0.04, z: -0.02 },
       };
-    for (const limb of Object.keys(
-      expected,
-    ) as IAutoMovieMotionHumanCrawl.Limb[])
+    const limbs: readonly IAutoMovieMotionHumanCrawl.Limb[] = [
+      "leftHand",
+      "rightHand",
+      "leftKnee",
+      "rightKnee",
+    ];
+    for (const limb of limbs)
       TestValidator.predicate(
         `the ${limb}`,
         vclose(nominal[limb], expected[limb], 0),
@@ -366,7 +370,7 @@ namespace part_crawl_print {
    *    world (1.325, 0, 1.9).
    * 2. Print 2 is a metre ahead: local (0.1, 0, 1.2), world (2.2, 0, 1.9).
    */
-  export function run(): void {
+  export function verify(): void {
     const nominal: Record<IAutoMovieMotionHumanCrawl.Limb, IAutoMovieVector3> =
       {
         leftHand: { x: 0.1, y: 0, z: 0.2 },
@@ -410,7 +414,7 @@ namespace part_crawl_under {
    *    lays its palm at (0.17, 0, 0.09).
    * 2. The right side reads its own shoulder and wrist.
    */
-  export function run(): void {
+  export function verify(): void {
     const shoulders: Partial<Record<AutoMovieHumanoidBone, IAutoMovieVector3>> =
       {
         leftUpperArm: { x: 0.18, y: 1.4, z: 0.05 },
@@ -457,11 +461,11 @@ namespace part_crawl_under {
  * - `crawl_under`: `crawlUnder` lays a palm on the floor under its shoulder:
  */
 export async function test_unit_motions_floor_crawl(): Promise<void> {
-  part_crawl_course.run();
-  await part_crawl_down_timing.run();
-  await part_crawl_feet_rolled.run();
-  part_crawl_frame.run();
-  part_crawl_nominal.run();
-  part_crawl_print.run();
-  part_crawl_under.run();
+  part_crawl_course.verify();
+  await part_crawl_down_timing.verify();
+  await part_crawl_feet_rolled.verify();
+  part_crawl_frame.verify();
+  part_crawl_nominal.verify();
+  part_crawl_print.verify();
+  part_crawl_under.verify();
 }

@@ -14,7 +14,7 @@ namespace part_head_tilt_clock {
    * 2. A 1.5 s phrase peaks at 0.5 s and returns at 1 s.
    * 3. A 0.5 s phrase is refused on `seconds`.
    */
-  export function run(): void {
+  export function verify(): void {
     const read: (clock: IAutoMovieMotionClock) => number[] = (
       clock: IAutoMovieMotionClock,
     ): number[] => [clock.duration, clock.at("stroke"), clock.at("relax")];
@@ -45,5 +45,5 @@ namespace part_head_tilt_clock {
  *   0.9 s when unstated:
  */
 export async function test_unit_motions_everyday_head_tilt(): Promise<void> {
-  part_head_tilt_clock.run();
+  part_head_tilt_clock.verify();
 }

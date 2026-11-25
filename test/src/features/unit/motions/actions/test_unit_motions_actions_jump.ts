@@ -38,7 +38,7 @@ namespace part_jump_airborne_turning {
    *    starts from that turn just after touchdown and has settled it away by 1.3
    *    s.
    */
-  export function run(): void {
+  export function verify(): void {
     // 1. No turn.
     TestValidator.equals(
       "no flight",
@@ -139,7 +139,7 @@ namespace part_jump_landing_heading {
    * 4. A ¼ twist onto a point 0.3 m up is refused on `to`, onto a named prop on
    *    `on`.
    */
-  export function run(): void {
+  export function verify(): void {
     const floor: IAutoMovieVector3 = { x: 1, y: 0, z: 1 };
     TestValidator.equals(
       "whole and fractional twists",
@@ -190,7 +190,7 @@ namespace part_jump_path_lerp {
    * 2. A quarter of the way from (0, 0, 0) to (4, -8, 2) is (1, -2, 0.5).
    * 3. A share past 1 extrapolates: 1.5 gives (6, -12, 3).
    */
-  export function run(): void {
+  export function verify(): void {
     const a: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const b: IAutoMovieVector3 = { x: 4, y: -8, z: 2 };
     TestValidator.predicate(
@@ -235,7 +235,7 @@ namespace part_jump_path_prepare {
    * 2. At rest at both ends, its middle second is half way.
    * 3. Given a start velocity, its first derivative there is that velocity.
    */
-  export function run(): void {
+  export function verify(): void {
     const rest: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const p0: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const p1: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
@@ -299,7 +299,7 @@ namespace part_jump_path_unwrap {
    * 3. A heading already near is unchanged: 30 near 20 is 30.
    * 4. Whole turns away are taken off: 725 near 0 is 5.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.predicate(
       "forward through 360",
       nclose(jumpPath.unwrap(10, 350), 370, ROUNDING),
@@ -339,9 +339,9 @@ namespace part_jump_path_unwrap {
  *   way.
  */
 export async function test_unit_motions_actions_jump(): Promise<void> {
-  part_jump_airborne_turning.run();
-  part_jump_landing_heading.run();
-  part_jump_path_lerp.run();
-  part_jump_path_prepare.run();
-  part_jump_path_unwrap.run();
+  part_jump_airborne_turning.verify();
+  part_jump_landing_heading.verify();
+  part_jump_path_lerp.verify();
+  part_jump_path_prepare.verify();
+  part_jump_path_unwrap.verify();
 }

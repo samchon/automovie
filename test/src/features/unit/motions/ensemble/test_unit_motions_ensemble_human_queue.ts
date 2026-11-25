@@ -36,7 +36,7 @@ namespace part_human_queue_advance {
    * 3. An exit 1 cm ahead of the head crowds the second rank and is refused on
    *    `queue` for it.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const marks: readonly number[] = [0, -1.1, -2.6];
     const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble({
@@ -135,7 +135,7 @@ namespace part_human_queue_marks {
    *    population second rank are refused on `queue`, naming the rank.
    * 5. A negative wait is refused on `wait`, and an empty queue on `queue`.
    */
-  export function run(): void {
+  export function verify(): void {
     const rank: (
       subject: string,
       at: IAutoMovieVector3,
@@ -205,6 +205,6 @@ namespace part_human_queue_marks {
  * - `human_queue_marks`: `humanQueueMarks` admits a single-file queue's release:
  */
 export async function test_unit_motions_ensemble_human_queue(): Promise<void> {
-  await part_human_queue_advance.run();
-  part_human_queue_marks.run();
+  await part_human_queue_advance.verify();
+  part_human_queue_marks.verify();
 }

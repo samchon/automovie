@@ -18,7 +18,7 @@ namespace part_pull_cover_way {
    *    piece and the end.
    * 2. Shares below 0 and above 1 hold the ends.
    */
-  export function run(): void {
+  export function verify(): void {
     const p = (x: number, y: number): IAutoMovieVector3 => ({ x, y, z: 0 });
     const way: IAutoMovieVector3[] = [p(0, 0), p(1, 0), p(1, 2)];
     TestValidator.predicate(
@@ -45,5 +45,5 @@ namespace part_pull_cover_way {
  *   polyline, measured along its pieces and clamped to the way.
  */
 export async function test_unit_motions_floor_pull_cover(): Promise<void> {
-  part_pull_cover_way.run();
+  part_pull_cover_way.verify();
 }

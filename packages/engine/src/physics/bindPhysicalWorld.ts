@@ -66,7 +66,6 @@ export function bindPhysicalWorld(
     descendants: new Map(),
     posture: new Map(),
     supportCoordinates: new Map(),
-    selection: new Map(),
   };
   const bodies: AutoMovieXpbdBody[] = [];
   const colliders: AutoMovieXpbdCollider[] = [];

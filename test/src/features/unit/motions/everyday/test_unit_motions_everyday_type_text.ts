@@ -29,7 +29,7 @@ namespace part_type_text_presses {
    *    key, and after its last press the hand hovers over its last key.
    * 4. The left fingertip is on its key at its press.
    */
-  export function run(): void {
+  export function verify(): void {
     const key: (
       x: number,
       side: AutoMovieHumanSide,
@@ -78,5 +78,5 @@ namespace part_type_text_presses {
  * - `type_text_presses`: `typeTextPresses` reads each typing hand's fingertip:
  */
 export async function test_unit_motions_everyday_type_text(): Promise<void> {
-  part_type_text_presses.run();
+  part_type_text_presses.verify();
 }

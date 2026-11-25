@@ -23,7 +23,7 @@ namespace part_lie_on_surface_fits {
    * 2. A 1.7 m long one is refused on `length`.
    * 3. A 0.5 m wide one is refused on `width`.
    */
-  export function run(): void {
+  export function verify(): void {
     const body: lieOnSurfaceFits.IBody = {
       measure: { stature: 1.75, upperArmRadius: 0.05 },
       rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
@@ -58,7 +58,7 @@ namespace part_lie_on_surface_site {
    * 2. A `rightSide` seat is refused on `edge`; `leftSide` asked as a surface is
    *    refused on `surface`.
    */
-  export function run(): void {
+  export function verify(): void {
     const site = (
       id: string,
       kind: "seat" | "surface",
@@ -114,6 +114,6 @@ namespace part_lie_on_surface_site {
  *   `surface`.
  */
 export async function test_unit_motions_floor_lie_on_surface(): Promise<void> {
-  part_lie_on_surface_fits.run();
-  part_lie_on_surface_site.run();
+  part_lie_on_surface_fits.verify();
+  part_lie_on_surface_site.verify();
 }

@@ -38,7 +38,7 @@ namespace part_climb_ladder_beats {
    *    rung 0, at 0.2 s.
    * 3. The hands' reach runs from 0 at the start to 1 at the hands-on beat.
    */
-  export function run(): void {
+  export function verify(): void {
     const beats: climbLadderBeats.IBeats = climbLadderBeats.prepare(0.5, 2, 3, [
       "rightHand",
       "leftFoot",
@@ -96,7 +96,7 @@ namespace part_climb_ladder_contacts {
    * 2. The right foot bears on the ground until 0.5, on the ladder from 0.625.
    * 3. A limb that never moves holds the whole climb, a hand from its beat.
    */
-  export function run(): void {
+  export function verify(): void {
     const windows: IAutoMovieMotionHumanContactWindow[] = climbLadderContacts(
       {
         leftHand: [],
@@ -149,7 +149,7 @@ namespace part_ladder_access_rails {
    *    right at (-0.25, 0.9, 2).
    * 2. A ladder whose right rail lies level, or that has no right rail, gives none.
    */
-  export function run(): void {
+  export function verify(): void {
     const upright: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       { x: 0, y: 0, z: 1 },
       90,
@@ -243,7 +243,7 @@ namespace part_ladder_access_rails {
  *   side rails:
  */
 export async function test_unit_motions_climbing_climb_ladder(): Promise<void> {
-  part_climb_ladder_beats.run();
-  part_climb_ladder_contacts.run();
-  part_ladder_access_rails.run();
+  part_climb_ladder_beats.verify();
+  part_climb_ladder_contacts.verify();
+  part_ladder_access_rails.verify();
 }

@@ -32,7 +32,7 @@ namespace part_human_crowd_desired {
    * 4. With no latency asked the member starts at once.
    * 5. The half breadth of 0.19 m shoulders and 0.05 m arms is 0.24 m.
    */
-  export function run(): void {
+  export function verify(): void {
     const ensemble: HumanCrowd.IDesiredEnsemble = {
       input: { seed: "pairs", id: "crowd" },
     };
@@ -108,7 +108,7 @@ namespace part_human_crowd_group_formation {
    * 4. Malformed density, breadth and member counts are refused.
    * 5. A placed outer slot can reach a footprint beyond the centroid proxy.
    */
-  export function run(): void {
+  export function verify(): void {
     const frame: IAutoMovieMotionHumanFormation.ICourse = {
       kind: "course",
       samples: [
@@ -372,6 +372,6 @@ namespace part_human_crowd_group_formation {
  *   course.
  */
 export async function test_unit_motions_ensemble_human_crowd(): Promise<void> {
-  part_human_crowd_desired.run();
-  part_human_crowd_group_formation.run();
+  part_human_crowd_desired.verify();
+  part_human_crowd_group_formation.verify();
 }

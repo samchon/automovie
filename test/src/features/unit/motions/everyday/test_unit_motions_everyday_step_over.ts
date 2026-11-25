@@ -58,7 +58,7 @@ namespace part_step_over_path_swing {
    *    swing every sole socket over the box stays within half the string's corner
    *    radius of the lead's clearance.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const entry = motionActionContext(body, {}).entry;
@@ -186,5 +186,5 @@ namespace part_step_over_path_swing {
  *   clears, metres:
  */
 export async function test_unit_motions_everyday_step_over(): Promise<void> {
-  await part_step_over_path_swing.run();
+  await part_step_over_path_swing.verify();
 }

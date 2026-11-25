@@ -41,7 +41,7 @@ namespace part_operate_long_insert_course {
    *    and shoulders 5 m aside of the bore, which no step along it brings within
    *    reach, are refused.
    */
-  export function run(): void {
+  export function verify(): void {
     const props: operateLongInsertCourse.IProps = {
       mouth: { x: 0, y: 0, z: 0 },
       normal: { x: 0, y: 0, z: 1 },
@@ -131,7 +131,7 @@ namespace part_operate_long_insert_staff {
    *    m, 0.04 m wide; a shorter 0.2 m handle beside it is not the run.
    * 2. A staff with no bar or handle with a length is refused on `mechanism.prop`.
    */
-  export function run(): void {
+  export function verify(): void {
     const site: (
       id: string,
       kind: IAutoMovieAffordance["kind"],
@@ -212,7 +212,7 @@ namespace part_operate_state {
    * 5. An insertion of 0.2 m is 0.1 m in; withdrawing, it is at its full depth half
    *    way and back out at the end.
    */
-  export function run(): void {
+  export function verify(): void {
     const place: IAutoMovieMotionHumanOperateState.IAtPlace = {
       point: { x: 0, y: 1, z: 0.5 },
       normal: { x: 0, y: 0, z: 1 },
@@ -303,7 +303,7 @@ namespace part_operate_state {
  *   of its stroke:
  */
 export async function test_unit_motions_affordance_operate(): Promise<void> {
-  part_operate_long_insert_course.run();
-  part_operate_long_insert_staff.run();
-  part_operate_state.run();
+  part_operate_long_insert_course.verify();
+  part_operate_long_insert_staff.verify();
+  part_operate_state.verify();
 }

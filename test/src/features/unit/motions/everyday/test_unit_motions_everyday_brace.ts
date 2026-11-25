@@ -24,7 +24,7 @@ namespace part_palm_sagitta {
    * 2. The palm's half breadth lies within the thigh's radius, so the lift is under
    *    half of it: h < r gives h^2 / (2 r) < h / 2.
    */
-  export function run(): void {
+  export function verify(): void {
     const lift: number = palmSagitta({
       measure: { hand: HAND, thighRadius: THIGH },
     });
@@ -50,5 +50,5 @@ namespace part_palm_sagitta {
  *   `PALM_BREADTH` (0.45) of the hand's length.
  */
 export async function test_unit_motions_everyday_brace(): Promise<void> {
-  part_palm_sagitta.run();
+  part_palm_sagitta.verify();
 }

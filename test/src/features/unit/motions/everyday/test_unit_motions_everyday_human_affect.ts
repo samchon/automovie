@@ -38,7 +38,7 @@ namespace part_human_affect_angles {
    * 3. Twice the intensity doubles every angle.
    * 4. A display of no length is refused on `seconds`.
    */
-  export function run(): void {
+  export function verify(): void {
     TestValidator.equals(
       "nothing at the ends",
       [-0.1, 0, 1.5, 2].map(
@@ -133,7 +133,7 @@ namespace part_human_affect_crying {
    * 5. The same seed reads the same sob twice; a sneeze too short for its burst is
    *    refused by the layer on `seconds`.
    */
-  export function run(): void {
+  export function verify(): void {
     const sob: (
       t: number,
       seed?: string,
@@ -248,7 +248,7 @@ namespace part_affect_held_hands {
    * 4. A left palm goaled on the performer's own head keeps its goal's head-local
    *    place and turn across the layer.
    */
-  export async function run(): Promise<void> {
+  export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
     const before: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0, z: 0 },
@@ -398,7 +398,7 @@ namespace part_affect_held_hands {
  *   contact on their contacts while a trunk layer moves the body under them.
  */
 export async function test_unit_motions_everyday_human_affect(): Promise<void> {
-  part_human_affect_angles.run();
-  part_human_affect_crying.run();
-  await part_affect_held_hands.run();
+  part_human_affect_angles.verify();
+  part_human_affect_crying.verify();
+  await part_affect_held_hands.verify();
 }
