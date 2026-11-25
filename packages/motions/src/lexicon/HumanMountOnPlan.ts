@@ -427,8 +427,18 @@ export function HumanMountOnPlan(
   // connected swivel interval during the later crossing over the saddle.
   const flying: HumanSwungLeg.Swing | null =
     astride && onFloor[push] && places[push].tread ? swingOf(push) : null;
+  // Begin the keyed crossing once the leading stirrup bears the rider.
   const crossingSwing: HumanSwungLeg.Swing | null =
-    flying === null ? null : [Math.max(flying[0], crossing[0]), flying[1]];
+    flying === null
+      ? null
+      : [
+          Math.max(
+            flying[0],
+            crossing[0],
+            places[lead].tread ? bearing[lead] : 0,
+          ),
+          flying[1],
+        ];
   const freeCrossing = (t: number): boolean =>
     crossingSwing !== null && t > crossingSwing[0] && t < crossingSwing[1];
   const carry: sitCarried.Pose = sitCarried.prepare(
