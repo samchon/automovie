@@ -415,6 +415,7 @@ export function realizeAutoMovieConstruction(
           props.splitParentCuts?.get(node.name),
           props.splitLineProbes?.get(node.name),
           props.splitChildRails?.get(node.name),
+          props.splitPrepared?.get(node.name),
         );
       case "port":
         return AutoMovieConstructionPortRealize(

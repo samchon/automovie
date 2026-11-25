@@ -95,19 +95,31 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       diagnostics.push({ producer: "body.solids", level: 7, contract, detail });
     };
 
-    // Each named chain's surface once.
-    const surfaces: Map<string, IAutoMovieSolidSurface> = new Map();
-    const surface: (name: string) => IAutoMovieSolidSurface | null = (
-      name: string,
-    ): IAutoMovieSolidSurface | null => {
-      const known: IAutoMovieSolidSurface | undefined = surfaces.get(name);
-      if (known !== undefined) return known;
-      const chain: IAutoMovieLoftChain | undefined = context.chains.get(name);
-      const made: IAutoMovieSolidSurface | null =
-        chain === undefined ? null : AutoMovieSolidChain.surface(chain);
-      if (made !== null) surfaces.set(name, made);
-      return made;
-    };
+    // Prepare the original surface range selected by the complete body and
+    // its shared points. A published face remains its own explicit owner.
+    const published = new Map<string, IAutoMovieSolidSurface>();
+    const explicit = new Map<string, number[]>();
+    const required = names(calibration);
+    for (const body of calibration.bodies ?? []) {
+      for (const point of body.points) required.add(point.chain);
+      for (const face of body.faces)
+        if (face.surface !== undefined) {
+          published.set(face.chain, face.surface);
+          explicit.set(face.chain, face.stations ?? []);
+        }
+    }
+    const surfaces: ReadonlyMap<string, IAutoMovieSolidSurface> = new Map(
+      [...required].flatMap((name): [string, IAutoMovieSolidSurface][] => {
+        const owned = published.get(name);
+        if (owned !== undefined) return [[name, owned]];
+        const chain = context.chains.get(name);
+        const surface =
+          chain === undefined ? null : AutoMovieSolidChain.surface(chain);
+        return surface === null ? [] : [[name, surface]];
+      }),
+    );
+    const surface = (name: string): IAutoMovieSolidSurface | null =>
+      surfaces.get(name) ?? null;
 
     // Seams first: their rails become the faces' trims.
     const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
@@ -254,12 +266,31 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       // Retained positive cap sections share the actual public Point0 owner.
       // Only the exact collapsed tips are left to the endpoint fan; event
       // boundaries do not restore an end that assembly already cut away.
-      let stations: number[] = AutoMovieHumanLoftStations.bisect(
-        chain,
-        grid?.stations[0] ?? bottomTip ?? first,
-        grid?.stations[1] ?? topTip ?? last,
-        context.tolerance,
-      ).filter(
+      const from = grid?.stations[0] ?? bottomTip ?? first;
+      const to = grid?.stations[1] ?? topTip ?? last;
+      const rows = explicit.has(name)
+        ? AutoMovieHumanLoftStations.bisectRings(
+            [
+              from,
+              ...explicit.get(name)!.filter((y) => y > from && y < to),
+              to,
+            ],
+            (phases) => {
+              if (s.pointAlong !== undefined) {
+                const lines = phases.map((phase) => s.pointAlong!(phase));
+                return (station) => lines.map((line) => line(station));
+              }
+              return (station) => {
+                const point =
+                  s.pointAt?.(station) ??
+                  ((phase: number): Vec3 => s.jet(station, phase).p);
+                return phases.map(point);
+              };
+            },
+            context.tolerance,
+          )
+        : AutoMovieHumanLoftStations.bisect(chain, from, to, context.tolerance);
+      let stations: number[] = rows.filter(
         (station: number): boolean =>
           station !== bottomTip && station !== topTip,
       );

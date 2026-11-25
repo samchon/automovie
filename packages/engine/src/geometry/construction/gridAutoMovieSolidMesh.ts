@@ -86,22 +86,35 @@ export function gridAutoMovieSolidMesh(
   const barriers: IAutoMovieSolidMeshConstraints.ISegment[] =
     domainAuthorities.length === 0 ? trim : [...trim, ...domainAuthorities];
   const jets: IAutoMovieSolidSurface.IJet[][] = [];
+  let columnJets: ((u: number) => IAutoMovieSolidSurface.IJet)[] | undefined;
+  try {
+    columnJets =
+      surface.jetAlong === undefined
+        ? undefined
+        : phases.map((v) => surface.jetAlong!(v));
+  } catch (error: unknown) {
+    if (error instanceof AutoMovieLoftAdmissionError)
+      return `face grid has unavailable source physical2: ${error.message}`;
+    throw error;
+  }
   for (const u of stations) {
     const row: IAutoMovieSolidSurface.IJet[] = [];
-    let jet: (phase: number) => IAutoMovieSolidSurface.IJet;
-    try {
-      jet =
-        surface.jetAt?.(u) ??
-        ((phase: number): IAutoMovieSolidSurface.IJet => surface.jet(u, phase));
-    } catch (error: unknown) {
-      if (error instanceof AutoMovieLoftAdmissionError)
-        return `face grid has unavailable source physical2: ${error.message}`;
-      throw error;
-    }
-    for (const v of phases) {
+    let jet: ((phase: number) => IAutoMovieSolidSurface.IJet) | undefined;
+    if (columnJets === undefined)
+      try {
+        jet =
+          surface.jetAt?.(u) ??
+          ((phase: number): IAutoMovieSolidSurface.IJet =>
+            surface.jet(u, phase));
+      } catch (error: unknown) {
+        if (error instanceof AutoMovieLoftAdmissionError)
+          return `face grid has unavailable source physical2: ${error.message}`;
+        throw error;
+      }
+    for (const [j, v] of phases.entries()) {
       let read: IAutoMovieSolidSurface.IJet;
       try {
-        read = jet(v);
+        read = columnJets === undefined ? jet!(v) : columnJets[j]!(u);
       } catch (error: unknown) {
         if (error instanceof AutoMovieLoftAdmissionError)
           return `face grid has unavailable source physical2: ${error.message}`;

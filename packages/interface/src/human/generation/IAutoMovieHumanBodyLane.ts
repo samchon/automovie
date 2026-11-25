@@ -1,4 +1,5 @@
 import type { IAutoMovieConstructionNode } from "../../construction/IAutoMovieConstructionNode";
+import type { IAutoMovieConstructionRealization } from "../../construction/IAutoMovieConstructionRealization";
 import type { IAutoMovieConstructionSharedLoop } from "../../construction/IAutoMovieConstructionSharedLoop";
 import type { IAutoMovieLoftChain } from "../../construction/IAutoMovieLoftChain";
 import type { IAutoMovieLoftContract } from "../../construction/IAutoMovieLoftContract";
@@ -259,6 +260,14 @@ export namespace IAutoMovieHumanBodyLane {
 
     /** Original paired chart loops bound to joins in this invocation. */
     loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
+    /**
+     * The regular parent cut, exact native stations and prepared strips for
+     * each digital split.
+     */
+    digitalSources?: Pick<
+      IAutoMovieConstructionRealization.IProps,
+      "splitParentCuts" | "splitChildRails" | "splitPrepared"
+    >;
     /**
      * Actual consumed hand contact records, retaining the same parent original
      * and anatomical joint separately.

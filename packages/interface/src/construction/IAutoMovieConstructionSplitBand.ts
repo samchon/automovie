@@ -11,6 +11,29 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * bands.
  */
 export namespace IAutoMovieConstructionSplitBand {
+  /** One explicit regular strip, already prepared from the split's own curves. */
+  export interface IPreparedStrip {
+    /** Chart and sampling metadata under this declared split-band name. */
+    chain: IAutoMovieLoftChain;
+
+    /** The same continuous shape in world mm with exact chart ownership. */
+    surface: IAutoMovieSolidSurface;
+
+    /** Physical course span in mm, from the parent at 0 to the held rail. */
+    length: number;
+
+    /** Increasing sampled stations of the analytic strip, including both ends, in mm. */
+    stations?: number[];
+
+    /** The complete ordered parent or shared seam loop, one point per column. */
+    loop: AutoMovieVector3Tuple[];
+
+    /** Host arc phases at columns and arc ends, in the declared stretch order. */
+    phases: number[];
+
+    /** Held child rail phases, one unwrapped turn in the same column order. */
+    childPhases: number[];
+  }
   /**
    * One side of a band: the face's surface, the rail's station on it and the
    * station's sign into the band's continuation.

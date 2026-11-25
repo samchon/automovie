@@ -17,6 +17,9 @@ export namespace IAutoMovieSolidBody {
     /** Borrowed analytic surface; keep its geometry and chart identity stable while the face or an atlas snapshot retains it. */
     surface: IAutoMovieSolidSurface;
 
+    /** Preserve this analytic owner in the detached body publication as well. */
+    retainSurface?: true;
+
     /** Finite strictly increasing samples of surface u, in that chart's units, usually station millimetres; shared arrays may be retained from inputs. */
     stations: number[];
 
@@ -138,6 +141,12 @@ export namespace IAutoMovieSolidBody {
     faces: {
       /** The chain's name: the face's surface name. */
       chain: string;
+
+      /** Explicit analytic owner when the chain's coefficient rows hold only chart metadata. */
+      surface?: IAutoMovieSolidSurface;
+
+      /** The explicit analytic owner's shape-derived sampling stations in mm. */
+      stations?: number[];
 
       /** Its trim cycles, as points. */
       cycles: {

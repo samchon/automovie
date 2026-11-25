@@ -17,6 +17,8 @@ import type {
 import { AutoMovieHumanBodyPublication } from "./AutoMovieHumanBodyPublication";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
 import { AutoMovieHumanArmscyeOpening } from "./arm/AutoMovieHumanArmscyeOpening";
+import { AutoMovieHumanDigitalSplit } from "./conic/AutoMovieHumanDigitalSplit";
+import { AutoMovieHumanSkinDivide } from "./conic/AutoMovieHumanSkinDivide";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
 /**
@@ -100,6 +102,7 @@ export namespace AutoMovieHumanBodyLane {
         diagnostics,
         definition.sourceParts,
         definition.loopSources,
+        definition.digitalSources,
       );
     return AutoMovieHumanBodyPublication.of(
       realized.chains,
@@ -234,74 +237,74 @@ export namespace AutoMovieHumanBodyLane {
     ];
     const perineum: number = distance(hips[0], hips[1]) / 2;
     const handAttachments: IAutoMovieHumanHandAttachment.IConnection[] = [];
+    type Digital = Exclude<
+      ReturnType<typeof AutoMovieHumanDigitalSplit.prepare>,
+      string
+    >;
+    const fans: Digital[] = [];
+    const digital = (
+      kind: "hand" | "foot",
+      host: IAutoMovieConstructionView | null,
+      parent: IAutoMovieViewPart | null,
+      list: readonly (
+        | IAutoMovieHumanBodyLane.IDigit
+        | IAutoMovieHumanBodyLane.IToe
+      )[],
+      up: AutoMovieVector3Tuple,
+    ): IAutoMovieConstructionNode | null => {
+      const owned = list.flatMap((entry) => {
+        const name = "toe" in entry ? entry.toe.name : entry.digit.name;
+        const [first, second] =
+          "toe" in entry
+            ? entry.toe.centres.slice(1)
+            : [
+                entry.digit.attachment?.joint ?? entry.digit.centres[0],
+                entry.digit.centres[1],
+              ];
+        const node = original(name, entry.definition);
+        const part = entry.definition.part;
+        return node === null ||
+          part === null ||
+          first === undefined ||
+          second === undefined
+          ? []
+          : [{ node, part, bounds: { part: name, first, second } }];
+      });
+      if (host === null || parent === null) return host;
+      if (
+        owned.length !== list.length ||
+        list.length !== (kind === "hand" ? 4 : 5)
+      )
+        return host;
+      let reason: string;
+      try {
+        const fan = AutoMovieHumanDigitalSplit.prepare(
+          parent,
+          kind,
+          owned,
+          up,
+          host,
+          owned.map(({ node }) => node),
+        );
+        if (typeof fan !== "string") {
+          fans.push(fan);
+          return fan.node;
+        }
+        reason = fan;
+      } catch (error: unknown) {
+        reason = error instanceof Error ? error.message : String(error);
+      }
+      diagnostics.push({
+        producer: `fan.${parent.name}`,
+        level: 3,
+        contract: "native digital split",
+        detail: reason,
+      });
+      return host;
+    };
 
     for (const name of ["left", "right"] as const) {
       const side: IAutoMovieHumanBodyLane.ISide = input.sides[name];
-
-      // A host and its digits: each web capped at half the gap to its
-      // nearest neighbour's base.
-      const branches: (
-        host: IAutoMovieConstructionView | null,
-        list: readonly (
-          | IAutoMovieHumanBodyLane.IDigit
-          | IAutoMovieHumanBodyLane.IToe
-        )[],
-      ) => IAutoMovieConstructionNode | null = (
-        host: IAutoMovieConstructionView | null,
-        list: readonly (
-          | IAutoMovieHumanBodyLane.IDigit
-          | IAutoMovieHumanBodyLane.IToe
-        )[],
-      ): IAutoMovieConstructionNode | null => {
-        let tree: IAutoMovieConstructionNode | null = host;
-        const baseOf: (
-          source: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe,
-        ) => AutoMovieVector3Tuple = (
-          source: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe,
-        ): AutoMovieVector3Tuple =>
-          "toe" in source ? source.toe.centres[0]! : source.digit.centres[0]!;
-        list.forEach(
-          (
-            d: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe,
-          ): void => {
-            const digit: IAutoMovieConstructionView | null =
-              "toe" in d
-                ? original(d.toe.name, d.definition)
-                : original(d.digit.name, d.definition);
-            if (digit === null || tree === null || host === null) return;
-            const base: AutoMovieVector3Tuple = baseOf(d);
-            const nearest: number = Math.min(
-              ...list
-                .filter(
-                  (
-                    o:
-                      | IAutoMovieHumanBodyLane.IDigit
-                      | IAutoMovieHumanBodyLane.IToe,
-                  ): boolean => o !== d,
-                )
-                .map(
-                  (
-                    o:
-                      | IAutoMovieHumanBodyLane.IDigit
-                      | IAutoMovieHumanBodyLane.IToe,
-                  ): number => distance(base, baseOf(o)),
-                ),
-            );
-            tree = AutoMovieHumanBodyTree.join(
-              tree,
-              fold(
-                digit,
-                digit.name,
-                host.name,
-                d.fold,
-                Number.isFinite(nearest) ? nearest / 2 : d.fold.radius,
-              ),
-              limits,
-            );
-          },
-        );
-        return tree;
-      };
 
       // The leg on its foot and toes, then onto the trunk.
       const lowerSources: Pick<
@@ -316,9 +319,12 @@ export namespace AutoMovieHumanBodyLane {
         lowerSources.foot.name,
         lowerSources.footDefinition,
       );
-      const toes: IAutoMovieConstructionNode | null = branches(
+      const toes: IAutoMovieConstructionNode | null = digital(
+        "foot",
         foot,
+        lowerSources.footDefinition.part,
         lowerSources.toes,
+        [0, 1, 0],
       );
       if (leg !== null && root !== null && trunk.trunk !== null) {
         const lower: IAutoMovieConstructionNode =
@@ -357,7 +363,49 @@ export namespace AutoMovieHumanBodyLane {
       for (const { digit } of digits)
         if (digit.attachment !== undefined)
           handAttachments.push(digit.attachment);
-      const fingers: IAutoMovieConstructionNode | null = branches(arm, digits);
+      const fingersOnly = digits.filter(({ digit }): boolean =>
+        digit.name.startsWith("finger."),
+      );
+      const palm = (
+        entry: IAutoMovieHumanBodyLane.IDigit,
+      ): AutoMovieHumanSkinDivide.IDigit => ({
+        part: entry.digit.name,
+        first: (entry.digit.attachment?.joint ?? entry.digit.centres[0])!,
+        second: entry.digit.centres[1]!,
+      });
+      const up =
+        fingersOnly.length === 4
+          ? AutoMovieHumanSkinDivide.palmNormal(
+              upperSources.arm.bones.wrist,
+              palm(fingersOnly[0]!),
+              palm(fingersOnly[3]!),
+            )
+          : ([0, 1, 0] satisfies AutoMovieVector3Tuple);
+      let fingers = digital("hand", arm, armSource.part, fingersOnly, up);
+      const thumb = digits.find(({ digit }): boolean =>
+        digit.name.startsWith("thumb."),
+      );
+      if (thumb !== undefined) {
+        const node = original(thumb.digit.name, thumb.definition);
+        if (arm !== null && fingers !== null && node !== null) {
+          const nearest = Math.min(
+            ...fingersOnly.map(({ digit }): number =>
+              distance(digit.centres[0]!, thumb.digit.centres[0]!),
+            ),
+          );
+          fingers = AutoMovieHumanBodyTree.join(
+            fingers,
+            fold(
+              node,
+              node.name,
+              arm.name,
+              thumb.fold,
+              Number.isFinite(nearest) ? nearest / 2 : thumb.fold.radius,
+            ),
+            limits,
+          );
+        }
+      }
       if (
         arm !== null &&
         fingers !== null &&
@@ -412,6 +460,15 @@ export namespace AutoMovieHumanBodyLane {
       sources,
       handAttachments,
       sourceParts,
+      digitalSources: {
+        splitParentCuts: new Map(fans.map(({ node, cut }) => [node.name, cut])),
+        splitChildRails: new Map(
+          fans.map(({ node, rails }) => [node.name, rails]),
+        ),
+        splitPrepared: new Map(
+          fans.map(({ node, bands }) => [node.name, bands]),
+        ),
+      },
       ...(input.head === undefined
         ? {}
         : { loopSources: input.head.loopSources }),

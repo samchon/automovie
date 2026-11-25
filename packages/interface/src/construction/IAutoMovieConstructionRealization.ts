@@ -47,6 +47,12 @@ export namespace IAutoMovieConstructionRealization {
 
     /** Independent native rail stations by split and child face, millimetres. */
     splitChildRails?: ReadonlyMap<string, ReadonlyMap<string, number>>;
+
+    /** Curve-owned strips in each declared fan's child order for this realization. */
+    splitPrepared?: ReadonlyMap<
+      string,
+      readonly IAutoMovieConstructionSplitBand.IPreparedStrip[]
+    >;
   }
 
   /**

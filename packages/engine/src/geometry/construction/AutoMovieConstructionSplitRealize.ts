@@ -50,9 +50,10 @@ export function AutoMovieConstructionSplitRealize(
   parentCut?: IAutoMovieConstructionSplitCompose.ParentCut,
   lineProbe?: IAutoMovieConstructionSplitBand.LineProbe,
   nativeRails?: ReadonlyMap<string, number>,
+  prepared?: readonly IAutoMovieConstructionSplitBand.IPreparedStrip[],
 ): void {
-  if ((node.outer ?? []).length > 0)
-    return fan(node, body, state, walk, report, valley, parentCut, lineProbe, nativeRails);
+  if (prepared !== undefined || (node.outer ?? []).length > 0)
+    return fan(node, body, state, walk, report, valley, parentCut, lineProbe, nativeRails, prepared);
   walk(node.host);
   const hostIndex: number | undefined = state.faces.get(node.hostFace);
   const hostChain: IAutoMovieLoftChain | undefined = state.chains.get(
@@ -435,6 +436,7 @@ function fan(
   parentCut?: IAutoMovieConstructionSplitCompose.ParentCut,
   lineProbe?: IAutoMovieConstructionSplitBand.LineProbe,
   nativeRails?: ReadonlyMap<string, number>,
+  prepared?: readonly IAutoMovieConstructionSplitBand.IPreparedStrip[],
   hostReady: boolean = false,
   childCuts?: ReadonlyMap<string, IRelocatedRail>,
 ): void {
@@ -450,7 +452,7 @@ function fan(
       `the host face ${node.hostFace} was not realized`,
     );
   const hostKind: "start" | "end" = node.hostEnd === "bottom" ? "start" : "end";
-  if (closed(hostChain, node.hostEnd))
+  if (closed(hostChain, node.hostEnd) && parentCut === undefined)
     return report(
       node.name,
       "split end",
@@ -470,6 +472,10 @@ function fan(
   };
   try {
     const n: number = node.count;
+    if (prepared !== undefined && (
+      prepared.length !== node.children.length || parentCut === undefined ||
+      node.compose !== undefined || nativeRails === undefined
+    )) return fail("curve-owned bands require a shared parent cut and each original child rail");
     const q: number = n / 4;
     const turn: number = 2 * Math.PI;
     const step: number = turn / n;
@@ -515,7 +521,7 @@ function fan(
     );
     const S: number = seams.length;
     const curves: IAutoMovieConstructionSplitSeam.ISeam[] = [];
-    for (const [j, s] of seams.entries()) {
+    for (const [j, s] of (prepared === undefined ? seams : []).entries()) {
       const heading: Vec3 | undefined = s.profile?.heading ?? derived?.headings[j];
       // A composed end's seam is its children's valley (`IAutoMovieConstructionSplitCompose.IDerived.valleys`), already in mm.
       const made: IAutoMovieConstructionSplitSeam.ISeam | string =
@@ -541,7 +547,7 @@ function fan(
         (s: IAutoMovieConstructionSplit.ISeam): boolean =>
           s.profile !== undefined,
       )?.profile?.square === true;
-    const forkPlanes = seams.map((seam, j) => seam.profile === undefined
+    const forkPlanes = seams.map((seam, j) => prepared !== undefined || seam.profile === undefined
       ? undefined
       : Conormal.forks(host, hostStation, seam.seam, curves[j]!));
     const badFork = forkPlanes.find((fork) => typeof fork === "string");
@@ -609,7 +615,7 @@ function fan(
       if (typeof made === "string") return fail(made);
       admitted = made;
     }
-    const children: { index: number; surface: IAutoMovieSolidSurface; rail: IRail; kind: "start" | "end"; band: IAutoMovieConstructionSplitBand.IStrip & { phases: number[] }; face: IAutoMovieSolidSurface; edge: IAutoMovieConstructionBandEdge | undefined }[] = [];
+    const children: { index: number; surface: IAutoMovieSolidSurface; rail: IRail; kind: "start" | "end"; band: IAutoMovieConstructionSplitBand.IPreparedStrip; face: IAutoMovieSolidSurface; edge: IAutoMovieConstructionBandEdge | undefined }[] = [];
     const refusals: string[] = [];
     const demand: IParentDemand[] = [];
     const additions: { name: string; rail: IAutoMovieConstructionSkinCut.ICut; guide: IAutoMovieConstructionSplitBand.IGuidedRail; planes: IAutoMovieConstructionSplitCompose.IDerived["railPlanes"][number]; face: IFace; lines: IAutoMovieConstructionSplitBand.ILineDemand[]; reach: number }[] = [];
@@ -621,6 +627,19 @@ function fan(
       if (typeof rail === "string") {
         if (valley === undefined) return fail(rail);
         refusals.push(rail);
+        continue;
+      }
+      if (prepared !== undefined) {
+        const owned = prepared[c]!;
+        const orientation = (owned.surface.orientation * nativeHost.orientation * hostInto) as 1 | -1;
+        const band = { ...owned, surface: { ...owned.surface, orientation } };
+        if (station === undefined || child.cut !== undefined || band.chain.name !== child.band ||
+            band.surface.name !== child.band || band.surface.period !== turn ||
+            band.surface.domain?.[0] !== 0 || band.surface.domain[1] !== band.length ||
+            !(band.length > 0) || band.loop.length !== n || band.phases.length !== n || band.childPhases.length !== n ||
+            [...band.phases, ...band.childPhases].some((t): boolean => !Number.isFinite(t)))
+          return fail(`band ${child.band}: prepared shape does not carry the declared cut, rail and chart`);
+        children.push({ index, surface, rail, kind, band, face: band.surface, edge: undefined });
         continue;
       }
       const guidedRail = valley === undefined || derived === undefined || child.cut !== undefined
@@ -736,7 +755,7 @@ function fan(
       }
       if (moved !== undefined || displaced.size !== 0) {
         AutoMovieConstructionState.restore(body, state, snapshot);
-        return fan(node, body, state, walk, report, valley, moved ?? parentCut, lineProbe, nativeRails, true, displaced);
+        return fan(node, body, state, walk, report, valley, moved ?? parentCut, lineProbe, nativeRails, prepared, true, displaced);
       }
       return fail(refusals.join("\n"));
     }
@@ -782,6 +801,38 @@ function fan(
       return null;
     };
     const beside = (seam: number): [number, number] => [seam, seam + 1];
+
+    if (prepared !== undefined) {
+      const faults: string[] = [];
+      const exact = (a: Vec3, b: Vec3): boolean =>
+        AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(a, b)) <=
+        16 * Number.EPSILON * Math.max(1, AutoMovieSolidVector.norm(a), AutoMovieSolidVector.norm(b));
+      for (const [c, child] of children.entries()) {
+        const band = child.band;
+        const start = band.surface.pointAt?.(0) ?? ((v: number): Vec3 => band.surface.jet(0, v).p);
+        const finish = band.surface.pointAt?.(band.length) ?? ((v: number): Vec3 => band.surface.jet(band.length, v).p);
+        const receiving = child.surface.pointAt?.(child.rail.station) ??
+          ((v: number): Vec3 => child.surface.jet(child.rail.station, v).p);
+        const first = band.childPhases[0]!;
+        const sign = Math.sign(band.childPhases[1]! - first);
+        if (sign === 0 || band.childPhases.some((p, k): boolean => k > 0 && !(sign * (p - band.childPhases[k - 1]!) > 0 && sign * (p - first) < turn)))
+          faults.push(`${band.chain.name}: its native receiving cycle is out of order`);
+        for (const [k, { stretch, j }] of columns[c]!.entries()) {
+          const at = clock(k);
+          if (!exact(start(at), band.loop[k]!) || !exact(finish(at), receiving(band.childPhases[k]!)))
+            faults.push(`${band.chain.name}: held boundary differs at column ${k}`);
+          if (stretch.kind === "arc" && !exact(start(at), host.jet(hostStation, band.phases[k]!).p))
+            faults.push(`${band.chain.name}: original parent differs at column ${k}`);
+          if (stretch.kind === "seam" && stretch.forward) {
+            const other = children[stretch.index]!.band;
+            const k2 = shareColumn(stretch.index, stretch.index, j)!;
+            if (!exact(start(at), other.loop[k2 % n]!))
+              faults.push(`${band.chain.name}: shared seam ${stretch.index} differs at column ${j}`);
+          }
+        }
+      }
+      if (faults.length !== 0) return fail(faults.join("\n"));
+    }
 
     // Shared vertices: ring points by arc and column (a fork is its arc's first), seam points by seam and share, rails per child.
     const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
@@ -861,7 +912,8 @@ function fan(
       (child: (typeof children)[number]): number =>
         body.faces.push({
           surface: child.face,
-          stations: graded(child.band.length, node.rows, child.band.loop),
+          ...(prepared === undefined ? {} : { retainSurface: true as const }),
+          stations: child.band.stations ?? graded(child.band.length, node.rows, child.band.loop),
           phases: Array.from({ length: n }, (_: unknown, k: number): number =>
             clock(k),
           ),
@@ -997,7 +1049,7 @@ function fan(
 
     // Each seam's forks, the ring vertices its two arcs start at, are faired once the skin is drawn over a disc the declared share of the
     // seam's chord across (`IAutoMovieConstructionSplit.IProfile.fair`).
-    seams.forEach((s: IAutoMovieConstructionSplit.ISeam, j: number): void => {
+    (prepared === undefined ? seams : []).forEach((s: IAutoMovieConstructionSplit.ISeam, j: number): void => {
       const fair: number | [number, number] | undefined = s.profile?.fair;
       if (fair === undefined) return;
       const chord: number = AutoMovieSolidVector.norm(

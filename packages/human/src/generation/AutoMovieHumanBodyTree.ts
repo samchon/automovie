@@ -256,6 +256,10 @@ export namespace AutoMovieHumanBodyTree {
     diagnostics: IAutoMovieLoftContract.IDiagnostic[],
     sources?: ReadonlyMap<string, IAutoMovieViewPart>,
     loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>,
+    digitalSources?: Pick<
+      IAutoMovieConstructionRealization.IProps,
+      "splitParentCuts" | "splitChildRails" | "splitPrepared"
+    >,
   ): IAutoMovieHumanBodyTree.IOutput {
     const result: IAutoMovieConstructionRealization.IWithoutSkin =
       realizeAutoMovieConstruction(
@@ -265,6 +269,7 @@ export namespace AutoMovieHumanBodyTree {
           skin: false,
           sources,
           loopSources,
+          ...digitalSources,
         },
       );
     diagnostics.push(

@@ -6,11 +6,11 @@ The operators read a smooth chart's exact 2-jets, period, orientation and domain
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-One jet function and three properties.
+The basic chart has one jet function, period, orientation and domain. Optional direct point and range-bound readers expose the same chart for tessellation along its two axes.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The jets must be the map's own; finite differences would break the trace and the G2 blend.
+Intersection and G2 blending require the map's native differential. The prepared fan uses a documented local numerical jet to tessellate its owned continuous strip and reads the exact curve positions for the boundary and incidence checks.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
