@@ -74,7 +74,10 @@ interface IFootSupport {
     /** The inverse rotation of the starting foothold. */
     inverse: IAutoMovieQuaternion;
 
-    /** The second the foot leaves the floor. */
+    /** Whether the free approach starts in a world floor plant. */
+    fromFloor: boolean;
+
+    /** The second the foot leaves its starting support. */
     release: number;
 
     /** The second the foot lands on the foothold. */
@@ -93,8 +96,8 @@ export namespace sitCarried {
   /**
    * Prepare the frame changes from the seat's initial placement. A floor goal
    * stays in the world. A named footrest carries its foot after landing, with
-   * the minimum-jerk approach of Flash and Hogan (1985) taking it from the
-   * carrier's motion to the part's own frame over the free interval.
+   * the minimum-jerk approach of Flash and Hogan (1985) taking it from its
+   * starting frame to the part's own frame over the free interval.
    *
    * @param context The sit's start and props.
    * @param seat The seat, read where its carrier stands at the sit's start.
@@ -138,6 +141,8 @@ export namespace sitCarried {
               id === undefined
                 ? undefined
                 : read.prop.point?.(id, context.start);
+            const floor: IAutoMovieMotionHumanContactWindow | undefined =
+              ground.find((item) => item.from === 0);
             return {
               limb: `${side}Leg`,
               ground,
@@ -150,9 +155,8 @@ export namespace sitCarried {
                       inverse: Quaternion.inverse(
                         frame.rotation ?? origin.rotation,
                       ),
-                      release:
-                        (ground.find((item) => item.from === 0)?.to ?? 0) *
-                        duration,
+                      fromFloor: floor !== undefined,
+                      release: (floor?.to ?? 0) * duration,
                       bearing: window.from * duration,
                     },
                   }),
@@ -183,8 +187,11 @@ export namespace sitCarried {
         const target: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
           read.prop.point?.(part.id, film);
         if (target === undefined) continue;
+        const bearing: boolean = t >= part.bearing;
+        const fromWorld: boolean = part.fromFloor && !bearing;
+        const approach: IAutoMovieHumanLimbGoal = fromWorld ? raw : rigid;
         const share: number =
-          t >= part.bearing
+          bearing
             ? 1
             : minimumJerk.share(
                 (t - part.release) / (part.bearing - part.release),
@@ -200,17 +207,22 @@ export namespace sitCarried {
             Vector3.subtract(raw.point, part.position),
           ),
         );
+        const rotation: IAutoMovieQuaternion | undefined =
+          raw.rotation === undefined
+            ? undefined
+            : Quaternion.multiply(delta, raw.rotation);
         posture.limbs[limb] = {
           ...rigid,
-          point: Vector3.lerp(rigid.point, point, share),
-          ...(raw.rotation === undefined || rigid.rotation === undefined
+          point: bearing ? point : Vector3.lerp(approach.point, point, share),
+          ...(fromWorld
+            ? { bend: Vector3.lerp(raw.bend, rigid.bend, share) }
+            : {}),
+          ...(rotation === undefined || approach.rotation === undefined
             ? {}
             : {
-                rotation: Quaternion.slerp(
-                  rigid.rotation,
-                  Quaternion.multiply(delta, raw.rotation),
-                  share,
-                ),
+                rotation: bearing
+                  ? rotation
+                  : Quaternion.slerp(approach.rotation, rotation, share),
               }),
         };
       }
