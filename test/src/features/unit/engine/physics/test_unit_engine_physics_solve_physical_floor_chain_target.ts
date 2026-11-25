@@ -31,7 +31,6 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
  * 4. A planted patch without witnesses asked for an endpoint height the box cannot
  *    reach while touching reports its hover gap. A non-planted patch with the
  *    same request treats the plane only as a lower bound.
- *
  */
 export function test_unit_engine_physics_solve_physical_floor_chain_target(): void {
   const profile: IAutoMoviePhysicalProfile = PhysicalModelFixtures.quadrupod();

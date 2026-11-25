@@ -6,8 +6,8 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A three-dimensional spray keeps its declared visible opacity, lands as enlarged persistent stains and rejects malformed transport.
- *
+ * A three-dimensional spray keeps its declared visible opacity, lands as
+ * enlarged persistent stains and rejects malformed transport.
  */
 export function test_unit_engine_physics_compile_impact_effects(): void {
   const receipt: IAutoMovieContactReceipt = {

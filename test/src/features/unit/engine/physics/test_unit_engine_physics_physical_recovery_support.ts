@@ -53,7 +53,6 @@ import { PhysicalHumanProfiles } from "../../../internal/PhysicalHumanProfiles";
  *    axis the ankle has, within 0.01 rad; the turn about the axis it lacks is
  *    the hip's (Kajita et al., Introduction to Humanoid Robotics, Section 2.5;
  *    TSID `ex_4_walking`).
- *
  */
 export async function test_unit_engine_physics_physical_recovery_support(): Promise<void> {
   const failures: string[] = [];

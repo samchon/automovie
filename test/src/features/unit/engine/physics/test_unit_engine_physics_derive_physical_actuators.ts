@@ -10,14 +10,15 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
-/** Joint gains include an attached payload through a tiny intermediate carrier.
+/**
+ * Joint gains include an attached payload through a tiny intermediate carrier.
  *
  * Scenarios:
+ *
  * 1. Analytic z inertia is sum(Icom + m r²) about the actual hinge.
  * 2. Torque budget includes the downstream payload's mass.
  * 3. Active axial gains retain the transverse load bound for later bent poses.
  * 4. Passive damping is independent from active tracking gains.
- *
  */
 export function test_unit_engine_physics_derive_physical_actuators(): void {
   const profile: P = PhysicalFixtures.sphere();

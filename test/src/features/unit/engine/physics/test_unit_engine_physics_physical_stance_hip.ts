@@ -36,7 +36,6 @@ import { TestValidator } from "@nestia/e2e";
  *    the torque their aligned axes give and the trunk's inertia about them, and
  *    none against a lateral one; one stance hip has one either way; a trunk
  *    leaning toward the push has that much less angle left.
- *
  */
 export function test_unit_engine_physics_physical_stance_hip(): void {
   const failures: string[] = [];

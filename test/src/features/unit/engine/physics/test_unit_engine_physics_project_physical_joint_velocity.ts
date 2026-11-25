@@ -10,12 +10,14 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Motor intent respects the actual differential of compound twist limits.
+/**
+ * Motor intent respects the actual differential of compound twist limits.
  *
  * Scenarios:
- * 1. A bend at a transverse limit rejects outward coupled velocity, including quaternion sign equivalence.
- * 2. An interior velocity remains unchanged, and a full-turn axis remains free.
  *
+ * 1. A bend at a transverse limit rejects outward coupled velocity, including
+ *    quaternion sign equivalence.
+ * 2. An interior velocity remains unchanged, and a full-turn axis remains free.
  */
 export function test_unit_engine_physics_project_physical_joint_velocity(): void {
   const axis: IAutoMoviePhysicalJointAxis = {

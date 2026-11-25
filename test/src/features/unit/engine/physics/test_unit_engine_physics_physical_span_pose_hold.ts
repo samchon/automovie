@@ -15,7 +15,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A restore, which clones the state, prepares it once again: a new response on
  *    the first substep after, then that one held, sampling the same values.
  * 3. Before the push and after the response settles, nothing plays.
- *
  */
 export function test_unit_engine_physics_physical_span_pose_hold(): void {
   const failures: string[] = [];

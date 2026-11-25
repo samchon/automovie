@@ -21,7 +21,6 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A joint whose child has no pose is skipped.
  * 4. A rotation of the thigh about its own origin carries the knee: the shank left
  *    behind is not admissible, the one moved with it is.
- *
  */
 export function test_unit_engine_physics_physical_span_pose_handoff(): void {
   const knee: IAutoMoviePhysicalJoint = {

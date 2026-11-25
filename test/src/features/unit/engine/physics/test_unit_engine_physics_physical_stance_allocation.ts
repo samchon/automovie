@@ -47,7 +47,6 @@ import { TestValidator } from "@nestia/e2e";
  *    within the sole's room and through the pivot beyond it.
  * 2. A square shrunk by the margin keeps its centre and loses the margin on every
  *    side.
- *
  */
 export function test_unit_engine_physics_physical_stance_allocation(): void {
   const failures: string[] = [];

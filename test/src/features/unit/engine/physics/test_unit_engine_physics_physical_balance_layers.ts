@@ -6,11 +6,12 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Physical balance behavior.
+/**
+ * Physical balance behavior.
  *
  * Scenarios:
- * 1. Exercise actual public inputs and compare physical quantities.
  *
+ * 1. Exercise actual public inputs and compare physical quantities.
  */
 export function test_unit_engine_physics_physical_balance_layers(): void {
   const pattern: IAutoMovieFootfallPattern = supports(4);

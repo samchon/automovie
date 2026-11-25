@@ -19,13 +19,21 @@ type Candidate = {
   residuals: Record<string, number>;
 };
 
-/** Support fits from different seeds are chosen by the fit's own residual contract, then by continuity with the completed reference.
+/**
+ * Support fits from different seeds are chosen by the fit's own residual
+ * contract, then by continuity with the completed reference.
  *
  * Scenarios:
- * 1. A warm fit trapped 94 mm away from its goal loses to an authored-seed fit that meets the 1 mm tolerance, although the warm fit is continuous with the reference. Red: preferring the warm seed carries the trapped solution forward.
- * 2. When both fits are admissible, the one whose knee is 0.01 rad from the reference beats the one 0.2 rad away, so an equally valid solution does not jump. Red: always taking the authored-seed fit jumps by 0.2 rad.
- * 3. Equal continuity keeps the first (authored-seed) candidate; with no admissible fit the smaller residual wins.
  *
+ * 1. A warm fit trapped 94 mm away from its goal loses to an authored-seed fit
+ *    that meets the 1 mm tolerance, although the warm fit is continuous with
+ *    the reference. Red: preferring the warm seed carries the trapped solution
+ *    forward.
+ * 2. When both fits are admissible, the one whose knee is 0.01 rad from the
+ *    reference beats the one 0.2 rad away, so an equally valid solution does
+ *    not jump. Red: always taking the authored-seed fit jumps by 0.2 rad.
+ * 3. Equal continuity keeps the first (authored-seed) candidate; with no
+ *    admissible fit the smaller residual wins.
  */
 export function test_unit_engine_physics_choose_physical_support_fit(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

@@ -27,7 +27,6 @@ import { vclose } from "../../../internal/vclose";
  *    the same actor remains a distinct pair on the same motion clock.
  * 3. Offset angular motion, an absent proof and malformed declarations exercise
  *    the certificate boundary. A nonzero query start retains its launch clock.
- *
  */
 export function test_unit_engine_physics_projectile_first_contact_moving_departure(): void {
   const sphere: IAutoMoviePhysicalShape = baseSphere(ZERO);

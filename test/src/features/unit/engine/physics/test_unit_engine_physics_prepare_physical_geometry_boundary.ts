@@ -27,7 +27,6 @@ import { nclose } from "../../../internal/nclose";
  *    an explicit sufficient prediction.
  * 4. Query inputs remain unchanged, and a negative prediction is refused rather
  *    than measured.
- *
  */
 export async function test_unit_engine_physics_prepare_physical_geometry_boundary(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();

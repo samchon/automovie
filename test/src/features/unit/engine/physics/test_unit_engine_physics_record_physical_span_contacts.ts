@@ -33,7 +33,6 @@ const SUBSTEPS: number = 32;
  *    swings it receives no sample.
  * 3. Wrench: every recorded support wrench asks and is allocated the weight up,
  *    with no residual.
- *
  */
 export function test_unit_engine_physics_record_physical_span_contacts(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

@@ -29,7 +29,6 @@ import { nclose } from "../../../internal/predicates";
  *    plane equality.
  * 3. Invalid endpoint or patch declarations refuse without mutating the borrowed
  *    profile, goals or poses.
- *
  */
 export async function test_unit_engine_physics_physical_contact_support_rows(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere(0.1);

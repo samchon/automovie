@@ -30,7 +30,6 @@ import { nclose } from "../../../internal/nclose";
  *    region, recovering; a second check, recovering, moves nothing; nor does
  *    one with 0.05 s left, nor one with a small error, which counts toward
  *    safe.
- *
  */
 export function test_unit_engine_physics_physical_push_recovery(): void {
   const box = (

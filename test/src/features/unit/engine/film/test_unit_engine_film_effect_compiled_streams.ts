@@ -13,6 +13,7 @@ import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
 import { filmEffectWorld } from "../../../internal/filmEffectWorld";
 import { filmEffectZone } from "../../../internal/filmEffectZone";
 import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
+import { shotContractFixture } from "../../../internal/shotContractFixture";
 
 /**
  * Effect streams preserve their owner protocol, ordered cue identity and independent input data.
@@ -29,9 +30,7 @@ import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Materialize sorted cues, skip unresolved zones/recipes and preserve optional events.).
  */
 export function test_unit_engine_film_effect_compiled_streams(): void {
-  const contract: IAutoMovieShotContract = {
-    id: "shot-1",
-  } as IAutoMovieShotContract;
+  const contract: IAutoMovieShotContract = shotContractFixture("shot-1");
   const world: IAutoMovieWorldDesign = {
     ...filmEffectWorld(),
     effectZones: [
@@ -82,14 +81,14 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
           id: string;
           zone: string;
           kind: IAutoMovieCompiledEffect["kind"];
-          event: string | null | undefined;
+          event: string | null;
           window: number[];
           step: number;
         } => ({
           id: stream.id,
           zone: stream.zone,
           kind: stream.kind,
-          event: "event" in stream ? stream.event : null,
+          event: stream.event ?? null,
           window: [stream.start, stream.end],
           step: stream.fixedStepSeconds,
         }),
@@ -98,7 +97,7 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
         {
           id: "a",
           zone: "yard",
-          kind: "fog" as const,
+          kind: "fog",
           event: "door-opens",
           window: [0, 1],
           step: 1 / 30,
@@ -106,7 +105,7 @@ export function test_unit_engine_film_effect_compiled_streams(): void {
         {
           id: "b",
           zone: "gate",
-          kind: "fog" as const,
+          kind: "fog",
           event: null,
           window: [1, 2],
           step: 1 / 30,

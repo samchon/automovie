@@ -5,14 +5,19 @@ import {
 import type { IAutoMovieVector3 as V } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Actual-point support allocation retains force/moment feasibility and reports impossible demand.
+/**
+ * Actual-point support allocation retains force/moment feasibility and reports
+ * impossible demand.
  *
  * Scenarios:
- * 1. Two finite patches and four point supports carry a neutral load with feasible per-support CoP.
- * 2. Horizontal force and yaw demand are realized together, within unilateral Coulomb friction.
- * 3. Diagonal demand cannot exploit the corners of a circumscribed friction box.
- * 4. Pulling, point-contact yaw and unsupported flight retain explicit wrench residuals.
  *
+ * 1. Two finite patches and four point supports carry a neutral load with feasible
+ *    per-support CoP.
+ * 2. Horizontal force and yaw demand are realized together, within unilateral
+ *    Coulomb friction.
+ * 3. Diagonal demand cannot exploit the corners of a circumscribed friction box.
+ * 4. Pulling, point-contact yaw and unsupported flight retain explicit wrench
+ *    residuals.
  */
 export function test_unit_engine_physics_distribute_physical_support_wrench(): void {
   const origin: V = { x: 0, y: 1, z: 0 };
@@ -180,7 +185,10 @@ export function test_unit_engine_physics_distribute_physical_support_wrench(): v
       flight.residual.torque.z === 3,
   );
 
-  /** Independently measure each returned contact, rather than trust an optimization status. */
+  /**
+   * Independently measure each returned contact, rather than trust an
+   * optimization status.
+   */
   function feasible(result: ReturnType<typeof distribute>): void {
     for (const point of result.forces)
       TestValidator.predicate(

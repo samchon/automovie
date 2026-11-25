@@ -9,10 +9,9 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * A ninety-degree frame exchanges two unequal world inertia axes. Two free
- * bodies have harmonic relative inertia, independently of segment labels.
- * A translating/rotating authored target supplies the same velocities at
+ * bodies have harmonic relative inertia, independently of segment labels. A
+ * translating/rotating authored target supplies the same velocities at
  * intermediate samples; a wrapped quaternion takes the short physical arc.
- *
  */
 export async function test_unit_engine_physics_physical_joint_inertia(): Promise<void> {
   const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({

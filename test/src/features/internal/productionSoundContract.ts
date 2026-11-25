@@ -1,4 +1,9 @@
-import type { IAutoMovieShotContract } from "@automovie/interface";
+import type {
+  IAutoMovieShotContract,
+  IAutoMovieShotEventContract,
+} from "@automovie/interface";
+
+import { shotContractFixture } from "./shotContractFixture";
 
 /**
  * Seven declared events over an actor, a formation and an instance set.
@@ -11,34 +16,36 @@ import type { IAutoMovieShotContract } from "@automovie/interface";
  * Execution: The existing owning entries call productionSoundContract during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
  */
 export function productionSoundContract(): IAutoMovieShotContract {
-  return {
-    id: "sound-shot",
-    events: [
-      ["contact", "actor"],
-      ["arrival", "formation"],
-      ["impact", "instances"],
-      ["break", "actor"],
-      ["reveal", "formation"],
-      ["transition", "actor"],
-      ["trimmed", "actor"],
-    ].map(
+  return shotContractFixture(
+    "sound-shot",
+    EVENTS.map(
       (
-        [id, subject]: string[],
+        [id, kind, subject]: [
+          string,
+          IAutoMovieShotEventContract["kind"],
+          string,
+        ],
         index: number,
-      ): {
-        id: string;
-        kind: string;
-        window: { from: number; to: number };
-        subjects: string[];
-        predicates: {}[];
-      } => ({
+      ): IAutoMovieShotEventContract => ({
         id,
-        kind:
-          id === "trimmed" ? "transition" : id === "impact" ? "contact" : id,
+        kind,
         window: { from: index * 0.25, to: index * 0.25 + 0.2 },
         subjects: id === "transition" ? ["actor", "formation"] : [subject],
-        predicates: [{}],
+        predicates: [],
       }),
     ),
-  } as IAutoMovieShotContract;
+  );
 }
+
+/** Each event's id, kind and subject, in declaration order. */
+const EVENTS: ReadonlyArray<
+  [string, IAutoMovieShotEventContract["kind"], string]
+> = [
+  ["contact", "contact", "actor"],
+  ["arrival", "arrival", "formation"],
+  ["impact", "contact", "instances"],
+  ["break", "break", "actor"],
+  ["reveal", "reveal", "formation"],
+  ["transition", "transition", "actor"],
+  ["trimmed", "transition", "actor"],
+];

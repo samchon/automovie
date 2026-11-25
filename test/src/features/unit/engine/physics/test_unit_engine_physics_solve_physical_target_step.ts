@@ -1,13 +1,14 @@
 import { solvePhysicalTargetStep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-/** A constrained coordinate cannot absorb the correction needed from a free one.
+/**
+ * A constrained coordinate cannot absorb the correction needed from a free one.
  *
  * Scenarios:
+ *
  * 1. Identical columns share a free update equally.
  * 2. A lower-bound column requesting outward travel is removed and re-solved.
  * 3. The corresponding upper-bound and all-fixed systems remain bounded.
- *
  */
 export function test_unit_engine_physics_solve_physical_target_step(): void {
   const solve: (error: number, minimum: number, maximum: number) => number[] = (

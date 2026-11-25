@@ -23,7 +23,6 @@ import { TestValidator } from "@nestia/e2e";
  *    soles, its forward axis perpendicular to the left-to-right vector with the
  *    left sole on its left; facing +x for soles side by side along z; and the
  *    fallback's axis for coincident soles.
- *
  */
 export function test_unit_engine_physics_physical_icp_planner_tools(): void {
   const tools = physicalIcpPlannerTools;

@@ -22,16 +22,15 @@ import { TestValidator } from "@nestia/e2e";
  * twist, a forearm, a hand and three phalanges of 25, 15 and 6.4 grams, hang
  * from a fixed base under gravity, every joint's motor reconfigured each
  * substep to hold its starting angles, as the world's tracking does. The
- * shoulder starts at chart angles (1.2, 0.9, 0.4), inside its box although
- * its independent twist coordinate of flexion reads past that end.
+ * shoulder starts at chart angles (1.2, 0.9, 0.4), inside its box although its
+ * independent twist coordinate of flexion reads past that end.
  *
  * Scenarios, one 1/120 s frame at 32 and at 64 substeps, read eight times:
  *
- * 1. The phalanges' largest angular speed agrees between the two substeps
- *    within a tenth at every reading.
+ * 1. The phalanges' largest angular speed agrees between the two substeps within a
+ *    tenth at every reading.
  * 2. Every joint's anchor gap stays under a micron and no larger at the finer
  *    substep.
- *
  */
 export function test_unit_engine_physics_xpbd_light_chain(): void {
   const coarse: IReading = frame(32);
@@ -40,11 +39,15 @@ export function test_unit_engine_physics_xpbd_light_chain(): void {
   coarse.spin.forEach((spin: number, i: number): void => {
     const other: number = fine.spin[i]!;
     if (Math.abs(spin - other) > 0.1 * Math.max(spin, other))
-      failures.push(`reading ${i}: the finger turns ${spin} rad/s at 32 substeps, ${other} at 64`);
+      failures.push(
+        `reading ${i}: the finger turns ${spin} rad/s at 32 substeps, ${other} at 64`,
+      );
     const gap: number = coarse.gap[i]!;
     const finer: number = fine.gap[i]!;
     if (!(gap < 1e-6) || !(finer < 1e-6) || !(finer <= gap))
-      failures.push(`reading ${i}: anchor gaps ${gap} m at 32 substeps, ${finer} m at 64`);
+      failures.push(
+        `reading ${i}: anchor gaps ${gap} m at 32 substeps, ${finer} m at 64`,
+      );
   });
   TestValidator.equals("light links converge with the substep", failures, []);
 }
@@ -123,7 +126,10 @@ function frame(substeps: number): IReading {
       length: 0.045,
       mass: 0.025,
       inertia: { x: 1e-6, y: 5e-6, z: 5e-6 },
-      axes: [axis("z", -1.57, 0.78, 1.5, 0.02), axis("y", -0.52, 0.52, 1.5, 0.02)],
+      axes: [
+        axis("z", -1.57, 0.78, 1.5, 0.02),
+        axis("y", -0.52, 0.52, 1.5, 0.02),
+      ],
       order: ["x", "y", "z"],
       turn: [0, 0.1, 0.2],
     },
@@ -154,7 +160,10 @@ function frame(substeps: number): IReading {
   world.timestep = 1 / (120 * substeps);
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const bodies: AutoMovieXpbdBody[] = [
-    world.createBody(false, { position: { x: 0, y: 0, z: 0 }, rotation: identity }),
+    world.createBody(false, {
+      position: { x: 0, y: 0, z: 0 },
+      rotation: identity,
+    }),
   ];
   const joints: {
     joint: IAutoMoviePhysicalJoint;
@@ -169,11 +178,13 @@ function frame(substeps: number): IReading {
       link.order,
       link.turn,
     );
-    const pose: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } =
-      {
-        position: physicalSupportPoint(parent, { x: reach, y: 0, z: 0 }),
-        rotation: Quaternion.multiply(parent.rotation, relative),
-      };
+    const pose: {
+      position: IAutoMovieVector3;
+      rotation: IAutoMovieQuaternion;
+    } = {
+      position: physicalSupportPoint(parent, { x: reach, y: 0, z: 0 }),
+      rotation: Quaternion.multiply(parent.rotation, relative),
+    };
     const body: AutoMovieXpbdBody = world.createBody(true, pose);
     body.setMass(
       link.mass,
@@ -204,7 +215,9 @@ function frame(substeps: number): IReading {
     joints.forEach(({ joint, native, target }, index: number): void => {
       const above: AutoMovieXpbdBody = bodies[index]!;
       const below: AutoMovieXpbdBody = bodies[index + 1]!;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(above.rotation());
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        above.rotation(),
+      );
       configurePhysicalJointMotor({
         world,
         native,

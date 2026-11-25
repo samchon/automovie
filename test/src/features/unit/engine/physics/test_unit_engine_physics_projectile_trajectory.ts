@@ -21,15 +21,15 @@ const LANDING: number = 2e-3;
 
 /**
  * `projectileTrajectory` bakes a flight into a node clip of translation and
- * rotation keys, one per frame over the duration, endpoints included: the
- * keys are the constant-acceleration positions, and the rotation keeps the
- * model's +Z along the velocity so the projectile noses over.
+ * rotation keys, one per frame over the duration, endpoints included: the keys
+ * are the constant-acceleration positions, and the rotation keeps the model's
+ * +Z along the velocity so the projectile noses over.
  *
  * Scenarios, from (0, 1, 0) at (5, 8, 2) m/s under -9.81 m/s^2:
  *
- * 1. Over 1 s at 30 fps the clip has a translation and a rotation track of 31
- *    keys closing on 1 s; at frame-aligned 0, 0.3, 2/3 and 1 s the position is
- *    `(5 t, 1 + 8 t - 9.81 t^2 / 2, 2 t)`.
+ * 1. Over 1 s at 30 fps the clip has a translation and a rotation track of 31 keys
+ *    closing on 1 s; at frame-aligned 0, 0.3, 2/3 and 1 s the position is `(5
+ *    t, 1 + 8 t - 9.81 t^2 / 2, 2 t)`.
  * 2. At the apex, `8 / 9.81` s, the nose is level; by 1 s it points down.
  * 3. A solved launch from (0, 1.6, 0) at 16 m/s onto (12, 1.2, 4), baked at 60
  *    fps, ends on the target.
@@ -54,8 +54,9 @@ export function test_unit_engine_physics_projectile_trajectory(): void {
   );
   let keyed: boolean = nclose(clip.tracks[0]!.times[30]!, 1);
   for (const t of [0, 0.3, 20 / 30, 1]) {
-    const sampled: number[] = sampleClip(clip, t).get("node:arrow:translation")!
-      .value;
+    const sampled: number[] = sampleClip(clip, t).get(
+      "node:arrow:translation",
+    )!.value;
     keyed &&= vclose(
       { x: sampled[0]!, y: sampled[1]!, z: sampled[2]! },
       { x: 5 * t, y: 1 + 8 * t - (9.81 * t * t) / 2, z: 2 * t },

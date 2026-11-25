@@ -8,31 +8,31 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A tapered segment, a segment widened by a radius that runs linearly from
- * one end to the other, reads its signed distance to every shape kind as the
- * least over its points of the point's distance less the radius there.
+ * A tapered segment, a segment widened by a radius that runs linearly from one
+ * end to the other, reads its signed distance to every shape kind as the least
+ * over its points of the point's distance less the radius there.
  *
- * The geometry is plain and solved by hand. The segment runs along x from
- * x = -0.5 to 0.5 at height `h` above the origin, its radius falling from
- * `r0` at its first end to `r1` at its other, so the radius changes by `k =
- * r1 - r0` per metre. For a point at the origin, `s = 0.5` along the axis and
- * `h` from it, the least of `sqrt((s - u)^2 + h^2) - r0 - k u` over the axis
- * is `h sqrt(1 - k^2) - r0 - k s`, at `u = s + k h / sqrt(1 - k^2)` while
- * that lies on the axis.
+ * The geometry is plain and solved by hand. The segment runs along x from x =
+ * -0.5 to 0.5 at height `h` above the origin, its radius falling from `r0` at
+ * its first end to `r1` at its other, so the radius changes by `k = r1 - r0`
+ * per metre. For a point at the origin, `s = 0.5` along the axis and `h` from
+ * it, the least of `sqrt((s - u)^2 + h^2) - r0 - k u` over the axis is `h
+ * sqrt(1 - k^2) - r0 - k s`, at `u = s + k h / sqrt(1 - k^2)` while that lies
+ * on the axis.
  *
  * Scenarios:
- * 1. Against a sphere of radius 0.05 m at the origin, with `h = 0.3`, `r0 =
- *    0.1` and `r1 = 0`: `0.3 sqrt(0.99) - 0.1 + 0.05 - 0.05 = 0.19849...` m,
- *    to 1e-9, where the bare segment reads 0.25 m; the reported segment point
- *    is the closed form's `u`, to 1e-6.
- * 2. A capsule along z through the origin reads the sphere's value, since
- *    the segment lies in its circular section. A box and a hull of the same
- *    0.05 m half extents are nearest along their top face's edge at x =
- *    -0.05, where the radius is largest: the same closed form about that
- *    edge, `s = 0.45` and `h - 0.05` from it.
- * 3. A taper of one radius on both ends reads the bare distance less that
- *    radius on every kind, to 1e-9.
  *
+ * 1. Against a sphere of radius 0.05 m at the origin, with `h = 0.3`, `r0 = 0.1`
+ *    and `r1 = 0`: `0.3 sqrt(0.99) - 0.1 + 0.05 - 0.05 = 0.19849...` m, to
+ *    1e-9, where the bare segment reads 0.25 m; the reported segment point is
+ *    the closed form's `u`, to 1e-6.
+ * 2. A capsule along z through the origin reads the sphere's value, since the
+ *    segment lies in its circular section. A box and a hull of the same 0.05 m
+ *    half extents are nearest along their top face's edge at x = -0.05, where
+ *    the radius is largest: the same closed form about that edge, `s = 0.45`
+ *    and `h - 0.05` from it.
+ * 3. A taper of one radius on both ends reads the bare distance less that radius
+ *    on every kind, to 1e-9.
  */
 export function test_unit_engine_physics_physical_shape_nearest(): void {
   const still: IAutoMovieRigidTransform = {

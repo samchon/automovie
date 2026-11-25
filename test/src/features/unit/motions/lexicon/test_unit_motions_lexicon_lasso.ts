@@ -13,8 +13,8 @@ import { throwsError } from "../../../internal/throwsError";
  * Scenarios:
  *
  * 1. Three swings with no flight given fly 0.8 s.
- * 2. With a 0.3 m upper arm and a 0.26 m forearm the wrist stands
- *    `sqrt(0.09 + 0.0676 + 0.078)` m from the shoulder.
+ * 2. With a 0.3 m upper arm and a 0.26 m forearm the wrist stands `sqrt(0.09 +
+ *    0.0676 + 0.078)` m from the shoulder.
  * 3. No swing, or a dally of half a turn, is refused.
  */
 export function test_unit_motions_lexicon_lasso(): void {

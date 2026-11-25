@@ -26,7 +26,6 @@ import { TestValidator } from "@nestia/e2e";
  *   joint with a swing-twist limit stays inside its cone.
  * - Two runs of the same scene give identical snapshot bytes, and a run restored
  *   from a mid-run snapshot ends bit for bit where the uninterrupted run ends.
- *
  */
 export async function test_unit_engine_physics_xpbd_world(): Promise<void> {
   const findings: string[] = [];

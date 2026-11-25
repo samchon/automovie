@@ -53,7 +53,8 @@ export function test_unit_engine_geometry_sweep_rig_parameter_admission(): void 
       preserveVolume: false,
     });
   };
-  const weights: number[] = [0.2, 0.2, 0.1, 0.1];
+  const weights: readonly [number, number, number, number] = [0.2, 0.2, 0.1, 0.1];
+  const extreme: readonly [number, number, number, number] = [Number.MIN_VALUE, Number.MAX_VALUE, 0, 0];
   const unrepresentable: string = "scaled parameter sweep sample is not representable";
 
   // 1.
@@ -92,7 +93,7 @@ export function test_unit_engine_geometry_sweep_rig_parameter_admission(): void 
   TestValidator.predicate(
     "weight refused",
     throwsError(
-      (): unknown => make(1).sample(0.5, 0.125, [Number.MIN_VALUE, Number.MAX_VALUE, 0, 0]),
+      (): unknown => make(1).sample(0.5, 0.125, extreme),
       "parameter sweep cell weight is not representable",
     ),
   );

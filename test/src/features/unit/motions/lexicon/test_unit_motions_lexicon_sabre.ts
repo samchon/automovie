@@ -10,8 +10,8 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. A 4 s carry charging at 3 s over 0.4 s cues the charge at 0.75 and the
- *    engage at 0.85; a carry without a charge has no cue.
+ * 1. A 4 s carry charging at 3 s over 0.4 s cues the charge at 0.75 and the engage
+ *    at 0.85; a carry without a charge has no cue.
  * 2. A transition longer than the stride, or a carry of no length, is refused.
  */
 export function test_unit_motions_lexicon_sabre(): void {

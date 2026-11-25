@@ -28,7 +28,6 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Released: during a hip strategy about x, the hip turns back a pelvis's roll
  *    but leaves its pitch, and asks its own spin along x (design-4017-edge,
  *    E2).
- *
  */
 export function test_unit_engine_physics_physical_stance_joint_target(): void {
   const findings: string[] = [];
@@ -228,7 +227,9 @@ export function test_unit_engine_physics_physical_stance_joint_target(): void {
     !(Math.abs(asked.y) < 1e-9) ||
     !(Math.abs(asked.z) < 1e-9)
   )
-    findings.push(`a hip released about x asks the spin ${JSON.stringify(asked)}`);
+    findings.push(
+      `a hip released about x asks the spin ${JSON.stringify(asked)}`,
+    );
 
   TestValidator.equals("stance joint targets", findings, []);
 }

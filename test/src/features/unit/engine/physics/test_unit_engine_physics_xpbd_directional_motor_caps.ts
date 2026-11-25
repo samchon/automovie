@@ -34,7 +34,6 @@ import { TestValidator } from "@nestia/e2e";
  *    task with the axis past the weak bound while a level-two motion row pulls
  *    it the weak way; the same program with both caps at the weak bound stops
  *    at it.
- *
  */
 export function test_unit_engine_physics_xpbd_directional_motor_caps(): void {
   const findings: string[] = [];

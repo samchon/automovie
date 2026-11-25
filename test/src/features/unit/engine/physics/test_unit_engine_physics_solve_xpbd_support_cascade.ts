@@ -24,7 +24,6 @@ import { TestValidator } from "@nestia/e2e";
  *    the edge x = 0.1, 0 and 10; four feet at (+-0.1, +-0.2) with the point at
  *    (0.05, 0.05) share 4.375, 3.125, 1.875 and 0.625, and with it on the edge
  *    x = 0.1, 5, 5, 0 and 0.
- *
  */
 export function test_unit_engine_physics_solve_xpbd_support_cascade(): void {
   const failures: string[] = [];

@@ -47,7 +47,6 @@ import { nclose } from "../../../internal/nclose";
  *    shared-resolver clearance certificates throw.
  * 6. A box in a fixed frame departs by its supporting plane and is met again at
  *    2v/g; the same box read through an opaque pose keeps the contact.
- *
  */
 export function test_unit_engine_physics_projectile_first_contact_departure(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

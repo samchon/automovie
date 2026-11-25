@@ -33,7 +33,6 @@ import { vclose } from "../../../internal/vclose";
  *    of its first step and falls below it by 0.75 although its velocity at 0.15
  *    is upward, so a plane through its phase-0.15 point keeps that resolved
  *    initial contact.
- *
  */
 export function test_unit_engine_physics_projectile_first_contact(): void {
   const zero = { x: 0, y: 0, z: 0 };

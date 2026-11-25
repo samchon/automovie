@@ -17,13 +17,17 @@ import assert from "node:assert/strict";
 import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
 import { vclose } from "../../../internal/vclose";
 
-/** A contact point only has Jacobian columns on its actual carrier's ancestor path.
+/**
+ * A contact point only has Jacobian columns on its actual carrier's ancestor
+ * path.
  *
  * Scenarios:
- * 1. A point on the first of two hinges is invariant under the distal hinge.
- * 2. A distal point has both independently derived lever arms, with either virtual-work direction.
- * 3. A translated, rotated world and an independent 90-degree joint frame preserve the analytic local moments.
  *
+ * 1. A point on the first of two hinges is invariant under the distal hinge.
+ * 2. A distal point has both independently derived lever arms, with either
+ *    virtual-work direction.
+ * 3. A translated, rotated world and an independent 90-degree joint frame preserve
+ *    the analytic local moments.
  */
 export async function test_unit_engine_physics_accumulate_physical_contact_carrier(): Promise<void> {
   const profile: P = PhysicalPointFixtures.profile();

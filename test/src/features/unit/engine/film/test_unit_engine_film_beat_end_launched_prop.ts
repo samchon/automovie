@@ -4,6 +4,7 @@ import {
   IAutoMovieClip,
   IAutoMovieScene,
   IAutoMovieShot,
+  IAutoMovieTrack,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -34,40 +35,33 @@ const drives: (
   times: number[],
   points: IAutoMovieVector3[],
   rotation: boolean = true,
-): IAutoMovieClip => ({
-  id,
-  name: null,
-  // The launch pass stretches its clip over the whole shot, so a sample past
-  // contact clamps to the landed value rather than falling off the clip.
-  duration: 5,
-  loop: false,
-  tracks: [
-    {
-      channel: { kind: "node", node: "stone", path: "translation" },
-      times,
-      values: points.flatMap((point: IAutoMovieVector3): number[] => [
-        point.x,
-        point.y,
-        point.z,
-      ]),
-      interpolation: "linear",
-    },
-    ...(rotation
-      ? [
-          {
-            channel: {
-              kind: "node",
-              node: "stone",
-              path: "rotation",
-            },
-            times,
-            values: times.flatMap((): number[] => [0, 0, 0, 1]),
-            interpolation: "linear",
-          },
-        ]
-      : []),
-  ],
-});
+): IAutoMovieClip => {
+  const translation: IAutoMovieTrack = {
+    channel: { kind: "node", node: "stone", path: "translation" },
+    times,
+    values: points.flatMap((point: IAutoMovieVector3): number[] => [
+      point.x,
+      point.y,
+      point.z,
+    ]),
+    interpolation: "linear",
+  };
+  const upright: IAutoMovieTrack = {
+    channel: { kind: "node", node: "stone", path: "rotation" },
+    times,
+    values: times.flatMap((): number[] => [0, 0, 0, 1]),
+    interpolation: "linear",
+  };
+  return {
+    id,
+    name: null,
+    // The launch pass stretches its clip over the whole shot, so a sample past
+    // contact clamps to the landed value rather than falling off the clip.
+    duration: 5,
+    loop: false,
+    tracks: rotation ? [translation, upright] : [translation],
+  };
+};
 
 /** Authored attachment-shaped tracks holding the hand point until release. */
 const HELD: IAutoMovieClip = drives("attach:stone", [0, RELEASE], [HAND, HAND]);

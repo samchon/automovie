@@ -8,13 +8,18 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Impact consumers keep solver and geometric receipts distinguishable.
+/**
+ * Impact consumers keep solver and geometric receipts distinguishable.
  *
  * Scenarios:
- * 1. A solver receipt drives effects and surface marks by its measured impulse, ignoring a conflicting formula estimate under its id.
- * 2. A geometric receipt has no impulse authority: both consumers refuse it without an explicit formula estimate and use exactly that estimate when supplied.
- * 3. A geometric receipt that asserts a solved impulse or completed solver samples is refused by both consumers.
  *
+ * 1. A solver receipt drives effects and surface marks by its measured impulse,
+ *    ignoring a conflicting formula estimate under its id.
+ * 2. A geometric receipt has no impulse authority: both consumers refuse it
+ *    without an explicit formula estimate and use exactly that estimate when
+ *    supplied.
+ * 3. A geometric receipt that asserts a solved impulse or completed solver samples
+ *    is refused by both consumers.
  */
 export function test_unit_engine_physics_sample_contact_surface_response(): void {
   const solver: IAutoMovieContactReceipt = receipt("hit", "solver", 2);
@@ -80,8 +85,7 @@ export function test_unit_engine_physics_sample_contact_surface_response(): void
       actual === "refused" || expected === "refused"
         ? actual === expected
         : Math.abs(actual - expected) <= 1e-12;
-    if (!same)
-      findings.push(`${label}: ${actual} instead of ${expected}`);
+    if (!same) findings.push(`${label}: ${actual} instead of ${expected}`);
   }
 
   /** Particle burst of the single effect, or a refusal. */

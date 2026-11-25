@@ -41,7 +41,6 @@ import { nclose } from "../../../internal/nclose";
  *    1 m/s onto a surface rising at 2 m/s leaves at 2
  *
  *    - 0.5 * 3 = 3.5 m/s.
- *
  */
 export function test_unit_engine_physics_projectile_continue_bounce(): void {
   const ground: IAutoMovieProjectileFirstContact.ICollider =

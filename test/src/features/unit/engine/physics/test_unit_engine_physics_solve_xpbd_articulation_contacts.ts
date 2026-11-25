@@ -89,19 +89,19 @@ function patch(
 
 /**
  * `solveXpbdArticulationContacts` and the support cascade it feeds
- * (`solveXpbdSupportCascade`): the room an entering foot's bound leaves, and the
- * cascade's levels, the wrench above the posture's motion, each kept feasible
- * as nearly as it can be.
+ * (`solveXpbdSupportCascade`): the room an entering foot's bound leaves, and
+ * the cascade's levels, the wrench above the posture's motion, each kept
+ * feasible as nearly as it can be.
  *
  * Scenarios:
  *
  * 1. A landing foot whose 3 N s impact exceeds its bound of 100 N over 1/480 s:
  *    asked 0 or 2 N s, the normal row adds nothing and never takes the impact
  *    back.
- * 2. A patch of friction 0.5 asked 8 N s normally, twice its 4 N s bound, and 10
- *    N s tangentially gets its bound and its cone's edge, 2 N s.
- * 3. One normal row carrying two axes' impulses, `lambda = tau_a + tau_b`, asked
- *    5 N s, with a motion row asking `tau_a - tau_b = 1`: `tau_a = 3` and `tau_b
+ * 2. A patch of friction 0.5 asked 8 N s normally, twice its 4 N s bound, and 10 N
+ *    s tangentially gets its bound and its cone's edge, 2 N s.
+ * 3. One normal row carrying two axes' impulses, `lambda = tau_a + tau_b`, asked 5
+ *    N s, with a motion row asking `tau_a - tau_b = 1`: `tau_a = 3` and `tau_b
  *    = 2` (Herzog et al. 2016).
  * 4. The same hold 10 N s short of rest with caps of 2 N s: both axes at their
  *    caps and the floor pulling nothing, the nearest feasible point (Escande,

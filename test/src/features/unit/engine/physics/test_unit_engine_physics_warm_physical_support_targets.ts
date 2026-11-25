@@ -19,14 +19,32 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
 import { vclose } from "../../../internal/vclose";
 
-/** A warm support seed keeps the previous fit's task-space choice while its support-task null space returns to the authored posture.
+/**
+ * A warm support seed keeps the previous fit's task-space choice while its
+ * support-task null space returns to the authored posture.
  *
  * Scenarios:
- * 1. Null-space carry: a bent-knee four-support leg whose previous fit hides an x-axis zig-zag that leaves the endpoint fixed to first order: the cross product of the endpoint's y and z rows over the hip, knee and ankle pivots read from the fixture's joint anchors, so the analytic null direction is independent of the solver, scaled to α at its largest. The seed returns to the authored coordinates. Red: a seed that transports the whole previous correction keeps an offset of order α.
- * 2. Task-space carry: a previous hip rotation that moves the endpoint keeps that endpoint within the fit's 1 mm tolerance, the budget the returned directions' linearized effects may spend, while the seed differs from the previous fit because the hip rotation's null component returns. Red: projecting the whole difference to authored moves the endpoint by about 1.8 mm.
- * 3. Non-redundant carry: when only the hip's two coordinates are fitted, no null space exists and a task-moving previous hip rotation is retained exactly, preserving the chosen bend branch.
- * 4. Tolerance budget: a 0.5 mrad previous hip rotation moves the endpoint by about 0.48 mm, within the fit's 1 mm tolerance, so returning it is cheaper than the fit already accepts and the seed returns fully to authored. Red: a rank cutoff keeps it because its singular value is large.
  *
+ * 1. Null-space carry: a bent-knee four-support leg whose previous fit hides an
+ *    x-axis zig-zag that leaves the endpoint fixed to first order: the cross
+ *    product of the endpoint's y and z rows over the hip, knee and ankle pivots
+ *    read from the fixture's joint anchors, so the analytic null direction is
+ *    independent of the solver, scaled to α at its largest. The seed returns to
+ *    the authored coordinates. Red: a seed that transports the whole previous
+ *    correction keeps an offset of order α.
+ * 2. Task-space carry: a previous hip rotation that moves the endpoint keeps that
+ *    endpoint within the fit's 1 mm tolerance, the budget the returned
+ *    directions' linearized effects may spend, while the seed differs from the
+ *    previous fit because the hip rotation's null component returns. Red:
+ *    projecting the whole difference to authored moves the endpoint by about
+ *    1.8 mm.
+ * 3. Non-redundant carry: when only the hip's two coordinates are fitted, no null
+ *    space exists and a task-moving previous hip rotation is retained exactly,
+ *    preserving the chosen bend branch.
+ * 4. Tolerance budget: a 0.5 mrad previous hip rotation moves the endpoint by
+ *    about 0.48 mm, within the fit's 1 mm tolerance, so returning it is cheaper
+ *    than the fit already accepts and the seed returns fully to authored. Red:
+ *    a rank cutoff keeps it because its singular value is large.
  */
 export function test_unit_engine_physics_warm_physical_support_targets(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
@@ -192,7 +210,10 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
     });
   }
 
-  /** Authored neutral with the given x-axis twist coordinates, applied parent-first. */
+  /**
+   * Authored neutral with the given x-axis twist coordinates, applied
+   * parent-first.
+   */
   function pose(
     angles: Readonly<Record<string, number>>,
   ): Record<string, IAutoMovieRigidTransform> {

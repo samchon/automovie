@@ -9,11 +9,12 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Physical geometry behavior.
+/**
+ * Physical geometry behavior.
  *
  * Scenarios:
- * 1. Exercise actual public inputs and compare physical quantities.
  *
+ * 1. Exercise actual public inputs and compare physical quantities.
  */
 export async function test_unit_engine_physics_prepare_physical_geometry_layers(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();

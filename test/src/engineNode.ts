@@ -1,14 +1,14 @@
 import { test_engine_node_clock } from "./features/engine/test_engine_node_clock";
-import { test_geometry_quadratic_program } from "./features/geometry/test_geometry_quadratic_program";
-import { test_geometry_quadratic_workspace } from "./features/geometry/test_geometry_quadratic_workspace";
+import { test_unit_engine_geometry_quadratic_memory } from "./features/unit/engine/geometry/test_unit_engine_geometry_quadratic_memory";
+import { test_unit_engine_geometry_quadratic_program } from "./features/unit/engine/geometry/test_unit_engine_geometry_quadratic_program";
 
 /** Collect the public clock and actual reactor results under Node-only libraries. */
 function main(): void {
   const failures: string[] = [];
   for (const run of [
     test_engine_node_clock,
-    test_geometry_quadratic_workspace,
-    test_geometry_quadratic_program,
+    test_unit_engine_geometry_quadratic_memory,
+    test_unit_engine_geometry_quadratic_program,
   ]) {
     try {
       run();

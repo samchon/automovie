@@ -18,15 +18,24 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
-/** A whole body held on one support reaches a goal its free limb alone cannot, inside every ROM and without moving the contact.
+/**
+ * A whole body held on one support reaches a goal its free limb alone cannot,
+ * inside every ROM and without moving the contact.
  *
  * Scenarios:
- * 1. Rerooting inverts exactly the joints on the path to the held segment and mirrors their ranges; other joints are shared unchanged.
- * 2. The polygon man's right ankle cannot reach a goal 1.35 m high and 0.55 m ahead by its own leg: hip flexion stops at 120 degrees, 133 degrees away from straight down.
- * 3. Holding the left ankle and freeing the left leg and trunk, the pelvis tilts and the same goal is reached within 5 mm.
- * 4. Every original joint stays inside its declared ROM, its anchors coincide, and the held contact point does not move.
- * 5. A declared shin approach turns the shin toward it, and the report splits the point and approach residuals; the fit is local, so a weighted approach trades point error for direction.
  *
+ * 1. Rerooting inverts exactly the joints on the path to the held segment and
+ *    mirrors their ranges; other joints are shared unchanged.
+ * 2. The polygon man's right ankle cannot reach a goal 1.35 m high and 0.55 m
+ *    ahead by its own leg: hip flexion stops at 120 degrees, 133 degrees away
+ *    from straight down.
+ * 3. Holding the left ankle and freeing the left leg and trunk, the pelvis tilts
+ *    and the same goal is reached within 5 mm.
+ * 4. Every original joint stays inside its declared ROM, its anchors coincide, and
+ *    the held contact point does not move.
+ * 5. A declared shin approach turns the shin toward it, and the report splits the
+ *    point and approach residuals; the fit is local, so a weighted approach
+ *    trades point error for direction.
  */
 export function test_unit_engine_physics_fit_physical_whole_body_target(): void {
   const { profile } = PhysicalModelFixtures.stickman();

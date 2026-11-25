@@ -35,7 +35,6 @@ import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
  *    20: the open episode with its end and its samples at 20 only.
  * 3. The controller record restored at 20 holds the open pair, the softened
  *    tracking, the release set and the recovery plan as they stood at 20.
- *
  */
 export function test_unit_engine_physics_capture_physical_simulation_checkpoint(): void {
   const input: IAutoMoviePhysicalSimulationInput.IInput =

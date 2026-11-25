@@ -28,7 +28,12 @@ function v(x: number, y: number, z: number): IAutoMovieVector3 {
  */
 export function test_unit_engine_physics_segment_sphere(): void {
   const center: IAutoMovieVector3 = v(5, 0, 0);
-  const entry: number | null = segmentSphere(v(0, 0, 0), v(10, 0, 0), center, 1);
+  const entry: number | null = segmentSphere(
+    v(0, 0, 0),
+    v(10, 0, 0),
+    center,
+    1,
+  );
   TestValidator.predicate(
     "the entry",
     entry !== null && Math.abs(entry - 0.4) <= ROUNDING,

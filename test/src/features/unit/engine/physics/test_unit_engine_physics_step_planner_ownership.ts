@@ -5,13 +5,14 @@ import { TestValidator } from "@nestia/e2e";
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
 
-/** Precomputed schedules own their policy and public records.
+/**
+ * Precomputed schedules own their policy and public records.
  *
  * Scenarios:
+ *
  * 1. Caller edits to height and exposed step records do not change queries.
  * 2. Zero declared pitch stays zero; a supplied peak is retained exactly.
  * 3. Reordered reads preserve both planted and swinging samples.
- *
  */
 export function test_unit_engine_physics_step_planner_ownership(): void {
   const pattern: IAutoMovieStepPlanner.IInput["pattern"] =

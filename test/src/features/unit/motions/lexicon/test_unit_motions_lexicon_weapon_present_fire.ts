@@ -5,9 +5,9 @@ import { TestValidator } from "@nestia/e2e";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * The `HumanWeaponPresentFire` law's recoil (`humanWeaponFireRecoil`): the
- * held hand turns about the horizontal axis square to the bore, the muzzle
- * rising by the shot's rise; a vertical bore rises about the tool's own side.
+ * The `HumanWeaponPresentFire` law's recoil (`humanWeaponFireRecoil`): the held
+ * hand turns about the horizontal axis square to the bore, the muzzle rising by
+ * the shot's rise; a vertical bore rises about the tool's own side.
  *
  * Scenarios:
  *

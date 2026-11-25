@@ -19,7 +19,6 @@ import { TestValidator } from "@nestia/e2e";
  *    h / T^2 at mid-swing, and its acceleration peaks at
  *    `AutoMoviePhysicalBalance.CLEARANCE` h / T^2 at lift-off.
  * 4. Before and after the swing the acceleration is zero.
- *
  */
 export function test_unit_engine_physics_sample_physical_recovery_goal(): void {
   const failures: string[] = [];

@@ -25,7 +25,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Two bodies give each body's marks under its own id, body by body.
  * 3. A frame that lacks a segment the profile names is refused naming the body and
  *    the bone.
- *
  */
 export function test_unit_engine_physics_mark_skeleton(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

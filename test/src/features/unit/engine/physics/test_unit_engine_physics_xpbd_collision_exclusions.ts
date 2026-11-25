@@ -23,19 +23,19 @@ import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 /** Twelve fixed steps. */
 const DURATION: number = 0.1;
 
-/** Declared overlapping pivot neighbours exert no spurious self-contact impulse.
+/**
+ * Declared overlapping pivot neighbours exert no spurious self-contact impulse.
  *
  * Scenarios:
- * 1. Two nonadjacent overlapping spheres on free hinges remain at zero-load rest when excluded.
- * 2. Removing only that exclusion produces an actual contact-driven displacement.
- * 3. A late external impulse resumes with the same exclusion and bit-identical frames.
- * 4. Real colliders exercise both argument orders of the world's pair filter, which serves contact response and sensor overlaps alike, and the public lookup reads a later mutable declaration.
  *
- * @evidence contracts/development/testing.md#behavioral-verification The simulation observes the explicit exclusion, the resulting displacement when allowed and exact states after prefix restoration. A real temporary binding exercises the returned pair filter on its own colliders.
- * @evidence contracts/development/testing.md#independent-expectations The declared profile adjacency, exclusion and ownership rules give the expected verdict for both orders; none of those expectations call the filter's own table. Rest drift and stimulated displacement have independent numeric bounds.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers same-bone shapes, adjacent, declared and undeclared pairs, matching names across two bodies, the floor, a collider the binding never created and a later declaration observed by the unprepared caller.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_collision_exclusions`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Describes the overlap, late-edit and pair-filter cases and the expected isolation.
+ * 1. Two nonadjacent overlapping spheres on free hinges remain at zero-load rest
+ *    when excluded.
+ * 2. Removing only that exclusion produces an actual contact-driven displacement.
+ * 3. A late external impulse resumes with the same exclusion and bit-identical
+ *    frames.
+ * 4. Real colliders exercise both argument orders of the world's pair filter,
+ *    which serves contact response and sensor overlaps alike, and the public
+ *    lookup reads a later mutable declaration.
  */
 export async function test_unit_engine_physics_xpbd_collision_exclusions(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();
@@ -149,8 +149,8 @@ export async function test_unit_engine_physics_xpbd_collision_exclusions(): Prom
 }
 
 /**
- * Check the world's pair filter against explicit scope on real colliders,
- * in both argument orders. A collider the binding never created carries no
+ * Check the world's pair filter against explicit scope on real colliders, in
+ * both argument orders. A collider the binding never created carries no
  * policy.
  */
 function verifyHookScope(

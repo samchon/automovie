@@ -10,22 +10,22 @@ import { TestValidator } from "@nestia/e2e";
  * 0.9 m, omega = sqrt(9.81 / 0.9), the authored capture point at rest at the
  * origin, a 0.6 m step and a forward push of 1.2 m/s, xi0 = 1.2 / omega:
  *
- * 1. Purity: the two-step span sampled at 16 times in shuffled order gives
- *    exactly the samples in ascending order; before the push it gives the
- *    state at the push.
- * 2. One step, no reaction: with the centre of pressure on the stance foot's
- *    front edge p = 0.12 m, the capture point at the quickest swing's landing,
- *    p + (xi0 - p) e^(omega 0.15), lies within the reach, so one step captures.
- *    The branches are push, trigger at the push, touchdown, standing and end,
- *    and the footstep is viable.
+ * 1. Purity: the two-step span sampled at 16 times in shuffled order gives exactly
+ *    the samples in ascending order; before the push it gives the state at the
+ *    push.
+ * 2. One step, no reaction: with the centre of pressure on the stance foot's front
+ *    edge p = 0.12 m, the capture point at the quickest swing's landing, p +
+ *    (xi0 - p) e^(omega 0.15), lies within the reach, so one step captures. The
+ *    branches are push, trigger at the push, touchdown, standing and end, and
+ *    the footstep is viable.
  * 3. Two steps, a 0.1 s reaction: the pivot held on the front edge carries the
  *    capture point to p + (xi0 - p) e^(omega 0.1) by the trigger, and on to
  *    beyond the reach even at the quickest swing's landing, so one step cannot
- *    capture (Koolen et al., Eq. 25). The branches are push, trigger at the push
- *    plus the reaction, touchdown, standing, a second trigger, touchdown and
- *    standing, and end; never a third step.
- * 4. Timing, both spans: each touchdown follows its trigger by a swing within
- *    the reference's [0.15, 0.6] s (`WalkingSingleSupportState`), each standing
+ *    capture (Koolen et al., Eq. 25). The branches are push, trigger at the
+ *    push plus the reaction, touchdown, standing, a second trigger, touchdown
+ *    and standing, and end; never a third step.
+ * 4. Timing, both spans: each touchdown follows its trigger by a swing within the
+ *    reference's [0.15, 0.6] s (`WalkingSingleSupportState`), each standing
  *    comes at least the 0.25 s transfer after its touchdown, and the end 0.25 s
  *    after the last standing.
  * 5. Double support: the pivot is held (saturated) on the support and the capture
@@ -40,20 +40,18 @@ import { TestValidator } from "@nestia/e2e";
  *    the plan, takes no step: no trigger and no footstep.
  * 9. A 3 m/s push carries the capture point past the reach even at the quickest
  *    swing's landing: its footstep is not viable, a fall.
- * 10. At every sampled time the floor's reaction is the weight m g up and m
- *    omega^2 (c - cmp) across at the pivot (the linear inverted pendulum),
- *    shared among the planted feet summing to one, none on a swinging foot.
+ * 10. At every sampled time the floor's reaction is the weight m g up and m omega^2
+ *     (c - cmp) across at the pivot (the linear inverted pendulum), shared
+ *     among the planted feet summing to one, none on a swinging foot.
  * 11. Resume: the span prepared again from the same stored input gives the same
- *    samples bit for bit.
- * 12. Any number of contacts through one path: 2, 3, 4, 6 and 8 soles, 0.1 x
- *    0.06 m, on a 0.3 m ring (a 0.2 m pair for 2), each pushed three ways from
- *    rest with no reaction. 0.05 m/s holds with no step. A capture point 0.08
- *    m past the front edge, well within the 0.6 m reach, takes exactly one
- *    step: push, trigger, touchdown, standing, end. 3.5 m/s falls. Every span
- *    starts at the push, puts each touchdown straight after its trigger, runs
- *    in time order and joins its capture point and centre of mass across each
- *    branch.
- *
+ *     samples bit for bit.
+ * 12. Any number of contacts through one path: 2, 3, 4, 6 and 8 soles, 0.1 x 0.06
+ *     m, on a 0.3 m ring (a 0.2 m pair for 2), each pushed three ways from rest
+ *     with no reaction. 0.05 m/s holds with no step. A capture point 0.08 m
+ *     past the front edge, well within the 0.6 m reach, takes exactly one step:
+ *     push, trigger, touchdown, standing, end. 3.5 m/s falls. Every span starts
+ *     at the push, puts each touchdown straight after its trigger, runs in time
+ *     order and joins its capture point and centre of mass across each branch.
  */
 export function test_unit_engine_physics_prepare_physical_disturbance_span(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);
@@ -131,7 +129,10 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
   const shuffled: string[] = new Array(16);
   for (const i of times.map((_, k: number): number => (k * 7) % 16))
     shuffled[i] = JSON.stringify(two.sample(times[i]!));
-  check("shuffled samples", JSON.stringify(shuffled) === JSON.stringify(ascending));
+  check(
+    "shuffled samples",
+    JSON.stringify(shuffled) === JSON.stringify(ascending),
+  );
   check(
     "before the push",
     JSON.stringify(two.sample(t0 - 1)) === JSON.stringify(two.sample(t0)),
@@ -187,10 +188,14 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
       }
       if (branch.kind === "standing" && previous?.kind === "touchdown")
         if (!(branch.seconds >= previous.seconds + 0.25 - 1e-12))
-          timing.push(`${name}: standing ${branch.seconds - previous.seconds} s after touchdown`);
+          timing.push(
+            `${name}: standing ${branch.seconds - previous.seconds} s after touchdown`,
+          );
       if (branch.kind === "end" && previous?.kind === "standing")
         if (!close(branch.seconds, previous.seconds + 0.25, 1e-12))
-          timing.push(`${name}: end ${branch.seconds - previous.seconds} s after standing`);
+          timing.push(
+            `${name}: end ${branch.seconds - previous.seconds} s after standing`,
+          );
     });
   }
   failures.push(...timing);
@@ -252,7 +257,10 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
     // From the first time after the end that the pivot is free: once the
     // error has decayed enough for the unconstrained pivot to re-enter.
     let free: number = span.branches.at(-1)!.seconds;
-    while (span.sample(free).saturated && free < span.branches.at(-1)!.seconds + 2)
+    while (
+      span.sample(free).saturated &&
+      free < span.branches.at(-1)!.seconds + 2
+    )
       free += 0.05;
     const [a, b, c] = [0, 0.2, 0.4].map((t) => span.sample(free + t));
     const ratio: number =
@@ -307,14 +315,24 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
         : undefined;
     if (
       !close(r.force.y, MASS * 9.81, 1e-9) ||
-      !close(r.force.x, MASS * omega * omega * (sample.center.x - sample.pivot.x), 1e-6) ||
-      !close(r.force.z, MASS * omega * omega * (sample.center.z - sample.pivot.z), 1e-6) ||
+      !close(
+        r.force.x,
+        MASS * omega * omega * (sample.center.x - sample.pivot.x),
+        1e-6,
+      ) ||
+      !close(
+        r.force.z,
+        MASS * omega * omega * (sample.center.z - sample.pivot.z),
+        1e-6,
+      ) ||
       !close(r.point.x, sample.pivot.x, 1e-12) ||
       !close(r.point.z, sample.pivot.z, 1e-12) ||
       !close(shares, 1, 1e-9) ||
       (sample.phase === "single" && swinging === undefined)
     )
-      reactions.push(`${t.toFixed(3)} s ${sample.phase}: ${JSON.stringify({ r, loads: sample.loads })}`);
+      reactions.push(
+        `${t.toFixed(3)} s ${sample.phase}: ${JSON.stringify({ r, loads: sample.loads })}`,
+      );
   }
   failures.push(...reactions.slice(0, 6));
 
@@ -334,7 +352,8 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
       { length: count },
       (_, i: number): Span.IFoot => {
         const angle: number = (2 * Math.PI * (i + 0.5)) / count;
-        const x: number = count === 2 ? (i === 0 ? 0.1 : -0.1) : 0.3 * Math.cos(angle);
+        const x: number =
+          count === 2 ? (i === 0 ? 0.1 : -0.1) : 0.3 * Math.cos(angle);
         const z: number = count === 2 ? 0 : 0.3 * Math.sin(angle);
         return {
           bone: `contact-${i}`,

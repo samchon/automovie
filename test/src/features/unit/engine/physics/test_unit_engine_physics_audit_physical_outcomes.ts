@@ -6,8 +6,8 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A long episode cannot borrow a later impulse to fulfill an earlier screenplay contact or contradict an earlier deliberate miss.
- *
+ * A long episode cannot borrow a later impulse to fulfill an earlier screenplay
+ * contact or contradict an earlier deliberate miss.
  */
 export function test_unit_engine_physics_audit_physical_outcomes(): void {
   const receipt: Receipt = {

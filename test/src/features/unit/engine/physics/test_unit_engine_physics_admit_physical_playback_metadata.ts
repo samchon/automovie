@@ -21,7 +21,6 @@ import { TestValidator } from "@nestia/e2e";
  *
  * The allocation law itself belongs to `test_physical_support_wrench`, and
  * binary transport to `test_physical_playback_archive`.
- *
  */
 export function test_unit_engine_physics_admit_physical_playback_metadata(): void {
   const unsupported: IAutoMoviePhysicalSupportWrench = wrench(

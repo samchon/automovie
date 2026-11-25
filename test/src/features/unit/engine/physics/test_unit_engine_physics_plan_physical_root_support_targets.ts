@@ -9,8 +9,8 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
 
 /**
- * Actual-root feedback retains independently planted endpoints without moving the root or solved bodies.
- *
+ * Actual-root feedback retains independently planted endpoints without moving
+ * the root or solved bodies.
  */
 export function test_unit_engine_physics_plan_physical_root_support_targets(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

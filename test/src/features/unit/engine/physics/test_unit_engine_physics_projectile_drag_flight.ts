@@ -26,7 +26,6 @@ import { nclose } from "../../../internal/predicates";
  *    state and the first interval.
  * 4. Direct flight construction rejects nonfinite vector components and an
  *    overflowing drag factor.
- *
  */
 export function test_unit_engine_physics_projectile_drag_flight(): void {
   for (const zero of ["coefficient", "area", "density"] as const) {

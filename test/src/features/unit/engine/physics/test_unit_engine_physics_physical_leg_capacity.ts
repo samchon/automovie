@@ -25,7 +25,6 @@ import { TestValidator } from "@nestia/e2e";
  *    pressure a front edge at 0.4 (-0.2) + 0.6 (0.4) = 0.16; a command far
  *    ahead is allocated there, where the front foot's share is exactly 0.6,
  *    never more (MIT Cheetah-Software `maxForce`; Chen et al. 2022, `f_max`).
- *
  */
 export function test_unit_engine_physics_physical_leg_capacity(): void {
   const failures: string[] = [];

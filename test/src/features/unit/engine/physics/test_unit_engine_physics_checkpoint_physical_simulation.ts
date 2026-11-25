@@ -15,13 +15,14 @@ const COUNT: number = 30;
 
 /** Two tracked spheres over `count` intervals at 120 Hz, one work budget. */
 function workload(count: number): IAutoMoviePhysicalSimulationInput.IInput {
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    ["a", "b"].map(
-      (id: string): IAutoMoviePhysicalSimulationInput.IBody =>
-        PhysicalFixtures.body(id, PhysicalFixtures.sphere(), count / 120),
-    ),
-    count / 120,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      ["a", "b"].map(
+        (id: string): IAutoMoviePhysicalSimulationInput.IBody =>
+          PhysicalFixtures.body(id, PhysicalFixtures.sphere(), count / 120),
+      ),
+      count / 120,
+    );
   for (const body of input.bodies)
     for (const target of body.targets) target.strength = 1;
   input.substeps = 16;
@@ -51,7 +52,9 @@ function edit(
                   target: IAutoMoviePhysicalSimulationInput.ITarget,
                   at: number,
                 ): IAutoMoviePhysicalSimulationInput.ITarget =>
-                  at < step ? target : { ...target, strength: target.strength / 2 },
+                  at < step
+                    ? target
+                    : { ...target, strength: target.strength / 2 },
               ),
             },
     ),
@@ -59,8 +62,9 @@ function edit(
 }
 
 /**
- * A previous run's record written by hand: its input and an empty snapshot every
- * `every` intervals, of which only the steps are read; no world is built.
+ * A previous run's record written by hand: its input and an empty snapshot
+ * every `every` intervals, of which only the steps are read; no world is
+ * built.
  */
 function previous(
   input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -126,7 +130,10 @@ export function test_unit_engine_physics_checkpoint_physical_simulation(): void 
     [
       checkpointPhysicalSimulation(edit(original, 25)),
       checkpointPhysicalSimulation(edit(original, 25), stale),
-      checkpointPhysicalSimulation({ ...edit(original, 25), substeps: 8 }, tens),
+      checkpointPhysicalSimulation(
+        { ...edit(original, 25), substeps: 8 },
+        tens,
+      ),
       checkpointPhysicalSimulation(edit(original, 25), tens),
       checkpointPhysicalSimulation(edit(original, 20), tens),
       checkpointPhysicalSimulation(edit(original, 0), tens),

@@ -26,7 +26,6 @@ import { nclose } from "../../../internal/nclose";
  * 7. The square's rows hold its centre and exclude (3, 0); a point's rows hold
  *    only it.
  * 8. A frame facing world +z has its left along world +x, and maps back.
- *
  */
 export function test_unit_engine_physics_physical_planar_polygon(): void {
   const signed = (polygon: readonly Polygon.IPoint[]): number =>

@@ -13,12 +13,15 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
-/** A small geometric lever must continue improving until residual tolerance, independently of the size of one improvement.
+/**
+ * A small geometric lever must continue improving until residual tolerance,
+ * independently of the size of one improvement.
  *
  * Scenarios:
- * 1. A quarter-millimetre hinge endpoint reaches its admissible target within 0.1 mm.
- * 2. The original goals, fixed pivot and locked rotation axes remain unchanged.
  *
+ * 1. A quarter-millimetre hinge endpoint reaches its admissible target within 0.1
+ *    mm.
+ * 2. The original goals, fixed pivot and locked rotation axes remain unchanged.
  */
 export function test_unit_engine_physics_solve_physical_articulation_targets(): void {
   const segment: IAutoMoviePhysicalSegment =

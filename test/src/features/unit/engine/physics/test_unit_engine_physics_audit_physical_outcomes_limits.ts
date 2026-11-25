@@ -22,7 +22,6 @@ import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
  * 1. A genuine finite floor violation is independently observable.
  * 2. Negative tolerances, missing references and an inconsistent clock refuse.
  * 3. Negative fall tolerances and fall times refuse.
- *
  */
 export async function test_unit_engine_physics_audit_physical_outcomes_limits(): Promise<void> {
   const fixture: () => IAutoMovieMotionAudit.IInput =

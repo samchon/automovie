@@ -51,7 +51,6 @@ import { TestValidator } from "@nestia/e2e";
  * 7. A bound's room never goes below nothing: an impact the contact passes already
  *    gave past the bound is the floor's, not taken back through the other
  *    supports (Herzog et al. 2016, Section 5.3; unilateral contact).
- *
  */
 export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): void {
   const findings: string[] = [];

@@ -20,14 +20,16 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
-/** Native-coordinate target admission and geometry-derived support height.
+/**
+ * Native-coordinate target admission and geometry-derived support height.
  *
  * Scenarios:
+ *
  * 1. Combined rotations and separated authored anchors become an admitted tree.
  * 2. Multi-axis endpoint fitting preserves every free and locked coordinate.
- * 3. Two independent sole patches pitched up and four pitched down land at their actual box surfaces.
+ * 3. Two independent sole patches pitched up and four pitched down land at their
+ *    actual box surfaces.
  * 4. An unreachable endpoint retains a large residual and the root-drop budget.
- *
  */
 export function test_unit_engine_physics_measure_physical_joint_limits(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
@@ -237,7 +239,10 @@ export function test_unit_engine_physics_measure_physical_joint_limits(): void {
     );
   }
 
-  /** Independently measure all anchors and native coordinates after each operation. */
+  /**
+   * Independently measure all anchors and native coordinates after each
+   * operation.
+   */
   function inspect(targets: Record<string, IAutoMovieRigidTransform>): void {
     const failures: string[] = [];
     for (const joint of profile.joints) {

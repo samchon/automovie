@@ -33,7 +33,6 @@ const START: number = 20;
  *    with its samples up to 20; the later one is dropped.
  * 3. Support wrenches and diagnostics up to 20 / 120 s and the ownership changes
  *    the checkpoint counted are kept, the later ones dropped.
- *
  */
 export function test_unit_engine_physics_restore_physical_simulation_checkpoint(): void {
   const input: IAutoMoviePhysicalSimulationInput.IInput =

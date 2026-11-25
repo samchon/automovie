@@ -24,7 +24,6 @@ import { nclose } from "../../../internal/nclose";
  * 3. A footstep at (0.93, 0), whose full outline reaches x = 1.03 into the region
  *    but whose half outline ends at x = 0.98, moves.
  * 4. An empty region moves nothing.
- *
  */
 export function test_unit_engine_physics_physical_footstep_adjustor(): void {
   const region: Polygon.IPoint[] = Polygon.hull([

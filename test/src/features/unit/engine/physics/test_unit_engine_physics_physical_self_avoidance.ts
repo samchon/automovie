@@ -17,13 +17,17 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
-/** Profile-wide avoidance derives enabled pairs from geometry and the joint tree.
+/**
+ * Profile-wide avoidance derives enabled pairs from geometry and the joint
+ * tree.
  *
  * Scenarios:
- * 1. A folded primitive branch penetrates its trunk without any named part catalogue.
- * 2. Coupled fitting reduces that penetration while retaining the actual root.
- * 3. Direct neighbours and explicitly excluded overlapping pivot regions stay excluded.
  *
+ * 1. A folded primitive branch penetrates its trunk without any named part
+ *    catalogue.
+ * 2. Coupled fitting reduces that penetration while retaining the actual root.
+ * 3. Direct neighbours and explicitly excluded overlapping pivot regions stay
+ *    excluded.
  */
 export async function test_unit_engine_physics_physical_self_avoidance(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();

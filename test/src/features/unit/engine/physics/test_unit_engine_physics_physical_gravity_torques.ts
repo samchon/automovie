@@ -13,13 +13,17 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
-/** Actual posed subtree mass supplies gravitational feed-forward in the motor's frame.
+/**
+ * Actual posed subtree mass supplies gravitational feed-forward in the motor's
+ * frame.
  *
  * Scenarios:
- * 1. A one-kilogram link COM at half a metre plus a two-kilogram payload at one metre require 24.525 Nm.
- * 2. A 90 degree frame rotation maps that moment onto the declared local z axis.
- * 3. The fixed distal attachment contributes to its ancestor without a separate actuator.
  *
+ * 1. A one-kilogram link COM at half a metre plus a two-kilogram payload at one
+ *    metre require 24.525 Nm.
+ * 2. A 90 degree frame rotation maps that moment onto the declared local z axis.
+ * 3. The fixed distal attachment contributes to its ancestor without a separate
+ *    actuator.
  */
 export async function test_unit_engine_physics_physical_gravity_torques(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();

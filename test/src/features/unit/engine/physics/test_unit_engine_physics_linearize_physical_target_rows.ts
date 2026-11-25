@@ -31,7 +31,6 @@ type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
  * 2. A common rotation preserves self distance while changing world-axis and
  *    fixed-world-start rows; omitted, partial and unrelated movement
  *    declarations retain their actual semantics.
- *
  */
 export function test_unit_engine_physics_linearize_physical_target_rows(): void {
   const profile: P = PhysicalPointFixtures.profile();

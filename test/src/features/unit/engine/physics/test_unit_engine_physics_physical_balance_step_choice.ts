@@ -56,13 +56,12 @@ const REACH: number = 0.5;
  *
  *    - (xi - u0) e^(omega T), u0 the remaining foot's shrunken outline's point
  *         nearest xi, T = ramp + sqrt(max(5.77 d, 24 h) / a) + the landed
- *         foot's ramp-in for the step's distance d, the time until the new
- *         foot bears (Herzog et al. 2016, Section 5.3): within reach the foot's
- *         middle lands on it, inside the
- *         new support shrunk by the inset (Koolen et al., Section II-G; Pratt
- *         et al., M2V2, Section VII-E1); the foot keeps its own side, at least
- *         as wide as it stands, and never crosses toward the other (Section
- *         IX-G).
+ *         foot's ramp-in for the step's distance d, the time until the new foot
+ *         bears (Herzog et al. 2016, Section 5.3): within reach the foot's
+ *         middle lands on it, inside the new support shrunk by the inset
+ *         (Koolen et al., Section II-G; Pratt et al., M2V2, Section VII-E1);
+ *         the foot keeps its own side, at least as wide as it stands, and never
+ *         crosses toward the other (Section IX-G).
  * 3. Reach and one-step capture (Koolen et al., Eq. 25): a capture point past the
  *    reach clamps the step to the reach; one past the one-step bound is still
  *    stepped to, clamped and marked not viable (Khadiv et al. 2017, Section
@@ -77,23 +76,23 @@ const REACH: number = 0.5;
  *    VII-A: the leg is unloaded before it swings).
  * 6. A swing under way is re-aimed by the same rules with its elapsed time spent:
  *    it keeps its own side and lands sooner than a fresh swing.
- * 7. Unloading ranks capturing steps only: past every step's reach a front foot
- *    of a four-support body steps, not a rear one the centre of pressure has
+ * 7. Unloading ranks capturing steps only: past every step's reach a front foot of
+ *    a four-support body steps, not a rear one the centre of pressure has
  *    already left.
- * 8. A request whose limb has begun unloading keeps that limb even when
- *    another limb's step captures and its own does not, and is kept as it is
- *    when its own limb has no step; before unloading it moves to the capturing
- *    step (design-4017-landing, decision 2: commit at the trigger).
+ * 8. A request whose limb has begun unloading keeps that limb even when another
+ *    limb's step captures and its own does not, and is kept as it is when its
+ *    own limb has no step; before unloading it moves to the capturing step
+ *    (design-4017-landing, decision 2: commit at the trigger).
  * 9. A four-support body none of whose capturing steps can be unloaded at once
  *    steps the chosen front foot with the rear foot across from it, both moved
  *    by one displacement (Chen et al. 2022, Section 2.1, Example 1); a single
  *    step that captures and can be unloaded wins over the pair, and a pair
- *    under way is planned again as that pair. Past every capturing step the step
- *    taken is the one, a pair among them, that leaves the capture point least
- *    past its new support at landing (Khadiv et al. 2017, Section III-B).
- * 10. A pair's two steps share a start and count as one landed swing phase; a
- *    step armed before the phase ahead of it resolved overlaps it.
- *
+ *    under way is planned again as that pair. Past every capturing step the
+ *    step taken is the one, a pair among them, that leaves the capture point
+ *    least past its new support at landing (Khadiv et al. 2017, Section
+ *    III-B).
+ * 10. A pair's two steps share a start and count as one landed swing phase; a step
+ *     armed before the phase ahead of it resolved overlaps it.
  */
 export function test_unit_engine_physics_physical_balance_step_choice(): void {
   const failures: string[] = [];
@@ -438,7 +437,9 @@ export function test_unit_engine_physics_physical_balance_step_choice(): void {
     pressure: { x: 0, y: 0, z: 0.38 },
   }).step;
   if (!beyond || beyond.viable !== false || !beyond.bone.startsWith("front"))
-    failures.push(`past every reach, ${beyond?.bone} stepped (viable ${beyond?.viable})`);
+    failures.push(
+      `past every reach, ${beyond?.bone} stepped (viable ${beyond?.viable})`,
+    );
 
   // 8. A request keeps its limb once that limb has begun unloading.
   const own: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]> = {
@@ -470,7 +471,9 @@ export function test_unit_engine_physics_physical_balance_step_choice(): void {
     AutoMoviePhysicalBalance.retarget({ unloading: false, own, best: better })
       ?.bone !== better.bone
   )
-    failures.push("a request not yet unloading kept a step that does not capture");
+    failures.push(
+      "a request not yet unloading kept a step that does not capture",
+    );
 
   // 9. A diagonal pair: under a forward push a little to the left with the
   // centre of pressure on the front edge, both front feet capture but bear
@@ -563,7 +566,10 @@ export function test_unit_engine_physics_physical_balance_step_choice(): void {
   const hopelessFour = (
     extra?: Partial<IAutoMoviePhysicalBalance.IAssessInput>,
   ): IAutoMoviePhysicalBalance.IResult["step"] =>
-    forward({ x: 0, y: 0, z: 0.38 }, { center: { x: 0.02, y: HEIGHT, z: 1.2 }, ...extra });
+    forward(
+      { x: 0, y: 0, z: 0.38 },
+      { center: { x: 0.02, y: HEIGHT, z: 1.2 }, ...extra },
+    );
   const bones: string[] = four.map((support) => support.bone);
   const alone = bones.map((bone: string) =>
     hopelessFour({ unavailable: bones.filter((other) => other !== bone) }),

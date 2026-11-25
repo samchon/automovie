@@ -37,9 +37,11 @@ function flown(velocity: IAutoMovieVector3, t: number): IAutoMovieVector3 {
  *    constant-acceleration flight; one iteration returns an unsettled lead; an
  *    iteration count below one is null.
  * 3. A target accelerating away, `x = 20 + 5 t^2`, at speed 20: the times from the
- *    closed-form lower root `t^2 = 2 d^2 / (l + sqrt(l^2 - g^2 d^2))`, `l = s^2
- *    - g dy`, iterated four times from `|d| / s`, move least before the last,
- *    and a four-iteration cap returns that closest one.
+ *    closed-form lower root `t^2 = 2 d^2 / (l + sqrt(l^2 - g^2 d^2))`, `l =
+ *    s^2
+ *
+ *    - G dy`, iterated four times from `|d| / s`, move least before the last, and a
+ *         four-iteration cap returns that closest one.
  * 4. A target fleeing at 30 m/s from 40 m at speed 10, and a zero speed, are null.
  */
 export function test_unit_engine_physics_solve_moving_launch(): void {

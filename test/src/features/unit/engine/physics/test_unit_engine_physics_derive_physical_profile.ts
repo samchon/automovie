@@ -15,13 +15,15 @@ import { makeProp } from "../../../internal/makeProp";
 import { vclose } from "../../../internal/predicates";
 import { primitivePart } from "../../../internal/primitivePart";
 
-/** Primitive model provider and override consistency.
+/**
+ * Primitive model provider and override consistency.
  *
  * Scenarios:
- * 1. The actual catalogue stickman's mass centre includes every neutral bone placement.
+ *
+ * 1. The actual catalogue stickman's mass centre includes every neutral bone
+ *    placement.
  * 2. Explicit segment replacement changes total mass by its declared difference.
  * 3. A four-support primitive assembly has analytic total mass and neutral centre.
- *
  */
 export function test_unit_engine_physics_derive_physical_profile(): void {
   const { model, profile }: ReturnType<typeof Fixtures.stickman> =

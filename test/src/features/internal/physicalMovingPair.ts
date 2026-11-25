@@ -45,7 +45,11 @@ export function physicalMovingPair(
       "Two declared one-kilogram rigid bodies, sphere collision envelopes and offset mass centres, joined at an oblique fixed pivot.",
     segments: [
       segment("root", { x: 0, y: 2, z: 0 }, { x: -0.015, y: 0.01, z: 0.02 }),
-      segment("child", { x: 0.19, y: 1.65, z: 0.04 }, { x: 0.03, y: -0.02, z: 0.01 }),
+      segment(
+        "child",
+        { x: 0.19, y: 1.65, z: 0.04 },
+        { x: 0.03, y: -0.02, z: 0.01 },
+      ),
     ],
     materials: PhysicalFixtures.sphere().materials,
     joints: [
@@ -62,7 +66,9 @@ export function physicalMovingPair(
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         },
         axes: (["x", "y", "z"] as const).map(
-          (axis: IAutoMoviePhysicalJointAxis["axis"]): IAutoMoviePhysicalJointAxis => ({
+          (
+            axis: IAutoMoviePhysicalJointAxis["axis"],
+          ): IAutoMoviePhysicalJointAxis => ({
             axis,
             channel: `pivot.${axis}`,
             minimum: -Math.PI / 2,
@@ -81,7 +87,10 @@ export function physicalMovingPair(
     profile,
     duration,
   );
-  body.handoffLimits = { maximumLinearError: 0.001, maximumJointViolation: 0.0001 };
+  body.handoffLimits = {
+    maximumLinearError: 0.001,
+    maximumJointViolation: 0.0001,
+  };
   body.selfAvoidance = { iterations: 1, tolerance: 0.0001 };
   for (const [step, target] of body.targets.entries()) {
     target.strength = 1;
@@ -96,7 +105,10 @@ export function physicalMovingPair(
     const turned: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
       root.rotation,
       Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 12 * Math.sin(Math.PI * seconds)),
+        Quaternion.fromAxisAngle(
+          { x: 0, y: 0, z: 1 },
+          12 * Math.sin(Math.PI * seconds),
+        ),
         Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 8 * seconds),
       ),
     );

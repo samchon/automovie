@@ -8,13 +8,14 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Retention cannot resurrect a particle after its declared lifetime.
+/**
+ * Retention cannot resurrect a particle after its declared lifetime.
  *
  * Scenarios:
+ *
  * 1. A stain formed before expiry remains on later seeks.
  * 2. Landing at or after expiry produces no later stain.
  * 3. Random read order preserves the complete lifecycle.
- *
  */
 export function test_unit_engine_physics_materialize_compiled_effects(): void {
   for (const height of [0.1, 9.81 / 2, 100]) {

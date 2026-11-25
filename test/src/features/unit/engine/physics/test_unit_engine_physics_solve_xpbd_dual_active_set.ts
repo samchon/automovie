@@ -14,7 +14,6 @@ import { repositoryRoot } from "../../../internal/repositoryRoot";
  * were reordered along J's stored rows). Each entry of `J^T a`, `J2 d2` and
  * each rotated pair is summed and rotated in the same order, so a reordering of
  * the loops alone must leave every bit in place.
- *
  */
 export async function test_unit_engine_physics_solve_xpbd_dual_active_set(): Promise<void> {
   const cases: {

@@ -15,12 +15,15 @@ import assert from "node:assert/strict";
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
 /**
- * Checkpoint-prefix copying has no call-argument ceiling and finishes before the solver world is rebuilt.
+ * Checkpoint-prefix copying has no call-argument ceiling and finishes before
+ * the solver world is rebuilt.
  *
  * Scenarios:
- * 1. A 200001-frame prefix restores its complete ordered frame references and an independent solver world.
- * 2. A failing controller clone is reported before a deliberately unusable snapshot can be restored.
  *
+ * 1. A 200001-frame prefix restores its complete ordered frame references and an
+ *    independent solver world.
+ * 2. A failing controller clone is reported before a deliberately unusable
+ *    snapshot can be restored.
  */
 export async function test_unit_engine_physics_restore_physical_simulation_checkpoint_prefix(): Promise<void> {
   const start: number = 200000;
@@ -86,7 +89,10 @@ export async function test_unit_engine_physics_restore_physical_simulation_check
     contactCount: 0,
     active: [],
     softened: [],
-    /** Deliberate caller-state copy failure, before any snapshot should be restored. */
+    /**
+     * Deliberate caller-state copy failure, before any snapshot should be
+     * restored.
+     */
     get episodes(): IAutoMoviePhysicalControllerCheckpoint["episodes"] {
       throw failure;
     },

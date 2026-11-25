@@ -25,9 +25,7 @@ const ANCHOR: number = 1e-10;
 const MAXIMUM_DROP: number = 0.15;
 
 /** Each segment at its neutral pose. */
-function neutral(
-  profile: IProfile,
-): Record<string, IAutoMovieRigidTransform> {
+function neutral(profile: IProfile): Record<string, IAutoMovieRigidTransform> {
   const out: Record<string, IAutoMovieRigidTransform> = {};
   for (const segment of profile.segments) out[segment.bone] = segment.neutral;
   return out;
@@ -44,7 +42,10 @@ function articulated(
   return profile.joints.every(
     (joint: IProfile["joints"][number]): boolean =>
       Vector3.distance(
-        physicalSupportPoint(targets[joint.parent]!, joint.parentFrame.position),
+        physicalSupportPoint(
+          targets[joint.parent]!,
+          joint.parentFrame.position,
+        ),
         physicalSupportPoint(targets[joint.child]!, joint.childFrame.position),
       ) <= ANCHOR,
   );
@@ -52,8 +53,9 @@ function articulated(
 
 /**
  * `planPhysicalSupportTargets` reaches each support's distal point to its goal
- * over its own chain, lowering the root only by what a straight leg still lacks,
- * keeps the other supports on theirs, and leaves every joint articulated.
+ * over its own chain, lowering the root only by what a straight leg still
+ * lacks, keeps the other supports on theirs, and leaves every joint
+ * articulated.
  *
  * Scenarios:
  *
@@ -80,7 +82,11 @@ export function test_unit_engine_physics_plan_physical_support_targets(): void {
       shape.kind === "capsule" ? shape.halfLength + shape.radius : 0;
     return Vector3.add(
       shape.transform.position,
-      Quaternion.rotateVector(shape.transform.rotation, { x: 0, y: -reach, z: 0 }),
+      Quaternion.rotateVector(shape.transform.rotation, {
+        x: 0,
+        y: -reach,
+        z: 0,
+      }),
     );
   };
   const biped: IAutoMovieFootfallPattern = {
@@ -149,7 +155,10 @@ export function test_unit_engine_physics_plan_physical_support_targets(): void {
   };
   const anchor = (child: string): IAutoMovieVector3 => {
     const joint = quadrupod.joints.find((j) => j.child === child)!;
-    return physicalSupportPoint(rest[joint.parent]!, joint.parentFrame.position);
+    return physicalSupportPoint(
+      rest[joint.parent]!,
+      joint.parentFrame.position,
+    );
   };
   let reached: boolean = true;
   for (const reach of [0.2, 0.45]) {
@@ -168,10 +177,12 @@ export function test_unit_engine_physics_plan_physical_support_targets(): void {
     });
     const drop: number = Math.max(
       0,
-      anchor("upper-0").y - anchor("support-0").y - Math.sqrt(0.81 - reach ** 2),
+      anchor("upper-0").y -
+        anchor("support-0").y -
+        Math.sqrt(0.81 - reach ** 2),
     );
     reached &&=
-      (reach > 0.2) === drop > 0 &&
+      reach > 0.2 === drop > 0 &&
       Math.abs(planned.rootDrop - drop) <= ANCHOR &&
       quadruped.limbs.every(
         (limb): boolean =>

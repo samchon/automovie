@@ -11,12 +11,16 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Selected receiver surfaces follow their bone frame and agree with independent native closest-point queries.
+/**
+ * Selected receiver surfaces follow their bone frame and agree with independent
+ * native closest-point queries.
  *
  * Scenarios:
- * 1. Sphere, capsule and box support witnesses lie on the exact collider under two composed rotations.
- * 2. Moving outward along the selected normal projects back to that same surface witness.
  *
+ * 1. Sphere, capsule and box support witnesses lie on the exact collider under two
+ *    composed rotations.
+ * 2. Moving outward along the selected normal projects back to that same surface
+ *    witness.
  */
 export async function test_unit_engine_physics_physical_shape_surface(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();

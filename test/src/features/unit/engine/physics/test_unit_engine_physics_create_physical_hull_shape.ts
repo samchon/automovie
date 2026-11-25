@@ -47,7 +47,6 @@ import assert from "node:assert/strict";
  * 6. Shape pairs read their hand distance in either order: two spheres, two
  *    overlapping capsules, two cubes face to face, and two cubes turned so that
  *    a pair of skew edges are their nearest features, as boxes and as hulls.
- *
  */
 export function test_unit_engine_physics_create_physical_hull_shape(): void {
   const still: IAutoMovieRigidTransform = {

@@ -19,7 +19,6 @@ import { TestValidator } from "@nestia/e2e";
  *    known entries at scales 1e-20, 1 and 1e20.
  * 4. A finite huge weighted centre does not overflow its mass-times-position
  *    numerator.
- *
  */
 export function test_unit_engine_physics_combine_physical_mass_properties(): void {
   const pair: IAutoMovieCombinePhysicalMassProperties.IPart = combine(

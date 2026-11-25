@@ -50,7 +50,6 @@ import { PhysicalPerformanceFixtures } from "../../../internal/PhysicalPerforman
  *    bound, so its displacement scales with the push, the larger peaking at
  *    twice the smaller; and both come back within a millimetre within a second,
  *    as the walk the push lands in goes on.
- *
  */
 export async function test_unit_engine_physics_measure_physical_authored_locomotion(): Promise<void> {
   const duration: number = 1;

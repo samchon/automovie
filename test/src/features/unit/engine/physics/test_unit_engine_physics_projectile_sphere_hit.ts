@@ -29,7 +29,11 @@ export function test_unit_engine_physics_projectile_sphere_hit(): void {
     velocity: { x: 10, y: 5, z: 0 },
     gravity: { x: 0, y: -10, z: 0 },
   };
-  const hit = projectileSphereHit(arc, { center: { x: 10, y: 0, z: 0 }, radius: 1 }, 2);
+  const hit = projectileSphereHit(
+    arc,
+    { center: { x: 10, y: 0, z: 0 }, radius: 1 },
+    2,
+  );
   TestValidator.predicate(
     "the surface crossing",
     hit !== null &&

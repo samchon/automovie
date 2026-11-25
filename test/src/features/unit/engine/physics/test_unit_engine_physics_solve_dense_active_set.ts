@@ -14,7 +14,6 @@ import { TestValidator } from "@nestia/e2e";
  *    minimizer matches the enumeration's within 1e-7.
  * 2. Rows x0 <= -1 and -x0 <= -1 are infeasible: null.
  * 3. An indefinite H: null.
- *
  */
 export function test_unit_engine_physics_solve_dense_active_set(): void {
   let seed: number = 0x4017;

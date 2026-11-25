@@ -21,7 +21,6 @@ import { TestValidator } from "@nestia/e2e";
  *    body reads, its pose, centre of mass, velocities and pending force and
  *    torque, is the same Float64 value, the negative zero included.
  * 2. One step of each leaves the same snapshot bytes.
- *
  */
 export function test_unit_engine_physics_xpbd_world_snapshot(): void {
   const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({

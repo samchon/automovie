@@ -33,7 +33,6 @@ const HALF: number = 0.125;
  *    on.
  * 3. Failed landing: the same push after a failed landing is unrecoverable, and
  *    the failure is kept.
- *
  */
 export function test_unit_engine_physics_physical_balance_plan(): void {
   const failures: string[] = [];

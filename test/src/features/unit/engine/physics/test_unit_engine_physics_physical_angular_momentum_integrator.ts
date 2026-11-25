@@ -21,7 +21,6 @@ import { TestValidator } from "@nestia/e2e";
  *    cm holds a longer one to 1 cm along itself; a K_i under 1e-10 zeroes it.
  * 7. `reset` keeps the integral and clears the flag; a new integrator is not stuck
  *    with a zero integral.
- *
  */
 export function test_unit_engine_physics_physical_angular_momentum_integrator(): void {
   const integrator = physicalAngularMomentumIntegrator;

@@ -31,7 +31,6 @@ import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
  *    support in both directions, for candidate and external references.
  * 4. Numeric-looking string identities remain valid; a missing shape selector
  *    refuses without mutating borrowed input.
- *
  */
 export async function test_unit_engine_physics_physical_point_projection(): Promise<void> {
   const profile: P = PhysicalPointFixtures.profile();

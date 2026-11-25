@@ -16,7 +16,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
-/** Floor friction of these cases: unlike the binding's 0.7, so a guessed coefficient cannot pass. */
+/**
+ * Floor friction of these cases: unlike the binding's 0.7, so a guessed
+ * coefficient cannot pass.
+ */
 const FLOOR_FRICTION: number = 0.3;
 
 /** Friction of the box's material. */
@@ -25,8 +28,8 @@ const BOX_FRICTION: number = 0.9;
 /**
  * `collectPhysicalSupports` reads a body's supports from one solver step: the
  * floor points that step's manifold found pressing under a downward-facing
- * normal, with the pair's own combined friction, and a support loaded only by
- * a positive floor impulse.
+ * normal, with the pair's own combined friction, and a support loaded only by a
+ * positive floor impulse.
  *
  * Scenarios, one step of 1/960 s:
  *

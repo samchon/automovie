@@ -23,7 +23,6 @@ import { TestValidator } from "@nestia/e2e";
  *    e^(omega t), lies on the region.
  * 5. With 0.5 s left and the capture point at (0, -0.5) every prediction is out of
  *    reach: the region is empty and its area zero.
- *
  */
 export function test_unit_engine_physics_physical_one_step_capture_region(): void {
   const foot: Polygon.IPoint[] = Polygon.hull([

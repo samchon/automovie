@@ -5,11 +5,12 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Physical planner behavior.
+/**
+ * Physical planner behavior.
  *
  * Scenarios:
- * 1. Exercise actual public inputs and compare physical quantities.
  *
+ * 1. Exercise actual public inputs and compare physical quantities.
  */
 export function test_unit_engine_physics_step_planner(): void {
   for (const count of [2, 4]) {

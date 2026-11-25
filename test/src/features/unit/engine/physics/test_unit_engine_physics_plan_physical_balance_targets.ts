@@ -44,7 +44,6 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  *    allowed value instead of claiming the relationship was satisfied.
  * 3. An elevated point that already matches its XYZ goal still has to meet the
  *    declared planted floor or report the outstanding floor error.
- *
  */
 export async function test_unit_engine_physics_plan_physical_balance_targets(): Promise<void> {
   const profile: IAutoMoviePhysicalProfile = PhysicalModelFixtures.quadrupod();

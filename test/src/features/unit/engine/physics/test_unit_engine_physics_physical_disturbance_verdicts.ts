@@ -33,7 +33,6 @@ const ID: string = "body";
  *    carrying half of it fail the momentum balance (an unrecorded force holding
  *    it); a sample half a metre off its bone fails provenance; a landed step
  *    whose leg never left the floor fails.
- *
  */
 export function test_unit_engine_physics_physical_disturbance_verdicts(): void {
   const subject: PhysicalDisturbance.ISubject = PhysicalDisturbance.planted(

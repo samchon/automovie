@@ -29,7 +29,6 @@ import { TestValidator } from "@nestia/e2e";
  *    weights set: several rows bind.
  * 2. A plan at rest, the centre of pressure driven into a rectangle corner.
  * 3. Scenario 1 just after `initialize`, which drops the bounds (l.385).
- *
  */
 export function test_unit_engine_physics_physical_icp_controller_optimality(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

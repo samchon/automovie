@@ -14,13 +14,18 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
 import { vclose } from "../../../internal/vclose";
 
-/** Native coupled fitting retains original support intent and the correct optional plane authority.
+/**
+ * Native coupled fitting retains original support intent and the correct
+ * optional plane authority.
  *
  * Scenarios:
- * 1. Stationary primitive patches carry their declared geometry and original endpoint XYZ, including accepted recovery offsets.
- * 2. Reserved, moving and stationary elevated endpoints keep their path without claiming planted contact.
- * 3. Independent policies on the same bone retain different local endpoints; no fitted output is rebound as a goal.
  *
+ * 1. Stationary primitive patches carry their declared geometry and original
+ *    endpoint XYZ, including accepted recovery offsets.
+ * 2. Reserved, moving and stationary elevated endpoints keep their path without
+ *    claiming planted contact.
+ * 3. Independent policies on the same bone retain different local endpoints; no
+ *    fitted output is rebound as a goal.
  */
 export function test_unit_engine_physics_physical_contact_support_goals(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

@@ -34,7 +34,6 @@ const [WIDTH, LENGTH, HEIGHT] = [0.05, 0.08, 0.02];
  *    less the margin away.
  * 4. A leg's effective swing mass (`physicalStanceSwing.swingMass`) is its first
  *    moment about the hip over the endpoint's distance, within the leg's mass.
- *
  */
 export function test_unit_engine_physics_physical_stance_support(): void {
   const failures: string[] = [];

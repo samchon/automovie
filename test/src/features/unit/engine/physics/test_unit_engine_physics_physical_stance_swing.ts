@@ -34,7 +34,6 @@ import { TestValidator } from "@nestia/e2e";
  * 6. Swing drive: the path's feed-forward alone, m (g y + a), carried by the
  *    limb's effective mass; at rest on its path the leg is held against its
  *    weight, and no position error enters it.
- *
  */
 export function test_unit_engine_physics_physical_stance_swing(): void {
   const failures: string[] = [];

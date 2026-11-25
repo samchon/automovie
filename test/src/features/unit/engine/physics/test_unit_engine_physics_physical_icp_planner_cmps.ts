@@ -23,7 +23,6 @@ import { TestValidator } from "@nestia/e2e";
  *    by symmetry their midpoint (0.15, 0.1); chicken 0 and 1 are the feet's
  *    centroids and 0.25 halfway to the middle.
  * 6. A foot of one point puts the exit pivot on it.
- *
  */
 export function test_unit_engine_physics_physical_icp_planner_cmps(): void {
   const cmps = physicalIcpPlannerCmps;

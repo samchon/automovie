@@ -13,20 +13,19 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Joint motors move whole articulations: one substep's motor impulse meets
- * the inertia of every body below the joint.
+ * Joint motors move whole articulations: one substep's motor impulse meets the
+ * inertia of every body below the joint.
  *
  * Scenarios:
- * 1. A shoulder motor on a two-link arm hanging from a fixed base, its
- *    elbow free, reaches the planar double pendulum's backward-Euler
- *    closed form `qd1 = h c s / (M11 - M12^2 / M22 + h c)` and
- *    `qd2 = -(M12 / M22) qd1` from rest in one substep.
- * 2. The same motor held at its torque cap gives the generalized impulse
- *    `tau h` on the shoulder alone: `qd = M^-1 (tau h, 0)`.
- * 3. On a free torso, shoulder and elbow motors driving opposite ways keep
- *    the system's linear and angular momentum at zero and both anchors
- *    together.
  *
+ * 1. A shoulder motor on a two-link arm hanging from a fixed base, its elbow free,
+ *    reaches the planar double pendulum's backward-Euler closed form `qd1 = h c
+ *    s / (M11 - M12^2 / M22 + h c)` and `qd2 = -(M12 / M22) qd1` from rest in
+ *    one substep.
+ * 2. The same motor held at its torque cap gives the generalized impulse `tau h`
+ *    on the shoulder alone: `qd = M^-1 (tau h, 0)`.
+ * 3. On a free torso, shoulder and elbow motors driving opposite ways keep the
+ *    system's linear and angular momentum at zero and both anchors together.
  */
 export async function test_unit_engine_physics_xpbd_articulated_motor(): Promise<void> {
   const findings: string[] = [];
@@ -78,7 +77,11 @@ export async function test_unit_engine_physics_xpbd_articulated_motor(): Promise
   // 3. Free torso: momentum and anchors.
   {
     const arm: IArm = build(true);
-    arm.shoulder.motors.set("z", { speed: 2, damping: 50, maximumTorque: 1000 });
+    arm.shoulder.motors.set("z", {
+      speed: 2,
+      damping: 50,
+      maximumTorque: 1000,
+    });
     arm.elbow.motors.set("z", { speed: -1, damping: 30, maximumTorque: 1000 });
     arm.world.step();
     const bodies: AutoMovieXpbdBody[] = [arm.base, arm.upper, arm.fore];

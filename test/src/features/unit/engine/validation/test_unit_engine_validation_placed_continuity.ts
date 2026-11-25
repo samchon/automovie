@@ -70,11 +70,15 @@ export const test_unit_engine_validation_placed_continuity = (): void => {
       missing.violations[0]?.path === "props.lantern.world",
   );
 
+  const before: IAutoMoviePlacedContinuity.IEndpoint = {
+    seconds: 1.25,
+    transform: IDENTITY_TRANSFORM,
+  };
   const edge: IStepCheck = {
     kind: "step",
     path: "actors.rook.root",
     boundary: "continuous",
-    before: { seconds: 1.25, transform: IDENTITY_TRANSFORM },
+    before,
     after: {
       seconds: 1.5,
       transform: {
@@ -113,7 +117,7 @@ export const test_unit_engine_validation_placed_continuity = (): void => {
   const seam = measureAutoMoviePlacedContinuity({
     ...edge,
     after: {
-      seconds: edge.before.seconds,
+      seconds: before.seconds,
       transform: {
         ...IDENTITY_TRANSFORM,
         rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },

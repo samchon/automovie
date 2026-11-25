@@ -30,7 +30,6 @@ import { TestValidator } from "@nestia/e2e";
  *    unloaded has left the holds, its share zero; touching again it is
  *    re-latched once and its share ramps back over `FADE`, half of it at half
  *    the window (design-4017-qp3, Section 3, rules 2 and 3).
- *
  */
 export function test_unit_engine_physics_physical_stance_seat(): void {
   const findings: string[] = [];

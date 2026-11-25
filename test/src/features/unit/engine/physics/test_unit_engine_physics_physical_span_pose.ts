@@ -15,11 +15,10 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
 /**
  * A body's pose synthesized from its push response (`physicalSpanPose`) is one
- * rigid body chain standing on the response's feet: the four-support
- * primitive standing on two diagonal supports, its 0.24 x 0.2 m boxes, pushed
- * forward at 2 m/s, the capture point past their front edge, the response
- * prepared from its own feet, centre of mass and omega, sampled through the
- * swing.
+ * rigid body chain standing on the response's feet: the four-support primitive
+ * standing on two diagonal supports, its 0.24 x 0.2 m boxes, pushed forward at
+ * 2 m/s, the capture point past their front edge, the response prepared from
+ * its own feet, centre of mass and omega, sampled through the swing.
  *
  * Scenarios:
  *
@@ -29,7 +28,6 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
  * 2. Feet: each foot's endpoint lies at the response's place for it within a
  *    millimetre: the swing foot on its curve, the stance foot where it stands.
  * 3. Planted: the stance foot's endpoint does not move through the swing.
- *
  */
 export function test_unit_engine_physics_physical_span_pose(): void {
   const subject: PhysicalDisturbance.ISubject = PhysicalDisturbance.planted(
@@ -71,20 +69,22 @@ export function test_unit_engine_physics_physical_span_pose(): void {
     omega,
     mass: subject.profile.mass,
     gravity: 9.81,
-    feet: limbs.map((limb, i: number): Span.IFoot => ({
-      bone: limb.bone,
-      side: placed[i]!.x > middle ? "left" : "right",
-      frame: {
-        origin: { x: placed[i]!.x, z: placed[i]!.z },
-        forward: { x: 0, z: 1 },
-      },
-      polygon: [
-        { x: -0.1, y: -0.12 },
-        { x: 0.1, y: -0.12 },
-        { x: 0.1, y: 0.12 },
-        { x: -0.1, y: 0.12 },
-      ],
-    })),
+    feet: limbs.map(
+      (limb, i: number): Span.IFoot => ({
+        bone: limb.bone,
+        side: placed[i]!.x > middle ? "left" : "right",
+        frame: {
+          origin: { x: placed[i]!.x, z: placed[i]!.z },
+          forward: { x: 0, z: 1 },
+        },
+        polygon: [
+          { x: -0.1, y: -0.12 },
+          { x: 0.1, y: -0.12 },
+          { x: 0.1, y: 0.12 },
+          { x: -0.1, y: 0.12 },
+        ],
+      }),
+    ),
     authored: {
       position: { x: center.x, z: center.z },
       velocity: { x: 0, z: 0 },
@@ -116,14 +116,18 @@ export function test_unit_engine_physics_physical_span_pose(): void {
         ),
       );
       if (gap > 1e-3)
-        failures.push(`${t.toFixed(3)} s: ${joint.parent}-${joint.child} anchors ${gap} m apart`);
+        failures.push(
+          `${t.toFixed(3)} s: ${joint.parent}-${joint.child} anchors ${gap} m apart`,
+        );
     }
     for (const limb of limbs) {
       const at: IAutoMovieVector3 = endpoint(pose, limb.bone);
       const goal: IAutoMovieVector3 = sample.feet[limb.bone]!;
       const miss: number = Math.hypot(at.x - goal.x, at.z - goal.z);
       if (miss > 1e-3)
-        failures.push(`${t.toFixed(3)} s: ${limb.bone} ${miss} m off its place`);
+        failures.push(
+          `${t.toFixed(3)} s: ${limb.bone} ${miss} m off its place`,
+        );
     }
     const foot: IAutoMovieVector3 = endpoint(pose, stance);
     if (planted && Vector3.length(Vector3.subtract(foot, planted)) > 1e-3)

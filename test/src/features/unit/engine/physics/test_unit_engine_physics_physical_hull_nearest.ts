@@ -15,23 +15,23 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A point's and a segment's readings against a convex hull are exact: a
- * point's is its signed distance, and a segment's the least of its points'
- * readings, apart, crossing, inside and on the surface.
+ * A point's and a segment's readings against a convex hull are exact: a point's
+ * is its signed distance, and a segment's the least of its points' readings,
+ * apart, crossing, inside and on the surface.
  *
  * Scenarios:
- * 1. Against a 1 x 0.4 x 0.2 m box hull, a segment 0.3 m off a face and
- *    parallel to it reads 0.3 m, a segment through the centre along the long
- *    axis reads -0.1 m at a point within 0.4 m of the centre, and a segment
- *    skew to an edge reads the 0.5 m to that edge with its normal.
- * 2. Over 60 seeded hulls of 4 to 30 points and 8000 segments drawn apart,
- *    through, inside, from a face point and along a face, the distance
- *    matches a 44-step golden-section search of brute-force point readings
- *    with both ends within 1e-8 m and never exceeds it by more than 1e-12 m,
- *    and the point reading at the returned segment point equals the distance
- *    within 1e-12 m; each segment end reads its brute-force signed distance
- *    within 1e-12 m, at a surface point that far from it.
  *
+ * 1. Against a 1 x 0.4 x 0.2 m box hull, a segment 0.3 m off a face and parallel
+ *    to it reads 0.3 m, a segment through the centre along the long axis reads
+ *    -0.1 m at a point within 0.4 m of the centre, and a segment skew to an
+ *    edge reads the 0.5 m to that edge with its normal.
+ * 2. Over 60 seeded hulls of 4 to 30 points and 8000 segments drawn apart,
+ *    through, inside, from a face point and along a face, the distance matches
+ *    a 44-step golden-section search of brute-force point readings with both
+ *    ends within 1e-8 m and never exceeds it by more than 1e-12 m, and the
+ *    point reading at the returned segment point equals the distance within
+ *    1e-12 m; each segment end reads its brute-force signed distance within
+ *    1e-12 m, at a surface point that far from it.
  */
 export function test_unit_engine_physics_physical_hull_nearest(): void {
   const still: IAutoMovieRigidTransform = {

@@ -10,18 +10,16 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
  * Scenarios, for the four-support primitive and the same body on two diagonal
  * supports, forward and sideways:
  *
- * 1. Ceiling: the in-place bound never exceeds what the centre of pressure held
- *    at the support's edge through the whole 0.1 s pulse absorbs, m omega b
- *    (omega T) / (1 - e^(-omega T)), b the distance to the edge (Hof et al.
- *    2005, Eq. 3 integrated over the pulse): no stance law beats the edge.
- * 2. Order: sustained (half the in-place bound) < in-place < any-step < fall
- *    (one and a half times the any-step bound), and the four-support
- *    primitive's forward recover push lies strictly inside its one-step window.
- * 3. Anchor: the primitive's forward one-step bound lies within Koolen et al.'s Eq. 25 for
- *    the step times the literature reports, 0.3 to 0.6 s (Khadiv et al. 2017,
- *    Section V; Pratt et al., M2V2, IX-B).
-
- *
+ * 1. Ceiling: the in-place bound never exceeds what the centre of pressure held at
+ *    the support's edge through the whole 0.1 s pulse absorbs, m omega b (omega
+ *    T) / (1 - e^(-omega T)), b the distance to the edge (Hof et al. 2005, Eq.
+ *    3 integrated over the pulse): no stance law beats the edge.
+ * 2. Order: sustained (half the in-place bound) < in-place < any-step < fall (one
+ *    and a half times the any-step bound), and the four-support primitive's
+ *    forward recover push lies strictly inside its one-step window.
+ * 3. Anchor: the primitive's forward one-step bound lies within Koolen et al.'s
+ *    Eq. 25 for the step times the literature reports, 0.3 to 0.6 s (Khadiv et
+ *    al. 2017, Section V; Pratt et al., M2V2, IX-B).
  */
 export function test_unit_engine_physics_physical_disturbance_bounds(): void {
   const failures: string[] = [];
@@ -61,9 +59,15 @@ export function test_unit_engine_physics_physical_disturbance_bounds(): void {
       );
       const fall: number = PhysicalDisturbance.impulse(subject, "fall", axis);
       if (
-        !(sustained < pushes.place && pushes.place < pushes.any && pushes.any < fall)
+        !(
+          sustained < pushes.place &&
+          pushes.place < pushes.any &&
+          pushes.any < fall
+        )
       )
-        failures.push(`${label}: pushes out of order ${JSON.stringify(pushes)}`);
+        failures.push(
+          `${label}: pushes out of order ${JSON.stringify(pushes)}`,
+        );
       // The four-support primitive's forward push has a one-step window, the
       // recover case's; on two diagonal supports the remaining one stands
       // behind the centre of mass, so a step leaves none.
@@ -77,14 +81,21 @@ export function test_unit_engine_physics_physical_disturbance_bounds(): void {
           failures.push(
             `${label}: recover push ${recover} N s outside the one-step window ${JSON.stringify(pushes)}`,
           );
-        const slow: number = PhysicalDisturbance.window(subject, axis, 0.6).step;
-        const fast: number = PhysicalDisturbance.window(subject, axis, 0.3).step;
+        const slow: number = PhysicalDisturbance.window(
+          subject,
+          axis,
+          0.6,
+        ).step;
+        const fast: number = PhysicalDisturbance.window(
+          subject,
+          axis,
+          0.3,
+        ).step;
         if (!(pushes.step >= slow - 1e-9 && pushes.step <= fast + 1e-9))
           failures.push(
             `${label}: one-step bound ${pushes.step} N s outside Koolen's Eq. 25 at 0.3-0.6 s, [${slow}, ${fast}]`,
           );
       }
-
     }
   TestValidator.equals("disturbance bounds", failures, []);
 }

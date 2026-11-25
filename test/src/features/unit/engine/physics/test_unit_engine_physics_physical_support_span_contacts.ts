@@ -8,10 +8,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. The hull has the N contacts as its vertices; with two, the segment.
  * 2. Without the first limb the hull loses that vertex.
- * 3. The capture region on the support left by the first limb: with the
- *    capture point inside, the reach disc about the first limb's lift-off;
- *    just past it, a region inside every disc; with the only disc out of
- *    reach, none.
+ * 3. The capture region on the support left by the first limb: with the capture
+ *    point inside, the reach disc about the first limb's lift-off; just past
+ *    it, a region inside every disc; with the only disc out of reach, none.
  * 4. The weight's shares at the centroid are 1/N each; at any pivot they sum to
  *    one, their weighted mean of the contacts is the pivot and none is
  *    negative, with N = 6's pivot 0.01 m inside an edge.

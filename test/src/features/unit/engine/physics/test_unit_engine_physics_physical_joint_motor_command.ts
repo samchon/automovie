@@ -13,16 +13,23 @@ import { nclose } from "../../../internal/nclose";
 /** Native substep of a 120 Hz world with eight substeps, seconds. */
 const DT: number = 1 / 960;
 
-/** Joint motors command backward-Euler PD on the geodesic error, bounded by the declared torque and twist limits.
+/**
+ * Joint motors command backward-Euler PD on the geodesic error, bounded by the
+ * declared torque and twist limits.
  *
  * Scenarios:
- * 1. A single-axis error yields the implicit PD speed (k e) / (c + k dt) with the declared cap.
- * 2. A rotation past half a turn is driven the short way.
- * 3. A compound rotation reads the geodesic rotation vector, not per-axis 2 asin(q_i).
- * 4. Zero strength commands no active speed; passive damping alone keeps the cap, nothing keeps none.
- * 5. Feed-forward torque adds f / d and a target speed adds its own value; a demand above the cap (6 N m against 3) forecasts saturation, an actual speed at the commanded one does not.
- * 6. A joint at its twist limit is not driven further out.
  *
+ * 1. A single-axis error yields the implicit PD speed (k e) / (c + k dt) with the
+ *    declared cap.
+ * 2. A rotation past half a turn is driven the short way.
+ * 3. A compound rotation reads the geodesic rotation vector, not per-axis 2
+ *    asin(q_i).
+ * 4. Zero strength commands no active speed; passive damping alone keeps the cap,
+ *    nothing keeps none.
+ * 5. Feed-forward torque adds f / d and a target speed adds its own value; a
+ *    demand above the cap (6 N m against 3) forecasts saturation, an actual
+ *    speed at the commanded one does not.
+ * 6. A joint at its twist limit is not driven further out.
  */
 export function test_unit_engine_physics_physical_joint_motor_command(): void {
   const joint: IAutoMoviePhysicalJoint = hinge();
@@ -154,7 +161,10 @@ function axis(
   )!;
 }
 
-/** A three-axis joint with a +-0.6 rad twist about z and the given passive damping. */
+/**
+ * A three-axis joint with a +-0.6 rad twist about z and the given passive
+ * damping.
+ */
 function hinge(passiveDamping?: number): IAutoMoviePhysicalJoint {
   const identity: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },

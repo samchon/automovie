@@ -18,17 +18,17 @@ import { throwsError } from "../../../internal/throwsError";
  * input, the degenerate ones that once never ended included.
  *
  * Scenarios:
- * 1. A step planner over [1e20, 1e20 + 1e6] s, where doubles lie 16384 s
- *    apart, sampling at 120 Hz, whose period no longer moves the clock, is
- *    refused; the same planner over [0, 2] s builds its schedule.
- * 2. A weapon resting inside a wall and live from 1e7 + 0.3 s, past 2^23 s
- *    where adjacent doubles lie farther apart (1.86e-9 s) than the scan's
- *    1e-9 s resolution, on a 1/120 s grid from 1e7 s, is reported against
- *    the wall at its first live second: the halving toward an unmeasured
- *    clear end stops at adjacent doubles.
- * 3. A contact span to an infinite end, and a step (1e-20 s) whose count
- *    over one second passes 2^53, are refused.
  *
+ * 1. A step planner over [1e20, 1e20 + 1e6] s, where doubles lie 16384 s apart,
+ *    sampling at 120 Hz, whose period no longer moves the clock, is refused;
+ *    the same planner over [0, 2] s builds its schedule.
+ * 2. A weapon resting inside a wall and live from 1e7 + 0.3 s, past 2^23 s where
+ *    adjacent doubles lie farther apart (1.86e-9 s) than the scan's 1e-9 s
+ *    resolution, on a 1/120 s grid from 1e7 s, is reported against the wall at
+ *    its first live second: the halving toward an unmeasured clear end stops at
+ *    adjacent doubles.
+ * 3. A contact span to an infinite end, and a step (1e-20 s) whose count over one
+ *    second passes 2^53, are refused.
  */
 export function test_unit_engine_physics_step_planner_degenerate_termination(): void {
   // 1. A clock period under the time resolution.

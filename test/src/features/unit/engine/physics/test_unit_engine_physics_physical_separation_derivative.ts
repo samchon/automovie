@@ -22,17 +22,30 @@ import { TestValidator } from "@nestia/e2e";
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { capsuleBoxSeparation } from "../../../internal/capsuleBoxSeparation";
 
-/** Witness-based self-separation derivatives agree with actual native signed distance across the shape matrix, and the bounded fit accepts only real improvement.
+/**
+ * Witness-based self-separation derivatives agree with actual native signed
+ * distance across the shape matrix, and the bounded fit accepts only real
+ * improvement.
  *
  * Scenarios:
- * 1. For every sphere, capsule and box pair, a positive gap yields an inactive zero row even when probed into overlap.
- * 2. At exact native tangency the row is either inactive or matches the native first-order change; within 1 mm of a capsule-box tangency the native distance equals the closed-form axis-to-box distance less the radius, and every real overlap is reported as contact.
- * 3. In deep overlap, small rigid translations and rotations of either collider change the linear model as native signed distance changes.
- * 4. A slide that removes the overlap exposes the frozen witness as local only; re-linearizing at the new pose follows native distance.
- * 5. The folded quadrupod regression, with its colliding branches recast as each shape kind, reduces actual native penetration while keeping the root, every anchor, joint ranges and the unrelated legs.
- * 6. Locking the folded joint keeps it fixed while free coordinates resolve the overlap.
- * 7. Locking every coordinate that can separate the overlap leaves targets and the actual penetration unchanged instead of claiming success.
  *
+ * 1. For every sphere, capsule and box pair, a positive gap yields an inactive
+ *    zero row even when probed into overlap.
+ * 2. At exact native tangency the row is either inactive or matches the native
+ *    first-order change; within 1 mm of a capsule-box tangency the native
+ *    distance equals the closed-form axis-to-box distance less the radius, and
+ *    every real overlap is reported as contact.
+ * 3. In deep overlap, small rigid translations and rotations of either collider
+ *    change the linear model as native signed distance changes.
+ * 4. A slide that removes the overlap exposes the frozen witness as local only;
+ *    re-linearizing at the new pose follows native distance.
+ * 5. The folded quadrupod regression, with its colliding branches recast as each
+ *    shape kind, reduces actual native penetration while keeping the root,
+ *    every anchor, joint ranges and the unrelated legs.
+ * 6. Locking the folded joint keeps it fixed while free coordinates resolve the
+ *    overlap.
+ * 7. Locking every coordinate that can separate the overlap leaves targets and the
+ *    actual penetration unchanged instead of claiming success.
  */
 export async function test_unit_engine_physics_physical_separation_derivative(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();

@@ -14,8 +14,8 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * 1. A contact at 2 s takes away at 1.1 s, tops at 1.6 s, finishes at 2.35 s and
  *    settles by 2.95 s, leaning the most, 45 degrees, at 20 m/s.
- * 2. A contact at 1 s, before the lean, take-away and down-swing fit, or a lean
- *    of 60 degrees, is refused.
+ * 2. A contact at 1 s, before the lean, take-away and down-swing fit, or a lean of
+ *    60 degrees, is refused.
  */
 export function test_unit_motions_lexicon_polo(): void {
   const timetable: humanPoloTimetable.ITimetable = humanPoloTimetable({

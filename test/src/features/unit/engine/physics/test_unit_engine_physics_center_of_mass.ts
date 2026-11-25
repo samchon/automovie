@@ -11,7 +11,12 @@ import { makeProp, primitivePart } from "../../../internal/fixtures";
 import { vclose } from "../../../internal/predicates";
 
 /** A transform at a point, uniformly scaled. */
-function at(x: number, y: number, z: number, s: number = 1): IAutoMovieTransform {
+function at(
+  x: number,
+  y: number,
+  z: number,
+  s: number = 1,
+): IAutoMovieTransform {
   return {
     translation: { x, y, z },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -36,9 +41,9 @@ const UNIT: IAutoMoviePrimitiveShape = {
  *
  * Scenarios:
  *
- * 1. A unit box with the explicit centre (0.5, 0, 0) gives it; with a null
- *    centre, or no body, it derives the origin; a plane-only model gives null
- *    either way, and a mesh-only model derives null.
+ * 1. A unit box with the explicit centre (0.5, 0, 0) gives it; with a null centre,
+ *    or no body, it derives the origin; a plane-only model gives null either
+ *    way, and a mesh-only model derives null.
  * 2. Derived: a box translated to (1, 2, 3) is there; two equal boxes at ±1 meet
  *    at the origin; a unit box at the origin and a 2 m box at x = 3, volumes 1
  *    and 8, balance at x = 24 / 9, as does a unit box scaled 2 at x = 3; a cone
@@ -48,7 +53,9 @@ const UNIT: IAutoMoviePrimitiveShape = {
 export function test_unit_engine_physics_center_of_mass(): void {
   // 1. The entry.
   const box = primitivePart("b", UNIT);
-  const body = (centerOfMass: IAutoMovieBody["centerOfMass"]): IAutoMovieBody => ({
+  const body = (
+    centerOfMass: IAutoMovieBody["centerOfMass"],
+  ): IAutoMovieBody => ({
     mass: 1,
     centerOfMass,
     friction: 0.5,
@@ -98,7 +105,11 @@ export function test_unit_engine_physics_center_of_mass(): void {
     deriveCenterOfMass(makeProp(parts))!;
   TestValidator.predicate(
     "derived by volume",
-    vclose(derived([primitivePart("b", UNIT, at(1, 2, 3))]), { x: 1, y: 2, z: 3 }) &&
+    vclose(derived([primitivePart("b", UNIT, at(1, 2, 3))]), {
+      x: 1,
+      y: 2,
+      z: 3,
+    }) &&
       vclose(
         derived([
           primitivePart("l", UNIT, at(-1, 0, 0)),
@@ -126,7 +137,11 @@ export function test_unit_engine_physics_center_of_mass(): void {
       ) &&
       vclose(
         derived([
-          primitivePart("c", { type: "cone", radius: 1, height: 4 }, at(0, 5, 0)),
+          primitivePart(
+            "c",
+            { type: "cone", radius: 1, height: 4 },
+            at(0, 5, 0),
+          ),
         ]),
         { x: 0, y: 6, z: 0 },
       ),

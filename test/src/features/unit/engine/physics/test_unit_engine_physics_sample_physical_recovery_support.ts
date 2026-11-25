@@ -2,13 +2,17 @@ import { samplePhysicalRecoverySupport } from "@automovie/engine";
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Actual recovery ownership drives support promises causally, independently of an authored calendar.
+/**
+ * Actual recovery ownership drives support promises causally, independently of
+ * an authored calendar.
  *
  * Scenarios:
- * 1. A late confirmed landing ends the swing only at its actual arrival.
- * 2. Future landings do not move earlier goals; adopted body and endpoint offsets remain distinct.
- * 3. An authored handoff ends endpoint ownership, and a failed attempt has a measured end.
  *
+ * 1. A late confirmed landing ends the swing only at its actual arrival.
+ * 2. Future landings do not move earlier goals; adopted body and endpoint offsets
+ *    remain distinct.
+ * 3. An authored handoff ends endpoint ownership, and a failed attempt has a
+ *    measured end.
  */
 export function test_unit_engine_physics_sample_physical_recovery_support(): void {
   const state: IAutoMoviePhysicalRecoveryState = {
