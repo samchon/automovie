@@ -1,11 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanLieDown } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanLieDown,
+} from "@automovie/interface";
 import { getUp } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * `getUp.halfKneeling` is the half-kneeling key with a leading foot: the key
- * itself leading with the right, and its left and right sides exchanged
- * leading with the left.
+ * itself leading with the right, and its left and right sides exchanged leading
+ * with the left.
  *
  * Scenarios:
  *
@@ -14,8 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  *    right joint the key's left one, the tilt kept.
  */
 export async function test_unit_motions_floor_get_up(): Promise<void> {
-  const right: IAutoMovieMotionHumanLieDown.IPose =
-    getUp.halfKneeling("right");
+  const right: IAutoMovieMotionHumanLieDown.IPose = getUp.halfKneeling("right");
   const left: IAutoMovieMotionHumanLieDown.IPose = getUp.halfKneeling("left");
   TestValidator.predicate("the key", right === getUp.POSES.halfKneel);
   // The key's mirrored joints, left with right.

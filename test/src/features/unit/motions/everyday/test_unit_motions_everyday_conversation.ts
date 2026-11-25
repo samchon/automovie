@@ -1,6 +1,16 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
-import type { IAutoMovieMotionHumanConversation, IAutoMovieMotionHumanGaze, IAutoMovieMotionTarget, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
-import { conversationGaze, conversationGroupGaze, conversationShare } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionHumanConversation,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionTarget,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  conversationGaze,
+  conversationGroupGaze,
+  conversationShare,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

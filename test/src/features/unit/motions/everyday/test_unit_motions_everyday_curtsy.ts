@@ -9,10 +9,10 @@ import { vclose } from "../../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `curtsyCross` crosses a curtsy's rear foot a tenth of a foot's length
- * across the lead ankle, on the lead's side, and 0.15 of it behind the lead
- * heel, and carries the pelvis over the lead foot a quarter of the way from
- * heel to toe, approached from 0.2 of a foot behind.
+ * `curtsyCross` crosses a curtsy's rear foot a tenth of a foot's length across
+ * the lead ankle, on the lead's side, and 0.15 of it behind the lead heel, and
+ * carries the pelvis over the lead foot a quarter of the way from heel to toe,
+ * approached from 0.2 of a foot behind.
  *
  * Scenarios, the left foot leading at (0.1, 0.08, 0) and the right at (-0.1,
  * 0.08, 0) in a frame at the origin, both soles from -0.06 to 0.19 m along +Z
@@ -20,8 +20,8 @@ const ROUNDING: number = 1e-12;
  *
  * 1. Facing +Z the rear ankle crosses to (0.125, 0.08, -0.2875).
  * 2. The transfer is (0.1, 0, 0.0025) and the approach 0.05 m behind it.
- * 3. Facing -Z (yaw 180) the crossed ankle turns with the frame, to (-0.125,
- *    0.08, 0.2875); the rotation is kept.
+ * 3. Facing -Z (yaw 180) the crossed ankle turns with the frame, to (-0.125, 0.08,
+ *    0.2875); the rotation is kept.
  */
 export async function test_unit_motions_everyday_curtsy(): Promise<void> {
   const rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
@@ -43,11 +43,7 @@ export async function test_unit_motions_everyday_curtsy(): Promise<void> {
   TestValidator.predicate(
     "the crossed ankle",
     nclose(ahead.length, 0.25, ROUNDING) &&
-      vclose(
-        ahead.crossed.ankle,
-        { x: 0.125, y: 0.08, z: -0.2875 },
-        ROUNDING,
-      ),
+      vclose(ahead.crossed.ankle, { x: 0.125, y: 0.08, z: -0.2875 }, ROUNDING),
   );
   TestValidator.predicate(
     "the transfer and its approach",
@@ -63,10 +59,7 @@ export async function test_unit_motions_everyday_curtsy(): Promise<void> {
   );
   TestValidator.predicate(
     "turned with the frame",
-    vclose(
-      behind.crossed.ankle,
-      { x: -0.125, y: 0.08, z: 0.2875 },
-      ROUNDING,
-    ) && behind.crossed.rotation === rotation,
+    vclose(behind.crossed.ankle, { x: -0.125, y: 0.08, z: 0.2875 }, ROUNDING) &&
+      behind.crossed.rotation === rotation,
   );
 }

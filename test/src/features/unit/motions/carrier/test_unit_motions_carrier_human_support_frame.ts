@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieRigidTransform } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 import { HumanRefusal, HumanSupportFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 

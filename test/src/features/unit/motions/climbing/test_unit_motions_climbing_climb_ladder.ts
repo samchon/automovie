@@ -1,5 +1,8 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { climbLadderBeats, climbLadderContacts } from "@automovie/motions/internal";
+import {
+  climbLadderBeats,
+  climbLadderContacts,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

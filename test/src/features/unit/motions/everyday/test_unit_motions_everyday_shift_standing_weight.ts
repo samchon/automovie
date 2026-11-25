@@ -1,21 +1,24 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { shiftStandingWeightSteps } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `shiftStandingWeightSteps` checks and times a standing weight shift:
- * `plants` holds a solved foot within 3 mm and half a degree of its entry,
- * and `instants` reaches the shift at the transfer's end and, returning,
- * releases it after the hold and returns it at the end.
+ * `shiftStandingWeightSteps` checks and times a standing weight shift: `plants`
+ * holds a solved foot within 3 mm and half a degree of its entry, and
+ * `instants` reaches the shift at the transfer's end and, returning, releases
+ * it after the hold and returns it at the end.
  *
  * Scenarios, an entry ankle at (0.1, 0.08, 0) facing +Z:
  *
- * 1. The foot as entered keeps its plant; 2 mm off it still does, 4 mm off it
- *    does not.
+ * 1. The foot as entered keeps its plant; 2 mm off it still does, 4 mm off it does
+ *    not.
  * 2. Turned 0.4 degrees it keeps its plant; turned 0.6 it does not.
- * 3. A held shift of 0.8 s is `shifted` at 0.8 s; one that holds 0.5 s and
- *    returns over 0.6 s releases at 1.3 s and returns at 1.9 s.
+ * 3. A held shift of 0.8 s is `shifted` at 0.8 s; one that holds 0.5 s and returns
+ *    over 0.6 s releases at 1.3 s and returns at 1.9 s.
  */
 export async function test_unit_motions_everyday_shift_standing_weight(): Promise<void> {
   const ankle: IAutoMovieVector3 = { x: 0.1, y: 0.08, z: 0 };

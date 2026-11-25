@@ -1,4 +1,8 @@
-import type { AutoMovieHumanSide, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { prepareRiseFeet, riseSeatOff } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 

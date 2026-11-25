@@ -2,6 +2,7 @@ import { ANKLE_DORSIFLEXION } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditRange,
+  IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanAuditRange } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -29,7 +30,8 @@ const FLEXION: number = 30;
  * 1. From 0.75 s the left foot bears nothing and overshoots by 30 - 20 = 10
  *    degrees, first at 0.75 s: two of the five instants (0.4).
  * 2. The instants both feet are planted resolve no pose.
- * 3. Planted throughout, neither foot is read.
+ * 3. Planted throughout, neither foot is read, whether the left foot is planted
+ *    on the ground or on a prop that bears it (a stirrup).
  */
 export function test_unit_motions_audit_auto_movie_motion_human_audit_range_unloaded(): void {
   const read: number[] = [];
@@ -49,7 +51,10 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_range_unlo
       };
     },
   };
-  const planted = (left: number): IAutoMovieMotionHumanAuditMotion => ({
+  const planted = (
+    left: number,
+    support: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" },
+  ): IAutoMovieMotionHumanAuditMotion => ({
     duration: 1,
     bones: () => new Map(),
     segments: () => [
@@ -66,7 +71,7 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_range_unlo
               kind: "plant",
               from: 0,
               to: left,
-              support: { kind: "ground" },
+              support,
             },
             {
               part: "rightFoot",
@@ -97,6 +102,16 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_range_unlo
   TestValidator.equals(
     "both planted",
     AutoMovieMotionHumanAuditRange.unloaded(planted(1), posed, "a", 4),
+    { overshoot: { value: 0, seconds: 0, where: "none" }, share: 0 },
+  );
+  TestValidator.equals(
+    "planted on a prop",
+    AutoMovieMotionHumanAuditRange.unloaded(
+      planted(1, { kind: "prop", subject: "stirrup" }),
+      posed,
+      "a",
+      4,
+    ),
     { overshoot: { value: 0, seconds: 0, where: "none" }, share: 0 },
   );
 }

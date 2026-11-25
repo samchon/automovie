@@ -7,6 +7,9 @@ import { TestValidator } from "@nestia/e2e";
 /** Relative rounding of the block elimination and one quintic's derivatives. */
 const ROUNDING: number = 1e-9;
 
+/** The rest-to-rest quintic's peak rate over a unit move and duration, 15/8. */
+const PEAK: number = 15 / 8;
+
 /** A perturbation of one interior derivative, its units per second (squared). */
 const NUDGE: number = 0.05;
 
@@ -123,6 +126,9 @@ function cost(segments: readonly HumanQuinticSegment.ISegment[]): number {
  * 3. The periodic path through 0, 1 and 0.5 at 0, 0.4 and 1.1 s over a 1.6 s
  *    period carries velocity, acceleration, jerk and snap across every point,
  *    the first one across the period included.
+ * 4. A rest-to-rest piece from 0 to 1 over 1.3 s does not overshoot: its position
+ *    rises monotonically within [0, 1], its rate `30 τ² (1 − τ)² / T` never
+ *    negative and never past its middle's 15/8 / T.
  */
 export function test_unit_motions_posture_minimum_jerk_optimality(): void {
   const times: number[] = [0, 0.7, 1.5, 2.6];
@@ -184,6 +190,29 @@ export function test_unit_motions_posture_minimum_jerk_optimality(): void {
     "the periodic path carries across every point",
     cyclic.every((segment: HumanQuinticSegment.ISegment, j: number): boolean =>
       continuous(segment, cyclic[(j + 1) % cyclic.length]!),
+    ),
+  );
+
+  // 4. No overshoot between two knots at rest.
+  const piece: HumanQuinticSegment.ISegment = HumanQuinticSegment.prepare(
+    { position: [0], velocity: [0], acceleration: [0] },
+    { position: [1], velocity: [0], acceleration: [0] },
+    1.3,
+  );
+  const scan: HumanQuinticSegment.IState[] = Array.from(
+    { length: 131 },
+    (_: unknown, i: number): HumanQuinticSegment.IState =>
+      HumanQuinticSegment.state(piece, i / 100),
+  );
+  TestValidator.predicate(
+    "a rest-to-rest piece neither overshoots nor outruns its peak",
+    scan.every(
+      (s: HumanQuinticSegment.IState, i: number): boolean =>
+        s.position[0]! >= -ROUNDING &&
+        s.position[0]! <= 1 + ROUNDING &&
+        s.velocity[0]! >= -ROUNDING &&
+        s.velocity[0]! <= PEAK / 1.3 + ROUNDING &&
+        (i === 0 || s.position[0]! >= scan[i - 1]!.position[0]! - ROUNDING),
     ),
   );
 }

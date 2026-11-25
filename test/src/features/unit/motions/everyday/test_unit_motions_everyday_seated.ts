@@ -1,5 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-import { riseSeatOff, seated, seatedCourse, seatedFlatHand } from "@automovie/motions/internal";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  riseSeatOff,
+  seated,
+  seatedCourse,
+  seatedFlatHand,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../../internal/fixtures/humanFixture";
@@ -12,8 +21,9 @@ namespace part_seated_course {
 
   /**
    * `seatedCourse` times a sit's descent and a rise's ascent as `2 (1 + 0.6 (1
-   * - r))` seconds and peaks their trunk flexion at `35 + 50 (1 - r)` degrees,
-   * `r` the seat's height over the popliteal height.
+   *
+   * - R))`seconds and peaks their trunk flexion at`35 + 50 (1 - r)`degrees,`r`
+   *   the seat's height over the popliteal height.
    *
    * Scenarios:
    *

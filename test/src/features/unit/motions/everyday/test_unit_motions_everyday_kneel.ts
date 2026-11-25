@@ -1,5 +1,11 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanRefusal, kneelPhaseTable, kneelPlace, prepareKneelClock, walkRoot } from "@automovie/motions/internal";
+import {
+  HumanRefusal,
+  kneelPhaseTable,
+  kneelPlace,
+  prepareKneelClock,
+  walkRoot,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

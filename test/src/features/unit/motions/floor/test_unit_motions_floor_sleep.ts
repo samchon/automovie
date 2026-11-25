@@ -25,8 +25,7 @@ interface IRecorder extends sleep.IChain<IRecorder> {
  * 1. It appends three `turnOver`s, no two in a row to the same position.
  * 2. Their holds sum to less than the 20 - 2 x 3 = 14 s left after the turns.
  * 3. The same seed draws the same turns.
- * 4. No change, and three changes in 6 s, are refused on `changes` and
- *    `duration`.
+ * 4. No change, and three changes in 6 s, are refused on `changes` and `duration`.
  */
 export function test_unit_motions_floor_sleep(): void {
   const recorded = (): IRecorder => {

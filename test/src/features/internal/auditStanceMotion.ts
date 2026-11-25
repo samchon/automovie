@@ -72,6 +72,7 @@ export function auditStanceMotion(
       },
     ],
     ...(options.support === undefined ? {} : { support: options.support }),
+    ...(options.water === undefined ? {} : { water: options.water }),
   };
 }
 
@@ -98,6 +99,9 @@ export namespace auditStanceMotion {
 
     /** Whether the audit judges the action's balance; false when absent. */
     physical?: boolean;
+
+    /** Whether water carries the person at a second; never when absent. */
+    water?: (subject: string, seconds: number) => boolean;
 
     /** The frame of a support at a second; every support fixed when absent. */
     support?: (

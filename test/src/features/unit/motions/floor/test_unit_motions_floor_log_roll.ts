@@ -8,11 +8,10 @@ import { nclose } from "../../../internal/nclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `logRollTurns` advances a log roll: `perimeter` is the chest's
- * cross-section perimeter by Ramanujan's approximation of its ellipse, `pi (3
- * (a + b) - sqrt((3a + b)(a + 3b)))`, and `count` takes the asked half turns
- * or as many as bring the pelvis nearest the place, rounded to the end's
- * parity.
+ * `logRollTurns` advances a log roll: `perimeter` is the chest's cross-section
+ * perimeter by Ramanujan's approximation of its ellipse, `pi (3 (a + b) -
+ * sqrt((3a + b)(a + 3b)))`, and `count` takes the asked half turns or as many
+ * as bring the pelvis nearest the place, rounded to the end's parity.
  *
  * Scenarios, a chest 0.32 m broad and 0.22 m deep, half turns of 0.4 m, the
  * roll toward +X from the origin on the back:

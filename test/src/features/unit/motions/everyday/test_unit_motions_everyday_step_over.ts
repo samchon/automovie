@@ -1,6 +1,19 @@
 import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanClearance, HumanFoot, HumanFootRotation, HumanFrame, stand, stepOver, stepOverPathSwing } from "@automovie/motions/internal";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanClearance,
+  HumanFoot,
+  HumanFootRotation,
+  HumanFrame,
+  stand,
+  stepOver,
+  stepOverPathSwing,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -12,9 +25,9 @@ import { vclose } from "../../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * How far the taut string may dip below a height it clears, metres: its
- * corners are rounded within `AutoMovieMotionHumanClearance.RADIUS`, which
- * lowers it by at most half the radius, carried by the caller's clearance.
+ * How far the taut string may dip below a height it clears, metres: its corners
+ * are rounded within `AutoMovieMotionHumanClearance.RADIUS`, which lowers it by
+ * at most half the radius, carried by the caller's clearance.
  */
 const STRING: number = AutoMovieMotionHumanClearance.RADIUS / 2;
 
@@ -22,27 +35,27 @@ const STRING: number = AutoMovieMotionHumanClearance.RADIUS / 2;
  * `stepOverPathSwing` lays a step over's swings: the lead sole clears the
  * obstacle's top by `stepOver.MARGIN` and the trail sole by `stepOver.TRAIL`,
  * the floor is 0 before the obstacle and the landing beyond it, the lead
- * sockets' envelopes ramp from their footprints up to the lead's clearance,
- * and each swing runs from the foot's start to its landing over every height
- * its sole must clear.
+ * sockets' envelopes ramp from their footprints up to the lead's clearance, and
+ * each swing runs from the foot's start to its landing over every height its
+ * sole must clear.
  *
  * The body is built whole (`humanFixtureBody`): the sole's sockets read the
  * rig's foot. The scope is the one `stepOverPath` lays for a standing body.
  *
- * Scenarios, the average man standing at the origin facing +Z, leading with
- * the right foot over a box 0.2 m high from 0.3 to 0.4 m ahead, landing on
- * the floor at 0.75 m:
+ * Scenarios, the average man standing at the origin facing +Z, leading with the
+ * right foot over a box 0.2 m high from 0.3 to 0.4 m ahead, landing on the
+ * floor at 0.75 m:
  *
  * 1. The lead clears 0.3 m and the trail 0.346 m; the surface is that over the
  *    box, 0 before it and the floor after.
- * 2. The bounded share is 0 and 1 at its ends and a half between, a step where
- *    the ends meet; a foot heeled by no pitch is the flat foot.
- * 3. The lead's envelopes are its clearance over the box; the trail's departure
- *    is its ankle heeled by `stepOver.PUSH`, and its summit the trail's top
- *    plus its farthest socket.
- * 4. Each swing starts at its foot's start and ends on its landing; along the
- *    lead swing every sole socket over the box stays within half the string's
- *    corner radius of the lead's clearance.
+ * 2. The bounded share is 0 and 1 at its ends and a half between, a step where the
+ *    ends meet; a foot heeled by no pitch is the flat foot.
+ * 3. The lead's envelopes are its clearance over the box; the trail's departure is
+ *    its ankle heeled by `stepOver.PUSH`, and its summit the trail's top plus
+ *    its farthest socket.
+ * 4. Each swing starts at its foot's start and ends on its landing; along the lead
+ *    swing every sole socket over the box stays within half the string's corner
+ *    radius of the lead's clearance.
  */
 export async function test_unit_motions_everyday_step_over(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -132,10 +145,14 @@ export async function test_unit_motions_everyday_step_over(): Promise<void> {
       ) &&
       nclose(swing.summit, origin.y + swing.top("left") + radius, ROUNDING),
   );
-  const lead: (u: number) => IAutoMovieMotionHumanFoot.IPlacement =
-    swing.path("right", 0);
-  const trail: (u: number) => IAutoMovieMotionHumanFoot.IPlacement =
-    swing.path("left", -stepOver.PUSH);
+  const lead: (u: number) => IAutoMovieMotionHumanFoot.IPlacement = swing.path(
+    "right",
+    0,
+  );
+  const trail: (u: number) => IAutoMovieMotionHumanFoot.IPlacement = swing.path(
+    "left",
+    -stepOver.PUSH,
+  );
   let cleared: boolean = true;
   for (let u: number = 0; u <= 1; u += 0.02)
     for (const socket of HumanFoot.SOCKETS) {

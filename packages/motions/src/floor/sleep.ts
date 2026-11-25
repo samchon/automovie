@@ -100,9 +100,7 @@ function draw(
   u: number,
   current: IAutoMovieMotionHumanTurnOver.Position | undefined,
 ): IAutoMovieMotionHumanTurnOver.Position {
-  const options: IAutoMovieMotionHumanTurnOver.Position[] = (
-    POSITIONS
-  ).filter(
+  const options: IAutoMovieMotionHumanTurnOver.Position[] = POSITIONS.filter(
     (p: IAutoMovieMotionHumanTurnOver.Position): boolean => p !== current,
   );
   const sum: number = options.reduce(
@@ -121,8 +119,8 @@ function draw(
 /** What a sleep appends its turns to. */
 export namespace sleep {
   /**
-   * A chain the turns are appended to: each a registered `turnOver`, the
-   * chain it returns read on.
+   * A chain the turns are appended to: each a registered `turnOver`, the chain
+   * it returns read on.
    */
   export interface IChain<Chain> {
     /** Append a registered action. */

@@ -3,6 +3,7 @@
 export * from "./chiSau";
 export * from "./poleVaultTakeoffAngle";
 export * from "./aquatic";
+export * from "./aquaticArtisticSchedule";
 export * from "./AquaticCrew";
 export * from "./AquaticEdge";
 export * from "./AquaticPosture";

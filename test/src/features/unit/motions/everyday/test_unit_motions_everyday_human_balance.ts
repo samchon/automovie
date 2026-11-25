@@ -1,5 +1,15 @@
-import type { IAutoMovieMotionHumanBalance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanBalance, HumanBalanceExtrapolated, prepareBearingTrunkBalance } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionHumanBalance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanBalance,
+  HumanBalanceExtrapolated,
+  prepareBearingTrunkBalance,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";

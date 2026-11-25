@@ -20,8 +20,8 @@ const THIGH: number = 0.08;
  * Scenarios, for a 0.19 m hand on a thigh of 0.08 m radius:
  *
  * 1. The lift is `(0.45 * 0.19 / 2)^2 / (2 * 0.08) = 0.011422 m`.
- * 2. The palm's half breadth lies within the thigh's radius, so the lift is
- *    under half of it: h < r gives h^2 / (2 r) < h / 2.
+ * 2. The palm's half breadth lies within the thigh's radius, so the lift is under
+ *    half of it: h < r gives h^2 / (2 r) < h / 2.
  */
 export async function test_unit_motions_everyday_brace(): Promise<void> {
   const lift: number = palmSagitta({

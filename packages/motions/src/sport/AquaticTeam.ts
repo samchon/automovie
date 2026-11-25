@@ -24,6 +24,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticTeamBase } from "./AquaticTeamBase";
+import { aquaticArtisticSchedule } from "./aquaticArtisticSchedule";
 
 /**
  * Seconds a support contact blends in before its grip and out after its
@@ -63,24 +64,13 @@ export namespace AquaticTeam {
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const duration: number = 4;
+    const schedule: aquaticArtisticSchedule.ISchedule = aquaticArtisticSchedule(
+      context.subject,
+      params,
+    );
+    const duration: number = aquaticArtisticSchedule.DURATION;
     const lifted: boolean = params.role === "flyer";
-    const bases: readonly [string, string] | undefined = lifted
-      ? params.bases
-      : undefined;
-    if (
-      lifted &&
-      (bases === undefined ||
-        bases[0] === bases[1] ||
-        bases.includes(context.subject))
-    )
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "bases",
-        value: bases ?? null,
-        reason: "an assisted flyer needs two distinct supporting swimmers",
-        fix: "name two other performers as the flyer's left and right bases",
-      });
+    const bases: readonly [string, string] | undefined = schedule.bases;
     const base: boolean = params.role === "base";
     const measured: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
@@ -159,9 +149,9 @@ export namespace AquaticTeam {
     const settle: ReturnType<typeof AquaticPosture.blend> =
       AquaticPosture.blend(upright, laid);
     const lag: number = 0.35 * (params.phase ?? 0);
-    const tVertical: number = 1.35 + lag;
-    const tHigh: number = 2.3 + lag;
-    const tReturn: number = 3.15 + lag;
+    const tVertical: number = schedule.vertical;
+    const tHigh: number = schedule.high;
+    const tReturn: number = schedule.back;
     const partners:
       | readonly [
           IAutoMovieMotionHumanPerformerReader,
@@ -180,8 +170,8 @@ export namespace AquaticTeam {
             "rightFoot",
             "rightLowerLeg",
           ]);
-    const gripStart: number = tHigh - 0.14;
-    const gripEnd: number = tHigh + 0.14;
+    const gripStart: number = schedule.gripStart;
+    const gripEnd: number = schedule.gripEnd;
     const support: ReturnType<typeof AquaticTeamBase.prepare> | undefined = base
       ? AquaticTeamBase.prepare(context, water, tHigh, high)
       : undefined;
@@ -205,41 +195,11 @@ export namespace AquaticTeam {
             new Set([partners[0].body.surfaces.regions.palmRight.bone]),
             new Set([partners[1].body.surfaces.regions.palmLeft.bone]),
           ];
-    const contacts: IAutoMovieMotionHumanContactWindow[] =
-      bases === undefined
-        ? []
-        : (["left", "right"] as const).map(
-            (
-              side: AutoMovieHumanSide,
-              i: number,
-            ): IAutoMovieMotionHumanContactWindow => ({
-              part: `${side}Foot`,
-              kind: "bear",
-              from: gripStart / duration,
-              to: gripEnd / duration,
-              support: {
-                kind: "person",
-                subject: bases[i]!,
-                region: side === "left" ? "palmRight" : "palmLeft",
-              },
-            }),
-          );
+    const contacts: IAutoMovieMotionHumanContactWindow[] = schedule.contacts;
 
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
-      events: [
-        { name: "flatScull", share: 0 },
-        { name: "supportScull", share: tVertical / duration },
-        ...(base || lifted
-          ? [{ name: "supportAcquire", share: gripStart / duration }]
-          : []),
-        { name: "figure", share: tHigh / duration },
-        ...(base || lifted
-          ? [{ name: "supportRelease", share: gripEnd / duration }]
-          : []),
-        { name: "return", share: tReturn / duration },
-        { name: "relax", share: 1 },
-      ],
+      events: schedule.events,
       contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));

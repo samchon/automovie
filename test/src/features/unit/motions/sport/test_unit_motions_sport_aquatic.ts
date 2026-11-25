@@ -1,9 +1,23 @@
-import type { IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone } from "@automovie/interface";
-import { AquaticCrew, AquaticEdge, AquaticPosture, AquaticTeamBase } from "@automovie/motions/internal";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import {
+  AquaticCrew,
+  AquaticEdge,
+  AquaticPosture,
+  AquaticTeamBase,
+  aquaticArtisticSchedule,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 import { qclose } from "../../../internal/qclose";
+import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
 
 /** A quarter turn about +Y: (x, y, z) goes to (z, y, -x). */
@@ -46,6 +60,11 @@ const ENTRY: IAutoMovieMotionHumanPosture = {
  * 6. Moved 2 m along +X, a posture turned about (0, 1, 0) turns about (2, 1, 0).
  * 7. Handing a hand's contact 0.1 m along its +X fully to (0, 2, 0) facing a
  *    quarter about +Y turns the hand the quarter and stands it at (0, 2, 0.1).
+ * 8. A flyer on its left and right bases, one phase late, grips 0.14 s either side
+ *    of its 2.65 s figure on the same clock as its bases, its left foot on the
+ *    left base's right palm and its right foot on the right base's left palm,
+ *    the hands nearest the group's middle; a flyer with no bases, or one base
+ *    twice, is refused.
  */
 export function test_unit_motions_sport_aquatic(): void {
   // 1. The crew's windows.
@@ -165,5 +184,58 @@ export function test_unit_motions_sport_aquatic(): void {
     "handed over",
     vclose(goal.point, { x: 0, y: 2, z: 0.1 }, 1e-12) &&
       qclose(goal.rotation!, QUARTER, 1e-12),
+  );
+
+  // 8. The artistic figure's schedule.
+  const flyer: aquaticArtisticSchedule.ISchedule = aquaticArtisticSchedule(
+    "flyer",
+    { role: "flyer", bases: ["leftBase", "rightBase"], phase: 1 },
+  );
+  const base: aquaticArtisticSchedule.ISchedule = aquaticArtisticSchedule(
+    "leftBase",
+    { role: "base", phase: 1 },
+  );
+  const at = (
+    schedule: aquaticArtisticSchedule.ISchedule,
+    name: string,
+  ): number =>
+    schedule.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === name,
+    )!.share * aquaticArtisticSchedule.DURATION;
+  TestValidator.predicate(
+    "the shared grip",
+    nclose(at(flyer, "figure"), 2.65, 1e-12) &&
+      nclose(at(flyer, "supportAcquire"), 2.51, 1e-12) &&
+      nclose(at(flyer, "supportRelease"), 2.79, 1e-12) &&
+      at(base, "supportAcquire") === at(flyer, "supportAcquire"),
+  );
+  TestValidator.equals(
+    "the feet on the inner palms",
+    flyer.contacts.map(
+      (w: IAutoMovieMotionHumanContactWindow): [string, unknown] => [
+        w.part,
+        w.support,
+      ],
+    ),
+    [
+      [
+        "leftFoot",
+        { kind: "person", subject: "leftBase", region: "palmRight" },
+      ],
+      [
+        "rightFoot",
+        { kind: "person", subject: "rightBase", region: "palmLeft" },
+      ],
+    ],
+  );
+  TestValidator.predicate(
+    "a flyer without its bases",
+    throwsError(() => aquaticArtisticSchedule("flyer", { role: "flyer" })) &&
+      throwsError(() =>
+        aquaticArtisticSchedule("flyer", {
+          role: "flyer",
+          bases: ["leftBase", "leftBase"],
+        }),
+      ),
   );
 }

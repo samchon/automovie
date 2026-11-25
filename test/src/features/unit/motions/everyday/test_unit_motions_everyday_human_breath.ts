@@ -1,5 +1,10 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBreath, IAutoMovieMotionHumanPosture, IAutoMovieRandom } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBreath,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 import { HumanBreath } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 

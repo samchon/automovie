@@ -12,3 +12,5 @@ export * from "./stepVaultSupport";
 export * from "./climbStairsPrints";
 export * from "./climbStairsPelvis";
 export * from "./climbStairsProfile";
+export * from "./planWallRun";
+export * from "./planNamedVault";

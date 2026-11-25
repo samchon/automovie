@@ -1,5 +1,19 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionClock, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionClock, HumanFoot, climbStairsPelvis, climbStairsPlants, climbStairsToes, humanFootOffset } from "@automovie/motions/internal";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  HumanFoot,
+  climbStairsPelvis,
+  climbStairsPlants,
+  climbStairsToes,
+  humanFootOffset,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../../internal/fixtures/humanFixture";

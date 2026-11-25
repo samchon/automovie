@@ -64,9 +64,10 @@ function edges(
 /**
  * `HumanBalance.margin` is the static margin of stability (Hof et al. 2005,
  * zero velocity): the floor-plane distance from the whole-body centre of mass
- * to the edge of the convex hull of the base of support, positive inside; and
- * `HumanBalance.along`, the margin along a direction, is never less than it,
- * equal along the nearest edge's outward normal.
+ * to the edge of the convex hull of the base of support, positive inside and
+ * negative outside; and `HumanBalance.along`, the margin along a direction from
+ * a point inside, is never less than the point's distance to the nearest edge,
+ * equal to it along that edge's outward normal.
  *
  * The body is built whole (`humanFixtureBody`): the centre weighs every
  * segment's mass placed by forward kinematics, and the base is both feet's
@@ -76,10 +77,12 @@ function edges(
  * once:
  *
  * 1. The support polygon, found by brute force over the support points, has at
- *    least three edges, and the centre lies inside it.
- * 2. The margin is the centre's least distance to those edges.
- * 3. Along each edge's outward normal the directional margin is at least the
- *    margin, and along the nearest one's it is the margin.
+ *    least three edges and holds the points' mean.
+ * 2. The margin is the centre's distance to the nearest edge, negated when the
+ *    centre lies outside the polygon.
+ * 3. From the points' mean, along each edge's outward normal the directional
+ *    margin is at least the distance to the nearest edge, and its least is that
+ *    distance.
  */
 export async function test_unit_motions_everyday_human_balance_margin(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -100,40 +103,58 @@ export async function test_unit_motions_everyday_human_balance_margin(): Promise
     support.points,
   );
 
-  // 1. The polygon holds the centre.
-  TestValidator.predicate(
-    "the centre inside the support polygon",
-    polygon.length >= 3 &&
-      polygon.every(
-        ([a, b]: [IAutoMovieVector3, IAutoMovieVector3]): boolean =>
-          cross(a, b, centre) > 0,
+  // 1. A polygon.
+  const inside = (p: IAutoMovieVector3): boolean =>
+    polygon.every(
+      ([a, b]: [IAutoMovieVector3, IAutoMovieVector3]): boolean =>
+        cross(a, b, p) > 0,
+    );
+  const nearest = (p: IAutoMovieVector3): number =>
+    Math.min(
+      ...polygon.map(([a, b]: [IAutoMovieVector3, IAutoMovieVector3]): number =>
+        distance(p, a, b),
       ),
+    );
+  const middle: IAutoMovieVector3 = {
+    x:
+      support.points.reduce(
+        (s: number, p: IAutoMovieVector3): number => s + p.x,
+        0,
+      ) / support.points.length,
+    y: 0,
+    z:
+      support.points.reduce(
+        (s: number, p: IAutoMovieVector3): number => s + p.z,
+        0,
+      ) / support.points.length,
+  };
+  TestValidator.predicate(
+    "a polygon about the points' mean",
+    polygon.length >= 3 && inside(middle),
   );
 
-  // 2. The margin.
-  const nearest: number = Math.min(
-    ...polygon.map(([a, b]: [IAutoMovieVector3, IAutoMovieVector3]): number =>
-      distance(centre, a, b),
+  // 2. The margin, signed.
+  TestValidator.predicate(
+    "the margin is the signed distance to the nearest edge",
+    nclose(
+      HumanBalance.margin(body, upright),
+      inside(centre) ? nearest(centre) : -nearest(centre),
+      ROUNDING,
     ),
   );
-  const margin: number = HumanBalance.margin(body, upright);
-  TestValidator.predicate(
-    "the margin is the distance to the nearest edge",
-    nclose(margin, nearest, ROUNDING),
-  );
 
-  // 3. Along the edges' normals.
+  // 3. Along the edges' normals, from inside.
   const along: number[] = polygon.map(
     ([a, b]: [IAutoMovieVector3, IAutoMovieVector3]): number =>
-      HumanBalance.along(centre, support.points, {
+      HumanBalance.along(middle, support.points, {
         x: b.z - a.z,
         y: 0,
         z: -(b.x - a.x),
       }),
   );
   TestValidator.predicate(
-    "the directional margin bounds the margin and meets it",
-    along.every((v: number): boolean => v >= margin - ROUNDING) &&
-      nclose(Math.min(...along), margin, ROUNDING),
+    "the directional margin bounds the nearest edge's distance and meets it",
+    along.every((v: number): boolean => v >= nearest(middle) - ROUNDING) &&
+      nclose(Math.min(...along), nearest(middle), ROUNDING),
   );
 }

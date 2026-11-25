@@ -33,7 +33,8 @@ const SLIDE: number = 0.2;
  * Scenarios, the average man's quiet stance for 1 s at 4 Hz:
  *
  * 1. Sliding along +X at 0.2 m/s with no window declared, the feet skate at 0.2
- *    m/s in every step: share 1; nothing is loose.
+ *    m/s in every step: share 1; nothing is loose. In water, which carries the
+ *    body and puts no floor under the feet, the same sweep skates nothing.
  * 2. The same slide with both feet planted is loose at 0.2 m/s and skates not.
  * 3. Still and planted, raised 0.02 m, nothing skates or slips and the contact
  *    floats its quiet-stance height plus 0.02 m.
@@ -61,6 +62,17 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_cont
     nclose(skated.skate.value, SLIDE, ROUNDING) &&
       skated.share === 1 &&
       skated.loose.value === 0,
+  );
+  // In water no floor lies under the feet, so the same sweep skates nothing.
+  TestValidator.equals(
+    "in water",
+    AutoMovieMotionHumanAuditContact.measure(
+      auditStanceMotion(body, { shift: slide, water: () => true }),
+      "a",
+      body,
+      4,
+    ).skate.value,
+    0,
   );
   const loose: IAutoMovieMotionHumanAuditContact.IResult =
     AutoMovieMotionHumanAuditContact.measure(

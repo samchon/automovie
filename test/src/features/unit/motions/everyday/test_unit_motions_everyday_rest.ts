@@ -1,6 +1,20 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanBend, poseBones, resolveHumanPosture, restCrossedArms, restElbowSupport, restGoals, stand } from "@automovie/motions/internal";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanBend,
+  poseBones,
+  resolveHumanPosture,
+  restCrossedArms,
+  restElbowSupport,
+  restGoals,
+  stand,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -14,14 +28,14 @@ const ROUNDING: number = 1e-9;
  * `restGoals` sets both hands' rest goals on a standing posture.
  *
  * - Hands at the side set no goal.
- * - A pocketed hand lays its flat palm on the front pocket and an akimbo hand
- *   on the hip, raised half the waist's height over the hip joint's, each
- *   moved along the region's normal onto the posed surface; their elbows take
- *   the `tucked` and `akimbo` bends.
+ * - A pocketed hand lays its flat palm on the front pocket and an akimbo hand on
+ *   the hip, raised half the waist's height over the hip joint's, each moved
+ *   along the region's normal onto the posed surface; their elbows take the
+ *   `tucked` and `akimbo` bends.
  * - A chin rest on both fists moves each fist off the one-fist place by its own
  *   depth on the palm side, the left one toward +X.
- * - Crossed arms are `restCrossedArms`'s goals, and a hand under the other
- *   elbow is `restElbowSupport`'s, laid against the other hand's goal.
+ * - Crossed arms are `restCrossedArms`'s goals, and a hand under the other elbow
+ *   is `restElbowSupport`'s, laid against the other hand's goal.
  *
  * The body is built whole (`humanFixtureBody`): the goals read the posed
  * surfaces and colliders.
@@ -29,13 +43,13 @@ const ROUNDING: number = 1e-9;
  * Scenarios, the average man standing at the origin facing +Z:
  *
  * 1. Both hands at the side set no goal.
- * 2. A left pocket and a right hip: each contact lies on its region's normal
- *    line through the region's point (the hip's raised), and each elbow is
- *    its bend's.
+ * 2. A left pocket and a right hip: each contact lies on its region's normal line
+ *    through the region's point (the hip's raised), and each elbow is its
+ *    bend's.
  * 3. A left chin rest alone and with the right: the left fist moves along +X
  *    alone.
- * 4. Crossed arms equal `restCrossedArms`; a right hand under the left elbow of
- *    a left chin rest equals `restElbowSupport` on the left fist.
+ * 4. Crossed arms equal `restCrossedArms`; a right hand under the left elbow of a
+ *    left chin rest equals `restElbowSupport` on the left fist.
  */
 export async function test_unit_motions_everyday_rest(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -87,11 +101,7 @@ export async function test_unit_motions_everyday_rest(): Promise<void> {
     laid.left!.shape === "flat" &&
       laid.right!.surface === "palm" &&
       onNormal(laid.left!, "pocketFrontLeft", 0) &&
-      onNormal(
-        laid.right!,
-        "hipRight",
-        0.5 * (m.waistHeight - m.hipHeight),
-      ) &&
+      onNormal(laid.right!, "hipRight", 0.5 * (m.waistHeight - m.hipHeight)) &&
       vclose(laid.left!.elbow!, elbow("left", "tucked"), ROUNDING) &&
       vclose(laid.right!.elbow!, elbow("right", "akimbo"), ROUNDING),
   );

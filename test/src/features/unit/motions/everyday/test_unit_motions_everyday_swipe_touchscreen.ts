@@ -1,6 +1,13 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanProp, IAutoMovieRigidTransform } from "@automovie/interface";
-import { HumanRefusal, swipeTouchscreenScreen } from "@automovie/motions/internal";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
+import {
+  HumanRefusal,
+  swipeTouchscreenScreen,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../../internal/vclose";
@@ -10,18 +17,18 @@ const ROUNDING: number = 1e-12;
 
 /**
  * `swipeTouchscreenScreen` places a swipe's screen in the world: the named
- * surface of a fixed prop, its centre, the stroke's ends at the authored
- * shares of its width along its local X, and its local Y and Z as the outward
- * normal and the forward.
+ * surface of a fixed prop, its centre, the stroke's ends at the authored shares
+ * of its width along its local X, and its local Y and Z as the outward normal
+ * and the forward.
  *
- * Scenarios, a tablet at (0, 1, 0.5) turned 90 degrees about +Y, its 0.2 m
- * wide glass 0.01 m above its origin:
+ * Scenarios, a tablet at (0, 1, 0.5) turned 90 degrees about +Y, its 0.2 m wide
+ * glass 0.01 m above its origin:
  *
- * 1. Shares -0.25 to 0.25 run from (0, 1.01, 0.55) to (0, 1.01, 0.45), across
- *    the glass's X turned onto -Z; the normal is +Y and the forward +X.
+ * 1. Shares -0.25 to 0.25 run from (0, 1.01, 0.55) to (0, 1.01, 0.45), across the
+ *    glass's X turned onto -Z; the normal is +Y and the forward +X.
  * 2. A share past half the width is refused on `from`, equal shares on `swipe
- *    distance`, and a glass on a prop that is not fixed, a scaled glass and
- *    an unknown screen on `screen`.
+ *    distance`, and a glass on a prop that is not fixed, a scaled glass and an
+ *    unknown screen on `screen`.
  */
 export async function test_unit_motions_everyday_swipe_touchscreen(): Promise<void> {
   const glass: IAutoMovieAffordance = {

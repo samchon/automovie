@@ -8,14 +8,14 @@ import { TestValidator } from "@nestia/e2e";
  * lies, and none when the obstacle is behind the start, beyond the goal, at
  * least the passing distance aside, or the path has no length.
  *
- * Scenarios, a path from the origin to (0, 0, 4) and a passing distance of
- * 0.5 m:
+ * Scenarios, a path from the origin to (0, 0, 4) and a passing distance of 0.5
+ * m:
  *
- * 1. An obstacle at (0.2, 0, 2), 0.2 m toward +X of the path, is passed at
- *    (-0.3, 0, 2), half a metre from it on the path's side.
+ * 1. An obstacle at (0.2, 0, 2), 0.2 m toward +X of the path, is passed at (-0.3,
+ *    0, 2), half a metre from it on the path's side.
  * 2. One at (-0.2, 0, 2) is passed at (0.3, 0, 2).
- * 3. Obstacles at (0, 0, -1), (0, 0, 5), (0.6, 0, 2) and a path of no length
- *    give none.
+ * 3. Obstacles at (0, 0, -1), (0, 0, 5), (0.6, 0, 2) and a path of no length give
+ *    none.
  */
 export async function test_unit_motions_everyday_approach(): Promise<void> {
   const from: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

@@ -59,6 +59,46 @@ type Posture = IAutoMovieMotionHumanPosture;
  */
 export namespace HumanIceGlide {
   /**
+   * Admit a skate's own requests before its glide is planned: an edge within a
+   * right angle either way, and a step whose window opens at or after the start
+   * and closes within the glide (its `duration`, the glide's length), whose
+   * offset lies within a leg's length and whose clearance is above 0 and within
+   * it.
+   *
+   * @param params The skate's requests.
+   * @param measure The body's leg lengths.
+   * @throws {HumanRefusal} When a request lies outside its range.
+   */
+  export function admit(
+    params: Pick<Skate, "edge" | "step" | "duration">,
+    measure: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank">,
+  ): void {
+    const { edge, step } = params;
+    if (edge !== undefined)
+      HumanBound.within("edge.degrees", edge.degrees, -90, 90, "deg");
+    if (step === undefined) return;
+    HumanBound.least("step.window[0]", step.window[0], 0, "s");
+    HumanBound.within(
+      "step.window[1]",
+      step.window[1],
+      step.window[0],
+      params.duration,
+      "s",
+      "minimum",
+    );
+    const span: number = measure.thigh + measure.shank;
+    HumanBound.within("step.offset.x", step.offset.x, -span, span, "m");
+    HumanBound.within("step.offset.z", step.offset.z, -span, span, "m");
+    HumanBound.within(
+      "step.clearance",
+      step.clearance,
+      0,
+      span,
+      "m",
+      "minimum",
+    );
+  }
+  /**
    * Add the registered skate's blade work to the shared glide path.
    *
    * @param context The skating route, selected blade edges and optional step.
@@ -68,38 +108,9 @@ export namespace HumanIceGlide {
     context: IAutoMovieMotionHumanActionContext<Skate>,
   ): Plan {
     const { edge, step }: Skate = context.params;
+    admit(context.params, context.body.measure);
     const base: Plan = HumanSurfaceGlide.plan(context);
     if (edge === undefined && step === undefined) return base;
-    if (edge !== undefined) {
-      HumanBound.within("edge.degrees", edge.degrees, -90, 90, "deg");
-    }
-    if (step !== undefined) {
-      HumanBound.least("step.window[0]", step.window[0], 0, "s");
-      HumanBound.within(
-        "step.window[1]",
-        step.window[1],
-        step.window[0],
-        base.duration,
-        "s",
-        "minimum",
-      );
-      const span: number =
-        context.body.measure.thigh + context.body.measure.shank;
-      HumanBound.within("step.offset.x", step.offset.x, -span, span, "m");
-      HumanBound.within("step.offset.z", step.offset.z, -span, span, "m");
-      HumanBound.within(
-        "step.clearance",
-        step.clearance,
-        0,
-        span,
-        "m",
-        "minimum",
-      );
-    }
-    // The released blade rises on `clearance 쨌 sin(?u)` over the step's
-    // window, so it stays within the bearing height of the ice for
-    // `asin(h / clearance) / ?` of the window at each end: it glides there,
-    // still on the ice, and its bearing holds until it clears.
     const grazing: number =
       step === undefined
         ? 0

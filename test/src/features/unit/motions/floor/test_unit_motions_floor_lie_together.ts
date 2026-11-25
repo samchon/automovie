@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { lieTogetherShifted } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,10 +40,7 @@ export async function test_unit_motions_floor_lie_together(): Promise<void> {
       },
     },
   };
-  const shifted: IAutoMovieMotionHumanPosture = lieTogetherShifted(
-    posture,
-    by,
-  );
+  const shifted: IAutoMovieMotionHumanPosture = lieTogetherShifted(posture, by);
   TestValidator.predicate(
     "moved",
     vclose(shifted.root, { x: 0.1, y: 0.15, z: 0.2 }, ROUNDING) &&

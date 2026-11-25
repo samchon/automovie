@@ -8,25 +8,25 @@ import { nclose } from "../../../internal/nclose";
 const ROUNDING: number = 1e-9;
 
 /**
- * `crabWalkClock` times the crab walk: `ceil(D / (0.18 stature))` whole
- * cycles of 0.9 s after a 0.8 s settle, the progress a minimum-jerk course in
- * cycles; `step` swings an end over the first half of each of its cycles on a
+ * `crabWalkClock` times the crab walk: `ceil(D / (0.18 stature))` whole cycles
+ * of 0.9 s after a 0.8 s settle, the progress a minimum-jerk course in cycles;
+ * `step` swings an end over the first half of each of its cycles on a
  * minimum-jerk course lifted on a half sine and stands over the second; and
  * `contacts` plants each end between its swings.
  *
- * Scenarios, over 1.2 m for a 1.75 m stature (`1.2 / 0.315 = 3.81`, so 4
- * cycles of 0.3 m, 4.4 s in all):
+ * Scenarios, over 1.2 m for a 1.75 m stature (`1.2 / 0.315 = 3.81`, so 4 cycles
+ * of 0.3 m, 4.4 s in all):
  *
  * 1. Four cycles of 0.3 m over 4.4 s.
  * 2. The progress is 0 at the settle, 2 half way through the travel (2.6 s, the
  *    course's symmetry) and 4 at the end; `at(2)` is 2.6 s.
- * 3. An end of phase 0 stands at the start, is half way through its first swing
- *    at the top of its lift at u = 0.25, stands one stride on at u = 0.75,
- *    and rests at the last stride past the end; an end of phase 0.5 has not
- *    left at u = 0.25.
+ * 3. An end of phase 0 stands at the start, is half way through its first swing at
+ *    the top of its lift at u = 0.25, stands one stride on at u = 0.75, and
+ *    rests at the last stride past the end; an end of phase 0.5 has not left at
+ *    u = 0.25.
  * 4. With the right hand at phase 0 and the left at 0.5, the right hand does not
- *    bear while it swings at `at(0.25)` and the left does, the other way
- *    round at `at(0.75)`, and each bears from its last landing to the end.
+ *    bear while it swings at `at(0.25)` and the left does, the other way round
+ *    at `at(0.75)`, and each bears from its last landing to the end.
  */
 export async function test_unit_motions_floor_crab_walk(): Promise<void> {
   const clock: crabWalkClock.IClock = crabWalkClock(1.2, 1.75);
@@ -49,11 +49,7 @@ export async function test_unit_motions_floor_crab_walk(): Promise<void> {
   );
 
   // 3. The steps.
-  const lifted: readonly [number, number] = crabWalkClock.step(
-    clock,
-    0,
-    0.25,
-  );
+  const lifted: readonly [number, number] = crabWalkClock.step(clock, 0, 0.25);
   TestValidator.predicate(
     "the steps",
     crabWalkClock.step(clock, 0, 0)[0] === 0 &&
@@ -66,11 +62,13 @@ export async function test_unit_motions_floor_crab_walk(): Promise<void> {
   );
 
   // 4. The contacts.
-  const windows: IAutoMovieMotionHumanContactWindow[] =
-    crabWalkClock.contacts(clock, [
+  const windows: IAutoMovieMotionHumanContactWindow[] = crabWalkClock.contacts(
+    clock,
+    [
       { part: "rightHand", phase: 0 },
       { part: "leftHand", phase: 0.5 },
-    ]);
+    ],
+  );
   const bears = (part: string, seconds: number): boolean =>
     windows.some(
       (w: IAutoMovieMotionHumanContactWindow): boolean =>

@@ -1,5 +1,12 @@
-import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
-import { HUMAN_LEXICON, HUMAN_LEXICON_FAMILIES, HumanGait } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconFamilies,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HUMAN_LEXICON_FAMILIES,
+  HumanGait,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -49,10 +56,12 @@ export function test_unit_motions_lexicon_registry(): void {
   );
 
   // 3. A row fixes its preset.
-  const tuck: IAutoMovieMotionHumanActionLaw<object> =
+  const tuck: IAutoMovieMotionHumanLexiconFamilies["upperTouch"]["tuckHair"] =
     HUMAN_LEXICON_FAMILIES.upperTouch.tuckHair;
-  const eat: IAutoMovieMotionHumanActionLaw<object> =
+  const eat: IAutoMovieMotionHumanLexiconFamilies["upperPhrase"]["eatWith"] =
     HUMAN_LEXICON_FAMILIES.upperPhrase.eatWith;
+  if (tuck === undefined || eat === undefined)
+    throw new Error("the lexicon registers no tuckHair or eatWith row");
   TestValidator.equals(
     "the rows' family and preset",
     [

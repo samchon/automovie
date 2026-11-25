@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionHumanGesture, IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { HumanRefusal, gesture, gestureAdmit, gestureJoints, gestureStrokeTables } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionHumanGesture,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+import {
+  HumanRefusal,
+  gesture,
+  gestureAdmit,
+  gestureJoints,
+  gestureStrokeTables,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

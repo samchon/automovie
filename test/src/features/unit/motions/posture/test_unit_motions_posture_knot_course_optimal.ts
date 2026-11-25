@@ -12,11 +12,13 @@ import { nclose } from "../../../internal/nclose";
 const PRECISION: number = 1e-4;
 
 /**
- * Slack over a limit on the TOPP-RA grid, a hundredth of it: the constant path
- * acceleration over each grid interval (toppra's `ConstAccel`) meets the
- * constraints at the gridpoints, not between them.
+ * Slack over a limit between TOPP-RA gridpoints, three hundredths of it: the
+ * constant path acceleration over each grid interval (toppra's `ConstAccel`)
+ * meets the constraints at the gridpoints, and between them `q̈ = q' u + q''
+ * ṡ²` drifts with the path's change over one interval, the most near a piece's
+ * rest ends where ṡ is largest (under two hundredths on these pieces).
  */
-const SLACK: number = 0.01;
+const SLACK: number = 0.03;
 
 /** The step of the central difference a rate is checked by, seconds. */
 const H: number = 1e-6;
@@ -40,8 +42,9 @@ const DIFFERENCE: number = 1e-4;
  * Scenarios:
  *
  * 1. The course starts at zero and ends at the two pieces' TOPP-RA durations and
- *    the hold, each piece no faster than its bang-coast-bang bound, `d / v + v
- *    / a`: 2 s and 3 s.
+ *    the hold, each piece no faster than the time-optimal rest-to-rest move
+ *    under its limits: `d / v + v / a` when it reaches its rate, 2 s for the
+ *    first, and `2 √(d / a)` when it cannot, 2√2 s for the second.
  * 2. Through the hold it is at the middle knot at rest; before the start at the
  *    first knot and after the end at the last, at rest.
  * 3. Its read velocity is the rate of its read position, by a central difference
@@ -80,7 +83,7 @@ export function test_unit_motions_posture_knot_course_optimal(): void {
     course.start === 0 &&
       course.end === first + 0.5 + second &&
       first >= 2 - 1e-9 &&
-      second >= 3 - 1e-9,
+      second >= 2 * Math.SQRT2 - 1e-9,
   );
 
   // 2. The hold and the ends.

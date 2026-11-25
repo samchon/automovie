@@ -39,11 +39,12 @@ export function HumanRoundaboutPush(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): Plan {
   const { to, via, on, bar, hand }: Params = context.params;
+  // The bar is admitted before the walk is planned.
+  readPropGrip(context, on, bar, context.start, "bar");
   const path: Plan = walk.plan({
     ...context,
     params: via === undefined ? { to } : { to, via },
   });
-  readPropGrip(context, on, bar, context.start, "bar");
   const reach: number = Math.min(REACH, path.duration);
   const contacts: IAutoMovieMotionHumanContactWindow[] = [
     ...path.contacts,

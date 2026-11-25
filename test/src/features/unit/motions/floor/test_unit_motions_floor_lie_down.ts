@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionClockPhase, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { lieDown, lieDownBlend, lieDownPhases, lieDownRollSide } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionClockPhase,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+import {
+  lieDown,
+  lieDownBlend,
+  lieDownPhases,
+  lieDownRollSide,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
