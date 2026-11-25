@@ -8,7 +8,7 @@ Judge anatomical naturalness from personally opened, matched clay, curves over c
 
 ## Shared connections
 
-Verify the original boundary and jets on both sides under their frame and parameter maps. Check the preserved adjacent domains and every applicable premise in the engine's admission path before the full fit. Inspect the realized connection with its neighbors through the same cameras. [Human connections](construction.md#connections).
+Verify the original boundary and jets on both sides under their frame and parameter maps. Check the preserved adjacent domains and every applicable premise in the engine's admission path before the full fit. For a parameterized connection, run the ordinary case and the affected parameter's declared bounds through the same neighboring owners before the whole-body sweep. Inspect the realized connection with its neighbors through the same cameras. [Human connections](construction.md#connections).
 
 ## Sources and capture
 
