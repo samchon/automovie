@@ -7,6 +7,7 @@ export * from "./HumanArmShapeBox";
 export * from "./HumanArmSwing";
 export * from "./HumanBodyFit";
 export * from "./HumanFrame";
+export * from "./carryHumanPosture";
 export * from "./HumanFreedomChoice";
 export * from "./HumanHandShape";
 export * from "./HumanJacobian";

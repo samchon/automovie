@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
@@ -10,9 +11,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 
 /** The alternatives of `PlantsPart`'s site. */
 type PlantsPart = "leftFoot" | "rightFoot";
-
-/** The alternatives of `UnderContext`'s site. */
-type UnderContext = "carrier" | "entry";
 
 /**
  * Bases of composed actions: the plan whose posture every unclaimed channel
@@ -64,7 +62,9 @@ export namespace AutoMovieMotionHumanBase {
    * @returns The plan.
    */
   export function under(
-    context: Pick<IAutoMovieMotionHumanActionContext, UnderContext>,
+    context: Pick<IAutoMovieMotionHumanActionContext, "carrier"> & {
+      entry: Pick<IAutoMovieMotionHumanEntryState, "posture" | "supports">;
+    },
     duration: number,
     contacts?: readonly IAutoMovieMotionHumanContactWindow[],
   ): IAutoMovieMotionHumanActionPlan {

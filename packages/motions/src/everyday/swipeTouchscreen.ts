@@ -2,7 +2,6 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -13,11 +12,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanBound } from "../law/HumanBound";
@@ -25,17 +22,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { swipeTouchscreenScreen } from "./swipeTouchscreenScreen";
-
-/**
- * The mean touch-in to touch-out time in seconds for a single-finger swipe
- * (Jeong, Table 2.6).
- */
-const SWIPE_SECONDS: number = 0.2851;
-/**
- * The normalized endpoint tolerance used by HumanSegmentEntry and
- * HumanSegmentCut.
- */
-const CONTACT_SHARE_TOLERANCE: number = 1e-9;
+import { swipeTouchscreenStroke } from "./swipeTouchscreenStroke";
 
 /**
  * Resolve the screen and compose an index fingertip stroke over the held entry
@@ -67,12 +54,7 @@ function planSwipeTouchscreen(
           : `The ${side} hand already holds ${held}`,
       fix: "release the hand contact before the swipe or choose the other hand",
     });
-  const seconds: number = HumanBound.above(
-    "duration",
-    params.duration ?? SWIPE_SECONDS,
-    0,
-    "s",
-  );
+  const seconds: number = swipeTouchscreenStroke.seconds(params.duration);
   const {
     center,
     first,
@@ -128,42 +110,14 @@ function planSwipeTouchscreen(
     entry.posture,
     origin,
   );
-  const tempo: number = context.tempo ?? 1;
-  const travel = (point: IAutoMovieVector3): number =>
-    tempo *
-    AutoMovieMotionHumanTiming.transport(
-      Vector3.length(Vector3.subtract(point, rest)),
-    );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-    prepare: travel(first),
-    attack: (tempo * seconds) / 2,
-    follow: (tempo * seconds) / 2,
-    retract: travel(last),
-  });
-  const touchIn: number = clock.at("strokeStart");
-  const touchOut: number = clock.at("strokeEnd");
-  const moves = (from: string, to: string): boolean => {
-    const a: number = start + clock.at(from);
-    const b: number = start + clock.at(to);
-    const middle: number = a + (b - a) / 2;
-    const progress: number = clock.progress(from, to, middle - start);
-    return a < middle && middle < b && 0 < progress && progress < 1;
-  };
-  if (
-    !(
-      moves("start", "ready") &&
-      moves("strokeStart", "strokeEnd") &&
-      moves("relax", "end") &&
-      touchOut / clock.duration < 1 - CONTACT_SHARE_TOLERANCE
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "duration",
-      value: seconds,
-      reason:
-        "the clock must distinguish reach, screen contact and complete withdrawal",
-      fix: "choose a contact duration that preserves the reach and withdrawal on the film clock",
+  const { clock, touchIn, touchOut, point }: swipeTouchscreenStroke.IStroke =
+    swipeTouchscreenStroke({
+      first,
+      last,
+      rest,
+      seconds,
+      start,
+      tempo: context.tempo ?? 1,
     });
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
     context,
@@ -230,7 +184,7 @@ function planSwipeTouchscreen(
       progress: number,
     ): IAutoMovieMotionHumanArmTarget.ITarget => ({
       ...target,
-      point: Vector3.lerp(first, last, progress),
+      point: point(progress),
       bend: Vector3.lerp(elbow, target.bend, weight(elapsed)),
     }),
   });

@@ -191,7 +191,7 @@ export namespace seated {
    *   range.
    */
   export function check(
-    body: IAutoMovieMotionHumanBody,
+    body: IPopliteal,
     seat: IAutoMovieMotionHumanSeated.ISeat,
     under: number = 0,
   ): void {
