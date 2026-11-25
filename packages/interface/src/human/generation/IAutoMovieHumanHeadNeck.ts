@@ -22,6 +22,13 @@ export interface IAutoMovieHumanHeadNeck {
   /** The adopted normal band's axis slope, `dx/dy`. */
   backSlope: number;
 
+  /**
+   * The normal band's authored posterior upper height, calibration mm. The
+   * shared neck source chooses the higher base datum before deriving its slope.
+   * Independent neck definitions may supply only the frame and project it.
+   */
+  normalBandUpper?: number;
+
   /** Base tape and resolved heights in calibration mm, scaled once by HeadLayout; absent on retired layout readers. */
   base?: IAutoMovieHumanHeadInputs["neckBase"] & {
     /** Local posterior X before registration, calibration mm. */

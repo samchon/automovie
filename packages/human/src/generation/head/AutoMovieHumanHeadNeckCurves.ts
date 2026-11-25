@@ -144,7 +144,11 @@ export namespace AutoMovieHumanHeadNeckCurves {
       yc + (m * back) / (h * h),
     ];
     const lower: number = Math.min(...projected);
-    const upper: number = Math.max(...projected);
+    // The shared placement sets the upper datum first. Its positive slope
+    // m = tan(angle) and posterior support r / cos(angle) project back to
+    // yc + r sin(angle), algebraically that same datum. Keep its original
+    // binary64 identity when the radius and base-height sources share it.
+    const upper: number = input.neck.normalBandUpper ?? Math.max(...projected);
     const first: number = Math.min(
       input.bottom - r,
       input.menton - input.spacing,

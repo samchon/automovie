@@ -110,6 +110,7 @@ export namespace AutoMovieHumanNeckSource {
         back: cervicaleX,
         backLevel: cervicale,
         backSlope: slope,
+        normalBandUpper: upper,
         registration,
       },
     };
