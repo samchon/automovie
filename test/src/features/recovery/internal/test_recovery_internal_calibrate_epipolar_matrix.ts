@@ -1,0 +1,71 @@
+import { calibrateRecoveryEpipolarMatrix } from "@automovie/recovery";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../internal/nclose";
+import { recoveryStereoChart as chart } from "./recoveryStereoChart";
+
+/**
+ * Calibration projects a pixel matrix onto equal essential singular values.
+ *
+ * Scenarios:
+ *
+ * 1. Doubling the first of two orthogonal essential directions gives raw singular
+ *    values 2 and 1, then relative discrepancy √(1/10). Pixel calibration
+ *    recovers the unperturbed epipolar matrix up to sign.
+ * 2. Both rotations occur with both signs of the one-unit translation.
+ * 3. A rank-one pixel matrix cannot determine two essential directions.
+ */
+export function test_recovery_internal_calibrate_epipolar_matrix(): void {
+  /**
+   * These orthogonal input columns need no Jacobi rotation. The chart products,
+   * normalization and sign comparisons use fewer than 64 rounded operations.
+   */
+  const tolerance: number = 64 * Number.EPSILON;
+  const projected: ReturnType<typeof calibrateRecoveryEpipolarMatrix> =
+    calibrateRecoveryEpipolarMatrix(
+      [0, 0, 0, 0, 0, -2, 4, 0, -6],
+      chart.first,
+      chart.second,
+      chart.budget.maxSingularSweeps,
+    );
+  const sign: number = projected.fundamental[6]! >= 0 ? 1 : -1;
+  const alternated: number[] = [0, -1, 0, -1, 0, 0, 0, 0, -1];
+  TestValidator.predicate(
+    "normalized pixel matrix and projection discrepancy",
+    projected.fundamental.every((value: number, index: number): boolean =>
+      nclose(
+        value,
+        (sign * chart.fundamental[index]!) / Math.sqrt(66),
+        tolerance,
+      ),
+    ) &&
+      nclose(
+        projected.relativeProjectionDiscrepancy,
+        Math.sqrt(1 / 10),
+        tolerance,
+      ),
+  );
+  TestValidator.equals("four poses", projected.poses.length, 4);
+  for (const rotation of [chart.pose.rotation, alternated])
+    for (const side of [-1, 1])
+      TestValidator.predicate(
+        "both unit translations on each rotation branch",
+        projected.poses.some(
+          (pose: (typeof projected.poses)[number]): boolean =>
+            pose.rotation.every((value: number, index: number): boolean =>
+              nclose(value, rotation[index]!, tolerance),
+            ) &&
+            nclose(pose.translation[0], side, tolerance) &&
+            nclose(pose.translation[1], 0, tolerance) &&
+            nclose(pose.translation[2], 0, tolerance),
+        ),
+      );
+  TestValidator.error("rank-one fundamental matrix", (): unknown =>
+    calibrateRecoveryEpipolarMatrix(
+      [1, 0, 0, 0, 0, 0, 0, 0, 0],
+      chart.first,
+      chart.second,
+      chart.budget.maxSingularSweeps,
+    ),
+  );
+}

@@ -2,7 +2,7 @@ import type { IScenarioSelection } from "./IScenarioSelection";
 import type { IScenarioShard } from "./IScenarioShard";
 
 /**
- * Require every requested substring to match a discovered basename, then retain the include/exclude intersection in discovery order and refuse an empty result. Duplicate basenames collapse in the returned Set as before.
+ * Require every requested substring to match a discovered basename, then retain the include/exclude intersection in discovery order and refuse an empty result. A caller may limit the default candidates when no include term is supplied. Duplicate basenames collapse in the returned Set.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The existing workspace selection entry asserts default, exclude-only and intersected results and unmatched/empty refusals, catching silently ignored request terms or changed substring semantics.
  * @evidence contracts/development/testing.md#independent-expectations Literal synthetic basenames and explicitly chosen expected members are independent of this filter; filesystem discovery and duplicate-basename ambiguity are not independently proved here.
@@ -12,6 +12,7 @@ import type { IScenarioShard } from "./IScenarioShard";
 export function selectScenarioNames(
   selection: IScenarioSelection,
   names: readonly string[],
+  defaultCandidate?: (name: string) => boolean,
 ): Set<string> {
   for (const key of ["include", "exclude"] as const)
     for (const term of selection[key])
@@ -22,10 +23,11 @@ export function selectScenarioNames(
   const selected: Set<string> = new Set(
     names.filter(
       (name: string): boolean =>
-        (selection.include.length === 0 ||
-          selection.include.some((term: string): boolean =>
-            name.includes(term),
-          )) &&
+        (selection.include.length === 0
+          ? (defaultCandidate?.(name) ?? true)
+          : selection.include.some((term: string): boolean =>
+              name.includes(term),
+            )) &&
         selection.exclude.every(
           (term: string): boolean => !name.includes(term),
         ),

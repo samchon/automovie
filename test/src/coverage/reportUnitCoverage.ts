@@ -39,7 +39,8 @@ interface IBuildRecord {
 
 /**
  * Function and branch coverage of package directories by the selected tests,
- * unit tests by default: `pnpm test:coverage --root <path> [--root <path>...]
+ * using package component tests by default. Run
+ * `pnpm test:coverage --root <path> [--root <path>...]
  * [--missed] [--json <file>] [--include <terms>...] [--exclude <terms>...]`,
  * each root a directory or a file relative to the repository.
  *
@@ -50,7 +51,8 @@ interface IBuildRecord {
  * (`NODE_V8_COVERAGE`). Each chunk's coverage is attributed to the modules it
  * holds (`measureModuleCoverage`); a module under a root that no chunk holds
  * counts every function and arm unreached (`listUnloadedCoverage`). Without an
- * `--include` the selection is `--include test_unit_`, the unit tests.
+ * `--include` the runner selects component tests named for their owning
+ * package when that package has an Evidence configuration.
  *
  * The report lists each module with targets, sorted by path, its reached
  * functions and branch arms over their totals, then each root's totals. The
@@ -78,6 +80,7 @@ function main(): void {
           NODE_V8_COVERAGE: v8,
           AUTOMOVIE_TEST_ARTIFACT_DIR: build,
           AUTOMOVIE_TEST_COVERAGE: "1",
+          AUTOMOVIE_TEST_COVERAGE_SCOPE: "package-components",
         },
       },
     );
@@ -113,7 +116,7 @@ function runnerEnvironment(): NodeJS.ProcessEnv {
   return env;
 }
 
-/** The options, the runner's selection defaulting to the unit tests. */
+/** Coverage options and the remaining test runner arguments. */
 function parse(argv: readonly string[]): IOptions {
   const options: IOptions = {
     roots: [],
@@ -134,12 +137,6 @@ function parse(argv: readonly string[]): IOptions {
   }
   if (options.roots.length === 0)
     throw new Error("Name at least one --root directory to report");
-  if (
-    !options.selection.some((argument: string): boolean =>
-      argument.startsWith("--include"),
-    )
-  )
-    options.selection.push("--include", "test_unit_");
   return options;
 }
 

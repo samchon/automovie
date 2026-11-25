@@ -59,6 +59,9 @@ import { selectScenarioNames } from "./src/selectScenarioNames.ts";
  * module a test imports keeps all its functions in the bundle and a coverage
  * reading (`src/coverage/reportUnitCoverage.ts`) counts the functions no test
  * reached instead of losing them from its totals.
+ * `AUTOMOVIE_TEST_COVERAGE_SCOPE=package-components` limits the default
+ * coverage selection to component tests named for Evidence-configured
+ * packages.
  *
  * `AUTOMOVIE_TEST_BUILD_ONLY=1` additionally skips the test-program import
  * and requires that artifact directory. An absent flag or `0` keeps execution
@@ -314,9 +317,34 @@ const tests: Map<string, string> = new Map(
     .globSync("src/features/**/test_*.ts", { cwd: root })
     .map((file: string): [string, string] => [path.parse(file).name, file]),
 );
+const selection: ReturnType<typeof parseScenarioSelection> =
+  parseScenarioSelection(process.argv.slice(2));
+const coveragePackages: ReadonlySet<string> | undefined =
+  process.env.AUTOMOVIE_TEST_COVERAGE_SCOPE === "package-components" &&
+  selection.include.length === 0
+    ? new Set(
+        fs
+          .globSync("*/evidence.config.ts", {
+            cwd: path.join(root, "../packages"),
+          })
+          .map((file: string): string => path.basename(path.dirname(file))),
+      )
+    : undefined;
 const selected: Set<string> = selectScenarioNames(
-  parseScenarioSelection(process.argv.slice(2)),
+  selection,
   [...tests.keys()],
+  coveragePackages === undefined
+    ? undefined
+    : (name: string): boolean => {
+        const segments: string[] = path
+          .relative("src/features", tests.get(name)!)
+          .split(path.sep);
+        return (
+          segments.length === 3 &&
+          coveragePackages.has(segments[0]!) &&
+          name.startsWith(`test_${segments[0]}_`)
+        );
+      },
 );
 
 // Build metadata belongs to preparation, not the subsequent test import.
