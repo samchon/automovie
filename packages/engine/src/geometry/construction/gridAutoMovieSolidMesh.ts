@@ -40,6 +40,7 @@ const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
  * source callback and ownership errors retain their original thrown identity.
  *
  * @see https://doc.cgal.org/latest/Periodic_2_triangulation_2/index.html Periodic simplices pair each vertex with its lift in the chosen cover.
+ * @see https://github.com/Kitware/VTK/blob/5c31c61885dbdb6e96913fc1d76b462fb14e945e/Filters/Geometry/vtkDataSetSurfaceFilter.cxx#L195-L250 Structured boundary facets occur at kept-cell visibility transitions.
  */
 export function gridAutoMovieSolidMesh(
   mesh: IAutoMovieSolidMesh.IMesh,
@@ -321,9 +322,6 @@ export function gridAutoMovieSolidMesh(
     first: number;
     other: number;
   }[] = [];
-  const boundary: Map<string, IAutoMovieSolidMeshConstraints.ISegment> =
-    new Map();
-
   // The barriers each station interval can meet, in their own order: a
   // barrier whose station range misses an interval touches none of its cells,
   // so each cell reads only its interval's few instead of the face's all.
@@ -416,19 +414,6 @@ export function gridAutoMovieSolidMesh(
         first: norm(sub(pc, pa)),
         other: norm(sub(pd, pb)),
       });
-      for (const edge of [
-        { a, b, turn: lb - la },
-        { a: b, b: c, turn: lc - lb },
-        { a: c, b: d, turn: ld - lc },
-        { a: d, b: a, turn: la - ld },
-      ]) {
-        const key: string =
-          edge.a < edge.b
-            ? `${edge.a}/${edge.b}/${edge.turn}`
-            : `${edge.b}/${edge.a}/${-edge.turn}`;
-        if (boundary.has(key)) boundary.delete(key);
-        else boundary.set(key, edge);
-      }
     }
 
   // The face's undecided cells all take the diagonal family that is the shorter in sum over them (`DIAGONAL`). The sums are compared
@@ -451,19 +436,74 @@ export function gridAutoMovieSolidMesh(
   };
   const tie: "first" | "other" =
     sums.other < sums.first * (1 - DIAGONAL_ROUNDING) ? "other" : "first";
-  for (const cut of cuts) {
-    const [la, lb, lc, ld] = cut.lifts;
-    if ((cut.choice === "tie" ? tie : cut.choice) === "other")
-      full.push(
-        { vertices: [cut.a, cut.b, cut.d], lifts: [la, lb, ld] },
-        { vertices: [cut.b, cut.c, cut.d], lifts: [lb, lc, ld] },
-      );
-    else
-      full.push(
-        { vertices: [cut.a, cut.b, cut.c], lifts: [la, lb, lc] },
-        { vertices: [cut.a, cut.c, cut.d], lifts: [la, lc, ld] },
-      );
-  }
+  const boundary: IAutoMovieSolidMeshConstraints.ISegment[] = [];
+  // Ordered stations and one unrepeated period give distinct grid coordinates.
+  // Each authority has one chart key and fresh IDs are disjoint from those IDs.
+  // Keep the original identity parity if flattened slots or fresh IDs could
+  // alias in binary64.
+  const parity: Map<string, IAutoMovieSolidMeshConstraints.ISegment> | null =
+    Number.isSafeInteger(base + stations.length * phases.length)
+      ? null
+      : new Map();
+  const emitSide: (a: number, b: number, turn: number) => void =
+    parity === null
+      ? (a, b, turn): void => {
+          boundary.push({ a, b, turn });
+        }
+      : (a, b, turn): void => {
+          const key: string =
+            a < b ? `${a}/${b}/${turn}` : `${b}/${a}/${-turn}`;
+          if (parity.has(key)) parity.delete(key);
+          else parity.set(key, { a, b, turn });
+        };
+  const seamMatches = (a: number, b: number): boolean => {
+    const x: number = lift(a, 0);
+    const y: number = lift(b, 0);
+    const absolute: number = y - x;
+    const shifted: number = (y + 1) - (x + 1);
+    // Keep the exact old key equality if a distant authority's lift cannot
+    // absorb a one-period shift. Both signed zeros and all NaNs stringify alike.
+    return (
+      absolute === shifted || (Number.isNaN(absolute) && Number.isNaN(shifted))
+    );
+  };
+  let cutIndex: number = 0;
+  for (let i: number = 0; i < cells.length; i++)
+    for (let j: number = 0; j < columns; j++) {
+      const row: boolean[] = cells[i]!;
+      if (!row[j]) continue;
+      const { a, b, c, d, lifts, choice } = cuts[cutIndex++]!;
+      const [la, lb, lc, ld] = lifts;
+      if ((choice === "tie" ? tie : choice) === "other")
+        full.push(
+          { vertices: [a, b, d], lifts: [la, lb, ld] },
+          { vertices: [b, c, d], lifts: [lb, lc, ld] },
+        );
+      else
+        full.push(
+          { vertices: [a, b, c], lifts: [la, lb, lc] },
+          { vertices: [a, c, d], lifts: [la, lc, ld] },
+        );
+      // A structured side is exposed exactly where it has no kept neighbour.
+      // Read the four sides in the original cell/edge order, as for a visibility
+      // transition in VTK's structured surface extraction.
+      if (
+        parity !== null ||
+        !(j > 0
+          ? row[j - 1]
+          : period !== undefined && row[columns - 1] && seamMatches(a, b))
+      )
+        emitSide(a, b, lb - la);
+      if (parity !== null || !cells[i + 1]?.[j]) emitSide(b, c, lc - lb);
+      if (
+        parity !== null ||
+        !(j + 1 < columns
+          ? row[j + 1]
+          : period !== undefined && row[0] && seamMatches(c, d))
+      )
+        emitSide(c, d, ld - lc);
+      if (parity !== null || !cells[i - 1]?.[j]) emitSide(d, a, la - ld);
+    }
   const readers: ((u: number, v: number) => boolean)[] = loops.map(
     (loop: IAutoMovieSolidMesh.ILoop): ((u: number, v: number) => boolean) =>
       AutoMovieSolidCycle.prepare(loop, period),
@@ -533,7 +573,7 @@ export function gridAutoMovieSolidMesh(
     samples,
     trim,
     domain,
-    boundary: [...boundary.values()],
+    boundary: parity === null ? boundary : [...parity.values()],
     full,
     interior,
     source,
