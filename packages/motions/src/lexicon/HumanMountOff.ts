@@ -19,7 +19,6 @@ import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
-import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { courseHumanLegs } from "../compose/courseHumanLegs";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -351,7 +350,7 @@ export namespace HumanMountOff {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       const joints: IAutoMovieMotionHumanPosture["joints"] = { ...frame.joints };
       const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> | undefined =
-        needsGoal
+        needsGoal && t <= lastLanding
           ? hipJoints(
               body,
               frame.root,
@@ -370,19 +369,19 @@ export namespace HumanMountOff {
           continue;
         }
         const down: IAutoMovieHumanLimbGoal = standing![limb]!;
+        // Once loaded, the foot takes the flat goal: the heel tip's zero
+        // share would return the same goal without changing any placement.
+        if (t > arrives) {
+          limbs[limb] = down;
+          continue;
+        }
         const hip: IAutoMovieVector3 = hips![side];
         // A foot that bears nothing turns its toes down about its ball
         // within the unloaded ankle's range (`HumanMountPush.tip`). A held
         // foot eases into its flight pose while the seat bears the body. A
         // landed foot lowers its heel as it takes the body.
-        if (t >= arrives)
-          limbs[limb] = HumanMountPush.tip(
-            body,
-            side,
-            hip,
-            down,
-            1 - AutoMovieMotionHumanFootRelax.load(t, Infinity, arrives),
-          );
+        if (t === arrives)
+          limbs[limb] = HumanMountPush.tip(body, side, hip, down, 1);
         else if (t <= departs)
           limbs[limb] = HumanMountPush.tip(
             body,
@@ -423,10 +422,22 @@ export namespace HumanMountOff {
     // Prepare the leg goals and their joint-space fallback before a palm
     // observes either thigh.
     const breaks: readonly number[] = [seatOff, ...flight.left, ...flight.right];
-    const plants: Readonly<Record<AutoMovieHumanSide, prepareMountOffFloor.Read>> = {
-      left: prepareMountOffFloor(body, "left", flight.left[1], duration, lower),
-      right: prepareMountOffFloor(body, "right", flight.right[1], duration, lower),
+    // A second on both stance clocks starts from one lower posture. The
+    // stance readers retain only their fitted knots.
+    const samples: Map<number, IAutoMovieMotionHumanPosture> = new Map();
+    const ground = (t: number): IAutoMovieMotionHumanPosture => {
+      let at: IAutoMovieMotionHumanPosture | undefined = samples.get(t);
+      if (at === undefined) {
+        at = lower(t);
+        samples.set(t, at);
+      }
+      return at;
     };
+    const plants: Readonly<Record<AutoMovieHumanSide, prepareMountOffFloor.Read>> = {
+      left: prepareMountOffFloor(body, "left", flight.left[1], duration, ground),
+      right: prepareMountOffFloor(body, "right", flight.right[1], duration, ground),
+    };
+    samples.clear();
     const flying = (t: number): IAutoMovieMotionHumanPosture => {
       const at: IAutoMovieMotionHumanPosture = lower(t, plants);
       if (t >= flight.left[1]) delete at.limbs.leftLeg;
